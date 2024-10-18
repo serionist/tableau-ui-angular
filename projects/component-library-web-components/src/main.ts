@@ -1,13 +1,18 @@
 import {createApplication} from '@angular/platform-browser';
 import {appConfig} from './main.config';
 import {createCustomElement} from '@angular/elements';
-import { ComponentLibraryComponent } from 'component-library';
 import { ApplicationRef } from '@angular/core';
+import { LoadingGifComponent } from '../../component-library/src/lib/loading/loading-gif/loading-gif.component';
+import { LoaderComponent } from '../../component-library/src/lib/loading/loader/loader.component';
 
 (async () => {
   const app: ApplicationRef = await createApplication(appConfig);
 
   // Define Web Components
-  const myLibraryComponent = createCustomElement(ComponentLibraryComponent, {injector: app.injector});
-  customElements.define('lib-component-library', myLibraryComponent);
+
+  const loadingGifComponent = createCustomElement(LoadingGifComponent, {injector: app.injector});
+    customElements.define('tab-wc-loading-gif', loadingGifComponent);
+
+const loaderElement = createCustomElement(LoaderComponent, {injector: app.injector});
+customElements.define('tab-wc-loader', loaderElement);
 })();

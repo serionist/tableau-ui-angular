@@ -1,0 +1,17 @@
+.loader {
+    margin-top: 20px;
+    font-family: var(--stm-primary-font);
+    color: var(--stm-text-color);
+    font-size: var(--stm-font-size);
+
+    > .icon {
+        display: inline-block;
+        margin-right: 5px;
+        vertical-align: middle;
+    }
+    > .text {
+        display: inline-block;
+        vertical-align: middle;
+        font-size: 14px;
+    }
+}
