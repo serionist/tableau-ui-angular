@@ -2,14 +2,14 @@ import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { LoaderComponent } from 'component-library';
-import { CheckboxComponent, TabComponent, TabGroupComponent } from '../../../component-library/src/public-api';
+import { CheckboxComponent, TabComponent, TabErrorComponent, TabGroupComponent, TabHintComponent } from '../../../component-library/src/public-api';
 import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet, LoaderComponent, TabGroupComponent, TabComponent,
-    CheckboxComponent, ReactiveFormsModule
+    CheckboxComponent, ReactiveFormsModule, TabHintComponent, TabErrorComponent
   ],
   
 
