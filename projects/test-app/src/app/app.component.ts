@@ -14,7 +14,9 @@ import {
     FormSuffixComponent,
     FormPrefixComponent,
     OptionComponent,
-    RadiogroupComponent
+    RadiogroupComponent,
+    TooltipComponent,
+    TooltipDirective
 } from '../../../component-library/src/public-api';
 
 @Component({
@@ -34,7 +36,9 @@ import {
         FormSuffixComponent,
         FormPrefixComponent,
         RadiogroupComponent,
-        OptionComponent
+        OptionComponent,
+        TooltipComponent,
+        TooltipDirective
     ],
 
     templateUrl: './app.component.html',

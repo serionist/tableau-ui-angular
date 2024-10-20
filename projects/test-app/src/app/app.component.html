@@ -49,7 +49,7 @@
                     <tab-form-field>
                         <tab-label>This is a simple field</tab-label>
                         <input type="text" [formControl]="simpleControl" />
-                    </tab-form-field> 
+                    </tab-form-field>
 
                     <tab-form-field>
                         <tab-label>This is a disabled field</tab-label>
@@ -59,43 +59,62 @@
             </div>
         </tab>
         <tab>
-          <div tab-header><i class="icon-example"></i> Radio Buttons</div>
-          <div class="tab-content">
-                <div class="text-subtitle">
-                  Group 1
-                </div>
+            <div tab-header><i class="icon-example"></i> Radio Buttons</div>
+            <div class="tab-content">
+                <div class="text-subtitle">Group 1</div>
                 <tab-radiogroup [formControl]="simpleControl">
-                  <tab-option [value]="1">szevasz</tab-option>
-                  <tab-option [value]="2" [disabled]="true">csovaz</tab-option>
-                  <tab-option [value]="3">mizu</tab-option>
-                  <tab-option [value]="4">hali</tab-option>
-               </tab-radiogroup>
-               <div class="text-subtitle">
-                Disabled group
-              </div>
-              <tab-radiogroup [formControl]="disabledControl" >
-                <tab-option [value]="1">szevasz</tab-option>
-                <tab-option [value]="2" [disabled]="true">csovaz</tab-option>
-                <tab-option [value]="3">mizu
-                  <tab-hint>This is a hint</tab-hint>
-                </tab-option>
-                <tab-option [value]="4">hali</tab-option>
-             </tab-radiogroup>
-             <div class="text-subtitle">
-              Group with an error
+                    <tab-option [value]="1">szevasz</tab-option>
+                    <tab-option [value]="2" [disabled]="true">csovaz</tab-option>
+                    <tab-option [value]="3">mizu</tab-option>
+                    <tab-option [value]="4">hali</tab-option>
+                </tab-radiogroup>
+                <div class="text-subtitle">Disabled group</div>
+                <tab-radiogroup [formControl]="disabledControl">
+                    <tab-option [value]="1">szevasz</tab-option>
+                    <tab-option [value]="2" [disabled]="true">csovaz</tab-option>
+                    <tab-option [value]="3"
+                        >mizu
+                        <tab-hint>This is a hint</tab-hint>
+                    </tab-option>
+                    <tab-option [value]="4">hali</tab-option>
+                </tab-radiogroup>
+                <div class="text-subtitle">Group with an error</div>
+                <tab-radiogroup [formControl]="errorControl">
+                    <tab-option [value]="1">szevasz</tab-option>
+                    <tab-option [value]="2" [disabled]="true">csovaz</tab-option>
+                    <tab-option [value]="3">mizu</tab-option>
+                    <tab-option [value]="4"
+                        >hali
+                        <tab-hint>This is a hint</tab-hint>
+                    </tab-option>
+                    @if (errorControl.invalid) {
+                    <tab-error>Choose one of the options</tab-error>
+                    }
+                </tab-radiogroup>
             </div>
-            <tab-radiogroup [formControl]="errorControl" >
-              <tab-option [value]="1">szevasz</tab-option>
-              <tab-option [value]="2" [disabled]="true">csovaz</tab-option>
-              <tab-option [value]="3">mizu</tab-option>
-              <tab-option [value]="4">hali
-                <tab-hint>This is a hint</tab-hint>
-              </tab-option>
-              @if (errorControl.invalid) {
-              <tab-error>Choose one of the options</tab-error>
-              }
-           </tab-radiogroup>
-          </div>
-      </tab>
+        </tab>
+        <tab>
+            <div tab-header><i class="icon-example"></i> Tooltips & dialogs</div>
+            <div class="tab-content">
+                <tab-tooltip #tooltipOne>Tooltip Content One</tab-tooltip>
+                <tab-tooltip #tooltipTwo>Tooltip Content Two</tab-tooltip>
+                <tab-tooltip #tooltipThree>Tooltip Content Three</tab-tooltip>
+
+                <div style="margin-top: 20px"><span [tooltip]="tooltipOne" tooltip-position="top"> Hover over me to see Tooltip Top </span></div>
+                <div style="margin-top: 20px"><span [tooltip]="tooltipOne" tooltip-position="left"> Hover over me to see Tooltip One </span></div>
+                <div style="margin-left: 520px"><span [tooltip]="tooltipOne" tooltip-position="left"> Hover over me to see Tooltip One - no correction </span></div>
+                <div style="margin-top: 20px">
+                    <span [tooltip]="tooltipTwo" tooltip-position="bottom" >
+                        Hover over me to see Tooltip Two
+                    </span>
+                </div>
+
+                <div style="margin-top: 20px">
+                    <span [tooltip]="tooltipThree" tooltip-position="right" >
+                        Hover over me to see Tooltip Three
+                    </span>
+                </div>
+            </div>
+        </tab>
     </tab-group>
 </div>
