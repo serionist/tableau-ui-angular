@@ -6,6 +6,7 @@
   .form-label {
     margin-bottom: 0.1rem;
     color: var(--twc-color-text);
+    
   }
   .form-input-wrapper {
     display: flex;
@@ -47,6 +48,12 @@
         }
         &.ng-invalid.ng-touched {
             border-color: var(--twc-color-error);
+          }
+          &[disabled] {
+            background-color: rgba(255, 255, 255, 0) !important;
+            border-color: #c9c9c9 !important;
+            color: #c9c9c9 !important;
+
           }
       }
   }
