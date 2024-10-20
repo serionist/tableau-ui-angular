@@ -1,9 +1,10 @@
-<tab-loader [message]="'szeva'"></tab-loader>
+<div class="grid">
+  <tab-loader [message]="'szeva'"></tab-loader>
 
 <tab-group>
     <tab [disabled]="true">
       <div tab-header>
-        <i class="icon-example"></i> Tab 1 dsa dasd asd asd
+        <i class="icon-example"></i>This is a disabled tab
       </div>
       <div>
         Content of Tab 1
@@ -11,37 +12,60 @@
     </tab>
     <tab>
       <div tab-header>
-        <i class="icon-example"></i> Tab 2
+        <i class="icon-example"></i>Checkboxes
       </div>
-      <div>
-        Content of Tab 2
+      <div class="tab-content">
+        <tab-checkbox [formControl]="checkboxControl1">
+          No Hint or Error
+         
+        </tab-checkbox>
+        <tab-checkbox [formControl]="checkboxControl1">
+          <tab-hint>This is a hint</tab-hint>
+          Lofasz
+         
+        </tab-checkbox>
+        <tab-checkbox [formControl]="checkboxControl2">
+          Lofasz2
+          <tab-error>This is an error</tab-error>
+        </tab-checkbox>
+        <tab-checkbox [formControl]="checkboxControl1">
+          <tab-error>This is an error</tab-error>
+          2 errors
+          <tab-error>This is another error</tab-error>
+        </tab-checkbox>
+        <tab-checkbox [formControl]="checkboxControl2">
+          <tab-hint>This is a hint</tab-hint>
+           Both Hint and Error
+          <tab-error>This is an error</tab-error>
+        </tab-checkbox>
+      
       </div>
     </tab>
     <tab>
         <div tab-header>
-          <i class="icon-example"></i> Tab 3
+          <i class="icon-example"></i> Form Fields
         </div>
-        <div>
-          Content of Tab 3
+       <div>
+        <div class="tab-content">
+          <tab-form-field>
+            <tab-label>This text field has an error</tab-label>
+            <input type="text" [formControl]="errorControl" />
+            <tab-prefix><div style="color: var(--twc-color-text-gray)">Prefix content</div></tab-prefix>
+            <tab-suffix>Suffix content</tab-suffix>
+            <tab-hint type="prefix">This control accepts numbers</tab-hint>
+            <tab-hint type="suffix">This goes at the end</tab-hint>
+            @if (errorControl.invalid) {
+              <tab-error>Value is not a number</tab-error>
+            }
+           
+          </tab-form-field>
         </div>
+       </div>
       </tab>
   </tab-group>
 
-  <tab-checkbox [formControl]="checkboxControl1">
-    No Hint or Error
-   
-  </tab-checkbox>
-  <tab-checkbox [formControl]="checkboxControl1">
-    <tab-hint>This is a hint</tab-hint>
-    Lofasz
-   
-  </tab-checkbox>
-  <tab-checkbox [formControl]="checkboxControl2">
-    Lofasz2
-    <tab-error>This is an error</tab-error>
-  </tab-checkbox>
-  <tab-checkbox [formControl]="checkboxControl2">
-    <tab-hint>This is a hint</tab-hint>
-     Both Hint and Error
-    <tab-error>This is an error</tab-error>
-  </tab-checkbox>
+
+
+  
+
+</div>

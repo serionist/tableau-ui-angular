@@ -1,0 +1,84 @@
+.form-field-wrapper {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+  }
+  .form-label {
+    margin-bottom: 0.1rem;
+    color: var(--twc-color-text);
+  }
+  .form-input-wrapper {
+    display: flex;
+    align-items: center;
+    position: relative;
+  }
+  .input-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    ::ng-deep input {
+        width: 100%;
+        min-height: 24px;
+        -webkit-appearance: none;
+        background-color: transparent;
+        border: 1px solid #747474;
+        border-radius: 1px;
+        box-sizing: border-box;
+        color: #2e2e2e;
+        font-family: inherit;
+        font-size: var(--twc-font-size-body);
+        padding: 0 7px;
+        &:focus {
+            background-color: transparent;
+            outline: 2px solid #0b5cab;
+            outline-offset: -2px;
+        }
+        &:hover:enabled:not(:focus) {
+            background-color: #e5e5e5;
+            border-color: #747474;
+        }
+        &:not([type="image" i], [type="range" i], [type="checkbox" i], [type="radio" i]) {
+            overflow-clip-margin: 0px !important;
+            overflow: clip !important;
+        }
+        &[type="text" i] {
+            padding-block: 1px;
+            padding-inline: 2px;
+        }
+        &.ng-invalid.ng-touched {
+            border-color: var(--twc-color-error);
+          }
+      }
+  }
+ 
+  .prefix, .suffix {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+  .prefix {
+    left: 0.5rem;
+  }
+  .suffix {
+    right: 0.5rem;
+  }
+  .form-extra-info {
+    position: relative;
+    margin-top: 0.1rem;
+    font-size: 0.9em;
+    .hints {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        max-width: 100%;
+        overflow: hidden;
+        gap: 8px;
+        ::ng-deep [type=prefix] {
+            grid-column: 1;
+        }
+        ::ng-deep [type=suffix] {
+            grid-column: 2;
+            justify-self: end;
+        }
+    }
+  }

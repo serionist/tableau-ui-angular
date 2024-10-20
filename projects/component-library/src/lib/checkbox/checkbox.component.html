@@ -1,6 +1,7 @@
 <div>
     <label class="checkbox" 
-    [class.disabled]="disabled()" [class.checked]="value()">
+    [class.disabled]="disabled()" [class.checked]="value()"
+    >
         <input
             name=""
             type="checkbox"
@@ -8,6 +9,7 @@
             [checked]="value()"
             (change)="toggleValue()"
             [tabindex]="disabled() ? -1 : 0"
+            (keydown)="onKeyDown($event)"
         />
         <div class="label">
             <ng-content></ng-content>

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef } from '@angular/core';
 
 @Component({
   selector: 'tab-error',
@@ -11,4 +11,6 @@ import { Component } from '@angular/core';
         }
     `
 })
-export class TabErrorComponent {}
+export class FormErrorComponent {
+    constructor(public elementRef: ElementRef) {}
+}
