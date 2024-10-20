@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, input } from '@angular/core';
 
 @Component({
   selector: 'tab-loading-gif',
@@ -13,7 +13,7 @@ import { Component } from '@angular/core';
     height="24px"
     viewBox="0 0 100 100"
     preserveAspectRatio="xMidYMid"
-    color="#355c80"
+    color="color()"
   >
     <g transform="rotate(0 50 50)">
       <rect
@@ -259,5 +259,5 @@ import { Component } from '@angular/core';
   `
 })
 export class LoadingGifComponent {
-
+  color = input<string>('#355c80');
 }

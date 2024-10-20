@@ -1,15 +1,15 @@
 import { NgIf } from '@angular/common';
 import { Component, ContentChild, contentChild, ElementRef, forwardRef, Input, input, signal, ViewChild } from '@angular/core';
 import { CheckboxControlValueAccessor, ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { FormHintComponent } from '../form-field/form-hint';
-import { FormErrorComponent } from '../form-field/form-error';
+import { HintComponent } from '../common/hint';
+import { ErrorComponent } from '../common/error';
 
 @Component({
     selector: 'tab-checkbox',
     standalone: true,
     templateUrl: 'checkbox.component.html',
     styleUrls: ['checkbox.component.scss'],
-    imports: [NgIf, FormHintComponent, FormErrorComponent],
+    imports: [NgIf, HintComponent, ErrorComponent],
     providers: [
         {
           provide: NG_VALUE_ACCESSOR,
@@ -21,8 +21,8 @@ import { FormErrorComponent } from '../form-field/form-error';
 export class CheckboxComponent implements ControlValueAccessor {
     disabled = signal(false);
     value = signal(false);
-    @ContentChild(FormHintComponent, { static: false }) hintElement: ElementRef | undefined;
-    @ContentChild(FormErrorComponent, { static: false }) errorElement: ElementRef | undefined;
+    @ContentChild(HintComponent, { static: false }) hintElement: ElementRef | undefined;
+    @ContentChild(ErrorComponent, { static: false }) errorElement: ElementRef | undefined;
 
     onChange = (value: any) => {};
     onTouched = () => {};

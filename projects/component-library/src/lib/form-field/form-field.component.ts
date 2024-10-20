@@ -13,8 +13,8 @@ import {
     ViewChild
 } from '@angular/core';
 import { ControlValueAccessor, ReactiveFormsModule } from '@angular/forms';
-import { FormHintComponent } from './form-hint';
-import { FormErrorComponent } from './form-error';
+import { HintComponent } from '../common/hint';
+import { ErrorComponent } from '../common/error';
 import { FormLabelComponent } from './form-label';
 import { FormPrefixComponent } from './form-prefix';
 import { FormSuffixComponent } from './form-suffix';
@@ -25,8 +25,8 @@ import { FormSuffixComponent } from './form-suffix';
     imports: [
         CommonModule,
         ReactiveFormsModule,
-        FormHintComponent,
-        FormErrorComponent,
+        HintComponent,
+        ErrorComponent,
         FormLabelComponent,
         FormPrefixComponent,
         FormSuffixComponent
@@ -35,8 +35,8 @@ import { FormSuffixComponent } from './form-suffix';
     styleUrl: './form-field.component.scss'
 })
 export class FormFieldComponent implements AfterContentInit, AfterViewInit {
-    @ContentChild(FormHintComponent, { static: false }) hintElement: FormHintComponent | undefined;
-    @ContentChild(FormErrorComponent) errorElement: FormErrorComponent | undefined;
+    @ContentChild(HintComponent, { static: false }) hintElement: HintComponent | undefined;
+    @ContentChild(ErrorComponent) errorElement: ErrorComponent | undefined;
     @ContentChild(FormLabelComponent, { static: false }) labelElement: FormLabelComponent | undefined;
     @ContentChild(FormPrefixComponent, { static: false }) prefixElement: FormPrefixComponent | undefined;
     @ContentChild(FormSuffixComponent, { static: false }) suffixElement: FormSuffixComponent | undefined;

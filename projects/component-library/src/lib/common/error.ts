@@ -11,6 +11,6 @@ import { Component, ElementRef } from '@angular/core';
         }
     `
 })
-export class FormErrorComponent {
+export class ErrorComponent {
     constructor(public elementRef: ElementRef) {}
 }

@@ -1,0 +1,29 @@
+<div class="options-grid">
+    <label
+        *ngFor="let option of options"
+        class="radio-option"
+        [class.disabled]="disabled() || option.disabled()"
+        [class.selected]="value() === option.value()"
+        (click)="selectValue(option)"
+    >
+        <input
+            type="radio"            
+            [value]="option.value()"
+            [checked]="value() == option.value()"
+            (change)="selectValue(option)"
+            [tabindex]="disabled() || option.disabled() ? -1 : 0"
+            (keydown)="onKeyDown($event, option)"
+            [disabled]="disabled() || option.disabled()"
+            [name]="name"
+        />
+       
+        <div class="label">
+            <ng-container *ngTemplateOutlet="option.template"></ng-container>
+        </div>
+    </label>
+    @if (errorElement) {
+    <div class="extra-info">
+        <ng-content select="tab-error"></ng-content>
+    </div>
+    }
+</div>

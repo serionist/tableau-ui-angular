@@ -13,7 +13,7 @@ import { Component, ElementRef, input } from '@angular/core';
         }
     `
 })
-export class FormHintComponent {
+export class HintComponent {
 
     type = input<'prefix' | 'suffix'>('prefix');
     constructor(public elementRef: ElementRef) {}
