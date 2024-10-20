@@ -9,7 +9,7 @@ import { TabErrorComponent } from '../tab-error';
     standalone: true,
     templateUrl: 'checkbox.component.html',
     styleUrls: ['checkbox.component.scss'],
-    imports: [NgIf],
+    imports: [NgIf, TabHintComponent, TabErrorComponent],
     providers: [
         {
           provide: NG_VALUE_ACCESSOR,
