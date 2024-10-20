@@ -1,0 +1,88 @@
+.checkbox {
+    display: flex;
+    box-sizing: border-box;
+    width: fit-content;
+    -webkit-user-select: none;
+    color: #2e2e2e;
+    cursor: default;
+    display: -webkit-inline-flex;
+    display: inline-flex;
+    font-size: var(--twc-font-size-body);
+    line-height: 20px;
+    position: relative;
+    user-select: none;
+
+
+    
+    &:before {
+        background-color: white;
+        border: 1px solid #2e2e2e;
+        border-radius: 1px;
+        box-sizing: border-box;
+        content: "\200B";
+        display: inline-block;
+        height: 14px;
+        position: absolute;
+        top: 3px;
+        width: 14px;
+       
+    }
+  
+    
+    &:hover:not(.disabled):before {
+        background-color: #c9c9c9;
+        border-color: #2e2e2e;
+    }
+    &:active:not(.disabled):before {
+        background-color: #aeaeae;
+        border-color: #2e2e2e;
+    }
+    &.checked:not(.disabled):before {
+        content: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20height%3D%2216%22%20width%3D%2216%22%3E%3Cpath%20fill%3D%22%232e2e2e%22%20transform%3D%22translate(-2%2C%20-2)%22%20d%3D%22M7.2%2012.3c-.2%200-.4-.1-.5-.2l-3-3L4.8%208l2.3%202.3%204-6.7%201.3.8L7.9%2012c-.2.2-.4.3-.7.3z%22%2F%3E%3C%2Fsvg%3E");
+    }
+    &.disabled {
+        color: var(--twc-color-disabled);
+        &:before {
+            border-color: var(--twc-color-disabled);
+        }
+        &.checked:before {
+            content: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20height%3D%2216%22%20width%3D%2216%22%3E%3Cpath%20fill%3D%22%23cdcdcd%22%20transform%3D%22translate(-2%2C%20-2)%22%20d%3D%22M7.2%2012.3c-.2%200-.4-.1-.5-.2l-3-3L4.8%208l2.3%202.3%204-6.7%201.3.8L7.9%2012c-.2.2-.4.3-.7.3z%22%2F%3E%3C%2Fsvg%3E");
+        }
+    }
+    input {
+        -webkit-flex-shrink: 0;
+        box-sizing: border-box;
+        flex-shrink: 0;
+        height: 14px;
+        margin: 0;
+        margin-top: 3px;
+        opacity: 0;
+        padding: 0;
+        pointer-events: none;
+        width: 14px;
+        &:focus-visible {
+            outline: 2px solid var(--twc-color-primary);
+            outline-offset: 2px;
+            opacity: 1;
+        }
+    }
+    .label {
+        -webkit-user-select: none;
+        cursor: default;
+        margin-left: 6px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        user-select: none;
+    }
+}
+.extra-info {
+    margin-left: 20px;
+    font-size: 0.9em;
+    margin-top: -0.2em;
+    .hint {
+        color: var(--twc-color-text-gray);
+    }
+    .error {
+        color: var(--twc-color-error);
+    }
+}

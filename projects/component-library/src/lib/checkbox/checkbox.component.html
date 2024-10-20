@@ -1,0 +1,20 @@
+<div>
+    <label class="checkbox" 
+    [class.disabled]="disabled()" [class.checked]="value()">
+        <input
+            name=""
+            type="checkbox"
+            [value]="value()"
+            [checked]="value()"
+            (change)="toggleValue()"
+        />
+        <div class="label">
+            <ng-content></ng-content>
+        </div>
+    </label>
+    <div class="extra-info" >
+        <div class="hint"><ng-content select="[tab-hint]"></ng-content></div>
+        <div class="error"><ng-content select="[tab-error]"></ng-content></div>
+      </div>
+    
+</div>
