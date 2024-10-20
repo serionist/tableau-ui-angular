@@ -1,38 +1,21 @@
-$font-family: '"Benton Sans STM", "Benton Sans", Arial, Helvetica, sans-serif"';
-$font-size-body: 12px;
-$font-size-body-large: 14px;
-$font-size-title: 16px;
-$color-text: rgba(0, 0, 0, 0.8);
-$color-text-strong: rgba(0, 0, 0, 1);
-$color-link: rgb(26, 105, 158);
-$color-primary: rgb(26, 105, 158);
-$color-primary-highlight: rgb(42, 121, 175);
-$color-on-primary: rgb(255,255,255);
-$color-error: red;
-$color-success: green;
-$color-border: #cbcbcb;
-$color-disabled: rgb(205, 205, 205);
-$color-text-gray: #919191;
-$color-highlight: rgb(230, 230, 230);
-$color-highlight-background: rgb(250,250,250);
-
 :root {
-    --font-family: $font-family;
-    --font-size-body: $font-size-body;
-    --font-size-body-large: $font-size-body-large;
-    --font-size-title: $font-size-title;
-    --color-text: $color-text;
-    --color-text-strong: $color-text-strong;
-    --color-link: $color-link;
-    --color-primary: $color-primary;
-    --color-primary-highlight: $color-primary-highlight;
-    --color-on-primary: $color-on-primary;
-    --color-error: $color-error;
-    --color-success: $color-success;
-    --color-border: $color-border;
-    --color-disabled: $color-disabled;
-    --color-text-gray: $color-text-gray;
-    --color-highlight: $color-highlight;
-    --color-highlight-background: $color-highlight-background;
+    --twc-font-family: "Benton Sans STM", "Benton Sans", Arial, Helvetica, sans-serif;
+    --twc-font-size-body: 12px;
+    --twc-font-size-body-large: 14px;
+    --twc-font-size-subtitle: 15px;
+    --twc-font-size-title: 16px;
+    --twc-color-text:  rgba(0, 0, 0, 0.8);
+    --twc-color-text-strong: rgba(0, 0, 0, 1);
+    --twc-color-link: rgb(26, 105, 158);
+    --twc-color-primary:rgb(26, 105, 158);
+    --twc-color-primary-highlight:  rgb(42, 121, 175);
+    --twc-color-on-primary:  rgb(255,255,255);
+    --twc-color-error: red;
+    --twc-color-success:green;
+    --twc-color-border: #cbcbcb;
+    --twc-color-disabled: rgb(205, 205, 205);
+    --twc-color-text-gray: #919191;
+    --twc-color-highlight: rgb(230, 230, 230);
+    --twc-color-highlight-background: rgb(250,250,250);
 }
 

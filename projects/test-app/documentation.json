@@ -4,7 +4,7 @@
         {
             "name": "User",
             "id": "interface-User-d4821beac0e4a852e513391b7470981c4353fdd95a18628bb68136c8695b489ee15b926e2e5031bc26cf30e1508e0a362c3ee13a06734702b4d15af140e485d5",
-            "file": "projects/component-library-web-components/src/stories/user.ts",
+            "file": "projects/test-app/src/stories/examples/user.ts",
             "deprecated": false,
             "deprecationMessage": "",
             "type": "interface",
@@ -34,9 +34,75 @@
     "directives": [],
     "components": [
         {
+            "name": "AppComponent",
+            "id": "component-AppComponent-2a2fe7834511e02538abb38dcc70b6ebf8d737cba2e352d2dcbae32ae7e5af4216816f0da7a9a3435ec9a053a98928f95ccf313e672a1f644db648c89698609c",
+            "file": "projects/test-app/src/app/app.component.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "app-root",
+            "styleUrls": [],
+            "styles": [],
+            "templateUrl": [
+                "./app.component.html"
+            ],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "title",
+                    "defaultValue": "'test-app'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 14
+                }
+            ],
+            "methodsClass": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [
+                {
+                    "name": "RouterOutlet"
+                },
+                {
+                    "name": "LoaderComponent",
+                    "type": "component"
+                },
+                {
+                    "name": "TabGroupComponent",
+                    "type": "component"
+                },
+                {
+                    "name": "TabComponent",
+                    "type": "component"
+                }
+            ],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { Component } from '@angular/core';\r\nimport { RouterOutlet } from '@angular/router';\r\nimport { LoaderComponent } from 'component-library';\r\nimport { TabComponent, TabGroupComponent } from '../../../component-library/src/public-api';\r\n\r\n@Component({\r\n  selector: 'app-root',\r\n  standalone: true,\r\n  imports: [RouterOutlet, LoaderComponent, TabGroupComponent, TabComponent],\r\n  templateUrl: './app.component.html',\r\n  styleUrl: './app.component.scss'\r\n})\r\nexport class AppComponent {\r\n  title = 'test-app';\r\n}\r\n",
+            "styleUrl": "./app.component.scss",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "extends": [],
+            "templateData": "<tab-loader [message]=\"'szeva'\"></tab-loader>\r\n\r\n<tab-group>\r\n    <tab>\r\n      <div tab-header>\r\n        <i class=\"icon-example\"></i> Tab 1 dsa dasd asd asd\r\n      </div>\r\n      <div>\r\n        Content of Tab 1\r\n      </div>\r\n    </tab>\r\n    <tab>\r\n      <div tab-header>\r\n        <i class=\"icon-example\"></i> Tab 2\r\n      </div>\r\n      <div>\r\n        Content of Tab 2\r\n      </div>\r\n    </tab>\r\n  </tab-group>"
+        },
+        {
             "name": "ButtonComponent",
             "id": "component-ButtonComponent-d7bf0323e6da130e2609e2af0117b4a8d7cd874132206af50bf43dfc37044485fe50f2867ea76525730dd195b9b95a43802a12dadc6ad5cd7bf2faa07f19f0da",
-            "file": "projects/component-library-web-components/src/stories/button.component.ts",
+            "file": "projects/test-app/src/stories/examples/button.component.ts",
             "encapsulation": [],
             "entryComponents": [],
             "inputs": [],
@@ -170,7 +236,7 @@
         {
             "name": "HeaderComponent",
             "id": "component-HeaderComponent-48b9abe37706bc42f20cfa97ed9f943678344ea7d254c0c82183c657750c2191b43486fe730c778627b2ea6aa0e2f33a7abcf3ce08b68ad18b062ad99ea97acb",
-            "file": "projects/component-library-web-components/src/stories/header.component.ts",
+            "file": "projects/test-app/src/stories/examples/header.component.ts",
             "encapsulation": [],
             "entryComponents": [],
             "inputs": [],
@@ -256,7 +322,7 @@
         {
             "name": "PageComponent",
             "id": "component-PageComponent-21dd6eb370b4983b5c21c84d40e6f54d266a9d9af9889e6e76b35c43058bd53b3e451bad089d5adf4bea46647ba10265a2fa8cb15630398e75636307d4817fc6",
-            "file": "projects/component-library-web-components/src/stories/page.component.ts",
+            "file": "projects/test-app/src/stories/examples/page.component.ts",
             "encapsulation": [],
             "entryComponents": [],
             "inputs": [],
@@ -355,27 +421,27 @@
                 "name": "appConfig",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "projects/component-library-web-components/src/main.config.ts",
+                "file": "projects/test-app/src/app/app.config.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "ApplicationConfig",
-                "defaultValue": "{\n    providers: [],\n}"
+                "defaultValue": "{\r\n  providers: [provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes)]\r\n}"
             }
         ],
         "functions": [],
         "typealiases": [],
         "enumerations": [],
         "groupedVariables": {
-            "projects/component-library-web-components/src/main.config.ts": [
+            "projects/test-app/src/app/app.config.ts": [
                 {
                     "name": "appConfig",
                     "ctype": "miscellaneous",
                     "subtype": "variable",
-                    "file": "projects/component-library-web-components/src/main.config.ts",
+                    "file": "projects/test-app/src/app/app.config.ts",
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "ApplicationConfig",
-                    "defaultValue": "{\n    providers: [],\n}"
+                    "defaultValue": "{\r\n  providers: [provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes)]\r\n}"
                 }
             ]
         },
@@ -385,11 +451,20 @@
     },
     "routes": [],
     "coverage": {
-        "count": 16,
+        "count": 13,
         "status": "low",
         "files": [
             {
-                "filePath": "projects/component-library-web-components/src/main.config.ts",
+                "filePath": "projects/test-app/src/app/app.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "AppComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/2",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/test-app/src/app/app.config.ts",
                 "type": "variable",
                 "linktype": "miscellaneous",
                 "linksubtype": "variable",
@@ -399,7 +474,7 @@
                 "status": "low"
             },
             {
-                "filePath": "projects/component-library-web-components/src/stories/button.component.ts",
+                "filePath": "projects/test-app/src/stories/examples/button.component.ts",
                 "type": "component",
                 "linktype": "component",
                 "name": "ButtonComponent",
@@ -408,7 +483,7 @@
                 "status": "very-good"
             },
             {
-                "filePath": "projects/component-library-web-components/src/stories/header.component.ts",
+                "filePath": "projects/test-app/src/stories/examples/header.component.ts",
                 "type": "component",
                 "linktype": "component",
                 "name": "HeaderComponent",
@@ -417,7 +492,7 @@
                 "status": "low"
             },
             {
-                "filePath": "projects/component-library-web-components/src/stories/page.component.ts",
+                "filePath": "projects/test-app/src/stories/examples/page.component.ts",
                 "type": "component",
                 "linktype": "component",
                 "name": "PageComponent",
@@ -426,7 +501,7 @@
                 "status": "low"
             },
             {
-                "filePath": "projects/component-library-web-components/src/stories/user.ts",
+                "filePath": "projects/test-app/src/stories/examples/user.ts",
                 "type": "interface",
                 "linktype": "interface",
                 "name": "User",

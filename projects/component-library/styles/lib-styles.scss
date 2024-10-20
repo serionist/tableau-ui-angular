@@ -3,7 +3,37 @@
 @import 'lib-main';
 
 body {
-    font-family: var(--font-family);
-    font-size: var(--font-size-body);
-    color: var(--color-text);
+    font-family: var(--twc-font-family);
+    font-size: var(--twc-font-size-body);
+    color: var(--twc-color-text);
 }
+
+h3,h4.text-large {
+    font-size: var(--twc-font-size-body-large);
+}
+
+h5,h6,.text {
+    font-size: var(--twc-font-size-body);
+}
+
+h2,.text-subtitle {
+    font-size: var(--twc-font-size-subtitle);
+    font-weight: bold;
+    color: var(--twc-color-text-strong);
+}
+
+h1,.text-title {
+    font-size: var(--twc-font-size-title);
+    font-weight: bold;
+    color: var(--twc-color-text-strong);
+}
+
+a {
+    color: var(--twc-color-link);
+    text-decoration: none;
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+
