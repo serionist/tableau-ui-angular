@@ -34,4 +34,16 @@ export class TabGroupComponent implements AfterContentInit {
     }
   }
   
+  onkeydown(index: number, e: KeyboardEvent) {
+
+    switch (e.key) {
+      case 'Enter':
+      case ' ':
+        this.selectTab(index);
+        e.preventDefault(); 
+        break;
+      default:
+        return; 
+    }
+  }
 }

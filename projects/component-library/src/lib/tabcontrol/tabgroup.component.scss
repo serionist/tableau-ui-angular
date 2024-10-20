@@ -18,6 +18,11 @@
     padding-left: 18px;
     border-bottom: solid 3px #C9C9C9;
     user-select: none;
+    &:focus-visible {
+      border: 3px solid var(--twc-color-primary);
+      outline: none;
+     
+  }
     &.disabled {
       color: var(--twc-color-disabled);
       cursor: not-allowed;

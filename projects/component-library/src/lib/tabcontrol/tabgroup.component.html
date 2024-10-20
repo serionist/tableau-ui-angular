@@ -2,7 +2,8 @@
     <div class="tab-headers">
         @for (tab of tabs; let i = $index; track i) {
         <div class="tab" (click)="selectTab(i)" [class.active]="selectedIndex() === i"
-        [class.disabled]="tab.disabled()">
+        [class.disabled]="tab.disabled()"
+        [tabindex]="tab.disabled() ? -1 : 0" (keydown)="onkeydown(i, $event)">
             <div class="tab-content">
                 <ng-container *ngTemplateOutlet="tab!.headerTemplate"></ng-container>
             </div>
