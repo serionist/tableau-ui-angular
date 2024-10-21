@@ -7,136 +7,149 @@
             <div>Content of Tab 1</div>
         </tab>
         <tab>
-            <div tab-header><i class="icon-example"></i>Checkboxes</div>
-            <div class="tab-content">
-                <tab-checkbox [formControl]="simpleControl"> No Hint or Error </tab-checkbox>
-                <tab-checkbox [formControl]="simpleControl">
-                    <tab-hint>This is a hint</tab-hint>
-                    Lofasz
-                </tab-checkbox>
-                <tab-checkbox [formControl]="disabledControl">
-                    Lofasz2
-                    <tab-error>This is an error</tab-error>
-                </tab-checkbox>
-                <tab-checkbox [formControl]="simpleControl">
-                    <tab-error>This is an error</tab-error>
-                    2 errors
-                    <tab-error>This is another error</tab-error>
-                </tab-checkbox>
-                <tab-checkbox [formControl]="disabledControl">
-                    <tab-hint>This is a hint</tab-hint>
-                    Both Hint and Error
-                    <tab-error>This is an error</tab-error>
-                </tab-checkbox>
-            </div>
-        </tab>
-        <tab>
             <div tab-header><i class="icon-example"></i> Form Fields</div>
             <div>
                 <div class="tab-content">
-                    <tab-form-field>
-                        <tab-label>This text field has an error</tab-label>
-                        <input type="text" [formControl]="errorControl" />
-                        <tab-prefix><div style="color: var(--twc-color-text-gray)">Prefix content</div></tab-prefix>
-                        <tab-suffix>Suffix content</tab-suffix>
-                        <tab-hint type="prefix">This control accepts numbers</tab-hint>
-                        <tab-hint type="suffix">This goes at the end</tab-hint>
-                        @if (errorControl.invalid) {
-                        <tab-error>Value is not a number</tab-error>
-                        }
-                    </tab-form-field>
+                    <div class="two">
+                        <div>
+                          <div class="text-title">Checkboxes</div>
+                          <div class="indent content">
+                              <tab-checkbox [formControl]="simpleControl"> No Hint or Error </tab-checkbox>
+                              <tab-checkbox [formControl]="simpleControl">
+                                  <tab-hint>This is a hint</tab-hint>
+                                  Lofasz
+                              </tab-checkbox>
+                              <tab-checkbox [formControl]="disabledControl">
+                                  Lofasz2
+                                  <tab-error>This is an error</tab-error>
+                              </tab-checkbox>
+                              <tab-checkbox [formControl]="simpleControl">
+                                  <tab-error>This is an error</tab-error>
+                                  2 errors
+                                  <tab-error>This is another error</tab-error>
+                              </tab-checkbox>
+                              <tab-checkbox [formControl]="disabledControl">
+                                  <tab-hint>This is a hint</tab-hint>
+                                  Both Hint and Error
+                                  <tab-error>This is an error</tab-error>
+                              </tab-checkbox>
+                          </div>
+                            <div class="text-title">Inputs</div>
+                            <div class="content">
+                                <tab-form-field>
+                                    <tab-label>This text field has an error</tab-label>
+                                    <input type="text" [formControl]="errorControl" />
+                                    <tab-prefix><div style="color: var(--twc-color-text-gray)">Prefix content</div></tab-prefix>
+                                    <tab-suffix>Suffix content</tab-suffix>
+                                    <tab-hint type="prefix">This control accepts numbers</tab-hint>
+                                    <tab-hint type="suffix">This goes at the end</tab-hint>
+                                    @if (errorControl.invalid) {
+                                    <tab-error>Value is not a number</tab-error>
+                                    }
+                                </tab-form-field>
 
-                    <tab-form-field>
-                        <tab-label>This is a simple field</tab-label>
-                        <input type="text" [formControl]="simpleControl" />
-                    </tab-form-field>
+                                <tab-form-field>
+                                    <tab-label>This is a simple field</tab-label>
+                                    <input type="text" [formControl]="simpleControl" />
+                                </tab-form-field>
 
-                    <tab-form-field>
-                        <tab-label>This is a disabled field</tab-label>
-                        <input type="text" [formControl]="disabledControl" />
-                    </tab-form-field>
+                                <tab-form-field>
+                                    <tab-label>This is a disabled field</tab-label>
+                                    <input type="text" [formControl]="disabledControl" />
+                                </tab-form-field>
 
-                    <tab-form-field>
-                      <tab-label>This is a password field</tab-label>
-                      <input type="password" [formControl]="errorControl" />
-                      <tab-prefix><div style="color: var(--twc-color-text-gray)">Prefix content</div></tab-prefix>
-                      <tab-suffix>Suffix content</tab-suffix>
-                      <tab-hint type="prefix">This control accepts numbers</tab-hint>
-                      <tab-hint type="suffix">This goes at the end</tab-hint>
-                      @if (errorControl.invalid) {
-                      <tab-error>Value is not a number</tab-error>
-                      }
-                  </tab-form-field>
+                                <tab-form-field>
+                                    <tab-label>This is a password field</tab-label>
+                                    <input type="password" [formControl]="errorControl" />
+                                    <tab-prefix><div style="color: var(--twc-color-text-gray)">Prefix content</div></tab-prefix>
+                                    <tab-suffix>Suffix content</tab-suffix>
+                                    <tab-hint type="prefix">This control accepts numbers</tab-hint>
+                                    <tab-hint type="suffix">This goes at the end</tab-hint>
+                                    @if (errorControl.invalid) {
+                                    <tab-error>Value is not a number</tab-error>
+                                    }
+                                </tab-form-field>
 
-                  <tab-form-field>
-                    <tab-label>This is a number field</tab-label>
-                    <input type="number" [formControl]="errorControl" />
-                    <tab-prefix><div style="color: var(--twc-color-text-gray)">Prefix content</div></tab-prefix>
-                    <tab-suffix>Suffix content</tab-suffix>
-                    <tab-hint type="prefix">This control accepts numbers</tab-hint>
-                    <tab-hint type="suffix">This goes at the end</tab-hint>
-                    @if (errorControl.invalid) {
-                    <tab-error>Value is not a number</tab-error>
-                    }
-                </tab-form-field>
-                <tab-form-field>
-                  <tab-label>This is a single line text area</tab-label>
-                  <textarea rows="1" [formControl]="errorControl" ></textarea>
-                  <tab-prefix><div style="color: var(--twc-color-text-gray)">Prefix content</div></tab-prefix>
-                  <tab-suffix>Suffix content</tab-suffix>
-                  <tab-hint type="prefix">This control accepts numbers</tab-hint>
-                  <tab-hint type="suffix">This goes at the end</tab-hint>
-                  @if (errorControl.invalid) {
-                  <tab-error>Value is not a number</tab-error>
-                  }
-              </tab-form-field>
-              <tab-form-field>
-                <tab-label>This is a multi line text area</tab-label>
-                <textarea rows="5" [formControl]="errorControl" ></textarea>
-                <tab-prefix><div style="color: var(--twc-color-text-gray)">Prefix content</div></tab-prefix>
-                <tab-suffix>Suffix content</tab-suffix>
-                <tab-hint type="prefix">This control accepts numbers</tab-hint>
-                <tab-hint type="suffix">This goes at the end</tab-hint>
-                @if (errorControl.invalid) {
-                <tab-error>Value is not a number</tab-error>
-                }
-            </tab-form-field>
+                                <tab-form-field>
+                                    <tab-label>This is a number field</tab-label>
+                                    <input type="number" [formControl]="errorControl" />
+                                    <tab-prefix><div style="color: var(--twc-color-text-gray)">Prefix content</div></tab-prefix>
+                                    <tab-suffix>Suffix content</tab-suffix>
+                                    <tab-hint type="prefix">This control accepts numbers</tab-hint>
+                                    <tab-hint type="suffix">This goes at the end</tab-hint>
+                                    @if (errorControl.invalid) {
+                                    <tab-error>Value is not a number</tab-error>
+                                    }
+                                </tab-form-field>
+                                <tab-form-field>
+                                    <tab-label>This is a single line text area</tab-label>
+                                    <textarea rows="1" [formControl]="errorControl"></textarea>
+                                    <tab-prefix><div style="color: var(--twc-color-text-gray)">Prefix content</div></tab-prefix>
+                                    <tab-suffix>Suffix content</tab-suffix>
+                                    <tab-hint type="prefix">This control accepts numbers</tab-hint>
+                                    <tab-hint type="suffix">This goes at the end</tab-hint>
+                                    @if (errorControl.invalid) {
+                                    <tab-error>Value is not a number</tab-error>
+                                    }
+                                </tab-form-field>
+                                <tab-form-field>
+                                    <tab-label>This is a multi line text area</tab-label>
+                                    <textarea rows="5" [formControl]="errorControl"></textarea>
+                                    <tab-prefix><div style="color: var(--twc-color-text-gray)">Prefix content</div></tab-prefix>
+                                    <tab-suffix>Suffix content</tab-suffix>
+                                    <tab-hint type="prefix">This control accepts numbers</tab-hint>
+                                    <tab-hint type="suffix">This goes at the end</tab-hint>
+                                    @if (errorControl.invalid) {
+                                    <tab-error>Value is not a number</tab-error>
+                                    }
+                                </tab-form-field>
+                            </div>
+                        </div>
+                        <div>
+                          <div class="text-title">Radios</div>
+                          <div class="indent content">
+                              <div class="text-subtitle">Group 1</div>
+                              <tab-radiogroup [formControl]="simpleControl">
+                                  <tab-option [value]="1">szevasz</tab-option>
+                                  <tab-option [value]="2" [disabled]="true">csovaz</tab-option>
+                                  <tab-option [value]="3">mizu</tab-option>
+                                  <tab-option [value]="4">hali</tab-option>
+                              </tab-radiogroup>
+                              <div class="text-subtitle">Disabled group</div>
+                              <tab-radiogroup [formControl]="disabledControl">
+                                  <tab-option [value]="1">
+                                      szevasz
+                                      <tab-icon>error</tab-icon>
+                                  </tab-option>
+                                  <tab-option [value]="2" [disabled]="true">csovaz</tab-option>
+                                  <tab-option [value]="3"
+                                      >mizu
+                                      <tab-icon>error</tab-icon>
+                                      <tab-hint>This is a hint</tab-hint>
+                                  </tab-option>
+                                  <tab-option [value]="4">hali</tab-option>
+                              </tab-radiogroup>
+                              <div class="text-subtitle">Group with an error</div>
+                              <tab-radiogroup [formControl]="errorControl">
+                                  <tab-option [value]="1">szevasz</tab-option>
+                                  <tab-option [value]="2" [disabled]="true">csovaz</tab-option>
+                                  <tab-option [value]="3">mizu</tab-option>
+                                  <tab-option [value]="4"
+                                      >hali
+                                      <tab-hint>This is a hint</tab-hint>
+                                  </tab-option>
+                                  @if (errorControl.invalid) {
+                                  <tab-error>Choose one of the options</tab-error>
+                                  }
+                              </tab-radiogroup>
+                          </div>
+                            <div class="text-title">Selects</div>
+                            <div class="content">
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
-            </div>
-        </tab>
-        <tab>
-            <div tab-header><i class="icon-example"></i> Radio Buttons</div>
-            <div class="tab-content">
-                <div class="text-subtitle">Group 1</div>
-                <tab-radiogroup [formControl]="simpleControl">
-                    <tab-option [value]="1">szevasz</tab-option>
-                    <tab-option [value]="2" [disabled]="true">csovaz</tab-option>
-                    <tab-option [value]="3">mizu</tab-option>
-                    <tab-option [value]="4">hali</tab-option>
-                </tab-radiogroup>
-                <div class="text-subtitle">Disabled group</div>
-                <tab-radiogroup [formControl]="disabledControl">
-                    <tab-option [value]="1">szevasz</tab-option>
-                    <tab-option [value]="2" [disabled]="true">csovaz</tab-option>
-                    <tab-option [value]="3"
-                        >mizu
-                        <tab-hint>This is a hint</tab-hint>
-                    </tab-option>
-                    <tab-option [value]="4">hali</tab-option>
-                </tab-radiogroup>
-                <div class="text-subtitle">Group with an error</div>
-                <tab-radiogroup [formControl]="errorControl">
-                    <tab-option [value]="1">szevasz</tab-option>
-                    <tab-option [value]="2" [disabled]="true">csovaz</tab-option>
-                    <tab-option [value]="3">mizu</tab-option>
-                    <tab-option [value]="4"
-                        >hali
-                        <tab-hint>This is a hint</tab-hint>
-                    </tab-option>
-                    @if (errorControl.invalid) {
-                    <tab-error>Choose one of the options</tab-error>
-                    }
-                </tab-radiogroup>
             </div>
         </tab>
         <tab>
@@ -176,32 +189,43 @@
             </div>
         </tab>
         <tab>
-          <div tab-header><i class="icon-example"></i> Icons</div>
-          <div class="tab-content">
-            Usage:
-            <ul>
-              <li>
-                Use <span class="text-primary">&lt;tab-icon&gt;[icon]&lt;/tab-icon&gt;</span> to add an icon-example
-              </li>
-              <li>
-                Use <span class="text-primary">&lt;tab-icon color=&quot;primary&quot;&gt;[icon]&lt;/tab-icon&gt;</span> to add a primary colored icon (primary can also be passed as a class)
-              </li>
-              <li>
-                Use <span class="text-primary">&lt;tab-icon color=&quot;error&quot;&gt;[icon]&lt;/tab-icon&gt;</span> to add a error colored icon (error can also be passed as a class)
-              </li>
-              <li>
-                Use <span class="text-primary">&lt;tab-icon class=&quot;fill&quot;&gt;[icon]&lt;/tab-icon&gt;</span> to use a filled icon
-              </li>
-            </ul>
-            <div>Navigate to <a href="https://fonts.google.com/icons?selected=Material+Symbols+Outlined:error:FILL@1;wght@400;GRAD@0;opsz@24&icon.query=alert&icon.size=24&icon.color=%235f6368&icon.style=Rounded" target="_blank">Material Icons page</a> to browse icons</div>
-            
-            <tab-icon>error</tab-icon>    
-            <tab-icon class="fill">error</tab-icon> 
-            <tab-icon color="primary">error</tab-icon>    
-            <tab-icon color="primary" class="fill">error</tab-icon>  
-            <tab-icon color="error">error</tab-icon>    
-            <tab-icon color="error" class="fill">error</tab-icon>    
-          </div>
-      </tab>
+            <div tab-header><i class="icon-example"></i> Icons</div>
+            <div class="tab-content">
+                Usage:
+                <ul>
+                    <li>Use <span class="text-primary">&lt;tab-icon&gt;[icon]&lt;/tab-icon&gt;</span> to add an icon-example</li>
+                    <li>
+                        Use <span class="text-primary">&lt;tab-icon color=&quot;primary&quot;&gt;[icon]&lt;/tab-icon&gt;</span> to add a
+                        primary colored icon (primary can also be passed as a class)
+                    </li>
+                    <li>
+                        Use <span class="text-primary">&lt;tab-icon color=&quot;error&quot;&gt;[icon]&lt;/tab-icon&gt;</span> to add a error
+                        colored icon (error can also be passed as a class)
+                    </li>
+                    <li>
+                        Use <span class="text-primary">&lt;tab-icon class=&quot;fill&quot;&gt;[icon]&lt;/tab-icon&gt;</span> to use a filled
+                        icon
+                    </li>
+                </ul>
+                <div>
+                    Navigate to
+                    <a
+                        href="https://fonts.google.com/icons?selected=Material+Symbols+Outlined:error:FILL@1;wght@400;GRAD@0;opsz@24&icon.query=alert&icon.size=24&icon.color=%235f6368&icon.style=Rounded"
+                        target="_blank"
+                        >Material Icons page</a
+                    >
+                    to browse icons
+                </div>
+
+                <div>
+                    <tab-icon>error</tab-icon>
+                    <tab-icon class="fill">error</tab-icon>
+                    <tab-icon color="primary">error</tab-icon>
+                    <tab-icon color="primary" class="fill">error</tab-icon>
+                    <tab-icon color="error">error</tab-icon>
+                    <tab-icon color="error" class="fill">error</tab-icon>
+                </div>
+            </div>
+        </tab>
     </tab-group>
 </div>

@@ -2,8 +2,21 @@
     display: grid;
     gap: 8px;
 }
-.tab-content {
-    margin-top: 12px;
+.content {
     display: grid;
     gap: 8px;
+}
+.indent {
+    margin-left: 2rem;
+}
+.two {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: 1fr 1fr;
+}
+.text-title {
+    margin: 1rem 0 0.5rem 0;
+}
+.text-subtitle {
+    margin: 0.5rem 0 0.25rem 0;
 }
