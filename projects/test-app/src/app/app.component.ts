@@ -17,7 +17,8 @@ import {
     RadiogroupComponent,
     TooltipComponent,
     TooltipDirective,
-    ButtonComponent
+    ButtonComponent,
+    IconComponent
 } from '../../../component-library/src/public-api';
 
 @Component({
@@ -40,7 +41,8 @@ import {
         OptionComponent,
         TooltipComponent,
         TooltipDirective,
-        ButtonComponent
+        ButtonComponent,
+        IconComponent
     ],
 
     templateUrl: './app.component.html',

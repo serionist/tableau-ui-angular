@@ -1,4 +1,3 @@
-
 body {
     font-family: var(--twc-font-family);
     font-size: var(--twc-font-size-body);
@@ -33,4 +32,6 @@ a {
     }
 }
 
-
+.text-primary {
+    color: var(--twc-color-primary);
+}
