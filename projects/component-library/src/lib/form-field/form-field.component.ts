@@ -66,7 +66,7 @@ export class FormFieldComponent implements AfterContentInit, AfterViewInit {
         if (this.prefixElement) {
             const prefixWidth = this.prefixElement.elementRef.nativeElement.offsetWidth;
             this.renderer.setStyle(
-                this.inputContainer.nativeElement.querySelector('input'),
+                this.inputContainer.nativeElement.querySelector('input,textarea'),
                 'padding-left',
                 `${prefixWidth + 12}px` // Adds a small margin for spacing
             );
@@ -75,7 +75,7 @@ export class FormFieldComponent implements AfterContentInit, AfterViewInit {
         if (this.suffixElement) {
             const suffixWidth = this.suffixElement.elementRef.nativeElement.offsetWidth;
             this.renderer.setStyle(
-                this.inputContainer.nativeElement.querySelector('input'),
+                this.inputContainer.nativeElement.querySelector('input,textarea'),
                 'padding-right',
                 `${suffixWidth + 8}px` // Adds a small margin for spacing
             );

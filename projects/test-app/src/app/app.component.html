@@ -55,6 +55,52 @@
                         <tab-label>This is a disabled field</tab-label>
                         <input type="text" [formControl]="disabledControl" />
                     </tab-form-field>
+
+                    <tab-form-field>
+                      <tab-label>This is a password field</tab-label>
+                      <input type="password" [formControl]="errorControl" />
+                      <tab-prefix><div style="color: var(--twc-color-text-gray)">Prefix content</div></tab-prefix>
+                      <tab-suffix>Suffix content</tab-suffix>
+                      <tab-hint type="prefix">This control accepts numbers</tab-hint>
+                      <tab-hint type="suffix">This goes at the end</tab-hint>
+                      @if (errorControl.invalid) {
+                      <tab-error>Value is not a number</tab-error>
+                      }
+                  </tab-form-field>
+
+                  <tab-form-field>
+                    <tab-label>This is a number field</tab-label>
+                    <input type="number" [formControl]="errorControl" />
+                    <tab-prefix><div style="color: var(--twc-color-text-gray)">Prefix content</div></tab-prefix>
+                    <tab-suffix>Suffix content</tab-suffix>
+                    <tab-hint type="prefix">This control accepts numbers</tab-hint>
+                    <tab-hint type="suffix">This goes at the end</tab-hint>
+                    @if (errorControl.invalid) {
+                    <tab-error>Value is not a number</tab-error>
+                    }
+                </tab-form-field>
+                <tab-form-field>
+                  <tab-label>This is a single line text area</tab-label>
+                  <textarea rows="1" [formControl]="errorControl" ></textarea>
+                  <tab-prefix><div style="color: var(--twc-color-text-gray)">Prefix content</div></tab-prefix>
+                  <tab-suffix>Suffix content</tab-suffix>
+                  <tab-hint type="prefix">This control accepts numbers</tab-hint>
+                  <tab-hint type="suffix">This goes at the end</tab-hint>
+                  @if (errorControl.invalid) {
+                  <tab-error>Value is not a number</tab-error>
+                  }
+              </tab-form-field>
+              <tab-form-field>
+                <tab-label>This is a multi line text area</tab-label>
+                <textarea rows="5" [formControl]="errorControl" ></textarea>
+                <tab-prefix><div style="color: var(--twc-color-text-gray)">Prefix content</div></tab-prefix>
+                <tab-suffix>Suffix content</tab-suffix>
+                <tab-hint type="prefix">This control accepts numbers</tab-hint>
+                <tab-hint type="suffix">This goes at the end</tab-hint>
+                @if (errorControl.invalid) {
+                <tab-error>Value is not a number</tab-error>
+                }
+            </tab-form-field>
                 </div>
             </div>
         </tab>
@@ -100,20 +146,33 @@
                 <tab-tooltip #tooltipTwo>Tooltip Content Two</tab-tooltip>
                 <tab-tooltip #tooltipThree>Tooltip Content Three</tab-tooltip>
 
-                <div style="margin-top: 20px"><span [tooltip]="tooltipOne" tooltip-position="top"> Hover over me to see Tooltip Top </span></div>
-                <div style="margin-top: 20px"><span [tooltip]="tooltipOne" tooltip-position="left"> Hover over me to see Tooltip One </span></div>
-                <div style="margin-left: 520px"><span [tooltip]="tooltipOne" tooltip-position="left"> Hover over me to see Tooltip One - no correction </span></div>
                 <div style="margin-top: 20px">
-                    <span [tooltip]="tooltipTwo" tooltip-position="bottom" >
-                        Hover over me to see Tooltip Two
-                    </span>
+                    <span [tooltip]="tooltipOne" tooltip-position="top"> Hover over me to see Tooltip Top </span>
+                </div>
+                <div style="margin-top: 20px">
+                    <span [tooltip]="tooltipOne" tooltip-position="left"> Hover over me to see Tooltip One </span>
+                </div>
+                <div style="margin-left: 520px">
+                    <span [tooltip]="tooltipOne" tooltip-position="left"> Hover over me to see Tooltip One - no correction </span>
+                </div>
+                <div style="margin-top: 20px">
+                    <span [tooltip]="tooltipTwo" tooltip-position="bottom"> Hover over me to see Tooltip Two </span>
                 </div>
 
                 <div style="margin-top: 20px">
-                    <span [tooltip]="tooltipThree" tooltip-position="right" >
-                        Hover over me to see Tooltip Three
-                    </span>
+                    <span [tooltip]="tooltipThree" tooltip-position="right"> Hover over me to see Tooltip Three </span>
                 </div>
+            </div>
+        </tab>
+        <tab>
+            <div tab-header><i class="icon-example"></i> Buttons</div>
+            <div class="tab-content">
+                <tab-button color="secondary" [loading]="buttonsLoading.secondary" (click)="buttonClick('secondary')">Secondary</tab-button>
+                <tab-button color="primary" [loading]="buttonsLoading.primary" (click)="buttonClick('primary')">Primary</tab-button>
+                <tab-button color="warning" [loading]="buttonsLoading.warning" (click)="buttonClick('warning')">Warning</tab-button>
+                <tab-button [disabled]="true">Secondary disabled</tab-button>
+                <tab-button [disabled]="true" color="primary">Primary disabled</tab-button>
+                <tab-button [disabled]="true" color="warning">Warning disabled</tab-button>
             </div>
         </tab>
     </tab-group>

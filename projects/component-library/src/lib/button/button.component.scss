@@ -1,0 +1,94 @@
+button {
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -webkit-user-select: none;
+
+    border: 1px solid transparent;
+    border-radius: 2px;
+    box-sizing: border-box;
+
+    cursor: default;
+    font-family: inherit;
+    font-size: var(--twc-font-size-body);
+    font-weight: bold;
+    height: 24px;
+    min-width: 96px;
+    padding: 0 24px;
+    user-select: none;
+    white-space: nowrap;
+    .content-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        pointer-events: none;
+        .loader-wrapper {
+            margin-left: -18px;
+            margin-right: 4px;
+            margin-top: 2px;
+            visibility: hidden;
+            @keyframes loading-button-spinner {
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+            img {
+                animation: loading-button-spinner 1s linear infinite;
+                cursor: wait;
+                margin: auto;
+                overflow: hidden;
+            }
+        }
+    }
+
+    &.loading .loader-wrapper {
+        visibility: visible !important;
+    }
+
+    &.primary {
+        &:not([disabled]) {
+            background-color: var(--twc-color-primary);
+            color: var(--twc-color-on-primary);
+            &:hover {
+                background-color: var(--twc-color-primary-highlight);
+            }
+        }
+        &[disabled] {
+            background-color: #c9c9c9 !important;
+            color: #939393 !important;
+        }
+    }
+    &.secondary {
+        &:not([disabled]) {
+            background-color: transparent;
+            border-color: #747474;
+            color: #2e2e2e;
+            &:hover {
+                background-color: #AEAEAE;
+            }
+           
+        }
+        &[disabled] {
+            background-color: transparent !important;
+            border-color: #c9c9c9 !important;
+            color: #c9c9c9 !important;
+        }
+    }
+    &.warning {
+        &:not([disabled]) {
+            background-color: #BA0517;
+            color: var(--twc-color-on-primary);
+            &:hover {
+                background-color: #640103;
+            }
+        }
+        &[disabled] {
+            background-color: #C9C9C9 !important;
+            color: #939393 !important;
+        }
+    }
+    &:focus-visible {
+        box-shadow: inset 0 0 0 2px white;
+        outline: 2px solid #0b5cab;
+        outline-offset: -2px;
+    }
+}

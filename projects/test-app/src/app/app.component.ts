@@ -16,7 +16,8 @@ import {
     OptionComponent,
     RadiogroupComponent,
     TooltipComponent,
-    TooltipDirective
+    TooltipDirective,
+    ButtonComponent
 } from '../../../component-library/src/public-api';
 
 @Component({
@@ -38,7 +39,8 @@ import {
         RadiogroupComponent,
         OptionComponent,
         TooltipComponent,
-        TooltipDirective
+        TooltipDirective,
+        ButtonComponent
     ],
 
     templateUrl: './app.component.html',
@@ -54,4 +56,18 @@ export class AppComponent implements OnInit {
     simpleControl = new FormControl(false);
     disabledControl = new FormControl({ value: true, disabled: true });
     errorControl = new FormControl('lofasz', Validators.pattern(/^\d+$/));
-}
+
+
+    buttonsLoading = {
+        primary: false,
+        secondary: false,
+        warning: false
+    }
+    async buttonClick(color: 'primary' | 'secondary' | 'warning') {
+      this.buttonsLoading[color] = true;
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      this.buttonsLoading[color] = false;
+        console.log('Button clicked', color);
+    }
+
+  }

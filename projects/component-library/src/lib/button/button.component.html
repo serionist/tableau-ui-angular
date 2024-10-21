@@ -1,0 +1,9 @@
+<button tabindex="0" [ngClass]="color()" [type]="type()" [disabled]="disabled() || loading()"
+[class.loading]="loading()" (click)="clicked()">
+    <span class="content-wrapper">
+        <span class="loader-wrapper">
+            <img alt="Wait indicator" class="f79w7hb" src="data:image/svg+xml,%0A%3Csvg%20viewBox%3D%220%200%2050%2050%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%3Cstyle%3E%0A%20%20%20%20%23tail%20%7B%20fill%3A%20url(%23fade)%20%7D%0A%20%20%20%20%23head%20%7B%20fill%3A%20rgb(97%2C%20101%2C%20112)%20%7D%0A%20%20%20%20stop%20%7B%20stop-color%3A%20rgb(97%2C%20101%2C%20112)%20%7D%0A%20%20%3C%2Fstyle%3E%0A%20%20%3ClinearGradient%20id%3D%22fade%22%20x2%3D%2250%22%20y1%3D%2225%22%20y2%3D%2225%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%0A%20%20%20%20%3Cstop%20offset%3D%220%22%20stop-opacity%3D%220%22%2F%3E%0A%20%20%20%20%3Cstop%20offset%3D%22.15%22%20stop-opacity%3D%22.04%22%2F%3E%0A%20%20%20%20%3Cstop%20offset%3D%22.3%22%20stop-opacity%3D%22.16%22%2F%3E%0A%20%20%20%20%3Cstop%20offset%3D%22.45%22%20stop-opacity%3D%22.36%22%2F%3E%0A%20%20%20%20%3Cstop%20offset%3D%22.61%22%20stop-opacity%3D%22.64%22%2F%3E%0A%20%20%20%20%3Cstop%20offset%3D%22.76%22%2F%3E%0A%20%20%3C%2FlinearGradient%3E%0A%20%20%3Cpath%20id%3D%22head%22%20d%3D%22M0%2025a25%2025%200%201%200%2050%200h-3.9a21.1%2021.1%200%201%201-42.2%200%22%20%2F%3E%0A%20%20%3Cpath%20id%3D%22tail%22%20d%3D%22M50%2025a25%2025%200%200%200-50%200h3.9a21.1%2021.1%200%201%201%2042.2%200%22%20%2F%3E%0A%3C%2Fsvg%3E" style="height: 14px; width: 14px;">
+        </span>
+        <ng-content></ng-content>
+    </span>
+</button>

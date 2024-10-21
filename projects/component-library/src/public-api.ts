@@ -16,3 +16,4 @@ export * from './lib/form-field/form-field.component';
 export * from './lib/radiogroup/radiogroup.component';
 export * from './lib/tooltip/tooltip.component';
 export * from './lib/tooltip/tooltip.directive';
+export * from './lib/button/button.component';
