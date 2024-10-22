@@ -7,31 +7,47 @@ import {
     inject,
     Injectable,
     Injector,
+    TemplateRef,
     Type,
     ViewContainerRef,
-    ViewRef
+    ViewRef,
 } from '@angular/core';
 import { TAB_DIALOG_REF, DialogRef } from './dialog.ref';
-import { IConfirmationDialogArgs, IDialogArgs, IDialogHeaderArgs, IModalArgs } from './dialog.args';
-import { debounceTime, fromEvent, Subscription } from 'rxjs';
+import {
+    IConfirmationDialogArgs,
+    IDialogArgs,
+    IDialogHeaderArgs,
+    IModalArgs,
+} from './dialog.args';
+import { debounceTime, fromEvent, map, Subscription } from 'rxjs';
 import { FocusableElement, tabbable } from 'tabbable';
 import { IconComponent } from '../icon/icon.component';
+import { ConfirmationDialogComponent } from './confirmation-dialog.component';
 
 @Injectable({
-    providedIn: 'root'
+    providedIn: 'root',
 })
 export class DialogService {
-    constructor(private injector: Injector, private appRef: ApplicationRef, private environmentInjector: EnvironmentInjector) {}
+    constructor(
+        private injector: Injector,
+        private appRef: ApplicationRef,
+        private environmentInjector: EnvironmentInjector
+    ) {}
 
-    openModal<T>(component: Type<T>, inputs: { [key: string]: any } = {}, args?: IModalArgs): DialogRef {
+    openModal<T>(
+        component: Type<T>,
+        inputs: { [key: string]: any } = {},
+        args?: IModalArgs
+    ): DialogRef {
         const a = {
             width: args?.width ?? '300px',
             height: args?.height ?? 'fit-content',
             maxWidth: args?.maxWidth ?? 'calc(100vw - 100px)',
             maxHeight: args?.maxHeight ?? 'calc(80vh - 50px)',
             closeOnBackdropClick: args?.closeOnBackdropClick ?? true,
+            closeOnEscape: args?.closeOnEscape ?? true,
             backdropCss: {
-                backgroundColor: 'rgb(245, 245, 245, 0.33)'
+                backgroundColor: 'rgb(245, 245, 245, 0.33)',
             },
             containerCss: {
                 backgroundColor: 'rgb(255, 255, 255)',
@@ -42,7 +58,7 @@ export class DialogService {
                 boxShadow: 'rgba(51, 51, 51, 0.15) 0px 2px 16px 0px',
                 cursor: 'default',
                 display: 'flex',
-                flexDirection: 'column'
+                flexDirection: 'column',
             },
             left(actualWidth, actualHeight) {
                 return `calc(50vw - ${actualWidth / 2}px)`;
@@ -50,31 +66,91 @@ export class DialogService {
             top(actualWidth, actualHeight) {
                 return `calc(40vh - ${actualHeight / 2}px)`;
             },
-            header: args?.header
+            header: args?.header,
         } as IDialogArgs;
         return this.openDialog(component, inputs, a);
     }
-    // openConfirmationDialog(title: string, message: string, args?: IConfirmationDialogArgs): Promise<boolean> {
-    //     const modalArgs = { ...args ?? {}, header: { title, allowCLose: true } } as IModalArgs;
-    //     return new Promise((resolve) => {
-    //         const dialogRef = this.openModal(ConfirmationDialogComponent, { message }, modalArgs);
-    //         dialogRef.afterClosed$.subscribe((result) => {
-    //             resolve(result);
-    //         });
-    //     });
-    // }
 
-    private openDialog<T>(component: Type<T>, inputs: { [key: string]: any } = {}, args: IDialogArgs = {}): DialogRef {
+    openConfirmationMessageDialog(
+        title: string,
+        message: string,
+        color: 'primary' | 'error' | 'secondary',
+        acceptBtnText: string | undefined,
+        cancelBtnText: string | undefined,
+        args?: IConfirmationDialogArgs
+    ): Promise<boolean> {
+        const modalArgs = {
+            ...(args ?? {}),
+            header: { title, allowClose: true },
+        } as IModalArgs;
+        return new Promise((resolve) => {
+            const inputs: { [key: string]: any } =  { content: message, color };
+            if (acceptBtnText) inputs[acceptBtnText] = acceptBtnText;
+            if (cancelBtnText) inputs[cancelBtnText] = cancelBtnText;
+            const dialogRef = this.openModal(
+                ConfirmationDialogComponent,
+                inputs,
+                modalArgs
+            );
+            dialogRef.afterClosed$.subscribe((result) => {
+                resolve(result);
+            });
+        });
+    }
+
+    openConfirmationTemplateDialog(
+        title: string,
+        template: TemplateRef<any>,
+        color: 'primary' | 'error' | 'secondary',
+        acceptBtnText: string | undefined,
+        cancelBtnText: string | undefined,
+        args?: IConfirmationDialogArgs
+    ): Promise<boolean> {
+        const modalArgs = {
+            ...(args ?? {}),
+            header: { title, allowClose: true },
+        } as IModalArgs;
+        return new Promise((resolve) => {
+            const inputs: { [key: string]: any } =  { contentTemplate: template, color };
+            if (acceptBtnText) inputs[acceptBtnText] = acceptBtnText;
+            if (cancelBtnText) inputs[cancelBtnText] = cancelBtnText;
+            const dialogRef = this.openModal(
+                ConfirmationDialogComponent,
+               inputs ,
+                modalArgs
+            );
+            dialogRef.afterClosed$.subscribe((result) => {
+                resolve(result);
+            });
+        });
+    }
+
+
+    private openDialog<T>(
+        component: Type<T>,
+        inputs: { [key: string]: any } = {},
+        args: IDialogArgs = {}
+    ): DialogRef {
         const dialogRef = new DialogRef();
         // Create a backdrop element
         const backdrop = this.createBackdrop(dialogRef, args);
         // Append backdrop to the body
         document.body.appendChild(backdrop);
 
-         // Create an injector that provides the DialogRef
-         const injector = Injector.create({
+        let escapeSubscription: Subscription | null = null;
+        if (args.closeOnEscape) {
+            escapeSubscription = fromEvent(document, 'keydown')
+                .pipe(map((e) => e as KeyboardEvent))
+                .subscribe((e: KeyboardEvent) => {
+                    if (e.key === 'Escape') {
+                        dialogRef.close();
+                    }
+                });
+        }
+        // Create an injector that provides the DialogRef
+        const injector = Injector.create({
             providers: [{ provide: TAB_DIALOG_REF, useValue: dialogRef }],
-            parent: this.injector
+            parent: this.injector,
         });
 
         // Create the component view
@@ -83,20 +159,29 @@ export class DialogService {
         this.appRef.attachView(componentView);
 
         // Create a container for the dialog
-        const dialogElement = this.createDialogElement(componentView, args, injector, dialogRef);
+        const dialogElement = this.createDialogElement(
+            componentView,
+            args,
+            injector,
+            dialogRef
+        );
         // Before attaching the container to the document, trap focus
         // This means that we get all elements which are tabbable and set the tabindex to -1 for the duration of the popup
         const trappedFocus = this.trapFocus();
+        dialogElement.tabIndex = 0;
         document.body.appendChild(dialogElement);
+        dialogElement.focus();
 
         // Handle container position and window resize event
         const resizeSubscription = this.setDialogPosition(dialogElement, args);
-      
 
         // Handle dialog close
         dialogRef.afterClosed$.subscribe(() => {
             if (resizeSubscription) {
                 resizeSubscription.unsubscribe();
+            }
+            if (escapeSubscription) {
+                escapeSubscription.unsubscribe();
             }
             document.body.removeChild(dialogElement);
             document.body.removeChild(backdrop);
@@ -107,11 +192,14 @@ export class DialogService {
         return dialogRef;
     }
 
-    private createBackdrop(dialogRef: DialogRef, args: IDialogArgs): HTMLDivElement {
+    private createBackdrop(
+        dialogRef: DialogRef,
+        args: IDialogArgs
+    ): HTMLDivElement {
         const backdrop = document.createElement('div');
         backdrop.classList.add('dialog-backdrop');
         if (args.backdropCss) {
-            Object.keys(args.backdropCss).forEach(key => {
+            Object.keys(args.backdropCss).forEach((key) => {
                 (backdrop.style as any)[key] = args.backdropCss![key];
             });
         }
@@ -121,16 +209,19 @@ export class DialogService {
         return backdrop;
     }
 
-    private createView<T>(component: Type<T>, inputs: { [key: string]: any } = {}, injector: Injector): ViewRef {
-       
+    private createView<T>(
+        component: Type<T>,
+        inputs: { [key: string]: any } = {},
+        injector: Injector
+    ): ViewRef {
         const componentRef: ComponentRef<T> = createComponent(component, {
             environmentInjector: this.environmentInjector,
-            elementInjector: injector
+            elementInjector: injector,
         });
         // Set inputs on the component
         // They can be either static or function (signals)
         const instance = componentRef.instance as any;
-        Object.keys(inputs).forEach(key => {
+        Object.keys(inputs).forEach((key) => {
             if (typeof instance[key]?.set === 'function') {
                 instance[key].set(inputs[key]);
             } else {
@@ -140,7 +231,12 @@ export class DialogService {
         return componentRef.hostView;
     }
 
-    private createDialogElement(viewRef: ViewRef, args: IDialogArgs, injector: Injector, dialogRef: DialogRef): HTMLElement {
+    private createDialogElement(
+        viewRef: ViewRef,
+        args: IDialogArgs,
+        injector: Injector,
+        dialogRef: DialogRef
+    ): HTMLElement {
         const dialogElement = (viewRef as any).rootNodes[0] as HTMLElement;
         dialogElement.classList.add('dialog-container');
         if (args.width) dialogElement.style.width = args.width;
@@ -148,7 +244,7 @@ export class DialogService {
         if (args.maxWidth) dialogElement.style.maxWidth = args.maxWidth;
         if (args.maxHeight) dialogElement.style.maxHeight = args.maxHeight;
         if (args.containerCss) {
-            Object.keys(args.containerCss).forEach(key => {
+            Object.keys(args.containerCss).forEach((key) => {
                 (dialogElement.style as any)[key] = args.containerCss![key];
             });
         }
@@ -160,11 +256,15 @@ export class DialogService {
             titleElement.innerHTML = args.header.title;
             headerElement.appendChild(titleElement);
             if (args.header.allowClose) {
-                const iconRef: ComponentRef<IconComponent> = createComponent(IconComponent, {
-                    environmentInjector: this.environmentInjector,
-                    elementInjector: injector
-                });
-                const iconElement = (iconRef.hostView as any).rootNodes[0] as HTMLElement;
+                const iconRef: ComponentRef<IconComponent> = createComponent(
+                    IconComponent,
+                    {
+                        environmentInjector: this.environmentInjector,
+                        elementInjector: injector,
+                    }
+                );
+                const iconElement = (iconRef.hostView as any)
+                    .rootNodes[0] as HTMLElement;
                 iconElement.textContent = 'close';
                 iconElement.setAttribute('tabindex', '0');
                 iconElement.addEventListener('click', () => dialogRef.close());
@@ -182,7 +282,10 @@ export class DialogService {
         return dialogElement;
     }
 
-    private setDialogPosition(dialogElement: HTMLElement, args: IDialogArgs): Subscription | null {
+    private setDialogPosition(
+        dialogElement: HTMLElement,
+        args: IDialogArgs
+    ): Subscription | null {
         const calculateAndSetPosition = () => {
             const actualWidth = dialogElement.offsetWidth;
             const actualHeight = dialogElement.offsetHeight;
@@ -221,16 +324,21 @@ export class DialogService {
         return resizeSubscription;
     }
 
-    private trapFocus(): { element: FocusableElement, originalTabIndex: number }[] {
+    private trapFocus(): {
+        element: FocusableElement;
+        originalTabIndex: number;
+    }[] {
         const tabbableElements = tabbable(document.body);
-        const elementsTable = tabbableElements.map(e => ({
+        const elementsTable = tabbableElements.map((e) => ({
             element: e,
-            originalTabIndex: e.tabIndex
+            originalTabIndex: e.tabIndex,
         }));
-        elementsTable.forEach(e => e.element.tabIndex = -1);
+        elementsTable.forEach((e) => (e.element.tabIndex = -1));
         return elementsTable;
     }
-    private restoreFocus(elements: { element: FocusableElement, originalTabIndex: number }[]) {
-        elements.forEach(e => e.element.tabIndex = e.originalTabIndex);
+    private restoreFocus(
+        elements: { element: FocusableElement; originalTabIndex: number }[]
+    ) {
+        elements.forEach((e) => (e.element.tabIndex = e.originalTabIndex));
     }
 }

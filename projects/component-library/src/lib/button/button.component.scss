@@ -73,7 +73,7 @@ button {
             color: #c9c9c9 !important;
         }
     }
-    &.warning {
+    &.error {
         &:not([disabled]) {
             background-color: #BA0517;
             color: var(--twc-color-on-primary);

@@ -16,6 +16,7 @@ export interface IDialogArgs extends IModalArgs{
     maxWidth?: string;
     maxHeight?: string;
     closeOnBackdropClick?: boolean;
+    closeOnEscape?: boolean;
   }
 
   export interface IDialogHeaderArgs {

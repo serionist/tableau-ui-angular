@@ -13,7 +13,7 @@ import { DialogRef, TAB_DIALOG_REF } from '../../../component-library/src/public
 })
 export class ExampleDialogComponent {
     message = model.required<string>();
-    dialogRef = inject(TAB_DIALOG_REF);
+    constructor(@Inject(TAB_DIALOG_REF) public dialogRef: DialogRef) {}
 
     closeDialog(): void {
         this.dialogRef.close('Dialog closed with this result');

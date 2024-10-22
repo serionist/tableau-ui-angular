@@ -12,6 +12,6 @@ export class ButtonComponent {
   disabled = input(false);
   loading = input(false);
   type = input<'submit' | 'button'>('button');
-  color = input<'primary' | 'secondary' | 'warning'>('secondary');
+  color = input<'primary' | 'secondary' | 'error'>('secondary');
  
 }

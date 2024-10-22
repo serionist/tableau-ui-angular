@@ -1,7 +1,6 @@
-import { Component, OnInit, ViewContainerRef } from '@angular/core';
+import { Component, inject, OnInit, TemplateRef, ViewContainerRef } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { LoaderComponent } from 'component-library';
 import { FormControl } from '@angular/forms';
 import {
     TabGroupComponent,
@@ -19,7 +18,8 @@ import {
     TooltipDirective,
     ButtonComponent,
     IconComponent,
-    DialogService
+    DialogService,
+    LoaderComponent
 } from '../../../component-library/src/public-api';
 import { ExampleDialogComponent } from './example-dialog.component';
 
@@ -44,14 +44,14 @@ import { ExampleDialogComponent } from './example-dialog.component';
         TooltipComponent,
         TooltipDirective,
         ButtonComponent,
-        IconComponent
+        IconComponent,
     ],
 
     templateUrl: './app.component.html',
-    styleUrl: './app.component.scss'
+    styleUrl: './app.component.scss',
 })
 export class AppComponent implements OnInit {
-  constructor(private dialogService: DialogService) {}
+    public dialogService = inject(DialogService);
     ngOnInit(): void {
         this.errorControl.markAsTouched();
         this.errorControl.updateValueAndValidity();
@@ -62,33 +62,67 @@ export class AppComponent implements OnInit {
     disabledControl = new FormControl({ value: true, disabled: true });
     errorControl = new FormControl('lofasz', Validators.pattern(/^\d+$/));
 
-
     buttonsLoading = {
         primary: false,
         secondary: false,
-        warning: false
-    }
+        warning: false,
+    };
     async buttonClick(color: 'primary' | 'secondary' | 'warning') {
-      this.buttonsLoading[color] = true;
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      this.buttonsLoading[color] = false;
+        this.buttonsLoading[color] = true;
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        this.buttonsLoading[color] = false;
         console.log('Button clicked', color);
     }
     openDialog(): void {
-      const dialogRef = this.dialogService.openModal(ExampleDialogComponent, { message: 'This is a dynamic message!' }, {
-        width: 'calc(100vw - 100px)',
-        height: 'fit-content',
-        closeOnBackdropClick: true,
-        maxWidth: '300px',
-        header: {
-          allowClose: true,
-          title: 'This is a dynamic title!'
-        }
-      });
-  
-      dialogRef.afterClosed$.subscribe((result) => {
-        console.log('Dialog closed with result:', result);
-      });
+        const dialogRef = this.dialogService.openModal(
+            ExampleDialogComponent,
+            { message: 'This is a dynamic message!' },
+            {
+                width: 'calc(100vw - 100px)',
+                height: 'fit-content',
+                closeOnBackdropClick: true,
+                maxWidth: '300px',
+                header: {
+                    allowClose: true,
+                    title: 'This is a dynamic title!',
+                },
+            }
+        );
+
+        dialogRef.afterClosed$.subscribe((result) => {
+            console.log('Dialog closed with result:', result);
+        });
     }
 
+    async openConfirmationDialog(
+        color: 'primary' | 'error' | 'secondary' = 'secondary',
+        acceptBtnText?: string | undefined,
+        cancelBtnText?: string | undefined
+    ) {
+        const dialogRef =
+            await this.dialogService.openConfirmationMessageDialog(
+                'This a random confirmation dialog',
+                'Are you sure you want to delete this item? This stuff must be two lines long so I generate some random text.',
+                color,
+                acceptBtnText,
+                cancelBtnText
+            );
+        console.log('Confirmation dialog returned: ', dialogRef);
+    }
+    async openConfirmationTemplateDialog(
+      template: TemplateRef<any>,
+      color: 'primary' | 'error' | 'secondary' = 'secondary',
+      acceptBtnText?: string | undefined,
+      cancelBtnText?: string | undefined
+  ) {
+      const dialogRef =
+          await this.dialogService.openConfirmationTemplateDialog(
+              'This a random confirmation dialog',
+              template,
+              color,
+              acceptBtnText,
+              cancelBtnText
+          );
+      console.log('Confirmation dialog returned: ', dialogRef);
   }
+}
