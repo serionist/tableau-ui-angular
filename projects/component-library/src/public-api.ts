@@ -18,3 +18,6 @@ export * from './lib/tooltip/tooltip.component';
 export * from './lib/tooltip/tooltip.directive';
 export * from './lib/button/button.component';
 export * from './lib/icon/icon.component';
+export * from './lib/dialogservice/dialog.args';
+export * from './lib/dialogservice/dialog.service';
+export * from './lib/dialogservice/dialog.ref';

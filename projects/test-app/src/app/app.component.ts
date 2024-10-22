@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewContainerRef } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LoaderComponent } from 'component-library';
@@ -18,8 +18,10 @@ import {
     TooltipComponent,
     TooltipDirective,
     ButtonComponent,
-    IconComponent
+    IconComponent,
+    DialogService
 } from '../../../component-library/src/public-api';
+import { ExampleDialogComponent } from './example-dialog.component';
 
 @Component({
     selector: 'app-root',
@@ -49,6 +51,7 @@ import {
     styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnInit {
+  constructor(private dialogService: DialogService) {}
     ngOnInit(): void {
         this.errorControl.markAsTouched();
         this.errorControl.updateValueAndValidity();
@@ -70,6 +73,22 @@ export class AppComponent implements OnInit {
       await new Promise(resolve => setTimeout(resolve, 2000));
       this.buttonsLoading[color] = false;
         console.log('Button clicked', color);
+    }
+    openDialog(): void {
+      const dialogRef = this.dialogService.openModal(ExampleDialogComponent, { message: 'This is a dynamic message!' }, {
+        width: 'calc(100vw - 100px)',
+        height: 'fit-content',
+        closeOnBackdropClick: true,
+        maxWidth: '300px',
+        header: {
+          allowClose: true,
+          title: 'This is a dynamic title!'
+        }
+      });
+  
+      dialogRef.afterClosed$.subscribe((result) => {
+        console.log('Dialog closed with result:', result);
+      });
     }
 
   }

@@ -179,14 +179,15 @@
         </tab>
         <tab>
             <div tab-header><i class="icon-example"></i> Buttons</div>
-            <div class="tab-content">
+            <div class="content">
                 <tab-button color="secondary" [loading]="buttonsLoading.secondary" (click)="buttonClick('secondary')">Secondary</tab-button>
                 <tab-button color="primary" [loading]="buttonsLoading.primary" (click)="buttonClick('primary')">Primary</tab-button>
                 <tab-button color="warning" [loading]="buttonsLoading.warning" (click)="buttonClick('warning')">Warning</tab-button>
                 <tab-button [disabled]="true">Secondary disabled</tab-button>
                 <tab-button [disabled]="true" color="primary">Primary disabled</tab-button>
                 <tab-button [disabled]="true" color="warning">Warning disabled</tab-button>
-            </div>
+                <tab-button color="primary" [loading]="buttonsLoading.primary" (click)="openDialog()">Open Dialog</tab-button>
+              </div>
         </tab>
         <tab>
             <div tab-header><i class="icon-example"></i> Icons</div>

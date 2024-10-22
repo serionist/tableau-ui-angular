@@ -13,13 +13,5 @@ export class ButtonComponent {
   loading = input(false);
   type = input<'submit' | 'button'>('button');
   color = input<'primary' | 'secondary' | 'warning'>('secondary');
-  click = output<void>();
-
-  clicked() {
-    if (this.disabled() || this.loading()) {
-      return
-    }
-
-    this.click.emit();
-  }
+ 
 }
