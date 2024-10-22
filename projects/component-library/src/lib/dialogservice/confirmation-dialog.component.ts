@@ -1,5 +1,5 @@
 import { CommonModule, NgIf } from '@angular/common';
-import { Component, inject, input, model, TemplateRef } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, input, model, TemplateRef, ViewChild, viewChild } from '@angular/core';
 import { TAB_DIALOG_REF } from './dialog.ref';
 import { ButtonComponent } from '../button/button.component';
 
@@ -15,12 +15,12 @@ import { ButtonComponent } from '../button/button.component';
             </ng-template>
         </div>
         <div class="dialog-actions">
-            <tab-button (click)="dialogRef.close(false)">
+            <button (click)="dialogRef.close(false)" #cancel>
                 {{ cancelBtnText() }}
-            </tab-button>
-            <tab-button [color]="color()" (click)="dialogRef.close(true)">
+            </button>
+            <button [color]="color()" (click)="dialogRef.close(true)" #accept>
                 {{ acceptBtnText() }}
-            </tab-button>
+            </button>
         </div>
     `,
     standalone: true,
@@ -37,12 +37,24 @@ import { ButtonComponent } from '../button/button.component';
         }
         `],
 })
-export class ConfirmationDialogComponent {
+export class ConfirmationDialogComponent implements AfterViewInit {
     color = model<'primary' | 'error' | 'secondary'>('secondary');
     content = model<string>();
     contentTemplate = model<TemplateRef<any>>();
     acceptBtnText = model<string>('OK');
     cancelBtnText = model<string>('Cancel');
+    autofocus = model<'accept' | 'cancel' | undefined>();
 
     dialogRef = inject(TAB_DIALOG_REF);
+
+    @ViewChild('accept', { read: ElementRef }) accept: ElementRef | undefined;
+    @ViewChild('cancel', { read: ElementRef }) cancel: ElementRef | undefined;
+
+    ngAfterViewInit() {
+        if (this.autofocus() === 'accept') {
+            this.accept!.nativeElement.focus();
+        } else if (this.autofocus() === 'cancel') {
+            this.cancel!.nativeElement.focus();
+        }
+    }
 }

@@ -96,6 +96,7 @@ export class AppComponent implements OnInit {
 
     async openConfirmationDialog(
         color: 'primary' | 'error' | 'secondary' = 'secondary',
+        autofocus?: 'accept' | 'cancel' | undefined,
         acceptBtnText?: string | undefined,
         cancelBtnText?: string | undefined
     ) {
@@ -105,13 +106,15 @@ export class AppComponent implements OnInit {
                 'Are you sure you want to delete this item? This stuff must be two lines long so I generate some random text.',
                 color,
                 acceptBtnText,
-                cancelBtnText
+                cancelBtnText,
+                autofocus
             );
         console.log('Confirmation dialog returned: ', dialogRef);
     }
     async openConfirmationTemplateDialog(
       template: TemplateRef<any>,
       color: 'primary' | 'error' | 'secondary' = 'secondary',
+      autofocus: 'accept' | 'cancel' | undefined,
       acceptBtnText?: string | undefined,
       cancelBtnText?: string | undefined
   ) {
@@ -121,7 +124,11 @@ export class AppComponent implements OnInit {
               template,
               color,
               acceptBtnText,
-              cancelBtnText
+              cancelBtnText,
+              autofocus,
+              {
+                width: '500px'
+              }
           );
       console.log('Confirmation dialog returned: ', dialogRef);
   }

@@ -26,7 +26,8 @@
     color: #2e2e2e;
     font-family: var(--twc-font-family);
     font-size: var(--twc-font-size-body);
-    padding: 0 7px;
+    padding-left: 7px;
+    padding-right: 7px;
     &:focus {
       background-color: transparent;
       outline: 2px solid #0b5cab;
@@ -40,10 +41,10 @@
       overflow-clip-margin: 0px !important;
       overflow: clip !important;
     }
-    &[type="text" i] {
-      padding-block: 1px;
-      padding-inline: 2px;
-    }
+    // &[type="text" i] {
+    //   padding-block: 1px;
+    //   padding-inline: 2px;
+    // }
     &.ng-invalid.ng-touched {
       border-color: var(--twc-color-error);
     }

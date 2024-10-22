@@ -1,12 +1,20 @@
 import { CommonModule } from '@angular/common';
-import { Component, input, output, signal } from '@angular/core';
+import { Component, input, output, signal, ViewEncapsulation } from '@angular/core';
 
 @Component({
-  selector: 'tab-button',
-  standalone: true,
-  imports: [CommonModule],
+  selector: 'button',
   templateUrl: './button.component.html',
-  styleUrl: './button.component.scss'
+  styleUrls: ['./button.component.scss'],
+  standalone: true,
+  encapsulation: ViewEncapsulation.None,  // Disable view encapsulation
+  host: {
+    '[attr.type]': 'type()',
+    '[class]': 'color()',
+    '[attr.disabled]': 'disabled() || loading() ? true : null',
+    '[class.loading]': 'loading()',
+    'tabindex': '0',
+    'role': 'button'
+  }
 })
 export class ButtonComponent {
   disabled = input(false);

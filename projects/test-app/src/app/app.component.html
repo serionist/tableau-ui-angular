@@ -309,19 +309,33 @@
 
                 <div class="two">
                     <div class="content">
-                        <tab-button
+                        <button 
                             color="primary"
                             (click)="openConfirmationDialog('primary')"
-                            >Confirmation Dialog with message</tab-button
+                            >Confirmation Dialog with message</button
                         >
-                        <tab-button (click)="openConfirmationDialog()"
-                            >Confirmation Dialog with message</tab-button
+                        <button  (click)="openConfirmationDialog()"
+                            >Confirmation Dialog with message</button
                         >
-                        <tab-button
+                        <button 
                             color="error"
                             (click)="openConfirmationDialog('error')"
-                            >Confirmation Dialog with message</tab-button
+                            >Confirmation Dialog with message</button
                         >
+
+                        <button 
+                        color="primary"
+                        (click)="openConfirmationDialog('primary', undefined)"
+                        >Confirmation Dialog, no autofocus</button
+                    >
+                    <button  (click)="openConfirmationDialog(undefined, 'accept')"
+                        >Confirmation Dialog, focus accept</button
+                    >
+                    <button 
+                        color="error"
+                        (click)="openConfirmationDialog('error', 'cancel')"
+                        >Confirmation Dialog, focus cancel</button
+                    >
                     </div>
                     <div class="content">
                         <ng-template #confirmationDialogTemplate>
@@ -329,18 +343,18 @@
                             <span>This is a random template</span>
                             <tab-checkbox [value]="true">Checkbox</tab-checkbox>
                             </ng-template>
-                        <tab-button
+                        <button 
                             color="primary"
-                            (click)="openConfirmationTemplateDialog(confirmationDialogTemplate, 'primary')"
-                            >Confirmation Dialog with template</tab-button
+                            (click)="openConfirmationTemplateDialog(confirmationDialogTemplate, 'primary', 'accept', 'Custom Accept', 'Custom Cancel')"
+                            >Confirmation Dialog with template, focus accept, custom button texts</button
                         >
-                        <tab-button (click)="openConfirmationTemplateDialog(confirmationDialogTemplate)"
-                            >Confirmation Dialog with template</tab-button
+                        <button  (click)="openConfirmationTemplateDialog(confirmationDialogTemplate, 'secondary', 'accept', 'Custom Accept', 'Custom Cancel')"
+                            >Confirmation Dialog with template, focus accept, custom button texts</button
                         >
-                        <tab-button
+                        <button 
                             color="error"
-                            (click)="openConfirmationTemplateDialog(confirmationDialogTemplate, 'error')"
-                            >Confirmation Dialog with template</tab-button
+                            (click)="openConfirmationTemplateDialog(confirmationDialogTemplate, 'error', 'accept', 'Custom Accept', 'Custom Cancel')"
+                            >Confirmation Dialog with template, focus accept, custom button texts</button
                         >
                     </div>
                 </div>
@@ -350,36 +364,36 @@
         <tab>
             <div tab-header><i class="icon-example"></i> Buttons</div>
             <div class="content">
-                <tab-button
+                <button 
                     color="secondary"
                     [loading]="buttonsLoading.secondary"
                     (click)="buttonClick('secondary')"
-                    >Secondary</tab-button
+                    >Secondary</button
                 >
-                <tab-button
+                <button 
                     color="primary"
                     [loading]="buttonsLoading.primary"
                     (click)="buttonClick('primary')"
-                    >Primary</tab-button
+                    >Primary</button
                 >
-                <tab-button
+                <button 
                     color="error"
                     [loading]="buttonsLoading.warning"
                     (click)="buttonClick('warning')"
-                    >Warning</tab-button
+                    >Warning</button
                 >
-                <tab-button [disabled]="true">Secondary disabled</tab-button>
-                <tab-button [disabled]="true" color="primary"
-                    >Primary disabled</tab-button
+                <button  [disabled]="true">Secondary disabled</button>
+                <button  [disabled]="true" color="primary"
+                    >Primary disabled</button
                 >
-                <tab-button [disabled]="true" color="error"
-                    >Warning disabled</tab-button
+                <button  [disabled]="true" color="error"
+                    >Warning disabled</button
                 >
-                <tab-button
+                <button 
                     color="primary"
                     [loading]="buttonsLoading.primary"
                     (click)="openDialog()"
-                    >Open Dialog</tab-button
+                    >Open Dialog</button
                 >
             </div>
         </tab>

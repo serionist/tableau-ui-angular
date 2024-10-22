@@ -77,6 +77,7 @@ export class DialogService {
         color: 'primary' | 'error' | 'secondary',
         acceptBtnText: string | undefined,
         cancelBtnText: string | undefined,
+        autofocus: 'accept' | 'cancel' | undefined,
         args?: IConfirmationDialogArgs
     ): Promise<boolean> {
         const modalArgs = {
@@ -84,16 +85,16 @@ export class DialogService {
             header: { title, allowClose: true },
         } as IModalArgs;
         return new Promise((resolve) => {
-            const inputs: { [key: string]: any } =  { content: message, color };
-            if (acceptBtnText) inputs[acceptBtnText] = acceptBtnText;
-            if (cancelBtnText) inputs[cancelBtnText] = cancelBtnText;
+            const inputs: { [key: string]: any } =  { content: message, color, autofocus };
+            if (acceptBtnText) inputs['acceptBtnText'] = acceptBtnText;
+            if (cancelBtnText) inputs['cancelBtnText'] = cancelBtnText;
             const dialogRef = this.openModal(
                 ConfirmationDialogComponent,
                 inputs,
                 modalArgs
             );
             dialogRef.afterClosed$.subscribe((result) => {
-                resolve(result);
+                resolve(result ?? false);
             });
         });
     }
@@ -104,6 +105,7 @@ export class DialogService {
         color: 'primary' | 'error' | 'secondary',
         acceptBtnText: string | undefined,
         cancelBtnText: string | undefined,
+        autofocus: 'accept' | 'cancel' | undefined,
         args?: IConfirmationDialogArgs
     ): Promise<boolean> {
         const modalArgs = {
@@ -111,16 +113,16 @@ export class DialogService {
             header: { title, allowClose: true },
         } as IModalArgs;
         return new Promise((resolve) => {
-            const inputs: { [key: string]: any } =  { contentTemplate: template, color };
-            if (acceptBtnText) inputs[acceptBtnText] = acceptBtnText;
-            if (cancelBtnText) inputs[cancelBtnText] = cancelBtnText;
+            const inputs: { [key: string]: any } =  { contentTemplate: template, color, autofocus };
+            if (acceptBtnText) inputs['acceptBtnText'] = acceptBtnText;
+            if (cancelBtnText) inputs['cancelBtnText'] = cancelBtnText;
             const dialogRef = this.openModal(
                 ConfirmationDialogComponent,
                inputs ,
                 modalArgs
             );
             dialogRef.afterClosed$.subscribe((result) => {
-                resolve(result);
+                resolve(result ?? false);
             });
         });
     }
