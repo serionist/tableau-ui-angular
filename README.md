@@ -2,6 +2,15 @@
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.6.
 
+
+## Publishing a new version to npm
+
+0. Update the version in `component-library/package.json`
+1. `ng build component-library -c=production`
+2. `cd dist/component-library`
+3. `npm login`
+4. `npm publish`
+
 ## Development server
 
 Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.

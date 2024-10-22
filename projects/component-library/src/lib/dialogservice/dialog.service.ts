@@ -14,8 +14,8 @@ import {
 import { TAB_DIALOG_REF, DialogRef } from './dialog.ref';
 import { IConfirmationDialogArgs, IDialogArgs, IDialogHeaderArgs, IModalArgs } from './dialog.args';
 import { debounceTime, fromEvent, Subscription } from 'rxjs';
-import { IconComponent } from 'component-library';
 import { FocusableElement, tabbable } from 'tabbable';
+import { IconComponent } from '../icon/icon.component';
 
 @Injectable({
     providedIn: 'root'
