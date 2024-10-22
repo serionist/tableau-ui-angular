@@ -11,6 +11,11 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 3. `npm login`
 4. `npm publish`
 
+## Consume locally in another project
+1. `ng build component-library -c=production --watch`
+2. In a new terminal, `cd dist/component-library` and `npm link`
+3. In the consuming project, `npm link tableau-ui-angular`
+
 ## Development server
 
 Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
