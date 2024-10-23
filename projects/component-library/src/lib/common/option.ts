@@ -28,7 +28,7 @@ import { IconComponent } from '../icon/icon.component';
             line-height: 1.2;
             align-items: center;
         }
-        ::ng-deep tab-icon {
+        .tab-option ::ng-deep tab-icon {
             grid-column: 1;
             grid-row: 1;
             margin-right: 2px;

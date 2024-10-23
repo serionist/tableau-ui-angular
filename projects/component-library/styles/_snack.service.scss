@@ -1,0 +1,81 @@
+.tab-snacks {
+    display: flex;
+    justify-content: center;
+    left: 0;
+    position: fixed;
+    right: 0;
+    visibility: hidden;
+    z-index: 2000;
+    &.top {
+        top: 0;
+        margin-top: 15px;
+    }
+    &.bottom {
+        bottom: 0;
+        margin-bottom: 2px;
+    }
+
+    .snack-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        max-width: 800px;
+
+        transition: transform 200ms ease-in-out;
+
+        .snack-wrapper {
+            align-items: flex-start;
+            border: 1px solid transparent;
+            border-left-width: 8px;
+            border-radius: 4px;
+            box-shadow: 1px 1px 2px 0px rgba(0, 0, 0, 0.15);
+            box-sizing: border-box;
+            color: var(--twc-color-text);
+            display: flex;
+            flex-direction: column;
+            font-size: var(--twc-font-size-body);
+            justify-content: flex-start;
+            margin-bottom: 3px;
+            position: relative;
+            visibility: visible;
+            height: auto;
+            transition: opacity 200ms;
+
+            // transform: translateY(-40px);
+          //  transition: margin 200ms ease-in-out, opacity 200ms ease-in-out;
+            opacity: 0;
+
+            // &.visible {
+            //     opacity: 1;
+            //     transform: translateY(0) !important;
+            //   }
+            //   &.removed {
+            //     opacity: 0;
+            //     transform: translateY(-20px); 
+            //   }
+            .timer {
+                height: 2px;
+                width: 100%;
+                margin-top: -2px;
+                transition: width 1000ms linear;
+            }
+            &.info {
+                background-color: #cfe9fe;
+                border-color: #05628a;
+                .timer {
+                    background-color: #05628a;
+                }
+            }
+          
+            &.error {
+                border-color: var(--twc-color-error);
+                background-color: #ffcbcb;
+                .timer {
+                    background-color: var(--twc-color-error);
+                }
+            }
+
+            
+        }
+    }
+}

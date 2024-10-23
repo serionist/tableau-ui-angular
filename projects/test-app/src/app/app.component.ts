@@ -1,4 +1,10 @@
-import { Component, inject, OnInit, TemplateRef, ViewContainerRef } from '@angular/core';
+import {
+    Component,
+    inject,
+    OnInit,
+    TemplateRef,
+    ViewContainerRef,
+} from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FormControl } from '@angular/forms';
@@ -19,9 +25,11 @@ import {
     ButtonComponent,
     IconComponent,
     DialogService,
-    LoaderComponent
+    LoaderComponent,
+    SnackService,
 } from '../../../component-library/src/public-api';
 import { ExampleDialogComponent } from './example-dialog.component';
+import { ExampleSnackComponent } from './example-snack.component';
 
 @Component({
     selector: 'app-root',
@@ -52,6 +60,7 @@ import { ExampleDialogComponent } from './example-dialog.component';
 })
 export class AppComponent implements OnInit {
     public dialogService = inject(DialogService);
+    public snackService = inject(SnackService);
     ngOnInit(): void {
         this.errorControl.markAsTouched();
         this.errorControl.updateValueAndValidity();
@@ -112,24 +121,41 @@ export class AppComponent implements OnInit {
         console.log('Confirmation dialog returned: ', dialogRef);
     }
     async openConfirmationTemplateDialog(
-      template: TemplateRef<any>,
-      color: 'primary' | 'error' | 'secondary' = 'secondary',
-      autofocus: 'accept' | 'cancel' | undefined,
-      acceptBtnText?: string | undefined,
-      cancelBtnText?: string | undefined
-  ) {
-      const dialogRef =
-          await this.dialogService.openConfirmationTemplateDialog(
-              'This a random confirmation dialog',
-              template,
-              color,
-              acceptBtnText,
-              cancelBtnText,
-              autofocus,
-              {
-                width: '500px'
-              }
-          );
-      console.log('Confirmation dialog returned: ', dialogRef);
-  }
+        template: TemplateRef<any>,
+        color: 'primary' | 'error' | 'secondary' = 'secondary',
+        autofocus: 'accept' | 'cancel' | undefined,
+        acceptBtnText?: string | undefined,
+        cancelBtnText?: string | undefined
+    ) {
+        const dialogRef =
+            await this.dialogService.openConfirmationTemplateDialog(
+                'This a random confirmation dialog',
+                template,
+                color,
+                acceptBtnText,
+                cancelBtnText,
+                autofocus,
+                {
+                    width: '500px',
+                }
+            );
+        console.log('Confirmation dialog returned: ', dialogRef);
+    }
+
+    async openCustomSnack(
+        duration: number | undefined = 5000,
+        type: 'info' | 'error' = 'info',
+        location: 'top' | 'bottom' = 'top'
+    ) {
+        const snackRef = await this.snackService.openSnackComponent(
+            ExampleSnackComponent,
+            { message: 'This is a custom snack compoenent' },
+            duration,
+            type,
+            location
+        );
+        snackRef.afterClosed$.subscribe((result) => {
+            console.log('Snack closed with result:', result);
+        });
+    }
 }

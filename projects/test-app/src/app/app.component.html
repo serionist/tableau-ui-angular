@@ -307,6 +307,7 @@
                     </span>
                 </div>
 
+                <div class="text-subtitle">Dialogs</div>
                 <div class="two">
                     <div class="content">
                         <button 
@@ -359,6 +360,41 @@
                     </div>
                 </div>
                 
+                <div class="text-subtitle">Snacks</div>
+                <div class="two">
+                    <div class="content">
+                        <button color="primary" (click)="snackService.openSnack('This is a simple snack forever', 0)">Simple Snack from top, forever</button>
+                        <button color="error" (click)="snackService.openSnack('This is a simple snack forever', 0, 'error')">Simple Snack from top, forever</button>
+
+                        <button color="primary" (click)="snackService.openSnack('This is a simple snack forever', 0, 'info', 'bottom')">Simple Snack from bottom, forever</button>
+                        <button color="error" (click)="snackService.openSnack('This is a simple snack forever', 0, 'error', 'bottom')">Simple Snack from bottom, forever</button>
+
+
+                        <button color="primary" (click)="snackService.openSnack('This is a simple snack for 5 seconds', 5000)">Simple Snack from top, 5 secs</button>
+                        <button color="error" (click)="snackService.openSnack('This is a simple snack for 5 seconds', 5000, 'error')">Simple Snack from top, 5 secs</button>
+
+                        <button color="primary" (click)="snackService.openSnack('This is a simple snack for 5 seconds', 5000, 'info', 'bottom')">Simple Snack from bottom, 5 secs</button>
+                        <button color="error" (click)="snackService.openSnack('This is a simple snack for 5 seconds', 5000, 'error', 'bottom')">Simple Snack from bottom, 5 secs</button>
+                    </div>
+                    <div class="content">
+                        <ng-template #snackTemplate>
+                            <span>This is a random template</span>
+                            <tab-checkbox [value]="true">Checkbox</tab-checkbox>
+                        </ng-template>
+                        <button color="primary" (click)="snackService.openSnackFromTemplate(snackTemplate, 5000)">Templated Snack from top, 5 secs</button>
+                        <button color="error" (click)="snackService.openSnackFromTemplate(snackTemplate, 5000, 'error')">Templated Snack from top, 5 secs</button>
+
+                        <button color="primary" (click)="snackService.openSnackFromTemplate(snackTemplate, 5000, 'info', 'bottom')">Templated Snack from bottom, 5 secs</button>
+                        <button color="error" (click)="snackService.openSnackFromTemplate(snackTemplate, 5000, 'error', 'bottom')">Templated Snack from bottom, 5 secs</button>
+
+
+                        <button color="primary" (click)="openCustomSnack(5000)">Custom Component Snack from top, 5 secs</button>
+                        <button color="error" (click)="openCustomSnack(5000, 'error')">Custom Component Snack from top, 5 secs</button>
+
+                        <button color="primary" (click)="openCustomSnack(5000, 'info', 'bottom')">Custom Component Snack from bottom, 5 secs</button>
+                        <button color="error" (click)="openCustomSnack(5000, 'error', 'bottom')">Custom Component Snack from bottom, 5 secs</button>
+                    </div>
+                </div>
             </div>
         </tab>
         <tab>

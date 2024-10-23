@@ -21,3 +21,6 @@ export * from './lib/icon/icon.component';
 export * from './lib/dialogservice/dialog.args';
 export * from './lib/dialogservice/dialog.service';
 export * from './lib/dialogservice/dialog.ref';
+export * from './lib/snack/snack.component';
+export * from './lib/snack/snack.ref';
+export * from './lib/snack/snack.service';
