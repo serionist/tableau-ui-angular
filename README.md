@@ -7,7 +7,8 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 
 0. Login to npm with `npm login` if required
 1. Update the version in `component-library/package.json`
-2. `npm run publish`
+2. Commit it and `git tag -l "[version]"`
+3. `npm run publish`
 
 ## Consume locally in another project
 1. `ng build component-library -c=production --watch`
