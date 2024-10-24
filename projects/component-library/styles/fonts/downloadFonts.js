@@ -1,7 +1,6 @@
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
-const readline = require('readline');
 
 // The list of font files to download
 const fontFiles = [
@@ -37,11 +36,11 @@ function downloadFile(url, destination) {
 }
 
 // Function to download all font files
-async function downloadFonts(rootUrl) {
+async function downloadFonts(serverUrl, downloadDir) {
   for (const fontFile of fontFiles) {
-    const fileUrl = `${rootUrl}/img/${fontFile}`;
-    const destination = path.join(__dirname, fontFile);  // Save file to the same directory as the script
-    console.log(`Downloading ${fontFile}...`);
+    const fileUrl = `${serverUrl}/img/${fontFile}`;
+    const destination = path.join(downloadDir, fontFile);  // Save file in the specified download folder
+    console.log(`Downloading ${fontFile} from ${fileUrl}...`);
     try {
       await downloadFile(fileUrl, destination);
       console.log(`${fontFile} downloaded successfully.`);
@@ -51,20 +50,27 @@ async function downloadFonts(rootUrl) {
   }
 }
 
-// Create a prompt for the user to enter the root server URL
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
-});
+// Validate and parse CLI arguments
+const args = process.argv.slice(2); // Get command-line arguments
 
-rl.question('Please enter the root server URL (e.g., https://your-tableau-server): ', (rootUrl) => {
-  downloadFonts(rootUrl)
-    .then(() => {
-      console.log('All fonts downloaded.');
-      rl.close();
-    })
-    .catch((error) => {
-      console.error('Error downloading fonts:', error);
-      rl.close();
-    });
-});
+if (args.length < 2) {
+  console.error('Usage: node downloadFonts.js <server-url> <download-folder>');
+  process.exit(1);
+}
+
+const serverUrl = args[0];
+const downloadDir = args[1];
+
+// Ensure the download directory exists, or create it
+if (!fs.existsSync(downloadDir)) {
+  fs.mkdirSync(downloadDir, { recursive: true });
+}
+
+// Start downloading fonts
+downloadFonts(serverUrl, downloadDir)
+  .then(() => {
+    console.log('All fonts downloaded successfully.');
+  })
+  .catch((error) => {
+    console.error('Error downloading fonts:', error);
+  });
