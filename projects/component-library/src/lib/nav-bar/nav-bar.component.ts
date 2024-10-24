@@ -11,14 +11,12 @@ import { NavBarSectionComponent } from './nav-bar-section.component';
   templateUrl: './nav-bar.component.html',
   styleUrl: './nav-bar.component.scss',
   host: {
-    '[style.width]': 'width()',
     '[attr.expanded]': 'expanded()'
   }
 })
 export class NavBarComponent implements AfterContentInit {
   
   
-  width = input<string>('fit-content');
   expanded = model<boolean>(true);
 
   sections = contentChildren(NavBarSectionComponent);

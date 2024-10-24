@@ -1,5 +1,5 @@
 .tab-nav-bar-link {
-    align-items: center;
+   
     background-color: transparent;
     box-sizing: border-box;
     display: flex;
@@ -12,6 +12,35 @@
     vertical-align: middle;
     width: 100%;
     line-height: 16px;
-
+    cursor: pointer;
+    align-items: center;
     color: var(--twc-color-text);
+    &:hover {
+        text-decoration: none;
+        background-color: rgb(235,235,235);
+        ::ng-deep tab-icon {
+            font-variation-settings: "FILL" 0, "wght" 350, "GRAD" 0, "opsz" 24
+        }
+    }
+
+    ::ng-deep tab-icon {
+        color: #666666;
+        display: inline-block;
+        height: 20px;
+        margin-left: 23px;
+        margin-right: 11px;
+        width: 20px;
+        font-size: 20px;
+        font-variation-settings: "FILL" 0, "wght" 250, "GRAD" 0, "opsz" 24
+    }
+
+    ::ng-deep .content {
+        font-weight: normal;
+        line-height: 16px;
+        overflow: hidden;
+        padding-top: 2px;
+        vertical-align: middle;
+        white-space: nowrap;
+        margin-right: 11px;
+    }
 }

@@ -34,7 +34,6 @@ import { IconComponent } from '../icon/icon.component';
         .tab-option ::ng-deep tab-icon {
             grid-column: 1;
             grid-row: 1;
-            margin-right: 2px;
         }
         .content {
             grid-column: 2;
@@ -62,6 +61,7 @@ export class OptionComponent {
         this.renderIcon = renderIcon;
         this.renderHint = renderHint;
         this.renderText = renderText;
+        console.log('gettemplate')
         return this.template;
     }
 
