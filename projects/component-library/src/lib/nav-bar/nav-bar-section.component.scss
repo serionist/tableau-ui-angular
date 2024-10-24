@@ -1,0 +1,17 @@
+.tab-nav-bar-link {
+    align-items: center;
+    background-color: transparent;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    font-size: 14px;
+    height: 40px;
+    outline: none;
+    position: relative;
+    text-decoration: none;
+    vertical-align: middle;
+    width: 100%;
+    line-height: 16px;
+
+    color: var(--twc-color-text);
+}

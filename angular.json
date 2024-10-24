@@ -88,6 +88,11 @@
               {
                 "glob": "**/*",
                 "input": "projects/test-app/public"
+              },
+              {
+                "glob": "**/*",
+                "input": "projects/component-library/styles/fonts",
+                "output": "/fonts-consume"
               }
             ],
             "styles": [
@@ -187,5 +192,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": false
   }
 }

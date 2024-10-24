@@ -1,0 +1,70 @@
+
+@mixin font-import($rootDir) {
+
+  @font-face {
+    font-family: BentonSans-Book;
+    font-weight: normal;
+    font-style: normal;
+    src: url(#{$rootDir}/BentonSans-Book.woff2) format('woff2'), url(#{$rootDir}/BentonSans-Book.woff) format('woff');
+  }
+  @font-face {
+    font-family: BentonSans-Book_Italic;
+    font-weight: normal;
+    font-style: normal;
+    src: url(#{$rootDir}/BentonSans-Book_Italic.woff2) format('woff2'), url(#{$rootDir}/BentonSans-Book_Italic.woff) format('woff');
+  }
+  @font-face {
+    font-family: BentonSans-Medium;
+    font-weight: normal;
+    font-style: normal;
+    src: url(#{$rootDir}/BentonSans-Medium.woff2) format('woff2'), url(#{$rootDir}/BentonSans-Medium.woff) format('woff');
+  }
+  @font-face {
+    font-family: BentonSans-SemiDemi;
+    font-weight: normal;
+    font-style: normal;
+    src: url(#{$rootDir}/BentonSans-SemiDemi.woff2) format('woff2'), url(#{$rootDir}/BentonSans-SemiDemi.woff) format('woff');
+  }
+  @font-face {
+    font-family: BentonSans-SemiDemi_Italic;
+    font-weight: normal;
+    font-style: normal;
+    src: url(#{$rootDir}/BentonSans-SemiDemi_Italic.woff2) format('woff2'), url(#{$rootDir}/BentonSans-SemiDemi_Italic.woff) format('woff');
+  }
+  @font-face {
+    font-family: Benton Sans;
+    font-weight: normal;
+    font-style: normal;
+    src: url(#{$rootDir}/BentonSans-Book.woff2) format('woff2'), url(#{$rootDir}/BentonSans-Book.woff) format('woff');
+  }
+  @font-face {
+    font-family: Benton Sans;
+    font-weight: normal;
+    font-style: italic;
+    src: url(#{$rootDir}/BentonSans-Book_Italic.woff2) format('woff2'), url(#{$rootDir}/BentonSans-Book_Italic.woff) format('woff');
+  }
+  @font-face {
+    font-family: Benton Sans;
+    font-weight: 500;
+    font-style: normal;
+    src: url(#{$rootDir}/BentonSans-SemiDemi.woff2) format('woff2'), url(#{$rootDir}/BentonSans-SemiDemi.woff) format('woff');
+  }
+  @font-face {
+    font-family: Benton Sans;
+    font-weight: bold;
+    font-style: normal;
+    src: url(#{$rootDir}/BentonSans-Medium.woff2) format('woff2'), url(#{$rootDir}/BentonSans-Medium.woff) format('woff');
+  }
+  @font-face {
+    font-family: Benton Sans Low-DPI;
+    font-weight: normal;
+    font-style: normal;
+    src: url(#{$rootDir}/BentonSans-SemiDemi.woff2) format('woff2'), url(#{$rootDir}/BentonSans-SemiDemi.woff) format('woff');
+  }
+  @font-face {
+    font-family: Benton Sans Low-DPI;
+    font-weight: normal;
+    font-style: italic;
+    src: url(#{$rootDir}/BentonSans-SemiDemi_Italic.woff2) format('woff2'), url(#{$rootDir}/BentonSans-SemiDemi_Italic.woff) format('woff');
+  }
+}

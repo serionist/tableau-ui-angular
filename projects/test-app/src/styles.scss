@@ -1,2 +1,13 @@
 /* You can add global styles to this file, and also import other style files */
 @import "../../component-library/styles/lib-styles";
+
+// Set this in angular.json to copy the font assets into the /fonts-consume folder
+//  "assets": [
+//               {
+//                 "glob": "**/*",
+//                 "input": "projects/component-library/styles/fonts",
+//                 "output": "/fonts-consume"
+//               }
+//             ],
+
+@include font-import('/fonts-consume');

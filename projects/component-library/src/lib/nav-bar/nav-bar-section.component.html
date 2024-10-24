@@ -1,0 +1,13 @@
+<ng-template #template>
+    @if (topSeparator()) {
+        <tab-separator></tab-separator>
+    }
+    @for (op of options(); track op.value) {
+        <a class="tab-nav-bar-link"  [routerLink]="">
+            <ng-container *ngTemplateOutlet="op.getTemplate(true, false, expanded())"></ng-container>
+        </a>
+    }
+    @if (bottomSeparator()) {
+        <tab-separator></tab-separator>
+    }
+    </ng-template>

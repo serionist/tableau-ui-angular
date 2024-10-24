@@ -2,6 +2,8 @@
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.6.
 
+## Download fonts
+Run `projects/component-library/styles/fonts/downloadFonts.js` to download the files
 
 ## Publishing a new version to npm
 

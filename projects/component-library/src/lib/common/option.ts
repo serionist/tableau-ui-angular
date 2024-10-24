@@ -12,7 +12,10 @@ import { IconComponent } from '../icon/icon.component';
             @if (iconElement && renderIcon) {
                 <ng-content select="tab-icon"></ng-content>
             }
-            <div class="content"><ng-content></ng-content></div>
+            @if (renderText) {
+                <div class="content"><ng-content></ng-content></div>
+            }
+           
             @if (hintElement && renderHint) {
             <div class="hint">
                 <ng-content select="tab-hint"></ng-content>
@@ -32,12 +35,9 @@ import { IconComponent } from '../icon/icon.component';
             grid-column: 1;
             grid-row: 1;
             margin-right: 2px;
-            font-size: 14px;
-            margin-top: 2px;
         }
         .content {
             grid-column: 2;
-            font-size: 12px;
             grid-row: 1;
         }
         .hint {
@@ -53,13 +53,15 @@ export class OptionComponent {
     disabled = input<boolean>(false);
     @ContentChild(HintComponent, { static: false }) hintElement: ElementRef | undefined;
     @ContentChild(IconComponent, { static: false }) iconElement: ElementRef | undefined;
-    @ViewChild('templateRef', { static: true }) template!: TemplateRef<any>;
+    @ViewChild('templateRef', { static: true }) private template!: TemplateRef<any>;
 
     renderIcon = true;
     renderHint = true;
-    getTemplate(renderIcon: boolean = true, renderHint: boolean = true) {
+    renderText = true;
+    getTemplate(renderIcon: boolean = true, renderHint: boolean = true, renderText: boolean = true) {
         this.renderIcon = renderIcon;
         this.renderHint = renderHint;
+        this.renderText = renderText;
         return this.template;
     }
 
