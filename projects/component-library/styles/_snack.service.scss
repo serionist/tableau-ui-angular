@@ -41,18 +41,8 @@
             height: auto;
             transition: opacity 200ms;
 
-            // transform: translateY(-40px);
-          //  transition: margin 200ms ease-in-out, opacity 200ms ease-in-out;
             opacity: 0;
 
-            // &.visible {
-            //     opacity: 1;
-            //     transform: translateY(0) !important;
-            //   }
-            //   &.removed {
-            //     opacity: 0;
-            //     transform: translateY(-20px); 
-            //   }
             .timer {
                 height: 2px;
                 width: 100%;

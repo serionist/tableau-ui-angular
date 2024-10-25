@@ -7,6 +7,7 @@ import {
     input,
 } from '@angular/core';
 
+// Style contained in _tooltips.scss in the styles folder
 @Directive({
     selector: '[tooltip]',
     standalone: true,

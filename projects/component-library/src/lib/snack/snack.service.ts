@@ -12,6 +12,7 @@ import {
 import { SnackRef, TAB_SNACK_REF } from './snack.ref';
 import { SnackComponent } from './snack.component';
 
+// Styles for the snack container are in _snack.service.scss in the styles folder
 @Injectable({
     providedIn: 'root',
 })

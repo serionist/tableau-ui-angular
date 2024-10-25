@@ -24,6 +24,7 @@ import { FocusableElement, tabbable } from 'tabbable';
 import { IconComponent } from '../icon/icon.component';
 import { ConfirmationDialogComponent } from './confirmation-dialog.component';
 
+// Styles for the dialog container are in _dialog.service.scss in the styles folder
 @Injectable({
     providedIn: 'root',
 })
