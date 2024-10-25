@@ -3,7 +3,6 @@ import { Component, contentChildren, inject, input, model, TemplateRef, viewChil
 import { SeparatorComponent } from "../common/separator";
 import { OptionComponent } from "../common/option";
 import { Router, RouterModule, RouterState } from "@angular/router";
-import { TooltipComponent } from "../tooltip/tooltip.component";
 import { TooltipDirective } from "../tooltip/tooltip.directive";
 
 @Component({
@@ -11,7 +10,7 @@ selector: 'tab-nav-bar-section',
 standalone: true,
 templateUrl: './nav-bar-section.component.html',
 styleUrl: './nav-bar-section.component.scss',
-imports: [CommonModule, SeparatorComponent, TooltipComponent, TooltipDirective, OptionComponent, RouterModule]
+imports: [CommonModule, SeparatorComponent, TooltipDirective, OptionComponent, RouterModule]
 })
 export class NavBarSectionComponent {
     topSeparator = input<boolean>(false);

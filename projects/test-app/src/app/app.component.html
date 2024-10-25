@@ -1,4 +1,4 @@
-<div class="lofasz">
+<!-- <div class="lofasz">
     <tab-nav-bar #navBar>
         <tab-nav-bar-header>
             @if (navBar.expanded()) {
@@ -37,10 +37,10 @@
             </tab-option>
         </tab-nav-bar-section>
     </tab-nav-bar>
-</div>
+</div> -->
 
 
-<!-- <div class="grid">
+<div class="grid">
     <tab-loader [message]="'szeva'"></tab-loader>
 
     <tab-group>
@@ -318,34 +318,32 @@
                 <i class="icon-example"></i> Tooltips & dialogs
             </div>
             <div class="tab-content">
-                <tab-tooltip #tooltipOne>Tooltip Content One</tab-tooltip>
-                <tab-tooltip #tooltipTwo>Tooltip Content Two</tab-tooltip>
-                <tab-tooltip #tooltipThree>Tooltip Content Three</tab-tooltip>
-
+                <ng-template #tooltipTemplate>Tooltip Coming from template</ng-template>
+            
                 <div style="margin-top: 20px">
-                    <span [tooltip]="tooltipOne" tooltip-position="top">
-                        Hover over me to see Tooltip Top
+                    <span tooltip="Tooltip provided as text" tooltipPosition="top">
+                        Top TEXT tooltip, default margin
                     </span>
                 </div>
                 <div style="margin-top: 20px">
-                    <span [tooltip]="tooltipOne" tooltip-position="left">
-                        Hover over me to see Tooltip One
+                    <span [tooltip]="tooltipTemplate" tooltipPosition="left">
+                        Left TEMPLATE tooltip, default margin
                     </span>
                 </div>
                 <div style="margin-left: 520px">
-                    <span [tooltip]="tooltipOne" tooltip-position="left">
-                        Hover over me to see Tooltip One - no correction
+                    <span [tooltip]="tooltipTemplate" tooltipPosition="left" tooltipMargin="10px">
+                        Left TEMPLATE tooltip, changed margin (10px)
                     </span>
                 </div>
                 <div style="margin-top: 20px">
-                    <span [tooltip]="tooltipTwo" tooltip-position="bottom">
-                        Hover over me to see Tooltip Two
+                    <span [tooltip]="tooltipTemplate" tooltipPosition="bottom" tooltipMargin="2em">
+                        Bottom TEMPLATE tooltip, changed margin (2em)
                     </span>
                 </div>
 
                 <div style="margin-top: 20px">
-                    <span [tooltip]="tooltipThree" tooltip-position="right">
-                        Hover over me to see Tooltip Three
+                    <span [tooltip]="tooltipTemplate" tooltipPosition="right">
+                        Right TEMPLATE tooltip, default margin
                     </span>
                 </div>
 
@@ -535,4 +533,4 @@
             </div>
         </tab>
     </tab-group>
-</div> -->
+</div>

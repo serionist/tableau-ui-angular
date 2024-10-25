@@ -1,4 +1,4 @@
-.tooltip {
+.tab-tooltip {
     position: absolute;
     z-index: 1000;
     pointer-events: none;
@@ -14,19 +14,3 @@
     padding: 12px;
 }
 
-.tooltip-top {
-    margin-bottom: 5px;
-}
-
-.tooltip-bottom {
-    margin-top: 5px;
-}
-
-.tooltip-left {
-   // transform: translateX(-100%);
-    margin-right: 5px;
-}
-
-.tooltip-right {
-    margin-left: 5px;
-}

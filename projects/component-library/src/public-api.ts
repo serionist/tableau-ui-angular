@@ -14,7 +14,6 @@ export * from './lib/form-field/form-prefix';
 export * from './lib/form-field/form-suffix';
 export * from './lib/form-field/form-field.component';
 export * from './lib/radiogroup/radiogroup.component';
-export * from './lib/tooltip/tooltip.component';
 export * from './lib/tooltip/tooltip.directive';
 export * from './lib/button/button.component';
 export * from './lib/icon/icon.component';
