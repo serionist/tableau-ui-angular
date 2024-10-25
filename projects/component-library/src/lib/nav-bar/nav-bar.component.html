@@ -1,0 +1,12 @@
+<button (click)="expanded.set(!expanded())">{{ expanded() ? 'Collapse' : 'Expand'}}</button>
+
+<ng-content selector="tab-nav-bar-header">
+</ng-content>
+
+<div class="nav">
+    @for (section of sections(); track section) {
+        <ng-container *ngTemplateOutlet="section.template()!"></ng-container>
+    } 
+</div>
+
+<ng-content selector="tab-nav-bar-footer">

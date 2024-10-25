@@ -1,4 +1,46 @@
-<div class="grid">
+<div class="lofasz">
+    <tab-nav-bar #navBar>
+        <tab-nav-bar-header>
+            @if (navBar.expanded()) {
+                <tab-checkbox>Lofasz</tab-checkbox>
+            }
+            <tab-icon>home</tab-icon><span>szevasz s</span>
+        </tab-nav-bar-header>
+
+        
+        <tab-nav-bar-section [bottomSeparator]="true">
+            <tab-option [value]="'/'">
+                <tab-icon>home</tab-icon>
+                <span>Home</span>
+            </tab-option>
+        </tab-nav-bar-section>
+        <tab-nav-bar-section [bottomSeparator]="true">
+            <tab-option value="/lofasz">
+                <tab-icon >home</tab-icon>
+                <span>Lofasz</span>
+            </tab-option>
+            <tab-option [value]="'asd'">
+                <tab-icon>home</tab-icon>
+                <span>Home</span>
+            </tab-option>
+            <tab-option [value]="'asd'">
+                <tab-icon>home</tab-icon>
+                <span>Home</span>
+            </tab-option>
+           
+
+        </tab-nav-bar-section>
+        <tab-nav-bar-section >
+            <tab-option [value]="'asd'">
+                <tab-icon>home</tab-icon>
+                <span>Home</span>
+            </tab-option>
+        </tab-nav-bar-section>
+    </tab-nav-bar>
+</div>
+
+
+<!-- <div class="grid">
     <tab-loader [message]="'szeva'"></tab-loader>
 
     <tab-group>
@@ -493,4 +535,4 @@
             </div>
         </tab>
     </tab-group>
-</div>
+</div> -->

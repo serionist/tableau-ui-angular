@@ -8,6 +8,11 @@
         ]
     },
     "assets": [
-        "./styles/**/*.*"
+        {
+            "glob": "**/*",
+            "input": "./styles",
+            "output": "./styles",
+            "ignore": ["**/BentonSans-*"]
+        }
     ]
 }

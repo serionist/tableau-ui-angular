@@ -1,0 +1,25 @@
+:host {
+    background-color: rgb(250, 250, 250);
+    border-right: 1px solid rgb(203, 203, 203);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    transition: width .3s ease-in-out;
+    white-space: nowrap;
+    display: grid;
+    grid-template-rows: auto auto 1fr auto;
+
+    tab-nav-bar-header {
+        grid-row: 2;
+    }
+    .nav {
+        grid-row: 3;
+        overflow-y: auto;
+    }
+    tab-nav-bar-footer {
+        grid-row: 4;
+    }
+}

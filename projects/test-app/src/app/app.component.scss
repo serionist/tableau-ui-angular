@@ -20,3 +20,10 @@
 .text-subtitle {
     margin: 0.5rem 0 0.25rem 0;
 }
+
+tab-nav-bar[expanded=true] {
+    width: 240px;
+}
+tab-nav-bar[expanded=false] {
+    width: 65px;
+}

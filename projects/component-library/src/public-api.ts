@@ -24,3 +24,8 @@ export * from './lib/dialogservice/dialog.ref';
 export * from './lib/snack/snack.component';
 export * from './lib/snack/snack.ref';
 export * from './lib/snack/snack.service';
+export * from './lib/nav-bar/nav-bar.component';
+export * from './lib/nav-bar/nav-bar-header.component';
+export * from './lib/nav-bar/nav-bar-footer.component';
+export * from './lib/nav-bar/nav-bar-section.component';
+export * from './lib/common/separator';
