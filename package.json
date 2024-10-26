@@ -6,6 +6,7 @@
     "downloadFonts": "node projects/component-library/styles/fonts/downloadFonts.js",
     "start": "ng serve test-app",
     "build": "ng build",
+    "build:component-library": "ng build component-library",
     "build:github-pages":"ng build test-app --base-href /tableau-ui-angular/",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",

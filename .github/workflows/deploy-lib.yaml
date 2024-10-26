@@ -1,0 +1,111 @@
+name: Deploy Test App to GitHub Pages
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "lib"
+  cancel-in-progress: false
+
+jobs:
+  build-library:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        id: checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        id: setup-node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'  # Use a stable Node version
+
+      - name: Install Dependencies
+        id: install-deps
+        run: npm install
+
+      - name: Build Component Library
+        id: build-library
+        run: npm run build:component-library
+
+      - name: Build Test App
+        id: build-test-app
+        run: npm run build:github-pages
+
+  version-and-publish-library:
+    runs-on: ubuntu-latest
+    needs: build-library
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+
+      - name: Update Version
+        id: update-version
+        run: |
+          CURRENT_VERSION=$(jq -r '.version' projects/component-library/package.json)
+          NEW_VERSION=$(npm version minor -m "Package version set to %s" --prefix projects/component-library | grep -o '[0-9.]*')
+          echo "New version is $NEW_VERSION"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Commit and Tag Version Update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add projects/component-library/package.json
+          git commit -m "Package version set to $NEW_VERSION"
+          git tag "v$NEW_VERSION"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+#     steps:
+#       # Step 1: Checkout the code
+#       - name: Checkout Repository
+#         id: checkout
+#         uses: actions/checkout@v3
+
+#       - name: Set up Node.js
+#         id: setup-node
+#         uses: actions/setup-node@v3
+#         with:
+#           node-version: '22'
+
+#       - name: Install Dependencies
+#         id: install-deps
+#         run: npm install
+
+#       - name: Build Test App
+#         id: build
+#         run: npm run build:github-pages
+
+#       - name: Upload static files as artifact
+#         id: deployment
+#         uses: actions/upload-pages-artifact@v3
+#         with:
+#           path: ./dist/test-app/browser 
+#   deploy:
+#     environment:
+#       name: github-pages
+#       url: ${{ steps.deployment.outputs.page_url }}
+#     runs-on: ubuntu-latest
+#     needs: build
+#     steps:
+#       - name: Deploy to GitHub Pages
+#         id: deployment
+#         uses: actions/deploy-pages@v4
