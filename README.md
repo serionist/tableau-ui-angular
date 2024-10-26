@@ -1,22 +1,33 @@
 # Tableau UI Angular
 
-Tableau UI Angular is a third party component library to bring Tableau style components straight into Angular 18.
+Tableau UI Angular is a third-party component library that brings Tableau-style components to Angular 18.
 
 ## Getting started
-`npm install tableau-ui-angular`
+To install the library, run the following command:
+
+```bash
+npm install tableau-ui-angular
+```
 
 ## Components & Samples
-A web app containing all components, guides and samples is hosted [on GitHub Pages](https://serionist.github.io/tableau-ui-angular/).
+A web app containing all components, guides, and samples is hosted [on GitHub Pages](https://serionist.github.io/tableau-ui-angular/). Note that the web app does not display the underlying usage code. To understand how to use the components, you will need to browse the source code.
 
-The app does not show the code behind examples; you need to browse the source code for the app to understand how to use the components.
+To explore the code locally:
 
-For this reason, it's recommended to clone this repository and host your own version of sample app:
+1. Clone the repository:
+    ```bash
+    git clone https://github.com/serionist/tableau-ui-angular.git
+    ```
+2. Install dependencies
+    ```bash
+    npm install
+    ```
+3. Start the app:
+    ```bash
+    npm start
+    ```
 
-1. `git clone https://github.com/serionist/tableau-ui-angular.git` or `git clone git@github.com:serionist/tableau-ui-angular.git`
-2. `npm install` from the project directory
-3. `npm start` from the project directory
-
-You will need Node 22.
+Requires Node 22.
 
 The hosted version of this sample app does not use the official Tableau font (**Benton Sans Book**), as its proprietary. If you host your own version of it and you own a Tableau Server, you can import the Tableau fonts by running:
 ```
@@ -26,21 +37,22 @@ If you don't do this step, the sample site will fall back to Roboto or Arial fon
 
 ## Using Tableau UI Angular
 
-This example shows you how to get started with the extension and add a simple Tableau button to your site.
+Follow this example to add a Tableau button to your site (using SCSS stylesheets):
 
-Using this library assumes you use SCSS stylesheets.
-
-1. Add the package to your project by running `npm install tableau-ui-angular`
-2. Open `styles.scss` and add the following code to pull in the styles associated with the library:
+1. Install the package
+    ```bash
+    npm install tableau-ui-angular
     ```
+2. In `styles.scss`, import the library styles:
+    ```scss
     @import 'tableau-ui-angular/styles/lib-styles';
     ```
 3. (Optional) If you own a license for the Tableau font (**Benton Sans**), follow [this guide](Add-Benton-Sans.md) to import it.
-4. (Optional) If you don't use **Benton Sans**, add the following line to your `styles.scss` file to import `Roboto`, which is the default fallback font:
+4. (Optional) To use `Roboto` as a fallback font, add this line to your `styles.scss`:
     ```
     @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
     ```
-5. Update your `app.component.ts` to import `TableauUiButtonModule`:
+5. Update your `app.component.ts`, import `TableauUiButtonModule`:
     ```
     import { Component } from '@angular/core';
     import { RouterOutlet } from '@angular/router';
@@ -58,16 +70,14 @@ Using this library assumes you use SCSS stylesheets.
     }
 
     ```
-    **Note:** You can add the `TableauUiAllModule` instead of the `TableauUiButtonModule` if you wish to add all Tableau Controls instead of just the button. This results in a more monolithic import, and doesn't allow you to granually import only what's needed.
+    **Note:** You can use the `TableauUiAllModule` to import all components.
 
-6. Update your `app.component.html` to include the following:
+6. In `app.component.html`,add the button:
     ```
     <button color="primary" [loading]="false" type="button" [disabled]="false">This is a primary Tableau Button</button>
     ```
-    **NOTE:** the `color`, `loading`, `type` and `disabled` attributes are provided for reference, they are all optional.
+    **NOTE:** the `color`, `loading`, `type` and `disabled` attributes are optional.
 
-7. ???
-8. Profit
 
 
 

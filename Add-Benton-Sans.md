@@ -1,8 +1,8 @@
 # Adding Benton Sans (Tableau) font
 
-Before adding Tableau font (**Benton Sans Book**), make sure that you own a valid license for it, as it's proprietary. 
+Before adding Tableau font (**Benton Sans Book**), ensure you own a valid license, as it is proprietary.
     
-Before starting, designate a public folder to host your webfonts in. In this example, I will use the `public/fonts` folder (`/fonts` URL).
+Designate a public folder to host your webfonts, e.g., `public/fonts` (`/fonts` URL).
 
 1. Add the Benton Sans webfont files into the `public/fonts` folder:
 
@@ -13,7 +13,7 @@ Before starting, designate a public folder to host your webfonts in. In this exa
     ```
     This will download all the required fonts from the Tableau Server
     #### If you don't own a Tableau Server
-    Place the following files into the `public/fonts` folder:
+    Manually place the following files into the `public/fonts` folder:
     - BentonSans-Book.woff
     - BentonSans-Book.woff2
     - BentonSans-Book_Italic.woff
@@ -33,4 +33,4 @@ Before starting, designate a public folder to host your webfonts in. In this exa
     @include font-import('/fonts');
     ```
 
-    This sets up the application to pull in the Benton Sans font files from the `/fonts` URL, which translates to your `public/fonts` folder.
+    This sets up the application to pull the Benton Sans font files from the `/fonts` URL, which corresponds to your `public/fonts` folder.
