@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, input } from '@angular/core';
+import { Component, ElementRef, input, model } from '@angular/core';
 
 @Component({
   selector: 'tab-hint',
@@ -12,7 +12,6 @@ import { Component, ElementRef, input } from '@angular/core';
     `
 })
 export class HintComponent {
-
     type = input<'prefix' | 'suffix'>('prefix');
     constructor(public elementRef: ElementRef) {}
 

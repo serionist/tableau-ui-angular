@@ -1,11 +1,13 @@
 import { NgModule, provideZoneChangeDetection } from '@angular/core';
 import { AppComponent } from './app.component';
 import { BrowserModule } from '@angular/platform-browser';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import {
+    TableauUiCheckboxModule,
     TableauUiCommonModule,
     TableauUiNavBarModule,
+    TableauUiSnackModule,
 } from '../../../component-library/src/public-api';
 import { provideRouter, RouterModule, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -18,12 +20,15 @@ import { HomePageComponent } from './pages/home-page/home-page.component';
     declarations: [AppComponent, CssPageComponent, CheckboxPageComponent, HomePageComponent],
     imports: [
         BrowserModule,
+        CommonModule,
         FormsModule,
         MonacoEditorModule.forRoot(),
         RouterModule,
+        ReactiveFormsModule,
         TableauUiNavBarModule,
         TableauUiCommonModule,
-        CommonModule,
+        TableauUiCheckboxModule,
+        TableauUiSnackModule
     ],
     providers: [
         provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes)

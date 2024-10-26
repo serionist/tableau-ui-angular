@@ -1,5 +1,5 @@
 import { NgIf } from '@angular/common';
-import { Component, ContentChild, contentChild, ElementRef, forwardRef, Input, input, model, signal, ViewChild } from '@angular/core';
+import { Component, ContentChild, contentChild, ElementRef, forwardRef, Input, input, model, output, signal, ViewChild } from '@angular/core';
 import { CheckboxControlValueAccessor, ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { HintComponent } from '../common/hint';
 import { ErrorComponent } from '../common/error';
@@ -25,6 +25,8 @@ import { ErrorComponent } from '../common/error';
 export class CheckboxComponent implements ControlValueAccessor {
     disabled = model(false);
     value = model(false);
+    valueChanges = output<boolean>();
+
     @ContentChild(HintComponent, { static: false }) hintElement: ElementRef | undefined;
     @ContentChild(ErrorComponent, { static: false }) errorElement: ElementRef | undefined;
 
@@ -47,6 +49,7 @@ export class CheckboxComponent implements ControlValueAccessor {
             const newVal = !this.value();
             this.value.set(newVal);
             this.onChange(this.value());
+            this.valueChanges.emit(newVal);
             this.onTouched();
         }
     }

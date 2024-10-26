@@ -1,52 +1,59 @@
 <div class="main-content">
     <tab-nav-bar #navBar>
         <tab-nav-bar-footer>
-            <div class="version">v{{version}}</div>
+            <div class="version">v{{ version }}</div>
         </tab-nav-bar-footer>
-        <tab-nav-bar-header >
-            <img class="logo" src="tableau_ui_logo.svg" alt="Tableau UI Logo">
-          
+        <tab-nav-bar-header>
+            <img class="logo" src="tableau_ui_logo.svg" alt="Tableau UI Logo" />
         </tab-nav-bar-header>
 
-        <tab-nav-bar-button icon="home"
-        text="Home"
-        routerLink="/"
-        [isActive]="(page$ | async) === 'home'"></tab-nav-bar-button>
+        <tab-nav-bar-button
+            icon="home"
+            text="Home"
+            routerLink="/"
+            [isActive]="(page$ | async) === 'home'"
+        ></tab-nav-bar-button>
 
-
-        <tab-nav-bar-button icon="css"
+        <tab-nav-bar-button
+            icon="css"
             text="CSS & Fonts"
             routerLink="/css"
-            [isActive]="(page$ | async) === 'css'"></tab-nav-bar-button>
+            [isActive]="(page$ | async) === 'css'"
+        ></tab-nav-bar-button>
 
-        <tab-nav-bar-button icon="check_box"
+        <tab-nav-bar-button
+            icon="check_box"
             text="Checkbox"
             routerLink="/checkbox"
-            [isActive]="(page$ | async) === 'checkbox'"></tab-nav-bar-button>
+            [isActive]="(page$ | async) === 'checkbox'"
+        ></tab-nav-bar-button>
 
-            <tab-nav-bar-button icon="home"
+        <tab-nav-bar-button
+            icon="home"
             text="Home Disabled"
             routerLink="/"
             [isActive]="false"
-            [disabled]="true"></tab-nav-bar-button>
-        
+            [disabled]="true"
+        ></tab-nav-bar-button>
+
         <tab-separator></tab-separator>
 
-        <tab-nav-bar-button icon="home"
+        <tab-nav-bar-button
+            icon="home"
             text="Home"
             routerLink="/"
-            [isActive]="false"></tab-nav-bar-button>
+            [isActive]="false"
+        ></tab-nav-bar-button>
 
-        <tab-nav-bar-button icon="home"
+        <tab-nav-bar-button
+            icon="home"
             text="Home"
             routerLink="/"
-            [isActive]="false"></tab-nav-bar-button>
-
-          
+            [isActive]="false"
+        ></tab-nav-bar-button>
     </tab-nav-bar>
-   <div> <router-outlet></router-outlet></div>
+    <div><router-outlet></router-outlet></div>
 </div>
-
 
 <!-- <div class="grid">
     <tab-loader [message]="'szeva'"></tab-loader>
@@ -63,31 +70,6 @@
             <div>
                 <div class="tab-content">
                     <div class="two">
-                        <div>
-                            <div class="text-title">Checkboxes</div>
-                            <div class="indent content">
-                                <tab-checkbox [formControl]="simpleControl">
-                                    No Hint or Error
-                                </tab-checkbox>
-                                <tab-checkbox [formControl]="simpleControl">
-                                    <tab-hint>This is a hint</tab-hint>
-                                    Lofasz
-                                </tab-checkbox>
-                                <tab-checkbox [formControl]="disabledControl">
-                                    Lofasz2
-                                    <tab-error>This is an error</tab-error>
-                                </tab-checkbox>
-                                <tab-checkbox [formControl]="simpleControl">
-                                    <tab-error>This is an error</tab-error>
-                                    2 errors
-                                    <tab-error>This is another error</tab-error>
-                                </tab-checkbox>
-                                <tab-checkbox [formControl]="disabledControl">
-                                    <tab-hint>This is a hint</tab-hint>
-                                    Both Hint and Error
-                                    <tab-error>This is an error</tab-error>
-                                </tab-checkbox>
-                            </div>
                             <div class="text-title">Inputs</div>
                             <div class="content">
                                 <tab-form-field>

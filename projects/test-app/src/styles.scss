@@ -28,6 +28,11 @@
         p {
             margin-bottom: 0.5em;
         }
+
+        .spacer {
+            display: grid;
+            gap: 0.5rem;
+        }
     }
 
 }

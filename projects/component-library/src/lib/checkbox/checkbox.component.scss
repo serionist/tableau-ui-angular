@@ -2,8 +2,6 @@
     box-sizing: border-box;
     width: fit-content;
     -webkit-user-select: none;
-    cursor: pointer;
-
     // line-height: 1em;
     user-select: none;
     align-items: center;
@@ -55,11 +53,16 @@
         background-color: #aeaeae;
         border-color: #2e2e2e;
     }
-
+    &:not(.disabled) {
+        cursor: pointer;
+    }
     &.disabled {
         color: var(--twc-color-disabled);
         .box {
             border-color: var(--twc-color-disabled);
+        }
+        ::ng-deep .tab-hint {
+            color: var(--twc-color-disabled);
         }
     }
 
@@ -78,12 +81,9 @@
         grid-row: 2;
         font-size: 0.9em;
         // margin-top: -0.1em;
-        .hint {
-            color: var(--twc-color-text-gray);
-        }
-        .error {
-            color: var(--twc-color-error);
-        }
+        // .error {
+        //     color: var(--twc-color-error);
+        // }
     }
 }
 .checkbox {
