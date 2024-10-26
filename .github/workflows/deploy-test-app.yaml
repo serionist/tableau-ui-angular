@@ -33,7 +33,7 @@ jobs:
 
       - name: Build Test App
         id: build
-        run: ng build test-app --base-href=/tableau-ui-angular/
+        run: ng run build:github-pages
 
       - name: Upload static files as artifact
         id: deployment
