@@ -67,6 +67,7 @@ jobs:
           git add projects/component-library/package.json
           git commit -m "Package version set to $NEW_VERSION"
           git tag "v$NEW_VERSION"
+          git push origin main --tags
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
