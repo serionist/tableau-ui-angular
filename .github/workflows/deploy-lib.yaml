@@ -55,7 +55,7 @@ jobs:
         id: update-version
         run: |
           CURRENT_VERSION=$(jq -r '.version' projects/component-library/package.json)
-          NEW_VERSION=$(npm version minor -m "Package version set to %s" --prefix projects/component-library | grep -o '[0-9.]*')
+          NEW_VERSION=$(npm version patch -m "Package version set to %s" --prefix projects/component-library | grep -o '[0-9.]*')
           echo "New version is $NEW_VERSION"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
