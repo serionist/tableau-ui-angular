@@ -1,7 +1,16 @@
 import { Routes } from '@angular/router';
-import { CheckboxPageComponent } from './checkbox-page/checkbox-page.component';
-import { CssPageComponent } from './css-page/css-page.component';
+import { CheckboxPageComponent } from './pages/checkbox-page/checkbox-page.component';
+import { CssPageComponent } from './pages/css-page/css-page.component';
+import { HomePageComponent } from './pages/home-page/home-page.component';
 export const routes: Routes = [
+    {
+        'path': '',
+        component: HomePageComponent,
+        title: 'Home',
+        data: {
+            page: 'home'
+        }
+    },
     {
         path: 'checkbox',
         component: CheckboxPageComponent,

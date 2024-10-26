@@ -9,12 +9,13 @@ import {
 } from '../../../component-library/src/public-api';
 import { provideRouter, RouterModule, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { CssPageComponent } from './css-page/css-page.component';
-import { CheckboxPageComponent } from './checkbox-page/checkbox-page.component';
+import { CssPageComponent } from './pages/css-page/css-page.component';
+import { CheckboxPageComponent } from './pages/checkbox-page/checkbox-page.component';
 import { routes } from './app.routes';
+import { HomePageComponent } from './pages/home-page/home-page.component';
 
 @NgModule({
-    declarations: [AppComponent, CssPageComponent, CheckboxPageComponent],
+    declarations: [AppComponent, CssPageComponent, CheckboxPageComponent, HomePageComponent],
     imports: [
         BrowserModule,
         FormsModule,

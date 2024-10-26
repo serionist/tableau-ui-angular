@@ -14,6 +14,12 @@
           
         </tab-nav-bar-header>
 
+        <tab-nav-bar-button icon="home"
+        text="Home"
+        routerLink="/"
+        [isActive]="(page$ | async) === 'home'"></tab-nav-bar-button>
+
+
         <tab-nav-bar-button icon="css"
             text="CSS & Fonts"
             routerLink="/css"
