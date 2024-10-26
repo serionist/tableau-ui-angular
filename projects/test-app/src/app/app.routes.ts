@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { CheckboxPageComponent } from './pages/checkbox-page/checkbox-page.component';
 import { CssPageComponent } from './pages/css-page/css-page.component';
 import { HomePageComponent } from './pages/home-page/home-page.component';
+import { FormFieldsPageComponent } from './pages/form-fields-page/form-fields-page.component';
 export const routes: Routes = [
     {
         'path': '',
@@ -28,5 +29,13 @@ export const routes: Routes = [
             page: 'css'
         }
 
-    }
+    },
+    {
+        'path': 'form-fields',
+        component: FormFieldsPageComponent,
+        title: 'Form Fields',
+        data: {
+            page: 'form-fields'
+        }
+    },
 ];

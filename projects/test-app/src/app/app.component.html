@@ -29,6 +29,13 @@
         ></tab-nav-bar-button>
 
         <tab-nav-bar-button
+            icon="edit_square"
+            text="Form Fields"
+            routerLink="/form-fields"
+            [isActive]="(page$ | async) === 'form-fields'"
+        ></tab-nav-bar-button>
+
+        <tab-nav-bar-button
             icon="home"
             text="Home Disabled"
             routerLink="/"
@@ -70,182 +77,7 @@
             <div>
                 <div class="tab-content">
                     <div class="two">
-                            <div class="text-title">Inputs</div>
-                            <div class="content">
-                                <tab-form-field>
-                                    <tab-label
-                                        >This text field has an error</tab-label
-                                    >
-                                    <input
-                                        type="text"
-                                        [formControl]="errorControl"
-                                    />
-                                    <tab-prefix
-                                        ><div
-                                            style="
-                                                color: var(
-                                                    --twc-color-text-gray
-                                                );
-                                            "
-                                        >
-                                            Prefix content
-                                        </div></tab-prefix
-                                    >
-                                    <tab-suffix>Suffix content</tab-suffix>
-                                    <tab-hint type="prefix"
-                                        >This control accepts numbers</tab-hint
-                                    >
-                                    <tab-hint type="suffix"
-                                        >This goes at the end</tab-hint
-                                    >
-                                    @if (errorControl.invalid) {
-                                    <tab-error>Value is not a number</tab-error>
-                                    }
-                                </tab-form-field>
-
-                                <tab-form-field>
-                                    <tab-label
-                                        >This is a simple field</tab-label
-                                    >
-                                    <input
-                                        type="text"
-                                        [formControl]="simpleControl"
-                                    />
-                                </tab-form-field>
-
-                                <tab-form-field>
-                                    <tab-label
-                                        >This is a disabled field</tab-label
-                                    >
-                                    <input
-                                        type="text"
-                                        [formControl]="disabledControl"
-                                    />
-                                </tab-form-field>
-
-                                <tab-form-field>
-                                    <tab-label
-                                        >This is a password field</tab-label
-                                    >
-                                    <input
-                                        type="password"
-                                        [formControl]="errorControl"
-                                    />
-                                    <tab-prefix
-                                        ><div
-                                            style="
-                                                color: var(
-                                                    --twc-color-text-gray
-                                                );
-                                            "
-                                        >
-                                            Prefix content
-                                        </div></tab-prefix
-                                    >
-                                    <tab-suffix>Suffix content</tab-suffix>
-                                    <tab-hint type="prefix"
-                                        >This control accepts numbers</tab-hint
-                                    >
-                                    <tab-hint type="suffix"
-                                        >This goes at the end</tab-hint
-                                    >
-                                    @if (errorControl.invalid) {
-                                    <tab-error>Value is not a number</tab-error>
-                                    }
-                                </tab-form-field>
-
-                                <tab-form-field>
-                                    <tab-label
-                                        >This is a number field</tab-label
-                                    >
-                                    <input
-                                        type="number"
-                                        [formControl]="errorControl"
-                                    />
-                                    <tab-prefix
-                                        ><div
-                                            style="
-                                                color: var(
-                                                    --twc-color-text-gray
-                                                );
-                                            "
-                                        >
-                                            Prefix content
-                                        </div></tab-prefix
-                                    >
-                                    <tab-suffix>Suffix content</tab-suffix>
-                                    <tab-hint type="prefix"
-                                        >This control accepts numbers</tab-hint
-                                    >
-                                    <tab-hint type="suffix"
-                                        >This goes at the end</tab-hint
-                                    >
-                                    @if (errorControl.invalid) {
-                                    <tab-error>Value is not a number</tab-error>
-                                    }
-                                </tab-form-field>
-                                <tab-form-field>
-                                    <tab-label
-                                        >This is a single line text
-                                        area</tab-label
-                                    >
-                                    <textarea
-                                        rows="1"
-                                        [formControl]="errorControl"
-                                    ></textarea>
-                                    <tab-prefix
-                                        ><div
-                                            style="
-                                                color: var(
-                                                    --twc-color-text-gray
-                                                );
-                                            "
-                                        >
-                                            Prefix content
-                                        </div></tab-prefix
-                                    >
-                                    <tab-suffix>Suffix content</tab-suffix>
-                                    <tab-hint type="prefix"
-                                        >This control accepts numbers</tab-hint
-                                    >
-                                    <tab-hint type="suffix"
-                                        >This goes at the end</tab-hint
-                                    >
-                                    @if (errorControl.invalid) {
-                                    <tab-error>Value is not a number</tab-error>
-                                    }
-                                </tab-form-field>
-                                <tab-form-field>
-                                    <tab-label
-                                        >This is a multi line text
-                                        area</tab-label
-                                    >
-                                    <textarea
-                                        rows="5"
-                                        [formControl]="errorControl"
-                                    ></textarea>
-                                    <tab-prefix
-                                        ><div
-                                            style="
-                                                color: var(
-                                                    --twc-color-text-gray
-                                                );
-                                            "
-                                        >
-                                            Prefix content
-                                        </div></tab-prefix
-                                    >
-                                    <tab-suffix>Suffix content</tab-suffix>
-                                    <tab-hint type="prefix"
-                                        >This control accepts numbers</tab-hint
-                                    >
-                                    <tab-hint type="suffix"
-                                        >This goes at the end</tab-hint
-                                    >
-                                    @if (errorControl.invalid) {
-                                    <tab-error>Value is not a number</tab-error>
-                                    }
-                                </tab-form-field>
+                           
                             </div>
                         </div>
                         <div>

@@ -31,7 +31,12 @@
 
         .spacer {
             display: grid;
-            gap: 0.5rem;
+            row-gap: 0.5rem;
+        }
+        .two {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            column-gap: 1rem;
         }
     }
 

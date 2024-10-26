@@ -1,15 +1,15 @@
-<div class="form-field-wrapper"  #formFieldWrapper>
+<div class="form-field-wrapper"  #formFieldWrapper [class.disabled]="inputDisabled()">
     <div class="form-label" *ngIf="labelElement">
       <ng-content select="tab-label"></ng-content>
     </div>
     <div class="form-input-wrapper">
-      <div class="prefix" *ngIf="prefixElement">
+      <div class="prefix" *ngIf="prefixElement" #prefixContainer>
         <ng-content select="tab-prefix"></ng-content>
       </div>
       <div class="input-container" #inputContainer>
         <ng-content></ng-content>
       </div>
-      <div class="suffix" *ngIf="suffixElement">
+      <div class="suffix" *ngIf="suffixElement" #suffixContainer>
         <ng-content select="tab-suffix"></ng-content>
       </div>
     </div>

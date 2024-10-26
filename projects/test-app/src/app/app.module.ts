@@ -6,6 +6,8 @@ import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import {
     TableauUiCheckboxModule,
     TableauUiCommonModule,
+    TableauUiFormFieldModule,
+    TableauUiIconModule,
     TableauUiNavBarModule,
     TableauUiSnackModule,
 } from '../../../component-library/src/public-api';
@@ -15,9 +17,16 @@ import { CssPageComponent } from './pages/css-page/css-page.component';
 import { CheckboxPageComponent } from './pages/checkbox-page/checkbox-page.component';
 import { routes } from './app.routes';
 import { HomePageComponent } from './pages/home-page/home-page.component';
+import { FormFieldsPageComponent } from './pages/form-fields-page/form-fields-page.component';
 
 @NgModule({
-    declarations: [AppComponent, CssPageComponent, CheckboxPageComponent, HomePageComponent],
+    declarations: [
+        AppComponent,
+        CssPageComponent,
+        CheckboxPageComponent,
+        HomePageComponent,
+        FormFieldsPageComponent
+    ],
     imports: [
         BrowserModule,
         CommonModule,
@@ -28,10 +37,13 @@ import { HomePageComponent } from './pages/home-page/home-page.component';
         TableauUiNavBarModule,
         TableauUiCommonModule,
         TableauUiCheckboxModule,
-        TableauUiSnackModule
+        TableauUiSnackModule,
+        TableauUiFormFieldModule,
+        TableauUiIconModule
     ],
     providers: [
-        provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes)
+        provideZoneChangeDetection({ eventCoalescing: true }),
+        provideRouter(routes),
     ],
     bootstrap: [AppComponent],
 })
