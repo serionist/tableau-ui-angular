@@ -6,26 +6,45 @@ body {
     margin: 0;
 }
 
-h3,h4.text-large {
+.text-large {
     font-size: var(--twc-font-size-body-large);
 }
 
-h5,h6,.text {
+.text {
     font-size: var(--twc-font-size-body);
 }
 
-h2,.text-subtitle {
+h4,.text-body-large {
+    font-size: var(--twc-font-size-body-large);
+    font-weight: bold;
+    margin: 0.5em 0;
+}
+h3,
+.text-subtitle {
     font-size: var(--twc-font-size-subtitle);
     font-weight: bold;
-    color: var(--twc-color-text-strong);
+    margin: 0.5em 0;
+    line-height: 0.75em;
 }
 
-h1,.text-title {
+.text-light {
+    color: var(--twx-color-text-light);
+}
+
+h2,
+.text-title {
     font-size: var(--twc-font-size-title);
     font-weight: bold;
-    color: var(--twc-color-text-strong);
+    margin: 0.5em 0;
+    line-height: 0.75em;
 }
-
+h1,
+.text-page-title {
+    font-size: var(--twc-font-size-page-title);
+    font-weight: normal;
+    margin: 0.5em 0;
+    line-height: 0.75em;
+}
 a {
     color: var(--twc-color-link);
     text-decoration: none;

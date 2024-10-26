@@ -1,46 +1,54 @@
-<!-- <div class="lofasz">
+<div class="main-content">
     <tab-nav-bar #navBar>
-        <tab-nav-bar-header>
-            @if (navBar.expanded()) {
+        <tab-nav-bar-footer>supp2</tab-nav-bar-footer>
+        <tab-nav-bar-header >
+            <!-- @if (navBar.expanded()) {
                 <tab-checkbox>Lofasz</tab-checkbox>
             }
-            <tab-icon>home</tab-icon><span>szevasz s</span>
+            <tab-icon>home</tab-icon><span>szevasz s</span> -->
+            @if (navBar.expanded()) {
+                This is some good header shit
+            } @else {
+               gutten
+            }
+          
         </tab-nav-bar-header>
 
+        <tab-nav-bar-button icon="css"
+            text="CSS & Fonts"
+            routerLink="/css"
+            [isActive]="(page$ | async) === 'css'"></tab-nav-bar-button>
+
+        <tab-nav-bar-button icon="check_box"
+            text="Checkbox"
+            routerLink="/checkbox"
+            [isActive]="(page$ | async) === 'checkbox'"></tab-nav-bar-button>
+
+            <tab-nav-bar-button icon="home"
+            text="Home Disabled"
+            routerLink="/"
+            [isActive]="false"
+            [disabled]="true"></tab-nav-bar-button>
         
-        <tab-nav-bar-section [bottomSeparator]="true">
-            <tab-option [value]="'/'">
-                <tab-icon>home</tab-icon>
-                <span>Home</span>
-            </tab-option>
-        </tab-nav-bar-section>
-        <tab-nav-bar-section [bottomSeparator]="true">
-            <tab-option value="/lofasz">
-                <tab-icon >home</tab-icon>
-                <span>Lofasz</span>
-            </tab-option>
-            <tab-option [value]="'asd'">
-                <tab-icon>home</tab-icon>
-                <span>Home</span>
-            </tab-option>
-            <tab-option [value]="'asd'">
-                <tab-icon>home</tab-icon>
-                <span>Home</span>
-            </tab-option>
-           
+        <tab-separator></tab-separator>
 
-        </tab-nav-bar-section>
-        <tab-nav-bar-section >
-            <tab-option [value]="'asd'">
-                <tab-icon>home</tab-icon>
-                <span>Home</span>
-            </tab-option>
-        </tab-nav-bar-section>
+        <tab-nav-bar-button icon="home"
+            text="Home"
+            routerLink="/"
+            [isActive]="false"></tab-nav-bar-button>
+
+        <tab-nav-bar-button icon="home"
+            text="Home"
+            routerLink="/"
+            [isActive]="false"></tab-nav-bar-button>
+
+          
     </tab-nav-bar>
-</div> -->
+   <div> <router-outlet></router-outlet></div>
+</div>
 
 
-<div class="grid">
+<!-- <div class="grid">
     <tab-loader [message]="'szeva'"></tab-loader>
 
     <tab-group>
@@ -533,4 +541,4 @@
             </div>
         </tab>
     </tab-group>
-</div>
+</div> -->

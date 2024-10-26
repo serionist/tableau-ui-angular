@@ -2,7 +2,6 @@ import { AfterContentInit, Component, ContentChild, input, TemplateRef, ViewChil
 
 @Component({
     selector: 'tab',
-    standalone: true,
     template: `
     <ng-template #headerTemplate>
       <ng-content select="[tab-header]"></ng-content>

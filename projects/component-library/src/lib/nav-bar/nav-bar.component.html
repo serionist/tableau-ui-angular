@@ -1,12 +1,23 @@
-<button (click)="expanded.set(!expanded())">{{ expanded() ? 'Collapse' : 'Expand'}}</button>
-
-<ng-content selector="tab-nav-bar-header">
-</ng-content>
-
-<div class="nav">
-    @for (section of sections(); track section) {
-        <ng-container *ngTemplateOutlet="section.template()!"></ng-container>
-    } 
+<div class="menu-toggle-button">
+    <tab-icon
+        iconButton
+        (click)="expanded.set(!expanded())"
+        [tooltip]="expanded() ? 'Collapse menu' : 'Expand menu'"
+        tooltipPosition="right"
+    >
+        {{ expanded() ? "arrow_back_ios" : "arrow_forward_ios" }}
+    </tab-icon>
 </div>
 
-<ng-content selector="tab-nav-bar-footer">
+@if (header()) {
+    <div class="header"><ng-content select="tab-nav-bar-header"></ng-content></div>
+}
+
+
+<div class="nav">
+    <ng-content></ng-content>
+</div>
+
+@if (footer()) {
+    <div class="footer"><ng-content select="tab-nav-bar-footer"></ng-content></div>
+}

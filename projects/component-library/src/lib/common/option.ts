@@ -5,8 +5,6 @@ import { IconComponent } from '../icon/icon.component';
 
 @Component({
     selector: 'tab-option',
-    standalone: true,
-    imports: [CommonModule, IconComponent, HintComponent],
     template: `<ng-template #templateRef>
         <div class="tab-option">
             @if (iconElement && renderIcon) {

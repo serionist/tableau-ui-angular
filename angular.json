@@ -88,7 +88,8 @@
               {
                 "glob": "**/*",
                 "input": "projects/test-app/public"
-              }
+              },
+              { "glob": "**/*", "input": "node_modules/monaco-editor", "output": "/assets/monaco/" }
             ],
             "styles": [
               "projects/test-app/src/styles.scss"

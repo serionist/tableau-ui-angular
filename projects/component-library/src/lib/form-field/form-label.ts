@@ -2,7 +2,6 @@ import { Component, ElementRef } from "@angular/core";
 
 @Component({
     selector: 'tab-label',
-    standalone: true,
     template: `<div class="tab-label"><ng-content></ng-content></div>`,
       styles: `
           .tab-label {

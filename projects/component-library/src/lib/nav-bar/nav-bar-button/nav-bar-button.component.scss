@@ -1,4 +1,4 @@
-.tab-nav-bar-link {
+a {
    
     background-color: transparent;
     box-sizing: border-box;
@@ -14,17 +14,28 @@
     line-height: 16px;
     cursor: pointer;
     align-items: center;
-    color: var(--twc-color-text);
-    &:hover {
+    color: #666666;
+    &[disabled=true] {
+        color: var(--twc-color-disabled);
+        cursor: not-allowed;
+    }
+    &.active {
+        color: var(--twc-color-text);
+        background-color: rgb(241,241,241);
+        tab-icon {
+            font-variation-settings: "FILL" 0, "wght" 350, "GRAD" 0, "opsz" 24
+        }
+    }
+    &:not([disabled=true]):hover {
         text-decoration: none;
         background-color: rgb(235,235,235);
-        ::ng-deep tab-icon {
+        color: var(--twc-color-text);
+        tab-icon {
             font-variation-settings: "FILL" 0, "wght" 350, "GRAD" 0, "opsz" 24
         }
     }
 
-    ::ng-deep tab-icon {
-        color: #666666;
+    tab-icon {
         display: inline-block;
         height: 20px;
         margin-left: 23px;
@@ -34,7 +45,7 @@
         font-variation-settings: "FILL" 0, "wght" 250, "GRAD" 0, "opsz" 24
     }
 
-    ::ng-deep .content {
+    span {
         font-weight: normal;
         line-height: 16px;
         overflow: hidden;

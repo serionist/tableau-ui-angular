@@ -1,10 +1,7 @@
-import { CommonModule, NgIf } from '@angular/common';
 import { AfterViewInit, Component, ElementRef, inject, input, model, TemplateRef, ViewChild, viewChild } from '@angular/core';
-import { TAB_DIALOG_REF } from './dialog.ref';
-import { ButtonComponent } from '../button/button.component';
+import { TAB_DIALOG_REF } from '../../public-api';
 
 @Component({
-    imports: [CommonModule, ButtonComponent],
     template: `
         <div class="dialog-content">
             <div *ngIf="contentTemplate(); else textContent">
@@ -23,7 +20,6 @@ import { ButtonComponent } from '../button/button.component';
             </button>
         </div>
     `,
-    standalone: true,
     styles: [`
         .dialog-content {
             padding: 12px 18px;

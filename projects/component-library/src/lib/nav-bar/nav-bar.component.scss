@@ -12,14 +12,40 @@
     display: grid;
     grid-template-rows: auto auto 1fr auto;
 
-    tab-nav-bar-header {
+   
+
+    .menu-toggle-button {
+        font-size: 1.5em;
+        justify-self: end;
+        height: 52px;
+        margin-bottom: 8px;
+        display: grid;
+        padding-right: 14px;
+        align-items: center;
+        tab-icon {
+            font-variation-settings: "FILL" 0, "wght" 100, "GRAD" 0, "opsz" 24
+        }
+    }
+
+    .header {
         grid-row: 2;
+        overflow-x: hidden;
+        margin-bottom: 1.5em;
     }
     .nav {
         grid-row: 3;
         overflow-y: auto;
+        ::ng-deep  tab-separator {
+            width: calc(100% - 2em);
+            margin-bottom: 1.5em;
+            margin-left: 1em;
+            margin-right: 1em;
+            margin-top: 1.5em;
+        }
     }
-    tab-nav-bar-footer {
+    .footer {
+        margin-top: 1.5em;
         grid-row: 4;
+        overflow-x: hidden;
     }
 }

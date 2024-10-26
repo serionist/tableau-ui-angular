@@ -7,8 +7,6 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
   selector: 'tab-radiogroup',
-  standalone: true,
-  imports: [CommonModule, OptionComponent, HintComponent, ErrorComponent],
   templateUrl: './radiogroup.component.html',
   styleUrl: './radiogroup.component.scss',
   providers: [

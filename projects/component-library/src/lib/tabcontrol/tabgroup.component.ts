@@ -4,8 +4,6 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'tab-group',
-  standalone: true,
-  imports: [CommonModule, TabComponent],
   templateUrl: './tabgroup.component.html',
   styleUrls: ['./tabgroup.component.scss']
 })

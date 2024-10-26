@@ -2,8 +2,6 @@ import { Component, input } from '@angular/core';
 
 @Component({
   selector: 'tab-loading-gif',
-  standalone: true,
-  imports: [],
   template: `
      <svg
     xmlns="http://www.w3.org/2000/svg"

@@ -1,10 +1,6 @@
 import { Component, inject, model, TemplateRef } from '@angular/core';
 import { TAB_SNACK_REF } from './snack.ref';
-import { CommonModule } from '@angular/common';
-import { IconComponent } from '../icon/icon.component';
-
 @Component({
-    imports: [CommonModule, IconComponent],
     template: `
         <div class="snack-content" [ngClass]="type()">
             <div class="content">
@@ -29,7 +25,6 @@ import { IconComponent } from '../icon/icon.component';
             </div>
         </div>
     `,
-    standalone: true,
     styles: [
         `
             .snack-content {

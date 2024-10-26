@@ -2,7 +2,6 @@ import { Component, input } from "@angular/core";
 
 @Component({
     template: '<ng-content></ng-content>',
-    standalone: true,
     selector: 'tab-icon',
     host: {
         'role': 'img',

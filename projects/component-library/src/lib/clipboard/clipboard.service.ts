@@ -1,8 +1,8 @@
 import { inject, Injectable } from "@angular/core";
-import { SnackService } from "component-library";
+import { SnackService, TableauUiClipboardModule } from "../../public-api";
 
 @Injectable({
-    providedIn: 'root'
+    providedIn: TableauUiClipboardModule
 })
 export class ClipboardService {
     snackService = inject(SnackService);

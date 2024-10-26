@@ -23,10 +23,11 @@ import { debounceTime, fromEvent, map, Subscription } from 'rxjs';
 import { FocusableElement, tabbable } from 'tabbable';
 import { IconComponent } from '../icon/icon.component';
 import { ConfirmationDialogComponent } from './confirmation-dialog.component';
+import { TableauUiDialogModule } from './tableau-ui-dialog.module';
 
 // Styles for the dialog container are in _dialog.service.scss in the styles folder
 @Injectable({
-    providedIn: 'root',
+    providedIn: TableauUiDialogModule
 })
 export class DialogService {
     constructor(

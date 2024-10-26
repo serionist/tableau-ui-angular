@@ -11,10 +11,11 @@ import {
 } from '@angular/core';
 import { SnackRef, TAB_SNACK_REF } from './snack.ref';
 import { SnackComponent } from './snack.component';
+import { TableauUiSnackModule } from './tableau-ui-snack.module';
 
 // Styles for the snack container are in _snack.service.scss in the styles folder
 @Injectable({
-    providedIn: 'root',
+    providedIn: TableauUiSnackModule
 })
 export class SnackService {
     constructor(

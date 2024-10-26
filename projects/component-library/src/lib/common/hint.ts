@@ -3,8 +3,6 @@ import { Component, ElementRef, input } from '@angular/core';
 
 @Component({
   selector: 'tab-hint',
-  standalone: true,
-  imports: [CommonModule],
   template: `<div class="tab-hint" [ngClass]="type()"><ng-content></ng-content></div>`,
     styles: `
         .tab-hint {

@@ -5,7 +5,6 @@ import { Component, input, output, signal, ViewEncapsulation } from '@angular/co
   selector: 'button',
   templateUrl: './button.component.html',
   styleUrls: ['./button.component.scss'],
-  standalone: true,
   encapsulation: ViewEncapsulation.None,  // Disable view encapsulation
   host: {
     '[attr.type]': 'type()',

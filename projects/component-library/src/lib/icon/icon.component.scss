@@ -18,19 +18,32 @@
     white-space: nowrap;
     word-wrap: normal;
     direction: ltr;
-    
+
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     font-feature-settings: "liga";
 
     &.fill {
-        font-variation-settings: 'FILL' 1;
+        font-variation-settings: "FILL" 1;
     }
     &.primary {
         color: var(--twc-color-primary);
     }
     &.error {
         color: var(--twc-color-error);
+    }
+
+    &.icon-button {
+        background-color: transparent;
+        &:not([disabled]) {
+            cursor: pointer;
+            &:hover {
+                background-color: #aeaeae;
+            }
+        }
+        &[disabled] {
+            color: #c9c9c9 !important;
+        }
     }
 }

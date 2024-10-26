@@ -21,16 +21,6 @@ import { FormSuffixComponent } from './form-suffix';
 
 @Component({
     selector: 'tab-form-field',
-    standalone: true,
-    imports: [
-        CommonModule,
-        ReactiveFormsModule,
-        HintComponent,
-        ErrorComponent,
-        FormLabelComponent,
-        FormPrefixComponent,
-        FormSuffixComponent
-    ],
     templateUrl: './form-field.component.html',
     styleUrl: './form-field.component.scss'
 })

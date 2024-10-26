@@ -1,8 +1,12 @@
 import { Component, inject, Inject, input, Input, model } from '@angular/core';
-import { DialogRef, TAB_DIALOG_REF } from '../../../component-library/src/public-api';
+import { DialogRef, TAB_DIALOG_REF } from '../../../component-library/src/lib/dialogservice/dialog.ref';
+import { TableauUiDialogModule } from '../../../component-library/src/public-api';
+
 
 @Component({
     selector: 'app-example-dialog',
+    standalone: true,
+    imports: [TableauUiDialogModule],
     template: `
         <div class="dialog-content">
             <h2>Example Dialog</h2>

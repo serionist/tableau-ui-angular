@@ -2,7 +2,6 @@ import { Component, ElementRef } from "@angular/core";
 
 @Component({
     selector: 'tab-suffix',
-    standalone: true,
     template: `<ng-content></ng-content>`,
       styles: `
       

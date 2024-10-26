@@ -10,10 +10,9 @@ import {
 // Style contained in _tooltips.scss in the styles folder
 @Directive({
     selector: '[tooltip]',
-    standalone: true,
 })
 export class TooltipDirective {
-    tooltip = input<TemplateRef<any> | string>('');
+    tooltip = input<TemplateRef<any> | string>();
     tooltipPosition = input<'top' | 'bottom' | 'left' | 'right'>('top');
     tooltipMargin = input<string>('5px');
 
@@ -22,7 +21,9 @@ export class TooltipDirective {
     constructor(private elementRef: ElementRef) {}
 
     @HostListener('mouseenter') onMouseEnter() {
-        this.createTooltip();
+        if (this.tooltip()) {
+            this.createTooltip();
+        }
     }
 
     @HostListener('mouseleave') onMouseLeave() {

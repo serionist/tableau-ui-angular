@@ -6,7 +6,6 @@ import { ErrorComponent } from '../common/error';
 
 @Component({
     selector: 'tab-checkbox',
-    standalone: true,
     host: {
         'class': 'checkbox',
         '[class.disabled]': 'disabled()',
@@ -15,7 +14,6 @@ import { ErrorComponent } from '../common/error';
     },
     templateUrl: 'checkbox.component.html',
     styleUrls: ['checkbox.component.scss'],
-    imports: [NgIf, HintComponent, ErrorComponent],
     providers: [
         {
           provide: NG_VALUE_ACCESSOR,

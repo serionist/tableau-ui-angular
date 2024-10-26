@@ -1,8 +1,12 @@
 import { Component, inject, Inject, input, Input, model } from '@angular/core';
-import { DialogRef, SnackRef, TAB_DIALOG_REF, TAB_SNACK_REF } from '../../../component-library/src/public-api';
+import { TableauUiSnackModule } from '../../../component-library/src/public-api';
+import { SnackRef, TAB_SNACK_REF } from '../../../component-library/src/lib/snack/snack.ref';
+
 
 @Component({
     selector: 'app-example-snack',
+    standalone: true,
+    imports: [TableauUiSnackModule],
     template: `
         <div class="dialog-content">
             <h2>Example Snack</h2>

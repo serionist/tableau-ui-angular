@@ -2,7 +2,6 @@ import { Component, ElementRef } from '@angular/core';
 
 @Component({
   selector: 'tab-error',
-  standalone: true,
   template: `<div class="tab-error"><ng-content></ng-content></div>`,
     styles: `
         .tab-error {
