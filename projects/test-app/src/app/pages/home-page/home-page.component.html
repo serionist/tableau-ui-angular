@@ -1,5 +1,5 @@
 <div class="page-title">
-    <h1>Tableau UI For Angular</h1>
+    <h1>Tableau UI For Angular 18</h1>
     <div class="text-light text-large">
         This is a demo site showcasing the Tableau UI for Angular component
         library.
@@ -8,21 +8,54 @@
 <tab-separator></tab-separator>
 
 <div class="content">
+    <h3>About</h3>
+    <p>
+        The Tableau UI for Angular component library is a set of components
+        designed to work with Tableau's Angular applications. The components are
+        built using Angular and are designed to be easy to use and customize.
+    </p>
+    <p>
+        The git repository for the library can be found at
+        <a
+            href="https://github.com/serionist/tableau-ui-angular"
+            target="_blank"
+            ><b>https://github.com/serionist/tableau-ui-angular</b></a
+        >
+    </p>
+</div>
+<div class="content">
     <h3>Getting Started</h3>
-    <div>To get started, install the package:</div>
-    <ngx-monaco-editor
-        style="height: 20px; width: 500px"
-        [options]="terminalOptions"
-        ngModel="npm install tableau-ui-angular"
-    ></ngx-monaco-editor>
-    
+    <ol>
+        <li>Open your Angular 18 project</li>
+        <li>
+            Install the package by running
+            <ngx-monaco-editor
+                style="height: 20px; width: 280px; margin-bottom: 5px;"
+                [options]="terminalOptions"
+                ngModel="npm install tableau-ui-angular"
+            ></ngx-monaco-editor>
+        </li>
+        <li>
+            Follow the <a [routerLink]="'css'"><b>CSS & Fonts</b></a> guide to import the styles and fonts into your application.
+        </li>
+
+    </ol>
 </div>
 <div class="content">
     <h3>Using this sample site</h3>
-    <div>
-        This sample site is built using Angular. To run the site, clone the
-        repository and run:
-    </div>
+    <p>
+        This sample site is built using Angular and shows how to use the Tableau UI for Angular component library.<br/>
+        It does not include sample code on the user interface, you need to look into the source code of this app to see how the components are used.<br/>
+        To run the site locally, clone the repository and run: <code>npm install</code> and <code>npm start</code>.
+    </p>
+</div>
+
+<div class="content">
+    <h3>Usage example</h3>
+    <p>
+        This example shows how to add a Tableau button to your project.<br/>
+        It assumes you have already imported the Tableau UI <b>CSS</b> and <b>fonts</b> into your project.
+    </p>
 </div>
 <!-- <h3>Using the Components</h3>
     

@@ -4,33 +4,3 @@
     grid-template-columns: auto 1fr;
 }
 
-
-.grid {
-    display: grid;
-    gap: 8px;
-}
-.content {
-    display: grid;
-    gap: 8px;
-}
-.indent {
-    margin-left: 2rem;
-}
-.two {
-    display: grid;
-    gap: 12px;
-    grid-template-columns: 1fr 1fr;
-}
-.text-title {
-    margin: 1rem 0 0.5rem 0;
-}
-.text-subtitle {
-    margin: 0.5rem 0 0.25rem 0;
-}
-
-tab-nav-bar[expanded=true] {
-    width: 240px;
-}
-tab-nav-bar[expanded=false] {
-    width: 65px;
-}
