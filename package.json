@@ -11,8 +11,8 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "build:watch": "ng build component-library --watch",
-    "package": "ng-packagr -p projects/component-library/ng-package.json",
-    "publish": "ng-packagr -p projects/component-library/ng-package.json && cd dist/component-library && npm publish"
+    "package": "npx ng-packagr -p projects/component-library/ng-package.json",
+    "publish": "npx ng-packagr -p projects/component-library/ng-package.json && cd dist/component-library && npm publish"
   },
   "private": true,
   "dependencies": {
