@@ -1,56 +1,73 @@
-# TableauComponentLibrary
+# Tableau UI Angular
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.6.
+Tableau UI Angular is a third party component library to bring Tableau style components straight into Angular 18.
 
-## Download fonts
-Run `projects/component-library/styles/fonts/downloadFonts.js` to download the files
+## Getting started
+`npm install tableau-ui-angular`
 
-## Publishing a new version to npm
+## Components & Samples
+A web app containing all components, guides and samples is hosted [on GitHub Pages](https://serionist.github.io/tableau-ui-angular/).
 
-0. Login to npm with `npm login` if required
-1. Update the version in `component-library/package.json`
-2. Commit it and `git tag [version]` & `git push origin 0.0.7`
-3. `npm run publish`
+The app does not show the code behind examples; you need to browse the source code for the app to understand how to use the components.
 
-## Consume locally in another project
-1. `ng build component-library -c=production --watch`
-2. In a new terminal, `cd dist/component-library` and `npm link`
-3. In the consuming project, `npm link tableau-ui-angular`
+For this reason, it's recommended to clone this repository and host your own version of sample app:
 
-NOTE: If you get an error similar to this with the linked library:
+1. `git clone https://github.com/serionist/tableau-ui-angular.git` or `git clone git@github.com:serionist/tableau-ui-angular.git`
+2. `npm install` from the project directory
+3. `npm start` from the project directory
+
+You will need Node 22.
+
+The hosted version of this sample app does not use the official Tableau font (**Benton Sans Book**), as its proprietary. If you host your own version of it and you own a Tableau Server, you can import the Tableau fonts by running:
 ```
-Property '__@ɵINPUT_SIGNAL_BRAND_WRITE_TYPE@7532' does not exist on type 'InputSignal<"error" | "primary" | undefined>'. Did you mean '__@ɵINPUT_SIGNAL_BRAND_WRITE_TYPE@947'
+node projects/component-library/styles/fonts/downloadFonts.js https://[your-tableau-server].com projects/test-app/public/font
 ```
-It's caused by different versions of @angular/core installed for your two projects.
-This can happen if:
-1. There are different @angular/* package versions defined in the `package.json` for both projects
-    In this case, update them to the same version. It can be provided as a version range
+If you don't do this step, the sample site will fall back to Roboto or Arial fonts (the hosted sample site is also using these fonts).
 
-2. The provided @angular/* packages have version ranges defined (starting with ~ or ^, etc)
-    In this case, delete the `package-lock.json` and `node-modules` from both projects, and run `npm install` again.
+## Using Tableau UI Angular
+
+This example shows you how to get started with the extension and add a simple Tableau button to your site.
+
+Using this library assumes you use SCSS stylesheets.
+
+1. Add the package to your project by running `npm install tableau-ui-angular`
+2. Open `styles.scss` and add the following code to pull in the styles associated with the library:
+    ```
+    @import 'tableau-ui-angular/styles/lib-styles';
+    ```
+3. (Optional) If you own a license for the Tableau font (**Benton Sans**), follow [this guide](Add-Benton-Sans.md) to import it.
+4. (Optional) If you don't use **Benton Sans**, add the following line to your `styles.scss` file to import `Roboto`, which is the default fallback font:
+    ```
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+    ```
+5. Update your `app.component.ts` to import `TableauUiButtonModule`:
+    ```
+    import { Component } from '@angular/core';
+    import { RouterOutlet } from '@angular/router';
+    import { TableauUiButtonModule } from 'tableau-ui-angular';
+
+    @Component({
+    selector: 'app-root',
+    standalone: true,
+    imports: [RouterOutlet, TableauUiButtonModule],
+    templateUrl: './app.component.html',
+    styleUrl: './app.component.scss'
+    })
+    export class AppComponent {
+    title = 'tableau-ui-angular-sample';
+    }
+
+    ```
+    **Note:** You can add the `TableauUiAllModule` instead of the `TableauUiButtonModule` if you wish to add all Tableau Controls instead of just the button. This results in a more monolithic import, and doesn't allow you to granually import only what's needed.
+
+6. Update your `app.component.html` to include the following:
+    ```
+    <button color="primary" [loading]="false" type="button" [disabled]="false">This is a primary Tableau Button</button>
+    ```
+    **NOTE:** the `color`, `loading`, `type` and `disabled` attributes are provided for reference, they are all optional.
+
+7. ???
+8. Profit
 
 
 
-## Development server
-
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
-
-## Code scaffolding
-
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
-
-## Build
-
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
-
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
