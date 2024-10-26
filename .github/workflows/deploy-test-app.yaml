@@ -33,7 +33,7 @@ jobs:
 
       - name: Build Test App
         id: build
-        run: ng run build:github-pages
+        run: npm run build:github-pages
 
       - name: Upload static files as artifact
         id: deployment
