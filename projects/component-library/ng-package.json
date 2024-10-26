@@ -13,11 +13,6 @@
             "input": "./styles",
             "output": "./styles",
             "ignore": ["**/BentonSans-*"]
-        },
-        {
-            "glob": "**/*.md",
-            "input": "../../",
-            "output": "./"
         }
     ]
 }

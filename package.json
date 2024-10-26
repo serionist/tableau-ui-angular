@@ -2,17 +2,12 @@
   "name": "tableau-component-library",
   "version": "0.0.0",
   "scripts": {
-    "ng": "ng",
-    "downloadFonts": "node projects/component-library/styles/fonts/downloadFonts.js",
     "start": "ng serve test-app",
-    "build": "ng build",
-    "build:component-library": "ng build component-library",
-    "build:github-pages":"ng build test-app --base-href /tableau-ui-angular/",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test",
-    "build:watch": "ng build component-library --watch",
-    "package": "npx ng-packagr -p projects/component-library/ng-package.json",
-    "publish": "npx ng-packagr -p projects/component-library/ng-package.json && cd dist/component-library && npm publish"
+     "copy-assets": "cpy README.md LICENSE Add-Benton-Sans.md dist/component-library",
+    "build:component-library": "ng build component-library && npm run copy-assets",
+    "build:github-pages": "ng build test-app --base-href /tableau-ui-angular/",
+    "package": "npx ng-packagr -p projects/component-library/ng-package.json && npm run copy-assets",
+    "publish": "npx ng-packagr -p projects/component-library/ng-package.json && npm run copy-assets && cd dist/component-library && npm publish"
   },
   "private": true,
   "dependencies": {
@@ -38,6 +33,7 @@
     "@angular/cli": "^18.2.6",
     "@angular/compiler-cli": "^18.2.0",
     "@types/jasmine": "~5.1.0",
+    "cpy-cli": "^5.0.0",
     "jasmine-core": "~5.4.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",
