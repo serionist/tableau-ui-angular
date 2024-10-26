@@ -20,7 +20,7 @@
     ></ngx-monaco-editor>
 
     <h3>Importing Fonts</h3>
-    <div>Tableau UI supports the following fonts:</div>
+    <div>Tableau UI supports the following fonts in this priority order:</div>
     <ul>
         <li>
             <strong>Benton Sans</strong>, a proprietary font.
@@ -67,7 +67,8 @@
             </li>
             <li>
                 Import the fonts into your app by adding this line to your
-                <code>styles.scss</code> file (in addition to the Tableau UI CSS import above):
+                <code>styles.scss</code> file (in addition to the Tableau UI CSS
+                import above):
                 <ngx-monaco-editor
                     style="height: 20px; width: 300px"
                     [options]="scssOptions"
@@ -76,5 +77,21 @@
                 (Replace <code>/fonts</code> with the path to your font files)
             </li>
         </ol>
+        <h4>To use Roboto</h4>
+        <div>
+            Roboto is an open source Google Font. You can use it without a
+            license. To import it, add this to your
+            <code>styles.scss</code> file:
+        </div>
+        <ngx-monaco-editor
+            style="height: 35px;"
+            [options]="scssOptions"
+            ngModel="@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');"
+        ></ngx-monaco-editor>
+        <h4>To use Arial</h4>
+        <div>
+            Arial is a free font that is already included in your browser. You
+            do not need to import it.
+            </div>  
     </div>
 </div>
