@@ -72,10 +72,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NEW_VERSION: ${{ env.NEW_VERSION }}
 
-          
+
       - name: Publish Component Library
         run: |
-          npm run package --prefix projects/component-library
+          npm run package
           cd dist/component-library
           npm publish
         env:
