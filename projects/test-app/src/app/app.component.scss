@@ -3,4 +3,15 @@
     height: 100vh;
     grid-template-columns: auto 1fr;
 }
+.logo {
+    width: calc(100% - 2em);
+    margin: 0 1em;
+}
+.version {
+    justify-self: center;
+    padding: 0.5em;
+}
 
+tab-nav-bar[expanded="true"] {
+    width: 200px;
+}

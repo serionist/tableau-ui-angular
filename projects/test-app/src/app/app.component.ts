@@ -19,6 +19,7 @@ import { ExampleSnackComponent } from './example-snack.component';
 import { CommonModule } from '@angular/common';
 import { filter, map, Observable, switchMap } from 'rxjs';
 import { TableauUiCommonModule, TableauUiNavBarModule } from '../../../component-library/src/public-api';
+import { version as LibVersion } from '../../../component-library/package.json';
 
 @Component({
     selector: 'app-root',
@@ -36,6 +37,7 @@ export class AppComponent implements OnInit {
         map(() => this.findRouteData(this.route.root, 'page')) // Use key as needed
     );
 
+    version = LibVersion;
      ngOnInit(): void {
     //     this.errorControl.markAsTouched();
     //     this.errorControl.updateValueAndValidity();
@@ -51,6 +53,7 @@ export class AppComponent implements OnInit {
         }
         return null;
     }
+
 
     // simpleControl = new FormControl(false);
     // disabledControl = new FormControl({ value: true, disabled: true });

@@ -1,80 +1,83 @@
-<div class="page-title">
-    <h1>Tableau UI For Angular 18</h1>
-    <div class="text-light text-large">
-        This is a demo site showcasing the Tableau UI for Angular component
-        library.
+<div class="page">
+    <div class="title">
+        <h1>Tableau UI For Angular 18</h1>
+        <div class="text-light text-large">
+            This is a demo site showcasing the Tableau UI for Angular component
+            library.
+        </div>
     </div>
-</div>
-<tab-separator></tab-separator>
-
-<div class="content">
-    <h3>About</h3>
-    <p>
-        The Tableau UI for Angular component library is a set of components
-        designed to work with Tableau's Angular applications. The components are
-        built using Angular and are designed to be easy to use and customize.
-    </p>
-    <p>
-        The git repository for the library can be found at
-        <a
-            href="https://github.com/serionist/tableau-ui-angular"
-            target="_blank"
-            ><b>https://github.com/serionist/tableau-ui-angular</b></a
-        >
-    </p>
-</div>
-<div class="content">
-    <h3>Getting Started</h3>
-    <ol>
-        <li>Open your Angular 18 project</li>
-        <li>
-            Install the package by running
-            <ngx-monaco-editor
-                style="height: 20px; width: 280px; margin-bottom: 5px;"
-                [options]="terminalOptions"
-                ngModel="npm install tableau-ui-angular"
-            ></ngx-monaco-editor>
-        </li>
-        <li>
-            Follow the <a [routerLink]="'css'"><b>CSS & Fonts</b></a> guide to import the styles and fonts into your application.
-        </li>
-
-    </ol>
-</div>
-<div class="content">
-    <h3>Using this sample site</h3>
-    <p>
-        This sample site is built using Angular and shows how to use the Tableau UI for Angular component library.<br/>
-        It does not include sample code on the user interface, you need to look into the source code of this app to see how the components are used.<br/>
-        To run the site locally, clone the repository and run: <code>npm install</code> and <code>npm start</code>.
-    </p>
-</div>
-
-<div class="content">
-    <h3>Usage example</h3>
-    <p>
-        This example shows how to add a Tableau button to your project.<br/>
-        It assumes you have already imported the Tableau UI <b>CSS</b> and <b>fonts</b> into your project.
-    </p>
-</div>
-<!-- <h3>Using the Components</h3>
+    <tab-separator></tab-separator>
     
-    <div>
-        To use the components, import the module into your application:
+    <div class="content">
+        <div class="section">
+            <h3>About</h3>
+            <p>
+                The Tableau UI for Angular component library is a set of components
+                designed to work with Tableau's Angular applications. The components are
+                built using Angular and are designed to be easy to use and customize.
+            </p>
+            <p>
+                The git repository for the library can be found at
+                <a
+                    href="https://github.com/serionist/tableau-ui-angular"
+                    target="_blank"
+                    ><b>https://github.com/serionist/tableau-ui-angular</b></a
+                >
+            </p>
+        </div>
+        <div class="section">
+            <h3>Getting Started</h3>
+            <ol>
+                <li>Open your Angular 18 project</li>
+                <li>
+                    Install the package by running
+                    <ngx-monaco-editor
+                        style="height: 20px; width: 280px; margin-bottom: 5px;"
+                        [options]="terminalOptions"
+                        ngModel="npm install tableau-ui-angular"
+                    ></ngx-monaco-editor>
+                </li>
+                <li>
+                    Follow the <a [routerLink]="'css'"><b>CSS & Fonts</b></a> guide to import the styles and fonts into your application.
+                </li>
+        
+            </ol>
+        </div>
+        <div class="section">
+            <h3>Using this sample site</h3>
+            <p>
+                This sample site is built using Angular and shows how to use the Tableau UI for Angular component library.<br/>
+                It does not include sample code on the user interface, you need to look into the source code of this app to see how the components are used.<br/>
+                To run the site locally, clone the repository and run: <code>npm install</code> and <code>npm start</code>.
+            </p>
+        </div>
+        
+        <div class="section">
+            <h3>Usage example</h3>
+            <p>
+                This example shows how to add a Tableau button to your project.<br/>
+                It assumes you have already imported the Tableau UI <b>CSS</b> and <b>fonts</b> into your project.
+            </p>
+            <ol>
+                <li>Update your <code>app.component.ts</code>, import <code>TableauUiButtonModule</code>:
+                    <ngx-monaco-editor
+                    style="height: 300px; width: 500px; margin-bottom: 5px;"
+                    [options]="tsOptions"
+                    [ngModel]="sampleTsCode"
+                ></ngx-monaco-editor>
+                <b>Note: </b><span>You can use the <code>TableauUiAllModule</code> to import all components.</span>
+                </li>
+                <li>
+                    In <code>app.component.html</code>, add the button:
+                    <ngx-monaco-editor
+                    style="height: 70px; width: 650px; margin-bottom: 5px;"
+                    [options]="htmlOptions"
+                    [ngModel]="sampleHtmlCode"
+                ></ngx-monaco-editor>
+                </li>
+            </ol>
+        </div>
     </div>
-    <ngx-monaco-editor
-        style="height: 20px; width: 500px"
-        [options]="scssOptions"
-        [ngModel]="code"
-    ></ngx-monaco-editor>
-
-    <h3>Customizing the Components</h3>
-    <div>
-        To customize the components, you can override the CSS classes in your
-        application:
-    </div>
-    <ngx-monaco-editor
-        style="height: 20px; width: 500px"
-        [options]="scssOptions"
-        [ngModel]="code"
-    ></ngx-monaco-editor> -->
+   
+    
+</div>

@@ -12,13 +12,19 @@
     display: grid;
     grid-template-rows: auto auto 1fr auto;
 
+    &[expanded=true] {
+        width: 300px;
+    }
+    &[expanded=false] {
+        width: 65px;
+    }
    
 
     .menu-toggle-button {
         font-size: 1.5em;
         justify-self: end;
         height: 52px;
-        margin-bottom: 8px;
+        // margin-bottom: 8px;
         display: grid;
         padding-right: 14px;
         align-items: center;

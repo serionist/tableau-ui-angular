@@ -1,16 +1,10 @@
 <div class="main-content">
     <tab-nav-bar #navBar>
-        <tab-nav-bar-footer>supp2</tab-nav-bar-footer>
+        <tab-nav-bar-footer>
+            <div class="version">v{{version}}</div>
+        </tab-nav-bar-footer>
         <tab-nav-bar-header >
-            <!-- @if (navBar.expanded()) {
-                <tab-checkbox>Lofasz</tab-checkbox>
-            }
-            <tab-icon>home</tab-icon><span>szevasz s</span> -->
-            @if (navBar.expanded()) {
-                This is some good header shit
-            } @else {
-               gutten
-            }
+            <img class="logo" src="/tableau_ui_logo.svg" alt="Tableau UI Logo">
           
         </tab-nav-bar-header>
 
