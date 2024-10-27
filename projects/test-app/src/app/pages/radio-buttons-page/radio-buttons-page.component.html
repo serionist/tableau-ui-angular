@@ -1,0 +1,85 @@
+<div class="page">
+    <div class="title">
+        <h1>Radio Groups</h1>
+        <div class="text-light text-large">
+            The radio groups component is a simple component that allows users to select one option from a list of options.<br />
+            Supports both Reactive Forms and simple value binding.
+        </div>
+    </div>
+    <tab-separator></tab-separator>
+    <div class="content">
+        <div class="section">
+            <h3>Module</h3>
+            <p>
+                To use the component, import one of the following modules into
+                your module/component:
+            </p>
+
+            <ul>
+                <li>
+                    <code>TableauUiRadioGroupModule</code> - for granular import
+                </li>
+                <li>
+                    <code>TableauUiAllModule</code> - to import all components
+                    from this library
+                </li>
+            </ul>
+        </div>
+        <div class="section">
+            <h3>Basic usage</h3>
+            <p>
+                To use a radio group without Reactive Forms, simply bind to the
+                <code>[value]</code> and <code>(valueChanges)</code> properties.
+                <br />These examples show a snack
+                when changed.
+            </p>
+            <div class="spacer">
+
+                <tab-radiogroup [value]="simpleValue" (valueChanges)="valueChanged($event, 'Simple radio group')">
+                    <tab-option [value]="1">This is a random value</tab-option>
+                    <tab-option [value]="2" [disabled]="true"
+                        >Disabled value<tab-hint>with random hint</tab-hint></tab-option
+                    >
+                    <tab-option [value]="3">A third value</tab-option>
+                    <tab-option [value]="4"
+                        >A fourth value
+                        <tab-hint>with a hint</tab-hint>
+                    </tab-option>
+
+                </tab-radiogroup>
+            </div>
+        </div>
+        <div class="section">
+            <h3>Reactive Forms</h3>
+            <p>
+                To use the radio group with Reactive Forms, bind to the
+                <code>formControl</code> or
+                <code>formControlName</code> property.
+            </p>
+            <div class="spacer">
+                <tab-radiogroup [formControl]="formControl">
+                    <tab-option [value]="1">This is a random value</tab-option>
+                    <tab-option [value]="2" [disabled]="true"
+                        >Disabled value<tab-hint>with random hint</tab-hint></tab-option
+                    >
+                    <tab-option [value]="3">A third value</tab-option>
+                    <tab-option [value]="4"
+                        >A fourth value
+                        <tab-hint>with a hint</tab-hint>
+                    </tab-option>
+                    @if (formControl.hasError('required')) {
+                    <tab-error>Required</tab-error>
+                    }
+                    @if (formControl.hasError('min')) {
+                    <tab-error>Minimum value is 1 (first item can't be selected)</tab-error>
+                    }
+                    @if (formControl.hasError('max')) {
+                    <tab-error>Maximum value is 3 (fourth item can't be selected)</tab-error>
+                    }
+
+
+                </tab-radiogroup>
+            </div>
+        </div>
+    </div>
+</div>

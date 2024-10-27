@@ -16,6 +16,11 @@
             [disabled]="disabled() || option.disabled()"
             [name]="name"
         />
+        <div class="box">
+            @if (value() === option.value()) {
+                <div class="filler"></div>
+            }
+        </div>
        
         <div class="label">
             <ng-container *ngTemplateOutlet="option.getTemplate(true, true)"></ng-container>

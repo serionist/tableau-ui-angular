@@ -9,6 +9,7 @@ import {
     TableauUiFormFieldModule,
     TableauUiIconModule,
     TableauUiNavBarModule,
+    TableauUiRadioGroupModule,
     TableauUiSnackModule,
 } from '../../../component-library/src/public-api';
 import { provideRouter, RouterModule, RouterOutlet } from '@angular/router';
@@ -18,6 +19,7 @@ import { CheckboxPageComponent } from './pages/checkbox-page/checkbox-page.compo
 import { routes } from './app.routes';
 import { HomePageComponent } from './pages/home-page/home-page.component';
 import { FormFieldsPageComponent } from './pages/form-fields-page/form-fields-page.component';
+import { RadioButtonsPageComponent } from './pages/radio-buttons-page/radio-buttons-page.component';
 
 @NgModule({
     declarations: [
@@ -25,7 +27,8 @@ import { FormFieldsPageComponent } from './pages/form-fields-page/form-fields-pa
         CssPageComponent,
         CheckboxPageComponent,
         HomePageComponent,
-        FormFieldsPageComponent
+        FormFieldsPageComponent,
+        RadioButtonsPageComponent
     ],
     imports: [
         BrowserModule,
@@ -39,7 +42,8 @@ import { FormFieldsPageComponent } from './pages/form-fields-page/form-fields-pa
         TableauUiCheckboxModule,
         TableauUiSnackModule,
         TableauUiFormFieldModule,
-        TableauUiIconModule
+        TableauUiIconModule,
+        TableauUiRadioGroupModule
     ],
     providers: [
         provideZoneChangeDetection({ eventCoalescing: true }),

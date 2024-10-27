@@ -36,6 +36,13 @@
         ></tab-nav-bar-button>
 
         <tab-nav-bar-button
+        icon="radio_button_checked"
+        text="Radio Groups"
+        routerLink="/radios"
+        [isActive]="(page$ | async) === 'radios'"
+    ></tab-nav-bar-button>
+
+        <tab-nav-bar-button
             icon="home"
             text="Home Disabled"
             routerLink="/"
@@ -66,75 +73,6 @@
     <tab-loader [message]="'szeva'"></tab-loader>
 
     <tab-group>
-        <tab [disabled]="true">
-            <div tab-header>
-                <i class="icon-example"></i>This is a disabled tab
-            </div>
-            <div>Content of Tab 1</div>
-        </tab>
-        <tab>
-            <div tab-header><i class="icon-example"></i> Form Fields</div>
-            <div>
-                <div class="tab-content">
-                    <div class="two">
-                           
-                            </div>
-                        </div>
-                        <div>
-                            <div class="text-title">Radios</div>
-                            <div class="indent content">
-                                <div class="text-subtitle">Group 1</div>
-                                <tab-radiogroup [formControl]="simpleControl">
-                                    <tab-option [value]="1">szevasz</tab-option>
-                                    <tab-option [value]="2" [disabled]="true"
-                                        >csovaz</tab-option
-                                    >
-                                    <tab-option [value]="3">mizu</tab-option>
-                                    <tab-option [value]="4">hali</tab-option>
-                                </tab-radiogroup>
-                                <div class="text-subtitle">Disabled group</div>
-                                <tab-radiogroup [formControl]="disabledControl">
-                                    <tab-option [value]="1">
-                                        szevasz
-                                        <tab-icon>error</tab-icon>
-                                    </tab-option>
-                                    <tab-option [value]="2" [disabled]="true"
-                                        >csovaz</tab-option
-                                    >
-                                    <tab-option [value]="3"
-                                        >mizu
-                                        <tab-icon>error</tab-icon>
-                                        <tab-hint>This is a hint</tab-hint>
-                                    </tab-option>
-                                    <tab-option [value]="4">hali</tab-option>
-                                </tab-radiogroup>
-                                <div class="text-subtitle">
-                                    Group with an error
-                                </div>
-                                <tab-radiogroup [formControl]="errorControl">
-                                    <tab-option [value]="1">szevasz</tab-option>
-                                    <tab-option [value]="2" [disabled]="true"
-                                        >csovaz</tab-option
-                                    >
-                                    <tab-option [value]="3">mizu</tab-option>
-                                    <tab-option [value]="4"
-                                        >hali
-                                        <tab-hint>This is a hint</tab-hint>
-                                    </tab-option>
-                                    @if (errorControl.invalid) {
-                                    <tab-error
-                                        >Choose one of the options</tab-error
-                                    >
-                                    }
-                                </tab-radiogroup>
-                            </div>
-                            <div class="text-title">Selects</div>
-                            <div class="content"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </tab>
         <tab>
             <div tab-header>
                 <i class="icon-example"></i> Tooltips & dialogs
