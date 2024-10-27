@@ -10,6 +10,8 @@ import { DialogsPageComponent } from './pages/dialogs-page/dialogs-page.componen
 import { SnacksPageComponent } from './pages/snacks-page/snacks-page.component';
 import { TooltipsPageComponent } from './pages/tooltips-page/tooltips-page.component';
 import { TabcontrolPageComponent } from './pages/tabcontrol-page/tabcontrol-page.component';
+import { NavbarPageComponent } from './pages/navbar-page/navbar-page.component';
+import { ClipboardPageComponent } from './pages/clipboard-page/clipboard-page.component';
 export const routes: Routes = [
     {
         'path': '',
@@ -88,6 +90,24 @@ export const routes: Routes = [
         title: 'Tabs',
         data: {
             page: 'tabcontrol'
+        }
+
+    },
+    {
+        path: 'navbar',
+        component: NavbarPageComponent,
+        title: 'Nav Bar',
+        data: {
+            page: 'navbar'
+        }
+
+    },
+    {
+        path: 'clipboard',
+        component: ClipboardPageComponent,
+        title: 'Clipboard',
+        data: {
+            page: 'clipboard'
         }
 
     },

@@ -7,6 +7,7 @@ import {
     ICON_CONFIG,
     TableauUiButtonModule,
     TableauUiCheckboxModule,
+    TableauUiClipboardModule,
     TableauUiCommonModule,
     TableauUiDialogModule,
     TableauUiFormFieldModule,
@@ -33,6 +34,8 @@ import { SnacksPageComponent } from './pages/snacks-page/snacks-page.component';
 import { ExampleSnackComponent } from './pages/snacks-page/example-snack.component';
 import { TooltipsPageComponent } from './pages/tooltips-page/tooltips-page.component';
 import { TabcontrolPageComponent } from './pages/tabcontrol-page/tabcontrol-page.component';
+import { NavbarPageComponent } from './pages/navbar-page/navbar-page.component';
+import { ClipboardPageComponent } from './pages/clipboard-page/clipboard-page.component';
 
 @NgModule({
     declarations: [
@@ -49,7 +52,9 @@ import { TabcontrolPageComponent } from './pages/tabcontrol-page/tabcontrol-page
         SnacksPageComponent,
         ExampleSnackComponent,
         TooltipsPageComponent,
-        TabcontrolPageComponent
+        TabcontrolPageComponent,
+        NavbarPageComponent,
+        ClipboardPageComponent
     ],
     imports: [
         BrowserModule,
@@ -68,7 +73,8 @@ import { TabcontrolPageComponent } from './pages/tabcontrol-page/tabcontrol-page
         TableauUiButtonModule,
         TableauUiDialogModule,
         TableauUiTooltipModule,
-        TableauUiTabgroupModule
+        TableauUiTabgroupModule,
+        TableauUiClipboardModule
     ],
     providers: [
         provideZoneChangeDetection({ eventCoalescing: true }),

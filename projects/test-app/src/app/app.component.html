@@ -22,20 +22,20 @@
         ></tab-nav-bar-button>
 
         <tab-nav-bar-button
-        icon="add_circle"
-        text="Icons"
-        link="/icons"
-        [isActive]="(page$ | async) === 'icons'"
-    ></tab-nav-bar-button>
+            icon="add_circle"
+            text="Icons"
+            link="/icons"
+            [isActive]="(page$ | async) === 'icons'"
+        ></tab-nav-bar-button>
 
-    <tab-separator></tab-separator>
+        <tab-separator></tab-separator>
 
-    <tab-nav-bar-button
-    icon="trackpad_input"
-    text="Buttons"
-    link="/buttons"
-    [isActive]="(page$ | async) === 'buttons'"
-></tab-nav-bar-button>
+        <tab-nav-bar-button
+            icon="trackpad_input"
+            text="Buttons"
+            link="/buttons"
+            [isActive]="(page$ | async) === 'buttons'"
+        ></tab-nav-bar-button>
 
         <tab-nav-bar-button
             icon="check_box"
@@ -52,37 +52,50 @@
         ></tab-nav-bar-button>
 
         <tab-nav-bar-button
-        icon="radio_button_checked"
-        text="Radio Groups"
-        link="/radios"
-        [isActive]="(page$ | async) === 'radios'"
+            icon="radio_button_checked"
+            text="Radio Groups"
+            link="/radios"
+            [isActive]="(page$ | async) === 'radios'"
+        ></tab-nav-bar-button>
+
+        <tab-nav-bar-button
+            icon="dialogs"
+            text="Dialogs"
+            link="/dialogs"
+            [isActive]="(page$ | async) === 'dialogs'"
+        ></tab-nav-bar-button>
+
+        <tab-nav-bar-button
+            icon="toast"
+            text="Snackbar"
+            link="/snackbar"
+            [isActive]="(page$ | async) === 'snackbar'"
+        ></tab-nav-bar-button>
+        <tab-nav-bar-button
+            icon="tooltip"
+            text="Tooltips"
+            link="/tooltips"
+            [isActive]="(page$ | async) === 'tooltips'"
+        ></tab-nav-bar-button>
+        <tab-nav-bar-button
+            icon="tabs"
+            text="Tabs"
+            link="/tabcontrol"
+            [isActive]="(page$ | async) === 'tabcontrol'"
+        ></tab-nav-bar-button>
+        <tab-nav-bar-button
+            icon="side_navigation"
+            text="Nav Bar"
+            link="/navbar"
+            [isActive]="(page$ | async) === 'navbar'"
+        ></tab-nav-bar-button>
+
+        <tab-nav-bar-button
+        icon="content_paste"
+        text="Clipboard"
+        link="/clipboard"
+        [isActive]="(page$ | async) === 'clipboard'"
     ></tab-nav-bar-button>
-
-    <tab-nav-bar-button
-    icon="dialogs"
-    text="Dialogs"
-    link="/dialogs"
-    [isActive]="(page$ | async) === 'dialogs'"
-></tab-nav-bar-button>
-
-<tab-nav-bar-button
-icon="toast"
-text="Snackbar"
-link="/snackbar"
-[isActive]="(page$ | async) === 'snackbar'"
-></tab-nav-bar-button>
-<tab-nav-bar-button
-icon="tooltip"
-text="Tooltips"
-link="/tooltips"
-[isActive]="(page$ | async) === 'tooltips'"
-></tab-nav-bar-button>
-<tab-nav-bar-button
-icon="tabs"
-text="Tabs"
-link="/tabcontrol"
-[isActive]="(page$ | async) === 'tabcontrol'"
-></tab-nav-bar-button>
 
         <tab-nav-bar-button
             icon="home"
@@ -110,20 +123,3 @@ link="/tabcontrol"
     </tab-nav-bar>
     <div><router-outlet></router-outlet></div>
 </div>
-
-<!-- <div class="grid">
-    <tab-loader [message]="'szeva'"></tab-loader>
-
-    <tab-group>
-        <tab>
-            <div tab-header>
-                <i class="icon-example"></i> Tooltips & dialogs
-            </div>
-            <div class="tab-content">
-              
-        </tab>
-        <tab>
-           
-        </tab>
-    </tab-group>
-</div> -->

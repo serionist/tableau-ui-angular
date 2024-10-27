@@ -1,0 +1,74 @@
+<div class="page">
+    <div class="title">
+        <h1>Clipboard</h1>
+        <div class="text-light text-large">
+            The clipboard component is used to copy text to the clipboard.
+        </div>
+    </div>
+    <tab-separator></tab-separator>
+    <div class="content">
+        <div class="section">
+            <h3>Module</h3>
+            <p>
+                To use the component, import one of the following modules into
+                your module/component:
+            </p>
+
+            <ul>
+                <li>
+                    <code>TableauUiClipboardModule</code> - for granular import
+                </li>
+                <li>
+                    <code>TableauUiAllModule</code> - to import all components
+                    from this library
+                </li>
+            </ul>
+        </div>
+        <div class="section">
+            <h3>Usage</h3>
+            <p>
+                You can use the ClipboardService to read from and write to the
+                Clipboard. <br />It automatically asks for browser permission to
+                access the clipboard. <br />If browser permission is not given,
+                it will either handle the error by showing an error snack or it
+                will let you handle it.
+            </p>
+            <p>
+                It is recommended to play around browser permissions for this
+                site and see how the below buttons behave
+            </p>
+        </div>
+        <div class="section">
+            <h3>Example</h3>
+
+            <div class="two spacer">
+                <div>
+                    <button
+                        (click)="
+                            writeText(
+                                'This was copied from the Tableau UI sample app.'
+                            )
+                        "
+                    >
+                        Copy text to clipboard
+                    </button>
+                    <div
+                        >This copies a sample text to the clipboard and shows an
+                        alert snack if browser permission is not given.</div
+                    >
+                </div>
+
+                <div>
+                    <button (click)="readText()">
+                        Read text from clipboard
+                    </button>
+                    <div
+                        >This reads the text from the clipboard and shows an
+                        alert with the text.<br />
+                        Shows an alert snack if browser permission is not given.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
