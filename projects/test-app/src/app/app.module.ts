@@ -20,6 +20,7 @@ import { routes } from './app.routes';
 import { HomePageComponent } from './pages/home-page/home-page.component';
 import { FormFieldsPageComponent } from './pages/form-fields-page/form-fields-page.component';
 import { RadioButtonsPageComponent } from './pages/radio-buttons-page/radio-buttons-page.component';
+import { IconsPageComponent } from './pages/icons-page/icons-page.component';
 
 @NgModule({
     declarations: [
@@ -28,7 +29,8 @@ import { RadioButtonsPageComponent } from './pages/radio-buttons-page/radio-butt
         CheckboxPageComponent,
         HomePageComponent,
         FormFieldsPageComponent,
-        RadioButtonsPageComponent
+        RadioButtonsPageComponent,
+        IconsPageComponent
     ],
     imports: [
         BrowserModule,
@@ -42,7 +44,7 @@ import { RadioButtonsPageComponent } from './pages/radio-buttons-page/radio-butt
         TableauUiCheckboxModule,
         TableauUiSnackModule,
         TableauUiFormFieldModule,
-        TableauUiIconModule,
+        TableauUiIconModule.forRoot({ enableDynamicIcons: true, enableDynamicIconsLocalStorageCache: true }),
         TableauUiRadioGroupModule
     ],
     providers: [

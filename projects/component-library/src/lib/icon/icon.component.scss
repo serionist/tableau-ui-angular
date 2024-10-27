@@ -33,6 +33,9 @@
     &.error {
         color: var(--twc-color-error);
     }
+    &.success {
+        color: var(--twc-color-success);
+    }
 
     &.icon-button {
         background-color: transparent;

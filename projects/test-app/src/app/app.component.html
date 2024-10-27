@@ -22,6 +22,15 @@
         ></tab-nav-bar-button>
 
         <tab-nav-bar-button
+        icon="add_circle"
+        text="Icons"
+        link="/icons"
+        [isActive]="(page$ | async) === 'icons'"
+    ></tab-nav-bar-button>
+
+    <tab-separator></tab-separator>
+
+        <tab-nav-bar-button
             icon="check_box"
             text="Checkbox"
             link="/checkbox"
@@ -140,7 +149,7 @@
                     </div>
                     <div class="content">
                         <ng-template #confirmationDialogTemplate>
-                            <tab-icon class="fill">error</tab-icon>
+                            <tab-icon class="fill" value="error"></tab-icon>
                             <span>This is a random template</span>
                             <tab-checkbox [value]="true">Checkbox</tab-checkbox>
                             </ng-template>
@@ -283,12 +292,12 @@
                 </div>
 
                 <div>
-                    <tab-icon>error</tab-icon>
-                    <tab-icon class="fill">error</tab-icon>
-                    <tab-icon color="primary">error</tab-icon>
-                    <tab-icon color="primary" class="fill">error</tab-icon>
-                    <tab-icon color="error">error</tab-icon>
-                    <tab-icon color="error" class="fill">error</tab-icon>
+                    <tab-icon value="error"></tab-icon>
+                    <tab-icon class="fill" value="error"></tab-icon>
+                    <tab-icon color="primary" value="error"></tab-icon>
+                    <tab-icon color="primary" class="fill" value="error"></tab-icon>
+                    <tab-icon color="error" value="error"></tab-icon>
+                    <tab-icon color="error" class="fill" value="error"></tab-icon>
                 </div>
             </div>
         </tab>

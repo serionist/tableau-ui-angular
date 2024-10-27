@@ -5,7 +5,7 @@
  [attr.disabled]="disabled()"
  [tooltip]="isExpanded() ? undefined: text()" 
  tooltipPosition="right">
-    <tab-icon>{{ icon() }}</tab-icon>
+    <tab-icon [value]="icon()"></tab-icon>
     @if (isExpanded()) {
         <span>{{ text() }}</span>
     }

@@ -1,0 +1,230 @@
+<div class="page">
+    <div class="title">
+        <h1>Icons</h1>
+        <div class="text-light text-large">
+            This page demonstrates the use of Material Icons in the component
+            library.
+        </div>
+    </div>
+    <tab-separator></tab-separator>
+
+    <div class="content">
+        <div class="section">
+            <h3>Getting started</h3>
+            <p>
+                <a href="https://fonts.google.com/icons" target="_blank"
+                    ><b>Material Design Icons</b></a
+                >
+                is an established icon set that is widely used in web
+                development. <br />The component library provides a wrapper
+                around these icons to make them easier to use. <br />There are
+                two major ways that material icons can be added into your
+                project:
+            </p>
+            <ul>
+                <li>
+                    <b>Locally Hosted icons</b>, imported via the Material Icons
+                    NPM Package:
+                    <div class="info">
+                        <tab-icon
+                            value="add_circle"
+                            class="fill"
+                            color="success"
+                        ></tab-icon>
+                        <span
+                            >All the icons are hosted locally, no external web
+                            request is made</span
+                        >
+                    </div>
+                    <div class="info">
+                        <tab-icon
+                            value="do_not_disturb_on"
+                            class="fill"
+                            [color]="'error'"
+                        ></tab-icon>
+                        <span
+                            >Large size. Browser downloads ~4.5MB+
+                            (uncompressed) to make icons available</span
+                        >
+                    </div>
+                </li>
+                <li style="margin-top: 0.5em">
+                    <b>Dynamic Icons</b>, loaded from the Material Icons CDN:
+                    <div class="info">
+                        <tab-icon
+                            value="add_circle"
+                            class="fill"
+                            color="success"
+                        ></tab-icon>
+                        <span
+                            >Only loads the used icons, small download size (a
+                            few kilobytes, depending on the number of icons
+                            used)</span
+                        >
+                    </div>
+                    <div class="info">
+                        <tab-icon
+                            value="add_circle"
+                            class="fill"
+                            color="success"
+                        ></tab-icon>
+                        <span
+                            >No manual setup needed, used icons are
+                            automatically loaded the first time they are
+                            used</span
+                        >
+                    </div>
+                    <div class="info">
+                        <tab-icon
+                            value="add_circle"
+                            class="fill"
+                            color="success"
+                        ></tab-icon>
+                        <span
+                            >(Optional) Icons loaded at least once are
+                            remembered and loaded automatically at every page
+                            load</span
+                        >
+                    </div>
+                    <div class="info">
+                        <tab-icon
+                            value="do_not_disturb_on"
+                            class="fill"
+                            [color]="'error'"
+                        ></tab-icon>
+                        <span
+                            >Hosted app needs access to Material Icons CDN,
+                            icons are not hosted locally</span
+                        >
+                    </div>
+                    <div class="info">
+                        <tab-icon
+                            value="do_not_disturb_on"
+                            class="fill"
+                            [color]="'error'"
+                        ></tab-icon>
+                        <span
+                            >Unloaded icons are blank until load from CDN
+                            completes</span
+                        >
+                    </div>
+                </li>
+            </ul>
+            <p>
+                This sample app uses Dynamic Icons, but contains commented code
+                to use Locally Hosted icons as well.
+            </p>
+        </div>
+        <div class="section">
+            <h3>Usage</h3>
+            <p>
+                To add an icon to your app, use the
+                <code>&lt;tab-icon&gt;</code> component and set the
+                <code>value</code> attribute to the name of the icon you want to
+                use.
+            </p>
+            <div>
+                <ngx-monaco-editor
+                    style="
+                        height: 25px;
+                        width: 320px;
+                        display: inline-block;
+                        vertical-align: middle;
+                        margin-right: 1em;
+                    "
+                    [options]="htmlOptions"
+                    ngModel='&lt;tab-icon value="home"&gt;&lt;/tab-icon&gt;'
+                ></ngx-monaco-editor>
+                <span>This will render: </span>
+                <tab-icon
+                    value="home"
+                    style="font-size: 18px; vertical-align: middle"
+                ></tab-icon>
+            </div>
+            <ul>
+                <li>
+                    You can search for icons on
+                    <a href="https://fonts.google.com/icons" target="_blank"
+                        ><b>Material Design Icons</b></a
+                    >. Use the icon name as it appears in the
+                    <i>Inserting the icon</i> section on the right side panel
+                    after an icon is selected.
+                </li>
+                <li>
+                    The size of the icon is <code>1em</code> by default.
+                    Changing the <code>font-size</code> CSS property resizes the
+                    icon. No need to update <code>width</code> and
+                    <code>height</code>.
+                </li>
+                <li>
+                    Icons can be colored using the <code>color</code> attribute.
+                    Possible values: <code>primary</code>, <code>error</code>,
+                    <code>success</code>. For any custom color, the
+                    <code>color</code> CSS property can be used.
+                </li>
+                <li>
+                    Adding <code>class="fill"</code> will make the icon filled.
+                    Advanced attributes can be configured using the
+                    <code>font-variation-settings</code> CSS attribute.
+                </li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h3>Installing Dynamic Icons</h3>
+            <p>
+                Dynamic Icons works by automatically detecting which icons are used in <code>tab-icon</code> components and loads them from the Material Icons CDN.
+                <br/>This detection is done at runtime, so no manual setup is needed. Icons are loaded the first time they are used.
+                <br/>Optionally, icons that have been loaded at least once can be remembered and loaded automatically at every page load. This is done by saving the used icons into localStorage and is turned on by default.
+            </p>
+            <ol>
+                <li>
+                    Add the <code>TableauUiIconModule</code> to your module/component imports and configure it using <code>forRoot</code>:
+                    <ngx-monaco-editor
+                        style="height: 280px; width: 520px"
+                        [options]="tsOptions"
+                        [ngModel]="dynamicModuleCode"
+                    ></ngx-monaco-editor>
+                    <div><code>enableDynamicIcons: true</code> turns the feature on. It is <code>false</code> by default</div>
+                    <div><code>enableDynamicIconsLocalStorageCache: false</code> turns off saving used icons into localStorage. It is <code>true</code> by default.</div>
+                </li>
+                <li>Use the Icon as it's shown in the Usage section</li>
+            </ol>
+        </div>
+
+        <div class="section">
+            <h3>Installing Locally Hosted Icons</h3>
+            <ol>
+                <li>
+                    Install the Icons Package by running:
+                    <ngx-monaco-editor
+                        style="height: 25px; width: 270px"
+                        [options]="terminalOptions"
+                        ngModel="npm install material-symbols"
+                    ></ngx-monaco-editor>
+                </li>
+                <li>
+                    Import the rounded icons by updating your
+                    <code>style.scss</code>:
+                    <ngx-monaco-editor
+                        style="height: 25px; width: 320px"
+                        [options]="scssOptions"
+                        ngModel="@import 'material-symbols/rounded';"
+                    ></ngx-monaco-editor>
+                </li>
+                <li>
+                    Add the <code>TableauUiIconModule</code> to your module/component imports:
+                    <ngx-monaco-editor
+                        style="height: 280px; width: 520px"
+                        [options]="tsOptions"
+                        [ngModel]="localModuleCode"
+                    ></ngx-monaco-editor>
+                </li>
+                <li>Use the Icon as it's shown in the Usage section</li>
+            </ol>
+            <b>Note: </b><span>Only Rounded icons are supported at the moment</span>
+        </div>
+
+        
+    </div>
+</div>

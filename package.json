@@ -20,7 +20,6 @@
     "@angular/platform-browser": "^18.2.0",
     "@angular/platform-browser-dynamic": "^18.2.0",
     "@angular/router": "^18.2.0",
-    "material-symbols": "^0.25.1",
     "monaco-editor": "^0.50.0",
     "ngx-monaco-editor-v2": "^18.1.0",
     "rxjs": "~7.8.0",

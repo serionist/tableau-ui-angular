@@ -29,8 +29,7 @@
   "peerDependencies": {
     "@angular/common": "^18.2.0",
     "@angular/core": "^18.2.0",
-    "tabbable": "^6.2.0",
-    "material-symbols": "^0.25.1"
+    "tabbable": "^6.2.0"
   },
   "dependencies": {
     "tslib": "^2.3.0"

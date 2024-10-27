@@ -4,7 +4,7 @@ import { TAB_SNACK_REF } from './snack.ref';
     template: `
         <div class="snack-content" [ngClass]="type()">
             <div class="content">
-                <tab-icon class="icon">{{ type() }}</tab-icon>
+                <tab-icon class="icon" value="{{ type() }}"></tab-icon>
                 <div *ngIf="template(); else textContent">
                     <ng-container
                         *ngTemplateOutlet="template()!"
@@ -20,7 +20,8 @@ import { TAB_SNACK_REF } from './snack.ref';
                     (click)="snackRef.close(true)"
                     (keydown.enter)="snackRef.close(true)"
                     (keydown.space)="snackRef.close(true)"
-                    >close</tab-icon
+                    value="close"
+                    ></tab-icon
                 >
             </div>
         </div>
