@@ -96,30 +96,17 @@
         link="/clipboard"
         [isActive]="(page$ | async) === 'clipboard'"
     ></tab-nav-bar-button>
-
+    <tab-separator></tab-separator>
         <tab-nav-bar-button
             icon="home"
-            text="Home Disabled"
+            text="Sample Disabled"
             link="/"
             [isActive]="false"
             [disabled]="true"
         ></tab-nav-bar-button>
 
-        <tab-separator></tab-separator>
+       
 
-        <tab-nav-bar-button
-            icon="home"
-            text="Home"
-            link="/"
-            [isActive]="false"
-        ></tab-nav-bar-button>
-
-        <tab-nav-bar-button
-            icon="home"
-            text="Home"
-            link="/"
-            [isActive]="false"
-        ></tab-nav-bar-button>
     </tab-nav-bar>
     <div><router-outlet></router-outlet></div>
 </div>
