@@ -5,6 +5,10 @@ import { HomePageComponent } from './pages/home-page/home-page.component';
 import { FormFieldsPageComponent } from './pages/form-fields-page/form-fields-page.component';
 import { RadioButtonsPageComponent } from './pages/radio-buttons-page/radio-buttons-page.component';
 import { IconsPageComponent } from './pages/icons-page/icons-page.component';
+import { ButtonsPageComponent } from './pages/buttons-page/buttons-page.component';
+import { DialogsPageComponent } from './pages/dialogs-page/dialogs-page.component';
+import { SnacksPageComponent } from './pages/snacks-page/snacks-page.component';
+import { TooltipsPageComponent } from './pages/tooltips-page/tooltips-page.component';
 export const routes: Routes = [
     {
         'path': '',
@@ -38,6 +42,42 @@ export const routes: Routes = [
         title: 'Icons',
         data: {
             page: 'icons'
+        }
+
+    },
+    {
+        path: 'buttons',
+        component: ButtonsPageComponent,
+        title: 'Buttons',
+        data: {
+            page: 'buttons'
+        }
+
+    },
+    {
+        path: 'dialogs',
+        component: DialogsPageComponent,
+        title: 'Dialogs',
+        data: {
+            page: 'dialogs'
+        }
+
+    },
+    {
+        path: 'snackbar',
+        component: SnacksPageComponent,
+        title: 'Snackbar',
+        data: {
+            page: 'snackbar'
+        }
+
+    },
+    {
+        path: 'tooltips',
+        component: TooltipsPageComponent,
+        title: 'Tooltips',
+        data: {
+            page: 'tooltips'
         }
 
     },

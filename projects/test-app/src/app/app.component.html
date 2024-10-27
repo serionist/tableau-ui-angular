@@ -30,6 +30,13 @@
 
     <tab-separator></tab-separator>
 
+    <tab-nav-bar-button
+    icon="trackpad_input"
+    text="Buttons"
+    link="/buttons"
+    [isActive]="(page$ | async) === 'buttons'"
+></tab-nav-bar-button>
+
         <tab-nav-bar-button
             icon="check_box"
             text="Checkbox"
@@ -50,6 +57,26 @@
         link="/radios"
         [isActive]="(page$ | async) === 'radios'"
     ></tab-nav-bar-button>
+
+    <tab-nav-bar-button
+    icon="dialogs"
+    text="Dialogs"
+    link="/dialogs"
+    [isActive]="(page$ | async) === 'dialogs'"
+></tab-nav-bar-button>
+
+<tab-nav-bar-button
+icon="toast"
+text="Snackbar"
+link="/snackbar"
+[isActive]="(page$ | async) === 'snackbar'"
+></tab-nav-bar-button>
+<tab-nav-bar-button
+icon="tooltip"
+text="Tooltips"
+link="/tooltips"
+[isActive]="(page$ | async) === 'tooltips'"
+></tab-nav-bar-button>
 
         <tab-nav-bar-button
             icon="home"
@@ -116,190 +143,12 @@
                     </span>
                 </div>
 
-                <div class="text-subtitle">Dialogs</div>
-                <div class="two">
-                    <div class="content">
-                        <button 
-                            color="primary"
-                            (click)="openConfirmationDialog('primary')"
-                            >Confirmation Dialog with message</button
-                        >
-                        <button  (click)="openConfirmationDialog()"
-                            >Confirmation Dialog with message</button
-                        >
-                        <button 
-                            color="error"
-                            (click)="openConfirmationDialog('error')"
-                            >Confirmation Dialog with message</button
-                        >
-
-                        <button 
-                        color="primary"
-                        (click)="openConfirmationDialog('primary', undefined)"
-                        >Confirmation Dialog, no autofocus</button
-                    >
-                    <button  (click)="openConfirmationDialog(undefined, 'accept')"
-                        >Confirmation Dialog, focus accept</button
-                    >
-                    <button 
-                        color="error"
-                        (click)="openConfirmationDialog('error', 'cancel')"
-                        >Confirmation Dialog, focus cancel</button
-                    >
-                    </div>
-                    <div class="content">
-                        <ng-template #confirmationDialogTemplate>
-                            <tab-icon class="fill" value="error"></tab-icon>
-                            <span>This is a random template</span>
-                            <tab-checkbox [value]="true">Checkbox</tab-checkbox>
-                            </ng-template>
-                        <button 
-                            color="primary"
-                            (click)="openConfirmationTemplateDialog(confirmationDialogTemplate, 'primary', 'accept', 'Custom Accept', 'Custom Cancel')"
-                            >Confirmation Dialog with template, focus accept, custom button texts</button
-                        >
-                        <button  (click)="openConfirmationTemplateDialog(confirmationDialogTemplate, 'secondary', 'accept', 'Custom Accept', 'Custom Cancel')"
-                            >Confirmation Dialog with template, focus accept, custom button texts</button
-                        >
-                        <button 
-                            color="error"
-                            (click)="openConfirmationTemplateDialog(confirmationDialogTemplate, 'error', 'accept', 'Custom Accept', 'Custom Cancel')"
-                            >Confirmation Dialog with template, focus accept, custom button texts</button
-                        >
-                    </div>
-                </div>
                 
-                <div class="text-subtitle">Snacks</div>
-                <div class="two">
-                    <div class="content">
-                        <button color="primary" (click)="snackService.openSnack('This is a simple snack forever', 0)">Simple Snack from top, forever</button>
-                        <button color="error" (click)="snackService.openSnack('This is a simple snack forever', 0, 'error')">Simple Snack from top, forever</button>
-
-                        <button color="primary" (click)="snackService.openSnack('This is a simple snack forever', 0, 'info', 'bottom')">Simple Snack from bottom, forever</button>
-                        <button color="error" (click)="snackService.openSnack('This is a simple snack forever', 0, 'error', 'bottom')">Simple Snack from bottom, forever</button>
-
-
-                        <button color="primary" (click)="snackService.openSnack('This is a simple snack for 5 seconds', 5000)">Simple Snack from top, 5 secs</button>
-                        <button color="error" (click)="snackService.openSnack('This is a simple snack for 5 seconds', 5000, 'error')">Simple Snack from top, 5 secs</button>
-
-                        <button color="primary" (click)="snackService.openSnack('This is a simple snack for 5 seconds', 5000, 'info', 'bottom')">Simple Snack from bottom, 5 secs</button>
-                        <button color="error" (click)="snackService.openSnack('This is a simple snack for 5 seconds', 5000, 'error', 'bottom')">Simple Snack from bottom, 5 secs</button>
-                    </div>
-                    <div class="content">
-                        <ng-template #snackTemplate>
-                            <span>This is a random template</span>
-                            <tab-checkbox [value]="true">Checkbox</tab-checkbox>
-                        </ng-template>
-                        <button color="primary" (click)="snackService.openSnackFromTemplate(snackTemplate, 5000)">Templated Snack from top, 5 secs</button>
-                        <button color="error" (click)="snackService.openSnackFromTemplate(snackTemplate, 5000, 'error')">Templated Snack from top, 5 secs</button>
-
-                        <button color="primary" (click)="snackService.openSnackFromTemplate(snackTemplate, 5000, 'info', 'bottom')">Templated Snack from bottom, 5 secs</button>
-                        <button color="error" (click)="snackService.openSnackFromTemplate(snackTemplate, 5000, 'error', 'bottom')">Templated Snack from bottom, 5 secs</button>
-
-
-                        <button color="primary" (click)="openCustomSnack(5000)">Custom Component Snack from top, 5 secs</button>
-                        <button color="error" (click)="openCustomSnack(5000, 'error')">Custom Component Snack from top, 5 secs</button>
-
-                        <button color="primary" (click)="openCustomSnack(5000, 'info', 'bottom')">Custom Component Snack from bottom, 5 secs</button>
-                        <button color="error" (click)="openCustomSnack(5000, 'error', 'bottom')">Custom Component Snack from bottom, 5 secs</button>
-                    </div>
                 </div>
             </div>
         </tab>
         <tab>
-            <div tab-header><i class="icon-example"></i> Buttons</div>
-            <div class="content">
-                <button 
-                    color="secondary"
-                    [loading]="buttonsLoading.secondary"
-                    (click)="buttonClick('secondary')"
-                    >Secondary</button
-                >
-                <button 
-                    color="primary"
-                    [loading]="buttonsLoading.primary"
-                    (click)="buttonClick('primary')"
-                    >Primary</button
-                >
-                <button 
-                    color="error"
-                    [loading]="buttonsLoading.warning"
-                    (click)="buttonClick('warning')"
-                    >Warning</button
-                >
-                <button  [disabled]="true">Secondary disabled</button>
-                <button  [disabled]="true" color="primary"
-                    >Primary disabled</button
-                >
-                <button  [disabled]="true" color="error"
-                    >Warning disabled</button
-                >
-                <button 
-                    color="primary"
-                    [loading]="buttonsLoading.primary"
-                    (click)="openDialog()"
-                    >Open Dialog</button
-                >
-            </div>
-        </tab>
-        <tab>
-            <div tab-header><i class="icon-example"></i> Icons</div>
-            <div class="tab-content">
-                Usage:
-                <ul>
-                    <li>
-                        Use
-                        <span class="text-primary"
-                            >&lt;tab-icon&gt;[icon]&lt;/tab-icon&gt;</span
-                        >
-                        to add an icon-example
-                    </li>
-                    <li>
-                        Use
-                        <span class="text-primary"
-                            >&lt;tab-icon
-                            color=&quot;primary&quot;&gt;[icon]&lt;/tab-icon&gt;</span
-                        >
-                        to add a primary colored icon (primary can also be
-                        passed as a class)
-                    </li>
-                    <li>
-                        Use
-                        <span class="text-primary"
-                            >&lt;tab-icon
-                            color=&quot;error&quot;&gt;[icon]&lt;/tab-icon&gt;</span
-                        >
-                        to add a error colored icon (error can also be passed as
-                        a class)
-                    </li>
-                    <li>
-                        Use
-                        <span class="text-primary"
-                            >&lt;tab-icon
-                            class=&quot;fill&quot;&gt;[icon]&lt;/tab-icon&gt;</span
-                        >
-                        to use a filled icon
-                    </li>
-                </ul>
-                <div>
-                    Navigate to
-                    <a
-                        href="https://fonts.google.com/icons?selected=Material+Symbols+Outlined:error:FILL@1;wght@400;GRAD@0;opsz@24&icon.query=alert&icon.size=24&icon.color=%235f6368&icon.style=Rounded"
-                        target="_blank"
-                        >Material Icons page</a
-                    >
-                    to browse icons
-                </div>
-
-                <div>
-                    <tab-icon value="error"></tab-icon>
-                    <tab-icon class="fill" value="error"></tab-icon>
-                    <tab-icon color="primary" value="error"></tab-icon>
-                    <tab-icon color="primary" class="fill" value="error"></tab-icon>
-                    <tab-icon color="error" value="error"></tab-icon>
-                    <tab-icon color="error" class="fill" value="error"></tab-icon>
-                </div>
-            </div>
+           
         </tab>
     </tab-group>
 </div> -->
