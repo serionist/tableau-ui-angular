@@ -179,15 +179,23 @@
             </p>
             <ol>
                 <li>
-                    Add the <code>TableauUiIconModule</code> to your module/component imports and configure it using <code>forRoot</code>:
+                    If you use modules, add the <code>TableauUiIconModule</code> to your module imports and configure it using <code>forRoot</code>:
                     <ngx-monaco-editor
-                        style="height: 280px; width: 520px"
+                        style="height: 80px; width: 520px"
                         [options]="tsOptions"
                         [ngModel]="dynamicModuleCode"
                     ></ngx-monaco-editor>
                     <div><code>enableDynamicIcons: true</code> turns the feature on. It is <code>false</code> by default</div>
                     <div><code>enableDynamicIconsLocalStorageCache: false</code> turns off saving used icons into localStorage. It is <code>true</code> by default.</div>
                 </li>
+                <li>Alternatively, either add <code>TableauUiIconModule</code> or <code>TableauUiAllModule</code> to your component/module and add the following code to your providers separately:
+                    <ngx-monaco-editor
+                        style="height: 180px; width: 520px"
+                        [options]="tsOptions"
+                        [ngModel]="providersCode"
+                    ></ngx-monaco-editor>
+                </li>
+
                 <li>Use the Icon as it's shown in the Usage section</li>
             </ol>
         </div>

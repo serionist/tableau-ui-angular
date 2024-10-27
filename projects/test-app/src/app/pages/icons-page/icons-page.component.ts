@@ -27,18 +27,20 @@ export class AppComponent {
 }
 `;
 
-dynamicModuleCode = `import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { TableauUiIconModule } from 'tableau-ui-angular';
-
-@Component({
-selector: 'app-root',
-standalone: true,
-imports: [RouterOutlet, TableauUiIconModule.forRoot({ enableDynamicIcons: true, enableDynamicIconsLocalStorageCache: true })],
-templateUrl: './app.component.html',
-styleUrl: './app.component.scss'
-})
-export class AppComponent {
-}
-`;
+dynamicModuleCode = ` imports: [
+        TableauUiIconModule.forRoot({ enableDynamicIcons: true, enableDynamicIconsLocalStorageCache: true }),
+    ]`;
+providersCode = `imports: [
+        TableauUiIconModule
+        // TableauUiAllModule
+    ],
+providers: [
+    {
+        provide: ICON_CONFIG,
+        useValue: {
+            enableDynamicIcons: true,
+            enableDynamicIconsLocalStorageCache: true
+        }
+    }
+]`;
 }
