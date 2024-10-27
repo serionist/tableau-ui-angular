@@ -81,5 +81,16 @@
                 </tab-radiogroup>
             </div>
         </div>
+        <div class="section">
+            <h3>Other</h3>
+            <p>
+                For visual reference, this is how a selected disabled Radio Button looks:
+            </p>
+            <tab-radiogroup [value]="2">
+                 <tab-option [value]="2" [disabled]="true"
+                    >Disabled value<tab-hint>with random hint</tab-hint></tab-option
+                >
+            </tab-radiogroup>
+        </div>
     </div>
 </div>

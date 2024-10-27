@@ -10,42 +10,42 @@
         <tab-nav-bar-button
             icon="home"
             text="Home"
-            routerLink="/"
+            link="/"
             [isActive]="(page$ | async) === 'home'"
         ></tab-nav-bar-button>
 
         <tab-nav-bar-button
             icon="css"
             text="CSS & Fonts"
-            routerLink="/css"
+            link="/css"
             [isActive]="(page$ | async) === 'css'"
         ></tab-nav-bar-button>
 
         <tab-nav-bar-button
             icon="check_box"
             text="Checkbox"
-            routerLink="/checkbox"
+            link="/checkbox"
             [isActive]="(page$ | async) === 'checkbox'"
         ></tab-nav-bar-button>
 
         <tab-nav-bar-button
             icon="edit_square"
             text="Form Fields"
-            routerLink="/form-fields"
+            link="/form-fields"
             [isActive]="(page$ | async) === 'form-fields'"
         ></tab-nav-bar-button>
 
         <tab-nav-bar-button
         icon="radio_button_checked"
         text="Radio Groups"
-        routerLink="/radios"
+        link="/radios"
         [isActive]="(page$ | async) === 'radios'"
     ></tab-nav-bar-button>
 
         <tab-nav-bar-button
             icon="home"
             text="Home Disabled"
-            routerLink="/"
+            link="/"
             [isActive]="false"
             [disabled]="true"
         ></tab-nav-bar-button>
@@ -55,14 +55,14 @@
         <tab-nav-bar-button
             icon="home"
             text="Home"
-            routerLink="/"
+            link="/"
             [isActive]="false"
         ></tab-nav-bar-button>
 
         <tab-nav-bar-button
             icon="home"
             text="Home"
-            routerLink="/"
+            link="/"
             [isActive]="false"
         ></tab-nav-bar-button>
     </tab-nav-bar>

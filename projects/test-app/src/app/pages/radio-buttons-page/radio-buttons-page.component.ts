@@ -10,7 +10,7 @@ import { FormControl, Validators } from '@angular/forms';
 export class RadioButtonsPageComponent implements OnInit{
   
   snackService = inject(SnackService);
-  simpleValue = 2;
+  simpleValue = 1;
 
   formControl = new FormControl<number | null>(null, [Validators.required, Validators.min(2), Validators.max(3)]);
 

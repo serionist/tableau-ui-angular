@@ -11,7 +11,7 @@ import { TooltipDirective } from '../../tooltip/tooltip.directive';
 export class NavBarButtonComponent {
   icon = input.required<string>();
   text = input.required<string>();
-  routerLink = input<string | any[] | UrlTree | null | undefined>();
+  link = input<string | any[] | UrlTree | null | undefined>();
   isActive = input<boolean>(false);
   disabled = input<boolean>(false);
 
