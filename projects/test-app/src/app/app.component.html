@@ -77,6 +77,12 @@ text="Tooltips"
 link="/tooltips"
 [isActive]="(page$ | async) === 'tooltips'"
 ></tab-nav-bar-button>
+<tab-nav-bar-button
+icon="tabs"
+text="Tabs"
+link="/tabcontrol"
+[isActive]="(page$ | async) === 'tabcontrol'"
+></tab-nav-bar-button>
 
         <tab-nav-bar-button
             icon="home"
@@ -114,38 +120,7 @@ link="/tooltips"
                 <i class="icon-example"></i> Tooltips & dialogs
             </div>
             <div class="tab-content">
-                <ng-template #tooltipTemplate>Tooltip Coming from template</ng-template>
-            
-                <div style="margin-top: 20px">
-                    <span tooltip="Tooltip provided as text" tooltipPosition="top">
-                        Top TEXT tooltip, default margin
-                    </span>
-                </div>
-                <div style="margin-top: 20px">
-                    <span [tooltip]="tooltipTemplate" tooltipPosition="left">
-                        Left TEMPLATE tooltip, default margin
-                    </span>
-                </div>
-                <div style="margin-left: 520px">
-                    <span [tooltip]="tooltipTemplate" tooltipPosition="left" tooltipMargin="10px">
-                        Left TEMPLATE tooltip, changed margin (10px)
-                    </span>
-                </div>
-                <div style="margin-top: 20px">
-                    <span [tooltip]="tooltipTemplate" tooltipPosition="bottom" tooltipMargin="2em">
-                        Bottom TEMPLATE tooltip, changed margin (2em)
-                    </span>
-                </div>
-
-                <div style="margin-top: 20px">
-                    <span [tooltip]="tooltipTemplate" tooltipPosition="right">
-                        Right TEMPLATE tooltip, default margin
-                    </span>
-                </div>
-
-                
-                </div>
-            </div>
+              
         </tab>
         <tab>
            

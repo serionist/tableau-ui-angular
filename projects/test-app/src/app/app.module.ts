@@ -14,6 +14,7 @@ import {
     TableauUiNavBarModule,
     TableauUiRadioGroupModule,
     TableauUiSnackModule,
+    TableauUiTabgroupModule,
     TableauUiTooltipModule,
 } from '../../../component-library/src/public-api';
 import { provideRouter, RouterModule, RouterOutlet } from '@angular/router';
@@ -31,6 +32,7 @@ import { ExampleDialogComponent } from './pages/dialogs-page/example-dialog.comp
 import { SnacksPageComponent } from './pages/snacks-page/snacks-page.component';
 import { ExampleSnackComponent } from './pages/snacks-page/example-snack.component';
 import { TooltipsPageComponent } from './pages/tooltips-page/tooltips-page.component';
+import { TabcontrolPageComponent } from './pages/tabcontrol-page/tabcontrol-page.component';
 
 @NgModule({
     declarations: [
@@ -46,7 +48,8 @@ import { TooltipsPageComponent } from './pages/tooltips-page/tooltips-page.compo
         ExampleDialogComponent,
         SnacksPageComponent,
         ExampleSnackComponent,
-        TooltipsPageComponent
+        TooltipsPageComponent,
+        TabcontrolPageComponent
     ],
     imports: [
         BrowserModule,
@@ -64,7 +67,8 @@ import { TooltipsPageComponent } from './pages/tooltips-page/tooltips-page.compo
         TableauUiRadioGroupModule,
         TableauUiButtonModule,
         TableauUiDialogModule,
-        TableauUiTooltipModule
+        TableauUiTooltipModule,
+        TableauUiTabgroupModule
     ],
     providers: [
         provideZoneChangeDetection({ eventCoalescing: true }),

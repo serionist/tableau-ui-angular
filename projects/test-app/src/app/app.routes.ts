@@ -9,6 +9,7 @@ import { ButtonsPageComponent } from './pages/buttons-page/buttons-page.componen
 import { DialogsPageComponent } from './pages/dialogs-page/dialogs-page.component';
 import { SnacksPageComponent } from './pages/snacks-page/snacks-page.component';
 import { TooltipsPageComponent } from './pages/tooltips-page/tooltips-page.component';
+import { TabcontrolPageComponent } from './pages/tabcontrol-page/tabcontrol-page.component';
 export const routes: Routes = [
     {
         'path': '',
@@ -78,6 +79,15 @@ export const routes: Routes = [
         title: 'Tooltips',
         data: {
             page: 'tooltips'
+        }
+
+    },
+    {
+        path: 'tabcontrol',
+        component: TabcontrolPageComponent,
+        title: 'Tabs',
+        data: {
+            page: 'tabcontrol'
         }
 
     },
