@@ -18,7 +18,7 @@ import {
     TableauUiTabgroupModule,
     TableauUiTooltipModule,
 } from '../../../component-library/src/public-api';
-import { provideRouter, RouterModule, RouterOutlet } from '@angular/router';
+import { provideRouter, RouterModule, RouterOutlet, withHashLocation } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { CssPageComponent } from './pages/css-page/css-page.component';
 import { CheckboxPageComponent } from './pages/checkbox-page/checkbox-page.component';
@@ -78,7 +78,7 @@ import { ClipboardPageComponent } from './pages/clipboard-page/clipboard-page.co
     ],
     providers: [
         provideZoneChangeDetection({ eventCoalescing: true }),
-        provideRouter(routes),
+        provideRouter(routes, withHashLocation()),
         // Add this provider to enable dynamic icons if you don't use the TableauUiIconModule.forRoot() method in your app.module.ts
         // {
         //     provide: ICON_CONFIG,
