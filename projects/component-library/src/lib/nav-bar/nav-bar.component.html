@@ -4,8 +4,8 @@
         (click)="expanded.set(!expanded())"
         [tooltip]="expanded() ? 'Collapse menu' : 'Expand menu'"
         tooltipPosition="right"
+        [value]="expanded() ? 'arrow_back_ios' : 'arrow_forward_ios'"
     >
-        {{ expanded() ? "arrow_back_ios" : "arrow_forward_ios" }}
     </tab-icon>
 </div>
 

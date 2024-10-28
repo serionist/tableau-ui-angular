@@ -32,7 +32,7 @@ import { combineLatest, map } from 'rxjs';
     },
     styleUrls: ['./icon.component.scss'],
 })
-export class IconComponent implements OnInit {
+export class IconComponent {
     value = model<string>();
     color = model<'primary' | 'error' | 'success' | undefined>();
 
@@ -50,12 +50,13 @@ export class IconComponent implements OnInit {
         })
     )
 
-    ngOnInit(): void {
+    constructor() {
         this.addIconToService(this.value());
-        this.value.subscribe((v) => {
+        toObservable(this.value).subscribe((v) => {
             this.addIconToService(v);
         });
     }
+
     addIconToService(value: string | undefined) {
         if (value === undefined) {
             return;
