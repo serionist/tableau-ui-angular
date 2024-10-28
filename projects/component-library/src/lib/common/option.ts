@@ -59,7 +59,6 @@ export class OptionComponent {
         this.renderIcon = renderIcon;
         this.renderHint = renderHint;
         this.renderText = renderText;
-        console.log('gettemplate')
         return this.template;
     }
 
