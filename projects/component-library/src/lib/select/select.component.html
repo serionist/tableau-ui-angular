@@ -1,0 +1,29 @@
+<div class="content-display">
+    @if (!value() || value().length === 0) {
+    <span class="placeholder">{{ placeholder() }}</span>
+    } @else {
+    <span class="value">
+        {{
+            value().length > multipleSelectionMaxItemsListed()
+                ? multipleSelectionNumberSelectedTemplate().replace(
+                      "{number}",
+                      value().length
+                  )
+                : value().join(", ")
+        }}
+    </span>
+    }
+</div>
+@if (allowClear() && ((allowMultiple() && value()?.length > 0) ||
+(!allowMultiple() && value()))) {
+<tab-icon icon-button value="clear"></tab-icon>
+}
+<tab-icon class="dropdown" icon-button value="keyboard_arrow_down"></tab-icon>
+
+<div class="dropdown-backdrop"></div>
+<div class="dropdown-container" [class.open]="dropdownOpen()"
+ [style.top]="dropdownTop() + 'px'"
+ [style.left]="dropdownLeft() + 'px'"
+ [style.width]="dropdownWidth() + 'px'">
+add_shopping_cart
+</div>

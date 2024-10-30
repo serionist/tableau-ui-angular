@@ -12,6 +12,7 @@ import { TooltipsPageComponent } from './pages/tooltips-page/tooltips-page.compo
 import { TabcontrolPageComponent } from './pages/tabcontrol-page/tabcontrol-page.component';
 import { NavbarPageComponent } from './pages/navbar-page/navbar-page.component';
 import { ClipboardPageComponent } from './pages/clipboard-page/clipboard-page.component';
+import { SelectPageComponent } from './pages/select-page/select-page.component';
 export const routes: Routes = [
     {
         'path': '',
@@ -27,6 +28,15 @@ export const routes: Routes = [
         title: 'Checkboxes',
         data: {
             page: 'checkbox'
+        }
+
+    },
+    {
+        path: 'select',
+        component: SelectPageComponent,
+        title: 'Select',
+        data: {
+            page: 'select'
         }
 
     },

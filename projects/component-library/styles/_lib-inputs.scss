@@ -27,7 +27,23 @@ input,textarea,.tab-input {
   &.ng-invalid.ng-touched {
     border-color: var(--twc-color-error);
   }
-
+  &::placeholder {
+    color: var(--twc-color-text-light);
+  }
+  &::-ms-input-placeholder {
+    color: var(--twc-color-text-light);
+  }
+  &[disabled] {
+    background-color: rgba(255, 255, 255, 0);
+    border-color: #c9c9c9;
+    color: var(--twc-color-disabled);
+    &::placeholder {
+        color: var(--twc-color-disabled);
+      }
+      &::-ms-input-placeholder {
+        color: var(--twc-color-disabled);
+      }
+  }
 }
 textarea {
   resize: vertical;

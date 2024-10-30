@@ -53,17 +53,14 @@
       }
     }
   }
-
-  ::ng-deep &.disabled * {
-    background-color: rgba(255, 255, 255, 0) !important;
-    border-color: #c9c9c9 !important;
-    color: var(--twc-color-disabled) !important;
-
+  &.disabled .prefix,.suffix,::ng-deep .tab-hint{
+    color: var(--twc-color-disabled);
     &::placeholder {
-      color: var(--twc-color-disabled) !important;
-    }
-    &::-ms-input-placeholder {
-      color: var(--twc-color-disabled) !important;
-    }
+        color: var(--twc-color-disabled);
+      }
+      &::-ms-input-placeholder {
+        color: var(--twc-color-disabled);
+      }
   }
+
 }

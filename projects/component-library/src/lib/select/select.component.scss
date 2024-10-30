@@ -1,0 +1,19 @@
+:host {
+    display: grid;
+    align-items: center;
+    grid-template-columns: 1fr auto auto;
+    user-select: none;
+}
+.dropdown {
+    font-size: 1.5em;
+    margin-left: 1em;
+}
+
+.dropdown-container {
+    position: absolute;
+    display: none;
+
+    &.open {
+        display: block;
+    }
+}

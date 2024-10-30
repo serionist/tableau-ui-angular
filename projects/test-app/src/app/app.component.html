@@ -59,6 +59,13 @@
         ></tab-nav-bar-button>
 
         <tab-nav-bar-button
+            icon="dropdown"
+            text="Select dropdown"
+            link="/select"
+            [isActive]="(page$ | async) === 'select'"
+        ></tab-nav-bar-button>
+
+        <tab-nav-bar-button
             icon="dialogs"
             text="Dialogs"
             link="/dialogs"
@@ -105,7 +112,7 @@
             [disabled]="true"
         ></tab-nav-bar-button>
 
-       
+
 
     </tab-nav-bar>
     <div><router-outlet></router-outlet></div>
