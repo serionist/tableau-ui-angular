@@ -24,6 +24,7 @@
 <div class="dropdown-container" [class.open]="dropdownOpen()"
  [style.top]="dropdownTop() + 'px'"
  [style.left]="dropdownLeft() + 'px'"
- [style.width]="dropdownWidth() + 'px'">
+ [style.width]="dropdownWidth() + 'px'"
+ (click)="snackService.openSnack('szasz');">
 add_shopping_cart
 </div>

@@ -12,6 +12,7 @@ import {
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { OptionComponent } from '../common/option';
+import { SnackService } from '../snack/snack.service';
 
 @Component({
     selector: 'tab-select',
@@ -28,11 +29,13 @@ import { OptionComponent } from '../common/option';
         class: 'tab-input',
         "tabindex": "0",
         "(click)": "openDropdown()",
+        "(blur)": "dropdownOpen.set(false)"
     }
 })
 export class SelectComponent
     implements ControlValueAccessor, OnInit, AfterContentInit
 {
+    snackService = inject(SnackService);
     disabled = signal(false);
     placeholder = model<string>();
     value = model<any | any[]>(undefined);
