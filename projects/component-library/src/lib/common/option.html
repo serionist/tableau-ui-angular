@@ -1,0 +1,56 @@
+<ng-template
+    #templateRef
+    let-renderIcon="renderIcon"
+    let-renderText="renderText"
+    let-renderHint="renderHint"
+>
+    <div class="tab-option grid" [class.disabled]="disabled()">
+        @if (renderIcon && iconType() !== 'none') {
+        <div class="icon">
+            @if (iconType() === 'string') {
+            <tab-icon [value]="iconString()"></tab-icon>
+            } @else if (iconType() === 'template') {
+            <ng-container *ngTemplateOutlet="iconTemplate()"></ng-container>
+            }
+        </div>
+        } @if (renderText && textType() !== 'none') {
+        <div class="content">
+            @if (textType() === 'string') { {{ textString() }} } @else if
+            (textType() === 'template') {
+            <ng-container *ngTemplateOutlet="textTemplate()"></ng-container>
+            }
+        </div>
+        } @if (renderHint && hintType() !== 'none') {
+        <div class="hint">
+            @if (hintType() === 'string') { {{ hintString() }} } @else if
+            (hintType() === 'template') {
+            <ng-container *ngTemplateOutlet="hintTemplate()"></ng-container>
+            }
+        </div>
+        }
+    </div>
+</ng-template>
+<ng-template
+    #lineTemplateRef
+    let-renderIcon="renderIcon"
+    let-renderText="renderText"
+>
+    <span class="tab-option line" [class.disabled]="disabled()">
+        @if (renderIcon && iconType() !== 'none') {
+        <span class="icon">
+            @if (iconType() === 'string') {
+            <tab-icon [value]="iconString()"></tab-icon>
+            } @else if (iconType() === 'template') {
+            <ng-container *ngTemplateOutlet="iconTemplate()"></ng-container>
+            }
+        </span>
+        } @if (renderText && textType() !== 'none') {
+        <span class="content">
+            @if (textType() === 'string') { {{ textString() }} } @else if
+            (textType() === 'template') {
+            <ng-container *ngTemplateOutlet="textTemplate()"></ng-container>
+            }
+        </span>
+        }
+    </span>
+</ng-template>

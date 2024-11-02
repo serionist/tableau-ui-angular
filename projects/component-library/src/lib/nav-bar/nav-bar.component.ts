@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterContentInit, Component, contentChild, contentChildren, input, model, ViewEncapsulation } from '@angular/core';
+import { AfterContentInit, ChangeDetectionStrategy, Component, contentChild, contentChildren, input, model, ViewEncapsulation } from '@angular/core';
 import { NavBarHeaderComponent } from './nav-bar-header.component';
 import { NavBarFooterComponent } from './nav-bar-footer.component';
 import { NavBarButtonComponent } from './nav-bar-button/nav-bar-button.component';
@@ -13,7 +13,8 @@ import { TooltipDirective } from '../tooltip/tooltip.directive';
   styleUrl: './nav-bar.component.scss',
   host: {
     '[attr.expanded]': 'expanded()'
-  }
+  },
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NavBarComponent implements AfterContentInit {
   header = contentChild(NavBarHeaderComponent);

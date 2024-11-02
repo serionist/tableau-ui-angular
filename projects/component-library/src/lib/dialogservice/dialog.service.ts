@@ -19,22 +19,21 @@ import {
     IDialogHeaderArgs,
     IModalArgs,
 } from './dialog.args';
-import { debounceTime, fromEvent, map, Subscription } from 'rxjs';
+import { debounceTime, fromEvent, map, Subscription, zip } from 'rxjs';
 import { FocusableElement, tabbable } from 'tabbable';
 import { IconComponent } from '../icon/icon.component';
 import { ConfirmationDialogComponent } from './confirmation-dialog.component';
 import { TableauUiDialogModule } from './tableau-ui-dialog.module';
+import { TemplateDialogComponent } from './template-dialog.component';
 
 // Styles for the dialog container are in _dialog.service.scss in the styles folder
 @Injectable({
-    providedIn: TableauUiDialogModule
+    providedIn: TableauUiDialogModule,
 })
 export class DialogService {
-    constructor(
-        private injector: Injector,
-        private appRef: ApplicationRef,
-        private environmentInjector: EnvironmentInjector
-    ) {}
+    injector = inject(Injector);
+    appRef = inject(ApplicationRef);
+    environmentInjector = inject(EnvironmentInjector);
 
     openModal<T>(
         component: Type<T>,
@@ -57,7 +56,7 @@ export class DialogService {
                 borderStyle: 'solid',
                 borderWidth: '1px',
                 borderRadius: '1px',
-                boxShadow: 'rgba(51, 51, 51, 0.15) 0px 2px 16px 0px',
+                boxShadow: '0 2px 10px rgba(0, 0, 0, 0.35)',
                 cursor: 'default',
                 display: 'flex',
                 flexDirection: 'column',
@@ -70,7 +69,20 @@ export class DialogService {
             },
             header: args?.header,
         } as IDialogArgs;
-        return this.openDialog(component, inputs, a);
+        // Before creating the dialog, trap focus
+        // This means that we get all elements which are tabbable and set the tabindex to -1 for the duration of the popup
+        const trappedFocus = this.trapFocus();
+        const ref = this.openDialog(component, inputs, a);
+        // focus the modal so that the opening control loses focus (which is trapped)
+        if (!ref.dialogElement.contains(document.activeElement)) {
+            ref.dialogElement.tabIndex = 0;
+            ref.dialogElement.focus();
+            ref.dialogElement.tabIndex = -1;
+        }
+        ref.afterClosed$.subscribe(() => {
+            this.restoreFocus(trappedFocus);
+        });
+        return ref;
     }
 
     openConfirmationMessageDialog(
@@ -87,7 +99,11 @@ export class DialogService {
             header: { title, allowClose: true },
         } as IModalArgs;
         return new Promise((resolve) => {
-            const inputs: { [key: string]: any } =  { content: message, color, autofocus };
+            const inputs: { [key: string]: any } = {
+                content: message,
+                color,
+                autofocus,
+            };
             if (acceptBtnText) inputs['acceptBtnText'] = acceptBtnText;
             if (cancelBtnText) inputs['cancelBtnText'] = cancelBtnText;
             const dialogRef = this.openModal(
@@ -115,12 +131,16 @@ export class DialogService {
             header: { title, allowClose: true },
         } as IModalArgs;
         return new Promise((resolve) => {
-            const inputs: { [key: string]: any } =  { contentTemplate: template, color, autofocus };
+            const inputs: { [key: string]: any } = {
+                contentTemplate: template,
+                color,
+                autofocus,
+            };
             if (acceptBtnText) inputs['acceptBtnText'] = acceptBtnText;
             if (cancelBtnText) inputs['cancelBtnText'] = cancelBtnText;
             const dialogRef = this.openModal(
                 ConfirmationDialogComponent,
-               inputs ,
+                inputs,
                 modalArgs
             );
             dialogRef.afterClosed$.subscribe((result) => {
@@ -129,28 +149,53 @@ export class DialogService {
         });
     }
 
+    readonly startZIndex = 100;
+    readonly zIndexStep = 10;
+    private zIndex = this.startZIndex;
 
-    private openDialog<T>(
+    dialogStack: {
+        dialogRef: DialogRef;
+        zIndex: number;
+        args: IDialogArgs;
+    }[] = [];
+
+    openTemplateDialog<T extends any = any>(
+        contentTemplate: TemplateRef<T>,
+        args: IDialogArgs,
+        contentTemplateContext?: T,
+        insertAfterElement?: HTMLElement
+    ) {
+        const inputs: { [key: string]: any } = {
+            contentTemplate,
+            contentTemplateContext,
+        };
+        return this.openDialog(
+            TemplateDialogComponent,
+            inputs,
+            args,
+            insertAfterElement
+        );
+    }
+    openDialog<T>(
         component: Type<T>,
         inputs: { [key: string]: any } = {},
-        args: IDialogArgs = {}
+        args: IDialogArgs = {},
+        insertAfterElement?: HTMLElement
     ): DialogRef {
         const dialogRef = new DialogRef();
-        // Create a backdrop element
-        const backdrop = this.createBackdrop(dialogRef, args);
-        // Append backdrop to the body
-        document.body.appendChild(backdrop);
-
-        let escapeSubscription: Subscription | null = null;
-        if (args.closeOnEscape) {
-            escapeSubscription = fromEvent(document, 'keydown')
-                .pipe(map((e) => e as KeyboardEvent))
-                .subscribe((e: KeyboardEvent) => {
-                    if (e.key === 'Escape') {
-                        dialogRef.close();
-                    }
-                });
+        // calculate new zIndex
+        let zIndex = this.zIndex;
+        if (this.dialogStack.length > 0) {
+            zIndex =
+                this.dialogStack[this.dialogStack.length - 1].zIndex +
+                this.zIndexStep;
         }
+        // push this dialog to the new stack
+        this.dialogStack.push({ dialogRef, zIndex, args });
+
+        // Set the backdrop
+        this.setBackdropAndEscape();
+
         // Create an injector that provides the DialogRef
         const injector = Injector.create({
             providers: [{ provide: TAB_DIALOG_REF, useValue: dialogRef }],
@@ -167,15 +212,16 @@ export class DialogService {
             componentView,
             args,
             injector,
-            dialogRef
+            dialogRef,
+            zIndex
         );
-        // Before attaching the container to the document, trap focus
-        // This means that we get all elements which are tabbable and set the tabindex to -1 for the duration of the popup
-        const trappedFocus = this.trapFocus();
-        dialogElement.tabIndex = 0;
-        document.body.appendChild(dialogElement);
-        dialogElement.focus();
+        dialogRef.dialogElement = dialogElement;
 
+        if (insertAfterElement) {
+            insertAfterElement.insertAdjacentElement('afterend', dialogElement);
+        } else {
+            document.body.appendChild(dialogElement);
+        }
         // Handle container position and window resize event
         const resizeSubscription = this.setDialogPosition(dialogElement, args);
 
@@ -184,33 +230,72 @@ export class DialogService {
             if (resizeSubscription) {
                 resizeSubscription.unsubscribe();
             }
-            if (escapeSubscription) {
-                escapeSubscription.unsubscribe();
-            }
-            document.body.removeChild(dialogElement);
-            document.body.removeChild(backdrop);
+            dialogElement.remove();
+
             this.appRef.detachView(componentView);
-            this.restoreFocus(trappedFocus);
+            const dialogIndex = this.dialogStack.findIndex(
+                (d) => d.zIndex === zIndex
+            );
+            this.dialogStack.splice(dialogIndex, 1);
+            this.setBackdropAndEscape();
         });
 
         return dialogRef;
     }
 
-    private createBackdrop(
-        dialogRef: DialogRef,
-        args: IDialogArgs
-    ): HTMLDivElement {
-        const backdrop = document.createElement('div');
-        backdrop.classList.add('dialog-backdrop');
+    // Moves the backdrop behind the topmost dialog
+    // called when a dialog is created/destroyed
+    // create or destroy the backdrop as needed
+    backdrop: HTMLDivElement | null = null;
+    escapeSubscription: Subscription | null = null;
+    private setBackdropAndEscape() {
+        // remove backdrop if needed
+        if (this.dialogStack.length <= 0) {
+            this.backdrop?.remove();
+            this.backdrop = null;
+            return;
+        } else if (!this.backdrop) {
+            // create backdrop if needed
+            this.backdrop = document.createElement('div');
+            this.backdrop.classList.add('dialog-backdrop');
+            document.body.appendChild(this.backdrop);
+        }
+        // reset the custom css for the backdrop
+        this.backdrop.style.cssText = '';
+        // get the dialog to set the backdrop for
+        const { dialogRef, zIndex, args } =
+            this.dialogStack[this.dialogStack.length - 1];
+
+        // set the zIndex of the backdrop
+        this.backdrop.style.zIndex = (zIndex - 1).toString();
+
         if (args.backdropCss) {
             Object.keys(args.backdropCss).forEach((key) => {
-                (backdrop.style as any)[key] = args.backdropCss![key];
+                (this.backdrop!.style as any)[key] = args.backdropCss![key];
             });
         }
         if (args.closeOnBackdropClick) {
-            backdrop.addEventListener('click', () => dialogRef.close());
+            this.backdrop.onclick = () => dialogRef.close();
         }
-        return backdrop;
+
+        if (this.escapeSubscription) {
+            this.escapeSubscription.unsubscribe();
+            this.escapeSubscription = null;
+        }
+        if (args.closeOnEscape) {
+            this.escapeSubscription = fromEvent(document, 'keydown')
+                .pipe(map((e) => e as KeyboardEvent))
+                .subscribe((e: KeyboardEvent) => {
+                    if (e.key === 'Escape') {
+                        if (this.escapeSubscription) {
+                            this.escapeSubscription.unsubscribe();
+                            this.escapeSubscription = null;
+                        }
+                        dialogRef.close();
+                        e.preventDefault();
+                    }
+                });
+        }
     }
 
     private createView<T>(
@@ -239,10 +324,12 @@ export class DialogService {
         viewRef: ViewRef,
         args: IDialogArgs,
         injector: Injector,
-        dialogRef: DialogRef
+        dialogRef: DialogRef,
+        zIndex: number
     ): HTMLElement {
         const dialogElement = (viewRef as any).rootNodes[0] as HTMLElement;
         dialogElement.classList.add('dialog-container');
+        dialogElement.style.zIndex = zIndex.toString();
         if (args.width) dialogElement.style.width = args.width;
         if (args.height) dialogElement.style.height = args.height;
         if (args.maxWidth) dialogElement.style.maxWidth = args.maxWidth;
@@ -305,26 +392,30 @@ export class DialogService {
             } else if (typeof args.left === 'string') {
                 dialogElement.style.left = args.left;
             }
+
+            // if dialog is higher than the available page height, set it to scroll
+            if (actualHeight + dialogElement.offsetTop > window.innerHeight) {
+                dialogElement.style.height = `calc(100vh - ${dialogElement.offsetTop}px)`;
+                dialogElement.style.overflowY = 'auto';
+            }
+            // if dialog is wider than the available page width, set it to scroll
+            if (actualWidth + dialogElement.offsetLeft > window.innerWidth) {
+                dialogElement.style.width = `calc(100vw - ${dialogElement.offsetLeft}px)`;
+                dialogElement.style.overflowX = 'auto';
+            }
         };
 
-        if (typeof args.top === 'function' || typeof args.left === 'function') {
-            // Temporarily position the dialog offscreen to get its dimensions
-            dialogElement.style.top = '-9999px';
-            dialogElement.style.left = '-9999px';
-
-            setTimeout(() => {
-                calculateAndSetPosition();
-            });
-        } else {
+       // Temporarily position the dialog offscreen to get its dimensions
+       dialogElement.style.top = '-9999px';
+       dialogElement.style.left = '-9999px';
+        setTimeout(() => {
             calculateAndSetPosition();
-        }
+        }, 10);
 
         let resizeSubscription: Subscription | null = null;
-        if (typeof args.top === 'function' || typeof args.left === 'function') {
-            resizeSubscription = fromEvent(window, 'resize').subscribe(() => {
-                calculateAndSetPosition();
-            });
-        }
+        resizeSubscription = fromEvent(window, 'resize').subscribe(() => {
+            calculateAndSetPosition();
+        });
         return resizeSubscription;
     }
 

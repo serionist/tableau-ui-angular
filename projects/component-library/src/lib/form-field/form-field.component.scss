@@ -30,7 +30,6 @@
       flex: 1;
       display: flex;
       align-items: center;
-
     }
   }
 
@@ -53,14 +52,15 @@
       }
     }
   }
-  &.disabled .prefix,.suffix,::ng-deep .tab-hint{
+  &.disabled .prefix,
+  &.disabled .suffix,
+  &.disabled ::ng-deep .tab-hint {
     color: var(--twc-color-disabled);
     &::placeholder {
-        color: var(--twc-color-disabled);
-      }
-      &::-ms-input-placeholder {
-        color: var(--twc-color-disabled);
-      }
+      color: var(--twc-color-disabled);
+    }
+    &::-ms-input-placeholder {
+      color: var(--twc-color-disabled);
+    }
   }
-
 }

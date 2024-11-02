@@ -27,7 +27,7 @@ input,textarea,.tab-input {
   &.ng-invalid.ng-touched {
     border-color: var(--twc-color-error);
   }
-  &::placeholder {
+  &::placeholder,.placeholder {
     color: var(--twc-color-text-light);
   }
   &::-ms-input-placeholder {

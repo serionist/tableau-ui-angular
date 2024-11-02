@@ -1,4 +1,4 @@
-import { Component, ElementRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, inject } from '@angular/core';
 
 @Component({
   selector: 'tab-error',
@@ -8,8 +8,9 @@ import { Component, ElementRef } from '@angular/core';
             font-size: 0.9em;
             color: var(--twc-color-error);
         }
-    `
+    `,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ErrorComponent {
-    constructor(public elementRef: ElementRef) {}
+    elementRef = inject(ElementRef);
 }

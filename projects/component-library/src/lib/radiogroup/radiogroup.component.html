@@ -1,6 +1,6 @@
 <div class="options-grid">
     <label
-        *ngFor="let option of options"
+        *ngFor="let option of options()"
         class="radio-option"
         [class.disabled]="disabled() || option.disabled()"
         [class.selected]="value() === option.value()"
@@ -23,10 +23,10 @@
         </div>
        
         <div class="label">
-            <ng-container *ngTemplateOutlet="option.getTemplate(true, true)"></ng-container>
+            <ng-container [ngTemplateOutlet]="option.template()" [ngTemplateOutletContext]="optionTemplateContext"></ng-container>
         </div>
     </label>
-    @if (errorElement) {
+    @if (errorElement()) {
     <div class="extra-info">
         <ng-content select="tab-error"></ng-content>
     </div>

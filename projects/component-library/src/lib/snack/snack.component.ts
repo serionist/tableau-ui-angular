@@ -1,4 +1,4 @@
-import { Component, inject, model, TemplateRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, model, TemplateRef } from '@angular/core';
 import { TAB_SNACK_REF } from './snack.ref';
 @Component({
     template: `
@@ -65,6 +65,7 @@ import { TAB_SNACK_REF } from './snack.ref';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SnackComponent {
     type = model<'info' | 'error'>('info');

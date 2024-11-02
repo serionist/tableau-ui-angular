@@ -12,6 +12,7 @@ import {
     OnInit,
     model,
     computed,
+    ChangeDetectionStrategy,
 } from '@angular/core';
 import { IconService } from './icon.service';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
@@ -31,6 +32,7 @@ import { combineLatest, map } from 'rxjs';
         '[class.success]': "color() === 'success'",
     },
     styleUrls: ['./icon.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class IconComponent {
     value = model<string>();

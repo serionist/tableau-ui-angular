@@ -3,6 +3,7 @@ import {
     ComponentRef,
     createComponent,
     EnvironmentInjector,
+    inject,
     Injectable,
     Injector,
     TemplateRef,
@@ -18,11 +19,11 @@ import { TableauUiSnackModule } from './tableau-ui-snack.module';
     providedIn: TableauUiSnackModule
 })
 export class SnackService {
-    constructor(
-        private injector: Injector,
-        private appRef: ApplicationRef,
-        private environmentInjector: EnvironmentInjector
-    ) {}
+    private injector = inject(Injector);
+    private appRef = inject(ApplicationRef);
+    private environmentInjector = inject(EnvironmentInjector);
+
+    
     openSnack(
         message: string,
         duration: number | undefined = 5000,

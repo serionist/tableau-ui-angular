@@ -1,4 +1,4 @@
-import { AfterContentInit, Component, ContentChild, input, TemplateRef, ViewChild } from "@angular/core";
+import { AfterContentInit, ChangeDetectionStrategy, Component, ContentChild, input, TemplateRef, viewChild, ViewChild } from "@angular/core";
 
 @Component({
     selector: 'tab',
@@ -10,11 +10,12 @@ import { AfterContentInit, Component, ContentChild, input, TemplateRef, ViewChil
       <ng-content></ng-content>
     </ng-template>
     `,
+    changeDetection: ChangeDetectionStrategy.OnPush
   })
   export class TabComponent {
-    @ViewChild('headerTemplate', { static: false, read: TemplateRef }) headerTemplate!: TemplateRef<any>;
-    @ViewChild('contentTemplate', { static: false, read: TemplateRef }) contentTemplate!: TemplateRef<any>;
-  
+    headerTemplate = viewChild.required<TemplateRef<any>>('headerTemplate');
+    contentTemplate = viewChild.required<TemplateRef<any>>('contentTemplate');
+    
     disabled = input<boolean>(false);
     
   }

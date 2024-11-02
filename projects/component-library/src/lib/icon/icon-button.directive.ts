@@ -1,4 +1,4 @@
-import { Directive, input } from "@angular/core";
+import { ChangeDetectionStrategy, Directive, input } from "@angular/core";
 
 @Directive({
     selector: '[iconButton]',

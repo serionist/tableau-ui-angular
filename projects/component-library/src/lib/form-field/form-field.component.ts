@@ -2,7 +2,9 @@ import { CommonModule } from '@angular/common';
 import {
     AfterContentInit,
     AfterViewInit,
+    ChangeDetectionStrategy,
     Component,
+    contentChild,
     ContentChild,
     ContentChildren,
     ElementRef,
@@ -11,45 +13,35 @@ import {
     QueryList,
     Renderer2,
     signal,
+    viewChild,
     ViewChild,
 } from '@angular/core';
 import { ControlValueAccessor, ReactiveFormsModule } from '@angular/forms';
 import { HintComponent } from '../common/hint';
 import { ErrorComponent } from '../common/error';
 import { FormLabelComponent } from './form-label';
-import { FormPrefixComponent } from './form-prefix';
-import { FormSuffixComponent } from './form-suffix';
+import { PrefixComponent } from '../common/prefix';
+import { SuffixComponent } from '../common/suffix';
 
 @Component({
     selector: 'tab-form-field',
     templateUrl: './form-field.component.html',
     styleUrl: './form-field.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FormFieldComponent
     implements AfterContentInit, AfterViewInit, OnDestroy
 {
-    @ContentChild(HintComponent, { static: false }) hintElement:
-        | HintComponent
-        | undefined;
-    @ContentChild(ErrorComponent) errorElement: ErrorComponent | undefined;
-    @ContentChild(FormLabelComponent, { static: false }) labelElement:
-        | FormLabelComponent
-        | undefined;
-    @ContentChild(FormPrefixComponent, { static: false }) prefixElement:
-        | FormPrefixComponent
-        | undefined;
-    @ContentChild(FormSuffixComponent, { static: false }) suffixElement:
-        | FormSuffixComponent
-        | undefined;
-    @ViewChild('prefixContainer', { static: false, read: ElementRef })
-    prefixContainer!: ElementRef;
-    @ViewChild('suffixContainer', { static: false, read: ElementRef })
-    suffixContainer!: ElementRef;
+    hintElement = contentChild(HintComponent);
+    errorElement = contentChild(ErrorComponent);
+    labelElement = contentChild(FormLabelComponent);
+    prefixElement = contentChild(PrefixComponent);
+    suffixElement = contentChild(SuffixComponent);
+    prefixContainer = viewChild.required<ElementRef>('prefixContainer');
+    suffixContainer = viewChild.required<ElementRef>('suffixContainer');
+    inputContainer = viewChild.required<ElementRef>('inputContainer');
+    formFieldWrapper = viewChild.required<ElementRef>('formFieldWrapper');
 
-    @ViewChild('inputContainer', { static: true, read: ElementRef })
-    inputContainer!: ElementRef;
-    @ViewChild('formFieldWrapper', { static: false })
-    formFieldWrapper!: ElementRef;
     renderer = inject(Renderer2);
 
     inputDisabled = signal(false);
@@ -72,13 +64,13 @@ export class FormFieldComponent
     ngAfterContentInit(): void {
         this.updatePrefixSuffixWidths();
 
-        const input =
-            this.inputContainer.nativeElement.querySelector('input,textarea');
+        const input: HTMLElement =
+            this.inputContainer().nativeElement.querySelector('input,textarea,tab-select');
         if (input) {
-            this.inputDisabled.set(input.disabled);
+            this.inputDisabled.set(input.getAttribute('disabled') != null);
 
             this.inputObserver = new MutationObserver(() => {
-                this.inputDisabled.set(input.disabled);
+                this.inputDisabled.set(input.getAttribute('disabled') != null);
             });
             this.inputObserver.observe(input, {
                 attributes: true,
@@ -104,40 +96,41 @@ export class FormFieldComponent
             },
             { threshold: 0.1 }
         );
-        this.intersectionObserver.observe(this.formFieldWrapper.nativeElement);
+        this.intersectionObserver.observe(this.formFieldWrapper().nativeElement);
 
         // Observe size changes in prefix and suffix elements to adjust padding dynamically
         this.resizeObserver = new ResizeObserver(() => {
             this.updatePrefixSuffixWidths();
         });
-        this.resizeObserver.observe(this.formFieldWrapper.nativeElement);
-        if (this.prefixElement) {
-            this.resizeObserver.observe(this.prefixContainer.nativeElement);
+        this.resizeObserver.observe(this.formFieldWrapper().nativeElement);
+        if (this.prefixElement()) {
+            this.resizeObserver.observe(this.prefixContainer().nativeElement);
         }
-        if (this.suffixElement) {
-            this.resizeObserver.observe(this.suffixContainer.nativeElement);
+        if (this.suffixElement()) {
+            this.resizeObserver.observe(this.suffixContainer().nativeElement);
         }
     }
 
     private updatePrefixSuffixWidths(): void {
-        if (this.prefixElement) {
+        const prefixElement = this.prefixElement();
+        if (prefixElement) {
             const prefixWidth =
-                this.prefixElement.elementRef.nativeElement.offsetWidth;
+                prefixElement.elementRef.nativeElement.offsetWidth;
             this.renderer.setStyle(
-                this.inputContainer.nativeElement.querySelector(
-                    'input,textarea'
+                this.inputContainer().nativeElement.querySelector(
+                    'input,textarea,tab-select'
                 ),
                 'padding-left',
                 `${prefixWidth + 12}px` // Adds a small margin for spacing
             );
         }
-
-        if (this.suffixElement) {
+        const suffixElement = this.suffixElement();
+        if (suffixElement) {
             const suffixWidth =
-                this.suffixElement.elementRef.nativeElement.offsetWidth;
+                suffixElement.elementRef.nativeElement.offsetWidth;
             this.renderer.setStyle(
-                this.inputContainer.nativeElement.querySelector(
-                    'input,textarea'
+                this.inputContainer().nativeElement.querySelector(
+                    'input,textarea,tab-select'
                 ),
                 'padding-right',
                 `${suffixWidth + 8}px` // Adds a small margin for spacing

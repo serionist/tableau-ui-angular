@@ -1,6 +1,9 @@
 import {
+    ChangeDetectionStrategy,
     Component,
+    contentChild,
     ContentChild,
+    contentChildren,
     ContentChildren,
     forwardRef,
     model,
@@ -8,7 +11,7 @@ import {
     output,
     signal,
 } from '@angular/core';
-import { OptionComponent } from '../common/option';
+import { IOptionGridContext, OptionComponent } from '../common/option';
 import { HintComponent } from '../common/hint';
 import { ErrorComponent } from '../common/error';
 import { CommonModule, NgFor, NgIf } from '@angular/common';
@@ -25,16 +28,15 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
             multi: true,
         },
     ],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class RadiogroupComponent implements ControlValueAccessor {
     disabled = signal(false);
     value = model<any>(undefined);
     valueChanges = output<any>();
     name = this.generateRandomGroupName();
-    @ContentChildren(OptionComponent) options: OptionComponent[] = [];
-    @ContentChild(ErrorComponent, { static: false }) errorElement:
-        | ErrorComponent
-        | undefined;
+    options = contentChildren(OptionComponent);
+    errorElement = contentChild(ErrorComponent);
 
     onChange = (value: any) => {};
     onTouched = () => {};
@@ -85,4 +87,10 @@ export class RadiogroupComponent implements ControlValueAccessor {
 
         return `group-${randomName}`;
     }
+
+    optionTemplateContext: IOptionGridContext = {
+        renderIcon: true,
+        renderText: true,
+        renderHint: true,
+    };
 }

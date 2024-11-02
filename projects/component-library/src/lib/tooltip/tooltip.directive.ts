@@ -5,6 +5,7 @@ import {
     HostListener,
     TemplateRef,
     input,
+    inject,
 } from '@angular/core';
 
 // Style contained in _tooltips.scss in the styles folder
@@ -18,7 +19,7 @@ export class TooltipDirective {
 
     private tooltipElement: HTMLElement | null = null;
 
-    constructor(private elementRef: ElementRef) {}
+    private elementRef = inject(ElementRef);
 
     @HostListener('mouseenter') onMouseEnter() {
         if (this.tooltip()) {

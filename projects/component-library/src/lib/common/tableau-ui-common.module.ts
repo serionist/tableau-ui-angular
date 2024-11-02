@@ -5,10 +5,13 @@ import { OptionComponent } from "./option";
 import { SeparatorComponent } from "./separator";
 import { CommonModule } from "@angular/common";
 import { LoadingGifComponent } from "./loading-gif.component";
+import { TableauUiIconModule } from "../icon/tableau-ui-icon.module";
+import { PrefixComponent } from "./prefix";
+import { SuffixComponent } from "./suffix";
 
 @NgModule({
-    imports: [CommonModule],
-    declarations: [ErrorComponent, HintComponent, OptionComponent, SeparatorComponent, LoadingGifComponent],
-    exports: [ErrorComponent, HintComponent, OptionComponent, SeparatorComponent, LoadingGifComponent]
+    imports: [CommonModule, TableauUiIconModule],
+    declarations: [ErrorComponent, HintComponent, OptionComponent,PrefixComponent, SuffixComponent, SeparatorComponent, LoadingGifComponent],
+    exports: [ErrorComponent, HintComponent, OptionComponent, SeparatorComponent, LoadingGifComponent, PrefixComponent, SuffixComponent]
 })
 export class TableauUiCommonModule {}

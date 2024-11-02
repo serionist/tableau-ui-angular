@@ -1,11 +1,11 @@
 <div class="tab-group">
     <div class="tab-headers">
-        @for (tab of tabs; let i = $index; track i) {
+        @for (tab of tabs(); let i = $index; track i) {
         <div class="tab" (click)="selectTab(i)" [class.active]="selectedIndex() === i"
         [class.disabled]="tab.disabled()"
         [tabindex]="tab.disabled() ? -1 : 0" (keydown)="onkeydown(i, $event)">
             <div class="tab-content">
-                <ng-container *ngTemplateOutlet="tab!.headerTemplate"></ng-container>
+                <ng-container *ngTemplateOutlet="tab.headerTemplate()"></ng-container>
             </div>
         </div>
         }
@@ -13,7 +13,7 @@
     <div class="tab-headers-underline"></div>
     <div class="tab-content">
         <ng-container *ngIf="selectedTab()">
-            <ng-container *ngTemplateOutlet="selectedTab()!.contentTemplate"></ng-container>
+            <ng-container *ngTemplateOutlet="selectedTab().contentTemplate()"></ng-container>
         </ng-container>
     </div>
 </div>

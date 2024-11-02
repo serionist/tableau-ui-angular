@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, input, model } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, inject, input, model } from '@angular/core';
 
 @Component({
   selector: 'tab-hint',
@@ -9,10 +9,11 @@ import { Component, ElementRef, input, model } from '@angular/core';
             font-size: 0.9em;
             color: var(--twc-color-text-gray);
         }
-    `
+    `,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HintComponent {
     type = input<'prefix' | 'suffix'>('prefix');
-    constructor(public elementRef: ElementRef) {}
+    elementRef = inject(ElementRef);
 
 }
