@@ -232,7 +232,7 @@
                             type="text"
                             placeholder="Enter any text here"
                             formControlName="advancedValidation"
-                            [additionalValidationFormControls]="[form.controls.number]"
+                            [errorStateMatcher]="customValidationMatcher.bind(this)"
                         />
                         <tab-hint>Text is required AND the validator for Number box needs to be valid</tab-hint>
 

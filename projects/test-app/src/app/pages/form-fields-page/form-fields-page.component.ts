@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { SnackService } from '../../../../../component-library/src/public-api';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, FormGroupDirective, NgForm, Validators } from '@angular/forms';
 import { debounceTime } from 'rxjs';
 
 @Component({
@@ -44,6 +44,12 @@ export class FormFieldsPageComponent implements OnInit {
         advancedValidation: new FormControl('', [Validators.required])
     });
 
+    customValidationMatcher(
+        control: AbstractControl | null,
+        form: FormGroupDirective | NgForm | null
+    ): boolean {
+        return this.form.controls.advancedValidation.valid && this.form.controls.number.valid;
+    }
     ngOnInit(): void {
         this.form.controls.validation.markAsTouched();
         this.form.controls.validation.updateValueAndValidity();

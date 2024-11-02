@@ -24,7 +24,7 @@ input,textarea,.tab-input {
     overflow-clip-margin: 0px !important;
     overflow: clip !important;
   }
-  &.ng-invalid.ng-touched {
+  &.ng-invalid.ng-touched,&.ng-touched.tab-error {
     border-color: var(--twc-color-error);
   }
   &::placeholder,.placeholder {
