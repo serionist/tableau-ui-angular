@@ -223,6 +223,21 @@
                         
                     </tab-form-field>
 
+
+                    <tab-form-field>
+                        <tab-label
+                            >AdancedValidation</tab-label
+                        >
+                        <input #errorInput
+                            type="text"
+                            placeholder="Enter any text here"
+                            formControlName="advancedValidation"
+                            [additionalValidationFormControls]="[form.controls.number]"
+                        />
+                        <tab-hint>Text is required AND the validator for Number box needs to be valid</tab-hint>
+
+                       
+                    </tab-form-field>
                 </form>
             </div>
         </div>
