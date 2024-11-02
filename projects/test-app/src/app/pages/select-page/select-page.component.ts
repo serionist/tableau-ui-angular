@@ -31,7 +31,7 @@ export class SelectPageComponent implements OnInit {
     ngOnInit(): void {
      this.singleFormControl.markAsTouched();
      this.singleFormControl.updateValueAndValidity();
-     this.multiFormControl.valueChanges.pipe(startWith(this.multiFormControl.value)).subscribe((val) => {
+     this.multiFormControl.valueChanges.subscribe((val) => {
           console.log('multi select value changed', val);
           this.snack.openSnack('Multi select value changed to: ' + val);
       });

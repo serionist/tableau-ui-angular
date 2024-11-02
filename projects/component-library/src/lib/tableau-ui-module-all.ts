@@ -11,6 +11,7 @@ import { TableauUiRadioGroupModule } from './radiogroup/tableau-ui-radiogroup.mo
 import { TableauUiSnackModule } from './snack/tableau-ui-snack.module';
 import { TableauUiTabgroupModule } from './tabcontrol/tableau-ui-tabgroup.module';
 import { TableauUiTooltipModule } from './tooltip/tableau-ui-tooltip.module';
+import { TableauUiSelectModule } from '../public-api';
 
 @NgModule({
     imports: [
@@ -25,7 +26,8 @@ import { TableauUiTooltipModule } from './tooltip/tableau-ui-tooltip.module';
         TableauUiRadioGroupModule,
         TableauUiSnackModule,
         TableauUiTabgroupModule,
-        TableauUiTooltipModule
+        TableauUiTooltipModule,
+        TableauUiSelectModule
     ],
     declarations: [],
     exports: [ TableauUiButtonModule,
