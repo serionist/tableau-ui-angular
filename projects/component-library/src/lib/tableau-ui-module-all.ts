@@ -41,6 +41,8 @@ import { TableauUiSelectModule } from '../public-api';
         TableauUiRadioGroupModule,
         TableauUiSnackModule,
         TableauUiTabgroupModule,
-        TableauUiTooltipModule],
+        TableauUiTooltipModule,
+        TableauUiSelectModule
+    ],
 })
 export class TableauUiAllModule {}
