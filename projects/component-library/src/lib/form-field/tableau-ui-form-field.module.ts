@@ -6,11 +6,12 @@ import { SuffixComponent } from "../common/suffix";
 import { ReactiveFormsModule } from "@angular/forms";
 import { TableauUiCommonModule } from "../common/tableau-ui-common.module";
 import { FormFieldComponent } from "./form-field.component";
+import { AdditionalValidationFormControlsDirective } from "./additional-form-controls.directive";
 
 @NgModule({
     imports: [CommonModule, ReactiveFormsModule, TableauUiCommonModule],
-    declarations: [FormLabelComponent,  FormFieldComponent],
-    exports: [FormLabelComponent,  FormFieldComponent]
+    declarations: [FormLabelComponent,  FormFieldComponent, AdditionalValidationFormControlsDirective],
+    exports: [FormLabelComponent,  FormFieldComponent, AdditionalValidationFormControlsDirective]
 })
 export class TableauUiFormFieldModule {
 

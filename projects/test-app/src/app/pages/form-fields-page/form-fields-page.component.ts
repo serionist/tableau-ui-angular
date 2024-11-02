@@ -40,6 +40,8 @@ export class FormFieldsPageComponent implements OnInit {
             Validators.pattern(/^\d+$/),
         ]),
         textarea: new FormControl(''),
+
+        advancedValidation: new FormControl('', [Validators.required])
     });
 
     ngOnInit(): void {
@@ -47,6 +49,8 @@ export class FormFieldsPageComponent implements OnInit {
         this.form.controls.validation.updateValueAndValidity();
         this.form.controls.number.markAsTouched();
         this.form.controls.number.updateValueAndValidity();
+        this.form.controls.advancedValidation.markAsTouched();
+        this.form.controls.advancedValidation.updateValueAndValidity();
 
         this.form.controls.simple.valueChanges.pipe(debounceTime(300)).subscribe((value) =>
             this.valueChanged(value, 'Simple textBox')
