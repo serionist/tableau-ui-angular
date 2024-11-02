@@ -1,4 +1,4 @@
-import { Component, computed, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
 import { RouterModule, UrlTree } from '@angular/router';
 import { IconComponent } from '../../icon/icon.component';
 import { TooltipDirective } from '../../tooltip/tooltip.directive';
@@ -6,7 +6,8 @@ import { TooltipDirective } from '../../tooltip/tooltip.directive';
 @Component({
   selector: 'tab-nav-bar-button',
   templateUrl: './nav-bar-button.component.html',
-  styleUrl: './nav-bar-button.component.scss'
+  styleUrl: './nav-bar-button.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NavBarButtonComponent {
   icon = input.required<string>();

@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 
 @Component({
     selector: 'tab-separator',
@@ -9,7 +9,8 @@ import { Component } from "@angular/core";
         display: block;
     }
 `,
-    template: ``
+    template: ``,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SeparatorComponent {
 

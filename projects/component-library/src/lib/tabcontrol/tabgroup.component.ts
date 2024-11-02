@@ -1,23 +1,24 @@
-import { Component, ContentChildren, QueryList, AfterContentInit, contentChildren, signal, computed } from '@angular/core';
+import { Component, ContentChildren, QueryList, AfterContentInit, contentChildren, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { TabComponent} from './tab.component';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'tab-group',
   templateUrl: './tabgroup.component.html',
-  styleUrls: ['./tabgroup.component.scss']
+  styleUrls: ['./tabgroup.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TabGroupComponent implements AfterContentInit {
-  @ContentChildren(TabComponent) tabs!: QueryList<TabComponent>;
+  tabs = contentChildren(TabComponent);
 
   // Signals to manage the selected index
   private selectedIndexSignal = signal(0);
 
   selectedIndex = computed(() => this.selectedIndexSignal());
-  selectedTab = computed(() => this.tabs.toArray()[this.selectedIndex()] ?? null);
+  selectedTab = computed(() => this.tabs()[this.selectedIndex()] ?? null);
 
   selectTab(index: number) {
-    const tab = this.tabs.toArray()[index];
+    const tab = this.tabs()[index];
     if (!tab || tab.disabled()) {
       return;
     }
@@ -26,7 +27,7 @@ export class TabGroupComponent implements AfterContentInit {
 
   ngAfterContentInit() {
     // Ensure the first tab is selected by default if available
-    const firstNonDisabledTabIndex = this.tabs.toArray().findIndex(tab => !tab.disabled());
+    const firstNonDisabledTabIndex = this.tabs().findIndex(tab => !tab.disabled());
     if (firstNonDisabledTabIndex !== -1) {
       this.selectedIndexSignal.set(firstNonDisabledTabIndex);
     }

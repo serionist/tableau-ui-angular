@@ -1,5 +1,5 @@
-import { AfterViewInit, Component, ElementRef, inject, input, model, TemplateRef, ViewChild, viewChild } from '@angular/core';
-import { TAB_DIALOG_REF } from '../../public-api';
+import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, inject, input, model, TemplateRef, ViewChild, viewChild } from '@angular/core';
+import { ButtonComponent, TAB_DIALOG_REF } from '../../public-api';
 
 @Component({
     template: `
@@ -12,10 +12,10 @@ import { TAB_DIALOG_REF } from '../../public-api';
             </ng-template>
         </div>
         <div class="dialog-actions">
-            <button (click)="dialogRef.close(false)" #cancel>
+            <button (click)="dialogRef.close(false)" #cancel tabindex="0">
                 {{ cancelBtnText() }}
             </button>
-            <button [color]="color()" (click)="dialogRef.close(true)" #accept>
+            <button [color]="color()" (click)="dialogRef.close(true)" #accept tabindex="0">
                 {{ acceptBtnText() }}
             </button>
         </div>
@@ -32,6 +32,7 @@ import { TAB_DIALOG_REF } from '../../public-api';
             padding-top: 0;
         }
         `],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ConfirmationDialogComponent implements AfterViewInit {
     color = model<'primary' | 'error' | 'secondary'>('secondary');
@@ -43,14 +44,23 @@ export class ConfirmationDialogComponent implements AfterViewInit {
 
     dialogRef = inject(TAB_DIALOG_REF);
 
-    @ViewChild('accept', { read: ElementRef }) accept: ElementRef | undefined;
-    @ViewChild('cancel', { read: ElementRef }) cancel: ElementRef | undefined;
-
+    accept = viewChild.required<ButtonComponent>('accept');
+    cancel = viewChild.required<ButtonComponent>('cancel');
+    
+    ngAfterContentInit() {
+        if (this.autofocus() === 'accept') {
+            const acc = this.accept();
+            this.accept().nativeElement.nativeElement.focus();
+        } else if (this.autofocus() === 'cancel') {
+            this.cancel().nativeElement.nativeElement.focus();
+        }
+    }
     ngAfterViewInit() {
         if (this.autofocus() === 'accept') {
-            this.accept!.nativeElement.focus();
+            const acc = this.accept().nativeElement;
+            this.accept().nativeElement.nativeElement.focus();
         } else if (this.autofocus() === 'cancel') {
-            this.cancel!.nativeElement.focus();
+            this.cancel().nativeElement.nativeElement.focus();
         }
     }
 }

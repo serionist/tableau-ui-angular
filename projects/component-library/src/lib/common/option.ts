@@ -1,66 +1,97 @@
 import { CommonModule } from '@angular/common';
-import { Component, ContentChild, ElementRef, input, signal, TemplateRef, ViewChild } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    ContentChild,
+    ElementRef,
+    input,
+    signal,
+    TemplateRef,
+    viewChild,
+    ViewChild,
+    ViewContainerRef,
+} from '@angular/core';
 import { HintComponent } from './hint';
 import { IconComponent } from '../icon/icon.component';
 
 @Component({
     selector: 'tab-option',
-    template: `<ng-template #templateRef>
-        <div class="tab-option">
-            @if (iconElement && renderIcon) {
-                <ng-content select="tab-icon"></ng-content>
-            }
-            @if (renderText) {
-                <div class="content"><ng-content></ng-content></div>
-            }
-           
-            @if (hintElement && renderHint) {
-            <div class="hint">
-                <ng-content select="tab-hint"></ng-content>
-            </div>
-            }
-        </div>
-    </ng-template>`,
-    styles: `
-        .tab-option {
-            display: grid;
-            grid-template-columns: auto 1fr;
-            grid-template-rows: auto auto;
-            line-height: 1.2;
-            align-items: center;
-        }
-        .tab-option ::ng-deep tab-icon {
-            grid-column: 1;
-            grid-row: 1;
-        }
-        .content {
-            grid-column: 2;
-            grid-row: 1;
-        }
-        .hint {
-            grid-column: 2;
-            grid-row: 2;
-            font-size: 0.9em;
-            color: var(--twc-color-text-gray);
-        }
-    `
+    templateUrl: './option.html',
+    styleUrls: ['./option.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class OptionComponent {
     value = input.required<any>();
     disabled = input<boolean>(false);
-    @ContentChild(HintComponent, { static: false }) hintElement: ElementRef | undefined;
-    @ContentChild(IconComponent, { static: false }) iconElement: ElementRef | undefined;
-    @ViewChild('templateRef', { static: true }) private template!: TemplateRef<any>;
+    text = input<string | TemplateRef<any>>();
+    hint = input<string | TemplateRef<any>>();
+    icon = input<string | TemplateRef<any>>();
+    template = viewChild.required<TemplateRef<IOptionGridContext>>('templateRef');
+    lineTemplate = viewChild.required<TemplateRef<IOptionLineContext>>('lineTemplateRef');
+  
 
-    renderIcon = true;
-    renderHint = true;
-    renderText = true;
-    getTemplate(renderIcon: boolean = true, renderHint: boolean = true, renderText: boolean = true) {
-        this.renderIcon = renderIcon;
-        this.renderHint = renderHint;
-        this.renderText = renderText;
-        return this.template;
-    }
+    iconType = computed(() => {
+        if (!this.icon()) {
+            return 'none';
+        } else if (typeof this.icon() === 'string') {
+            return 'string';
+        } else {
+            return 'template';
+        }
+    });
+    iconString = computed(() => {
+        return this.iconType() === 'string' ? (this.icon() as string) : '';
+    });
+    iconTemplate = computed(() => {
+        return this.iconType() === 'template'
+            ? (this.icon() as TemplateRef<any>)
+            : null;
+    });
+    textType = computed(() => {
+        if (!this.text()) {
+            return 'none';
+        } else if (typeof this.text() === 'string') {
+            return 'string';
+        } else {
+            return 'template';
+        }
+    });
+    textString = computed(() => {
+        return this.textType() === 'string' ? (this.text() as string) : '';
+    });
+    textTemplate = computed(() => {
+        return this.textType() === 'template'
+            ? (this.text() as TemplateRef<any>)
+            : null;
+    });
+    hintType = computed(() => {
+        if (!this.hint()) {
+            return 'none';
+        } else if (typeof this.hint() === 'string') {
+            return 'string';
+        } else {
+            return 'template';
+        }
+    });
+    hintString = computed(() => {
+        return this.hintType() === 'string' ? (this.hint() as string) : '';
+    });
+    hintTemplate = computed(() => {
+        return this.hintType() === 'template'
+            ? (this.hint() as TemplateRef<any>)
+            : null;
+    });
 
-    constructor(public elementRef: ElementRef) {}
+    constructor(
+        public elementRef: ElementRef,
+        private viewContainerRef: ViewContainerRef
+    ) {}
+}
+export interface IOptionLineContext {
+    renderIcon: boolean;
+    renderText: boolean;
+}
+export interface IOptionGridContext extends IOptionLineContext{
+    renderHint: boolean;
 }

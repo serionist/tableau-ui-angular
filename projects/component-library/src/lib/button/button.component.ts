@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, input, output, signal, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, inject, input, output, signal, ViewEncapsulation } from '@angular/core';
 
 @Component({
   selector: 'button',
@@ -13,9 +13,11 @@ import { Component, input, output, signal, ViewEncapsulation } from '@angular/co
     '[class.loading]': 'loading()',
     'tabindex': '0',
     'role': 'button'
-  }
+  },
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ButtonComponent {
+  nativeElement = inject(ElementRef);
   disabled = input(false);
   loading = input(false);
   type = input<'submit' | 'button'>('button');

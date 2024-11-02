@@ -1,9 +1,10 @@
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 
 @Component({
 selector: 'tab-nav-bar-footer',
-template: '<ng-content></ng-content>'
+template: '<ng-content></ng-content>',
+changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NavBarFooterComponent {
 }

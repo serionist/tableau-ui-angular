@@ -20,11 +20,11 @@
     <ng-content></ng-content>
 </div>
 
-@if (hintElement || errorElement) {
+@if (hintElement() || errorElement()) {
 <div class="extra-info">
-    @if (hintElement && !errorElement) {
+    @if (hintElement() && !errorElement()) {
     <ng-content select="tab-hint"></ng-content>
-    } @if (errorElement) {
+    } @if (errorElement()) {
     <ng-content select="tab-error"></ng-content>
     }
 </div>

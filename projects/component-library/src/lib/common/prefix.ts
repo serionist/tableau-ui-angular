@@ -1,16 +1,14 @@
 import { ChangeDetectionStrategy, Component, ElementRef } from "@angular/core";
 
 @Component({
-    selector: 'tab-label',
-    template: `<div class="tab-label"><ng-content></ng-content></div>`,
+    selector: 'tab-prefix',
+    template: `<ng-content></ng-content>`,
       styles: `
-          .tab-label {
-              color: var(--twc-color-text-light);
-          }
+      
       `,
     changeDetection: ChangeDetectionStrategy.OnPush
   })
-  export class FormLabelComponent {
+  export class PrefixComponent {
     constructor(public elementRef: ElementRef) {}
   }
   

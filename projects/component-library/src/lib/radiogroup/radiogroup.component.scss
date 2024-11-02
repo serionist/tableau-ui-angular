@@ -17,8 +17,9 @@
         grid-column: 1;
         grid-row: 1;
         box-sizing: border-box;
-        height: 1.2em;
-        width: 1.2em;
+        height: round(1.2em, 2px);
+        width: round(1.2em, 2px);
+        min-height: 0;
         background-color: initial;
         cursor: default;
         margin: 0;
@@ -30,6 +31,7 @@
             outline: 2px solid var(--twc-color-primary);
             outline-offset: 2px;
             opacity: 1;
+            border: none;
         }
     }
 
@@ -42,15 +44,15 @@
         border: 1px solid #2e2e2e;
         box-sizing: border-box;
         justify-items: center;
-        width: 1.2em;
-        height: 1.2em;
+        width: round(1.2em, 2px);
+        height: round(1.2em, 2px);
         border-radius: 100%;
         display: grid;
         align-items: center;
         justify-items: center;
         .filler {
-            width: 0.7em;
-            height: 0.7em;
+            width: round(0.7em, 2px);
+            height: round(0.7em, 2px);
             border-radius: 100%;
             background-color: #2e2e2e;
         }
@@ -83,7 +85,7 @@
         }
     }
 
-   
+
     .label {
         line-height: 1.2;
         -webkit-user-select: none;
@@ -92,6 +94,6 @@
         user-select: none;
         grid-column: 2;
         grid-row: 1;
-        
+
     }
 }

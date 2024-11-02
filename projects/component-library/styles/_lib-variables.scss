@@ -1,10 +1,10 @@
 :root {
     --twc-font-family: "Benton Sans STM", "Benton Sans", "Roboto", Arial, Helvetica, sans-serif;
     --twc-font-size-body: 12px;
-    --twc-font-size-body-large: 14px;
-    --twc-font-size-subtitle: 15px;
-    --twc-font-size-title: 16px;
-    --twc-font-size-page-title: 24px;
+    --twc-font-size-body-large: round(1.1em, 1px); // this will round to the nearest pixel
+    --twc-font-size-subtitle: round(1.3em, 1px);// this will round to the nearest pixel
+    --twc-font-size-title: round(1.4em, 1px);// this will round to the nearest pixel
+    --twc-font-size-page-title: round(2em, 1px);// this will round to the nearest pixel
     --twc-color-text:  rgba(0, 0, 0, 0.8);
     --twc-color-text-strong: rgba(0, 0, 0, 1);
     --twc-color-text-light: rgb(102, 102, 102);
@@ -19,5 +19,9 @@
     --twc-color-text-gray: #919191;
     --twc-color-highlight: rgb(230, 230, 230);
     --twc-color-highlight-background: rgb(250,250,250);
+    --twc-menu-border-color: #C9C9C9;
+    --twc-menu-border-radius: 1px;
+    --twc-menu-box-shadow: 0px 2px 16px 0px rgba(46, 46, 46, 0.15)
+
 }
 

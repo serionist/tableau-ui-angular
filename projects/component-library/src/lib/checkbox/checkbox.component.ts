@@ -1,5 +1,5 @@
 import { NgIf } from '@angular/common';
-import { Component, ContentChild, contentChild, ElementRef, forwardRef, Input, input, model, output, signal, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ContentChild, contentChild, ElementRef, forwardRef, Input, input, model, output, signal, ViewChild } from '@angular/core';
 import { CheckboxControlValueAccessor, ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { HintComponent } from '../common/hint';
 import { ErrorComponent } from '../common/error';
@@ -20,15 +20,17 @@ import { ErrorComponent } from '../common/error';
           useExisting: forwardRef(() => CheckboxComponent),
           multi: true
         }
-      ]
+      ],
+      
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CheckboxComponent implements ControlValueAccessor {
     disabled = model(false);
     value = model(false);
     valueChanges = output<boolean>();
 
-    @ContentChild(HintComponent, { static: false }) hintElement: ElementRef | undefined;
-    @ContentChild(ErrorComponent, { static: false }) errorElement: ElementRef | undefined;
+    hintElement = contentChild(HintComponent);
+    errorElement = contentChild(ErrorComponent);
 
     onChange = (value: any) => {};
     onTouched = () => {};
