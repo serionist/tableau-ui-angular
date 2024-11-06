@@ -34,7 +34,7 @@
             <div class="two spacer">
                 <tab-form-field>
                     <tab-label
-                        >Single value, wrap, icons shown, check left:</tab-label
+                        >Single value, wrap, icons shown, no check, select highlight:</tab-label
                     >
                     <tab-select
                         [value]="singleSelectValue()"
@@ -115,6 +115,7 @@
                         [multipleSelectionNumberSelectedTemplate]="
                             '{number} items selected'
                         "
+                        [selectedItemHighlight]="false"
                         [selectedValueWrapMode]="'truncate'"
                         [selectedValueTemplateContext]="onlyTextSelectedValue"
                         [selectedCheckIconLocation]="'right'"
@@ -246,7 +247,7 @@
                 <tab-form-field>
                     <tab-label
                         >Prefix & Suffix, truncate, no chevron, no clear, check
-                        right:</tab-label
+                        left:</tab-label
                     >
                     <tab-select
                         [value]="singleSelectValue()"
@@ -260,7 +261,8 @@
                         "
                         [selectedValueWrapMode]="'truncate'"
                         [selectedValueTemplateContext]="onlyTextSelectedValue"
-                        [selectedCheckIconLocation]="'right'"
+                        [selectedCheckIconLocation]="'left'"
+                        [selectedItemHighlight]="false"
                         [showChevron]="false"
                     >
                         <tab-option
@@ -332,7 +334,7 @@
             <div class="two spacer">
                 <tab-form-field>
                     <tab-label
-                        >Single value, wrap, icons shown, check left:</tab-label
+                        >Single value, wrap, icons shown, no check, selected item highlight:</tab-label
                     >
                     <tab-select
                         [formControl]="singleFormControl"
@@ -423,6 +425,7 @@
                         [selectedValueWrapMode]="'truncate'"
                         [selectedValueTemplateContext]="onlyTextSelectedValue"
                         [selectedCheckIconLocation]="'right'"
+                        [selectedItemHighlight]="false"
                     >
                         <tab-option
                             [value]="1"
@@ -566,8 +569,7 @@
                 </tab-form-field>
                 <tab-form-field>
                     <tab-label
-                        >Prefix & Suffix, truncate, no chevron, no clear, check
-                        right:</tab-label
+                        >Prefix & Suffix, truncate, no chevron, no clear, no check, select highlight:</tab-label
                     >
                     <tab-select
                         [formControl]="singleFormControl3"
@@ -580,7 +582,8 @@
                         "
                         [selectedValueWrapMode]="'truncate'"
                         [selectedValueTemplateContext]="onlyTextSelectedValue"
-                        [selectedCheckIconLocation]="'right'"
+                        [selectedCheckIconLocation]="'none'"
+                        [selectedItemHighlight]="true"
                         [showChevron]="false"
                     >
                         <tab-option
@@ -666,6 +669,8 @@
                             '{number} items selected'
                         "
                         [selectedValueWrapMode]="'wrap'"
+                        [selectedItemHighlight]="false"
+                        [selectedCheckIconLocation]="'left'"
                     >
                         <tab-option
                             [value]="1"
@@ -727,7 +732,7 @@
 
                 <tab-form-field>
                     <tab-label
-                        >Multi value, truncate, icons shown, check left, max 2 items displayed, fix dropdown height:</tab-label
+                        >Multi value, truncate, icons shown, no check, max 2 items displayed, fix dropdown height:</tab-label
                     >
                     <tab-select
                         [formControl]="multiFormControl"

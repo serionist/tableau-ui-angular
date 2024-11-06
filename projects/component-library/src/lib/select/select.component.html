@@ -47,6 +47,8 @@
                     (mousedown)="optionMouseDown($event)"
                     [class.disabled]="option.disabled()"
                     [class.highlight]="!!highlightedOption() && highlightedOption()!.value() === option.value()"
+                    [class.selected]="isValueSelected(option) && selectedItemHighlight()"
+                    (mouseenter)="highlightedOption.set(option)"
                 >
                     <div class="check" [ngClass]="selectedCheckIconLocation()">
                         @if (isValueSelected(option)) {
