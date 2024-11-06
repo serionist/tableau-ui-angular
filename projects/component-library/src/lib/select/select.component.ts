@@ -47,7 +47,7 @@ import { SuffixComponent } from '../common/suffix';
         '[attr.wrapping-mode]': 'selectedValueWrapMode()',
         '[tabindex]': 'disabled() ? -1 : 0',
         '(click)': 'openDropdown()',
-        '(keydown)': 'hostKeyDown($event)',
+        '(keydown)': 'onKeyDown($event)',
         '[attr.disabled]': 'disabled() ? true : null',
         '[aria-disabled]': 'disabled() ? true : null',
         '[aria-hidden]': 'disabled() ? true : null',
@@ -118,9 +118,15 @@ export class SelectComponent
     showChevron = model<boolean>(true);
     /**
      * The location of the check icon in dropdown option if an option is selected
-     * @default 'left'
+     * @default 'none'
      */
-    selectedCheckIconLocation = model<'left' | 'right'>('left');
+    selectedCheckIconLocation = model<'left' | 'right' | 'none'>('none');
+
+    /**
+     * Highlight the selected item(s) with a primary back color
+     * @default true
+     */
+    selectedItemHighlight = model<boolean>(true);
     /**
      * Whether multiple values can be selected
      * @default false
@@ -337,19 +343,135 @@ export class SelectComponent
     }
     // #endregion
     // #region Keyboard navigation
-    hostKeyDown(e: KeyboardEvent) {
+    
+    /**
+     * 
+     * @param e Handles KeyDown event for:
+     * - host element
+     * - global keydown event when dropdown is open
+     * @returns 
+     */
+    onKeyDown(e: KeyboardEvent) {
         if (e.key === 'Enter' || e.key === ' ') {
             const ref = this.dropdownReference();
-            if (ref) {
+            // if dropdown is not open
+            if (!ref) {
+                this.openDropdown();
+            } else {
+                // if dropdown is open
+                // if an option is highlighted, select it
                 if (this.highlightedOption()) {
-                    return;
+                    this.selectValue(this.highlightedOption()!);
                 } else {
+                    // if an option is not highlighted, close the dropdown
                     ref.close();
                 }
-            } else {
-                this.openDropdown();
             }
             e.preventDefault();
+            e.stopPropagation();
+        }
+        if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+            // if dropdown is open:
+            // - we find the currently HIGHLIGHTED option
+            // - we find the next option to highlight
+            // - if no option is found, we highlight the first/last option
+            // if dropdown is NOT open:
+            // - if this is a multiselect, ignore
+            // - if this is a single select, find the next item to select
+            // - if no item is selected, highlight the first/last item
+            const open = this.dropdownOpen();
+            if (this.allowMultiple() && !open) {
+                return;
+            }
+
+            let currentIndex = -1;
+            if (open) {
+                // find already highlighted option
+                if (this.highlightedOption()) {
+                    currentIndex = this.options().findIndex(
+                        (o) =>
+                            o.value() === this.highlightedOption()!.value()
+                    );
+                }
+            } else {
+                // find already selected option
+                currentIndex = this.options().findIndex(
+                     // we can be sure that at this point, this is a single select dropdown, so this.value() can be safely used
+                    (o) => o.value() === this.value());
+            }
+            let nextIndex: number;
+            // find the next index to highlight/select
+            if (e.key === 'ArrowDown') {
+                if (currentIndex === -1) {
+                    // find the first non disabled option
+                    nextIndex = this.options().findIndex(
+                        (o) => !o.disabled()
+                    );
+                } else {
+                    // find the next option that is not disabled
+                    nextIndex = this.options().findIndex(
+                        (o, i) => i > currentIndex && !o.disabled()
+                    );
+                    // if no option is found, find the next option that is not disabled before the current item
+                    if (nextIndex === -1) {
+                        nextIndex = this.options().findIndex(
+                            (o, i) => i < currentIndex && !o.disabled()
+                        );
+                    }
+                }
+            } else if (e.key === 'ArrowUp') {
+                if (currentIndex === -1) {
+                    // find the last non disabled option
+                    nextIndex = this.options()
+                        .slice()
+                        .reverse()
+                        .findIndex((o) => !o.disabled());
+                    if (nextIndex !== -1) {
+                        nextIndex =
+                            this.options().length - nextIndex - 1;
+                    }
+                } else {
+                    const flippedCurrentIndex =
+                        this.options().length - currentIndex - 1;
+                    // find the next option that is not disabled
+                    nextIndex = [...this.options()]
+                        .reverse()
+                        .findIndex(
+                            (o, i) =>
+                                i > flippedCurrentIndex && !o.disabled()
+                        );
+                    // if no option is found, find the next option that is not disabled before the current item
+                    if (nextIndex === -1) {
+                        nextIndex = [...this.options()]
+                            .reverse()
+                            .findIndex(
+                                (o, i) =>
+                                    i < flippedCurrentIndex &&
+                                    !o.disabled()
+                            );
+                    }
+                    if (nextIndex !== -1) {
+                        nextIndex =
+                            this.options().length - nextIndex - 1;
+                    }
+                }
+            } else {
+                nextIndex = -1;
+            }
+
+            if (nextIndex !== -1) {
+                if (open) {
+                    this.highlightedOption.set(this.options()[nextIndex]);
+                    setTimeout(() => document.querySelector(`#${this.dropdownId} .option-wrapper.highlight`)?.scrollIntoView({
+                        block: 'nearest',
+                    }), 10);
+                } else {
+                    this.selectValue(this.options()[nextIndex]);
+                }
+            }
+
+            e.preventDefault();
+            e.stopPropagation();
         }
     }
     clearKeyDown(e: KeyboardEvent) {
@@ -364,90 +486,7 @@ export class SelectComponent
         this.optionKeyNavSubscription = fromEvent(document, 'keydown')
             .pipe(map((e) => e as KeyboardEvent))
             .subscribe((e: KeyboardEvent) => {
-                if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-                    let currentIndex = -1;
-                    // if an item is already highlighted, find its index
-                    if (this.highlightedOption()) {
-                        currentIndex = this.options().findIndex(
-                            (o) =>
-                                o.value() === this.highlightedOption()!.value()
-                        );
-                    }
-                    let nextIndex: number;
-                    if (e.key === 'ArrowDown') {
-                        if (currentIndex === -1) {
-                            // find the first non disabled option
-                            nextIndex = this.options().findIndex(
-                                (o) => !o.disabled()
-                            );
-                        } else {
-                            // find the next option that is not disabled
-                            nextIndex = this.options().findIndex(
-                                (o, i) => i > currentIndex && !o.disabled()
-                            );
-                            // if no option is found, find the next option that is not disabled before the current item
-                            if (nextIndex === -1) {
-                                nextIndex = this.options().findIndex(
-                                    (o, i) => i < currentIndex && !o.disabled()
-                                );
-                            }
-                        }
-                    } else if (e.key === 'ArrowUp') {
-                        if (currentIndex === -1) {
-                            // find the last non disabled option
-                            nextIndex = this.options()
-                                .slice()
-                                .reverse()
-                                .findIndex((o) => !o.disabled());
-                            if (nextIndex !== -1) {
-                                nextIndex =
-                                    this.options().length - nextIndex - 1;
-                            }
-                        } else {
-                            const flippedCurrentIndex =
-                                this.options().length - currentIndex - 1;
-                            // find the next option that is not disabled
-                            nextIndex = [...this.options()]
-                                .reverse()
-                                .findIndex(
-                                    (o, i) =>
-                                        i > flippedCurrentIndex && !o.disabled()
-                                );
-                            // if no option is found, find the next option that is not disabled before the current item
-                            if (nextIndex === -1) {
-                                nextIndex = [...this.options()]
-                                    .reverse()
-                                    .findIndex(
-                                        (o, i) =>
-                                            i < flippedCurrentIndex &&
-                                            !o.disabled()
-                                    );
-                            }
-                            if (nextIndex !== -1) {
-                                nextIndex =
-                                    this.options().length - nextIndex - 1;
-                            }
-                        }
-                    } else {
-                        nextIndex = -1;
-                    }
-
-                    if (nextIndex !== -1) {
-                        this.highlightedOption.set(this.options()[nextIndex]);
-                        console.log(
-                            this.highlightedOption()?.value(),
-                            nextIndex
-                        );
-                    }
-
-                    e.preventDefault();
-                }
-                if (e.key === 'Enter' || e.key === ' ') {
-                    if (this.highlightedOption()) {
-                        this.selectValue(this.highlightedOption()!);
-                    }
-                    e.preventDefault();
-                }
+                this.onKeyDown(e);
             });
     }
     private unregisterOptionKeyNavigation() {
