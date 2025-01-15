@@ -44,53 +44,38 @@ export class TooltipDirective {
             this.tooltipElement.appendChild(viewContainerRef);
         }
         document.body.appendChild(this.tooltipElement);
-
+    
         const hostPos = this.elementRef.nativeElement.getBoundingClientRect();
         const tooltipPos = this.tooltipElement.getBoundingClientRect();
-
+    
+        const scrollX = window.scrollX || document.documentElement.scrollLeft;
+        const scrollY = window.scrollY || document.documentElement.scrollTop;
+    
         let top: string, left: string;
         switch (this.tooltipPosition()) {
             case 'top':
-                top = `max(0px, calc(${
-                    hostPos.top - tooltipPos.height
-                }px - ${this.tooltipMargin()}))`;
-                left = `max(0px, ${
-                    hostPos.left + (hostPos.width - tooltipPos.width) / 2
-                }px)`;
+                top = `calc(${hostPos.top + scrollY}px - ${tooltipPos.height}px - ${this.tooltipMargin()})`;
+                left = `calc(${hostPos.left + scrollX}px + ${(hostPos.width - tooltipPos.width) / 2}px)`;
                 break;
             case 'bottom':
-                top = `max(0px, calc(${
-                    hostPos.bottom
-                }px + ${this.tooltipMargin()}))`;
-                left = `max(0px, ${
-                    hostPos.left + (hostPos.width - tooltipPos.width) / 2
-                }px)`;
+                top = `calc(${hostPos.bottom + scrollY}px + ${this.tooltipMargin()})`;
+                left = `calc(${hostPos.left + scrollX}px + ${(hostPos.width - tooltipPos.width) / 2}px)`;
                 break;
             case 'left':
-                top = `max(0px, ${
-                    hostPos.top + (hostPos.height - tooltipPos.height) / 2
-                }px)`;
-                left = `max(0px, calc(${hostPos.left}px - ${
-                    tooltipPos.width
-                }px - ${this.tooltipMargin()}))`;
+                top = `calc(${hostPos.top + scrollY}px + ${(hostPos.height - tooltipPos.height) / 2}px)`;
+                left = `calc(${hostPos.left + scrollX}px - ${tooltipPos.width}px - ${this.tooltipMargin()})`;
                 break;
             case 'right':
-                top = `max(0px, ${
-                    hostPos.top + (hostPos.height - tooltipPos.height) / 2
-                }px)`;
-                left = `max(0px, calc(${
-                    hostPos.right
-                }px + ${this.tooltipMargin()})`;
+                top = `calc(${hostPos.top + scrollY}px + ${(hostPos.height - tooltipPos.height) / 2}px)`;
+                left = `calc(${hostPos.right + scrollX}px + ${this.tooltipMargin()})`;
                 break;
         }
-
-        // Ensure tooltip stays within viewport bounds
-        const viewportWidth = window.innerWidth;
-        const viewportHeight = window.innerHeight;
-
+    
+        // Apply calculated positions
         this.tooltipElement.style.top = top;
         this.tooltipElement.style.left = left;
     }
+    
 
     private destroyTooltip() {
         if (this.tooltipElement) {
