@@ -6,6 +6,7 @@ import { ExampleDialogComponent } from './example-dialog.component';
     selector: 'app-dialogs-page',
     templateUrl: './dialogs-page.component.html',
     styleUrl: './dialogs-page.component.scss',
+    standalone: false
 })
 export class DialogsPageComponent {
     dialogService = inject(DialogService);

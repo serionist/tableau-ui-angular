@@ -8,13 +8,14 @@ import { IconComponent } from '../icon/icon.component';
 import { TooltipDirective } from '../tooltip/tooltip.directive';
 
 @Component({
-  selector: 'tab-nav-bar',
-  templateUrl: './nav-bar.component.html',
-  styleUrl: './nav-bar.component.scss',
-  host: {
-    '[attr.expanded]': 'expanded()'
-  },
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'tab-nav-bar',
+    templateUrl: './nav-bar.component.html',
+    styleUrl: './nav-bar.component.scss',
+    host: {
+        '[attr.expanded]': 'expanded()'
+    },
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class NavBarComponent implements AfterContentInit {
   header = contentChild(NavBarHeaderComponent);

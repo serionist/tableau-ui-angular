@@ -19,7 +19,8 @@ import { IconComponent } from '../icon/icon.component';
     selector: 'tab-option',
     templateUrl: './option.html',
     styleUrls: ['./option.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class OptionComponent {
     value = input.required<any>();

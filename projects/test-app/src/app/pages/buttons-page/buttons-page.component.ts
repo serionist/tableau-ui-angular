@@ -5,6 +5,7 @@ import { SnackService } from '../../../../../component-library/src/public-api';
     selector: 'app-buttons-page',
     templateUrl: './buttons-page.component.html',
     styleUrl: './buttons-page.component.scss',
+    standalone: false
 })
 export class ButtonsPageComponent {
 

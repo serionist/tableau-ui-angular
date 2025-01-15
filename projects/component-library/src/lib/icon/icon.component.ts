@@ -32,7 +32,8 @@ import { combineLatest, map } from 'rxjs';
         '[class.success]': "color() === 'success'",
     },
     styleUrls: ['./icon.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class IconComponent {
     value = model<string>();

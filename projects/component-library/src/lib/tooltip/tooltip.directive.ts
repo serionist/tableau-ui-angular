@@ -11,6 +11,7 @@ import {
 // Style contained in _tooltips.scss in the styles folder
 @Directive({
     selector: '[tooltip]',
+    standalone: false
 })
 export class TooltipDirective {
     tooltip = input<TemplateRef<any> | string>();

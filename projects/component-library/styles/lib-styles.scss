@@ -1,9 +1,10 @@
-@import 'lib-variables';
-@import 'lib-mixins';
-@import 'lib-main';
-@import 'dialog.service';
-@import 'snack.service';
-@import 'tooltips';
-@import 'fonts';
-@import 'lib-inputs';
+@use 'lib-variables';
+@use 'lib-mixins';
+@use 'lib-main';
+@use 'dialog.service';
+@use 'snack.service';
+@use 'tooltips';
+@use 'fonts' as fonts;
+@use 'lib-inputs';
+@forward 'fonts';
 

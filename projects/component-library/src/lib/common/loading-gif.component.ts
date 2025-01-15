@@ -1,8 +1,8 @@
 import { Component, input } from '@angular/core';
 
 @Component({
-  selector: 'tab-loading-gif',
-  template: `
+    selector: 'tab-loading-gif',
+    template: `
      <svg
     xmlns="http://www.w3.org/2000/svg"
     xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -254,7 +254,8 @@ import { Component, input } from '@angular/core';
       </rect>
     </g>
   </svg>
-  `
+  `,
+    standalone: false
 })
 export class LoadingGifComponent {
   color = input<string>('#355c80');

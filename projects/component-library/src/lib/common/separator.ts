@@ -10,7 +10,8 @@ import { ChangeDetectionStrategy, Component } from "@angular/core";
     }
 `,
     template: ``,
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class SeparatorComponent {
 

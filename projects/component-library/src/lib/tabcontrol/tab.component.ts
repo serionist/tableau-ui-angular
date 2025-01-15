@@ -10,8 +10,9 @@ import { AfterContentInit, ChangeDetectionStrategy, Component, ContentChild, inp
       <ng-content></ng-content>
     </ng-template>
     `,
-    changeDetection: ChangeDetectionStrategy.OnPush
-  })
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
+})
   export class TabComponent {
     headerTemplate = viewChild.required<TemplateRef<any>>('headerTemplate');
     contentTemplate = viewChild.required<TemplateRef<any>>('contentTemplate');

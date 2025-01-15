@@ -4,10 +4,11 @@ import { IconComponent } from '../../icon/icon.component';
 import { TooltipDirective } from '../../tooltip/tooltip.directive';
 
 @Component({
-  selector: 'tab-nav-bar-button',
-  templateUrl: './nav-bar-button.component.html',
-  styleUrl: './nav-bar-button.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'tab-nav-bar-button',
+    templateUrl: './nav-bar-button.component.html',
+    styleUrl: './nav-bar-button.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class NavBarButtonComponent {
   icon = input.required<string>();

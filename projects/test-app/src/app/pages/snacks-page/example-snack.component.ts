@@ -10,7 +10,8 @@ import { SnackRef, TAB_SNACK_REF } from '../../../../../component-library/src/pu
             <p>{{ message() }}</p>
             <button (click)="closeDialog()">Close</button>
         </div>
-    `
+    `,
+    standalone: false
 })
 export class ExampleSnackComponent {
     message = model.required<string>();

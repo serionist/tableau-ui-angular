@@ -4,9 +4,10 @@ import { FormControl, Validators } from '@angular/forms';
 import { BehaviorSubject, debounceTime, startWith, Subject } from 'rxjs';
 
 @Component({
-  selector: 'app-select-page',
-  templateUrl: './select-page.component.html',
-  styleUrl: './select-page.component.scss'
+    selector: 'app-select-page',
+    templateUrl: './select-page.component.html',
+    styleUrl: './select-page.component.scss',
+    standalone: false
 })
 export class SelectPageComponent implements OnInit {
    

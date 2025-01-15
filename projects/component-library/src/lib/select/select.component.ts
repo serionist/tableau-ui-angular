@@ -54,6 +54,7 @@ import { SuffixComponent } from '../common/suffix';
         '[id]': 'selectId',
     },
     changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class SelectComponent
     implements ControlValueAccessor, AfterViewInit, OnDestroy

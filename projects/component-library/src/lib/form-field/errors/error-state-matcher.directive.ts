@@ -17,6 +17,7 @@ import {
 
 @Directive({
     selector: '[errorStateMatcher]',
+    standalone: false
 })
 export class ErrorStateMatcherDirective implements DoCheck {
     ngControl = inject(NgControl, { optional: true });

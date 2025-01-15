@@ -27,7 +27,8 @@ import { SuffixComponent } from '../common/suffix';
     selector: 'tab-form-field',
     templateUrl: './form-field.component.html',
     styleUrl: './form-field.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class FormFieldComponent
     implements AfterContentInit, AfterViewInit, OnDestroy

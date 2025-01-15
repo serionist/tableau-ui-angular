@@ -25,8 +25,6 @@ import { IOptionGridContext, OptionComponent } from '../common/option';
         },
     ],
     host: {
-        
-        
         class: 'tab-input',
         '[class.silent-focus]': 'focusMode() === "silent"',
         '[tabindex]': 'disabled() || focusMode() === "none" ? -1 : 0',
@@ -35,6 +33,7 @@ import { IOptionGridContext, OptionComponent } from '../common/option';
         '(focus)': 'onFocus()',
         '(mouseleave)': 'onMouseOut()',
     },
+    standalone: false
 })
 export class ListComponent
     implements ControlValueAccessor, AfterViewInit, OnDestroy

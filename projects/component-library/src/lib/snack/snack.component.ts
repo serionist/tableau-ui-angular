@@ -65,7 +65,8 @@ import { TAB_SNACK_REF } from './snack.ref';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class SnackComponent {
     type = model<'info' | 'error'>('info');

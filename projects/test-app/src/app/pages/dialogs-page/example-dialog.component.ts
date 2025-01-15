@@ -13,7 +13,8 @@ import { DialogService, TableauUiDialogModule } from '../../../../../component-l
             <button (click)="openAnother()">Open another dialog</button>
             <button (click)="closeDialog()">Close</button>
         </div>
-    `
+    `,
+    standalone: false
 })
 export class ExampleDialogComponent {
     message = model.required<string>();

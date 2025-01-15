@@ -3,9 +3,10 @@ import { SnackService } from '../../../../../component-library/src/public-api';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 @Component({
-  selector: 'app-checkbox-page',
-  templateUrl: './checkbox-page.component.html',
-  styleUrl: './checkbox-page.component.scss'
+    selector: 'app-checkbox-page',
+    templateUrl: './checkbox-page.component.html',
+    styleUrl: './checkbox-page.component.scss',
+    standalone: false
 })
 export class CheckboxPageComponent implements OnInit {
   

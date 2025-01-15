@@ -4,9 +4,10 @@ import { FormControl, Validators } from '@angular/forms';
 import { BehaviorSubject, debounceTime, startWith, Subject } from 'rxjs';
 
 @Component({
-  selector: 'app-list-page',
-  templateUrl: './list-page.component.html',
-  styleUrl: './list-page.component.scss'
+    selector: 'app-list-page',
+    templateUrl: './list-page.component.html',
+    styleUrl: './list-page.component.scss',
+    standalone: false
 })
 export class ListPageComponent implements OnInit {
    
