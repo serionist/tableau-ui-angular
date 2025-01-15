@@ -5,6 +5,11 @@ body {
     line-height: 1.5;
     margin: 0;
 }
+@media (max-resolution: 120dpi) {
+    body {
+        font-family: var(twc-low-dpi-font-family);
+    }
+}
 
 .text-large {
     font-size: var(--twc-font-size-body-large);
