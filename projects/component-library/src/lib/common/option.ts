@@ -91,6 +91,7 @@ export class OptionComponent {
 export interface IOptionLineContext {
     renderIcon: boolean;
     renderText: boolean;
+    renderAsDisabled?: boolean;
 }
 export interface IOptionGridContext extends IOptionLineContext{
     renderHint: boolean;

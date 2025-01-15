@@ -11,21 +11,27 @@ input,textarea,.tab-input {
   font-size: var(--twc-font-size-body);
   padding-left: 7px;
   padding-right: 7px;
-  &:focus {
-    background-color: transparent;
-    outline: 2px solid #0b5cab;
-    outline-offset: -2px;
-  }
-  &:hover:enabled:not(:focus) {
-    background-color: #e5e5e5;
-    border-color: #747474;
-  }
-  &:not(textarea, [type="image" i], [type="range" i], [type="checkbox" i], [type="radio" i]) {
+  outline-style: solid;
+  outline-width: 0px;
+  outline-offset: 0px;
+  outline-color: #0b5cab;
+ 
+  &:not(textarea, [type="image" i], [type="range" i], [type="checkbox" i], [type="radio" i], .tab-input) {
     overflow-clip-margin: 0px !important;
     overflow: clip !important;
   }
   &.ng-invalid.ng-touched,&.ng-touched.tab-error {
-    border-color: var(--twc-color-error);
+    outline-color: var(--twc-color-error);
+    outline-width: 1px;
+    outline-offset: -1px;
+  }
+  &:focus {
+    outline-width: 2px !important;
+    outline-offset: -2px !important;
+  }
+  &:hover:enabled:not(:focus) {
+    background-color: #e5e5e5;
+    border-color: #747474;
   }
   &::placeholder,.placeholder {
     color: var(--twc-color-text-light);

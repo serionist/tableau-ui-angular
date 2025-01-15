@@ -1,0 +1,23 @@
+@for (option of options(); track option.value()) {
+    <div
+        class="option-wrapper"
+        (click)="selectValue(option)"
+        (mousedown)="optionMouseDown($event)"
+        [class.disabled]="option.disabled() || disabled()"
+        [class.highlight]="!!highlightedOption() && highlightedOption()!.value() === option.value()"
+        [class.selected]="isValueSelected(option) && selectedItemHighlight()"
+        (mouseenter)="highlightedOption.set(option)"
+    >
+        <div class="check" [ngClass]="selectedCheckIconLocation()">
+            @if (isValueSelected(option)) {
+            <tab-icon value="check" ></tab-icon>
+            }
+        </div>
+        <div class="option-content">
+            <ng-container
+                [ngTemplateOutlet]="option.template()"
+                [ngTemplateOutletContext]="itemTemplateActualContext()"
+            ></ng-container>
+        </div>
+    </div>
+    }

@@ -256,6 +256,7 @@ export class SelectComponent
     }
     // #endregion
     // #region Value selection
+    highlightedOption = signal<OptionComponent | undefined>(undefined);
     optionMouseDown(event: MouseEvent)  {
         if (event) {
             event.preventDefault();
@@ -315,7 +316,7 @@ export class SelectComponent
     dropdownReference = signal<DialogRef | undefined>(undefined);
     dropdownOpen = computed(() => this.dropdownReference() !== undefined);
 
-    highlightedOption = signal<OptionComponent | undefined>(undefined);
+   
     openDropdown() {
         if (this.disabled()) {
             return;
@@ -332,6 +333,17 @@ export class SelectComponent
                 closeOnBackdropClick: true,
             }
         , null, this.elementRef.nativeElement);
+        // if the dialog element height is smaller than the dropdown container height, we need to adjust the position because we hit the bottom of the page
+        setTimeout(() => {
+            const dropdownHeight = document.getElementById(this.dropdownId)!.offsetHeight; // the native height of the dropdown
+            if (ref.dialogElement.offsetHeight < dropdownHeight && elRect.top - dropdownHeight > 0) {
+                ref.reposition(args => {
+                    args.left = elRect.left + 'px';
+                    args.top = elRect.top - dropdownHeight + 'px';
+                });
+            }
+        }, 10);
+       
         this.registerOptionKeyNavigation();
         ref.afterClosed$.subscribe(() => {
             this.unregisterOptionKeyNavigation();

@@ -17,7 +17,8 @@ import {
     TableauUiSnackModule,
     TableauUiTabgroupModule,
     TableauUiTooltipModule,
-    TableauUiSelectModule
+    TableauUiSelectModule,
+    TableauUiListModule
 } from '../../../component-library/src/public-api';
 import { provideRouter, RouterModule, RouterOutlet, withHashLocation } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -38,6 +39,7 @@ import { TabcontrolPageComponent } from './pages/tabcontrol-page/tabcontrol-page
 import { NavbarPageComponent } from './pages/navbar-page/navbar-page.component';
 import { ClipboardPageComponent } from './pages/clipboard-page/clipboard-page.component';
 import { SelectPageComponent } from './pages/select-page/select-page.component';
+import { ListPageComponent } from './pages/list-page/list-page.component';
 
 @NgModule({
     declarations: [
@@ -57,7 +59,8 @@ import { SelectPageComponent } from './pages/select-page/select-page.component';
         TabcontrolPageComponent,
         NavbarPageComponent,
         ClipboardPageComponent,
-        SelectPageComponent
+        SelectPageComponent,
+        ListPageComponent
     ],
     imports: [
         BrowserModule,
@@ -78,7 +81,8 @@ import { SelectPageComponent } from './pages/select-page/select-page.component';
         TableauUiTooltipModule,
         TableauUiTabgroupModule,
         TableauUiClipboardModule,
-        TableauUiSelectModule
+        TableauUiSelectModule,
+        TableauUiListModule
     ],
     providers: [
         provideZoneChangeDetection({ eventCoalescing: true }),

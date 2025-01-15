@@ -65,7 +65,7 @@ export class FormFieldComponent
         this.updatePrefixSuffixWidths();
 
         const input: HTMLElement =
-            this.inputContainer().nativeElement.querySelector('input,textarea,tab-select');
+            this.inputContainer().nativeElement.querySelector('input,textarea,tab-select,tab-list');
         if (input) {
             this.inputDisabled.set(input.getAttribute('disabled') != null);
 
@@ -118,7 +118,7 @@ export class FormFieldComponent
                 prefixElement.elementRef.nativeElement.offsetWidth;
             this.renderer.setStyle(
                 this.inputContainer().nativeElement.querySelector(
-                    'input,textarea,tab-select'
+                    'input,textarea,tab-select,tab-list'
                 ),
                 'padding-left',
                 `${prefixWidth + 12}px` // Adds a small margin for spacing
@@ -130,7 +130,7 @@ export class FormFieldComponent
                 suffixElement.elementRef.nativeElement.offsetWidth;
             this.renderer.setStyle(
                 this.inputContainer().nativeElement.querySelector(
-                    'input,textarea,tab-select'
+                    'input,textarea,tab-select,tab-list'
                 ),
                 'padding-right',
                 `${suffixWidth + 8}px` // Adds a small margin for spacing

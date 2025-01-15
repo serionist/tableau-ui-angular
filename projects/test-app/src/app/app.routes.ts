@@ -13,6 +13,7 @@ import { TabcontrolPageComponent } from './pages/tabcontrol-page/tabcontrol-page
 import { NavbarPageComponent } from './pages/navbar-page/navbar-page.component';
 import { ClipboardPageComponent } from './pages/clipboard-page/clipboard-page.component';
 import { SelectPageComponent } from './pages/select-page/select-page.component';
+import { ListPageComponent } from './pages/list-page/list-page.component';
 export const routes: Routes = [
     {
         'path': '',
@@ -37,6 +38,15 @@ export const routes: Routes = [
         title: 'Select',
         data: {
             page: 'select'
+        }
+
+    },
+    {
+        path: 'list',
+        component: ListPageComponent,
+        title: 'List',
+        data: {
+            page: 'list'
         }
 
     },
