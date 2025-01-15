@@ -6,7 +6,8 @@ import { ChangeDetectionStrategy, Component, model, TemplateRef } from '@angular
         [ngTemplateOutletContext]="contentTemplateContext()"
         ]
     ></ng-container>`,
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class TemplateDialogComponent {
     contentTemplate = model.required<TemplateRef<any>>();

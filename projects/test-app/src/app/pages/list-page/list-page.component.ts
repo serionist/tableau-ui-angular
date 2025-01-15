@@ -1,15 +1,15 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { IOptionLineContext, SnackService } from '../../../../../component-library/src/public-api';
+import { IOptionGridContext, IOptionLineContext, SnackService } from '../../../../../component-library/src/public-api';
 import { FormControl, Validators } from '@angular/forms';
 import { BehaviorSubject, debounceTime, startWith, Subject } from 'rxjs';
 
 @Component({
-    selector: 'app-select-page',
-    templateUrl: './select-page.component.html',
-    styleUrl: './select-page.component.scss',
+    selector: 'app-list-page',
+    templateUrl: './list-page.component.html',
+    styleUrl: './list-page.component.scss',
     standalone: false
 })
-export class SelectPageComponent implements OnInit {
+export class ListPageComponent implements OnInit {
    
 
     snack = inject(SnackService);
@@ -32,6 +32,10 @@ export class SelectPageComponent implements OnInit {
     ngOnInit(): void {
      this.singleFormControl.markAsTouched();
      this.singleFormControl.updateValueAndValidity();
+      this.singleFormControl2.markAsTouched();
+      this.singleFormControl2.updateValueAndValidity();
+      this.singleFormControl3.markAsTouched();
+      this.singleFormControl3.updateValueAndValidity();
      this.multiFormControl.valueChanges.subscribe((val) => {
           console.log('multi select value changed', val);
           this.snack.openSnack('Multi select value changed to: ' + val);
@@ -40,9 +44,10 @@ export class SelectPageComponent implements OnInit {
         this.performSearch();
       });
     }
-    onlyTextSelectedValue: IOptionLineContext = {
+    onlyTextSelectedValue: IOptionGridContext = {
       renderIcon: false,
-      renderText: true
+      renderText: true,
+      renderHint: false
     }
 
 

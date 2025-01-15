@@ -6,6 +6,7 @@ import { SnackService } from '../../../../../component-library/src/public-api';
     selector: 'app-snacks-page',
     templateUrl: './snacks-page.component.html',
     styleUrl: './snacks-page.component.scss',
+    standalone: false
 })
 export class SnacksPageComponent {
     snackService = inject(SnackService);

@@ -2,9 +2,10 @@ import { Component, inject } from '@angular/core';
 import { ClipboardService, SnackService } from '../../../../../component-library/src/public-api';
 
 @Component({
-  selector: 'app-clipboard-page',
-  templateUrl: './clipboard-page.component.html',
-  styleUrl: './clipboard-page.component.scss'
+    selector: 'app-clipboard-page',
+    templateUrl: './clipboard-page.component.html',
+    styleUrl: './clipboard-page.component.scss',
+    standalone: false
 })
 export class ClipboardPageComponent {
   clipboardService = inject(ClipboardService);

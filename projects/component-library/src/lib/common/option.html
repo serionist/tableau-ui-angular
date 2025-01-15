@@ -3,8 +3,9 @@
     let-renderIcon="renderIcon"
     let-renderText="renderText"
     let-renderHint="renderHint"
+    let-renderAsDisabled="renderAsDisabled"
 >
-    <div class="tab-option grid" [class.disabled]="disabled()">
+    <div class="tab-option grid" [class.disabled]="disabled() || renderAsDisabled">
         @if (renderIcon && iconType() !== 'none') {
         <div class="icon">
             @if (iconType() === 'string') {
@@ -34,8 +35,9 @@
     #lineTemplateRef
     let-renderIcon="renderIcon"
     let-renderText="renderText"
+    let-renderAsDisabled="renderAsDisabled"
 >
-    <span class="tab-option line" [class.disabled]="disabled()">
+    <span class="tab-option line" [class.disabled]="disabled() || renderAsDisabled">
         @if (renderIcon && iconType() !== 'none') {
         <span class="icon">
             @if (iconType() === 'string') {

@@ -66,6 +66,13 @@
         ></tab-nav-bar-button>
 
         <tab-nav-bar-button
+            icon="list"
+            text="List"
+            link="/list"
+            [isActive]="(page$ | async) === 'list'"
+        ></tab-nav-bar-button>
+
+        <tab-nav-bar-button
             icon="dialogs"
             text="Dialogs"
             link="/dialogs"
@@ -98,12 +105,12 @@
         ></tab-nav-bar-button>
 
         <tab-nav-bar-button
-        icon="content_paste"
-        text="Clipboard"
-        link="/clipboard"
-        [isActive]="(page$ | async) === 'clipboard'"
-    ></tab-nav-bar-button>
-    <tab-separator></tab-separator>
+            icon="content_paste"
+            text="Clipboard"
+            link="/clipboard"
+            [isActive]="(page$ | async) === 'clipboard'"
+        ></tab-nav-bar-button>
+        <tab-separator></tab-separator>
         <tab-nav-bar-button
             icon="home"
             text="Sample Disabled"
@@ -111,9 +118,6 @@
             [isActive]="false"
             [disabled]="true"
         ></tab-nav-bar-button>
-
-
-
     </tab-nav-bar>
     <div><router-outlet></router-outlet></div>
 </div>

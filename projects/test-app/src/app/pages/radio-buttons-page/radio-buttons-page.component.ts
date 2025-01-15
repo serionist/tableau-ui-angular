@@ -3,9 +3,10 @@ import { SnackService } from '../../../../../component-library/src/public-api';
 import { FormControl, Validators } from '@angular/forms';
 
 @Component({
-  selector: 'app-radio-buttons-page',
-  templateUrl: './radio-buttons-page.component.html',
-  styleUrl: './radio-buttons-page.component.scss'
+    selector: 'app-radio-buttons-page',
+    templateUrl: './radio-buttons-page.component.html',
+    styleUrl: './radio-buttons-page.component.scss',
+    standalone: false
 })
 export class RadioButtonsPageComponent implements OnInit{
   

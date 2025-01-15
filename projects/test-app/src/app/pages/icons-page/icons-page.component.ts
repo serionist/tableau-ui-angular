@@ -2,9 +2,10 @@ import { Component } from '@angular/core';
 import { MonacoHelper } from '../../helpers/monaco.helper';
 
 @Component({
-  selector: 'app-icons-page',
-  templateUrl: './icons-page.component.html',
-  styleUrl: './icons-page.component.scss'
+    selector: 'app-icons-page',
+    templateUrl: './icons-page.component.html',
+    styleUrl: './icons-page.component.scss',
+    standalone: false
 })
 export class IconsPageComponent {
   htmlOptions = MonacoHelper.getOptions('html');

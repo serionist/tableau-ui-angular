@@ -3,10 +3,11 @@ import { TabComponent} from './tab.component';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'tab-group',
-  templateUrl: './tabgroup.component.html',
-  styleUrls: ['./tabgroup.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'tab-group',
+    templateUrl: './tabgroup.component.html',
+    styleUrls: ['./tabgroup.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class TabGroupComponent implements AfterContentInit {
   tabs = contentChildren(TabComponent);

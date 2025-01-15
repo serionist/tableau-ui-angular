@@ -16,13 +16,13 @@ import { ErrorComponent } from '../common/error';
     styleUrls: ['checkbox.component.scss'],
     providers: [
         {
-          provide: NG_VALUE_ACCESSOR,
-          useExisting: forwardRef(() => CheckboxComponent),
-          multi: true
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => CheckboxComponent),
+            multi: true
         }
-      ],
-      
-    changeDetection: ChangeDetectionStrategy.OnPush
+    ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class CheckboxComponent implements ControlValueAccessor {
     disabled = model(false);

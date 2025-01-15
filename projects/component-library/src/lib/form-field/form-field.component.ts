@@ -27,7 +27,8 @@ import { SuffixComponent } from '../common/suffix';
     selector: 'tab-form-field',
     templateUrl: './form-field.component.html',
     styleUrl: './form-field.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class FormFieldComponent
     implements AfterContentInit, AfterViewInit, OnDestroy
@@ -65,7 +66,7 @@ export class FormFieldComponent
         this.updatePrefixSuffixWidths();
 
         const input: HTMLElement =
-            this.inputContainer().nativeElement.querySelector('input,textarea,tab-select');
+            this.inputContainer().nativeElement.querySelector('input,textarea,tab-select,tab-list');
         if (input) {
             this.inputDisabled.set(input.getAttribute('disabled') != null);
 
@@ -118,7 +119,7 @@ export class FormFieldComponent
                 prefixElement.elementRef.nativeElement.offsetWidth;
             this.renderer.setStyle(
                 this.inputContainer().nativeElement.querySelector(
-                    'input,textarea,tab-select'
+                    'input,textarea,tab-select,tab-list'
                 ),
                 'padding-left',
                 `${prefixWidth + 12}px` // Adds a small margin for spacing
@@ -130,7 +131,7 @@ export class FormFieldComponent
                 suffixElement.elementRef.nativeElement.offsetWidth;
             this.renderer.setStyle(
                 this.inputContainer().nativeElement.querySelector(
-                    'input,textarea,tab-select'
+                    'input,textarea,tab-select,tab-list'
                 ),
                 'padding-right',
                 `${suffixWidth + 8}px` // Adds a small margin for spacing

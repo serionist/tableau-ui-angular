@@ -32,7 +32,8 @@ import { ButtonComponent, TAB_DIALOG_REF } from '../../public-api';
             padding-top: 0;
         }
         `],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class ConfirmationDialogComponent implements AfterViewInit {
     color = model<'primary' | 'error' | 'secondary'>('secondary');

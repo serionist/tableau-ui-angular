@@ -17,6 +17,7 @@ import {
     IConfirmationDialogArgs,
     IDialogArgs,
     IDialogHeaderArgs,
+    IDialogPositionAndSizeArgs,
     IModalArgs,
 } from './dialog.args';
 import { debounceTime, fromEvent, map, Subscription, zip } from 'rxjs';
@@ -223,7 +224,11 @@ export class DialogService {
             document.body.appendChild(dialogElement);
         }
         // Handle container position and window resize event
-        const resizeSubscription = this.setDialogPosition(dialogElement, args);
+        dialogRef.reposition = (getArgs: (originalArgs: IDialogPositionAndSizeArgs) => void) => {
+            getArgs(args);
+            DialogService.calculateAndSetPosition(dialogElement, args);
+        }
+        const resizeSubscription = this.manageDialogPosition(dialogElement, args);
 
         // Handle dialog close
         dialogRef.afterClosed$.subscribe(() => {
@@ -330,10 +335,7 @@ export class DialogService {
         const dialogElement = (viewRef as any).rootNodes[0] as HTMLElement;
         dialogElement.classList.add('dialog-container');
         dialogElement.style.zIndex = zIndex.toString();
-        if (args.width) dialogElement.style.width = args.width;
-        if (args.height) dialogElement.style.height = args.height;
-        if (args.maxWidth) dialogElement.style.maxWidth = args.maxWidth;
-        if (args.maxHeight) dialogElement.style.maxHeight = args.maxHeight;
+       
         if (args.containerCss) {
             Object.keys(args.containerCss).forEach((key) => {
                 (dialogElement.style as any)[key] = args.containerCss![key];
@@ -373,50 +375,63 @@ export class DialogService {
         return dialogElement;
     }
 
-    private setDialogPosition(
+   
+    private manageDialogPosition(
         dialogElement: HTMLElement,
-        args: IDialogArgs
+        args: IDialogPositionAndSizeArgs
     ): Subscription | null {
-        const calculateAndSetPosition = () => {
-            const actualWidth = dialogElement.offsetWidth;
-            const actualHeight = dialogElement.offsetHeight;
-
-            if (typeof args.top === 'function') {
-                dialogElement.style.top = args.top(actualWidth, actualHeight);
-            } else if (typeof args.top === 'string') {
-                dialogElement.style.top = args.top;
-            }
-
-            if (typeof args.left === 'function') {
-                dialogElement.style.left = args.left(actualWidth, actualHeight);
-            } else if (typeof args.left === 'string') {
-                dialogElement.style.left = args.left;
-            }
-
-            // if dialog is higher than the available page height, set it to scroll
-            if (actualHeight + dialogElement.offsetTop > window.innerHeight) {
-                dialogElement.style.height = `calc(100vh - ${dialogElement.offsetTop}px)`;
-                dialogElement.style.overflowY = 'auto';
-            }
-            // if dialog is wider than the available page width, set it to scroll
-            if (actualWidth + dialogElement.offsetLeft > window.innerWidth) {
-                dialogElement.style.width = `calc(100vw - ${dialogElement.offsetLeft}px)`;
-                dialogElement.style.overflowX = 'auto';
-            }
-        };
-
+       
        // Temporarily position the dialog offscreen to get its dimensions
        dialogElement.style.top = '-9999px';
        dialogElement.style.left = '-9999px';
         setTimeout(() => {
-            calculateAndSetPosition();
+            DialogService.calculateAndSetPosition(dialogElement, args);
         }, 10);
 
         let resizeSubscription: Subscription | null = null;
         resizeSubscription = fromEvent(window, 'resize').subscribe(() => {
-            calculateAndSetPosition();
+            DialogService.calculateAndSetPosition(dialogElement, args);
         });
         return resizeSubscription;
+    }
+    private static calculateAndSetPosition(dialogElement: HTMLElement, args: IDialogPositionAndSizeArgs) {
+      
+        if (args.maxWidth)  {
+            dialogElement.style.maxWidth = args.maxWidth;
+        }
+        if (args.maxHeight) {
+            dialogElement.style.maxHeight = args.maxHeight;
+        }
+        dialogElement.style.overflowX = 'hidden';
+        dialogElement.style.overflowY = 'hidden';
+        dialogElement.style.height = args.height ?? 'fit-content';
+        dialogElement.style.width = args.width ?? 'fit-content';
+
+        const actualWidth = dialogElement.offsetWidth;
+        const actualHeight = dialogElement.offsetHeight;
+
+        if (typeof args.top === 'function') {
+            dialogElement.style.top = args.top(actualWidth, actualHeight);
+        } else if (typeof args.top === 'string') {
+            dialogElement.style.top = args.top;
+        }
+
+        if (typeof args.left === 'function') {
+            dialogElement.style.left = args.left(actualWidth, actualHeight);
+        } else if (typeof args.left === 'string') {
+            dialogElement.style.left = args.left;
+        }
+
+        // if dialog is higher than the available page height, set it to scroll
+        if (actualHeight + dialogElement.offsetTop > window.innerHeight) {
+            dialogElement.style.height = `calc(100vh - ${dialogElement.offsetTop}px)`;
+            dialogElement.style.overflowY = 'auto';
+        } 
+        // if dialog is wider than the available page width, set it to scroll
+        if (actualWidth + dialogElement.offsetLeft > window.innerWidth) {
+            dialogElement.style.width = `calc(100vw - ${dialogElement.offsetLeft}px)`;
+            dialogElement.style.overflowX = 'auto';
+        } 
     }
 
     private trapFocus(): {

@@ -7,6 +7,7 @@ import { debounceTime } from 'rxjs';
     selector: 'app-form-fields-page',
     templateUrl: './form-fields-page.component.html',
     styleUrl: './form-fields-page.component.scss',
+    standalone: false
 })
 export class FormFieldsPageComponent implements OnInit {
     snackService = inject(SnackService);
