@@ -32,10 +32,28 @@
     src: url(#{$rootDir}/BentonSans-SemiDemi_Italic.woff2) format('woff2'), url(#{$rootDir}/BentonSans-SemiDemi_Italic.woff) format('woff');
   }
   @font-face {
+    font-family: BentonSans-Light;
+    font-weight: normal;
+    font-style: normal;
+    src: url(#{$rootDir}/BentonSans-Light.woff2) format('woff2'), url(#{$rootDir}/BentonSans-Light.woff) format('woff');
+  }
+  @font-face {
     font-family: Benton Sans;
     font-weight: normal;
     font-style: normal;
     src: url(#{$rootDir}/BentonSans-Book.woff2) format('woff2'), url(#{$rootDir}/BentonSans-Book.woff) format('woff');
+  }
+  @font-face {
+    font-family: BentonSans;
+    font-weight: lighter;
+    font-style: normal;
+    src: url(#{$rootDir}/BentonSans-Light.woff2) format('woff2'), url(#{$rootDir}/BentonSans-Light.woff) format('woff');
+  }
+  @font-face {
+    font-family: BentonSans;
+    font-weight: 100;
+    font-style: normal;
+    src: url(#{$rootDir}/BentonSans-Light.woff2) format('woff2'), url(#{$rootDir}/BentonSans-Light.woff) format('woff');
   }
   @font-face {
     font-family: Benton Sans;
