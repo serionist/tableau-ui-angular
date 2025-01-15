@@ -6,6 +6,7 @@ import {
     TemplateRef,
     input,
     inject,
+    OnDestroy,
 } from '@angular/core';
 
 // Style contained in _tooltips.scss in the styles folder
@@ -13,7 +14,8 @@ import {
     selector: '[tooltip]',
     standalone: false
 })
-export class TooltipDirective {
+export class TooltipDirective implements OnDestroy {
+    
     tooltip = input<TemplateRef<any> | string>();
     tooltipPosition = input<'top' | 'bottom' | 'left' | 'right'>('top');
     tooltipMargin = input<string>('5px');
@@ -29,6 +31,9 @@ export class TooltipDirective {
     }
 
     @HostListener('mouseleave') onMouseLeave() {
+        this.destroyTooltip();
+    }
+    ngOnDestroy(): void {
         this.destroyTooltip();
     }
 
