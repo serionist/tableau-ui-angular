@@ -13,7 +13,9 @@ const fontFiles = [
   'BentonSans-SemiDemi.woff',
   'BentonSans-SemiDemi.woff2',
   'BentonSans-SemiDemi_Italic.woff',
-  'BentonSans-SemiDemi_Italic.woff2'
+  'BentonSans-SemiDemi_Italic.woff2',
+  'BentonSans-Light.woff',
+  'BentonSans-Light.woff'
 ];
 
 // Helper function to download a single file
