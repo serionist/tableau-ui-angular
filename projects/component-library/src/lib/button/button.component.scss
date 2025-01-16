@@ -1,4 +1,4 @@
-button {
+:host {
     -moz-user-select: none;
     -ms-user-select: none;
     -webkit-user-select: none;
@@ -7,7 +7,7 @@ button {
     border-radius: 2px;
     box-sizing: border-box;
 
-    cursor: default;
+    cursor: pointer;
     font-family: inherit;
     font-size: var(--twc-font-size-body);
     font-weight: bold;
@@ -18,6 +18,13 @@ button {
     padding: 0 24px;
     user-select: none;
     width: fit-content;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    &:hover {
+        text-decoration: none;
+    }
     .content-wrapper {
         display: flex;
         justify-content: center;
@@ -26,8 +33,9 @@ button {
         .loader-wrapper {
             margin-left: -18px;
             margin-right: 4px;
-            margin-top: 2px;
+           // margin-top: 2px;
             visibility: hidden;
+            display: flex;
             @keyframes loading-button-spinner {
                 100% {
                     transform: rotate(360deg);
@@ -47,20 +55,20 @@ button {
     }
 
     &.primary {
-        &:not([disabled]) {
+        &:not([disabled]):not([disabled="false"]) {
             background-color: var(--twc-color-primary);
             color: var(--twc-color-on-primary);
             &:hover {
                 background-color: var(--twc-color-primary-highlight);
             }
         }
-        &[disabled] {
+        &[disabled]:not([disabled="false"]) {
             background-color: #c9c9c9 !important;
             color: #939393 !important;
         }
     }
     &.secondary {
-        &:not([disabled]) {
+        &:not([disabled]):not([disabled="false"]) {
             background-color: transparent;
             border-color: #747474;
             color: #2e2e2e;
@@ -69,24 +77,27 @@ button {
             }
            
         }
-        &[disabled] {
+        &[disabled]:not([disabled="false"]) {
             background-color: transparent !important;
             border-color: #c9c9c9 !important;
             color: #c9c9c9 !important;
         }
     }
     &.error {
-        &:not([disabled]) {
+        &:not([disabled]):not([disabled="false"]) {
             background-color: #BA0517;
             color: var(--twc-color-on-primary);
             &:hover {
                 background-color: #640103;
             }
         }
-        &[disabled] {
+        &[disabled]:not([disabled="false"]) {
             background-color: #C9C9C9 !important;
             color: #939393 !important;
         }
+    }
+    &[disabled]:not([disabled="false"]) {
+        cursor: default;
     }
     &:focus-visible,&:focus {
         box-shadow: inset 0 0 0 2px white;

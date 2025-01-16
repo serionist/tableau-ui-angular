@@ -2,10 +2,10 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, ElementRef, inject, input, output, signal, ViewEncapsulation } from '@angular/core';
 
 @Component({
-    selector: 'button',
+    selector: 'button,a[button]',
     templateUrl: './button.component.html',
     styleUrls: ['./button.component.scss'],
-    encapsulation: ViewEncapsulation.None, // Disable view encapsulation
+    // encapsulation: ViewEncapsulation.None, // Disable view encapsulation
     host: {
         '[attr.type]': 'type()',
         '[class]': 'color()',
