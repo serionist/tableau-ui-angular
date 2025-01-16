@@ -31,6 +31,7 @@
                 (click)="buttonClick('secondary')">Secondary</button>
                 <button color="secondary" [disabled]="true"
                 (click)="buttonClick('secondary')">Secondary disabled</button>
+               
 
                 <button color="primary" [loading]="buttonsLoading.primary"
                 (click)="buttonClick('primary')">Primary</button>
@@ -41,6 +42,23 @@
                 (click)="buttonClick('error')">Error</button>
                 <button color="error" [disabled]="true"
                 (click)="buttonClick('error')">Error disabled</button>
+
+
+                <a button color="secondary" [loading]="buttonsLoading.secondary"
+                (click)="buttonClick('secondary')">Secondary as link</a>
+                <a button color="secondary" [disabled]="true"
+                (click)="buttonClick('secondary')">Secondary as link disabled</a>
+               
+
+                <a button color="primary" [loading]="buttonsLoading.primary"
+                (click)="buttonClick('primary')">Primary as link</a>
+                <a button color="primary" [disabled]="true"
+                (click)="buttonClick('primary')">Primary as link disabled</a>
+
+                <a button color="error" [loading]="buttonsLoading.error"
+                (click)="buttonClick('error')">Error as link</a>
+                <a button color="error" [disabled]="true"
+                (click)="buttonClick('error')">Error as link disabled</a>
             </div>
         </div>
     </div>
