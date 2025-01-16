@@ -66,7 +66,7 @@ export class DialogService {
                 return `calc(50vw - ${actualWidth / 2}px)`;
             },
             top(actualWidth, actualHeight) {
-                return `calc(40vh - ${actualHeight / 2}px)`;
+                return `calc(50vh - ${actualHeight / 2}px)`;
             },
             header: args?.header,
         } as IDialogArgs;
