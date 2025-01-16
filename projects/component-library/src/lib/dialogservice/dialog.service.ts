@@ -376,24 +376,40 @@ export class DialogService {
     }
 
    
-    private manageDialogPosition(
-        dialogElement: HTMLElement,
-        args: IDialogPositionAndSizeArgs
-    ): Subscription | null {
-       
-       // Temporarily position the dialog offscreen to get its dimensions
-       dialogElement.style.top = '-9999px';
-       dialogElement.style.left = '-9999px';
-        setTimeout(() => {
-            DialogService.calculateAndSetPosition(dialogElement, args);
-        }, 10);
+   private manageDialogPosition(
+    dialogElement: HTMLElement,
+    args: IDialogPositionAndSizeArgs
+): Subscription | null {
+    // Temporarily position the dialog offscreen to get its dimensions
+    dialogElement.style.top = '-9999px';
+    dialogElement.style.left = '-9999px';
 
-        let resizeSubscription: Subscription | null = null;
-        resizeSubscription = fromEvent(window, 'resize').subscribe(() => {
-            DialogService.calculateAndSetPosition(dialogElement, args);
-        });
-        return resizeSubscription;
-    }
+    setTimeout(() => {
+        DialogService.calculateAndSetPosition(dialogElement, args);
+    }, 10);
+
+    let resizeSubscription: Subscription | null = null;
+
+    // Handle window resize event
+    resizeSubscription = fromEvent(window, 'resize').subscribe(() => {
+        DialogService.calculateAndSetPosition(dialogElement, args);
+    });
+
+    // Monitor changes to the size of the dialog
+    const resizeObserver = new ResizeObserver(() => {
+        DialogService.calculateAndSetPosition(dialogElement, args);
+    });
+
+    // Start observing the dialog element
+    resizeObserver.observe(dialogElement);
+
+    // Return a subscription-like object that also disconnects the observer
+    return new Subscription(() => {
+        resizeObserver.disconnect();
+        resizeSubscription?.unsubscribe();
+    });
+}
+
     private static calculateAndSetPosition(dialogElement: HTMLElement, args: IDialogPositionAndSizeArgs) {
       
         if (args.maxWidth)  {
