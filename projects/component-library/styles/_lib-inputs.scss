@@ -1,58 +1,75 @@
-input,textarea,.tab-input {
-  width: 100%;
-  min-height: 2em;
-  -webkit-appearance: none;
-  background-color: transparent;
-  border: 1px solid #747474;
-  border-radius: 1px;
-  box-sizing: border-box;
-  color: #2e2e2e;
-  font-family: var(--twc-font-family);
-  font-size: var(--twc-font-size-body);
-  padding-left: 7px;
-  padding-right: 7px;
-  outline-style: solid;
-  outline-width: 0px;
-  outline-offset: 0px;
-  outline-color: #0b5cab;
- 
-  &:not(textarea, [type="image" i], [type="range" i], [type="checkbox" i], [type="radio" i], .tab-input) {
-    overflow-clip-margin: 0px !important;
-    overflow: clip !important;
-  }
-  &.ng-invalid.ng-touched,&.ng-touched.tab-error {
-    outline-color: var(--twc-color-error);
-    outline-width: 1px;
-    outline-offset: -1px;
-  }
-  &:focus {
-    outline-width: 2px !important;
-    outline-offset: -2px !important;
-  }
-  &:hover:enabled:not(:focus) {
-    background-color: #e5e5e5;
-    border-color: #747474;
-  }
-  &::placeholder,.placeholder {
-    color: var(--twc-color-text-light);
-  }
-  &::-ms-input-placeholder {
-    color: var(--twc-color-text-light);
-  }
-  &[disabled] {
-    background-color: rgba(255, 255, 255, 0);
-    border-color: #c9c9c9;
-    color: var(--twc-color-disabled);
-    &::placeholder {
+input[type=text],
+input[type=password],
+input[type=email],
+input[type=number],
+input[type=search],
+input[type=tel],
+input[type=url],
+textarea,
+.tab-input {
+    width: 100%;
+    min-height: 2em;
+    -webkit-appearance: none;
+    background-color: transparent;
+    border: 1px solid #747474;
+    border-radius: 1px;
+    box-sizing: border-box;
+    color: #2e2e2e;
+    font-family: var(--twc-font-family);
+    font-size: var(--twc-font-size-body);
+    padding-left: 7px;
+    padding-right: 7px;
+    outline-style: solid;
+    outline-width: 0px;
+    outline-offset: 0px;
+    outline-color: #0b5cab;
+
+    &:not(
+            textarea,
+            [type="image" i],
+            [type="range" i],
+            [type="checkbox" i],
+            [type="radio" i],
+            .tab-input
+        ) {
+        overflow-clip-margin: 0px !important;
+        overflow: clip !important;
+    }
+    &.ng-invalid.ng-touched,
+    &.ng-touched.tab-error {
+        outline-color: var(--twc-color-error);
+        outline-width: 1px;
+        outline-offset: -1px;
+    }
+    &:focus {
+        outline-width: 2px !important;
+        outline-offset: -2px !important;
+    }
+    &:hover:enabled:not(:focus) {
+        background-color: #e5e5e5;
+        border-color: #747474;
+    }
+    &::placeholder,
+    .placeholder {
+        color: var(--twc-color-text-light);
+    }
+    &::-ms-input-placeholder {
+        color: var(--twc-color-text-light);
+    }
+    &[disabled] {
+        background-color: rgba(255, 255, 255, 0);
+        border-color: #c9c9c9;
         color: var(--twc-color-disabled);
-      }
-      &::-ms-input-placeholder {
-        color: var(--twc-color-disabled);
-      }
-  }
+        &::placeholder {
+            color: var(--twc-color-disabled);
+        }
+        &::-ms-input-placeholder {
+            color: var(--twc-color-disabled);
+        }
+    }
 }
 textarea {
-  resize: vertical;
-  padding-top: 0.2rem;
-  padding-bottom: 0.2rem;
+    resize: vertical;
+    padding-top: 0.2rem;
+    padding-bottom: 0.2rem;
 }

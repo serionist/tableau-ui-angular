@@ -22,10 +22,9 @@
         height:  round(1.2em, 1px);
         font-size: var(--twc-font-size-body);
         min-height: 0;
-        &:focus-visible {
+        &:focus-visible + .box {
             outline: 2px solid var(--twc-color-primary);
             outline-offset: 2px;
-            opacity: 1;
         }
     }
     .box {
