@@ -1,45 +1,35 @@
 {
-  "name": "tableau-component-library",
-  "version": "0.0.0",
-  "scripts": {
-    "start": "ng serve test-app",
-    "copy-assets": "cpy README.md LICENSE Add-Benton-Sans.md dist/component-library",
-    "build:component-library": "ng build component-library && npm run copy-assets",
-    "build:github-pages": "ng build test-app --base-href /tableau-ui-angular/",
-    "package": "npx ng-packagr -p projects/component-library/ng-package.json && npm run copy-assets",
-    "publish": "npx ng-packagr -p projects/component-library/ng-package.json && npm run copy-assets && cd dist/component-library && npm publish"
-  },
-  "private": true,
-  "dependencies": {
-    "@angular/animations": "^19.0.6",
-    "@angular/common": "^19.0.6",
-    "@angular/compiler": "^19.0.6",
-    "@angular/core": "^19.0.6",
-    "@angular/elements": "^19.0.6",
-    "@angular/forms": "^19.0.6",
-    "@angular/platform-browser": "^19.0.6",
-    "@angular/platform-browser-dynamic": "^19.0.6",
-    "@angular/router": "^19.0.6",
-    "monaco-editor": "^0.52.2",
-    "ngx-monaco-editor-v2": "^19.0.2",
-    "rxjs": "~7.8.0",
-    "tabbable": "^6.2.0",
-    "tslib": "^2.3.0",
-    "zone.js": "~0.15.0"
-  },
-  "devDependencies": {
-    "@angular-devkit/build-angular": "^19.0.7",
-    "@angular/cli": "^19.0.7",
-    "@angular/compiler-cli": "^19.0.6",
-    "@types/jasmine": "~5.1.0",
-    "cpy-cli": "^5.0.0",
-    "jasmine-core": "~5.4.0",
-    "karma": "~6.4.0",
-    "karma-chrome-launcher": "~3.2.0",
-    "karma-coverage": "~2.2.0",
-    "karma-jasmine": "~5.1.0",
-    "karma-jasmine-html-reporter": "~2.1.0",
-    "ng-packagr": "^19.1.0",
-    "typescript": "~5.5.2"
-  }
+    "name": "tableau-component-library",
+    "version": "0.0.0",
+    "workspaces": [
+        "projects/*"
+    ],
+    "scripts": {
+        "start": "ng serve test-app",
+        "copy-assets": "cpy README.md LICENSE Add-Benton-Sans.md dist/component-library",
+        "build:component-library": "ng build component-library && npm run copy-assets",
+        "build:github-pages": "ng build test-app --base-href /tableau-ui-angular/",
+        "package": "npx ng-packagr -p projects/component-library/ng-package.json && npm run copy-assets",
+        "publish": "npx ng-packagr -p projects/component-library/ng-package.json && npm run copy-assets && cd dist/component-library && npm publish",
+        "dev:link": "ng build component-library && npm unlink -g tableau-ui-angular && npm link ./dist/component-library && echo \"####### run 'npm link tableau-ui-angular' from the consuming project#######\" && ng build component-library --watch "
+    },
+    "private": true,
+    "dependencies": {
+       
+    },
+    "devDependencies": {
+        "@angular-devkit/build-angular": "^19.0.7",
+        "@angular/cli": "^19.0.7",
+        "@angular/compiler-cli": "^19.0.6",
+        "@types/jasmine": "~5.1.0",
+        "cpy-cli": "^5.0.0",
+        "jasmine-core": "~5.4.0",
+        "karma": "~6.4.0",
+        "karma-chrome-launcher": "~3.2.0",
+        "karma-coverage": "~2.2.0",
+        "karma-jasmine": "~5.1.0",
+        "karma-jasmine-html-reporter": "~2.1.0",
+        "ng-packagr": "^19.1.0",
+        "typescript": "~5.5.2"
+    }
 }

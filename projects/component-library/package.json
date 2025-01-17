@@ -29,10 +29,12 @@
   "peerDependencies": {
     "@angular/common": "^19.0.6",
     "@angular/core": "^19.0.6",
-    "tabbable": "^6.2.0"
+    "@angular/router": "^19.0.6",
+    "@angular/forms": "^19.0.6"
+   
   },
   "dependencies": {
-    "tslib": "^2.3.0"
+     "tabbable": "^6.2.0"
   },
   "sideEffects": false
 }
