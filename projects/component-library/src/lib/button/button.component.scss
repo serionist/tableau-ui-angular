@@ -98,6 +98,7 @@
     }
     &[disabled]:not([disabled="false"]) {
         cursor: default;
+        pointer-events: none;
     }
     &:focus-visible,&:focus {
         box-shadow: inset 0 0 0 2px white;
