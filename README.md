@@ -87,5 +87,7 @@ Follow this example to add a Tableau button to your site (using SCSS stylesheets
 2. Go to your consuming project (which already has `tableau-ui-angular` installed probably) and run:
     - `npm unlink tableau-ui-angular` (to be safe)
     - `npm link tableau-ui-angular`
+    - `cd node_modules/tableau_ui_angular`
     - `npm install` to install required linked packages
+    - `cd ../..`
 3. It will replace the package files from npm from the ones you are hosting locally with `npm run dev:link`
