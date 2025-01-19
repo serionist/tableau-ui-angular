@@ -23,7 +23,7 @@ export class ButtonComponent {
   loading = input(false);
   tabindex = input('0');
   type = input<'submit' | 'button'>('button');
-  color = input<'primary' | 'secondary' | 'error'>('secondary');
+  color = input<'primary' | 'secondary' | 'error' | 'plain'>('secondary');
   
  
 }

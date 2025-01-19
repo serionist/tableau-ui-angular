@@ -27,6 +27,11 @@
         <div class="section">
             <h3>Examples</h3>
             <div class="spacer" style="width: fit-content">
+                <button color="plain" [loading]="buttonsLoading.plain"
+                (click)="buttonClick('plain')">Plain</button>
+                <button color="plain" [disabled]="true"
+
+                (click)="buttonClick('plain')">Plain disabled</button>
                 <button color="secondary" [loading]="buttonsLoading.secondary"
                 (click)="buttonClick('secondary')">Secondary</button>
                 <button color="secondary" [disabled]="true"
@@ -42,6 +47,12 @@
                 (click)="buttonClick('error')">Error</button>
                 <button color="error" [disabled]="true"
                 (click)="buttonClick('error')">Error disabled</button>
+
+
+                <a button color="plain" [loading]="buttonsLoading.plain"
+                (click)="buttonClick('plain')">Plain as link</a>
+                <a button color="plain" [disabled]="true"
+                (click)="buttonClick('plain')">Plain as link disabled</a>
 
 
                 <a button color="secondary" [loading]="buttonsLoading.secondary"
