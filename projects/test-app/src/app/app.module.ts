@@ -4,7 +4,6 @@ import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import {
-    ICON_CONFIG,
     TableauUiButtonModule,
     TableauUiCheckboxModule,
     TableauUiClipboardModule,
@@ -40,6 +39,7 @@ import { NavbarPageComponent } from './pages/navbar-page/navbar-page.component';
 import { ClipboardPageComponent } from './pages/clipboard-page/clipboard-page.component';
 import { SelectPageComponent } from './pages/select-page/select-page.component';
 import { ListPageComponent } from './pages/list-page/list-page.component';
+import { LocalDevelopmentComponent } from './pages/local-development/local-development.component';
 
 @NgModule({
     declarations: [
@@ -60,7 +60,8 @@ import { ListPageComponent } from './pages/list-page/list-page.component';
         NavbarPageComponent,
         ClipboardPageComponent,
         SelectPageComponent,
-        ListPageComponent
+        ListPageComponent,
+        LocalDevelopmentComponent
     ],
     imports: [
         BrowserModule,
@@ -74,7 +75,7 @@ import { ListPageComponent } from './pages/list-page/list-page.component';
         TableauUiCheckboxModule,
         TableauUiSnackModule,
         TableauUiFormFieldModule,
-        TableauUiIconModule.forRoot({ enableDynamicIcons: true, enableDynamicIconsLocalStorageCache: true }),
+        TableauUiIconModule,
         TableauUiRadioGroupModule,
         TableauUiButtonModule,
         TableauUiDialogModule,
@@ -86,15 +87,7 @@ import { ListPageComponent } from './pages/list-page/list-page.component';
     ],
     providers: [
         provideZoneChangeDetection({ eventCoalescing: true }),
-        provideRouter(routes, withHashLocation()),
-        // Add this provider to enable dynamic icons if you don't use the TableauUiIconModule.forRoot() method in your app.module.ts
-        // {
-        //     provide: ICON_CONFIG,
-        //     useValue: {
-        //         enableDynamicIcons: true,
-        //         enableDynamicIconsLocalStorageCache: true
-        //     }
-        // }
+        provideRouter(routes, withHashLocation())
     ],
     bootstrap: [AppComponent],
 })

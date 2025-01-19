@@ -1,0 +1,54 @@
+<div class="page">
+    <div class="title">
+        <h1>Local Development</h1>
+        <div class="text-light text-large">
+            <p>
+                This page explains how to set up local development of this library by linking it into a consuming project locally instead of importing from NPM.
+            </p>
+        </div>
+    </div>
+    <tab-separator></tab-separator>
+    <div class="content">
+        <div class="section">
+            <h3>Purpose</h3>
+            <p>When using this library, you sometimes want to host it locally instead of pulling it from NPM.<br/>
+            This way, if you make any changes to the library, they are instantly visible in your consuming application, enabling a seamless developer experience.<br/>
+        When you commit/publish your app, make sure that you update the library on NPM as well, and update your app to use the NPM version.</p>
+        </div>
+        <div class="section">
+            <h3>Linking the source code of this library into the consuming project</h3>
+            <ol>
+                <li>Open both the source code of this library and the consuming project in an editor (such as VSCode)</li>
+                <li>Run the following command from the root of <b>this library</b>:<ngx-monaco-editor
+                    style="height: 30px; width: 150px; margin-bottom: 5px;"
+                    [options]="terminalOptions"
+                    ngModel="npm run dev:link"
+                ></ngx-monaco-editor> </li>
+                <li>Update the <code>angular.json</code> file of the <b>consuming project</b> to preserve symlinks:
+                    <ngx-monaco-editor
+                            style="height: 220px; width: 430px; margin-bottom: 5px;"
+                            [options]="jsonOptions"
+                            [ngModel]="angularJsonContent"
+                        ></ngx-monaco-editor>
+                </li>
+                <li>Run the following command from the root of the <b>consuming project</b>:
+                    <ngx-monaco-editor
+                    style="height: 60px; width: 550px; margin-bottom: 5px;"
+                    [options]="terminalOptions"
+                    [ngModel]="consumingLinkContent"
+                ></ngx-monaco-editor>
+                <div>This will link the build output of this library into the consuming project with a symlink</div>
+                </li>
+            </ol>
+        </div>
+     <div class="section">
+        <h3>Unlinking the library</h3>
+        <div>When you've finished development or want to commit the source code of the <b>consuming project</b>, you need to <code>unlink</code> this library by running:</div>
+        <ngx-monaco-editor
+        style="height: 30px; width: 500px; margin-bottom: 5px;"
+        [options]="terminalOptions"
+        [ngModel]="unlinkContent"
+    ></ngx-monaco-editor>
+    </div>
+    </div>
+</div>

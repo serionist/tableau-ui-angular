@@ -14,7 +14,7 @@ To consume this libray in your project, you need to:
               }
          }
 2. Run the following command in your consuming project root:
-    npm link tableau-ui-angular && cd node_modules/tableau-ui-angular && npm install --omit=peer --omit=dev --omit=optional && cd ../..
+    npm link tableau-ui-angular && cd node_modules/tableau-ui-angular && npm install --omit=peer --omit=optional && cd ../..
 
 
 This will link the library to your project and you can start using it in your project.

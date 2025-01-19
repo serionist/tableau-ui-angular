@@ -28,32 +28,41 @@
                     <div class="info">
                         <tab-icon
                             value="add_circle"
-                            class="fill"
+                            [fill]="true"
                             color="success"
                         ></tab-icon>
                         <span
-                            >All the icons are hosted locally, no external web
-                            request is made</span
+                            >All the icons are hosted locally</span
+                        >
+                    </div>
+                    <div class="info">
+                        <tab-icon
+                            value="add_circle"
+                            [fill]="true"
+                            color="success"
+                        ></tab-icon>
+                        <span
+                            >Simple installation and usage</span
                         >
                     </div>
                     <div class="info">
                         <tab-icon
                             value="do_not_disturb_on"
-                            class="fill"
+                            [fill]="true"
                             [color]="'error'"
                         ></tab-icon>
                         <span
-                            >Large size. Browser downloads ~4.5MB+
-                            (uncompressed) to make icons available</span
+                            >Large size. Browser downloads at least ~4.5MB+
+                            (uncompressed) to make icons available. May be a lot more if multiple icon styles are used (outlined/rounded/sharp)</span
                         >
                     </div>
                 </li>
                 <li style="margin-top: 0.5em">
-                    <b>Dynamic Icons</b>, loaded from the Material Icons CDN:
+                    <b>Dynamic Icons</b>. Only the used icons are downloaded at build-time:
                     <div class="info">
                         <tab-icon
                             value="add_circle"
-                            class="fill"
+                            [fill]="true"
                             color="success"
                         ></tab-icon>
                         <span
@@ -62,50 +71,15 @@
                             used)</span
                         >
                     </div>
-                    <div class="info">
-                        <tab-icon
-                            value="add_circle"
-                            class="fill"
-                            color="success"
-                        ></tab-icon>
-                        <span
-                            >No manual setup needed, used icons are
-                            automatically loaded the first time they are
-                            used</span
-                        >
-                    </div>
-                    <div class="info">
-                        <tab-icon
-                            value="add_circle"
-                            class="fill"
-                            color="success"
-                        ></tab-icon>
-                        <span
-                            >(Optional) Icons loaded at least once are
-                            remembered and loaded automatically at every page
-                            load</span
-                        >
-                    </div>
+                    
                     <div class="info">
                         <tab-icon
                             value="do_not_disturb_on"
-                            class="fill"
+                            [fill]="true"
                             [color]="'error'"
                         ></tab-icon>
                         <span
-                            >Hosted app needs access to Material Icons CDN,
-                            icons are not hosted locally</span
-                        >
-                    </div>
-                    <div class="info">
-                        <tab-icon
-                            value="do_not_disturb_on"
-                            class="fill"
-                            [color]="'error'"
-                        ></tab-icon>
-                        <span
-                            >Unloaded icons are blank until load from CDN
-                            completes</span
+                            >Harder to set up and use. Each used icon needs to be recorded by the developer.</span
                         >
                     </div>
                 </li>
@@ -163,41 +137,37 @@
                     <code>color</code> CSS property can be used.
                 </li>
                 <li>
-                    Adding <code>class="fill"</code> will make the icon filled.
-                    Advanced attributes can be configured using the
-                    <code>font-variation-settings</code> CSS attribute.
+                    Add <code>type="Material Symbols Outlined"</code> to change the type of the fonts. Avaialble types:
+                    <ul>
+                        <li><code>Material Symbols Rounded</code> - default</li>
+                        <li><code>Material Symbols Outlined</code></li>
+                        <li><code>Material Symbols Sharp</code></li>
+                    </ul>
+                </li>
+                <li>
+                    Add <code>[fill]="true"</code> to make the icon filled.
+                </li>
+                <li>
+                    Add <code>[weight]="100"</code> to change the weight of the icon. The default weight is 400, possible values are: 100, 200, 300, 400, 500, 600, 700.
+                </li>
+                <li>
+                    Add <code>[grade]="200"</code> to change the grade of the icon. The default grade is 0, possible values are: -25, 0, 200.
+                </li>
+                <li>
+                    Add <code>[opticalSizePx]="40"</code> to change the optical size of the icon. The default optical size is 24, possible values are: 20, 24, 40, 48.
                 </li>
             </ul>
-        </div>
-
-        <div class="section">
-            <h3>Installing Dynamic Icons</h3>
-            <p>
-                Dynamic Icons works by automatically detecting which icons are used in <code>tab-icon</code> components and loads them from the Material Icons CDN.
-                <br/>This detection is done at runtime, so no manual setup is needed. Icons are loaded the first time they are used.
-                <br/>Optionally, icons that have been loaded at least once can be remembered and loaded automatically at every page load. This is done by saving the used icons into localStorage and is turned on by default.
-            </p>
-            <ol>
-                <li>
-                    If you use modules, add the <code>TableauUiIconModule</code> to your module imports and configure it using <code>forRoot</code>:
-                    <ngx-monaco-editor
-                        style="height: 80px; width: 520px"
-                        [options]="tsOptions"
-                        [ngModel]="dynamicModuleCode"
-                    ></ngx-monaco-editor>
-                    <div><code>enableDynamicIcons: true</code> turns the feature on. It is <code>false</code> by default</div>
-                    <div><code>enableDynamicIconsLocalStorageCache: false</code> turns off saving used icons into localStorage. It is <code>true</code> by default.</div>
-                </li>
-                <li>Alternatively, either add <code>TableauUiIconModule</code> or <code>TableauUiAllModule</code> to your component/module and add the following code to your providers separately:
-                    <ngx-monaco-editor
-                        style="height: 260px; width: 520px"
-                        [options]="tsOptions"
-                        [ngModel]="providersCode"
-                    ></ngx-monaco-editor>
-                </li>
-
-                <li>Use the Icon as it's shown in the Usage section</li>
-            </ol>
+            <div>Full configuration example:</div>
+            <ngx-monaco-editor
+            style="
+                height: 55px;
+                width: 620px;
+                display: inline-block;
+                vertical-align: middle;
+                margin-right: 1em;
+            "
+            [options]="htmlOptions"
+            [ngModel]="fullConfigExample"></ngx-monaco-editor>
         </div>
 
         <div class="section">
@@ -215,9 +185,9 @@
                     Import the rounded icons by updating your
                     <code>style.scss</code>:
                     <ngx-monaco-editor
-                        style="height: 25px; width: 320px"
+                        style="height: 75px; width: 730px"
                         [options]="scssOptions"
-                        ngModel="@use 'material-symbols/rounded';"
+                        [ngModel]="localImportCode"
                     ></ngx-monaco-editor>
                 </li>
                 <li>
@@ -230,8 +200,105 @@
                 </li>
                 <li>Use the Icon as it's shown in the Usage section</li>
             </ol>
-            <b>Note: </b><span>Only Rounded icons are supported at the moment</span>
+           
         </div>
+        
+        <div class="section">
+            <h3>Installing Dynamic Icons</h3>
+            <p>
+                Dynamic Icons work by only downloading the <b>used icons</b> with <b>used icon properties</b> at build-time.<br/>
+                The icons are still served locally by the <b>consuming app</b>, no web access is needed for end-users. <br />
+                This requires the developer to manually specify the icons that are used in the application in a special <b>icons.ts</b> file.<br/>
+                The <b>consuming app</b> also needs to be configured to load the icons dynamically.
+            </p>
+            <ol>
+                <li>
+                    Install axios as a dev dependency:
+                    <ngx-monaco-editor
+                    style="height: 25px; width: 300px"
+                    [options]="terminalOptions"
+                    ngModel="npm install --save-dev axios"
+                ></ngx-monaco-editor>
+                </li>
+                <li>
+                    Create an <code>icons.ts</code> and inherit the <code>UsedIcons</code> class that is coming from this library. <br />
+                    <code>src/icons.ts</code>:
+                    <ngx-monaco-editor
+                        style="height: 550px; width: 870px"
+                        [options]="tsOptions"
+                        [ngModel]="iconsTsCode"
+                    ></ngx-monaco-editor>
+                </li>
+               
+                <li>
+                    <div>Let's prepare a script to extract which icons and properties you use in your project and download them as static assets.</div>
+                    <div>In this example, our fonts are stored in <code>src/fonts.ts</code> and we are downloading into our <code>public/icons</code> folder, which our application serves as static content.</div>
+                    <div>Update your <code>package.json</code>, and add the following script:</div>
+                    <ngx-monaco-editor
+                    style="height: 150px; width: 870px"
+                    [options]="jsonOptions"
+                    [ngModel]="iconsDownloadContent"
+                ></ngx-monaco-editor>
+                </li>
+                <li>
+                    <div>Let's modify our <code>styles.scss</code> to pull in the css file downloaded by our script.</div>
+                    <div>In this example, we downloaded the css file into <code>public/icons</code>. The CSS file is called <b>material-icons.css</b></div>
+                    <div>Update your <code>styles.scss</code>, and add the following line:</div>
+                    <ngx-monaco-editor
+                    style="height: 25px; width: 870px"
+                    [options]="scssOptions"
+                    ngModel="@use '../public/icons/material-icons.css';"
+                ></ngx-monaco-editor>
+                    <div><i>NOTE: </i>You can also import this .css file in any way you want, even from the HTML directly</div>
+                </li>
+                <li>
+                    <div>Let's prepare a script to automatically watch the changes to the <code>icons.ts</code> file and re-download icons on changes (also download the changes when watching is started)</div>
+                    <div>For this, we use <code>chokidar</code>, which you need to install as a dev dependency:</div>
+                    <ngx-monaco-editor
+                    style="height: 25px; width: 300px"
+                    [options]="terminalOptions"
+                    ngModel="npm install --save-dev chokidar-cli"
+                ></ngx-monaco-editor>
+                    <div>Update your <code>package.json</code>, and add the following script:</div>
+                    <ngx-monaco-editor
+                    style="height: 150px; width: 870px"
+                    [options]="jsonOptions"
+                    [ngModel]="iconsWatchContent"
+                ></ngx-monaco-editor>
+                </li>
+                <li>
+                    <div>Let's modify our build process - we want to download the icons before our build begins.</div>
+                    <div>This example assumes that your original build script was a simple <code>ng build</code> - you can append this before any existing script</div>
+                    <div>Update your <code>angular.json</code> file, and add the following configuration:</div>
+                    <ngx-monaco-editor
+                    style="height: 150px; width: 870px"
+                    [options]="jsonOptions"
+                    [ngModel]="npmInstallContent"
+                ></ngx-monaco-editor>
+                </li>
+                <li>
+                    <div>Let's modify our development serve process - we want our dev version to automatically monitor and download icons when doing <code>ng serve</code></div>
+                    <div>For this, we use <code>concurrently</code>, which you need to install as a dev dependency:</div>
+                    <ngx-monaco-editor
+                    style="height: 25px; width: 300px"
+                    [options]="terminalOptions"
+                    ngModel="npm install --save-dev concurrently"
+                ></ngx-monaco-editor>
+                    <div>Update your <code>package.json</code>, and add the following script:</div>
+                    <ngx-monaco-editor
+                    style="height: 150px; width: 870px"
+                    [options]="jsonOptions"
+                    [ngModel]="ngServeContent"
+                ></ngx-monaco-editor>
+                </li>
+
+            </ol>
+            <p>Once you've done all these steps, your <code>npm build</code> and <code>npm start</code> should
+            automatically download and update the icons that you use in your project - and even monitor the changes!</p>
+            <p>All that's left is to make sure that you record any used icon into your <code>icons.ts</code>. Also make sure that if you use non-default <code>font type</code>, <code>fill</code>, <code>weight</code>, <code>grade</code>, <code>opticalSizePx</code>, also record the values that you used.</p>
+        </div>
+
+      
 
         
     </div>

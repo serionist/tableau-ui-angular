@@ -28,6 +28,13 @@
             [isActive]="(page$ | async) === 'icons'"
         ></tab-nav-bar-button>
 
+        <tab-nav-bar-button
+        icon="developer_guide"
+        text="Local Development"
+        link="/local-development"
+        [isActive]="(page$ | async) === 'local-development'"
+    ></tab-nav-bar-button>
+
         <tab-separator></tab-separator>
 
         <tab-nav-bar-button
@@ -66,7 +73,7 @@
         ></tab-nav-bar-button>
 
         <tab-nav-bar-button
-            icon="list"
+            icon="format_list_bulleted"
             text="List"
             link="/list"
             [isActive]="(page$ | async) === 'list'"

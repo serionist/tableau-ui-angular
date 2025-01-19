@@ -14,6 +14,7 @@ import { NavbarPageComponent } from './pages/navbar-page/navbar-page.component';
 import { ClipboardPageComponent } from './pages/clipboard-page/clipboard-page.component';
 import { SelectPageComponent } from './pages/select-page/select-page.component';
 import { ListPageComponent } from './pages/list-page/list-page.component';
+import { LocalDevelopmentComponent } from './pages/local-development/local-development.component';
 export const routes: Routes = [
     {
         'path': '',
@@ -22,6 +23,15 @@ export const routes: Routes = [
         data: {
             page: 'home'
         }
+    },
+    {
+        path: 'local-development',
+        component: LocalDevelopmentComponent,
+        title: 'local-development',
+        data: {
+            page: 'local-development'
+        }
+
     },
     {
         path: 'checkbox',
