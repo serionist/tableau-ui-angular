@@ -1,14 +1,22 @@
-import { ChangeDetectionStrategy, Directive, input } from "@angular/core";
+import { ChangeDetectionStrategy, Directive, input } from '@angular/core';
 
 @Directive({
-    selector: '[iconButton]',
+    selector: 'tab-icon[iconButton]',
     host: {
-        "role": "button",
-        "class": "icon-button",
-        "[attr.disabled]": "disabled() ? true : null",
+        role: 'button',
+        class: 'icon-button',
+        '[attr.disabled]': 'disabled() ? true : null',
+        '[attr.type]': 'type()',
+        '[class]': 'color()',
+        '[attr.tabindex]': 'disabled() ? "-1": tabindex()',
     },
-    standalone: false
+    standalone: false,
 })
-export class IconButtonDirective { 
+export class IconButtonDirective {
     disabled = input(false);
+    tabindex = input('0');
+    type = input<'submit' | 'button'>('button');
+    color = input<'primary' | 'secondary' | 'error'>('secondary');
+    
+
 }
