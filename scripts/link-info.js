@@ -1,6 +1,10 @@
+const path = require('path');
+const distPath = path.resolve(__dirname, '..', 'dist', 'component-library');
+
 console.log(`\n\n#### Library linking is now started
     
 To consume this libray in your project, you need to:
+
 1. Update the angular.json of your project, and add "preserveSymlinks": true in "projects.[your-app].architect.build.options.
    Your angular.json should look like:
     "projects": {
@@ -13,19 +17,30 @@ To consume this libray in your project, you need to:
                 }
               }
          }
-2. Run the following command in your consuming project root:
-    npm link tableau-ui-angular && cd node_modules/tableau-ui-angular && npm install --omit=peer --omit=optional && cd ../..
+
+2. Update the tsconfig.json of your project, and add "paths" in "compilerOptions":
+   Your tsconfig.json should look like:
+    "compilerOptions": {
+        "paths": {
+          "tableau-ui-angular": [
+          "./node_modules/tableau-ui-angular"
+          ]
+     }
+    }
+3. Install npx link into the consuming project by running the following command:
+    npm install --save-dev link
+
+4. Run the following command in your consuming project root:
+    npx link ${distPath}
+
+### To Unlink the library once you've finished development (or commit the consuming project), run:
+     npm install
 
 
-This will link the library to your project and you can start using it in your project.
 
+### 
 
-### To Unlink the libbrary once you've finished development (or commit the consuming project), run:
-     npm unlink --no-save tableau-ui-angular && npm install
-
-
-
-Press <Enter> once you've completed the above steps to continue (only run "npm start" on the consuming project after you've pressed enter and change detection start)...`);
+Press <Enter> once you've completed the above steps to continue`);
 
 process.stdin.resume();
 process.stdin.on('data', () => {

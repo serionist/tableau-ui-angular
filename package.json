@@ -13,7 +13,7 @@
         "build:github-pages": "npm run test-app:icons:download && ng build test-app --base-href /tableau-ui-angular/",
         "package": "npx ng-packagr -p projects/component-library/ng-package.json && npm run copy-assets",
         "publish": "npx ng-packagr -p projects/component-library/ng-package.json && npm run copy-assets && cd dist/component-library && npm publish",
-        "dev:link": "ng build component-library && npm unlink -g tableau-ui-angular && cd dist/component-library && npm link && cd../.. && node scripts/link-info.js && ng build component-library --watch "
+        "dev:link": "ng build component-library --configuration development && node scripts/link-info.js && ng build component-library --watch --configuration development"
     },
     "private": true,
     "devDependencies": {

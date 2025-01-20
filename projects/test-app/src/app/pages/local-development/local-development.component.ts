@@ -23,7 +23,11 @@ export class LocalDevelopmentComponent {
               }
          }
 }`;
-  consumingLinkContent = `npm link tableau-ui-angular && cd node_modules/tableau-ui-angular && 
-  npm install --omit=peer --omit=optional && cd ../..`;
-  unlinkContent = `npm unlink --no-save tableau-ui-angular && npm install`;
+tsconfigJsonContent = `  "compilerOptions": {
+        "paths": {
+          "tableau-ui-angular": [
+          "./node_modules/tableau-ui-angular"
+          ]
+     }
+    }`;
 }
