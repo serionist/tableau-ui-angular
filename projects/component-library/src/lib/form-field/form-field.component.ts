@@ -68,18 +68,30 @@ export class FormFieldComponent
         const input: HTMLElement =
             this.inputContainer().nativeElement.querySelector('input,textarea,tab-select,tab-list');
         if (input) {
-            this.inputDisabled.set(input.getAttribute('disabled') != null);
+            this.updateInputAttributes(input);
 
             this.inputObserver = new MutationObserver(() => {
-                this.inputDisabled.set(input.getAttribute('disabled') != null);
+                this.updateInputAttributes(input);
             });
             this.inputObserver.observe(input, {
                 attributes: true,
-                attributeFilter: ['disabled'],
+                attributeFilter: ['disabled', 'placeholder', 'required'],
             });
         }
     }
-
+    private updateInputAttributes(input: HTMLElement) {
+        this.inputDisabled.set(input.getAttribute('disabled') != null);
+        const required = input.getAttribute('required') != null && input.getAttribute('required') !== 'false';
+        const placeholder = input.getAttribute('placeholder');
+        if (placeholder) {
+            if (required && !placeholder.endsWith('*')) {
+                input.setAttribute('placeholder', `${placeholder}*`);
+            } 
+            if (!required && placeholder.endsWith('*')) {
+                input.setAttribute('placeholder', placeholder.slice(0, -1));
+            }
+        }
+    }
     ngAfterViewInit(): void {
         // Recalculate when view initializes
         setTimeout(() => {
