@@ -56,7 +56,8 @@
   
   &.disabled .prefix,
   &.disabled .suffix,
-  &.disabled ::ng-deep .tab-hint {
+  &.disabled ::ng-deep .tab-hint,
+  &.disabled ::ng-deep .tab-label {
     color: var(--twc-color-disabled);
     &::placeholder {
       color: var(--twc-color-disabled);
