@@ -38,7 +38,7 @@ localImportCode = `@use 'material-symbols/rounded'; // if you used icons with ty
 @use 'material-symbols/sharp'; // if you used icons with type: Material Symbols Sharp`;
 
 
-iconsTsCode = `import { UsedIcons } from "tableau-ui-angular";
+iconsTsCode = `import { UsedIcons } from "tableau-ui-angular/used-icons";
 
 export class Icons extends UsedIcons {
     // Only override this, if you also use other fonts than the default 'Material Symbols Rounded'

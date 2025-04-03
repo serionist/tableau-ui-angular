@@ -75,7 +75,7 @@ export class TooltipDirective implements OnDestroy {
                 left = `calc(${hostPos.right + scrollX}px + ${this.tooltipMargin()})`;
                 break;
         }
-    
+        // console.log(top, left);
         // Apply calculated positions
         this.tooltipElement.style.top = top;
         this.tooltipElement.style.left = left;
