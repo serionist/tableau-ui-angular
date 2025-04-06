@@ -9,6 +9,7 @@ import {
     ContentChildren,
     ElementRef,
     inject,
+    input,
     OnDestroy,
     QueryList,
     Renderer2,
@@ -27,12 +28,18 @@ import { SuffixComponent } from '../common/suffix';
     selector: 'tab-form-field',
     templateUrl: './form-field.component.html',
     styleUrl: './form-field.component.scss',
+    host: {
+        'class.disabled': 'inputDisabled()',
+        '[attr.aria-disabled]': 'inputDisabled()',
+        'style.display': 'grid'
+    },
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: false
 })
 export class FormFieldComponent
     implements AfterContentInit, AfterViewInit, OnDestroy
 {
+    style = input<string>();
     hintElement = contentChild(HintComponent);
     errorElement = contentChild(ErrorComponent);
     labelElement = contentChild(FormLabelComponent);
@@ -41,7 +48,7 @@ export class FormFieldComponent
     prefixContainer = viewChild.required<ElementRef>('prefixContainer');
     suffixContainer = viewChild.required<ElementRef>('suffixContainer');
     inputContainer = viewChild.required<ElementRef>('inputContainer');
-    formFieldWrapper = viewChild.required<ElementRef>('formFieldWrapper');
+    host = inject(ElementRef<HTMLElement>);
 
     renderer = inject(Renderer2);
 
@@ -109,13 +116,13 @@ export class FormFieldComponent
             },
             { threshold: 0.1 }
         );
-        this.intersectionObserver.observe(this.formFieldWrapper().nativeElement);
+        this.intersectionObserver.observe(this.host.nativeElement);
 
         // Observe size changes in prefix and suffix elements to adjust padding dynamically
         this.resizeObserver = new ResizeObserver(() => {
             this.updatePrefixSuffixWidths();
         });
-        this.resizeObserver.observe(this.formFieldWrapper().nativeElement);
+        this.resizeObserver.observe(this.host.nativeElement);
         if (this.prefixElement()) {
             this.resizeObserver.observe(this.prefixContainer().nativeElement);
         }
