@@ -12,6 +12,7 @@
     user-select: none;
     padding: 6px;
     pointer-events: none;
+    max-height: 100%;
     &.silent-focus {
         outline-color:var(--twc-menu-border-color);
     }

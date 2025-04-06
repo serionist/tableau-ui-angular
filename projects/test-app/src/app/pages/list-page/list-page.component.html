@@ -289,6 +289,70 @@
                         >Focus is possible, but not highlighted. keyboard navigation works</tab-hint
                     >
                 </tab-form-field>
+                <div style="height: 150px">
+                    <tab-form-field style="display: block; height: 100%">
+                        <tab-label
+                            >Fixed height, Single value, icons shown, no check, select highlight:</tab-label
+                        >
+                        <tab-list
+                            [value]="singleSelectValue()"
+                            (valueChange)="singleSelectValueChanged($event)"
+                            placeholder="Select any value"
+                            [allowMultiple]="false"
+                        >
+                            <tab-option
+                                [value]="1"
+                                text="This is a looooooooooooooooong option is provided as a set of values"
+                                icon="home"
+                                hint="There are 2 ways to create tab-options; by values and by templates"
+                            ></tab-option>
+                            <tab-option
+                                [value]="2"
+                                [disabled]="true"
+                                text="Disabled value"
+                                hint="with random hint"
+                            ></tab-option>
+                            <ng-template #iconRef>
+                                <tab-icon
+                                    color="success"
+                                    value="home"
+                                    [fill]="true"
+                                ></tab-icon>
+                            </ng-template>
+                            <ng-template #textRef
+                                >This option is provided as a
+                                <b>template</b></ng-template
+                            >
+                            <ng-template #hintRef>
+                                <tab-hint
+                                    >There are 2 ways to create tab-options; by
+                                    values and by templates</tab-hint
+                                >
+                            </ng-template>
+                            <tab-option
+                                [value]="3"
+                                [icon]="iconRef"
+                                [text]="textRef"
+                                [hint]="hintRef"
+                            ></tab-option>
+                            <ng-template #combinationRef
+                                >This option is provided as a <b>combination</b> of
+                                text and template</ng-template
+                            >
+                            <tab-option
+                                [value]="4"
+                                icon="home"
+                                [text]="combinationRef"
+                                hint="with a hint"
+                            >
+                                <tab-hint>with a hint</tab-hint>
+                            </tab-option>
+                        </tab-list>
+                        <tab-hint
+                            >Focusable and keyboard navigation works. Focus indicator shown</tab-hint
+                        >
+                    </tab-form-field>
+                </div>
             </div>
         </div>
         <div class="section">
