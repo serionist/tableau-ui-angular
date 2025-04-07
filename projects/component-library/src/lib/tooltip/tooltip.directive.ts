@@ -7,6 +7,7 @@ import {
     input,
     inject,
     OnDestroy,
+    ViewContainerRef,
 } from '@angular/core';
 
 // Style contained in _tooltips.scss in the styles folder
@@ -15,8 +16,9 @@ import {
     standalone: false
 })
 export class TooltipDirective implements OnDestroy {
-    
+    private viewContainerRef = inject(ViewContainerRef);
     tooltip = input<TemplateRef<any> | string>();
+    tooltipContext = input<any>();
     tooltipPosition = input<'top' | 'bottom' | 'left' | 'right'>('top');
     tooltipMargin = input<string>('5px');
 
@@ -43,10 +45,12 @@ export class TooltipDirective implements OnDestroy {
         if (typeof this.tooltip() === 'string') {
             this.tooltipElement.innerText = this.tooltip() as string;
         } else {
-            const viewContainerRef = (
-                this.tooltip() as TemplateRef<any>
-            ).createEmbeddedView({}).rootNodes[0];
-            this.tooltipElement.appendChild(viewContainerRef);
+            const viewRef = (this.tooltip() as TemplateRef<any>)!.createEmbeddedView(this.tooltipContext() ?? {});
+            this.viewContainerRef.insert(viewRef); // attach to view
+            viewRef.detectChanges(); // trigger bindings
+            viewRef.rootNodes.forEach(node => {
+              this.tooltipElement!.appendChild(node);
+            });
         }
         document.body.appendChild(this.tooltipElement);
     

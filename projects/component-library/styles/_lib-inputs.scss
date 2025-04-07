@@ -11,8 +11,8 @@ textarea,
     min-height: 2em;
     -webkit-appearance: none;
     background-color: transparent;
-    border: 1px solid #747474;
-    border-radius: 1px;
+    border: var(--twc-input-border);
+    border-radius: var(--twc-input-border-radius);
     box-sizing: border-box;
     color: #2e2e2e;
     font-family: var(--twc-font-family);

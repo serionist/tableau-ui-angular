@@ -8,6 +8,7 @@
 }
 .icon {
     margin-right: 0.25em;
+
 }
 .content {
 }
@@ -23,6 +24,7 @@
     .icon {
         grid-column: 1;
         grid-row: 1;
+        display: flex;
     }
     .content {
         grid-column: 2;

@@ -148,7 +148,6 @@ export class ListComponent
             }
             this.onChange(this.value());
             this.onTouched();
-            console.log(this.elementRef.nativeElement.tabIndex);
             if (this.elementRef.nativeElement.tabIndex !== -1) {
                 this.elementRef.nativeElement.focus();
             }
@@ -175,9 +174,19 @@ export class ListComponent
         if (this.allowMultiple()) {
             return this.value()?.includes(option.value());
         } else {
-            return this.value() === option.value();
+            return this.value() === option.value() || this.safeStringify(this.value()) === this.safeStringify(option.value());
         }
     }
+    safeStringify(obj: any) {
+        const seen = new WeakSet();
+        return JSON.stringify(obj, function (key, value) {
+          if (typeof value === 'object' && value !== null) {
+            if (seen.has(value)) return '[Circular]';
+            seen.add(value);
+          }
+          return value;
+        });
+      }
     // #endregion
     // #region Focus management
     focused = signal(false);
