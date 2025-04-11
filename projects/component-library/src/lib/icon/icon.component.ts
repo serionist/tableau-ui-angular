@@ -34,7 +34,7 @@ import { combineLatest, map } from 'rxjs';
 })
 export class IconComponent {
     value = input<string>();
-    color = input<'primary' | 'error' | 'success' | undefined>();
+    color = input<'primary' | 'error' | 'success' | 'none' | null>();
 
     type = input<'Material Symbols Outlined' | 'Material Symbols Rounded' | 'Material Symbols Sharp'>('Material Symbols Rounded');
     fill = input<boolean>(false);
