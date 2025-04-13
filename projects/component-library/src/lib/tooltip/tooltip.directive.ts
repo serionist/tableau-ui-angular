@@ -17,7 +17,7 @@ import {
 })
 export class TooltipDirective implements OnDestroy {
     private viewContainerRef = inject(ViewContainerRef);
-    tooltip = input<TemplateRef<any> | string>();
+    tooltip = input<TemplateRef<any> | string | undefined>();
     tooltipContext = input<any>();
     tooltipPosition = input<'top' | 'bottom' | 'left' | 'right'>('top');
     tooltipMargin = input<string>('5px');
@@ -63,23 +63,22 @@ export class TooltipDirective implements OnDestroy {
         let top: string, left: string;
         switch (this.tooltipPosition()) {
             case 'top':
-                top = `calc(${hostPos.top + scrollY}px - ${tooltipPos.height}px - ${this.tooltipMargin()})`;
+                top = `calc(${hostPos.top + scrollY}px - ${tooltipPos.height}px - ${this.tooltipMargin() || 0})`;
                 left = `calc(${hostPos.left + scrollX}px + ${(hostPos.width - tooltipPos.width) / 2}px)`;
                 break;
             case 'bottom':
-                top = `calc(${hostPos.bottom + scrollY}px + ${this.tooltipMargin()})`;
+                top = `calc(${hostPos.bottom + scrollY}px + ${this.tooltipMargin() || 0})`;
                 left = `calc(${hostPos.left + scrollX}px + ${(hostPos.width - tooltipPos.width) / 2}px)`;
                 break;
             case 'left':
                 top = `calc(${hostPos.top + scrollY}px + ${(hostPos.height - tooltipPos.height) / 2}px)`;
-                left = `calc(${hostPos.left + scrollX}px - ${tooltipPos.width}px - ${this.tooltipMargin()})`;
+                left = `calc(${hostPos.left + scrollX}px - ${tooltipPos.width}px - ${this.tooltipMargin() || 0})`;
                 break;
             case 'right':
                 top = `calc(${hostPos.top + scrollY}px + ${(hostPos.height - tooltipPos.height) / 2}px)`;
-                left = `calc(${hostPos.right + scrollX}px + ${this.tooltipMargin()})`;
+                left = `calc(${hostPos.right + scrollX}px + ${this.tooltipMargin() || 0})`;
                 break;
         }
-        // console.log(top, left);
         // Apply calculated positions
         this.tooltipElement.style.top = top;
         this.tooltipElement.style.left = left;

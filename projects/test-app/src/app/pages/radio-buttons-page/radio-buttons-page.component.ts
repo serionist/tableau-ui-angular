@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { SnackService } from '../../../../../component-library/src/public-api';
 import { FormControl, Validators } from '@angular/forms';
+import { SnackService } from 'component-library';
 
 @Component({
     selector: 'app-radio-buttons-page',

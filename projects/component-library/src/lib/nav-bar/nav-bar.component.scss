@@ -21,16 +21,20 @@
    
 
     .menu-toggle-button {
-        font-size: 1.5em;
+       
         justify-self: end;
         height: 52px;
         // margin-bottom: 8px;
         display: grid;
         padding-right: 14px;
         align-items: center;
-        tab-icon {
-            font-variation-settings: "FILL" 0, "wght" 100, "GRAD" 0, "opsz" 24
+        button {
+            font-size: 1rem;
+            tab-icon {
+                font-variation-settings: "FILL" 0, "wght" 100, "GRAD" 0, "opsz" 24
+            }
         }
+        
     }
 
     .header {

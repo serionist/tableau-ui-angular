@@ -1,7 +1,4 @@
 import { Component } from '@angular/core';
-import { TableauUiCommonModule } from '../../../../../component-library/src/public-api';
-import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
-import { min } from 'rxjs';
 import { MonacoHelper } from '../../helpers/monaco.helper';
 
 @Component({

@@ -1,6 +1,5 @@
 import { Component, inject, Inject, input, Input, model } from '@angular/core';
-import { DialogRef, TAB_DIALOG_REF } from '../../../../../component-library/src/lib/dialogservice/dialog.ref';
-import { DialogService, TableauUiDialogModule } from '../../../../../component-library/src/public-api';
+import { DialogRef, DialogService, TAB_DIALOG_REF } from 'component-library';
 
 
 @Component({

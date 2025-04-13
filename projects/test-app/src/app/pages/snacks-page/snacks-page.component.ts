@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { ExampleSnackComponent } from './example-snack.component';
-import { SnackService } from '../../../../../component-library/src/public-api';
+import { SnackService } from 'component-library';
+
 
 @Component({
     selector: 'app-snacks-page',

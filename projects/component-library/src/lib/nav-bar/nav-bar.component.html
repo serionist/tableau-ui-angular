@@ -1,23 +1,26 @@
 <div class="menu-toggle-button">
-    <tab-icon
-        iconButton
+    <button
+        layout="icon"
         (click)="expanded.set(!expanded())"
         [tooltip]="expanded() ? 'Collapse menu' : 'Expand menu'"
         tooltipPosition="right"
-        [value]="expanded() ? 'arrow_back_ios' : 'arrow_forward_ios'"
+        color="plain"
     >
-    </tab-icon>
+        <tab-icon
+            [value]="expanded() ? 'arrow_back_ios' : 'arrow_forward_ios'"
+        >
+        </tab-icon>
+    </button>
 </div>
 
 @if (header()) {
-    <div class="header"><ng-content select="tab-nav-bar-header"></ng-content></div>
+<div class="header"><ng-content select="tab-nav-bar-header"></ng-content></div>
 }
-
 
 <div class="nav" tabindex="-1">
     <ng-content></ng-content>
 </div>
 
 @if (footer()) {
-    <div class="footer"><ng-content select="tab-nav-bar-footer"></ng-content></div>
+<div class="footer"><ng-content select="tab-nav-bar-footer"></ng-content></div>
 }

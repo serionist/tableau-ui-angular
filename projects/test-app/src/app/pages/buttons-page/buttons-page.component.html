@@ -26,50 +26,364 @@
         </div>
         <div class="section">
             <h3>Examples</h3>
-            <div class="spacer" style="width: fit-content">
-                <button color="plain" [loading]="buttonsLoading.plain"
-                (click)="buttonClick('plain')">Plain</button>
-                <button color="plain" [disabled]="true"
+            <div class="section">
+                <h4>Layout: primary</h4>
+                <div class="spacer" style="width: fit-content">
+                    <button
+                        color="plain"
+                        [loading]="buttonsLoading.plain"
+                        (click)="buttonClick('plain')"
+                    >
+                        Plain
+                    </button>
+                    <button
+                        color="plain"
+                        [disabled]="true"
+                        (click)="buttonClick('plain')"
+                    >
+                        Plain disabled
+                    </button>
+                    <button
+                        color="secondary"
+                        [loading]="buttonsLoading.secondary"
+                        (click)="buttonClick('secondary')"
+                    >
+                        Secondary
+                    </button>
+                    <button
+                        color="secondary"
+                        [disabled]="true"
+                        (click)="buttonClick('secondary')"
+                    >
+                        Secondary disabled
+                    </button>
 
-                (click)="buttonClick('plain')">Plain disabled</button>
-                <button color="secondary" [loading]="buttonsLoading.secondary"
-                (click)="buttonClick('secondary')">Secondary</button>
-                <button color="secondary" [disabled]="true"
-                (click)="buttonClick('secondary')">Secondary disabled</button>
-               
+                    <button
+                        color="primary"
+                        [loading]="buttonsLoading.primary"
+                        (click)="buttonClick('primary')"
+                    >
+                        Primary
+                    </button>
+                    <button
+                        color="primary"
+                        [disabled]="true"
+                        (click)="buttonClick('primary')"
+                    >
+                        Primary disabled
+                    </button>
 
-                <button color="primary" [loading]="buttonsLoading.primary"
-                (click)="buttonClick('primary')">Primary</button>
-                <button color="primary" [disabled]="true"
-                (click)="buttonClick('primary')">Primary disabled</button>
+                    <button
+                        color="error"
+                        [loading]="buttonsLoading.error"
+                        (click)="buttonClick('error')"
+                    >
+                        Error
+                    </button>
+                    <button
+                        color="error"
+                        [disabled]="true"
+                        (click)="buttonClick('error')"
+                    >
+                        Error disabled
+                    </button>
 
-                <button color="error" [loading]="buttonsLoading.error"
-                (click)="buttonClick('error')">Error</button>
-                <button color="error" [disabled]="true"
-                (click)="buttonClick('error')">Error disabled</button>
+                    <a
+                        button
+                        color="plain"
+                        [loading]="buttonsLoading.plain"
+                        (click)="buttonClick('plain')"
+                        >Plain as link</a
+                    >
+                    <a
+                        button
+                        color="plain"
+                        [disabled]="true"
+                        (click)="buttonClick('plain')"
+                        >Plain as link disabled</a
+                    >
 
+                    <a
+                        button
+                        color="secondary"
+                        [loading]="buttonsLoading.secondary"
+                        (click)="buttonClick('secondary')"
+                        >Secondary as link</a
+                    >
+                    <a
+                        button
+                        color="secondary"
+                        [disabled]="true"
+                        (click)="buttonClick('secondary')"
+                        >Secondary as link disabled</a
+                    >
 
-                <a button color="plain" [loading]="buttonsLoading.plain"
-                (click)="buttonClick('plain')">Plain as link</a>
-                <a button color="plain" [disabled]="true"
-                (click)="buttonClick('plain')">Plain as link disabled</a>
+                    <a
+                        button
+                        color="primary"
+                        [loading]="buttonsLoading.primary"
+                        (click)="buttonClick('primary')"
+                        >Primary as link</a
+                    >
+                    <a
+                        button
+                        color="primary"
+                        [disabled]="true"
+                        (click)="buttonClick('primary')"
+                        >Primary as link disabled</a
+                    >
 
+                    <a
+                        button
+                        color="error"
+                        [loading]="buttonsLoading.error"
+                        (click)="buttonClick('error')"
+                        >Error as link</a
+                    >
+                    <a
+                        button
+                        color="error"
+                        [disabled]="true"
+                        (click)="buttonClick('error')"
+                        >Error as link disabled</a
+                    >
+                </div>
+                <h4>Layout: left-aligned</h4>
+                <div class="spacer" style="width: fit-content">
+                    <!-- <button layout="left-aligned" color="plain" [loading]="buttonsLoading.plain"
+                    (click)="buttonClick('plain')">Plain</button>
+                    <button layout="left-aligned" color="plain" [disabled]="true"
+    
+                    (click)="buttonClick('plain')">Plain disabled</button>
+                    <button layout="left-aligned" color="secondary" [loading]="buttonsLoading.secondary"
+                    (click)="buttonClick('secondary')">Secondary</button>
+                    <button layout="left-aligned" color="secondary" [disabled]="true"
+                    (click)="buttonClick('secondary')">Secondary disabled</button>
+                   
+    
+                    <button layout="left-aligned" color="primary" [loading]="buttonsLoading.primary"
+                    (click)="buttonClick('primary')">Primary</button>
+                    <button layout="left-aligned" color="primary" [disabled]="true"
+                    (click)="buttonClick('primary')">Primary disabled</button>
+    
+                    <button layout="left-aligned" color="error" [loading]="buttonsLoading.error"
+                    (click)="buttonClick('error')">Error</button>
+                    <button layout="left-aligned" color="error" [disabled]="true"
+                    (click)="buttonClick('error')">Error disabled</button>
+    
+    
+                    <a button layout="left-aligned" color="plain" [loading]="buttonsLoading.plain"
+                    (click)="buttonClick('plain')">Plain as link</a>
+                    <a button layout="left-aligned" color="plain" [disabled]="true"
+                    (click)="buttonClick('plain')">Plain as link disabled</a>
+    
+    
+                    <a button layout="left-aligned" color="secondary" [loading]="buttonsLoading.secondary"
+                    (click)="buttonClick('secondary')">Secondary as link</a>
+                    <a button layout="left-aligned" color="secondary" [disabled]="true"
+                    (click)="buttonClick('secondary')">Secondary as link disabled</a>
+                   
+    
+                    <a button layout="left-aligned" color="primary" [loading]="buttonsLoading.primary"
+                    (click)="buttonClick('primary')">Primary as link</a>
+                    <a button layout="left-aligned" color="primary" [disabled]="true"
+                    (click)="buttonClick('primary')">Primary as link disabled</a>
+    
+                    <a button layout="left-aligned" color="error" [loading]="buttonsLoading.error"
+                    (click)="buttonClick('error')">Error as link</a>
+                    <a button layout="left-aligned" color="error" [disabled]="true"
+                    (click)="buttonClick('error')">Error as link disabled</a> -->
+                </div>
+                <h4>Layout: icon</h4>
+                <div class="spacer" style="width: fit-content">
+                    <div class="icon-container">
+                        <button
+                            layout="icon"
+                            color="plain"
+                            [loading]="buttonsLoading.plain"
+                            (click)="buttonClick('plain')"
+                        >
+                            <tab-icon value="home"></tab-icon>
+                        </button>
+                        <span>Plain</span>
+                    </div>
+                    <div class="icon-container">
+                        <button
+                            layout="icon"
+                            color="plain"
+                            [disabled]="true"
+                            (click)="buttonClick('plain')"
+                        >
+                            <tab-icon value="home"></tab-icon>
+                        </button>
+                        <span>Plain disabled</span>
+                    </div>
+                    <div class="icon-container">
+                        <button
+                            layout="icon"
+                            color="secondary"
+                            [loading]="buttonsLoading.secondary"
+                            (click)="buttonClick('secondary')"
+                        >
+                            <tab-icon value="home"></tab-icon>
+                        </button>
+                        <span>Secondary</span>
+                    </div>
+                    <div class="icon-container">
+                        <button
+                            layout="icon"
+                            color="secondary"
+                            [disabled]="true"
+                            (click)="buttonClick('secondary')"
+                        >
+                            <tab-icon value="home"></tab-icon>
+                        </button>
+                        <span>Secondary disabled</span>
+                    </div>
+                    <div class="icon-container">
+                        <button
+                            layout="icon"
+                            color="primary"
+                            [loading]="buttonsLoading.primary"
+                            (click)="buttonClick('primary')"
+                        >
+                            <tab-icon value="home"></tab-icon>
+                        </button>
+                        <span>Primary</span>
+                    </div>
+                    <div class="icon-container">
+                        <button
+                            layout="icon"
+                            color="primary"
+                            [disabled]="true"
+                            (click)="buttonClick('primary')"
+                        >
+                            <tab-icon value="home"></tab-icon>
+                        </button>
+                        <span>Primary disabled</span>
+                    </div>
+                    <div class="icon-container">
+                        <button
+                            layout="icon"
+                            color="error"
+                            [loading]="buttonsLoading.error"
+                            (click)="buttonClick('error')"
+                        >
+                            <tab-icon value="home"></tab-icon>
+                        </button>
+                        <span>Error</span>
+                    </div>
+                    <div class="icon-container">
+                        <button
+                            layout="icon"
+                            color="error"
+                            [disabled]="true"
+                            (click)="buttonClick('error')"
+                        >
+                            <tab-icon value="home"></tab-icon>
+                        </button>
 
-                <a button color="secondary" [loading]="buttonsLoading.secondary"
-                (click)="buttonClick('secondary')">Secondary as link</a>
-                <a button color="secondary" [disabled]="true"
-                (click)="buttonClick('secondary')">Secondary as link disabled</a>
-               
+                        <span>Error disabled</span>
+                    </div>
+                    <div class="icon-container">
+                        <a
+                            button
+                            layout="icon"
+                            color="plain"
+                            [loading]="buttonsLoading.plain"
+                            (click)="buttonClick('plain')"
+                        >
+                            <tab-icon value="home"></tab-icon
+                        ></a>
+                        <span>Plain as link</span>
+                    </div>
+                    <div class="icon-container">
+                        <a
+                            button
+                            layout="icon"
+                            color="plain"
+                            [disabled]="true"
+                            (click)="buttonClick('plain')"
+                        >
+                            <tab-icon value="home"></tab-icon
+                        ></a>
+                        <span>Plain as link disabled</span>
+                    </div>
+                    <div  class="icon-container">
+                        <a
+                            button
+                            
+                            layout="icon"
+                            color="secondary"
+                            [loading]="buttonsLoading.secondary"
+                            (click)="buttonClick('secondary')"
+                        >
+                            <tab-icon value="home"></tab-icon
+                        ></a>
+                        <span>Secondary as link</span>
+                    </div>
+                    <div class="icon-container">
+                        <a
+                            button
+                            layout="icon"
+                            color="secondary"
+                            [disabled]="true"
+                            (click)="buttonClick('secondary')"
+                        >
+                            <tab-icon value="home"></tab-icon
+                        ></a>
+                        <span>Secondary as link disabled</span>
+                    </div>
+                    <div class="icon-container">
+                        <a
+                            button
+                            layout="icon"
+                            color="primary"
+                            [loading]="buttonsLoading.primary"
+                            (click)="buttonClick('primary')"
+                        >
+                            <tab-icon value="home"></tab-icon
+                        ></a>
+                        <span>Primary as link</span>
+                    </div>
+                    <div  class="icon-container">
+                        <a
+                            button
+                            layout="icon"
+                            color="primary"
+                            [disabled]="true"
+                            (click)="buttonClick('primary')"
+                        >
+                            <tab-icon value="home"></tab-icon
+                        ></a>
+                        <span>Primary as link disabled</span>
+                    </div>
+                    <div class="icon-container">
+                        <a
+                            button
+                            layout="icon"
+                            color="error"
+                            [loading]="buttonsLoading.error"
+                            (click)="buttonClick('error')"
+                        >
+                            <tab-icon value="home"></tab-icon
+                        ></a>
+                        <span>Error as link</span>
+                    </div>
+                    <div class="icon-container">
+                        <a
+                            button
+                            layout="icon"
+                            color="error"
+                            [disabled]="true"
+                            (click)="buttonClick('error')"
+                        >
+                            <tab-icon value="home"></tab-icon
+                        ></a>
 
-                <a button color="primary" [loading]="buttonsLoading.primary"
-                (click)="buttonClick('primary')">Primary as link</a>
-                <a button color="primary" [disabled]="true"
-                (click)="buttonClick('primary')">Primary as link disabled</a>
-
-                <a button color="error" [loading]="buttonsLoading.error"
-                (click)="buttonClick('error')">Error as link</a>
-                <a button color="error" [disabled]="true"
-                (click)="buttonClick('error')">Error as link disabled</a>
+                        <span>Error as link disabled</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

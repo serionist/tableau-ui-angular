@@ -3,7 +3,6 @@ import { AfterContentInit, ChangeDetectionStrategy, Component, contentChild, con
 import { NavBarHeaderComponent } from './nav-bar-header.component';
 import { NavBarFooterComponent } from './nav-bar-footer.component';
 import { NavBarButtonComponent } from './nav-bar-button/nav-bar-button.component';
-import { IconButtonDirective } from '../icon/icon-button.directive';
 import { IconComponent } from '../icon/icon.component';
 import { TooltipDirective } from '../tooltip/tooltip.directive';
 

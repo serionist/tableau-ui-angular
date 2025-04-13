@@ -3,23 +3,13 @@ import { AppComponent } from './app.component';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
+
 import {
-    TableauUiButtonModule,
-    TableauUiCheckboxModule,
-    TableauUiClipboardModule,
-    TableauUiCommonModule,
-    TableauUiDialogModule,
-    TableauUiFormFieldModule,
-    TableauUiIconModule,
-    TableauUiNavBarModule,
-    TableauUiRadioGroupModule,
-    TableauUiSnackModule,
-    TableauUiTabgroupModule,
-    TableauUiTooltipModule,
-    TableauUiSelectModule,
-    TableauUiListModule
-} from '../../../component-library/src/public-api';
-import { provideRouter, RouterModule, RouterOutlet, withHashLocation } from '@angular/router';
+    provideRouter,
+    RouterModule,
+    RouterOutlet,
+    withHashLocation,
+} from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { CssPageComponent } from './pages/css-page/css-page.component';
 import { CheckboxPageComponent } from './pages/checkbox-page/checkbox-page.component';
@@ -40,6 +30,24 @@ import { ClipboardPageComponent } from './pages/clipboard-page/clipboard-page.co
 import { SelectPageComponent } from './pages/select-page/select-page.component';
 import { ListPageComponent } from './pages/list-page/list-page.component';
 import { LocalDevelopmentComponent } from './pages/local-development/local-development.component';
+import { TreePageComponent } from './pages/tree-page/tree-page.component';
+import {
+    TableauUiButtonModule,
+    TableauUiCheckboxModule,
+    TableauUiClipboardModule,
+    TableauUiCommonModule,
+    TableauUiDialogModule,
+    TableauUiFormFieldModule,
+    TableauUiIconModule,
+    TableauUiListModule,
+    TableauUiNavBarModule,
+    TableauUiRadioGroupModule,
+    TableauUiSelectModule,
+    TableauUiSnackModule,
+    TableauUiTabgroupModule,
+    TableauUiTooltipModule,
+    TableauUiTreeModule,
+} from 'component-library';
 
 @NgModule({
     declarations: [
@@ -61,7 +69,8 @@ import { LocalDevelopmentComponent } from './pages/local-development/local-devel
         ClipboardPageComponent,
         SelectPageComponent,
         ListPageComponent,
-        LocalDevelopmentComponent
+        LocalDevelopmentComponent,
+        TreePageComponent,
     ],
     imports: [
         BrowserModule,
@@ -83,11 +92,13 @@ import { LocalDevelopmentComponent } from './pages/local-development/local-devel
         TableauUiTabgroupModule,
         TableauUiClipboardModule,
         TableauUiSelectModule,
-        TableauUiListModule
+        TableauUiListModule,
+        TableauUiTreeModule,
+        // TableauUiAllModule
     ],
     providers: [
         provideZoneChangeDetection({ eventCoalescing: true }),
-        provideRouter(routes, withHashLocation())
+        provideRouter(routes, withHashLocation()),
     ],
     bootstrap: [AppComponent],
 })

@@ -28,7 +28,8 @@ export class Icons extends UsedIcons {
         'side_navigation',
         'content_paste',
         'format_list_bulleted',
-        'developer_guide'
+        'developer_guide',
+        "flowchart"
     ];
 
 }

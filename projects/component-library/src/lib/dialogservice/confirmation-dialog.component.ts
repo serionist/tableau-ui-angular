@@ -1,5 +1,6 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, inject, input, model, TemplateRef, ViewChild, viewChild } from '@angular/core';
-import { ButtonComponent, TAB_DIALOG_REF } from '../../public-api';
+import { ButtonComponent } from '../button/button.component';
+import { TAB_DIALOG_REF } from './dialog.ref';
 
 @Component({
     template: `

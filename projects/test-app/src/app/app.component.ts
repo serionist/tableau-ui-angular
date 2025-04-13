@@ -12,15 +12,7 @@ import {
     RouterOutlet,
     RouterState,
 } from '@angular/router';
-import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { FormControl } from '@angular/forms';
-import { ExampleDialogComponent } from './pages/dialogs-page/example-dialog.component';
-import { CommonModule } from '@angular/common';
 import { filter, map, Observable, switchMap } from 'rxjs';
-import {
-    TableauUiCommonModule,
-    TableauUiNavBarModule,
-} from '../../../component-library/src/public-api';
 import { version as LibVersion } from '../../../component-library/package.json';
 
 @Component({

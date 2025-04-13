@@ -1,0 +1,5 @@
+@for (node of children(); let i = $index; track i) {
+    @if (!node.parent || shouldShowNode(node)) {
+        <ng-container *ngTemplateOutlet="node.template()!;context:templateParams"></ng-container>
+    }
+}

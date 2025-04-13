@@ -20,7 +20,9 @@ export abstract class UsedIcons {
         'keyboard_arrow_down',
         'close',
         'info',
-        'error'
+        'error',
+        'keyboard_arrow_right',
+        'keyboard_arrow_down',
     ]
 
     public getAllIcons(): string[] {

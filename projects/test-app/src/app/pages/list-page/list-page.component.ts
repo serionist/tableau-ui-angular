@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { IOptionGridContext, IOptionLineContext, SnackService } from '../../../../../component-library/src/public-api';
 import { FormControl, Validators } from '@angular/forms';
+import { IOptionGridContext, SnackService } from 'component-library';
 import { BehaviorSubject, debounceTime, startWith, Subject } from 'rxjs';
 
 @Component({

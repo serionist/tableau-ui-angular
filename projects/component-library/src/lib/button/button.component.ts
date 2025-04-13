@@ -1,29 +1,50 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, ElementRef, inject, input, output, signal, ViewEncapsulation } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    ElementRef,
+    HostListener,
+    inject,
+    input,
+    output,
+    signal,
+    ViewEncapsulation,
+} from '@angular/core';
 
 @Component({
     selector: 'button,a[button]',
     templateUrl: './button.component.html',
     styleUrls: ['./button.component.scss'],
-    // encapsulation: ViewEncapsulation.None, // Disable view encapsulation
     host: {
         '[attr.type]': 'type()',
         '[class]': 'color()',
         '[attr.disabled]': 'disabled() || loading() ? true : null',
         '[class.loading]': 'loading()',
         '[attr.tabindex]': 'disabled() ? "-1": tabindex()',
-        'role': 'button'
+        role: 'button',
+        '[attr.layout]': 'layout()',
+        '[attr.inline]': 'inline()',
     },
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
+    standalone: false,
 })
 export class ButtonComponent {
-  nativeElement = inject(ElementRef);
-  disabled = input(false);
-  loading = input(false);
-  tabindex = input('0');
-  type = input<'submit' | 'button'>('button');
-  color = input<'primary' | 'secondary' | 'error' | 'plain'>('secondary');
-  
- 
+    nativeElement = inject(ElementRef);
+    disabled = input(false);
+    loading = input(false);
+    tabindex = input('0');
+    type = input<'submit' | 'button'>('button');
+    color = input<'primary' | 'secondary' | 'error' | 'plain'>('secondary');
+    layout = input<'default' | 'icon'>('default');
+    inline = input(false);
+
+    @HostListener('keydown', ['$event'])
+    handleKeydown(event: KeyboardEvent) {
+        const el = this.nativeElement.nativeElement;
+
+        if (event.code === 'Enter' || event.code === 'Space') {
+          event.preventDefault(); // stop scroll or native behavior
+          el.click(); // trigger click manually
+      }
+    }
 }

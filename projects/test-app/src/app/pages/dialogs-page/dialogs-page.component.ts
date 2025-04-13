@@ -1,6 +1,6 @@
 import { Component, inject, TemplateRef } from '@angular/core';
-import { DialogService } from '../../../../../component-library/src/public-api';
 import { ExampleDialogComponent } from './example-dialog.component';
+import { DialogService } from 'component-library';
 
 @Component({
     selector: 'app-dialogs-page',

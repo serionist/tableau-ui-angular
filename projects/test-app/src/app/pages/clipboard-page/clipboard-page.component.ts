@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { ClipboardService, SnackService } from '../../../../../component-library/src/public-api';
+import { ClipboardService, SnackService } from 'component-library';
 
 @Component({
     selector: 'app-clipboard-page',

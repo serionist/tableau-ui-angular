@@ -1,5 +1,5 @@
 import { Component, inject, Inject, input, Input, model } from '@angular/core';
-import { SnackRef, TAB_SNACK_REF } from '../../../../../component-library/src/public-api';
+import { SnackRef, TAB_SNACK_REF } from 'component-library';
 
 
 @Component({

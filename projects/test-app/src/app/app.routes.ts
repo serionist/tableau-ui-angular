@@ -15,6 +15,7 @@ import { ClipboardPageComponent } from './pages/clipboard-page/clipboard-page.co
 import { SelectPageComponent } from './pages/select-page/select-page.component';
 import { ListPageComponent } from './pages/list-page/list-page.component';
 import { LocalDevelopmentComponent } from './pages/local-development/local-development.component';
+import { TreePageComponent } from './pages/tree-page/tree-page.component';
 export const routes: Routes = [
     {
         'path': '',
@@ -129,6 +130,15 @@ export const routes: Routes = [
         title: 'Nav Bar',
         data: {
             page: 'navbar'
+        }
+
+    },
+    {
+        path: 'tree',
+        component: TreePageComponent,
+        title: 'Tree',
+        data: {
+            page: 'tree'
         }
 
     },

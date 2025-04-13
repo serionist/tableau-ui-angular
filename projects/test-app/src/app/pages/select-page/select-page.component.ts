@@ -1,7 +1,8 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { IOptionLineContext, SnackService } from '../../../../../component-library/src/public-api';
 import { FormControl, Validators } from '@angular/forms';
+import { IOptionLineContext, SnackService } from 'component-library';
 import { BehaviorSubject, debounceTime, startWith, Subject } from 'rxjs';
+
 
 @Component({
     selector: 'app-select-page',

@@ -29,11 +29,11 @@
         ></tab-nav-bar-button>
 
         <tab-nav-bar-button
-        icon="developer_guide"
-        text="Local Development"
-        link="/local-development"
-        [isActive]="(page$ | async) === 'local-development'"
-    ></tab-nav-bar-button>
+            icon="developer_guide"
+            text="Local Development"
+            link="/local-development"
+            [isActive]="(page$ | async) === 'local-development'"
+        ></tab-nav-bar-button>
 
         <tab-separator></tab-separator>
 
@@ -109,6 +109,12 @@
             text="Nav Bar"
             link="/navbar"
             [isActive]="(page$ | async) === 'navbar'"
+        ></tab-nav-bar-button>
+        <tab-nav-bar-button
+            icon="flowchart"
+            text="Tree"
+            link="/tree"
+            [isActive]="(page$ | async) === 'tree'"
         ></tab-nav-bar-button>
 
         <tab-nav-bar-button

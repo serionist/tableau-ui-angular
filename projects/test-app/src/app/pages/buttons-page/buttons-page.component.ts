@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { SnackService } from '../../../../../component-library/src/public-api';
+import { SnackService } from 'component-library';
 
 @Component({
     selector: 'app-buttons-page',
