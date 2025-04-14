@@ -141,7 +141,7 @@
                     </tab-tree-node>
                 </tab-tree-node>
             </tab-tree>
-            <p>Default; gridlines, custom row gap, not keeping expand button offset when no items, etc</p>
+            <p>gridlines, custom row gap, not keeping expand button offset when no items, etc</p>
             <tab-tree style="gap: 1rem;"
                 gridLinesBorder="1px solid black"
                 expandButtonAlign="center"
@@ -249,7 +249,7 @@
                     </tab-tree-node>
                 </tab-tree-node>
             </tab-tree>
-            <p>Default; gridlines, show root gridlines, change gridline border radius, change expand button gap/color/align, change indent, add tooltip to expand button</p>
+            <p>gridlines, show root gridlines, change gridline border radius, change expand button gap/color/align, change indent, add tooltip to expand button</p>
             <tab-tree style="gap: 1rem;"
                 gridLinesBorder="1px solid black"
                 [showRootGridLines]="true"
@@ -269,6 +269,114 @@
                     <span>Node 1</span>
                     <tab-tree-node>
                         <span>Subnode 1</span>
+                        <tab-tree-node>
+                            <span>Subnode 1.1</span>
+                        </tab-tree-node>
+                        <tab-tree-node>
+                            <span>Subnode 1.2</span>
+                        </tab-tree-node>
+                        <tab-tree-node>
+                            <span>Subnode 1.3</span>
+                        </tab-tree-node>
+                        <tab-tree-node>
+                            <span>Subnode 1.4</span>
+                        </tab-tree-node>
+                    </tab-tree-node>
+                    <tab-tree-node>
+                        <span>Subnode 2</span>
+                        <tab-tree-node>
+                            <span>Subnode 2.1</span>
+                        </tab-tree-node>
+                        <tab-tree-node>
+                            <span>Subnode 2.2</span>
+                        </tab-tree-node>
+                        <tab-tree-node>
+                            <span>Subnode 2.3</span>
+                        </tab-tree-node>
+                        <tab-tree-node>
+                            <span>Subnode 2.4</span>
+                        </tab-tree-node>
+                    </tab-tree-node>
+                    <tab-tree-node>
+                        <span>Subnode 3</span>
+                    </tab-tree-node>
+                </tab-tree-node>
+                <tab-tree-node>
+                    <span>Node 2</span>
+                    <tab-tree-node>
+                        <span>Subnode 1</span>
+                        <tab-tree-node>
+                            <span>Subnode 1.1</span>
+                        </tab-tree-node>
+                        <tab-tree-node>
+                            <span>Subnode 1.2</span>
+                        </tab-tree-node>
+                        <tab-tree-node>
+                            <span>Subnode 1.3</span>
+                        </tab-tree-node>
+                        <tab-tree-node>
+                            <span>Subnode 1.4</span>
+                        </tab-tree-node>
+                    </tab-tree-node>
+                    <tab-tree-node>
+                        <span>Subnode 2</span>
+                        <tab-tree-node>
+                            <span>Subnode 2.1</span>
+                        </tab-tree-node>
+                        <tab-tree-node>
+                            <span>Subnode 2.2</span>
+                        </tab-tree-node>
+                        <tab-tree-node>
+                            <span>Subnode 2.3</span>
+                        </tab-tree-node>
+                        <tab-tree-node>
+                            <span>Subnode 2.4</span>
+                        </tab-tree-node>
+                    </tab-tree-node>
+                </tab-tree-node>
+                <tab-tree-node>
+                    <span>Node 2</span>
+                    <tab-tree-node>
+                        <span>Subnode 1</span>
+                        <tab-tree-node>
+                            <span>Subnode 1.1</span>
+                        </tab-tree-node>
+                        <tab-tree-node>
+                            <span>Subnode 1.2</span>
+                        </tab-tree-node>
+                        <tab-tree-node>
+                            <span>Subnode 1.3</span>
+                        </tab-tree-node>
+                        <tab-tree-node>
+                            <span>Subnode 1.4</span>
+                        </tab-tree-node>
+                    </tab-tree-node>
+                    <tab-tree-node>
+                        <span>Subnode 2</span>
+                        <tab-tree-node>
+                            <span>Subnode 2.1</span>
+                        </tab-tree-node>
+                        <tab-tree-node>
+                            <span>Subnode 2.2</span>
+                        </tab-tree-node>
+                        <tab-tree-node>
+                            <span>Subnode 2.3</span>
+                        </tab-tree-node>
+                        <tab-tree-node>
+                            <span>Subnode 2.4</span>
+                        </tab-tree-node>
+                    </tab-tree-node>
+                </tab-tree-node>
+            </tab-tree>
+            <p>Different content for expanded and collapsed nodes (shown for first 2 nodes)</p>
+            <tab-tree
+               >
+                <tab-tree-node [initialExpanded]="true">
+                    <span expandedContent>Node 1 Expanded</span>
+                    <span collapsedContent>Node 1 Collapsed</span>
+                    <tab-tree-node [initialExpanded]="true">
+                        <span expandedContent>Subnode 1 Expanded</span>
+                        <span>Subnode 1 generic</span>
                         <tab-tree-node>
                             <span>Subnode 1.1</span>
                         </tab-tree-node>

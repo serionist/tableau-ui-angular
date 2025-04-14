@@ -15,6 +15,8 @@ import {
     TemplateRef,
     viewChild,
 } from '@angular/core';
+import { CollapsedContentDirective } from './collapsed-content.directive';
+import { ExpandedContentDirective } from './expanded-content.directive';
 
 @Component({
     selector: 'tab-tree-node',
@@ -27,6 +29,9 @@ export class TabTreeNodeComponent implements AfterContentInit {
     initialExpanded = input<boolean>(false);
     expanded = linkedSignal<boolean>(() => this.initialExpanded());
     expandedChange = output<boolean>();
+
+    collapsedContent = contentChild(CollapsedContentDirective);
+    expandedContent = contentChild(ExpandedContentDirective);
 
     children = contentChildren(TabTreeNodeComponent);
     template = viewChild<TemplateRef<any>>('treeNodeTemplate');
