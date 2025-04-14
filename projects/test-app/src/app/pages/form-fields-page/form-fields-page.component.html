@@ -55,9 +55,7 @@
                     />
                 </tab-form-field>
                 <tab-form-field>
-                    <tab-label
-                        >Disabled textbox</tab-label
-                    >
+                    <tab-label>Disabled textbox</tab-label>
                     <input
                         type="text"
                         placeholder="Enter any text here"
@@ -83,8 +81,39 @@
                     </tab-prefix>
                     <tab-suffix>Suffix</tab-suffix>
                 </tab-form-field>
+                <tab-form-field>
+                    <tab-label>Simple textbox with autocomplete</tab-label>
+                    <input
+                        #autocompleteInput
+                        type="text"
+                        [value]="searchValue$ | async"
+                        (input)="searchValueChanged($any($event.target).value)"
+                    />
+                    <tab-autocomplete [parentControl]="autocompleteInput">
+                        <tab-prefix>
+                            <div style="margin: 0.5rem; display: flex; align-items: center">
+                                <tab-icon value="search"></tab-icon>
+                                Suggestions
+                            </div>
+                            <tab-separator></tab-separator>
+                        </tab-prefix>
+                        @if (searching()) {
+                        <tab-prefix>
+                            <tab-loading-gif></tab-loading-gif>
+                        </tab-prefix>
+                        } @else { @for (result of searchResults$ | async; track result.name) {
+                        <tab-option
+                            [text]="result.name"
+                            [value]="result.name"
+                        ></tab-option>
+                        } }
 
-          
+                        <tab-suffix>
+                            <tab-separator></tab-separator>
+                            <tab-hint style="display: block; margin: 0.5rem">{{ (searchResults$ | async)?.length || 0 }} suggestions</tab-hint>
+                        </tab-suffix>
+                    </tab-autocomplete>
+                </tab-form-field>
             </div>
         </div>
         <div class="section">
@@ -95,13 +124,14 @@
                 <code>formControlName</code> property.
             </p>
             <div class="spacer">
-                <form [formGroup]="form" class="spacer two" style="max-width: 800px">
+                <form
+                    [formGroup]="form"
+                    class="spacer two"
+                    style="max-width: 800px"
+                >
                     <tab-form-field>
                         <tab-label>Simple textbox</tab-label>
-                        <input
-                            type="text"
-                            formControlName="simple"
-                        />
+                        <input type="text" formControlName="simple" />
                     </tab-form-field>
                     <tab-form-field>
                         <tab-label>Placeholder textbox</tab-label>
@@ -111,83 +141,81 @@
                             [formControl]="form.controls.simple2"
                         />
                     </tab-form-field>
-    
-    
+
                     <tab-form-field>
-                        <tab-label
-                            >Decorated textbox</tab-label
-                        >
+                        <tab-label>Decorated textbox</tab-label>
                         <input
                             type="text"
                             placeholder="Enter any text here"
                             formControlName="simple3"
                         />
                         <tab-hint>Hint on the left side</tab-hint>
-                        <tab-hint type="suffix">Hint on the right side</tab-hint>
+                        <tab-hint type="suffix"
+                            >Hint on the right side</tab-hint
+                        >
                         <tab-prefix>
                             <tab-icon value="search"></tab-icon>
                         </tab-prefix>
                         <tab-suffix>Suffix</tab-suffix>
                     </tab-form-field>
-    
+
                     <tab-form-field>
-                        <tab-label
-                            >Disabled textbox</tab-label
-                        >
+                        <tab-label>Disabled textbox</tab-label>
                         <input
                             type="text"
                             placeholder="Enter any text here"
                             formControlName="disabled"
                         />
                         <tab-hint>Hint on the left side</tab-hint>
-                        <tab-hint type="suffix">Hint on the right side</tab-hint>
+                        <tab-hint type="suffix"
+                            >Hint on the right side</tab-hint
+                        >
                         <tab-prefix>
                             <tab-icon value="search"></tab-icon>
                         </tab-prefix>
                         <tab-suffix>Suffix</tab-suffix>
                     </tab-form-field>
-    
+
                     <tab-form-field>
-                        <tab-label
-                            >Validated textbox</tab-label
-                        >
-                        <input #errorInput
+                        <tab-label>Validated textbox</tab-label>
+                        <input
+                            #errorInput
                             type="text"
                             placeholder="Enter any text here"
                             formControlName="validation"
                         />
                         <tab-hint>Hint on the left side</tab-hint>
-                        <tab-hint type="suffix">Hint on the right side</tab-hint>
+                        <tab-hint type="suffix"
+                            >Hint on the right side</tab-hint
+                        >
                         <tab-prefix>
                             <tab-icon value="search"></tab-icon>
                         </tab-prefix>
                         <tab-suffix>Suffix</tab-suffix>
                         @if (form.controls.validation.invalid) {
-                            <tab-error>This field is required</tab-error>
+                        <tab-error>This field is required</tab-error>
                         }
                     </tab-form-field>
-    
+
                     <tab-form-field>
-                        <tab-label
-                            >Password box</tab-label
-                        >
+                        <tab-label>Password box</tab-label>
                         <input
                             type="password"
                             placeholder="Enter any text here"
                             formControlName="password"
                         />
                         <tab-hint>Hint on the left side</tab-hint>
-                        <tab-hint type="suffix">Hint on the right side</tab-hint>
+                        <tab-hint type="suffix"
+                            >Hint on the right side</tab-hint
+                        >
                         <tab-prefix>
                             <tab-icon value="search"></tab-icon>
                         </tab-prefix>
                         <tab-suffix>Suffix</tab-suffix>
                     </tab-form-field>
-    
+
                     <tab-form-field>
-                        <tab-label
-                            >Number box</tab-label
-                        >
+                        <tab-label>Number box</tab-label>
                         <input
                             type="number"
                             placeholder="Enter any text here"
@@ -199,44 +227,45 @@
                         </tab-prefix>
                         <tab-suffix>Suffix</tab-suffix>
                         @if (form.controls.number.hasError('required')) {
-                            <tab-error>This field is required</tab-error>
-                        }
-                        @if (form.controls.number.hasError('min')) {
-                            <tab-error>Value must be greater than 0</tab-error>
-                        }
-                        @if (form.controls.number.hasError('pattern')) {
-                            <tab-error>Value must be a number</tab-error>
+                        <tab-error>This field is required</tab-error>
+                        } @if (form.controls.number.hasError('min')) {
+                        <tab-error>Value must be greater than 0</tab-error>
+                        } @if (form.controls.number.hasError('pattern')) {
+                        <tab-error>Value must be a number</tab-error>
                         }
                     </tab-form-field>
-    
+
                     <tab-form-field>
-                        <tab-label
-                            >Text area</tab-label
-                        >
+                        <tab-label>Text area</tab-label>
                         <textarea
                             placeholder="Enter any text here"
                             rows="1"
                             formControlName="textarea"
-                        ></textarea>    
-                        <tab-hint>Edit the <b>rows</b> property to make it larger by default</tab-hint>
-                        <tab-hint type="suffix">Hint on the right side</tab-hint>
-                        
+                        ></textarea>
+                        <tab-hint
+                            >Edit the <b>rows</b> property to make it larger by
+                            default</tab-hint
+                        >
+                        <tab-hint type="suffix"
+                            >Hint on the right side</tab-hint
+                        >
                     </tab-form-field>
 
-
                     <tab-form-field>
-                        <tab-label
-                            >AdancedValidation</tab-label
-                        >
-                        <input #errorInput
+                        <tab-label>AdancedValidation</tab-label>
+                        <input
+                            #errorInput
                             type="text"
                             placeholder="Enter any text here"
                             formControlName="advancedValidation"
-                            [errorStateMatcher]="customValidationMatcher.bind(this)"
+                            [errorStateMatcher]="
+                                customValidationMatcher.bind(this)
+                            "
                         />
-                        <tab-hint>Text is required AND the validator for Number box needs to be valid</tab-hint>
-
-                       
+                        <tab-hint
+                            >Text is required AND the validator for Number box
+                            needs to be valid</tab-hint
+                        >
                     </tab-form-field>
                 </form>
             </div>

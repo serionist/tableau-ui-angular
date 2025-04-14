@@ -63,7 +63,7 @@ export class SelectComponent
     dropdownId: string;
     options = contentChildren<OptionComponent>(OptionComponent);
     dropdownPrefix = contentChild<PrefixComponent>(PrefixComponent);
-    dropdownSuffix = contentChild<PrefixComponent>(SuffixComponent);
+    dropdownSuffix = contentChild<SuffixComponent>(SuffixComponent);
     dropdownTemplate = viewChild<TemplateRef<any>>('dropdownTemplate');
 
     // #region Imports

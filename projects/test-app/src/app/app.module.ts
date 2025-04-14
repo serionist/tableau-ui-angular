@@ -47,6 +47,7 @@ import {
     TableauUiTabgroupModule,
     TableauUiTooltipModule,
     TableauUiTreeModule,
+    TableauUiAutoCompleteModule
 } from 'component-library';
 
 @NgModule({
@@ -94,6 +95,7 @@ import {
         TableauUiSelectModule,
         TableauUiListModule,
         TableauUiTreeModule,
+        TableauUiAutoCompleteModule
         // TableauUiAllModule
     ],
     providers: [

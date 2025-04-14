@@ -14,6 +14,7 @@ import { TableauUiTooltipModule } from './tooltip/tableau-ui-tooltip.module';
 import { TableauUiSelectModule } from './select/tableau-ui-select.module';
 import { TableauUiListModule } from './list/tableau-ui-list.module';
 import { TableauUiTreeModule } from './tree/tableau-ui-tree.module';
+import { TableauUiAutoCompleteModule } from './autocomplete/tableau-ui-autocomplete.module';
 
 @NgModule({
     imports: [
@@ -31,7 +32,8 @@ import { TableauUiTreeModule } from './tree/tableau-ui-tree.module';
         TableauUiTooltipModule,
         TableauUiSelectModule,
         TableauUiListModule,
-        TableauUiTreeModule
+        TableauUiTreeModule,
+        TableauUiAutoCompleteModule
     ],
     declarations: [],
     exports: [ TableauUiButtonModule,
