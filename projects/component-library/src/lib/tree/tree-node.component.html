@@ -2,7 +2,7 @@
     #treeNodeTemplate
     let-childrenIndent="childrenIndent"
     let-expandButtonSize="expandButtonSize"
-    let-expandButtonColor="expandButtonColor"
+    let-expandButtonColorInherited="expandButtonColor"
     let-expandButtonGap="expandButtonGap"
     let-expandButtonTooltip="expandButtonTooltip"
     let-expandButtonAlign="expandButtonAlign"
@@ -31,7 +31,7 @@
             "
             [style.minWidth]="'0px'"
             [style.height]="expandButtonSize()"
-            [style.color]="expandButtonColor()"
+            [style.color]="expandButtonColor() || expandButtonColorInherited()"
             [tooltip]="
                 expanded()
                     ? expandButtonTooltip()?.collapse
@@ -52,9 +52,8 @@
                 <ng-content select="[expandedContent]"></ng-content>
             } @else if (!expanded() && collapsedContent()) {
                 <ng-content select="[collapsedContent]"></ng-content>
-            } @else {
-                <ng-content></ng-content>
             }
+            <ng-content></ng-content>
             
         </div>
     </div>

@@ -33,31 +33,51 @@ export class TabTreeNodeComponent implements AfterContentInit {
     collapsedContent = contentChild(CollapsedContentDirective);
     expandedContent = contentChild(ExpandedContentDirective);
 
-    children = contentChildren(TabTreeNodeComponent);
+    expandButtonColor = input<string | undefined>(undefined);
+
+
+    hierarchyModeAutoChildren = contentChildren(TabTreeNodeComponent);
+
     template = viewChild<TemplateRef<any>>('treeNodeTemplate');
 
-    headerButton = viewChild<ElementRef<ElementRef<HTMLElement>>>('headerButton');
-    parent = inject(TabTreeNodeComponent, {
+   
+
+    headerButton =
+        viewChild<ElementRef<ElementRef<HTMLElement>>>('headerButton');
+    // used when hierarchyMode is auto to get direct parent
+    hierarchyModeAutoParent = inject(TabTreeNodeComponent, {
         skipSelf: true,
         optional: true,
     });
 
+    hierarchyMode = signal<'auto' | 'manual'>('auto');
+    hierarchyId = input<string | undefined>('');
+    hierarchyParentId = input<string | undefined>(undefined);
+
+    children = signal<TabTreeNodeComponent[]>([]);
+    parent = signal<TabTreeNodeComponent | null>(null);
+
     depth = signal<number>(-1);
     id = signal<string>('');
+
+    order = input<number>(0);
     constructor() {
         effect(() => {
-            for (const [index, child] of this.children().entries()) {
-                child.depth.set(this.depth() + 1);
-                child.id.set(`${this.id()}-${index}`);
+            // if hierarchMode is auto, set the depth and id of each direct children automatically
+            if (this.hierarchyMode() === 'auto') {
+                this.parent.set(this.hierarchyModeAutoParent)
+                this.children.set([...this.hierarchyModeAutoChildren()]);
+                for (const [index, child] of this.children().entries()) {
+                    child.depth.set(this.depth() + 1);
+                    child.id.set(`${this.id()}-${index}`);
+                }
             }
         });
     }
 
     ngAfterContentInit(): void {}
 
-    ngOnInit(): void {
-      //  console.log('Tree node component initialized', this.parent);
-    }
+    ngOnInit(): void {}
 
     setExpanded(expanded: boolean) {
         this.expanded.set(expanded);

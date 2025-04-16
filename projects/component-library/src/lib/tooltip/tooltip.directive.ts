@@ -17,7 +17,7 @@ import {
 })
 export class TooltipDirective implements OnDestroy {
     private viewContainerRef = inject(ViewContainerRef);
-    tooltip = input<TemplateRef<any> | string | undefined>();
+    tooltip = input<TemplateRef<any> | string | undefined | null>();
     tooltipContext = input<any>();
     tooltipPosition = input<'top' | 'bottom' | 'left' | 'right'>('top');
     tooltipMargin = input<string>('5px');

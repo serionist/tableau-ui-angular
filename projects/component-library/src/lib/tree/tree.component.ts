@@ -2,6 +2,7 @@ import {
     AfterContentInit,
     ChangeDetectionStrategy,
     Component,
+    computed,
     contentChild,
     contentChildren,
     DoCheck,
@@ -24,9 +25,7 @@ import { debounceTime, Subject } from 'rxjs';
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: false,
 })
-export class TabTreeComponent
-    implements AfterContentInit, OnDestroy
-{
+export class TabTreeComponent implements AfterContentInit, OnDestroy {
     selfElementRef = inject(ElementRef<HTMLElement>);
     showRootGridLines = input<boolean>(false);
     gridLinesBorder = input<string | undefined>(undefined);
@@ -48,9 +47,12 @@ export class TabTreeComponent
     childrenIndent = input<string>('1.4rem');
     keepButtonOffsetOnNoChildren = input<boolean>(true);
 
+    hierarchyMode = input<'auto' | 'manual'>('auto');
+
     children = contentChildren<TabTreeNodeComponent>(TabTreeNodeComponent, {
         descendants: true,
     });
+    // used when hierarchyMode is auto to get direct children
     directChildren = contentChildren(TabTreeNodeComponent);
     templateParams = {
         childrenIndent: this.childrenIndent,
@@ -61,36 +63,118 @@ export class TabTreeComponent
         expandButtonAlign: this.expandButtonAlign,
         keepButtonOffsetOnNoChildren: this.keepButtonOffsetOnNoChildren,
     };
+
     constructor() {
         effect(() => {
-            for (const [index, child] of this.directChildren().entries()) {
-                child.depth.set(this.showRootGridLines() ? 1: 0);
-                child.id.set(`${index}`);
+            // set the hierarchyMode of each children all times
+            for (const child of this.children()) {
+                child.hierarchyMode.set(this.hierarchyMode());
             }
+            switch (this.hierarchyMode()) {
+                // when hierarchyMode is auto, set the depth and id of each direct children automatically
+                case 'auto':
+                    for (const [
+                        index,
+                        child,
+                    ] of this.directChildren().entries()) {
+                        child.depth.set(this.showRootGridLines() ? 1 : 0);
+                        child.id.set(`${index}`);
+                    }
+                    break;
+                // when hierarchyMode is manual, set the depth and id of each direct children manually
+                case 'manual':
+                    // get top level children
+                    for (const child of this.children().filter(
+                        (e) => e.hierarchyParentId() === undefined
+                    )) {
+                        this.hierarchyModeManualSetChildrenDepthAndId(
+                            child,
+                            this.showRootGridLines() ? 1 : 0
+                        );
+                    }
+                    break;
+            }
+
             if (this.gridLinesBorder()) {
-                this.redrawGridLines();
+               this.redrawGridLines();
             }
-        });
-        this.resizeCommand.pipe(debounceTime(10)).subscribe(() => {
-            this.redrawGridLines();
         });
     }
 
+    hierarchyModeManualSetChildrenDepthAndId(
+        child: TabTreeNodeComponent,
+        currentChildDepth: number,
+        seenChildIds: string[] = []
+    ) {
+        if (child.hierarchyId() === undefined) {
+            console.error(
+                'In TabTreeComponent, a node is defined without hierarcyId. hierarcyId is required for all nodes'
+            );
+            return;
+        }
+        if (seenChildIds.includes(child.hierarchyId()!)) {
+            console.error(
+                'In TabTreeComponent, a child node is defined with the same hierarchyId as another child node. hierarchyId must be unique for all nodes. Duplicate id: ',
+                child.hierarchyId()
+            );
+            return;
+        }
+        child.id.set(child.hierarchyId()!);
+        child.depth.set(currentChildDepth);
+        seenChildIds.push(child.hierarchyId()!);
+        // get direct children
+        const children = this.children().filter(
+            (e) => e.hierarchyParentId() === child.hierarchyId()
+        );
+        child.children.set(children);
+        for (const c of children) {
+            c.parent.set(child);
+            this.hierarchyModeManualSetChildrenDepthAndId(
+                c,
+                currentChildDepth + 1,
+                seenChildIds
+            );
+        }
+    }
+
+    childrenDisplayOrder = computed(() =>
+    {
+        const rootChildren = this.children().filter((e) => e.parent() === null).sort((a, b) => 
+            a.order() > b.order() ? 1: a.order() < b.order() ? -1 : 0
+        );
+        const ret: TabTreeNodeComponent[] = [];
+        for (const child of rootChildren) {
+            ret.push(... this.getChildrenDisplayOrder(child));
+        }
+        return ret;
+    }
+    );
+    getChildrenDisplayOrder(node: TabTreeNodeComponent) {
+        const ret: TabTreeNodeComponent[] = [node];
+        const sortedChildren = node.children().sort((a, b) => 
+            a.order() > b.order() ? 1: a.order() < b.order() ? -1 : 0
+        )
+        for (const child of sortedChildren) {
+            ret.push(... this.getChildrenDisplayOrder(child));
+        }
+      
+        return ret;
+    }
+
     shouldShowNode(child: TabTreeNodeComponent) {
-        let p: TabTreeNodeComponent | null = child.parent;
+        let p: TabTreeNodeComponent | null = child.parent();
         while (p) {
             if (!p.expanded()) {
                 return false;
             }
-            p = p.parent;
+            p = p.parent();
         }
         return true;
     }
     private resizeObserver!: ResizeObserver;
-    private resizeCommand = new Subject<void>();
     ngAfterContentInit(): void {
         this.resizeObserver = new ResizeObserver(() => {
-            this.resizeCommand.next();
+            this.redrawGridLines();
         });
         this.resizeObserver.observe(this.selfElementRef.nativeElement);
     }
@@ -102,26 +186,37 @@ export class TabTreeComponent
         id: string;
         element: HTMLDivElement;
     }[] = [];
+
+    private redrawCounter = 0;
     redrawGridLines() {
         if (this.gridLinesBorder() === undefined) {
             return;
         }
+
+        const currentRedrawCounter = this.redrawCounter + 1;
+        this.redrawCounter = currentRedrawCounter;
+        console.log('redrawing grid lines', currentRedrawCounter, this.redrawCounter);
         const gridLines: {
             id: string;
             from: { top: number; left: number };
             to: { top: number; left: number };
         }[] = [];
         for (let child of this.children()) {
+            if (this.redrawCounter !== currentRedrawCounter) {
+                return;
+            }
             // root gridlines
-            if (this.showRootGridLines() && !child.parent) { 
+            if (this.showRootGridLines() && !child.parent()) {
                 const selfRect =
                     this.selfElementRef.nativeElement.getBoundingClientRect();
                 const buttonRect = child
                     .headerButton()
                     ?.nativeElement?.nativeElement?.getBoundingClientRect();
                 if (!selfRect || !buttonRect) {
-                  
                     continue;
+                }
+                if (this.redrawCounter !== currentRedrawCounter) {
+                    return;
                 }
                 gridLines.push({
                     id: child.id(),
@@ -131,29 +226,37 @@ export class TabTreeComponent
                     },
                     to: {
                         top:
-                        buttonRect.top - selfRect.top + buttonRect.height / 2,
+                            buttonRect.top -
+                            selfRect.top +
+                            buttonRect.height / 2,
                         left:
-                        buttonRect.x -
+                            buttonRect.x -
                             selfRect.x +
-                            (child.children().length === 0 ? buttonRect.width : 0),
+                            (child.children().length === 0
+                                ? buttonRect.width
+                                : 0),
                     },
                 });
                 continue;
-                
+            }
+            if (this.redrawCounter !== currentRedrawCounter) {
+                return;
             }
             // show children gridlines
             if (
                 child.depth() === 0 ||
-                !child.parent ||
-                !child.parent.expanded() ||
-                child.parent.headerButton() === undefined
+                !child.parent() ||
+                !child.parent()!.expanded() ||
+                child.parent()!.headerButton() === undefined
             ) {
                 continue;
             }
 
+
             const selfRect =
                 this.selfElementRef.nativeElement.getBoundingClientRect();
-            const parentButtonRect = child.parent
+            const parentButtonRect = child
+                .parent()!
                 .headerButton()
                 ?.nativeElement?.nativeElement?.getBoundingClientRect();
             const buttonRect = child
@@ -161,21 +264,28 @@ export class TabTreeComponent
                 ?.nativeElement?.nativeElement?.getBoundingClientRect();
 
             if (!selfRect || !parentButtonRect || !buttonRect) {
-                continue;
+               continue;
+            }
+            if (this.redrawCounter !== currentRedrawCounter) {
+                return;
             }
 
             gridLines.push({
                 id: child.id(),
                 from: {
-                    top: parentButtonRect.top - selfRect.top + parentButtonRect.height,
+                    top:
+                        parentButtonRect.top -
+                        selfRect.top +
+                        parentButtonRect.height,
                     left:
-                    parentButtonRect.x - selfRect.left + parentButtonRect.width / 2,
+                        parentButtonRect.x -
+                        selfRect.left +
+                        parentButtonRect.width / 2,
                 },
                 to: {
-                    top:
-                    buttonRect.top - selfRect.top + buttonRect.height / 2,
+                    top: buttonRect.top - selfRect.top + buttonRect.height / 2,
                     left:
-                    buttonRect.x -
+                        buttonRect.x -
                         selfRect.x +
                         (child.children().length === 0 ? buttonRect.width : 0),
                 },
@@ -185,8 +295,14 @@ export class TabTreeComponent
         const gridLinesToRemove = this.existingGridLines.filter(
             (line) => !gridLines.find((l) => l.id === line.id)
         );
+        if (this.redrawCounter !== currentRedrawCounter) {
+            return;
+        }
         for (const line of gridLinesToRemove) {
             line.element.remove();
+        }
+        if (this.redrawCounter !== currentRedrawCounter) {
+            return;
         }
         // remove the gridlines from the existingGridLines array
         this.existingGridLines = this.existingGridLines.filter(
@@ -194,6 +310,9 @@ export class TabTreeComponent
         );
         // add the new gridlines to the existingGridLines array
         for (const line of gridLines) {
+            if (this.redrawCounter !== currentRedrawCounter) {
+                return;
+            }
             let l = this.existingGridLines.find((l) => l.id === line.id);
             if (!l) {
                 l = {
@@ -210,13 +329,12 @@ export class TabTreeComponent
             l.element.style.width = `${line.to.left - line.from.left}px`;
             l.element.style.height = `${line.to.top - line.from.top}px`;
             l.element.style.pointerEvents = 'none';
-            l.element.style.borderBottom =
-                this.gridLinesBorder()!;
+            l.element.style.borderBottom = this.gridLinesBorder()!;
             // only draw the left border if its the last child of the parent
-            l.element.style.borderLeft =
-                this.gridLinesBorder()!;
+            l.element.style.borderLeft = this.gridLinesBorder()!;
 
-            l.element.style.borderBottomLeftRadius = this.gridLinesBorderRadius();
+            l.element.style.borderBottomLeftRadius =
+                this.gridLinesBorderRadius();
         }
     }
 }
