@@ -195,7 +195,6 @@ export class TabTreeComponent implements AfterContentInit, OnDestroy {
 
         const currentRedrawCounter = this.redrawCounter + 1;
         this.redrawCounter = currentRedrawCounter;
-        console.log('redrawing grid lines', currentRedrawCounter, this.redrawCounter);
         const gridLines: {
             id: string;
             from: { top: number; left: number };

@@ -30,6 +30,7 @@ import { fromEvent, map, Subscription } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { PrefixComponent } from '../common/prefix';
 import { SuffixComponent } from '../common/suffix';
+import { generateRandomString as generateRandomString } from '../utils';
 
 @Component({
     selector: 'tab-select',
@@ -184,7 +185,7 @@ export class SelectComponent
     // #endregion
     // #region Constructor + Init + Destroy
     constructor() {
-        const id = this.generateId();
+        const id = generateRandomString();
         this.selectId = `select-${id}`;
         this.dropdownId = `dropdown-${id}`;
         toObservable(this.options).subscribe((options) => {
@@ -540,16 +541,4 @@ export class SelectComponent
 
     // #endregion
 
-    generateId(length: number = 16): string {
-        const characters =
-            'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        let randomName = '';
-
-        for (let i = 0; i < length; i++) {
-            const randomIndex = Math.floor(Math.random() * characters.length);
-            randomName += characters.charAt(randomIndex);
-        }
-
-        return `${randomName}`;
-    }
 }

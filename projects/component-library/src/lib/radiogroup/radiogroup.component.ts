@@ -16,6 +16,7 @@ import { HintComponent } from '../common/hint';
 import { ErrorComponent } from '../common/error';
 import { CommonModule, NgFor, NgIf } from '@angular/common';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { generateRandomString } from '../utils';
 
 @Component({
     selector: 'tab-radiogroup',
@@ -77,16 +78,8 @@ export class RadiogroupComponent implements ControlValueAccessor {
     }
 
     generateRandomGroupName(length: number = 8): string {
-        const characters =
-            'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        let randomName = '';
 
-        for (let i = 0; i < length; i++) {
-            const randomIndex = Math.floor(Math.random() * characters.length);
-            randomName += characters.charAt(randomIndex);
-        }
-
-        return `group-${randomName}`;
+        return `group-${generateRandomString(length)}`;
     }
 
     optionTemplateContext: IOptionGridContext = {

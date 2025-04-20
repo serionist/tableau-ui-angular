@@ -17,7 +17,6 @@ export abstract class UsedIcons {
         'arrow_forward_ios',
         'clear',
         'keyboard_arrow_up',
-        'keyboard_arrow_down',
         'close',
         'info',
         'error',

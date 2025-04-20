@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 
 @Component({
-    selector: 'button,a[button]',
+    selector: 'button:not([tab-menu-button]),a[button]:not([tab-menu-button])',
     templateUrl: './button.component.html',
     styleUrls: ['./button.component.scss'],
     host: {

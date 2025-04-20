@@ -47,8 +47,10 @@ import {
     TableauUiTabgroupModule,
     TableauUiTooltipModule,
     TableauUiTreeModule,
-    TableauUiAutoCompleteModule
+    TableauUiAutoCompleteModule,
+    TableauUiMenuModule
 } from 'component-library';
+import { MenuPageComponent } from './pages/menu-page/menu-page.component';
 
 @NgModule({
     declarations: [
@@ -72,6 +74,7 @@ import {
         ListPageComponent,
         LocalDevelopmentComponent,
         TreePageComponent,
+        MenuPageComponent
     ],
     imports: [
         BrowserModule,
@@ -95,7 +98,8 @@ import {
         TableauUiSelectModule,
         TableauUiListModule,
         TableauUiTreeModule,
-        TableauUiAutoCompleteModule
+        TableauUiAutoCompleteModule,
+        TableauUiMenuModule
         // TableauUiAllModule
     ],
     providers: [

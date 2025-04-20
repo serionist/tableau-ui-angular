@@ -20,6 +20,7 @@ import { DialogService } from '../dialogservice/dialog.service';
 import { DialogRef } from '../dialogservice/dialog.ref';
 import { fromEvent, map, Subscription } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
+import { generateRandomString } from '../utils';
 
 @Component({
     selector: 'tab-autocomplete',
@@ -73,24 +74,13 @@ export class AutoCompleteComponent implements OnInit, OnDestroy {
     dropdownTemplate = viewChild<TemplateRef<any>>('dropdownTemplate');
 
     constructor() {
-        const id = this.generateId();
+        const id = generateRandomString();
         this.dropdownId = `dropdown-${id}`;
         toObservable(this.options).subscribe((options) => {
             this.highlightedOption.set(undefined);
         });
     }
-    generateId(length: number = 16): string {
-        const characters =
-            'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        let randomName = '';
-
-        for (let i = 0; i < length; i++) {
-            const randomIndex = Math.floor(Math.random() * characters.length);
-            randomName += characters.charAt(randomIndex);
-        }
-
-        return `${randomName}`;
-    }
+    
     ngOnInit(): void {
         this.parentControl().addEventListener('focus', () =>
             this.openDropdown()
@@ -134,7 +124,15 @@ export class AutoCompleteComponent implements OnInit, OnDestroy {
         const ref = this.dialogService.openTemplateDialog(
             this.dropdownTemplate()!,
             {
-                top: inputRect.bottom + 'px',
+                //top: inputRect.bottom + 'px',
+                top(actualWidth, actualHeight) {
+                    if (inputRect.bottom + actualHeight > window.innerHeight &&
+                        inputRect.top - actualHeight> 0
+                    ) {
+                        return inputRect.top - actualHeight + 'px';
+                    }
+                    return inputRect.bottom + 'px';
+                },
                 left: inputRect.left + 'px',
                 width: inputRect.width + 'px',
                 closeOnEscape: true,
@@ -142,18 +140,18 @@ export class AutoCompleteComponent implements OnInit, OnDestroy {
                 backdropCss: {
                     pointerEvents: 'none',
                 },
-            }
+            }, undefined, this.parentControl()
         );
          // if the dialog element height is smaller than the dropdown container height, we need to adjust the position because we hit the bottom of the page
-         setTimeout(() => {
-            const dropdownHeight = document.getElementById(this.dropdownId)!.offsetHeight; // the native height of the dropdown
-            if (ref.dialogElement.offsetHeight < dropdownHeight && inputRect.top - dropdownHeight > 0) {
-                ref.reposition(args => {
-                    args.left = inputRect.left + 'px';
-                    args.top = inputRect.top - dropdownHeight + 'px';
-                });
-            }
-        }, 10);
+        //  setTimeout(() => {
+        //     const dropdownHeight = document.getElementById(this.dropdownId)!.offsetHeight; // the native height of the dropdown
+        //     if (ref.dialogElement.offsetHeight < dropdownHeight && inputRect.top - dropdownHeight > 0) {
+        //         ref.reposition(args => {
+        //             args.left = inputRect.left + 'px';
+        //             args.top = inputRect.top - dropdownHeight + 'px';
+        //         });
+        //     }
+        // }, 10);
         this.registerKeyNavigation();
         ref.afterClosed$.subscribe(() => {
             this.unregisterKeyNavigation();
@@ -206,7 +204,6 @@ export class AutoCompleteComponent implements OnInit, OnDestroy {
      */
     onKeyDown(e: KeyboardEvent) {
         if (e.key === 'Enter') {
-            console.log(this.openDialog)
             // if dropdown is not open
             if (this.openDialog) {
                 // if dropdown is open

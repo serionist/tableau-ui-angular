@@ -69,20 +69,16 @@ export class DialogService {
                 return `calc(50vh - ${actualHeight / 2}px)`;
             },
             header: args?.header,
+            trapFocus: true
         } as IDialogArgs;
-        // Before creating the dialog, trap focus
-        // This means that we get all elements which are tabbable and set the tabindex to -1 for the duration of the popup
-        const trappedFocus = this.trapFocus();
+        
         const ref = this.openDialog(component, inputs, a);
         // focus the modal so that the opening control loses focus (which is trapped)
-        if (!ref.dialogElement.contains(document.activeElement)) {
-            ref.dialogElement.tabIndex = 0;
-            ref.dialogElement.focus();
-            ref.dialogElement.tabIndex = -1;
-        }
-        ref.afterClosed$.subscribe(() => {
-            this.restoreFocus(trappedFocus);
-        });
+        // if (!ref.dialogElement.contains(document.activeElement)) {
+        //     ref.dialogElement.tabIndex = 0;
+        //     ref.dialogElement.focus();
+        //     ref.dialogElement.tabIndex = -1;
+        // }
         return ref;
     }
 
@@ -183,6 +179,19 @@ export class DialogService {
         args: IDialogArgs = {},
         insertAfterElement?: HTMLElement
     ): DialogRef {
+
+        let trappedFocus:{
+            elements: {
+                element: FocusableElement;
+                originalTabIndex: number;
+            }[];
+            focusedElement: HTMLElement | null;
+        } | undefined = undefined;
+        // Before creating the dialog, trap focus
+        // This means that we get all elements which are tabbable and set the tabindex to -1 for the duration of the popup
+        if (args.trapFocus) {
+            trappedFocus = this.trapFocus();
+        }
         const dialogRef = new DialogRef();
         // calculate new zIndex
         let zIndex = this.zIndex;
@@ -230,6 +239,7 @@ export class DialogService {
         }
         const resizeSubscription = this.manageDialogPosition(dialogElement, args);
 
+
         // Handle dialog close
         dialogRef.afterClosed$.subscribe(() => {
             if (resizeSubscription) {
@@ -243,6 +253,10 @@ export class DialogService {
             );
             this.dialogStack.splice(dialogIndex, 1);
             this.setBackdropAndEscape();
+            // restore focus to the elements that were trapped
+            if (trappedFocus) {
+                this.restoreFocus(trappedFocus);
+            }
         });
 
         return dialogRef;
@@ -451,20 +465,39 @@ export class DialogService {
     }
 
     private trapFocus(): {
-        element: FocusableElement;
-        originalTabIndex: number;
-    }[] {
+        elements: {
+            element: FocusableElement;
+            originalTabIndex: number;
+        }[];
+        focusedElement: HTMLElement | null;
+    } {
         const tabbableElements = tabbable(document.body);
         const elementsTable = tabbableElements.map((e) => ({
             element: e,
             originalTabIndex: e.tabIndex,
         }));
         elementsTable.forEach((e) => (e.element.tabIndex = -1));
-        return elementsTable;
+        const focusedElement = document.activeElement as HTMLElement;
+        if (focusedElement) {
+            focusedElement.blur();
+        }
+        return {
+            elements: elementsTable,
+            focusedElement: focusedElement,
+        };
     }
     private restoreFocus(
-        elements: { element: FocusableElement; originalTabIndex: number }[]
+        obj: {
+            elements: {
+                element: FocusableElement;
+                originalTabIndex: number;
+            }[];
+            focusedElement: HTMLElement | null;
+        }
     ) {
-        elements.forEach((e) => (e.element.tabIndex = e.originalTabIndex));
+        obj.elements.forEach((e) => (e.element.tabIndex = e.originalTabIndex));
+        if (obj.focusedElement) {
+            obj.focusedElement.focus();
+        }
     }
 }

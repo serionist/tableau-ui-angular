@@ -29,7 +29,8 @@ export class Icons extends UsedIcons {
         'content_paste',
         'format_list_bulleted',
         'developer_guide',
-        "flowchart"
+        "flowchart",
+        "more_vert"
     ];
 
 }

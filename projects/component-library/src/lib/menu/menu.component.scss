@@ -1,0 +1,16 @@
+:host {
+    display: none;
+}
+.menu-container {
+    outline: none;
+    color: var(--twc-color-text);
+    line-height: normal;
+    overflow-y: auto;
+    overflow-x: hidden;
+    user-select: none;
+
+    &.open {
+        display: block;
+    }
+    
+}

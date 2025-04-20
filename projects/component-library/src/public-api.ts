@@ -19,6 +19,7 @@ export * from './lib/select/public-api';
 export * from './lib/list/public-api';
 export * from './lib/tree/public-api';
 export * from './lib/autocomplete/public-api';
+export * from './lib/menu/public-api';
 
 // Export all Modules
 export * from './lib/tableau-ui-module-all';
