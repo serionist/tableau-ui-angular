@@ -8,11 +8,13 @@ import {
     HostListener,
     inject,
     input,
+    InputSignal,
     OnDestroy,
     output,
     signal,
     TemplateRef,
     viewChild,
+    WritableSignal,
 } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { BehaviorSubject } from 'rxjs';
@@ -70,9 +72,10 @@ export class MenuButtonComponent implements OnDestroy {
     readonly color = input<'primary' | 'secondary' | 'error' | 'plain'>(
         'secondary'
     );
-    readonly hoverToOpenSubMenuMs = input<number | undefined>(undefined);
-
-    readonly actualHoverMs = signal<number | undefined>(undefined);
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    readonly hoverToOpenSubMenuMs: InputSignal<number | undefined> = input<number | undefined>(undefined);
+// nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    readonly actualHoverMs:WritableSignal<number | undefined> = signal<number | undefined>(undefined);
     readonly updateChildrenHover = effect(() => {
         const hoverMs = this.actualHoverMs();
         const children = this.children();

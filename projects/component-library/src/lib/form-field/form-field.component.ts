@@ -13,6 +13,7 @@ import {
     OnDestroy,
     QueryList,
     Renderer2,
+    Signal,
     signal,
     viewChild,
     ViewChild,
@@ -40,11 +41,16 @@ export class FormFieldComponent
     implements AfterContentInit, AfterViewInit, OnDestroy
 {
     style = input<string>();
-    hintElement = contentChild(HintComponent);
-    errorElement = contentChild(ErrorComponent);
-    labelElement = contentChild(FormLabelComponent);
-    prefixElement = contentChild(PrefixComponent);
-    suffixElement = contentChild(SuffixComponent);
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    hintElement: Signal<HintComponent | undefined> = contentChild(HintComponent);
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    errorElement: Signal<ErrorComponent | undefined> = contentChild(ErrorComponent);
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    labelElement: Signal<FormLabelComponent | undefined> = contentChild(FormLabelComponent);
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    prefixElement: Signal<PrefixComponent | undefined> = contentChild(PrefixComponent);
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    suffixElement: Signal<SuffixComponent | undefined> = contentChild(SuffixComponent);
     prefixContainer = viewChild.required<ElementRef>('prefixContainer');
     suffixContainer = viewChild.required<ElementRef>('suffixContainer');
     inputContainer = viewChild.required<ElementRef>('inputContainer');

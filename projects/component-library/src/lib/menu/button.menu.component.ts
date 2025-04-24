@@ -1,4 +1,4 @@
-import { Component, contentChild, model, ModelSignal, OnDestroy, OnInit, OutputRefSubscription, viewChild } from '@angular/core';
+import { Component, contentChild, model, ModelSignal, OnDestroy, OnInit, OutputRefSubscription, Signal, viewChild } from '@angular/core';
 import { MenuComponent } from './menu.component';
 import { MenuButtonGroupComponent } from './menu-button-group.component';
 
@@ -15,8 +15,8 @@ export class ButtonMenuComponent extends MenuComponent implements OnDestroy  {
     );
     override width: ModelSignal<'parentWidth' | 'fit-content' | string> =
         model('fit-content');
-
-    menuGroup = contentChild(MenuButtonGroupComponent);
+// nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    menuGroup: Signal<MenuButtonGroupComponent | undefined> = contentChild(MenuButtonGroupComponent);
 
     readonly subs: OutputRefSubscription[] = [];
     override async open(forceReOpen: boolean = false) {

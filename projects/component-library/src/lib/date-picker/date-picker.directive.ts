@@ -8,6 +8,7 @@ import {
     inject,
     input,
     model,
+    ModelSignal,
     output,
     signal,
 } from '@angular/core';
@@ -35,7 +36,8 @@ export class DatePickerDirective implements ControlValueAccessor {
 
 
     type = input.required<'date' | 'datetime'>();
-    value = model<Date | null>(null);
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    value: ModelSignal<Date | null> = model<Date | null>(null);
     valueChange = output<Date | null>();
 
     @HostListener('input')

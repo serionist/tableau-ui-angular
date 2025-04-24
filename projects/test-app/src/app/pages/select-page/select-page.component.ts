@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 import { IOptionLineContext, SnackService } from 'component-library';
 import { BehaviorSubject, debounceTime, startWith, Subject } from 'rxjs';
@@ -14,8 +14,8 @@ export class SelectPageComponent implements OnInit {
    
 
     snack = inject(SnackService);
-
-    singleSelectValue = signal<number | undefined>(undefined);
+// nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    singleSelectValue: WritableSignal<number | undefined> = signal<number | undefined>(undefined);
     singleSelectValueChanged(val: number | undefined) {
         this.singleSelectValue.set(val);
         console.log('single select value changed', val);

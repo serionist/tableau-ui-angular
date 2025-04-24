@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, InputSignal, signal } from '@angular/core';
 import { RouterModule, UrlTree } from '@angular/router';
 import { IconComponent } from '../../icon/icon.component';
 import { TooltipDirective } from '../../tooltip/tooltip.directive';
@@ -13,7 +13,8 @@ import { TooltipDirective } from '../../tooltip/tooltip.directive';
 export class NavBarButtonComponent {
   icon = input.required<string>();
   text = input.required<string>();
-  link = input<string | any[] | UrlTree | null | undefined>();
+  // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+  link: InputSignal<string | any[] | UrlTree | null | undefined> = input<string | any[] | UrlTree | null | undefined>();
   isActive = input<boolean>(false);
   disabled = input<boolean>(false);
 

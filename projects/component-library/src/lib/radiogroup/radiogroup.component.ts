@@ -9,6 +9,7 @@ import {
     model,
     OnInit,
     output,
+    Signal,
     signal,
 } from '@angular/core';
 import { IOptionGridContext, OptionComponent } from '../common/option';
@@ -38,7 +39,8 @@ export class RadiogroupComponent implements ControlValueAccessor {
     valueChanges = output<any>();
     name = this.generateRandomGroupName();
     options = contentChildren(OptionComponent);
-    errorElement = contentChild(ErrorComponent);
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    errorElement: Signal<ErrorComponent | undefined> = contentChild(ErrorComponent);
 
     onChange = (value: any) => {};
     onTouched = () => {};

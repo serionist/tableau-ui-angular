@@ -10,6 +10,7 @@ import {
     ElementRef,
     inject,
     input,
+    InputSignal,
     OnDestroy,
     OnInit,
     TemplateRef,
@@ -28,12 +29,31 @@ import { debounceTime, Subject } from 'rxjs';
 export class TabTreeComponent implements AfterContentInit, OnDestroy {
     selfElementRef = inject(ElementRef<HTMLElement>);
     showRootGridLines = input<boolean>(false);
-    gridLinesBorder = input<string | undefined>(undefined);
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    gridLinesBorder: InputSignal<string | undefined> = input<
+        string | undefined
+    >(undefined);
     gridLinesBorderRadius = input<string>('0px');
     expandButtonSize = input<string>('1.2rem');
-    expandButtonColor = input<string | undefined>(undefined);
-    expandButtonGap = input<string | undefined>('0.2rem');
-    expandButtonTooltip = input<
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    expandButtonColor: InputSignal<string | undefined> = input<
+        string | undefined
+    >(undefined);
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    expandButtonGap: InputSignal<string | undefined> = input<
+        string | undefined
+    >('0.2rem');
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    expandButtonTooltip: InputSignal<
+        | {
+              expand: TemplateRef<any> | string | undefined;
+              collapse: TemplateRef<any> | string | undefined;
+              position: 'top' | 'bottom' | 'left' | 'right';
+              margin?: string;
+              context?: any | undefined;
+          }
+        | undefined
+    > = input<
         | {
               expand: TemplateRef<any> | string | undefined;
               collapse: TemplateRef<any> | string | undefined;
@@ -96,7 +116,7 @@ export class TabTreeComponent implements AfterContentInit, OnDestroy {
             }
 
             if (this.gridLinesBorder()) {
-               this.redrawGridLines();
+                this.redrawGridLines();
             }
         });
     }
@@ -137,27 +157,29 @@ export class TabTreeComponent implements AfterContentInit, OnDestroy {
         }
     }
 
-    childrenDisplayOrder = computed(() =>
-    {
-        const rootChildren = this.children().filter((e) => e.parent() === null).sort((a, b) => 
-            a.order() > b.order() ? 1: a.order() < b.order() ? -1 : 0
-        );
+    childrenDisplayOrder = computed(() => {
+        const rootChildren = this.children()
+            .filter((e) => e.parent() === null)
+            .sort((a, b) =>
+                a.order() > b.order() ? 1 : a.order() < b.order() ? -1 : 0
+            );
         const ret: TabTreeNodeComponent[] = [];
         for (const child of rootChildren) {
-            ret.push(... this.getChildrenDisplayOrder(child));
+            ret.push(...this.getChildrenDisplayOrder(child));
         }
         return ret;
-    }
-    );
+    });
     getChildrenDisplayOrder(node: TabTreeNodeComponent) {
         const ret: TabTreeNodeComponent[] = [node];
-        const sortedChildren = node.children().sort((a, b) => 
-            a.order() > b.order() ? 1: a.order() < b.order() ? -1 : 0
-        )
+        const sortedChildren = node
+            .children()
+            .sort((a, b) =>
+                a.order() > b.order() ? 1 : a.order() < b.order() ? -1 : 0
+            );
         for (const child of sortedChildren) {
-            ret.push(... this.getChildrenDisplayOrder(child));
+            ret.push(...this.getChildrenDisplayOrder(child));
         }
-      
+
         return ret;
     }
 
@@ -251,7 +273,6 @@ export class TabTreeComponent implements AfterContentInit, OnDestroy {
                 continue;
             }
 
-
             const selfRect =
                 this.selfElementRef.nativeElement.getBoundingClientRect();
             const parentButtonRect = child
@@ -263,7 +284,7 @@ export class TabTreeComponent implements AfterContentInit, OnDestroy {
                 ?.nativeElement?.nativeElement?.getBoundingClientRect();
 
             if (!selfRect || !parentButtonRect || !buttonRect) {
-               continue;
+                continue;
             }
             if (this.redrawCounter !== currentRedrawCounter) {
                 return;

@@ -1,4 +1,4 @@
-import { Component, ContentChildren, QueryList, AfterContentInit, contentChildren, signal, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ContentChildren, QueryList, AfterContentInit, contentChildren, signal, computed, ChangeDetectionStrategy, Signal } from '@angular/core';
 import { TabComponent} from './tab.component';
 import { CommonModule } from '@angular/common';
 
@@ -16,7 +16,8 @@ export class TabGroupComponent implements AfterContentInit {
   private selectedIndexSignal = signal(0);
 
   selectedIndex = computed(() => this.selectedIndexSignal());
-  selectedTab = computed(() => this.tabs()[this.selectedIndex()] ?? null);
+  // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+  selectedTab: Signal<TabComponent | null> = computed(() => this.tabs()[this.selectedIndex()] ?? null);
 
   selectTab(index: number) {
     const tab = this.tabs()[index];

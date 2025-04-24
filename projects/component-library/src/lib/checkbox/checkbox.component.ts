@@ -1,5 +1,5 @@
 import { NgIf } from '@angular/common';
-import { ChangeDetectionStrategy, Component, ContentChild, contentChild, ElementRef, forwardRef, Input, input, model, output, signal, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ContentChild, contentChild, ElementRef, forwardRef, Input, input, model, output, Signal, signal, ViewChild } from '@angular/core';
 import { CheckboxControlValueAccessor, ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { HintComponent } from '../common/hint';
 import { ErrorComponent } from '../common/error';
@@ -29,8 +29,10 @@ export class CheckboxComponent implements ControlValueAccessor {
     value = model(false);
     valueChanges = output<boolean>();
 
-    hintElement = contentChild(HintComponent);
-    errorElement = contentChild(ErrorComponent);
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    hintElement: Signal<HintComponent | undefined> = contentChild(HintComponent);
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    errorElement: Signal<ErrorComponent | undefined> = contentChild(ErrorComponent);
 
     onChange = (value: any) => {};
     onTouched = () => {};

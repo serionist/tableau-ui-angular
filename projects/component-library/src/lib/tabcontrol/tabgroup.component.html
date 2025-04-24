@@ -13,7 +13,7 @@
     <div class="tab-headers-underline"></div>
     <div class="tab-content">
         <ng-container *ngIf="selectedTab()">
-            <ng-container *ngTemplateOutlet="selectedTab().contentTemplate()"></ng-container>
+            <ng-container *ngTemplateOutlet="selectedTab()!.contentTemplate()"></ng-container>
         </ng-container>
     </div>
 </div>

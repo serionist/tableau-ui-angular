@@ -10,12 +10,15 @@ import {
     forwardRef,
     inject,
     model,
+    ModelSignal,
     OnDestroy,
     OnInit,
     output,
+    Signal,
     signal,
     TemplateRef,
     viewChild,
+    WritableSignal,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import {
@@ -63,9 +66,12 @@ export class SelectComponent
     selectId: string;
     dropdownId: string;
     options = contentChildren<OptionComponent>(OptionComponent);
-    dropdownPrefix = contentChild<PrefixComponent>(PrefixComponent);
-    dropdownSuffix = contentChild<SuffixComponent>(SuffixComponent);
-    dropdownTemplate = viewChild<TemplateRef<any>>('dropdownTemplate');
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    dropdownPrefix: Signal<PrefixComponent | undefined> = contentChild<PrefixComponent>(PrefixComponent);
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    dropdownSuffix: Signal<SuffixComponent | undefined> = contentChild<SuffixComponent>(SuffixComponent);
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    dropdownTemplate: Signal<TemplateRef<any> | undefined> = viewChild<TemplateRef<any>>('dropdownTemplate');
 
     // #region Imports
     snackService = inject(SnackService);
@@ -85,8 +91,9 @@ export class SelectComponent
     disabled = model(false);
     /**
      * Placeholder text to display when no value is selected
+     * // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
      */
-    placeholder = model<string>();
+    placeholder: ModelSignal<string | undefined> = model<string>();
     /**
      * The currently selected value.
      * @remarks
@@ -258,7 +265,8 @@ export class SelectComponent
     }
     // #endregion
     // #region Value selection
-    highlightedOption = signal<OptionComponent | undefined>(undefined);
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    highlightedOption: WritableSignal<OptionComponent | undefined> = signal<OptionComponent | undefined>(undefined);
     optionMouseDown(event: MouseEvent)  {
         if (event) {
             event.preventDefault();
@@ -314,8 +322,8 @@ export class SelectComponent
     // #endregion
     // #region Dropdown
    
-   
-    dropdownReference = signal<DialogRef | undefined>(undefined);
+   // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    dropdownReference: WritableSignal<DialogRef | undefined> = signal<DialogRef | undefined>(undefined);
     dropdownOpen = computed(() => this.dropdownReference() !== undefined);
 
    

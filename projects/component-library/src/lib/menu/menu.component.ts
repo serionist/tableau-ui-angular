@@ -1,4 +1,4 @@
-import { Component, contentChild, ElementRef, inject, input, model, signal, TemplateRef, viewChild } from '@angular/core';
+import { Component, contentChild, ElementRef, inject, input, model, ModelSignal, Signal, signal, TemplateRef, viewChild, WritableSignal } from '@angular/core';
 import { DialogService } from '../dialogservice/dialog.service';
 import { PrefixComponent } from '../common/prefix';
 import { SuffixComponent } from '../common/suffix';
@@ -16,8 +16,9 @@ export class MenuComponent {
 
     /**
      * The parent control to which the autocomplete is attached to
+     * // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
      */
-    parentControl = model<ElementRef<HTMLElement>>();
+    parentControl: ModelSignal<ElementRef<HTMLElement> | undefined> = model<ElementRef<HTMLElement>>();
 
     /**
      * The CSS text to apply to the dropdown container
@@ -56,11 +57,14 @@ export class MenuComponent {
      * @default 'bottom'
      */
     menuLocation = signal<'top' | 'bottom' | 'left' | 'right'>('bottom');
-
-    prefix = contentChild<PrefixComponent>(PrefixComponent);
-    suffix = contentChild<SuffixComponent>(SuffixComponent);
-    template = viewChild<TemplateRef<any>>('dropdownTemplate');
-    openDialog = signal<DialogRef | undefined>(undefined);
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    prefix: Signal<PrefixComponent | undefined> = contentChild<PrefixComponent>(PrefixComponent);
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    suffix: Signal<SuffixComponent | undefined> = contentChild<SuffixComponent>(SuffixComponent);
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    template: Signal<TemplateRef<any> | undefined> = viewChild<TemplateRef<any>>('dropdownTemplate');
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    openDialog: WritableSignal<DialogRef | undefined> = signal<DialogRef | undefined>(undefined);
 
     async open(forceReOpen: boolean = false) {
         const parentControl = this.parentControl();

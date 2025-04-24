@@ -13,6 +13,7 @@ import {
     model,
     computed,
     ChangeDetectionStrategy,
+    InputSignal,
 } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { combineLatest, map } from 'rxjs';
@@ -33,8 +34,10 @@ import { combineLatest, map } from 'rxjs';
     standalone: false
 })
 export class IconComponent {
-    value = input<string>();
-    color = input<'primary' | 'error' | 'success' | 'none' | null>();
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    value: InputSignal<string | undefined> = input<string>();
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    color: InputSignal<'primary' | 'error' | 'success' | 'none' | null | undefined> = input<'primary' | 'error' | 'success' | 'none' | null>();
 
     type = input<'Material Symbols Outlined' | 'Material Symbols Rounded' | 'Material Symbols Sharp'>('Material Symbols Rounded');
     fill = input<boolean>(false);

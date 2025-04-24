@@ -8,6 +8,7 @@ import {
     inject,
     OnDestroy,
     ViewContainerRef,
+    InputSignal,
 } from '@angular/core';
 
 // Style contained in _tooltips.scss in the styles folder
@@ -17,7 +18,8 @@ import {
 })
 export class TooltipDirective implements OnDestroy {
     private viewContainerRef = inject(ViewContainerRef);
-    tooltip = input<TemplateRef<any> | string | undefined | null>();
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    tooltip: InputSignal<TemplateRef<any> | string | undefined | null> = input<TemplateRef<any> | string | undefined | null>();
     tooltipContext = input<any>();
     tooltipPosition = input<'top' | 'bottom' | 'left' | 'right'>('top');
     tooltipMargin = input<string>('5px');

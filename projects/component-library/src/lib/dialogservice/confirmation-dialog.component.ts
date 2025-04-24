@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, inject, input, model, TemplateRef, ViewChild, viewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, inject, input, model, ModelSignal, TemplateRef, ViewChild, viewChild } from '@angular/core';
 import { ButtonComponent } from '../button/button.component';
 import { TAB_DIALOG_REF } from './dialog.ref';
 
@@ -38,11 +38,14 @@ import { TAB_DIALOG_REF } from './dialog.ref';
 })
 export class ConfirmationDialogComponent implements AfterViewInit {
     color = model<'primary' | 'error' | 'secondary'>('secondary');
-    content = model<string>();
-    contentTemplate = model<TemplateRef<any>>();
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    content: ModelSignal<string | undefined> = model<string>();
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    contentTemplate: ModelSignal<TemplateRef<any> | undefined> = model<TemplateRef<any>>();
     acceptBtnText = model<string>('OK');
     cancelBtnText = model<string>('Cancel');
-    autofocus = model<'accept' | 'cancel' | undefined>();
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    autofocus: ModelSignal<'accept' | 'cancel' | undefined> = model<'accept' | 'cancel' | undefined>();
 
     dialogRef = inject(TAB_DIALOG_REF);
 

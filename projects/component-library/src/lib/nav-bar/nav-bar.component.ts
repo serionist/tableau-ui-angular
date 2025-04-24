@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterContentInit, ChangeDetectionStrategy, Component, contentChild, contentChildren, input, model, ViewEncapsulation } from '@angular/core';
+import { AfterContentInit, ChangeDetectionStrategy, Component, contentChild, contentChildren, input, model, Signal, ViewEncapsulation } from '@angular/core';
 import { NavBarHeaderComponent } from './nav-bar-header.component';
 import { NavBarFooterComponent } from './nav-bar-footer.component';
 import { NavBarButtonComponent } from './nav-bar-button/nav-bar-button.component';
@@ -17,8 +17,10 @@ import { TooltipDirective } from '../tooltip/tooltip.directive';
     standalone: false
 })
 export class NavBarComponent implements AfterContentInit {
-  header = contentChild(NavBarHeaderComponent);
-  footer = contentChild(NavBarFooterComponent);
+  // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+  header: Signal<NavBarHeaderComponent | undefined> = contentChild(NavBarHeaderComponent);
+  // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+  footer: Signal<NavBarFooterComponent | undefined> = contentChild(NavBarFooterComponent);
   
   expanded = model<boolean>(true);
 

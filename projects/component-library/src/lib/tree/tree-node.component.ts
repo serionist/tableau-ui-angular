@@ -8,12 +8,15 @@ import {
     ElementRef,
     inject,
     input,
+    InputSignal,
     linkedSignal,
     OnInit,
     output,
+    Signal,
     signal,
     TemplateRef,
     viewChild,
+    WritableSignal,
 } from '@angular/core';
 import { CollapsedContentDirective } from './collapsed-content.directive';
 import { ExpandedContentDirective } from './expanded-content.directive';
@@ -30,19 +33,22 @@ export class TabTreeNodeComponent implements AfterContentInit {
     expanded = linkedSignal<boolean>(() => this.initialExpanded());
     expandedChange = output<boolean>();
 
-    collapsedContent = contentChild(CollapsedContentDirective);
-    expandedContent = contentChild(ExpandedContentDirective);
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    collapsedContent: Signal<CollapsedContentDirective | undefined> = contentChild(CollapsedContentDirective);
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    expandedContent: Signal<ExpandedContentDirective | undefined> = contentChild(ExpandedContentDirective);
 
-    expandButtonColor = input<string | undefined>(undefined);
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    expandButtonColor: InputSignal<string | undefined> = input<string | undefined>(undefined);
 
 
     hierarchyModeAutoChildren = contentChildren(TabTreeNodeComponent);
-
-    template = viewChild<TemplateRef<any>>('treeNodeTemplate');
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    template: Signal<TemplateRef<any> | undefined> = viewChild<TemplateRef<any>>('treeNodeTemplate');
 
    
-
-    headerButton =
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    headerButton: Signal<ElementRef<ElementRef<HTMLElement>> | undefined> =
         viewChild<ElementRef<ElementRef<HTMLElement>>>('headerButton');
     // used when hierarchyMode is auto to get direct parent
     hierarchyModeAutoParent = inject(TabTreeNodeComponent, {
@@ -51,11 +57,14 @@ export class TabTreeNodeComponent implements AfterContentInit {
     });
 
     hierarchyMode = signal<'auto' | 'manual'>('auto');
-    hierarchyId = input<string | undefined>('');
-    hierarchyParentId = input<string | undefined>(undefined);
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    hierarchyId: InputSignal<string | undefined> = input<string | undefined>('');
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    hierarchyParentId: InputSignal<string | undefined> = input<string | undefined>(undefined);
 
     children = signal<TabTreeNodeComponent[]>([]);
-    parent = signal<TabTreeNodeComponent | null>(null);
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    parent: WritableSignal<TabTreeNodeComponent | null> = signal<TabTreeNodeComponent | null>(null);
 
     depth = signal<number>(-1);
     id = signal<string>('');

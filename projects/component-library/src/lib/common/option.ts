@@ -6,6 +6,8 @@ import {
     ContentChild,
     ElementRef,
     input,
+    InputSignal,
+    Signal,
     signal,
     TemplateRef,
     viewChild,
@@ -25,9 +27,12 @@ import { IconComponent } from '../icon/icon.component';
 export class OptionComponent {
     value = input.required<any>();
     disabled = input<boolean>(false);
-    text = input<string | TemplateRef<any>>();
-    hint = input<string | TemplateRef<any>>();
-    icon = input<string | TemplateRef<any>>();
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    text: InputSignal<string | TemplateRef<any> | undefined> = input<string | TemplateRef<any>>();
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    hint: InputSignal<string | TemplateRef<any> | undefined> = input<string | TemplateRef<any>>();
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    icon: InputSignal<string | TemplateRef<any> | undefined> = input<string | TemplateRef<any>>();
     template = viewChild.required<TemplateRef<IOptionGridContext>>('templateRef');
     lineTemplate = viewChild.required<TemplateRef<IOptionLineContext>>('lineTemplateRef');
   
@@ -44,7 +49,8 @@ export class OptionComponent {
     iconString = computed(() => {
         return this.iconType() === 'string' ? (this.icon() as string) : '';
     });
-    iconTemplate = computed(() => {
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    iconTemplate: Signal<TemplateRef<any> | null> = computed(() => {
         return this.iconType() === 'template'
             ? (this.icon() as TemplateRef<any>)
             : null;
@@ -61,7 +67,8 @@ export class OptionComponent {
     textString = computed(() => {
         return this.textType() === 'string' ? (this.text() as string) : '';
     });
-    textTemplate = computed(() => {
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    textTemplate: Signal<TemplateRef<any> | null> = computed(() => {
         return this.textType() === 'template'
             ? (this.text() as TemplateRef<any>)
             : null;
@@ -78,7 +85,8 @@ export class OptionComponent {
     hintString = computed(() => {
         return this.hintType() === 'string' ? (this.hint() as string) : '';
     });
-    hintTemplate = computed(() => {
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    hintTemplate: Signal<TemplateRef<any> | null> = computed(() => {
         return this.hintType() === 'template'
             ? (this.hint() as TemplateRef<any>)
             : null;

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, model, TemplateRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, model, ModelSignal, TemplateRef } from '@angular/core';
 import { TAB_SNACK_REF } from './snack.ref';
 @Component({
     template: `
@@ -70,8 +70,9 @@ import { TAB_SNACK_REF } from './snack.ref';
 })
 export class SnackComponent {
     type = model<'info' | 'error'>('info');
-    message = model<string>();
-    template = model<TemplateRef<any>>();
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    message: ModelSignal<string | undefined> = model<string>();
+    template: ModelSignal<TemplateRef<any> | undefined> = model<TemplateRef<any>>();
 
     snackRef = inject(TAB_SNACK_REF);
 }

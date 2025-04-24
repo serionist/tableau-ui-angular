@@ -8,6 +8,7 @@ import {
     HostListener,
     inject,
     input,
+    InputSignal,
     linkedSignal,
     OnDestroy,
     OnInit,
@@ -79,7 +80,8 @@ import { generateRandomString } from '../utils';
 export class MenuButtonGroupComponent implements OnInit, OnDestroy {
     nativeElement = inject(ElementRef);
 
-    readonly hoverToOpenSubMenuMs = input<number | undefined>(500);
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    readonly hoverToOpenSubMenuMs: InputSignal<number | undefined> = input<number | undefined>(500);
     readonly buttonClicked = output<{
         button: MenuButtonComponent;
         event: Event;

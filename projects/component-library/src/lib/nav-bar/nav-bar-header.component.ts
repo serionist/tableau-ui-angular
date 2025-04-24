@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, input, model } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input, model, ModelSignal } from "@angular/core";
 
 @Component({
     selector: 'tab-nav-bar-header',
@@ -8,5 +8,6 @@ import { ChangeDetectionStrategy, Component, input, model } from "@angular/core"
     standalone: false
 })
 export class NavBarHeaderComponent {
-    expanded = model<boolean>();
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    expanded: ModelSignal<boolean | undefined> = model<boolean>();
 }

@@ -9,9 +9,11 @@ import {
     model,
     OnDestroy,
     OnInit,
+    Signal,
     signal,
     TemplateRef,
     viewChild,
+    WritableSignal,
 } from '@angular/core';
 import { IOptionGridContext, OptionComponent } from '../common/option';
 import { PrefixComponent } from '../common/prefix';
@@ -69,9 +71,12 @@ export class AutoCompleteComponent implements OnInit, OnDestroy {
     });
 
     options = contentChildren<OptionComponent>(OptionComponent);
-    dropdownPrefix = contentChild<PrefixComponent>(PrefixComponent);
-    dropdownSuffix = contentChild<SuffixComponent>(SuffixComponent);
-    dropdownTemplate = viewChild<TemplateRef<any>>('dropdownTemplate');
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    dropdownPrefix: Signal<PrefixComponent | undefined> = contentChild<PrefixComponent>(PrefixComponent);
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    dropdownSuffix: Signal<SuffixComponent | undefined> = contentChild<SuffixComponent>(SuffixComponent);
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    dropdownTemplate: Signal<TemplateRef<any> | undefined> = viewChild<TemplateRef<any>>('dropdownTemplate');
 
     constructor() {
         const id = generateRandomString();
@@ -107,7 +112,8 @@ export class AutoCompleteComponent implements OnInit, OnDestroy {
         );
     }
 
-    openDialog = signal<DialogRef | undefined>(undefined);
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    openDialog: WritableSignal<DialogRef | undefined> = signal<DialogRef | undefined>(undefined);
     openDropdown() {
         if (
             this.parentControl().hasAttribute('disabled') &&
@@ -165,7 +171,8 @@ export class AutoCompleteComponent implements OnInit, OnDestroy {
         this.openDialog()?.close();
     }
 
-    highlightedOption = signal<OptionComponent | undefined>(undefined);
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    highlightedOption: WritableSignal<OptionComponent | undefined> = signal<OptionComponent | undefined>(undefined);
 
     selectValue(option: OptionComponent) {
         this.parentControl().value = option.value();

@@ -9,6 +9,7 @@ import {
     model,
     OnDestroy,
     signal,
+    WritableSignal,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { IOptionGridContext, OptionComponent } from '../common/option';
@@ -124,7 +125,8 @@ export class ListComponent
     }
     // #endregion
     // #region Value selection
-    highlightedOption = signal<OptionComponent | undefined>(undefined);
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    highlightedOption: WritableSignal<OptionComponent | undefined> = signal<OptionComponent | undefined>(undefined);
     optionMouseDown(event: MouseEvent) {
         if (event) {
             event.preventDefault();
