@@ -11,8 +11,8 @@
         "copy-assets": "cpy README.md LICENSE Add-Benton-Sans.md dist/component-library",
         "build:component-library": "ng build component-library && npm run copy-assets",
         "build:github-pages": "ng build component-library && npm run test-app:icons:download && ng build test-app --base-href /tableau-ui-angular/",
-        "package": "ng build component-library && npx ng-packagr -p projects/component-library/ng-package.json && npm run copy-assets",
-        "publish": "ng build component-library && npx ng-packagr -p projects/component-library/ng-package.json && npm run copy-assets && cd dist/component-library && npm publish",
+        "package": "npx ng-packagr -p projects/component-library/ng-package.json && npm run copy-assets",
+        "publish": "npx ng-packagr -p projects/component-library/ng-package.json && npm run copy-assets && cd dist/component-library && npm publish",
         "dev:link": "ng build component-library --configuration development && node scripts/link-info.js && ng build component-library --watch --configuration development"
     },
     "private": true,
