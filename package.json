@@ -10,7 +10,7 @@
         "test-app:watch-icons": "npm run test-app:icons:download && npx chokidar \"projects/test-app/src/icons.ts\" -c \"npm run test-app:icons:download\"",
         "copy-assets": "cpy README.md LICENSE Add-Benton-Sans.md dist/component-library",
         "build:component-library": "ng build component-library && npm run copy-assets",
-        "build:github-pages": "npm run test-app:icons:download && ng build test-app --base-href /tableau-ui-angular/",
+        "build:github-pages": "ng build component-library && npm run test-app:icons:download && ng build test-app --base-href /tableau-ui-angular/",
         "package": "npx ng-packagr -p projects/component-library/ng-package.json && npm run copy-assets",
         "publish": "npx ng-packagr -p projects/component-library/ng-package.json && npm run copy-assets && cd dist/component-library && npm publish",
         "dev:link": "ng build component-library --configuration development && node scripts/link-info.js && ng build component-library --watch --configuration development"
