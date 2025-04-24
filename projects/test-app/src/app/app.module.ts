@@ -48,9 +48,11 @@ import {
     TableauUiTooltipModule,
     TableauUiTreeModule,
     TableauUiAutoCompleteModule,
-    TableauUiMenuModule
+    TableauUiMenuModule,
+    TableauUiDatePickerModule
 } from 'component-library';
 import { MenuPageComponent } from './pages/menu-page/menu-page.component';
+import { DatePickerPageComponent } from './pages/date-picker-page/date-picker-page.component';
 
 @NgModule({
     declarations: [
@@ -74,7 +76,8 @@ import { MenuPageComponent } from './pages/menu-page/menu-page.component';
         ListPageComponent,
         LocalDevelopmentComponent,
         TreePageComponent,
-        MenuPageComponent
+        MenuPageComponent,
+        DatePickerPageComponent
     ],
     imports: [
         BrowserModule,
@@ -99,7 +102,8 @@ import { MenuPageComponent } from './pages/menu-page/menu-page.component';
         TableauUiListModule,
         TableauUiTreeModule,
         TableauUiAutoCompleteModule,
-        TableauUiMenuModule
+        TableauUiMenuModule,
+        TableauUiDatePickerModule
         // TableauUiAllModule
     ],
     providers: [

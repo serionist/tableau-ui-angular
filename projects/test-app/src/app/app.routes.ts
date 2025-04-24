@@ -17,6 +17,7 @@ import { ListPageComponent } from './pages/list-page/list-page.component';
 import { LocalDevelopmentComponent } from './pages/local-development/local-development.component';
 import { TreePageComponent } from './pages/tree-page/tree-page.component';
 import { MenuPageComponent } from './pages/menu-page/menu-page.component';
+import { DatePickerPageComponent } from './pages/date-picker-page/date-picker-page.component';
 export const routes: Routes = [
     {
         'path': '',
@@ -140,6 +141,15 @@ export const routes: Routes = [
         title: 'Menu',
         data: {
             page: 'menu'
+        }
+
+    },
+    {
+        path: 'date-picker',
+        component: DatePickerPageComponent,
+        title: 'Date Picker',
+        data: {
+            page: 'date-picker'
         }
 
     },

@@ -59,6 +59,13 @@
         ></tab-nav-bar-button>
 
         <tab-nav-bar-button
+            icon="calendar_clock"
+            text="Date Picker"
+            link="/date-picker"
+            [isActive]="(page$ | async) === 'date-picker'"
+        ></tab-nav-bar-button>
+
+        <tab-nav-bar-button
             icon="radio_button_checked"
             text="Radio Groups"
             link="/radios"

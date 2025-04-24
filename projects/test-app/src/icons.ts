@@ -30,7 +30,8 @@ export class Icons extends UsedIcons {
         'format_list_bulleted',
         'developer_guide',
         "flowchart",
-        "more_vert"
+        "more_vert",
+        "calendar_clock"
     ];
 
 }

@@ -20,6 +20,7 @@ export * from './lib/list/public-api';
 export * from './lib/tree/public-api';
 export * from './lib/autocomplete/public-api';
 export * from './lib/menu/public-api';
+export * from './lib/date-picker/public-api';
 
 // Export all Modules
 export * from './lib/tableau-ui-module-all';
