@@ -501,6 +501,12 @@
                <tab-tree-node hierarchyId="2.1.3" hierarchyParentId="2.1">Subnode 1.3</tab-tree-node>
                <tab-tree-node hierarchyId="2.1.4" hierarchyParentId="2.1">Subnode 1.4</tab-tree-node>
             </tab-tree>
+            <p>Uses Tree Registry. Works with both auto and manual hierarchy modes</p>
+            <tab-tree gridLinesBorder="1px solid black" #hier>
+              <tree-node-container [registry]="hier.registry"></tree-node-container>
+              <tree-node-container [registry]="hier.registry"></tree-node-container>
+              <tree-node-container [registry]="hier.registry"></tree-node-container>
+            </tab-tree>
         </div>
     </div>
 </div>

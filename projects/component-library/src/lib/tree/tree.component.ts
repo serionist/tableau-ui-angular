@@ -19,6 +19,7 @@ import {
 } from '@angular/core';
 import { TabTreeNodeComponent } from './tree-node.component';
 import { debounceTime, Subject } from 'rxjs';
+import { TreeNodeRegistry } from './tree-node-registry';
 @Component({
     selector: 'tab-tree',
     templateUrl: './tree.component.html',
@@ -69,11 +70,25 @@ export class TabTreeComponent implements AfterContentInit, OnDestroy {
 
     hierarchyMode = input<'auto' | 'manual'>('auto');
 
-    children = contentChildren<TabTreeNodeComponent>(TabTreeNodeComponent, {
-        descendants: true,
+    registry = new TreeNodeRegistry();
+
+    contentChildren = contentChildren<TabTreeNodeComponent>(
+        TabTreeNodeComponent,
+        {
+            descendants: true,
+        }
+    );
+    contentChildrenChange = effect(() => {
+        const children = this.contentChildren();
+
+        for (const child of children) {
+            if (!this.registry.nodes().some((e) => e.id === child.id)) {
+                this.registry.register(child);
+            }
+        }
     });
     // used when hierarchyMode is auto to get direct children
-    directChildren = contentChildren(TabTreeNodeComponent);
+    // directChildren = contentChildren(TabTreeNodeComponent);
     templateParams = {
         childrenIndent: this.childrenIndent,
         expandButtonSize: this.expandButtonSize,
@@ -87,24 +102,21 @@ export class TabTreeComponent implements AfterContentInit, OnDestroy {
     constructor() {
         effect(() => {
             // set the hierarchyMode of each children all times
-            for (const child of this.children()) {
-                child.hierarchyMode.set(this.hierarchyMode());
-            }
+            const registryNodes = this.registry.nodes();
+           
             switch (this.hierarchyMode()) {
                 // when hierarchyMode is auto, set the depth and id of each direct children automatically
                 case 'auto':
-                    for (const [
-                        index,
-                        child,
-                    ] of this.directChildren().entries()) {
-                        child.depth.set(this.showRootGridLines() ? 1 : 0);
-                        child.id.set(`${index}`);
+                    for (const child of registryNodes.filter(
+                        (e) => !e.hierarchyModeAutoParent
+                    )) {
+                        this.hierarchyModeAutoSetChildrenDepthAndId(registryNodes, child, this.showRootGridLines() ? 1: 0);
                     }
                     break;
                 // when hierarchyMode is manual, set the depth and id of each direct children manually
                 case 'manual':
                     // get top level children
-                    for (const child of this.children().filter(
+                    for (const child of registryNodes.filter(
                         (e) => e.hierarchyParentId() === undefined
                     )) {
                         this.hierarchyModeManualSetChildrenDepthAndId(
@@ -119,6 +131,15 @@ export class TabTreeComponent implements AfterContentInit, OnDestroy {
                 this.redrawGridLines();
             }
         });
+    }
+
+    hierarchyModeAutoSetChildrenDepthAndId(allNodes: TabTreeNodeComponent[], child: TabTreeNodeComponent, depth: number) {
+        child.depth.set(depth + 1);
+        child.parent.set(child.hierarchyModeAutoParent);
+        child.children.set(allNodes.filter((e) => e.hierarchyModeAutoParent?.id === child.id));
+        for (const c of child.children()) {
+            this.hierarchyModeAutoSetChildrenDepthAndId(allNodes, c, depth + 1);
+        }
     }
 
     hierarchyModeManualSetChildrenDepthAndId(
@@ -139,13 +160,12 @@ export class TabTreeComponent implements AfterContentInit, OnDestroy {
             );
             return;
         }
-        child.id.set(child.hierarchyId()!);
         child.depth.set(currentChildDepth);
         seenChildIds.push(child.hierarchyId()!);
         // get direct children
-        const children = this.children().filter(
-            (e) => e.hierarchyParentId() === child.hierarchyId()
-        );
+        const children = this.registry
+            .nodes()
+            .filter((e) => e.hierarchyParentId() === child.hierarchyId());
         child.children.set(children);
         for (const c of children) {
             c.parent.set(child);
@@ -158,7 +178,8 @@ export class TabTreeComponent implements AfterContentInit, OnDestroy {
     }
 
     childrenDisplayOrder = computed(() => {
-        const rootChildren = this.children()
+        const rootChildren = this.registry
+            .nodes()
             .filter((e) => e.parent() === null)
             .sort((a, b) =>
                 a.order() > b.order() ? 1 : a.order() < b.order() ? -1 : 0
@@ -222,7 +243,7 @@ export class TabTreeComponent implements AfterContentInit, OnDestroy {
             from: { top: number; left: number };
             to: { top: number; left: number };
         }[] = [];
-        for (let child of this.children()) {
+        for (let child of this.registry.nodes()) {
             if (this.redrawCounter !== currentRedrawCounter) {
                 return;
             }
@@ -240,7 +261,7 @@ export class TabTreeComponent implements AfterContentInit, OnDestroy {
                     return;
                 }
                 gridLines.push({
-                    id: child.id(),
+                    id: child.id,
                     from: {
                         top: 0,
                         left: 0,
@@ -291,7 +312,7 @@ export class TabTreeComponent implements AfterContentInit, OnDestroy {
             }
 
             gridLines.push({
-                id: child.id(),
+                id: child.id,
                 from: {
                     top:
                         parentButtonRect.top -

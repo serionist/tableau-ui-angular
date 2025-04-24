@@ -97,12 +97,17 @@ export class MenuComponent {
                                 return `${parentRect.top - actualHeight}px`;
                             }
                             return `${val2}px`;
-                        default:
-                            const val3 = parentRect.top;
-                            if (val3 < 0 && parentRect.bottom + actualHeight < window.innerHeight) {
-                                return `${parentRect.bottom}px`;
+                        case 'left':
+                        case 'right':
+                            // the top parameter is the top parameter of the parent control by default
+                            let top = parentRect.top;
+                            // if it is higher than the availale window
+                            if (top + actualHeight > window.innerHeight) {
+                                top = window.innerHeight - actualHeight;
                             }
-                            return `${parentRect.top}px`;
+                            top = Math.max(top, 0);
+                            return `${top}px`;
+                            
                     }
                 },
                 left: (actualWidth, _) => {
@@ -119,19 +124,24 @@ export class MenuComponent {
                                 return `${parentRect.left - actualWidth}px`;
                             }
                             return `${val2}px`;
-                        default:
-                            const val3 = parentRect.left;
-                            if (val3 < 0 && parentRect.right + actualWidth < window.innerWidth) {
-                                return `${parentRect.right}px`;
+                        case 'top':
+                        case 'bottom': 
+                            // the left parameter is the left parameter of the parent control by default
+                            let left = parentRect.left;
+                            // if it is wider than the availale window
+                            if (left + actualWidth > window.innerWidth) {
+                                left = window.innerWidth - actualWidth;
                             }
-                            return `${parentRect.left}px`;
+                            left = Math.max(left, 0);
+                            return `${left}px`;
+                            
                     }
                 },
                 width: this.width() === 'parentWidth' ? `${parentRect.width}px` : this.width(),
                 closeOnBackdropClick: true,
                 closeOnEscape: true,
                 trapFocus: true
-            }, parentControl.nativeElement
+            }, null, parentControl.nativeElement
         );
         ref.afterClosed$.subscribe(() => {
             if (this.openDialog() === ref) {

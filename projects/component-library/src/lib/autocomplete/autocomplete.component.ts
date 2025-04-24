@@ -146,7 +146,7 @@ export class AutoCompleteComponent implements OnInit, OnDestroy {
                 backdropCss: {
                     pointerEvents: 'none',
                 },
-            }, undefined, this.parentControl()
+            }, null, this.parentControl()
         );
          // if the dialog element height is smaller than the dropdown container height, we need to adjust the position because we hit the bottom of the page
         //  setTimeout(() => {
