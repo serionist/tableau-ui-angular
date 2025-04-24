@@ -148,16 +148,7 @@ export class AutoCompleteComponent implements OnInit, OnDestroy {
                 },
             }, null, this.parentControl()
         );
-         // if the dialog element height is smaller than the dropdown container height, we need to adjust the position because we hit the bottom of the page
-        //  setTimeout(() => {
-        //     const dropdownHeight = document.getElementById(this.dropdownId)!.offsetHeight; // the native height of the dropdown
-        //     if (ref.dialogElement.offsetHeight < dropdownHeight && inputRect.top - dropdownHeight > 0) {
-        //         ref.reposition(args => {
-        //             args.left = inputRect.left + 'px';
-        //             args.top = inputRect.top - dropdownHeight + 'px';
-        //         });
-        //     }
-        // }, 10);
+        
         this.registerKeyNavigation();
         ref.afterClosed$.subscribe(() => {
             this.unregisterKeyNavigation();

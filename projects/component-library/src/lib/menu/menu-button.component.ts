@@ -1,4 +1,5 @@
 import {
+    AfterViewInit,
     ChangeDetectionStrategy,
     Component,
     contentChild,
@@ -64,9 +65,9 @@ import { generateRandomString } from '../utils';
     standalone: false,
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MenuButtonComponent implements OnDestroy {
+export class MenuButtonComponent implements OnDestroy, AfterViewInit {
     readonly id: string;
-    readonly nativeElement = inject(ElementRef<HTMLElement>);
+    readonly contentElement = viewChild<ElementRef>('buttonElement');
     readonly disabled = input(false);
     readonly loading = input(false);
     readonly color = input<'primary' | 'secondary' | 'error' | 'plain'>(
@@ -74,6 +75,7 @@ export class MenuButtonComponent implements OnDestroy {
     );
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     readonly hoverToOpenSubMenuMs: InputSignal<number | undefined> = input<number | undefined>(undefined);
+    
 // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     readonly actualHoverMs:WritableSignal<number | undefined> = signal<number | undefined>(undefined);
     readonly updateChildrenHover = effect(() => {
@@ -104,6 +106,8 @@ export class MenuButtonComponent implements OnDestroy {
     click = output<Event>();
     constructor() {
         this.id = generateRandomString();
+    }
+    ngAfterViewInit(): void {
     }
   
 

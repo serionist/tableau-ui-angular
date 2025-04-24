@@ -10,6 +10,7 @@ import {
     input,
     InputSignal,
     linkedSignal,
+    OnDestroy,
     OnInit,
     output,
     Signal,
@@ -22,6 +23,7 @@ import { CollapsedContentDirective } from './collapsed-content.directive';
 import { ExpandedContentDirective } from './expanded-content.directive';
 import { generateRandomString } from '../utils';
 import { TreeNodeRegistry } from './tree-node-registry';
+import { TabTreeComponent } from './tree.component';
 
 @Component({
     selector: 'tab-tree-node',
@@ -30,7 +32,21 @@ import { TreeNodeRegistry } from './tree-node-registry';
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: false,
 })
-export class TabTreeNodeComponent implements AfterContentInit {
+export class TabTreeNodeComponent implements OnInit, OnDestroy {
+    
+
+     // used when hierarchyMode is auto to get direct parent
+     private hierarchyModeAutoParent = inject(TabTreeNodeComponent, {
+        skipSelf: true,
+        optional: true,
+    });
+
+    private tabTree = inject(TabTreeComponent, {
+        skipSelf: true,
+        optional: true,
+    });
+    
+
     initialExpanded = input<boolean>(false);
     expanded = linkedSignal<boolean>(() => this.initialExpanded());
     expandedChange = output<boolean>();
@@ -47,7 +63,6 @@ export class TabTreeNodeComponent implements AfterContentInit {
         string | undefined
     >(undefined);
 
-    
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     template: Signal<TemplateRef<any> | undefined> =
         viewChild<TemplateRef<any>>('treeNodeTemplate');
@@ -55,20 +70,15 @@ export class TabTreeNodeComponent implements AfterContentInit {
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     headerButton: Signal<ElementRef<ElementRef<HTMLElement>> | undefined> =
         viewChild<ElementRef<ElementRef<HTMLElement>>>('headerButton');
-    // used when hierarchyMode is auto to get direct parent
-    hierarchyModeAutoParent = inject(TabTreeNodeComponent, {
-        skipSelf: true,
-        optional: true,
-    });
+   
 
-    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    hierarchyId: InputSignal<string | undefined> = input<string | undefined>(
-        ''
+    hierarchyId: InputSignal<string> = input<string>(
+        generateRandomString(16)
     );
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     hierarchyParentId: InputSignal<string | undefined> = input<
         string | undefined
-    >(undefined);
+    >(this.hierarchyModeAutoParent?.hierarchyId());
 
     children = signal<TabTreeNodeComponent[]>([]);
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
@@ -76,17 +86,31 @@ export class TabTreeNodeComponent implements AfterContentInit {
         signal<TabTreeNodeComponent | null>(null);
 
     depth = signal<number>(-1);
-    readonly id = generateRandomString(16);
 
     order = input<number>(0);
     // The registry of the tree node. It is optional. If provided, the node will register itself and will be detected by the tree even if it's located in a sub-component
     registry = input<TreeNodeRegistry>();
-   
 
     ngAfterContentInit(): void {}
 
     ngOnInit(): void {
-        this.registry()?.register(this);
+        const registry = this.registry() ?? this.tabTree?.registry;
+        if (!registry) {
+            throw new Error(
+                'TreeNodeComponent: registry is not provided. Please provide a registry or use the TabTreeComponent.'
+            );
+        }
+        registry.register(this);
+    }
+
+    ngOnDestroy(): void {
+        const registry = this.registry() ?? this.tabTree?.registry;
+        if (!registry) {
+            console.warn(
+                'TreeNodeComponent: registry is not provided. Please provide a registry or use the TabTreeComponent.'
+            );
+        }
+        registry?.unregister(this);
     }
 
     setExpanded(expanded: boolean) {

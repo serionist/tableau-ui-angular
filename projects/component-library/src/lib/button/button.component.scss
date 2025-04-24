@@ -62,6 +62,8 @@
         }
     }
     &[layout="icon"] {
+        min-height: 1.5rem;
+        min-width: 1.5rem;
     }
     &.loading .loader-wrapper {
         visibility: visible !important;

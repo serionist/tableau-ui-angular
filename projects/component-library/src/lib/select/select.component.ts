@@ -336,23 +336,20 @@ export class SelectComponent
         const ref = this.dialogService.openTemplateDialog(
             this.dropdownTemplate()!,
             {
-                top: elRect.bottom + 'px',
+                top(actualWidth, actualHeight) {
+                    if (elRect.bottom + actualHeight > window.innerHeight &&
+                        elRect.top - actualHeight> 0
+                    ) {
+                        return elRect.top - actualHeight + 'px';
+                    }
+                    return elRect.bottom + 'px';
+                },
                 left: elRect.left + 'px',
                 width: elRect.width + 'px',
                 closeOnEscape: true,
                 closeOnBackdropClick: true,
             }
         , null, this.elementRef.nativeElement);
-        // if the dialog element height is smaller than the dropdown container height, we need to adjust the position because we hit the bottom of the page
-        setTimeout(() => {
-            const dropdownHeight = document.getElementById(this.dropdownId)!.offsetHeight; // the native height of the dropdown
-            if (ref.dialogElement.offsetHeight < dropdownHeight && elRect.top - dropdownHeight > 0) {
-                ref.reposition(args => {
-                    args.left = elRect.left + 'px';
-                    args.top = elRect.top - dropdownHeight + 'px';
-                });
-            }
-        }, 10);
        
         this.registerOptionKeyNavigation();
         ref.afterClosed$.subscribe(() => {

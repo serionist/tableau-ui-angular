@@ -476,10 +476,10 @@
                     </tab-tree-node>
                 </tab-tree-node>
             </tab-tree>
-            <p>Manual hierarchy mode. Node hierarchy is determined by hierarchyId and childHierarchyId on tree nodes</p>
+            <p>Manual hierarchy mode. Node hierarchy is determined by hierarchyId and childHierarchyId on tree nodes. hierarchyId MUST be unique</p>
             <tab-tree hierarchyMode="manual" gridLinesBorder="1px solid black">
                <tab-tree-node hierarchyId="5" [order]="5">This is forced last by ordering</tab-tree-node>
-               <tab-tree-node hierarchyId="5" hierarchyParentId="1" [order]="5">This is forced last in Node 1 by ordering</tab-tree-node>
+               <tab-tree-node hierarchyId="6" hierarchyParentId="1" [order]="5">This is forced last in Node 1 by ordering</tab-tree-node>
                 <tab-tree-node hierarchyId="1">Node 1</tab-tree-node>
                <tab-tree-node hierarchyId="1.1" hierarchyParentId="1">Subnode 1</tab-tree-node>
                <tab-tree-node hierarchyId="1.1.1" hierarchyParentId="1.1">Subnode 1.1</tab-tree-node>
@@ -501,12 +501,15 @@
                <tab-tree-node hierarchyId="2.1.3" hierarchyParentId="2.1">Subnode 1.3</tab-tree-node>
                <tab-tree-node hierarchyId="2.1.4" hierarchyParentId="2.1">Subnode 1.4</tab-tree-node>
             </tab-tree>
-            <p>Uses Tree Registry. Works with both auto and manual hierarchy modes</p>
+            <p>Nested Tree Node components. Works with both auto and manual hierarchy modes</p>
             <tab-tree gridLinesBorder="1px solid black" #hier>
-              <tree-node-container [registry]="hier.registry"></tree-node-container>
-              <tree-node-container [registry]="hier.registry"></tree-node-container>
-              <tree-node-container [registry]="hier.registry"></tree-node-container>
+              <tree-node-container></tree-node-container>
+              <tree-node-container></tree-node-container>
+              <tree-node-container></tree-node-container>
             </tab-tree>
+
+
+            <p>For super advanced use-cases, you can manually provide the [registry] property to tree-nodes. You can get the registry value from the top level Tree nodes' registry property.</p>
         </div>
     </div>
 </div>

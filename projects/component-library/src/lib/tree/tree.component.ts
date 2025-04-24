@@ -72,21 +72,6 @@ export class TabTreeComponent implements AfterContentInit, OnDestroy {
 
     registry = new TreeNodeRegistry();
 
-    contentChildren = contentChildren<TabTreeNodeComponent>(
-        TabTreeNodeComponent,
-        {
-            descendants: true,
-        }
-    );
-    contentChildrenChange = effect(() => {
-        const children = this.contentChildren();
-
-        for (const child of children) {
-            if (!this.registry.nodes().some((e) => e.id === child.id)) {
-                this.registry.register(child);
-            }
-        }
-    });
     // used when hierarchyMode is auto to get direct children
     // directChildren = contentChildren(TabTreeNodeComponent);
     templateParams = {
@@ -103,49 +88,49 @@ export class TabTreeComponent implements AfterContentInit, OnDestroy {
         effect(() => {
             // set the hierarchyMode of each children all times
             const registryNodes = this.registry.nodes();
-           
-            switch (this.hierarchyMode()) {
-                // when hierarchyMode is auto, set the depth and id of each direct children automatically
-                case 'auto':
-                    for (const child of registryNodes.filter(
-                        (e) => !e.hierarchyModeAutoParent
-                    )) {
-                        this.hierarchyModeAutoSetChildrenDepthAndId(registryNodes, child, this.showRootGridLines() ? 1: 0);
-                    }
-                    break;
-                // when hierarchyMode is manual, set the depth and id of each direct children manually
-                case 'manual':
-                    // get top level children
-                    for (const child of registryNodes.filter(
-                        (e) => e.hierarchyParentId() === undefined
-                    )) {
-                        this.hierarchyModeManualSetChildrenDepthAndId(
-                            child,
-                            this.showRootGridLines() ? 1 : 0
-                        );
-                    }
-                    break;
+            
+            for (const child of registryNodes.filter(
+                (e) => e.hierarchyParentId() === undefined
+            )) {
+                if (this.hierarchyMode() === 'auto') {
+                    this.hierarchyModeAutoSetChildrenDepthAndId(
+                        registryNodes,
+                        child,
+                        null,
+                        this.showRootGridLines() ? 1 : 0
+                    );
+                } else {
+                    this.hierarchyModeManualSetChildrenDepthAndId(
+                        child,
+                        this.showRootGridLines() ? 1 : 0
+                    );
+                }
             }
-
             if (this.gridLinesBorder()) {
                 this.redrawGridLines();
             }
         });
     }
 
-    hierarchyModeAutoSetChildrenDepthAndId(allNodes: TabTreeNodeComponent[], child: TabTreeNodeComponent, depth: number) {
-        child.depth.set(depth + 1);
-        child.parent.set(child.hierarchyModeAutoParent);
-        child.children.set(allNodes.filter((e) => e.hierarchyModeAutoParent?.id === child.id));
-        for (const c of child.children()) {
-            this.hierarchyModeAutoSetChildrenDepthAndId(allNodes, c, depth + 1);
+    hierarchyModeAutoSetChildrenDepthAndId(
+        allNodes: TabTreeNodeComponent[],
+        node: TabTreeNodeComponent,
+        parentNode: TabTreeNodeComponent | null = null,
+        depth: number
+    ) {
+        node.depth.set(depth);
+        node.parent.set(parentNode);
+        node.children.set(
+            allNodes.filter((e) => e.hierarchyParentId() === node.hierarchyId())
+        );
+        for (const c of node.children()) {
+            this.hierarchyModeAutoSetChildrenDepthAndId(allNodes, c, node, depth + 1);
         }
     }
 
     hierarchyModeManualSetChildrenDepthAndId(
         child: TabTreeNodeComponent,
-        currentChildDepth: number,
-        seenChildIds: string[] = []
+        currentChildDepth: number
     ) {
         if (child.hierarchyId() === undefined) {
             console.error(
@@ -153,15 +138,7 @@ export class TabTreeComponent implements AfterContentInit, OnDestroy {
             );
             return;
         }
-        if (seenChildIds.includes(child.hierarchyId()!)) {
-            console.error(
-                'In TabTreeComponent, a child node is defined with the same hierarchyId as another child node. hierarchyId must be unique for all nodes. Duplicate id: ',
-                child.hierarchyId()
-            );
-            return;
-        }
         child.depth.set(currentChildDepth);
-        seenChildIds.push(child.hierarchyId()!);
         // get direct children
         const children = this.registry
             .nodes()
@@ -171,8 +148,7 @@ export class TabTreeComponent implements AfterContentInit, OnDestroy {
             c.parent.set(child);
             this.hierarchyModeManualSetChildrenDepthAndId(
                 c,
-                currentChildDepth + 1,
-                seenChildIds
+                currentChildDepth + 1
             );
         }
     }
@@ -261,7 +237,7 @@ export class TabTreeComponent implements AfterContentInit, OnDestroy {
                     return;
                 }
                 gridLines.push({
-                    id: child.id,
+                    id: child.hierarchyId(),
                     from: {
                         top: 0,
                         left: 0,
@@ -312,7 +288,7 @@ export class TabTreeComponent implements AfterContentInit, OnDestroy {
             }
 
             gridLines.push({
-                id: child.id,
+                id: child.hierarchyId(),
                 from: {
                     top:
                         parentButtonRect.top -

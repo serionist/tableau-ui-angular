@@ -27,13 +27,18 @@ import { generateRandomString } from '../utils';
 
 @Component({
     selector: 'tab-menu-button-group',
-    template: ` @for (entry of menuGroupStack().entries(); track entry[0];) {
+    template: ` @for (entry of menuGroupStack().entries(); track entry[1].id;) {
         <div
             [id]="entry[1].id"
             class="menu-group"
             [style.position]="entry[1].position()"
             [style.top]="entry[1].top() + 'px'"
             [style.left]="entry[1].left() + 'px'"
+            resizeWatcher
+            (onResized)="
+                entry[1].element = $event.currentElement.nativeElement;
+                updateSizes()
+            "
         >
             @for (btnEntry of entry[1].buttons.entries(); track btnEntry[0]) {
             <ng-container
@@ -81,15 +86,30 @@ export class MenuButtonGroupComponent implements OnInit, OnDestroy {
     nativeElement = inject(ElementRef);
 
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    readonly hoverToOpenSubMenuMs: InputSignal<number | undefined> = input<number | undefined>(500);
+    readonly hoverToOpenSubMenuMs: InputSignal<number | undefined> = input<
+        number | undefined
+    >(500);
     readonly buttonClicked = output<{
         button: MenuButtonComponent;
         event: Event;
     }>();
 
     readonly children = contentChildren(MenuButtonComponent);
+    private previousChildrenIds: string[] = [];
     readonly childrenEffect = effect(() => {
         const children = this.children();
+        const ids = children.map((c) => c.id);
+        const addedIds = ids.filter(
+            (id) => !this.previousChildrenIds.includes(id)
+        );
+        const removedIds = this.previousChildrenIds.filter(
+            (id) => !ids.includes(id)
+        );
+        if (!addedIds.length && !removedIds.length) {
+            return;
+        }
+        this.previousChildrenIds = ids;
+
         const hoverMs = this.hoverToOpenSubMenuMs();
         for (const child of children) {
             if (child.hoverToOpenSubMenuMs()) {
@@ -101,13 +121,12 @@ export class MenuButtonGroupComponent implements OnInit, OnDestroy {
         this.init();
     });
     readonly menuGroupStack = signal<IMenuGroup[]>([]);
-  
 
     height = signal<number>(0);
     width = signal<number>(0);
 
     init() {
-        this.menuGroupStack.set([]);
+        this.destroyGroupsUntil();
         this.addMenuGroup();
     }
 
@@ -130,6 +149,7 @@ export class MenuButtonGroupComponent implements OnInit, OnDestroy {
             // this is used to calculate actual size of the menu group
             top: signal(-10000),
             left: signal(-10000),
+            element: null,
             position: signal<'fixed' | 'absolute'>('fixed'),
             buttons: children,
             mouseoverSubscriptions: children.map((c) =>
@@ -163,19 +183,18 @@ export class MenuButtonGroupComponent implements OnInit, OnDestroy {
                         }
                     })
                 ),
-            clickSubscriptions: children
-                .map((c) =>
-                    c.click.subscribe(async (e) => {
-                        const firstGroup = this.menuGroupStack().at(0);
-                        if (firstGroup) {
-                            this.destroyGroupsUntil(firstGroup.id);
-                        }
-                        this.buttonClicked.emit({
-                            button: c,
-                            event: e,
-                        });
-                    })
-                ),
+            clickSubscriptions: children.map((c) =>
+                c.click.subscribe(async (e) => {
+                    const firstGroup = this.menuGroupStack().at(0);
+                    if (firstGroup) {
+                        this.destroyGroupsUntil(firstGroup.id);
+                    }
+                    this.buttonClicked.emit({
+                        button: c,
+                        event: e,
+                    });
+                })
+            ),
             highlightSubscriptions: children.map((c) =>
                 c.highlightChange.subscribe((highlight) => {
                     if (highlight) {
@@ -194,24 +213,7 @@ export class MenuButtonGroupComponent implements OnInit, OnDestroy {
         });
 
         // wait for our new group to render (max 10 seconds)
-        const maxRenderTime = 10000;
-        const startTime = Date.now();
-        while (Date.now() - startTime < maxRenderTime) {
-            await new Promise((r) => window.requestAnimationFrame(r));
-            const groupElement = document.getElementById(group.id);
-            if (groupElement) {
-                group.element = groupElement;
-                break;
-            }
-        }
-        if (!group.element) {
-            throw new Error('Menu group element not found');
-        }
-        const resizeObserver = new ResizeObserver(() => {
-            this.updateSizes();
-        });
-        resizeObserver.observe(group.element);
-        group.resizeObserver = resizeObserver;
+
         this.updateSizes();
         return group;
     }
@@ -249,8 +251,8 @@ export class MenuButtonGroupComponent implements OnInit, OnDestroy {
                 top = parentRect.top - currentRect.top;
                 minTop = Math.min(minTop, top);
                 left = parentRect.right;
-                if (left + group.element.offsetWidth > window.innerWidth) {
-                    left = parentRect.left - group.element.offsetWidth;
+                if (left + rect.width > window.innerWidth) {
+                    left = parentRect.left - rect.width;
                 }
                 left = left - currentRect.left;
                 minLeft = Math.min(minLeft, left);
@@ -277,7 +279,6 @@ export class MenuButtonGroupComponent implements OnInit, OnDestroy {
             group.highlightSubscriptions.forEach((s) => s.unsubscribe());
             group.clickSubscriptions.forEach((s) => s.unsubscribe());
             group.buttons.forEach((b) => b.highlight.set(false));
-            group.resizeObserver?.unobserve(group.element!);
             // group.element?.remove();
         }
         // this will also remove from DOM
@@ -412,10 +413,9 @@ interface IMenuGroup {
     position: WritableSignal<'fixed' | 'absolute'>;
     parentButton: HTMLElement | null;
     buttons: readonly MenuButtonComponent[];
+    element: Element | null;
     mouseoverSubscriptions: OutputRefSubscription[];
     openSubMenuSubscriptions: OutputRefSubscription[];
     clickSubscriptions: OutputRefSubscription[];
     highlightSubscriptions: OutputRefSubscription[];
-    element?: HTMLElement;
-    resizeObserver?: ResizeObserver;
 }
