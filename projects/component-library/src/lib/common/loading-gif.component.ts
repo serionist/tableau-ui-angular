@@ -253,7 +253,7 @@ import { Component, input } from '@angular/core';
         ></animate>
       </rect>
     </g>
-  </svg>
+     </svg>
   `,
     standalone: false
 })
