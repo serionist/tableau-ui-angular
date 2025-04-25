@@ -7,11 +7,11 @@ import { Component, input } from '@angular/core';
     xmlns="http://www.w3.org/2000/svg"
     xmlns:xlink="http://www.w3.org/1999/xlink"
     style="margin: auto; display: block; shape-rendering: auto"
-    width="24px"
-    height="24px"
+    [attr.width]="width()"
+    [attr.height]="height()"
     viewBox="0 0 100 100"
     preserveAspectRatio="xMidYMid"
-    color="color()"
+    [attr.color]="color()"
   >
     <g transform="rotate(0 50 50)">
       <rect
@@ -259,4 +259,6 @@ import { Component, input } from '@angular/core';
 })
 export class LoadingGifComponent {
   color = input<string>('#355c80');
+  width = input<string>('24px');
+  height = input<string>('24px');
 }
