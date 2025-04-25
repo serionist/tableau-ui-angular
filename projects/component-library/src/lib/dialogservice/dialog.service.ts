@@ -245,9 +245,11 @@ export class DialogService {
             if (resizeSubscription) {
                 resizeSubscription.unsubscribe();
             }
+            this.appRef.detachView(componentView);
+            componentView.destroy();
             dialogElement.remove();
 
-            this.appRef.detachView(componentView);
+            
             const dialogIndex = this.dialogStack.findIndex(
                 (d) => d.zIndex === zIndex
             );
