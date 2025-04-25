@@ -167,6 +167,7 @@ export class AutoCompleteComponent implements OnInit, OnDestroy {
 
     selectValue(option: OptionComponent) {
         this.parentControl().value = option.value();
+        this.parentControl().dispatchEvent(new Event('input', { bubbles: true }));
         this.closeDropdown();
     }
 
