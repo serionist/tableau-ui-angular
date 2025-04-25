@@ -117,17 +117,17 @@ export class MenuButtonComponent implements OnDestroy, AfterViewInit {
         if (!this.disabled()) {
             this.mouseoverChange.emit(true);
             const hoverMs = this.actualHoverMs();
-            if (hoverMs) {
-                this.hoverstart = Date.now();
-                this.hoverInterval = setInterval(() => {
-                    if (Date.now() - this.hoverstart > hoverMs) {
-                        this.openSubMenu.emit(new Event('mouseenter'));
-                        if (this.hoverInterval) {
-                            clearInterval(this.hoverInterval);
-                        }
-                    }
-                }, 50);
-            }
+            // if (hoverMs) {
+            //     this.hoverstart = Date.now();
+            //     this.hoverInterval = setInterval(() => {
+            //         if (Date.now() - this.hoverstart > hoverMs) {
+            //             this.openSubMenu.emit(new Event('mouseenter'));
+            //             if (this.hoverInterval) {
+            //                 clearInterval(this.hoverInterval);
+            //             }
+            //         }
+            //     }, 50);
+            // }
         }
     }
     onMouseLeave() {
