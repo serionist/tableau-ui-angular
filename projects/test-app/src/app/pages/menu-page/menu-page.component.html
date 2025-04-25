@@ -37,22 +37,26 @@
                 </button>
                 <tab-button-menu #menu1 width="fit-content">
                     <tab-menu-button-group #group>
-                        <tab-menu-button color="secondary">
+                        <tab-menu-button color="secondary"
+                            (click)="snack.openSnack('haha clicked', 3000)">
                             haha
                         </tab-menu-button>
                         <tab-menu-button
                             color="primary"
                             tab-menu-button
                             color="secondary"
+                            (click)="snack.openSnack('This is a much longer text clicked', 3000)"
                         >
                             This is a much longer text
-                            <tab-menu-button color="secondary">
+                            <tab-menu-button color="secondary"
+                                (click)="snack.openSnack('haha clicked', 3000)">
                                 haha
                             </tab-menu-button>
                             <tab-menu-button
                                 color="primary"
                                 tab-menu-button
                                 color="secondary"
+                                (click)="snack.openSnack('This is a much longer text clicked', 3000)"
                             >
                                 This is a much longer text
                             </tab-menu-button>
@@ -60,6 +64,7 @@
                                 [disabled]="true"
                                 tab-menu-button
                                 color="secondary"
+                                (click)="snack.openSnack('Disabled clicked', 3000)"
                             >
                                 Disabled
                             </tab-menu-button>
@@ -67,6 +72,7 @@
                                 color="error"
                                 tab-menu-button
                                 color="secondary"
+                                (click)="snack.openSnack('stuff clicked', 3000)"
                             >
                                 stuff
                                 <tab-menu-button color="secondary">
@@ -76,6 +82,7 @@
                                     color="primary"
                                     tab-menu-button
                                     color="secondary"
+                                    (click)="snack.openSnack('This is a much longer text clicked', 3000)"
                                 >
                                     This is a much longer text
                                 </tab-menu-button>
@@ -83,6 +90,7 @@
                                     [disabled]="true"
                                     tab-menu-button
                                     color="secondary"
+                                    (click)="snack.openSnack('Disabled clicked', 3000)"
                                 >
                                     Disabled
                                 </tab-menu-button>
@@ -90,15 +98,18 @@
                                     color="error"
                                     tab-menu-button
                                     color="secondary"
+                                    (click)="snack.openSnack('stuff clicked', 3000)"
                                 >
                                     stuff
-                                    <tab-menu-button color="secondary">
+                                    <tab-menu-button color="secondary"
+                                        (click)="snack.openSnack('haha clicked', 3000)">
                                         haha
                                     </tab-menu-button>
                                     <tab-menu-button
                                         color="primary"
                                         tab-menu-button
                                         color="secondary"
+                                        (click)="snack.openSnack('This is a much longer text clicked', 3000)"
                                     >
                                         This is a much longer text
                                     </tab-menu-button>
@@ -106,6 +117,7 @@
                                         [disabled]="true"
                                         tab-menu-button
                                         color="secondary"
+                                        (click)="snack.openSnack('Disabled clicked', 3000)"
                                     >
                                         Disabled
                                     </tab-menu-button>
@@ -113,6 +125,7 @@
                                         color="error"
                                         tab-menu-button
                                         color="secondary"
+                                        (click)="snack.openSnack('stuff clicked', 3000)"
                                     >
                                         stuff
                                     </tab-menu-button>
@@ -121,6 +134,7 @@
                                         [disabled]="true"
                                         tab-menu-button
                                         color="secondary"
+                                        (click)="snack.openSnack('Disabled primary clicked', 3000)"
                                     >
                                         Disabled primary
                                     </tab-menu-button>
@@ -130,6 +144,7 @@
                                     [disabled]="true"
                                     tab-menu-button
                                     color="secondary"
+                                    (click)="snack.openSnack('Disabled primary clicked', 3000)"
                                 >
                                     Disabled primary
                                 </tab-menu-button>
@@ -139,6 +154,7 @@
                                 [disabled]="true"
                                 tab-menu-button
                                 color="secondary"
+                                (click)="snack.openSnack('Disabled primary clicked', 3000)"
                             >
                                 Disabled primary
                             </tab-menu-button>
@@ -147,6 +163,7 @@
                             [disabled]="true"
                             tab-menu-button
                             color="secondary"
+                            (click)="snack.openSnack('Disabled clicked', 3000)"
                         >
                             Disabled
                         </tab-menu-button>
@@ -154,6 +171,7 @@
                             color="error"
                             tab-menu-button
                             color="secondary"
+                            (click)="snack.openSnack('stuff clicked', 3000)"
                         >
                             stuff
                         </tab-menu-button>
@@ -162,6 +180,7 @@
                             [disabled]="true"
                             tab-menu-button
                             color="secondary"
+                            (click)="snack.openSnack('Disabled primary clicked', 3000)"
                         >
                             Disabled primary
                         </tab-menu-button>

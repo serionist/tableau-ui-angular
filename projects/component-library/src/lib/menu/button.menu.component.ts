@@ -1,4 +1,15 @@
-import { Component, contentChild, model, ModelSignal, OnDestroy, OnInit, OutputRefSubscription, Signal, viewChild } from '@angular/core';
+import {
+    Component,
+    contentChild,
+    InputSignal,
+    model,
+    ModelSignal,
+    OnDestroy,
+    OnInit,
+    OutputRefSubscription,
+    Signal,
+    viewChild,
+} from '@angular/core';
 import { MenuComponent } from './menu.component';
 import { MenuButtonGroupComponent } from './menu-button-group.component';
 
@@ -8,30 +19,38 @@ import { MenuButtonGroupComponent } from './menu-button-group.component';
     templateUrl: './menu.component.html',
     styleUrls: ['./menu.component.scss'],
 })
-export class ButtonMenuComponent extends MenuComponent implements OnDestroy  {
-   
-    override menuContainerCss: ModelSignal<{ [key: string]: string }> = model(
-        {}
-    );
+export class ButtonMenuComponent extends MenuComponent implements OnDestroy {
+    override menuContainerCss: ModelSignal<{ [key: string]: string }> = model<{
+        [key: string]: string;
+    }>({
+        pointerEvents: 'none',
+    });
+
+    override closeOnBackdropClick: InputSignal<boolean> = model(true);
     override width: ModelSignal<'parentWidth' | 'fit-content' | string> =
         model('fit-content');
-// nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    menuGroup: Signal<MenuButtonGroupComponent | undefined> = contentChild(MenuButtonGroupComponent);
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    menuGroup: Signal<MenuButtonGroupComponent | undefined> = contentChild(
+        MenuButtonGroupComponent
+    );
 
     readonly subs: OutputRefSubscription[] = [];
     override async open(forceReOpen: boolean = false) {
         const ref = await super.open(forceReOpen);
         if (ref && this.menuGroup()) {
-          window.requestAnimationFrame(() => this.menuGroup()?.nativeElement?.nativeElement?.focus());
-          const sub = this.menuGroup()?.buttonClicked.subscribe(e => this.close());
-          if (sub) {
-            this.subs.push(sub);
-          }
+            window.requestAnimationFrame(() =>
+                this.menuGroup()?.nativeElement?.nativeElement?.focus()
+            );
+            const sub = this.menuGroup()?.buttonClicked.subscribe((e) =>
+                ref.close()
+            );
+            if (sub) {
+                this.subs.push(sub);
+            }
         }
         return ref;
     }
     ngOnDestroy(): void {
-        this.subs.forEach(sub => sub.unsubscribe());
+        this.subs.forEach((sub) => sub.unsubscribe());
     }
-    
 }

@@ -135,6 +135,7 @@ export class MenuButtonComponent implements OnDestroy, AfterViewInit {
         if (this.hoverInterval) {
             clearInterval(this.hoverInterval);
         }
+        this.highlight.set(false);
     }
 
     ngOnDestroy(): void {

@@ -54,6 +54,7 @@ import { generateRandomString } from '../utils';
                 position: relative;
                 display: block;
                 width: 100%;
+                user-select: none;
             }
         `,
         `

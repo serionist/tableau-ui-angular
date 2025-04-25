@@ -200,9 +200,7 @@ export class ListComponent
         this.highlightedOption.set(undefined);
     }
     onMouseOut() {
-        if (!this.focused()) {
-            this.highlightedOption.set(undefined);
-        }
+        this.highlightedOption.set(undefined);
     }
 
     /**

@@ -11,7 +11,7 @@ import { BehaviorSubject, debounceTime, startWith, Subject } from 'rxjs';
     standalone: false
 })
 export class MenuPageComponent {
-   
+   snack = inject(SnackService);
 
   
 }
