@@ -56,6 +56,7 @@ import { TableauUiDatePickerModule } from './date-picker/tableau-ui-date-picker.
         TableauUiListModule,
         TableauUiTreeModule,
         TableauUiMenuModule,
+        TableauUiAutoCompleteModule,
         TableauUiDatePickerModule
     ],
 })

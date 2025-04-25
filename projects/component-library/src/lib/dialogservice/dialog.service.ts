@@ -73,12 +73,6 @@ export class DialogService {
         } as IDialogArgs;
         
         const ref = this.openDialog(component, inputs, a);
-        // focus the modal so that the opening control loses focus (which is trapped)
-        // if (!ref.dialogElement.contains(document.activeElement)) {
-        //     ref.dialogElement.tabIndex = 0;
-        //     ref.dialogElement.focus();
-        //     ref.dialogElement.tabIndex = -1;
-        // }
         return ref;
     }
 
