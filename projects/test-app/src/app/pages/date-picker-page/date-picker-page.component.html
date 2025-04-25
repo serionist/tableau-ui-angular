@@ -68,7 +68,7 @@
                     </div>
                     <tab-form-field>
                         <input
-                        type="date"
+                        [type]="'date'"
                         min="2000-01-01"
                         max="2030-12-31"
                         [formControl]="simpleControl"
@@ -90,8 +90,8 @@
                         allows invalid dates, these are not validated
                     </div>
                     <tab-form-field>
-                        <input
-                        type="datetime"
+                        <input date-picker
+                        [type]="'datetime'"
                         min="2000-01-01T00:00"
                         max="2030-12-31T23:59"
                         [formControl]="simpleControl"

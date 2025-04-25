@@ -15,7 +15,7 @@ import {
 import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Directive({
-    selector: 'input[type=date],input[type=datetime-local],input[type=datetime]',
+    selector: 'input[type=date],input[type=datetime-local],input[type=datetime],input[date-picker]',
     standalone: false,
     host: {
         class: 'date-picker',
