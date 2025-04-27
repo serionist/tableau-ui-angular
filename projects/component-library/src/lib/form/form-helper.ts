@@ -203,7 +203,6 @@ export class AbstractControlMeta {
                 ? Object.keys(meta.errors).length > 0
                 : errorCode in meta.errors)
         ) {
-            console.log('hasError', meta);
             return true;
         }
         if (meta.childControls) {
