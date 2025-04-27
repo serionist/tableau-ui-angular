@@ -7,6 +7,7 @@ import {
     contentChild,
     ContentChild,
     ContentChildren,
+    effect,
     ElementRef,
     inject,
     input,
@@ -63,6 +64,12 @@ export class FormFieldComponent
     resizeObserver?: ResizeObserver;
     intersectionObserver?: IntersectionObserver;
     inputObserver?: MutationObserver;
+
+    prefixOrSuffixChanged = effect(() => {
+        const prefix = this.prefixElement();
+        const suffix = this.suffixElement();
+        this.updatePrefixSuffixWidths();
+    })
     ngOnDestroy(): void {
         if (this.resizeObserver) {
             this.resizeObserver.disconnect();
