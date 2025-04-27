@@ -61,15 +61,29 @@ export class FormFieldComponent
 
     inputDisabled = signal(false);
 
-    resizeObserver?: ResizeObserver;
+    resizeObserver: ResizeObserver;
     intersectionObserver?: IntersectionObserver;
     inputObserver?: MutationObserver;
 
     prefixOrSuffixChanged = effect(() => {
-        const prefix = this.prefixElement();
-        const suffix = this.suffixElement();
+        if (!this.viewInit()) {
+            return;
+        }
+
+        if (this.prefixElement()) {
+            this.resizeObserver.observe(this.prefixContainer().nativeElement);
+        }
+        if (this.suffixElement()) {
+            this.resizeObserver.observe(this.suffixContainer().nativeElement);
+        }
         this.updatePrefixSuffixWidths();
     })
+
+    constructor() {
+        this.resizeObserver = new ResizeObserver(() => {
+            this.updatePrefixSuffixWidths();
+        });
+    }
     ngOnDestroy(): void {
         if (this.resizeObserver) {
             this.resizeObserver.disconnect();
@@ -112,7 +126,9 @@ export class FormFieldComponent
             }
         }
     }
+    readonly viewInit = signal(false);
     ngAfterViewInit(): void {
+        this.viewInit.set(true);
         // Recalculate when view initializes
         setTimeout(() => {
             this.updatePrefixSuffixWidths();
@@ -132,16 +148,9 @@ export class FormFieldComponent
         this.intersectionObserver.observe(this.host.nativeElement);
 
         // Observe size changes in prefix and suffix elements to adjust padding dynamically
-        this.resizeObserver = new ResizeObserver(() => {
-            this.updatePrefixSuffixWidths();
-        });
+        
         this.resizeObserver.observe(this.host.nativeElement);
-        if (this.prefixElement()) {
-            this.resizeObserver.observe(this.prefixContainer().nativeElement);
-        }
-        if (this.suffixElement()) {
-            this.resizeObserver.observe(this.suffixContainer().nativeElement);
-        }
+       
     }
 
     private updatePrefixSuffixWidths(): void {
