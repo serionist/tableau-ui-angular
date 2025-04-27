@@ -11,7 +11,7 @@ import { FormHelper } from './form-helper';
 @Pipe({
     name: 'formControl',
     standalone: false,
-    pure: false
+    pure: true
 })
 export class FormControlPipe {
     transform<T extends 'formControl' | 'formGroup' | 'formArray'>(

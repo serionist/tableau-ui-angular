@@ -2,6 +2,7 @@ import {
     AbstractControl,
     ControlEvent,
     FormArray,
+    FormBuilder,
     FormControl,
     FormControlStatus,
     FormGroup,
@@ -57,7 +58,10 @@ export class FormHelper {
         return of(null);
     }
 
-    public static updateAllValidation(f: AbstractControl, markAsTouched = true) {
+    public static updateAllValidation(
+        f: AbstractControl,
+        markAsTouched = true
+    ) {
         if (markAsTouched) {
             f.markAsTouched();
         }
@@ -132,6 +136,40 @@ export class FormHelper {
             distinctUntilChanged((a, b) => AbstractControlMeta.compare(a, b))
         );
     }
+
+    public static getValue$<T extends any>(
+        ctrl: AbstractControl<T>,
+        fireInitial = true,
+        onlyChangedValues = true
+    ): Observable<T | null> {
+        let obs = ctrl.valueChanges.pipe();
+        if (fireInitial) {
+            obs = obs.pipe(startWith(ctrl.value));
+        }
+        if (onlyChangedValues) {
+            obs = obs.pipe(distinctUntilChanged((a, b) => {
+                if (!a && !b) {
+                    return true;
+                }
+                if (!a || !b) {
+                    return false;
+                }
+                if (typeof a === 'object' && typeof b === 'object') {
+                    try {
+                        return JSON.stringify(a) === JSON.stringify(b);
+                    } catch (e) {
+                        return false;
+                    }
+                }
+                return a === b;
+            }));
+
+        }
+        return obs;
+
+    }
+
+
 }
 export class AbstractControlMeta {
     private constructor(

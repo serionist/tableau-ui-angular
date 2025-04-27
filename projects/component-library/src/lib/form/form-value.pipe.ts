@@ -4,22 +4,16 @@ import { Pipe } from '@angular/core';
 import { AbstractControlMeta, FormHelper } from './form-helper';
 
 @Pipe({
-    name: 'formMeta',
+    name: 'formValue',
     standalone: false,
     pure: true
 })
-export class FormMetaPipe {
+export class FormValuePipe {
     transform(
         form: AbstractControl | undefined | null,
         path?: string,
-        fireInitial: boolean = true,
-        listenFor: (
-            | 'touched'
-            | 'status'
-            | 'pristine'
-            | 'submitted'
-            | 'reset'
-        )[] = ['touched', 'status']
+        fireInitial = true,
+        onlyChangedValues = true
     ): Observable<AbstractControlMeta | null> {
         if (!form) {
             return of(null);
@@ -27,7 +21,7 @@ export class FormMetaPipe {
         const pathParts = path?.split('.').filter((p) => p !== '') ?? [];
         return FormHelper.getFormControl(form, pathParts).pipe(
             switchMap((e) =>
-                e ? FormHelper.getMeta$(e, fireInitial, listenFor) : of(null)
+                e ? FormHelper.getValue$(e, fireInitial, onlyChangedValues) : of(null)
             )
         );
     }
