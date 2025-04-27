@@ -17,6 +17,7 @@ import { TableauUiTreeModule } from './tree/tableau-ui-tree.module';
 import { TableauUiAutoCompleteModule } from './autocomplete/tableau-ui-autocomplete.module';
 import { TableauUiMenuModule } from './menu/tableau-ui-menu.module';
 import { TableauUiDatePickerModule } from './date-picker/tableau-ui-date-picker.module';
+import { TableauUiFormModule } from './form/tableau-ui-form.module';
 
 @NgModule({
     imports: [
@@ -37,7 +38,8 @@ import { TableauUiDatePickerModule } from './date-picker/tableau-ui-date-picker.
         TableauUiTreeModule,
         TableauUiAutoCompleteModule,
         TableauUiMenuModule,
-        TableauUiDatePickerModule
+        TableauUiDatePickerModule,
+        TableauUiFormModule
     ],
     declarations: [],
     exports: [ TableauUiButtonModule,
@@ -57,7 +59,8 @@ import { TableauUiDatePickerModule } from './date-picker/tableau-ui-date-picker.
         TableauUiTreeModule,
         TableauUiMenuModule,
         TableauUiAutoCompleteModule,
-        TableauUiDatePickerModule
+        TableauUiDatePickerModule,
+        TableauUiFormModule
     ],
 })
 export class TableauUiAllModule {}

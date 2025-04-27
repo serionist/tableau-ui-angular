@@ -91,7 +91,13 @@
                     />
                     <tab-autocomplete [parentControl]="autocompleteInput">
                         <tab-prefix>
-                            <div style="margin: 0.5rem; display: flex; align-items: center">
+                            <div
+                                style="
+                                    margin: 0.5rem;
+                                    display: flex;
+                                    align-items: center;
+                                "
+                            >
                                 <tab-icon value="search"></tab-icon>
                                 Suggestions
                             </div>
@@ -101,7 +107,8 @@
                         <tab-prefix>
                             <tab-loading-gif></tab-loading-gif>
                         </tab-prefix>
-                        } @else { @for (result of searchResults$ | async; track result.name) {
+                        } @else { @for (result of searchResults$ | async; track
+                        result.name) {
                         <tab-option
                             [text]="result.name"
                             [value]="result.name"
@@ -110,7 +117,12 @@
 
                         <tab-suffix>
                             <tab-separator></tab-separator>
-                            <tab-hint style="display: block; margin: 0.5rem">{{ (searchResults$ | async)?.length || 0 }} suggestions</tab-hint>
+                            <tab-hint style="display: block; margin: 0.5rem"
+                                >{{
+                                    (searchResults$ | async)?.length || 0
+                                }}
+                                suggestions</tab-hint
+                            >
                         </tab-suffix>
                     </tab-autocomplete>
                 </tab-form-field>
@@ -258,8 +270,15 @@
                             type="text"
                             placeholder="Enter any text here"
                             formControlName="advancedValidation"
-                            [errorStateMatcher]="
-                                customValidationMatcher.bind(this)
+                            [class.tab-error]="
+                                (form
+                                    | formMeta : 'advancedValidation'
+                                    | async
+                                    | formHasError) ||
+                                (form
+                                    | formMeta : 'number'
+                                    | async
+                                    | formHasError)
                             "
                         />
                         <tab-hint

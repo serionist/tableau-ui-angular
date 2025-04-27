@@ -49,7 +49,8 @@ import {
     TableauUiTreeModule,
     TableauUiAutoCompleteModule,
     TableauUiMenuModule,
-    TableauUiDatePickerModule
+    TableauUiDatePickerModule,
+    TableauUiFormModule
 } from 'component-library';
 import { MenuPageComponent } from './pages/menu-page/menu-page.component';
 import { DatePickerPageComponent } from './pages/date-picker-page/date-picker-page.component';
@@ -105,7 +106,8 @@ import { TreeNodeContainerComponent } from './pages/tree-page/tree-node-containe
         TableauUiTreeModule,
         TableauUiAutoCompleteModule,
         TableauUiMenuModule,
-        TableauUiDatePickerModule
+        TableauUiDatePickerModule,
+        TableauUiFormModule
         // TableauUiAllModule
     ],
     providers: [

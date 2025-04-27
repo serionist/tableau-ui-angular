@@ -53,15 +53,6 @@ export class FormFieldsPageComponent implements OnInit {
         advancedValidation: new FormControl('', [Validators.required]),
     });
 
-    customValidationMatcher(
-        control: AbstractControl | null,
-        form: FormGroupDirective | NgForm | null
-    ): boolean {
-        return (
-            this.form.controls.advancedValidation.valid &&
-            this.form.controls.number.valid
-        );
-    }
     ngOnInit(): void {
         this.form.controls.validation.markAsTouched();
         this.form.controls.validation.updateValueAndValidity();
