@@ -11,20 +11,22 @@ import { FormHelper } from './form-helper';
 @Pipe({
     name: 'formControl',
     standalone: false,
-    pure: true
+    pure: true,
 })
 export class FormControlPipe {
-    transform<T extends 'formControl' | 'formGroup' | 'formArray'>(
-        form?: AbstractControl,
-        path?: string,
+    transform<T extends 'control' | 'group' | 'array' | 'abstract' = 'control'>(
+        form: AbstractControl | undefined | null,
+        path?: string | undefined,
         type?: T
     ): Observable<
-        T extends 'formControl'
+        T extends 'control'
             ? FormControl | null
-            : T extends 'formGroup'
+            : T extends 'group'
             ? FormGroup | null
-            : T extends 'formArray'
+            : T extends 'array'
             ? FormArray | null
+            : T extends 'abstract'
+            ? AbstractControl | null
             : AbstractControl | null
     > {
         if (!form) {
@@ -37,19 +39,19 @@ export class FormControlPipe {
                 if (!control) {
                     return null;
                 }
-                if (type === 'formControl') {
+                if (type === 'control') {
                     if (control instanceof FormControl) {
                         return control;
                     }
                     return null;
                 }
-                if (type === 'formGroup') {
+                if (type === 'group') {
                     if (control instanceof FormGroup) {
                         return control;
                     }
                     return null;
                 }
-                if (type === 'formArray') {
+                if (type === 'array') {
                     if (control instanceof FormArray) {
                         return control;
                     }
@@ -58,15 +60,15 @@ export class FormControlPipe {
                 return control;
             })
         ) as unknown as Observable<
-            T extends 'formControl'
+            T extends 'control'
                 ? FormControl | null
-                : T extends 'formGroup'
+                : T extends 'group'
                 ? FormGroup | null
-                : T extends 'formArray'
+                : T extends 'array'
                 ? FormArray | null
+                : T extends 'abstract'
+                ? AbstractControl | null
                 : AbstractControl | null
         >;
     }
-
-   
 }
