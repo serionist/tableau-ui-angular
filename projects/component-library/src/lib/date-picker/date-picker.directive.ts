@@ -2,6 +2,7 @@ import {
     ChangeDetectionStrategy,
     Component,
     Directive,
+    effect,
     ElementRef,
     forwardRef,
     HostListener,
@@ -35,7 +36,17 @@ export class DatePickerDirective implements ControlValueAccessor {
     private readonly el = inject(ElementRef<HTMLInputElement>);
 
 
+    // type can only be set once. Cannot change between date and datetime
     type = input.required<'date' | 'datetime'>();
+    originalType: 'date' | 'datetime' | undefined;
+    typeChanged = effect(() => {
+        if (this.originalType === undefined) {
+            this.originalType = this.type();
+        }
+        if (this.type() !== this.originalType) {
+            throw new Error('DatePickerDirective: type must be "date" or "datetime", can not be changed later');
+        }
+    })
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     value: ModelSignal<Date | null> = model<Date | null>(null);
     valueChange = output<Date | null>();
@@ -65,10 +76,18 @@ export class DatePickerDirective implements ControlValueAccessor {
     writeValue(obj: any): void {
         if (obj instanceof Date && !isNaN(obj.getTime())) {
             if (this.type() === 'datetime') {
-                this.el.nativeElement.value = obj.toISOString().slice(0, 16);
-            } else {
-                this.el.nativeElement.value = obj.toISOString().slice(0, 10);
-            }
+                const year = obj.getFullYear();
+                const month = (obj.getMonth() + 1).toString().padStart(2, '0');
+                const day = obj.getDate().toString().padStart(2, '0');
+                const hours = obj.getHours().toString().padStart(2, '0');
+                const minutes = obj.getMinutes().toString().padStart(2, '0');
+                this.el.nativeElement.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+              } else {
+                const year = obj.getFullYear();
+                const month = (obj.getMonth() + 1).toString().padStart(2, '0');
+                const day = obj.getDate().toString().padStart(2, '0');
+                this.el.nativeElement.value = `${year}-${month}-${day}`;
+              }
         } else {
             this.el.nativeElement.value = '';
 

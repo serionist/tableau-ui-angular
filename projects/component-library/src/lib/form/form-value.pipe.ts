@@ -1,5 +1,5 @@
 import { AbstractControl } from '@angular/forms';
-import { Observable, of, switchMap } from 'rxjs';
+import { map, Observable, of, switchMap } from 'rxjs';
 import { Pipe } from '@angular/core';
 import { AbstractControlMeta, FormHelper } from './form-helper';
 
@@ -9,12 +9,12 @@ import { AbstractControlMeta, FormHelper } from './form-helper';
     pure: true
 })
 export class FormValuePipe {
-    transform(
-        form: AbstractControl | undefined | null,
+    transform<T extends any>(
+        form: AbstractControl<T> | undefined | null,
         path?: string,
         fireInitial = true,
         onlyChangedValues = true
-    ): Observable<AbstractControlMeta | null> {
+    ): Observable<T | null> {
         if (!form) {
             return of(null);
         }
