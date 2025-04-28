@@ -137,7 +137,7 @@ export class FormHelper {
         );
     }
 
-    public static getValue$<T extends any>(
+    public static getComplexValue$<T extends any>(
         ctrl: AbstractControl<T>,
         fireInitial = true,
         onlyChangedValues = true
@@ -169,8 +169,33 @@ export class FormHelper {
 
     }
 
+    public static getValue$<T extends Primitive>(
+        ctrl: FormControl<T>,
+        fireInitial = true,
+        onlyChangedValues = true
+    ): Observable<T> {
+        let obs = ctrl.valueChanges.pipe();
+        if (fireInitial) {
+            obs = obs.pipe(startWith(ctrl.value));
+        }
+        if (onlyChangedValues) {
+            obs = obs.pipe(distinctUntilChanged((a, b) => {
+                if (!a && !b) {
+                    return true;
+                }
+                if (!a || !b) {
+                    return false;
+                }
+                return a === b;
+            }));
+
+        }
+        return obs;
+    }
+
 
 }
+export type Primitive = string | number | boolean | Date | undefined | null;
 export class AbstractControlMeta {
     private constructor(
         public type: 'formControl' | 'formGroup' | 'formArray',

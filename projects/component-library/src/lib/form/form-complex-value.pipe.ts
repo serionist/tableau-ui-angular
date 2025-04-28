@@ -4,11 +4,11 @@ import { Pipe } from '@angular/core';
 import { AbstractControlMeta, FormHelper } from './form-helper';
 
 @Pipe({
-    name: 'formValue',
+    name: 'formComplexValue',
     standalone: false,
     pure: true
 })
-export class FormValuePipe {
+export class FormComplexValuePipe {
     transform<T extends any>(
         form: AbstractControl<T> | undefined | null,
         path?: string,
@@ -21,7 +21,7 @@ export class FormValuePipe {
         const pathParts = path?.split('.').filter((p) => p !== '') ?? [];
         return FormHelper.getFormControl(form, pathParts).pipe(
             switchMap((e) =>
-                e ? FormHelper.getValue$(e, fireInitial, onlyChangedValues) : of(null)
+                e ? FormHelper.getComplexValue$(e, fireInitial, onlyChangedValues) : of(null)
             )
         );
     }
