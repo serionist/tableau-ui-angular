@@ -13,7 +13,7 @@ import {
 import { FormControlReference } from './form-control.reference';
 import { FormGroupReference } from './form-group.reference';
 import { Primitive } from '../types/primitive';
-import { FormHelper } from 'component-library';
+import { FormHelper } from '../form-helper';
 
 export class FormArrayReference<
     TItem extends Record<string, any> | Primitive | Primitive[]
