@@ -26,6 +26,7 @@ import {
     switchMap,
 } from 'rxjs';
 import { FormControlPipe } from './form-control.pipe';
+import { Primitive } from './types/primitive';
 export class FormHelper {
     public static getFormControl(
         form: AbstractControl,
@@ -57,7 +58,6 @@ export class FormHelper {
         }
         return of(null);
     }
-
     public static updateAllValidation(
         f: AbstractControl,
         markAsTouched = true
@@ -76,7 +76,6 @@ export class FormHelper {
             }
         }
     }
-
     public static arrayControls$<TControl extends AbstractControl<any> = any>(
         fa: FormArray<TControl>
     ): Observable<TControl[]> {
@@ -85,6 +84,10 @@ export class FormHelper {
             startWith([...(fa.controls as TControl[])]),
             distinctUntilChanged((a, b) => {
                 return a.length === b.length && a.every((v, i) => v === b[i]);
+            }),
+            map(e => {
+                console.log('arrayControls$', e);
+                return e;
             })
         );
     }
@@ -136,7 +139,6 @@ export class FormHelper {
             distinctUntilChanged((a, b) => AbstractControlMeta.compare(a, b))
         );
     }
-
     public static getComplexValue$<T extends any>(
         ctrl: AbstractControl<T>,
         fireInitial = true,
@@ -168,15 +170,23 @@ export class FormHelper {
         return obs;
 
     }
-
-    public static getValue$<T extends Primitive>(
+    public static getValue$<T extends Primitive | Primitive[]>(
         ctrl: FormControl<T>,
         fireInitial = true,
-        onlyChangedValues = true
+        onlyChangedValues = true,
+        log = false
     ): Observable<T> {
-        let obs = ctrl.valueChanges.pipe();
+        let obs = ctrl.valueChanges.pipe(startWith(ctrl.value));
         if (fireInitial) {
             obs = obs.pipe(startWith(ctrl.value));
+        }
+        if (log) {
+            obs = obs.pipe(
+                map((v) => {
+                    console.log('getValue$ changed:', v);
+                    return v;
+                })
+            );
         }
         if (onlyChangedValues) {
             obs = obs.pipe(distinctUntilChanged((a, b) => {
@@ -186,16 +196,35 @@ export class FormHelper {
                 if (!a || !b) {
                     return false;
                 }
+                if (Array.isArray(a) && Array.isArray(b)) {
+                    if (a.length !== b.length) {
+                        return false;
+                    }
+                    for (let i = 0; i < a.length; i++) {
+                        if (a[i] !== b[i]) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
                 return a === b;
             }));
 
+        }
+        if (log) {
+            obs = obs.pipe(
+                map((v) => {
+                    console.log('geValue$ changed after distinct:', v);
+                    return v;
+                })
+            );
         }
         return obs;
     }
 
 
 }
-export type Primitive = string | number | boolean | Date | undefined | null;
+
 export class AbstractControlMeta {
     private constructor(
         public type: 'formControl' | 'formGroup' | 'formArray',

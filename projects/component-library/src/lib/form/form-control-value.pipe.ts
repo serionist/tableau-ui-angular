@@ -1,7 +1,8 @@
 import { AbstractControl, FormControl, isFormControl } from '@angular/forms';
 import { map, Observable, of, switchMap } from 'rxjs';
 import { Pipe } from '@angular/core';
-import { AbstractControlMeta, FormHelper, Primitive } from './form-helper';
+import { AbstractControlMeta, FormHelper } from './form-helper';
+import { Primitive } from './types/primitive';
 
 @Pipe({
     name: 'formControlValue',
