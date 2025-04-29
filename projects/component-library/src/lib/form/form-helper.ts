@@ -27,6 +27,7 @@ import {
 } from 'rxjs';
 import { FormControlPipe } from './form-control.pipe';
 import { Primitive } from './types/primitive';
+import { IAbstractControlWithRef } from './public-api';
 export class FormHelper {
     public static getFormControl(
         form: AbstractControl,
@@ -76,18 +77,33 @@ export class FormHelper {
             }
         }
     }
-    public static arrayControls$<TControl extends AbstractControl<any> = any>(
+    public static arrayControls$<TControl extends AbstractControl<any>>(
         fa: FormArray<TControl>
     ): Observable<TControl[]> {
         return fa.statusChanges.pipe(
-            map(() => [...(fa.controls as TControl[])]),
-            startWith([...(fa.controls as TControl[])]),
+            map(() => fa.controls.map(e => e as TControl)),
+            startWith(fa.controls.map(e => e as TControl)),
             distinctUntilChanged((a, b) => {
-                return a.length === b.length && a.every((v, i) => v === b[i]);
-            }),
-            map(e => {
-                console.log('arrayControls$', e);
-                return e;
+                const aArr = a as TControl[];
+                const bArr = b as TControl[];
+                if (aArr.length !== bArr.length) {
+                    return false;
+                }
+                for (let i = 0; i < a.length; i++) {
+                    const ai = a[i] as any;
+                    const bi = b[i] as any;
+                    if (ai?.ref?.id && bi?.ref?.id) {
+                        if (ai.ref.id !== bi.ref.id) {
+                            return false;
+                        }
+                    } else {
+                        if (ai !== bi) {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+
             })
         );
     }

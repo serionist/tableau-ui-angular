@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { FormArrayControlsPipe } from './form-array-controls.pipe';
 import { FormControlPipe } from './form-control.pipe';
 import { GetFormErrorPipe } from './form-get-error.pipe';
-import { HasFormErrorPipe } from './form-has-error';
+import { HasFormErrorPipe } from './form-has-error.pipe';
 import { FormMetaPipe } from './form-meta.pipe';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';

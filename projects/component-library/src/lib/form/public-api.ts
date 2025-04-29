@@ -1,6 +1,6 @@
 export * from './form-helper';
 export * from './form-get-error.pipe';
-export * from './form-has-error';
+export * from './form-has-error.pipe';
 export * from './form-control.pipe';
 export * from './form-array-controls.pipe';
 export * from './form-meta.pipe';
