@@ -1,32 +1,32 @@
 import { NgModule } from '@angular/core';
-import { FormArrayControlsPipe } from './form-array-controls.pipe';
+import { FormArrayValuePipe } from './form-array-value.pipe';
 import { FormControlPipe } from './form-control.pipe';
 import { GetFormErrorPipe } from './form-get-error.pipe';
 import { HasFormErrorPipe } from './form-has-error.pipe';
 import { FormMetaPipe } from './form-meta.pipe';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { FormComplexValuePipe } from './form-complex-value.pipe';
 import { FormControlValuePipe } from './form-control-value.pipe';
+import { FormGroupValuePipe } from './form-group-value.pipe';
 
 @NgModule({
     imports: [ReactiveFormsModule, CommonModule],
     declarations: [
-        FormArrayControlsPipe,
+        FormArrayValuePipe,
         FormControlPipe,
         GetFormErrorPipe,
         HasFormErrorPipe,
         FormMetaPipe,
-        FormComplexValuePipe,
+        FormGroupValuePipe,
         FormControlValuePipe
     ],
     exports: [
-        FormArrayControlsPipe,
+        FormArrayValuePipe,
         FormControlPipe,
         GetFormErrorPipe,
         HasFormErrorPipe,
         FormMetaPipe,
-        FormComplexValuePipe,
+        FormGroupValuePipe,
         FormControlValuePipe
     ],
 })

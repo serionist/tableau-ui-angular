@@ -27,7 +27,7 @@ import {
 } from 'rxjs';
 import { FormControlPipe } from './form-control.pipe';
 import { Primitive } from './types/primitive';
-import { IAbstractControlWithRef } from './public-api';
+import { DeepPartial, IAbstractControlWithRef } from './public-api';
 export class FormHelper {
     public static getFormControl(
         form: AbstractControl,
@@ -42,7 +42,7 @@ export class FormHelper {
             if (isNaN(parseInt(key, 10))) {
                 return of(null);
             }
-            return FormHelper.arrayControls$(form).pipe(
+            return FormHelper.getArrayValue$(form).pipe(
                 switchMap((controls) =>
                     FormHelper.getFormControl(controls[index], parts)
                 )
@@ -77,36 +77,7 @@ export class FormHelper {
             }
         }
     }
-    public static arrayControls$<TControl extends AbstractControl<any>>(
-        fa: FormArray<TControl>
-    ): Observable<TControl[]> {
-        return fa.statusChanges.pipe(
-            map(() => fa.controls.map(e => e as TControl)),
-            startWith(fa.controls.map(e => e as TControl)),
-            distinctUntilChanged((a, b) => {
-                const aArr = a as TControl[];
-                const bArr = b as TControl[];
-                if (aArr.length !== bArr.length) {
-                    return false;
-                }
-                for (let i = 0; i < a.length; i++) {
-                    const ai = a[i] as any;
-                    const bi = b[i] as any;
-                    if (ai?.ref?.id && bi?.ref?.id) {
-                        if (ai.ref.id !== bi.ref.id) {
-                            return false;
-                        }
-                    } else {
-                        if (ai !== bi) {
-                            return false;
-                        }
-                    }
-                }
-                return true;
 
-            })
-        );
-    }
     public static getMeta$(
         ctrl: AbstractControl,
         fireInitial = true,
@@ -155,11 +126,42 @@ export class FormHelper {
             distinctUntilChanged((a, b) => AbstractControlMeta.compare(a, b))
         );
     }
-    public static getComplexValue$<T extends any>(
-        ctrl: AbstractControl<T>,
+   
+    public static getArrayValue$<TControl extends AbstractControl<any>>(
+        fa: FormArray<TControl>
+    ): Observable<TControl[]> {
+        return fa.statusChanges.pipe(
+            map(() => fa.controls.map(e => e as TControl)),
+            startWith(fa.controls.map(e => e as TControl)),
+            distinctUntilChanged((a, b) => {
+                const aArr = a as TControl[];
+                const bArr = b as TControl[];
+                if (aArr.length !== bArr.length) {
+                    return false;
+                }
+                for (let i = 0; i < a.length; i++) {
+                    const ai = a[i] as any;
+                    const bi = b[i] as any;
+                    if (ai?.ref?.id && bi?.ref?.id) {
+                        if (ai.ref.id !== bi.ref.id) {
+                            return false;
+                        }
+                    } else {
+                        if (ai !== bi) {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+
+            })
+        );
+    }
+    public static getGroupValue$<T extends Record<string, any>>(
+        ctrl: FormGroup<T>,
         fireInitial = true,
         onlyChangedValues = true
-    ): Observable<T | null> {
+    ): Observable<DeepPartial<T>> {
         let obs = ctrl.valueChanges.pipe();
         if (fireInitial) {
             obs = obs.pipe(startWith(ctrl.value));

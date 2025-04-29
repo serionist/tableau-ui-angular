@@ -5,14 +5,14 @@ import { FormHelper } from './form-helper';
 import { IAbstractControlWithRef } from './public-api';
 
 @Pipe({
-    name: 'formArrayControls',
+    name: 'formArrayValue',
     standalone: false,
     pure: true
 })
-export class FormArrayControlsPipe {
+export class FormArrayValuePipe {
   transform<TControl extends AbstractControl<any> = any>(
     form: FormArray<TControl>
   ): Observable<TControl[]> {
-    return FormHelper.arrayControls$(form);
+    return FormHelper.getArrayValue$(form);
   }
 }

@@ -74,7 +74,7 @@ export class FormGroupReference<
   ): FormGroupReference<TSource> {
     if (run.includes('onChange')) {
       this.subscriptions.push(
-        FormHelper.getComplexValue$(
+        FormHelper.getGroupValue$(
           this.control,
           onChangeParams.fireInitial,
           onChangeParams.onlyChanged
@@ -192,7 +192,7 @@ export class FormGroupReference<
     const control = formControlSelector(this.children).control;
     if (run.includes('onChange')) {
       this.subscriptions.push(
-        FormHelper.getComplexValue$(
+        FormHelper.getGroupValue$(
           control,
           onChangeParams.fireInitial,
           onChangeParams.onlyChanged
