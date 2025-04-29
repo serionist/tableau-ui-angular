@@ -126,36 +126,45 @@ export class FormHelper {
             distinctUntilChanged((a, b) => AbstractControlMeta.compare(a, b))
         );
     }
-   
+
     public static getArrayValue$<TControl extends AbstractControl<any>>(
-        fa: FormArray<TControl>
+        fa: FormArray<TControl>,
+        fireInitial = true,
+        onlyChangedValues = true
     ): Observable<TControl[]> {
-        return fa.statusChanges.pipe(
-            map(() => fa.controls.map(e => e as TControl)),
-            startWith(fa.controls.map(e => e as TControl)),
-            distinctUntilChanged((a, b) => {
-                const aArr = a as TControl[];
-                const bArr = b as TControl[];
-                if (aArr.length !== bArr.length) {
-                    return false;
-                }
-                for (let i = 0; i < a.length; i++) {
-                    const ai = a[i] as any;
-                    const bi = b[i] as any;
-                    if (ai?.ref?.id && bi?.ref?.id) {
-                        if (ai.ref.id !== bi.ref.id) {
-                            return false;
-                        }
-                    } else {
-                        if (ai !== bi) {
-                            return false;
+        let baseObs = fa.statusChanges;
+        if (fireInitial) {
+            baseObs = baseObs.pipe(startWith(fa.status));
+        }
+        let obs = baseObs.pipe(
+            map(() => fa.controls.map((e) => e as TControl))
+        );
+        if (onlyChangedValues) {
+            obs = obs.pipe(
+                distinctUntilChanged((a, b) => {
+                    const aArr = a as TControl[];
+                    const bArr = b as TControl[];
+                    if (aArr.length !== bArr.length) {
+                        return false;
+                    }
+                    for (let i = 0; i < a.length; i++) {
+                        const ai = a[i] as any;
+                        const bi = b[i] as any;
+                        if (ai?.ref?.id && bi?.ref?.id) {
+                            if (ai.ref.id !== bi.ref.id) {
+                                return false;
+                            }
+                        } else {
+                            if (ai !== bi) {
+                                return false;
+                            }
                         }
                     }
-                }
-                return true;
-
-            })
-        );
+                    return true;
+                })
+            );
+        }
+        return obs;
     }
     public static getGroupValue$<T extends Record<string, any>>(
         ctrl: FormGroup<T>,
@@ -167,26 +176,26 @@ export class FormHelper {
             obs = obs.pipe(startWith(ctrl.value));
         }
         if (onlyChangedValues) {
-            obs = obs.pipe(distinctUntilChanged((a, b) => {
-                if (!a && !b) {
-                    return true;
-                }
-                if (!a || !b) {
-                    return false;
-                }
-                if (typeof a === 'object' && typeof b === 'object') {
-                    try {
-                        return JSON.stringify(a) === JSON.stringify(b);
-                    } catch (e) {
+            obs = obs.pipe(
+                distinctUntilChanged((a, b) => {
+                    if (!a && !b) {
+                        return true;
+                    }
+                    if (!a || !b) {
                         return false;
                     }
-                }
-                return a === b;
-            }));
-
+                    if (typeof a === 'object' && typeof b === 'object') {
+                        try {
+                            return JSON.stringify(a) === JSON.stringify(b);
+                        } catch (e) {
+                            return false;
+                        }
+                    }
+                    return a === b;
+                })
+            );
         }
         return obs;
-
     }
     public static getValue$<T extends Primitive | Primitive[]>(
         ctrl: FormControl<T>,
@@ -207,27 +216,28 @@ export class FormHelper {
             );
         }
         if (onlyChangedValues) {
-            obs = obs.pipe(distinctUntilChanged((a, b) => {
-                if (!a && !b) {
-                    return true;
-                }
-                if (!a || !b) {
-                    return false;
-                }
-                if (Array.isArray(a) && Array.isArray(b)) {
-                    if (a.length !== b.length) {
+            obs = obs.pipe(
+                distinctUntilChanged((a, b) => {
+                    if (!a && !b) {
+                        return true;
+                    }
+                    if (!a || !b) {
                         return false;
                     }
-                    for (let i = 0; i < a.length; i++) {
-                        if (a[i] !== b[i]) {
+                    if (Array.isArray(a) && Array.isArray(b)) {
+                        if (a.length !== b.length) {
                             return false;
                         }
+                        for (let i = 0; i < a.length; i++) {
+                            if (a[i] !== b[i]) {
+                                return false;
+                            }
+                        }
+                        return true;
                     }
-                    return true;
-                }
-                return a === b;
-            }));
-
+                    return a === b;
+                })
+            );
         }
         if (log) {
             obs = obs.pipe(
@@ -239,8 +249,6 @@ export class FormHelper {
         }
         return obs;
     }
-
-
 }
 
 export class AbstractControlMeta {
