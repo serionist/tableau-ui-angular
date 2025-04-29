@@ -127,7 +127,7 @@ export class MenuComponent {
      * The menu may be repositioned if page bounds are hit to the opposite side
      * @default 'bottom'
      */
-    menuLocation = signal<'top' | 'bottom' | 'left' | 'right'>('bottom');
+    menuLocation = input<'top' | 'bottom' | 'left' | 'right'>('bottom');
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     prefix: Signal<PrefixComponent | undefined> =
         contentChild<PrefixComponent>(PrefixComponent);
