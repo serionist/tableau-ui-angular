@@ -63,7 +63,7 @@ export class FormGroupReference<
       | 'onAfterParentDisabled'
       | 'onAfterEnabled'
       | 'onAfterDisabled'
-    )[] = ['onChange', 'onAfterParentEnabled', 'onAfterEnabled'],
+    )[] = ['onChange', 'onAfterEnabled'],
     onChangeParams: {
       fireInitial: boolean;
       onlyChanged: boolean;
@@ -127,7 +127,7 @@ export class FormGroupReference<
       | 'onAfterParentDisabled'
       | 'onAfterEnabled'
       | 'onAfterDisabled'
-    )[] = ['onChange', 'onAfterParentEnabled', 'onAfterEnabled'],
+    )[] = ['onChange', 'onAfterEnabled'],
     onChangeParams: {
       fireInitial: boolean;
       onlyChanged: boolean;
@@ -180,7 +180,7 @@ export class FormGroupReference<
       | 'onAfterParentDisabled'
       | 'onAfterEnabled'
       | 'onAfterDisabled'
-    )[] = ['onChange', 'onAfterParentEnabled', 'onAfterEnabled'],
+    )[] = ['onChange', 'onAfterEnabled'],
     onChangeParams: {
       fireInitial: boolean;
       onlyChanged: boolean;
