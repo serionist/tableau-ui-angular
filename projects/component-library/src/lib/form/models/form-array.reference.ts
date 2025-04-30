@@ -15,6 +15,7 @@ import {
     BehaviorSubject,
     combineLatest,
     distinctUntilChanged,
+    filter,
     Observable,
     startWith,
 } from 'rxjs';
@@ -54,10 +55,8 @@ export class FA<TItem extends Record<string, any> = any> extends ACTyped<
         super('array', control, params.controls);
         this._controls$ = new BehaviorSubject<FG<TItem>[]>(params.controls);
         this._controls = signal(this._controls$.value);
-        
-        this._value$ = new BehaviorSubject<DeepPartial<TItem>[]>(
-            control.value
-        );
+
+        this._value$ = new BehaviorSubject<DeepPartial<TItem>[]>(control.value);
         this._value = signal(control.value);
 
         this.subscriptions.push(
@@ -96,11 +95,8 @@ export class FA<TItem extends Record<string, any> = any> extends ACTyped<
             })
         );
         this.subscriptions.push(
-            this._controls$.subscribe(v => 
-                this._controls.set(v)
-            )
+            this._controls$.subscribe((v) => this._controls.set(v))
         );
-
     }
     private get formArray() {
         return this.__private_control as FormArray<
@@ -112,12 +108,33 @@ export class FA<TItem extends Record<string, any> = any> extends ACTyped<
      * Registers a callback to be called when the value of the array changes.
      * The callback is always called initially.
      * @param callback
+     * @param alsoRunOnEnabled Whether to also run the callback when the control is enabled.
+     * @param alsoRunOnDisabled Whether to also run the callback when the control is disabled.
      */
     registerValueChange(
-        callback: (value: DeepPartial<TItem>[]) => void
+        callback: (value: DeepPartial<TItem>[]) => void,
+        alsoRunOnEnabled: boolean = false,
+        alsoRunOnDisabled: boolean = false
     ): FA<TItem> {
+        const subs: [Observable<DeepPartial<TItem>[]>, Observable<boolean>?] = [
+            this.value$,
+        ];
+        if (alsoRunOnEnabled || alsoRunOnDisabled) {
+            subs.push(
+                this.enabled$.pipe(
+                    filter((enabled) => {
+                        if (enabled && alsoRunOnEnabled) {
+                            return true;
+                        } else if (!enabled && alsoRunOnDisabled) {
+                            return true;
+                        }
+                        return false;
+                    })
+                )
+            );
+        }
         this.subscriptions.push(
-            this.value$.subscribe((v) => {
+            combineLatest(subs).subscribe(([v, e]) => {
                 callback(v);
             })
         );
@@ -170,7 +187,7 @@ export class FA<TItem extends Record<string, any> = any> extends ACTyped<
         this.childList.length = 0;
         this._controls$.next([]);
     }
-    at(index: number): FG<TItem> {  
+    at(index: number): FG<TItem> {
         return this.controls$.value[index];
     }
     // setControl(

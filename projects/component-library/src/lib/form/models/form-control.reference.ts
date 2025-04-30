@@ -5,6 +5,7 @@ import {
     BehaviorSubject,
     combineLatest,
     distinctUntilChanged,
+    filter,
     Observable,
     startWith,
 } from 'rxjs';
@@ -69,20 +70,37 @@ export class FC<T extends Primitive | Primitive[] = any> extends ACTyped<
                 })
         );
         this.subscriptions.push(
-          this._value$.subscribe((v) => {
-              this._value.set(v);
-          })
-      );
+            this._value$.subscribe((v) => {
+                this._value.set(v);
+            })
+        );
     }
 
     /**
      * Registers a callback to be called when the value of the control changes.
      * The callback is always called initially.
      * @param callback
+     * @param alsoRunOnEnabled Whether to also run the callback when the control is enabled.
+     * @param alsoRunOnDisabled Whether to also run the callback when the control is disabled.
      */
-    registerValueChange(callback: (value: T) => void): FC<T> {
+    registerValueChange(
+        callback: (value: T) => void,
+        alsoRunOnEnabled: boolean = false,
+        alsoRunOnDisabled: boolean = false
+    ): FC<T> {
+        const subs: [Observable<T>, Observable<boolean>?] = [this.value$];
+        if (alsoRunOnEnabled || alsoRunOnDisabled) {
+          subs.push(this.enabled$.pipe(filter(enabled => {
+            if (enabled && alsoRunOnEnabled) {
+                return true;
+            } else if (!enabled && alsoRunOnDisabled) {
+                return true;
+            }
+            return false;
+          })))
+        }
         this.subscriptions.push(
-            this.value$.subscribe((v) => {
+            combineLatest(subs).subscribe(([v, e]) => {
                 callback(v);
             })
         );

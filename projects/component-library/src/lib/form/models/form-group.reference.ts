@@ -13,6 +13,7 @@ import {
     BehaviorSubject,
     combineLatest,
     distinctUntilChanged,
+    filter,
     map,
     Observable,
     startWith,
@@ -95,12 +96,34 @@ export class FG<TSource extends Record<string, any> = any> extends ACTyped<
      * Registers a callback to be called when the value of the group changes.
      * The callback is always called initially.
      * @param callback
+     * @param alsoRunOnEnabled Whether to also run the callback when the control is enabled.
+     * @param alsoRunOnDisabled Whether to also run the callback when the control is disabled.
      */
     registerValueChange(
-        callback: (value: DeepPartial<TSource>) => void
+        callback: (value: DeepPartial<TSource>) => void,
+        alsoRunOnEnabled: boolean = false,
+        alsoRunOnDisabled: boolean = false
     ): FG<TSource> {
+        const subs: [Observable<DeepPartial<TSource>>, Observable<boolean>?] = [
+            this.value$,
+        ];
+        if (alsoRunOnEnabled || alsoRunOnDisabled) {
+          
+            subs.push(
+                this.enabled$.pipe(
+                    filter((enabled) => {
+                        if (enabled && alsoRunOnEnabled) {
+                            return true;
+                        } else if (!enabled && alsoRunOnDisabled) {
+                            return true;
+                        }
+                        return false;
+                    })
+                )
+            );
+        }
         this.subscriptions.push(
-            this.value$.subscribe((v) => {
+            combineLatest(subs).subscribe(([v, e]) => {
                 callback(v);
             })
         );
@@ -110,14 +133,43 @@ export class FG<TSource extends Record<string, any> = any> extends ACTyped<
      * Registers a callback to be called when the value of a child control changes
      * The callback is always called initially.
      * @param callback
+     * @param alsoRunOnEnabled Whether to also run the callback when the control is enabled.
+     * @param alsoRunOnDisabled Whether to also run the callback when the control is disabled.
      */
     registerChildChange<T extends Primitive | Primitive[]>(
         formControlSelector: (children: FormReferencesOf<TSource>) => FC<T>,
-        callback: (group: FG<TSource>, control: FC<T>, value: T) => void
+        callback: (group: FG<TSource>, control: FC<T>, value: T) => void,
+        alsoRunOnEnabled: boolean = false,
+        alsoRunOnDisabled: boolean = false
     ): FG<TSource> {
         const ctrl = formControlSelector(this.controls);
+
+        const subs: [Observable<T>, Observable<boolean>?] = [ctrl.value$.pipe(map(v => {
+          if (alsoRunOnEnabled) {
+          }
+          return v;
+        }))];
+        if (alsoRunOnEnabled || alsoRunOnDisabled) {
+         
+            subs.push(
+                this.enabled$.pipe(
+                    filter((enabled) => {
+                        if (enabled && alsoRunOnEnabled) {
+                            return true;
+                        } else if (!enabled && alsoRunOnDisabled) {
+                            return true;
+                        }
+                        return false;
+                    }),
+                    
+                    map(e => {
+                      return e;
+                    })
+                )
+            );
+        }
         this.subscriptions.push(
-            ctrl.value$.subscribe((v) => {
+            combineLatest(subs).subscribe(([v, e]) => {
                 callback(this, ctrl, v);
             })
         );
@@ -128,6 +180,8 @@ export class FG<TSource extends Record<string, any> = any> extends ACTyped<
      * Registers a callback to be called when the value of a child group changes
      * The callback is always called initially.
      * @param callback
+     * @param alsoRunOnEnabled Whether to also run the callback when the control is enabled.
+     * @param alsoRunOnDisabled Whether to also run the callback when the control is disabled.
      */
     registerChildGroupChange<T extends Record<string, any>>(
         formControlSelector: (children: FormReferencesOf<TSource>) => FG<T>,
@@ -135,11 +189,24 @@ export class FG<TSource extends Record<string, any> = any> extends ACTyped<
             group: FG<TSource>,
             control: FG<T>,
             value: DeepPartial<T>
-        ) => void
+        ) => void,
+        alsoRunOnEnabled: boolean = false,
+        alsoRunOnDisabled: boolean = false
     ): FG<TSource> {
         const ctrl = formControlSelector(this.controls);
+        const subs: [Observable<DeepPartial<T>>, Observable<boolean>?] = [ctrl.value$];
+        if (alsoRunOnEnabled || alsoRunOnDisabled) {
+          subs.push(this.enabled$.pipe(filter(enabled => {
+            if (enabled && alsoRunOnEnabled) {
+                return true;
+            } else if (!enabled && alsoRunOnDisabled) {
+                return true;
+            }
+            return false;
+          })))
+        }
         this.subscriptions.push(
-            ctrl.value$.subscribe((v) => {
+            combineLatest(subs).subscribe(([v, e]) => {
                 callback(this, ctrl, v);
             })
         );

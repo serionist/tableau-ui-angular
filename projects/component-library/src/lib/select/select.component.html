@@ -30,6 +30,7 @@
     (click)="clearValue($event)"
     (keydown)="clearKeyDown($event)"
     tabindex="0"
+    [disabled]="disabled()"
 >
     <tab-icon value="clear"></tab-icon>
 </button>

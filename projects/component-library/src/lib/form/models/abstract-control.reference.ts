@@ -27,6 +27,7 @@ import { FA } from './form-array.reference';
 import { FG } from './form-group.reference';
 import { ReadonlyBehaviorSubject } from '../types/readonly-behaviorsubject';
 import { Signal, signal, WritableSignal } from '@angular/core';
+import { FC } from './form-control.reference';
 
 export abstract class AC<TValue = any> {
     readonly id: string = generateRandomString();
@@ -60,14 +61,12 @@ export abstract class AC<TValue = any> {
 
     protected abstract readonly _value$: BehaviorSubject<TValue>;
     protected abstract readonly _value: WritableSignal<TValue>;
-
     get value$(): ReadonlyBehaviorSubject<TValue> {
         return this._value$;
     }
     get value(): Signal<TValue> {
         return this._value;
     }
-
     private readonly _meta$: BehaviorSubject<AbstractControlMeta>;
     private readonly _metaSignal: WritableSignal<AbstractControlMeta>;
     get meta$(): ReadonlyBehaviorSubject<AbstractControlMeta> {
@@ -75,6 +74,14 @@ export abstract class AC<TValue = any> {
     }
     get meta(): Signal<AbstractControlMeta> {
         return this._metaSignal;
+    }
+    private readonly _enabled$: BehaviorSubject<boolean>;
+    private readonly _enabledSignal: WritableSignal<boolean>;
+    get enabled$(): ReadonlyBehaviorSubject<boolean> {
+        return this._enabled$;
+    }
+    get enabled(): Signal<boolean> {
+        return this._enabledSignal;
     }
 
     constructor(
@@ -104,6 +111,25 @@ export abstract class AC<TValue = any> {
                     this._meta$.next(meta);
                     this._metaSignal.set(meta);
                 })
+        );
+        this._enabled$ = new BehaviorSubject<boolean>(
+            this.__private_control.enabled
+        );
+        this._enabledSignal = signal<boolean>(this.__private_control.enabled);
+        this.subscriptions.push(
+            this.meta$
+                .pipe(
+                    map((meta) => meta.validity !== 'DISABLED'),
+                    distinctUntilChanged()
+                )
+                .subscribe((enabled) => {
+                    this._enabled$.next(enabled);
+                })
+        );
+        this.subscriptions.push(
+            this._enabled$.subscribe((enabled) => {
+                this._enabledSignal.set(enabled);
+            })
         );
     }
     public getRawValue(): TValue {
@@ -236,12 +262,25 @@ export abstract class AC<TValue = any> {
     }
 
     public enable(emitEvent = true, enableAncestors = false) {
+        // this is needed!
+        // it is possible to enable an enabled control again
+        // this will re-enable all child controls, which we might have changed
+        if (this.enabled()) {
+            return;
+        }
+
         this.__private_control.enable({
             onlySelf: !enableAncestors,
             emitEvent: emitEvent,
         });
     }
     public disable(emitEvent = true, disableAncestors = false) {
+        // this is needed!
+        // it is possible to disable an disable control again
+        // this will re-disable all child controls, which we might have changed
+        if (!this.enabled()) {
+            return;
+        }
         this.__private_control.disable({
             onlySelf: !disableAncestors,
             emitEvent: emitEvent,
@@ -283,6 +322,51 @@ export abstract class AC<TValue = any> {
             )
         );
     }
+
+    public printHierarchy() {
+        return AC._getHierarchyData(this);
+    }
+
+    private static _getHierarchyData(control: AC, name = ''): ACHierarchyData {
+        if (control.meta().validity !== control.__private_control.status) {
+            throw new Error(
+                `Control ${
+                    name ?? control.id
+                } has a different status than the meta. ${
+                    control.__private_control.status
+                } != ${control.meta().validity}`
+            );
+        }
+        const ret = {
+            status: control.meta().validity,
+            value: control.value(),
+            meta: control.meta(),
+        } as ACHierarchyData;
+        if (control.type === 'group') {
+            const group = control as FG;
+            ret.children = Object.keys(group.controls).reduce((acc, key) => {
+                const child = group.controls[key];
+                if (child) {
+                    acc[key] = this._getHierarchyData(child, key);
+                }
+                return acc;
+            }, {} as { [key: string]: ACHierarchyData });
+        }
+        if (control.type === 'array') {
+            const arr = control as FA;
+            ret.children = arr.controls$.value.reduce((acc, child, index) => {
+                if (child) {
+                    acc[index] = this._getHierarchyData(
+                        child,
+                        index.toString()
+                    );
+                }
+                return acc;
+            }, {} as { [key: string]: ACHierarchyData });
+        }
+
+        return ret;
+    }
     destroy(): void {
         this.subscriptions.forEach((sub) => sub.unsubscribe());
         this.subscriptions.length = 0;
@@ -296,12 +380,15 @@ export abstract class ACTyped<TChild extends AC, TValue> extends AC<TValue> {
     //     );
     //     return this as unknown as TChild;
     // }
-    // registerEnableChange(callback: (enabled: boolean) => void): TChild {
-    //     this.subscriptions.push(
-    //         this.afterEnableChange.subscribe((e) => callback(e))
-    //     );
-    //     return this as unknown as TChild;
-    // }
+    registerEnableChange(callback: (enabled: boolean) => void): TChild {
+        this.subscriptions.push(this.enabled$.subscribe((e) => callback(e)));
+        return this as unknown as TChild;
+    }
+
+    registerMetaChange(callback: (meta: AbstractControlMeta) => void): TChild {
+        this.subscriptions.push(this.meta$.subscribe((meta) => callback(meta)));
+        return this as unknown as TChild;
+    }
     forceAlwaysDisabled(): TChild {
         this.__private_control.disable();
         this.subscriptions.push(
@@ -534,6 +621,7 @@ export class AbstractControlMeta {
         }
         if (
             (!requireTouched || meta.touched) &&
+            meta.validity === 'INVALID' &&
             meta.errors &&
             (!errorCode
                 ? Object.keys(meta.errors).length > 0
@@ -558,6 +646,7 @@ export class AbstractControlMeta {
         }
         if (
             (!requireTouched || meta.touched) &&
+            meta.validity === 'INVALID' &&
             meta.errors &&
             errorCode in meta.errors
         ) {
@@ -637,4 +726,10 @@ export class AbstractControlMeta {
         }
         return true;
     }
+}
+export interface ACHierarchyData {
+    status: FormControlStatus;
+    value: any;
+    meta: AbstractControlMeta;
+    children?: { [key: string]: ACHierarchyData };
 }
