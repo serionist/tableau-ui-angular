@@ -1,34 +1,24 @@
 import { AbstractControl } from '@angular/forms';
-import { Observable, of, switchMap } from 'rxjs';
+import { map, Observable, of, switchMap } from 'rxjs';
 import { Pipe } from '@angular/core';
-import { AbstractControlMeta, FormHelper } from './form-helper';
+import { FC } from './public-api';
+import { AbstractControlMeta, AC } from './models/abstract-control.reference';
 
 @Pipe({
     name: 'formMeta',
     standalone: false,
-    pure: true
+    pure: true,
 })
 export class FormMetaPipe {
     transform(
-        form: AbstractControl | undefined | null,
-        path?: string,
-        fireInitial: boolean = true,
-        listenFor: (
-            | 'touched'
-            | 'status'
-            | 'pristine'
-            | 'submitted'
-            | 'reset'
-        )[] = ['touched', 'status']
+        form: AC | undefined | null,
+        path?: string
     ): Observable<AbstractControlMeta | null> {
         if (!form) {
             return of(null);
         }
-        const pathParts = path?.split('.').filter((p) => p !== '') ?? [];
-        return FormHelper.getFormControl(form, pathParts).pipe(
-            switchMap((e) =>
-                e ? FormHelper.getMeta$(e, fireInitial, listenFor) : of(null)
-            )
-        );
+        return form
+            .getChild(path)
+            .pipe(switchMap((c) => (c ? c.meta$ : of(null))));
     }
 }

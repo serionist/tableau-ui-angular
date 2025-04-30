@@ -6,238 +6,183 @@ import {
     AsyncValidatorFn,
 } from '@angular/forms';
 import { ControlsOf } from '../types/controls-of';
-import {
-    AbstractControlTypedReference,
-    IAbstractControlWithRef,
-} from './abstract-control.reference';
-import { FormControlReference } from './form-control.reference';
-import { FormGroupReference } from './form-group.reference';
 import { Primitive } from '../types/primitive';
-import { FormHelper } from '../form-helper';
+import { AC, ACTyped } from './abstract-control.reference';
+import { FC } from './form-control.reference';
+import { FG } from './form-group.reference';
+import { DeepPartial } from '../types/deep-partial';
+import {
+    BehaviorSubject,
+    combineLatest,
+    distinctUntilChanged,
+    Observable,
+    startWith,
+} from 'rxjs';
+import { signal, WritableSignal } from '@angular/core';
+import { ReadonlyBehaviorSubject } from '../types/readonly-behaviorsubject';
 
-export class FormArrayReference<
-    TItem extends Record<string, any> | Primitive | Primitive[]
-> extends AbstractControlTypedReference<FormArrayReference<TItem>> {
-    override readonly control: FormArray<
-        TItem extends Record<string, any>
-            ? FormGroup<ControlsOf<TItem>>
-            : FormControl<TItem>
-    > &
-        IAbstractControlWithRef;
-
+export class FA<TItem extends Record<string, any> = any> extends ACTyped<
+    FA<TItem>,
+    DeepPartial<TItem>[]
+> {
+    protected override _value: WritableSignal<DeepPartial<TItem>[]>;
+    protected override readonly _value$: BehaviorSubject<DeepPartial<TItem>[]>;
+    private readonly _controls$: BehaviorSubject<FG<TItem>[]>;
+    private readonly _controls: WritableSignal<FG<TItem>[]>;
+    get controls$(): ReadonlyBehaviorSubject<FG<TItem>[]> {
+        return this._controls$;
+    }
+    get controls(): WritableSignal<FG<TItem>[]> {
+        return this._controls;
+    }
     constructor(params: {
-        children: (TItem extends Record<string, any>
-            ? FormGroupReference<TItem>
-            : TItem extends Primitive | Primitive[]
-            ? FormControlReference<TItem>
-            : never)[];
+        controls: FG<TItem>[];
         validators?: ValidatorFn | ValidatorFn[];
         asyncValidators?: AsyncValidatorFn | AsyncValidatorFn[];
         updateOn?: 'change' | 'blur' | 'submit';
     }) {
-        super();
-
-        const controlsArray = params.children.map((child) => child.control);
+        const controlsArray = params.controls.map(
+            (child) => child.__private_control as FormGroup<ControlsOf<TItem>>
+        );
 
         const control = new FormArray(controlsArray, {
             validators: params.validators,
             asyncValidators: params.asyncValidators,
             updateOn: params.updateOn,
-        }) as unknown as FormArray<
-            TItem extends Record<string, any>
-                ? FormGroup<ControlsOf<TItem>>
-                : FormControl<TItem>
-        >;
-        this.control = control as FormArray<
-            TItem extends Record<string, any>
-                ? FormGroup<ControlsOf<TItem>>
-                : FormControl<TItem>
-        > &
-            IAbstractControlWithRef;
-        this.control.ref = this; // Assign the reference to the control
+        });
 
-        this.childList = params.children.map((child) => child);
+        super('array', control, params.controls);
+        this._controls$ = new BehaviorSubject<FG<TItem>[]>(params.controls);
+        this._controls = signal(this._controls$.value);
+        
+        this._value$ = new BehaviorSubject<DeepPartial<TItem>[]>(
+            control.value
+        );
+        this._value = signal(control.value);
 
-        this.modifyControlMethods();
-
-        this.modifyFormMethods();
-    }
-
-    private modifyFormMethods() {
-        const originalPush = this.control.push.bind(this.control);
-        const originalRemoveAt = this.control.removeAt.bind(this.control);
-        const originalInsert = this.control.insert.bind(this.control);
-        const originalClear = this.control.clear.bind(this.control);
-        const originalSetControl = this.control.setControl.bind(this.control);
-
-        const validateInputAndPrepareOp = (
-            operation: string,
-            control: TItem extends Record<string, any>
-                ? FormGroup<ControlsOf<TItem>> & IAbstractControlWithRef
-                : FormControl<TItem> & IAbstractControlWithRef
-        ) => {
-            if (!this.isCompatibleReference(control) || !control.ref) {
-                throw new Error(
-                    `You can only ${operation} AbstractControls in the array that implement IAbstractControlWithRef -> have an AbstractControlReference`
-                );
-            }
-            return {};
-        };
-
-        this.control.push = (
-            control: TItem extends Record<string, any>
-                ? FormGroup<ControlsOf<TItem>> & IAbstractControlWithRef
-                : FormControl<TItem> & IAbstractControlWithRef,
-            options?: {
-                emitEvent?: boolean;
-            }
-        ) => {
-            validateInputAndPrepareOp('push', control);
-            // add them to the FormArray
-            originalPush(control, options);
-            // add them to childList
-            this.childList.push(control.ref);
-        };
-
-        this.control.insert = (
-            index: number,
-            control: TItem extends Record<string, any>
-                ? FormGroup<ControlsOf<TItem>> & IAbstractControlWithRef
-                : FormControl<TItem> & IAbstractControlWithRef,
-            options?: {
-                emitEvent?: boolean;
-            }
-        ) => {
-            validateInputAndPrepareOp('insert', control);
-            // add them to the FormArray
-            originalInsert(index, control, options);
-            // add them to childList
-            this.childList.splice(index, 0, control.ref);
-        };
-        this.control.removeAt = (
-            index: number,
-            options?: {
-                emitEvent?: boolean;
-            }
-        ) => {
-            originalRemoveAt(index, options);
-            const child = this.childList[index];
-            if (child) {
-                child.destroy();
-                this.childList.splice(index, 1);
-            }
-        };
-        this.control.clear = (options?: { emitEvent?: boolean }) => {
-            originalClear(options);
-            this.childList.forEach((child) => {
-                child.destroy();
-            });
-            this.childList = [];
-        };
-        this.control.setControl = (
-            index: number,
-            control: TItem extends Record<string, any>
-                ? FormGroup<ControlsOf<TItem>> & IAbstractControlWithRef
-                : FormControl<TItem> & IAbstractControlWithRef,
-            options?: { emitEvent?: boolean }
-        ) => {
-            validateInputAndPrepareOp('setControl', control);
-            originalSetControl(index, control, options);
-            this.childList[index] = control.ref;
-        };
-    }
-
-    private isCompatibleReference(control: any): control is IAbstractControlWithRef {
-        if (control.ref) {
-            return true;
-        }
-        return false;
-    }
-
-    registerControlsChange(
-        callback: (
-            value: (TItem extends Record<string, any>
-                ? FormGroup<ControlsOf<TItem>>
-                : FormControl<TItem>)[]
-        ) => void,
-        run: (
-            | 'onChange'
-            | 'onAfterParentEnabled'
-            | 'onAfterParentDisabled'
-            | 'onAfterEnabled'
-            | 'onAfterDisabled'
-        )[] = ['onChange', 'onAfterEnabled'],
-        onChangeParams: {
-            fireInitial: boolean;
-            onlyChanged: boolean;
-        } = {
-            fireInitial: true,
-            onlyChanged: true,
-        }
-    ): FormArrayReference<TItem> {
-        if (run.includes('onChange')) {
-            this.subscriptions.push(
-                FormHelper.getArrayValue$(this.control).subscribe((val) =>
-                    callback(val)
+        this.subscriptions.push(
+            control.valueChanges
+                .pipe(
+                    startWith(control.value),
+                    distinctUntilChanged((a, b) => {
+                        const aArr = a as TItem[];
+                        const bArr = b as TItem[];
+                        if (aArr.length !== bArr.length) {
+                            return false;
+                        }
+                        for (let i = 0; i < a.length; i++) {
+                            const ai = a[i] as any;
+                            const bi = b[i] as any;
+                            if (ai?.ref?.id && bi?.ref?.id) {
+                                if (ai.ref.id !== bi.ref.id) {
+                                    return false;
+                                }
+                            } else {
+                                if (ai !== bi) {
+                                    return false;
+                                }
+                            }
+                        }
+                        return true;
+                    })
                 )
-            );
-        }
-        if (run.includes('onAfterParentEnabled')) {
-            this.registerParentEnableChange((e) => {
-                e === true
-                    ? callback(
-                          this.control.value as (TItem extends Record<
-                              string,
-                              any
-                          >
-                              ? FormGroup<ControlsOf<TItem>>
-                              : FormControl<TItem>)[]
-                      )
-                    : () => {};
-            });
-        }
-        if (run.includes('onAfterParentDisabled')) {
-            this.registerParentEnableChange((e) => {
-                e === false
-                    ? callback(
-                          this.control.value as (TItem extends Record<
-                              string,
-                              any
-                          >
-                              ? FormGroup<ControlsOf<TItem>>
-                              : FormControl<TItem>)[]
-                      )
-                    : () => {};
-            });
-        }
-        if (run.includes('onAfterEnabled')) {
-            this.registerEnableChange((e) => {
-                e === true
-                    ? callback(
-                          this.control.value as (TItem extends Record<
-                              string,
-                              any
-                          >
-                              ? FormGroup<ControlsOf<TItem>>
-                              : FormControl<TItem>)[]
-                      )
-                    : () => {};
-            });
-        }
-        if (run.includes('onAfterDisabled')) {
-            this.registerEnableChange((e) => {
-                e === false
-                    ? callback(
-                          this.control.value as (TItem extends Record<
-                              string,
-                              any
-                          >
-                              ? FormGroup<ControlsOf<TItem>>
-                              : FormControl<TItem>)[]
-                      )
-                    : () => {};
-            });
-        }
+                .subscribe((v) => {
+                    this._value$.next(v);
+                })
+        );
+        this.subscriptions.push(
+            this._value$.subscribe((v) => {
+                this._value.set(v);
+            })
+        );
+        this.subscriptions.push(
+            this._controls$.subscribe(v => 
+                this._controls.set(v)
+            )
+        );
+
+    }
+    private get formArray() {
+        return this.__private_control as FormArray<
+            FormGroup<ControlsOf<TItem>>
+        >;
+    }
+
+    /**
+     * Registers a callback to be called when the value of the array changes.
+     * The callback is always called initially.
+     * @param callback
+     */
+    registerValueChange(
+        callback: (value: DeepPartial<TItem>[]) => void
+    ): FA<TItem> {
+        this.subscriptions.push(
+            this.value$.subscribe((v) => {
+                callback(v);
+            })
+        );
         return this;
     }
+    push(
+        control: FG<TItem>,
+        options?: {
+            emitEvent?: boolean;
+        }
+    ) {
+        this.formArray.push(
+            control.__private_control as FormGroup<ControlsOf<TItem>>,
+            options
+        );
+        this.childList.push(control);
+        this._controls$.next([...this.controls$.value, control]);
+    }
+
+    removeAt(index: number, options?: { emitEvent?: boolean }) {
+        this.formArray.removeAt(index, options);
+        this.childList[index].destroy();
+        this.childList.splice(index, 1);
+        const controls = this.controls$.value;
+        controls.splice(index, 1);
+        this._controls$.next(controls);
+    }
+    insert(
+        index: number,
+        control: FG<TItem>,
+        options?: {
+            emitEvent?: boolean;
+        }
+    ) {
+        this.formArray.insert(
+            index,
+            control.__private_control as FormGroup<ControlsOf<TItem>>,
+            options
+        );
+        this.childList.splice(index, 0, control);
+        const controls = this.controls$.value;
+        controls.splice(index, 0, control);
+        this._controls$.next(controls);
+    }
+    clear(options?: { emitEvent?: boolean }) {
+        this.formArray.clear(options);
+        this.childList.forEach((child) => {
+            child.destroy();
+        });
+        this.childList.length = 0;
+        this._controls$.next([]);
+    }
+    at(index: number): FG<TItem> {  
+        return this.controls$.value[index];
+    }
+    // setControl(
+    //     index: number,
+    //     control: TItem extends Record<string, any>
+    //         ? FG<ControlsOf<TItem>>
+    //         : TItem extends Primitive | Primitive[]
+    //         ? FC<TItem>
+    //         : never,
+    //     options?: { emitEvent?: boolean }
+    // ) {
+    //     this.__private_control.setControl(index, control.__private_abstractcontrol as any, options);
+    //     this.childList[index] = control;
+    // }
 }

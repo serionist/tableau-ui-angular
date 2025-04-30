@@ -1,9 +1,9 @@
 import { ValidatorFn, AsyncValidatorFn } from "@angular/forms";
 import { FormReferencesOf } from "../types/form-references-of";
-import { FormArrayReference } from "./form-array.reference";
-import { FormControlReference } from "./form-control.reference";
-import { FormGroupReference } from "./form-group.reference";
 import { Primitive } from "../types/primitive";
+import { FC } from "./form-control.reference";
+import { FG } from "./form-group.reference";
+import { FA } from "./form-array.reference";
 
 export class ControlReferenceBuilder {
     control<T extends Primitive | Primitive[]>(
@@ -12,8 +12,8 @@ export class ControlReferenceBuilder {
       asyncValidators?: AsyncValidatorFn | AsyncValidatorFn[],
       initialDisabled?: boolean,
       updateOn?: 'change' | 'blur' | 'submit'
-    ): FormControlReference<T> {
-      return new FormControlReference<T>({
+    ): FC<T> {
+      return new FC<T>({
         defaultValue: value,
         validators: validators,
         asyncValidators: asyncValidators,
@@ -22,30 +22,26 @@ export class ControlReferenceBuilder {
       });
     }
     group<T extends Record<string, any>>(
-      children: FormReferencesOf<T>,
+      controls: FormReferencesOf<T>,
       validators?: ValidatorFn | ValidatorFn[],
       asyncValidators?: AsyncValidatorFn | AsyncValidatorFn[],
       updateOn?: 'change' | 'blur' | 'submit'
-    ): FormGroupReference<T> {
-      return new FormGroupReference<T>({
-        children: children,
+    ): FG<T> {
+      return new FG<T>({
+        controls: controls,
         validators: validators,
         asyncValidators: asyncValidators,
         updateOn: updateOn,
       });
     }
-    array<TItem extends Record<string, any> | Primitive>(
-      children: (TItem extends Record<string, any>
-        ? FormGroupReference<TItem>
-        : TItem extends Primitive | Primitive[]
-        ? FormControlReference<TItem>
-        : never)[],
+    array<TItem extends Record<string, any>>(
+      controls: FG<TItem>[],
       validators?: ValidatorFn | ValidatorFn[],
       asyncValidators?: AsyncValidatorFn | AsyncValidatorFn[],
       updateOn?: 'change' | 'blur' | 'submit'
-    ): FormArrayReference<TItem> {
-      return new FormArrayReference<TItem>({
-        children: children,
+    ): FA<TItem> {
+      return new FA<TItem>({
+        controls: controls,
         validators: validators,
         asyncValidators: asyncValidators,
         updateOn: updateOn,

@@ -1,6 +1,6 @@
 import { Pipe } from '@angular/core';
 import { AbstractControl } from '@angular/forms';
-import { AbstractControlMeta } from './form-helper';
+import { AbstractControlMeta } from './models/abstract-control.reference';
 
 @Pipe({
   name: 'formError',

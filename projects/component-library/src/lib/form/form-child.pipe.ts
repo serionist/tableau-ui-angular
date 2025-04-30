@@ -12,25 +12,25 @@ import {
 } from '@angular/forms';
 
 @Pipe({
-    name: 'formControl',
+    name: 'formChild',
     standalone: false,
     pure: true,
 })
-export class FormControlPipe {
+export class FormChildPipe {
     transform<T extends 'control' | 'group' | 'array' | 'abstract' = 'control'>(
         form: AC | undefined | null,
         path?: string | undefined,
         type?: T
     ): Observable<
         T extends 'control'
-            ? FormControl | null
+            ? FC | null
             : T extends 'group'
-            ? FormGroup | null
+            ? FG | null
             : T extends 'array'
-            ? FormArray | null
+            ? FA | null
             : T extends 'abstract'
-            ? AbstractControl | null
-            : AbstractControl | null
+            ? AC | null
+            : AC | null
     > {
         if (!form) {
             return of(null) as any;
@@ -41,41 +41,41 @@ export class FormControlPipe {
                     return null;
                 }
                 if (type === 'control') {
-                    if (c.__private_control instanceof FormControl) {
-                        return c.__private_control;
+                    if (c.type === 'control') {
+                        return c as FC;
                     }
                     throw new Error(
-                        'Expected a FormControl, but got a ' + c.type
+                        'Expected a control, but got a ' + c.type
                     );
                 }
                 if (type === 'group') {
-                    if (c.__private_control instanceof FormGroup) {
-                        return c.__private_control;
+                    if (c.type === 'group') {
+                        return c as FG;
                     }
                     throw new Error(
-                        'Expected a FormGroup, but got a ' + c.type
+                        'Expected a group, but got a ' + c.type
                     );
                 }
                 if (type === 'array') {
-                    if (c.__private_control instanceof FormArray) {
-                        return c.__private_control;
+                    if (c.type === 'array') {
+                        return c as FA;
                     }
                     throw new Error(
-                        'Expected a FormArray, but got a ' + c.type
+                        'Expected a array, but got a ' + c.type
                     );
                 }
-                return c.__private_control;
+                return c as AC;
             })
         ) as unknown as Observable<
             T extends 'control'
-                ? FormControl | null
+                ? FC | null
                 : T extends 'group'
-                ? FormGroup | null
+                ? FG | null
                 : T extends 'array'
-                ? FormArray | null
+                ? FA | null
                 : T extends 'abstract'
-                ? AbstractControl | null
-                : AbstractControl | null
+                ? AC | null
+                : AC | null
         >;
     }
 }

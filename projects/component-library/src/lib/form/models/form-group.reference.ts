@@ -1,224 +1,148 @@
-import { AbstractControl, AsyncValidatorFn, FormControl, FormGroup, ValidatorFn } from "@angular/forms";
-import { AbstractControlReference, AbstractControlTypedReference, IAbstractControlWithRef } from "./abstract-control.reference";
-import { ControlsOf } from "../types/controls-of";
-import { FormReferencesOf } from "../types/form-references-of";
-import { FormControlReference } from "./form-control.reference";
-import { FormHelper } from "../form-helper";
-import { Primitive } from "../types/primitive";
+import {
+    AbstractControl,
+    AsyncValidatorFn,
+    FormControl,
+    FormGroup,
+    ValidatorFn,
+} from '@angular/forms';
 
-export class FormGroupReference<
-  TSource extends Record<string, any>
-> extends AbstractControlTypedReference<FormGroupReference<TSource>> {
-  override readonly control: FormGroup<ControlsOf<TSource>> &
-    IAbstractControlWithRef;
+import { ControlsOf } from '../types/controls-of';
+import { FormReferencesOf } from '../types/form-references-of';
+import { AC, ACTyped } from './abstract-control.reference';
+import {
+    BehaviorSubject,
+    combineLatest,
+    distinctUntilChanged,
+    map,
+    Observable,
+    startWith,
+} from 'rxjs';
+import { DeepPartial } from '../types/deep-partial';
+import { Primitive } from '../types/primitive';
+import { FC } from './form-control.reference';
+import { signal, WritableSignal } from '@angular/core';
 
-  readonly children: FormReferencesOf<TSource>;
-  constructor(params: {
-    children: FormReferencesOf<TSource>;
-    validators?: ValidatorFn | ValidatorFn[];
-    asyncValidators?: AsyncValidatorFn | AsyncValidatorFn[];
-    updateOn?: 'change' | 'blur' | 'submit';
-  }) {
-    super();
-    this.children = params.children;
+export class FG<TSource extends Record<string, any> = any> extends ACTyped<
+    FG<TSource>,
+    DeepPartial<TSource>
+> {
+    protected override _value: WritableSignal<DeepPartial<TSource>>;
+    protected override readonly _value$: BehaviorSubject<DeepPartial<TSource>>;
+    readonly controls: FormReferencesOf<TSource>;
+    constructor(params: {
+        controls: FormReferencesOf<TSource>;
+        validators?: ValidatorFn | ValidatorFn[];
+        asyncValidators?: AsyncValidatorFn | AsyncValidatorFn[];
+        updateOn?: 'change' | 'blur' | 'submit';
+    }) {
+        const controls = Object.entries(params.controls).reduce(
+            (acc, [key, child]) => {
+                acc[key as keyof TSource] = child['abstractControl']; // Bracket access for protected fields
+                return acc;
+            },
+            {} as Partial<ControlsOf<TSource>>
+        );
+        const control = new FormGroup<ControlsOf<TSource>>(
+            controls as ControlsOf<TSource>,
+            {
+                validators: params.validators,
+                asyncValidators: params.asyncValidators,
+                updateOn: params.updateOn,
+            }
+        );
 
-    const a: Record<string, AbstractControlReference> = params.children;
-    const aRef: Record<string, AbstractControl> = {};
-    Object.keys(a).forEach((key) => {
-      aRef[key] = (a[key] as AbstractControlReference).control;
-    });
+        const childList = Object.entries(params.controls).map(
+            ([key, child]) => child as AC
+        );
+        super('group', control, childList);
+        this.controls = params.controls;
+        this._value$ = new BehaviorSubject<DeepPartial<TSource>>(control.value);
+        this._value = signal<DeepPartial<TSource>>(this._value$.value);
 
-    const controls = Object.entries(params.children).reduce(
-      (acc, [key, child]) => {
-        acc[key as keyof TSource] = child['control']; // Bracket access for protected fields
-        return acc;
-      },
-      {} as Partial<ControlsOf<TSource>>
-    );
+        this.subscriptions.push(
+            control.valueChanges
+                .pipe(
+                    startWith(control.value as DeepPartial<TSource>),
+                    distinctUntilChanged((a, b) => {
+                        if (!a && !b) {
+                            return true;
+                        }
+                        if (!a || !b) {
+                            return false;
+                        }
+                        if (typeof a === 'object' && typeof b === 'object') {
+                            try {
+                                return JSON.stringify(a) === JSON.stringify(b);
+                            } catch (e) {
+                                return false;
+                            }
+                        }
+                        return a === b;
+                    })
+                )
+                .subscribe((v) => {
+                    this._value$.next(v);
+                })
+        );
+        this.subscriptions.push(
+            this._value$.subscribe((v) => {
+                this._value.set(v);
+            })
+        );
+    }
 
-    const control = new FormGroup<ControlsOf<TSource>>(
-      controls as ControlsOf<TSource>,
-      {
-        validators: params.validators,
-        asyncValidators: params.asyncValidators,
-        updateOn: params.updateOn,
-      }
-    );
-    this.control = control as FormGroup<ControlsOf<TSource>> &
-      IAbstractControlWithRef;
-    this.control.ref = this; // Assign the reference to the control
+    /**
+     * Registers a callback to be called when the value of the group changes.
+     * The callback is always called initially.
+     * @param callback
+     */
+    registerValueChange(
+        callback: (value: DeepPartial<TSource>) => void
+    ): FG<TSource> {
+        this.subscriptions.push(
+            this.value$.subscribe((v) => {
+                callback(v);
+            })
+        );
+        return this;
+    }
+    /**
+     * Registers a callback to be called when the value of a child control changes
+     * The callback is always called initially.
+     * @param callback
+     */
+    registerChildChange<T extends Primitive | Primitive[]>(
+        formControlSelector: (children: FormReferencesOf<TSource>) => FC<T>,
+        callback: (group: FG<TSource>, control: FC<T>, value: T) => void
+    ): FG<TSource> {
+        const ctrl = formControlSelector(this.controls);
+        this.subscriptions.push(
+            ctrl.value$.subscribe((v) => {
+                callback(this, ctrl, v);
+            })
+        );
+        return this;
+    }
 
-    this.childList = Object.entries(params.children).map(
-      ([key, child]) => child
-    );
-
-    this.modifyControlMethods();
-  }
-
-  registerRootChange(
-    callback: (value: Partial<TSource>) => void,
-    run: (
-      | 'onChange'
-      | 'onAfterParentEnabled'
-      | 'onAfterParentDisabled'
-      | 'onAfterEnabled'
-      | 'onAfterDisabled'
-    )[] = ['onChange', 'onAfterEnabled'],
-    onChangeParams: {
-      fireInitial: boolean;
-      onlyChanged: boolean;
-    } = {
-      fireInitial: true,
-      onlyChanged: true,
+    /**
+     * Registers a callback to be called when the value of a child group changes
+     * The callback is always called initially.
+     * @param callback
+     */
+    registerChildGroupChange<T extends Record<string, any>>(
+        formControlSelector: (children: FormReferencesOf<TSource>) => FG<T>,
+        callback: (
+            group: FG<TSource>,
+            control: FG<T>,
+            value: DeepPartial<T>
+        ) => void
+    ): FG<TSource> {
+        const ctrl = formControlSelector(this.controls);
+        this.subscriptions.push(
+            ctrl.value$.subscribe((v) => {
+                callback(this, ctrl, v);
+            })
+        );
+        return this;
     }
-  ): FormGroupReference<TSource> {
-    if (run.includes('onChange')) {
-      this.subscriptions.push(
-        FormHelper.getGroupValue$(
-          this.control,
-          onChangeParams.fireInitial,
-          onChangeParams.onlyChanged
-        ).subscribe((val) => callback(val as Partial<TSource>))
-      );
-    }
-    if (run.includes('onAfterParentEnabled')) {
-      this.registerParentEnableChange((b) => {
-        b === true
-          ? callback(this.control.getRawValue() as Partial<TSource>)
-          : () => {};
-      });
-    }
-    if (run.includes('onAfterParentDisabled')) {
-      this.registerParentEnableChange((b) => {
-        b === false
-          ? callback(this.control.getRawValue() as Partial<TSource>)
-          : () => {};
-      });
-    }
-    if (run.includes('onAfterEnabled')) {
-      this.registerEnableChange((b) => {
-        b === true
-          ? callback(this.control.getRawValue() as Partial<TSource>)
-          : () => {};
-      });
-    }
-    if (run.includes('onAfterDisabled')) {
-      this.registerEnableChange((b) => {
-        b === false
-          ? callback(this.control.getRawValue() as Partial<TSource>)
-          : () => {};
-      });
-    }
-    return this;
-  }
-
-  registerChildControlChange<T extends Primitive | Primitive[]>(
-    formControlSelector: (
-      children: FormReferencesOf<TSource>
-    ) => FormControlReference<T>,
-    callback: (
-      control: FormControl<T>,
-      group: FormGroup<ControlsOf<TSource>>,
-      value: T
-    ) => void,
-    run: (
-      | 'onChange'
-      | 'onAfterParentEnabled'
-      | 'onAfterParentDisabled'
-      | 'onAfterEnabled'
-      | 'onAfterDisabled'
-    )[] = ['onChange', 'onAfterEnabled'],
-    onChangeParams: {
-      fireInitial: boolean;
-      onlyChanged: boolean;
-    } = {
-      fireInitial: true,
-      onlyChanged: true,
-    }
-  ): FormGroupReference<TSource> {
-    const ctrl = formControlSelector(this.children).control;
-    if (run.includes('onChange')) {
-      this.subscriptions.push(
-        FormHelper.getValue$(
-          ctrl,
-          onChangeParams.fireInitial,
-          onChangeParams.onlyChanged
-        ).subscribe((val) => callback(ctrl, this.control, val as T))
-      );
-    }
-    if (run.includes('onAfterParentEnabled')) {
-      this.registerParentEnableChange((b) => {
-        b === true ? callback(ctrl, this.control, ctrl.value as T) : () => {};
-      });
-    }
-    if (run.includes('onAfterParentDisabled')) {
-      this.registerParentEnableChange((b) => {
-        b === false ? callback(ctrl, this.control, ctrl.value as T) : () => {};
-      });
-    }
-    if (run.includes('onAfterEnabled')) {
-      this.registerEnableChange((b) => {
-        b === true ? callback(ctrl, this.control, ctrl.value as T) : () => {};
-      });
-    }
-    if (run.includes('onAfterDisabled')) {
-      this.registerEnableChange((b) => {
-        b === false ? callback(ctrl, this.control, ctrl.value as T) : () => {};
-      });
-    }
-    return this;
-  }
-
-  registerChildGroupChange<T extends Record<string, any>>(
-    formControlSelector: (
-      children: FormReferencesOf<TSource>
-    ) => FormGroupReference<T>,
-    callback: (value: Partial<T>) => void,
-    run: (
-      | 'onChange'
-      | 'onAfterParentEnabled'
-      | 'onAfterParentDisabled'
-      | 'onAfterEnabled'
-      | 'onAfterDisabled'
-    )[] = ['onChange', 'onAfterEnabled'],
-    onChangeParams: {
-      fireInitial: boolean;
-      onlyChanged: boolean;
-    } = {
-      fireInitial: true,
-      onlyChanged: true,
-    }
-  ): FormGroupReference<TSource> {
-    const control = formControlSelector(this.children).control;
-    if (run.includes('onChange')) {
-      this.subscriptions.push(
-        FormHelper.getGroupValue$(
-          control,
-          onChangeParams.fireInitial,
-          onChangeParams.onlyChanged
-        ).subscribe((val) => callback(val as Partial<T>))
-      );
-    }
-    if (run.includes('onAfterParentEnabled')) {
-      this.registerParentEnableChange((b) => {
-        b === true ? callback(control.getRawValue() as Partial<T>) : () => {};
-      });
-    }
-    if (run.includes('onAfterParentDisabled')) {
-      this.registerParentEnableChange((b) => {
-        b === false ? callback(control.getRawValue() as Partial<T>) : () => {};
-      });
-    }
-    if (run.includes('onAfterEnabled')) {
-      this.registerEnableChange((b) => {
-        b === true ? callback(control.getRawValue() as Partial<T>) : () => {};
-      });
-    }
-    if (run.includes('onAfterDisabled')) {
-      this.registerEnableChange((b) => {
-        b === false ? callback(control.getRawValue() as Partial<T>) : () => {};
-      });
-    }
-    return this;
-  }
 }

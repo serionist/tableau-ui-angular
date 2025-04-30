@@ -1,8 +1,8 @@
 import { AbstractControl, FormArray } from '@angular/forms';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { Pipe } from '@angular/core';
-import { FormHelper } from './form-helper';
-import { IAbstractControlWithRef } from './public-api';
+import { FA } from './models/form-array.reference';
+import { FG } from './public-api';
 
 @Pipe({
     name: 'formArrayValue',
@@ -10,9 +10,12 @@ import { IAbstractControlWithRef } from './public-api';
     pure: true
 })
 export class FormArrayValuePipe {
-  transform<TControl extends AbstractControl<any> = any>(
-    form: FormArray<TControl>
-  ): Observable<TControl[]> {
-    return FormHelper.getArrayValue$(form);
+  transform<TItem extends Record<string, any> = any>(
+    formRef: FA<TItem> | undefined | null,
+  ): Observable<FG<TItem>[] | null> {
+    if (!formRef) {
+      return of(null);
+    }
+    return formRef.controls$;
   }
 }
