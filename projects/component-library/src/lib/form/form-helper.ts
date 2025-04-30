@@ -78,6 +78,25 @@ export class FormHelper {
         }
     }
 
+    public static async isInvalid(ctrl: AbstractControl) {
+        if (ctrl.status === 'INVALID') {
+            return true;
+        }
+        if (ctrl.status === 'PENDING') {
+            return new Promise<boolean>(resolve => {
+                const sub = ctrl.statusChanges.pipe(startWith(ctrl.status), distinct()).subscribe(s => {
+                    if (s === 'INVALID') {
+                        resolve(true);
+                        sub.unsubscribe();
+                    } else if (s !== 'PENDING') {
+                        resolve(false);
+                        sub.unsubscribe();
+                    }
+                });
+            });
+        }
+        return false;
+    }
     public static getMeta$(
         ctrl: AbstractControl,
         fireInitial = true,
@@ -256,8 +275,7 @@ export class AbstractControlMeta {
         public type: 'formControl' | 'formGroup' | 'formArray',
         public touched: boolean,
         public untouched: boolean,
-        public valid: boolean,
-        public invalid: boolean,
+        public validity: FormControlStatus,
         public dirty: boolean,
         public pristine: boolean,
         public enabled: boolean,
@@ -284,8 +302,7 @@ export class AbstractControlMeta {
             type,
             control.touched,
             control.untouched,
-            control.valid,
-            control.invalid,
+            control.status,
             control.dirty,
             control.pristine,
             control.enabled,
@@ -363,8 +380,7 @@ export class AbstractControlMeta {
         const baseEqual =
             a.touched === b.touched &&
             a.untouched === b.untouched &&
-            a.valid === b.valid &&
-            a.invalid === b.invalid &&
+            a.validity === b.validity &&
             a.dirty === b.dirty &&
             a.pristine === b.pristine &&
             a.enabled === b.enabled &&
