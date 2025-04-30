@@ -37,7 +37,7 @@ export class FG<TSource extends Record<string, any> = any> extends ACTyped<
     }) {
         const controls = Object.entries(params.controls).reduce(
             (acc, [key, child]) => {
-                acc[key as keyof TSource] = child['abstractControl']; // Bracket access for protected fields
+                acc[key as keyof TSource] = child['__private_control']; // Bracket access for protected fields
                 return acc;
             },
             {} as Partial<ControlsOf<TSource>>

@@ -28,18 +28,13 @@ import { FG } from './form-group.reference';
 import { ReadonlyBehaviorSubject } from '../types/readonly-behaviorsubject';
 import { Signal, signal, WritableSignal } from '@angular/core';
 
-abstract class ɵInternalAC {
+export abstract class AC<TValue = any> {
+    readonly id: string = generateRandomString();
+    readonly type: 'control' | 'group' | 'array';
     /** @internal */
     readonly __private_control: AbstractControl;
     readonly childList: AC[];
-    constructor(control: AbstractControl, childList: AC[] = []) {
-        this.__private_control = control;
-        this.childList = childList;
-    }
-}
-export abstract class AC<TValue = any> extends ɵInternalAC {
-    readonly id: string = generateRandomString();
-    readonly type: 'control' | 'group' | 'array';
+
     protected _parent: AC | undefined;
     /**
      *  The parent of this control
@@ -87,12 +82,13 @@ export abstract class AC<TValue = any> extends ɵInternalAC {
         control: AbstractControl,
         childList: AC[] = []
     ) {
-        super(control, childList);
-        for (const child of childList) {
-            child._parent = this;
-        }
+        this.__private_control = control;
+        this.childList = childList.map((c) => {
+            c._parent = this;
+            return c;
+        });
         this.type = type;
-
+        this._validators = new ValidatorOperations(this.__private_control);
         const initialMeta = AbstractControlMeta.fromControl(this);
         this._meta$ = new BehaviorSubject<AbstractControlMeta>(initialMeta);
         this._metaSignal = signal<AbstractControlMeta>(initialMeta);
@@ -234,7 +230,7 @@ export abstract class AC<TValue = any> extends ɵInternalAC {
         return of(null);
     }
 
-    private _validators = new ValidatorOperations(this.__private_control);
+    private readonly _validators: ValidatorOperations;
     get validators(): ValidatorOperations {
         return this._validators;
     }
