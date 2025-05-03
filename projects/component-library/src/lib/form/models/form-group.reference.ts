@@ -61,7 +61,7 @@ export class FG<TSource extends Record<string, any> = any> extends ACTyped<
                 updateOn: params.updateOn,
             }
         );
-
+        
         const childList = Object.entries(params.controls).map(
             ([key, child]) => child as AC
         );
@@ -150,7 +150,7 @@ export class FGRegisterFunctions<
                 callback(v);
             })
         );
-        return this as unknown as FG<TSource>;
+        return this.control as unknown as FG<TSource>;
     }
     /**
      * Registers a callback to be called when the value of a child control changes
@@ -197,7 +197,7 @@ export class FGRegisterFunctions<
                 callback(this.control, ctrl, v);
             })
         );
-        return this as unknown as FG<TSource>;
+        return this.control as unknown as FG<TSource>;
     }
 
     /**
@@ -241,7 +241,7 @@ export class FGRegisterFunctions<
                 callback(this.control, ctrl, v);
             })
         );
-        return this as unknown as FG<TSource>;
+        return this.control as unknown as FG<TSource>;
     }
 
 }

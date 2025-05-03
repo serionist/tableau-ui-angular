@@ -63,8 +63,10 @@ export abstract class AC<TValue = any> {
         childList: AC[] = []
     ) {
         this.id = ControlRegistry.register(control);
+
         this.control = control;
         this.hierarchy = new ACHierarchy(this, childList);
+
         this.subscriptions.push(
             this.hierarchy.childList$.subscribe((childList) => {
                 childList.forEach((c) => {
@@ -341,6 +343,7 @@ export class ACHierarchy {
             status: control.meta().validity,
             value: control.value(),
             meta: control.meta(),
+            id: control.id,
         } as ACHierarchyData;
         if (control.type === 'group') {
             const group = control as FG;
@@ -369,6 +372,7 @@ export class ACHierarchy {
     }
 }
 export interface ACHierarchyData {
+    id: number;
     status: FormControlStatus;
     value: any;
     meta: AbstractControlMeta;
@@ -846,7 +850,6 @@ export class AbstractControlMeta {
     ) {}
 
     static fromControl(control: AC): AbstractControlMeta {
-        let childControls: AbstractControlMeta[] | undefined = undefined;
         const c = ControlRegistry.controls.get(control.id);
         if (!c) {
             throw new Error(
