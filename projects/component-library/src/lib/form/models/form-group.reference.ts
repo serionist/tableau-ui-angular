@@ -122,7 +122,7 @@ export class FGRegisterFunctions<
      * @param alsoRunOnEnabled Whether to also run the callback when the control is enabled.
      * @param alsoRunOnDisabled Whether to also run the callback when the control is disabled.
      */
-      registerValueChange(
+      valueChange(
         callback: (value: DeepPartial<TSource>) => void,
         alsoRunOnEnabled: boolean = false,
         alsoRunOnDisabled: boolean = false
@@ -159,7 +159,7 @@ export class FGRegisterFunctions<
      * @param alsoRunOnEnabled Whether to also run the callback when the control is enabled.
      * @param alsoRunOnDisabled Whether to also run the callback when the control is disabled.
      */
-    registerChildChange<T extends Primitive | Primitive[]>(
+    childChange<T extends Primitive | Primitive[]>(
         formControlSelector: (children: FormReferencesOf<TSource>) => FC<T>,
         callback: (group: FG<TSource>, control: FC<T>, value: T) => void,
         alsoRunOnEnabled: boolean = false,
@@ -207,7 +207,7 @@ export class FGRegisterFunctions<
      * @param alsoRunOnEnabled Whether to also run the callback when the control is enabled.
      * @param alsoRunOnDisabled Whether to also run the callback when the control is disabled.
      */
-    registerChildGroupChange<T extends Record<string, any>>(
+    childGroupChange<T extends Record<string, any>>(
         formControlSelector: (children: FormReferencesOf<TSource>) => FG<T>,
         callback: (
             group: FG<TSource>,

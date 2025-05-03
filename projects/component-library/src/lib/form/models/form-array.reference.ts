@@ -208,7 +208,7 @@ export class FARegisterFuctions<
      * @param alsoRunOnEnabled Whether to also run the callback when the control is enabled.
      * @param alsoRunOnDisabled Whether to also run the callback when the control is disabled.
      */
-    registerValueChange(
+    valueChange(
         callback: (value: DeepPartial<TItem>[]) => void,
         alsoRunOnEnabled: boolean = false,
         alsoRunOnDisabled: boolean = false
