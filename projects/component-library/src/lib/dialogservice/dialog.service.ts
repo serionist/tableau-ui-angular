@@ -69,9 +69,9 @@ export class DialogService {
                 return `calc(50vh - ${actualHeight / 2}px)`;
             },
             header: args?.header,
-            trapFocus: true
+            trapFocus: true,
         } as IDialogArgs;
-        
+
         const ref = this.openDialog(component, inputs, a);
         return ref;
     }
@@ -173,14 +173,15 @@ export class DialogService {
         args: IDialogArgs = {},
         insertAfterElement?: HTMLElement
     ): DialogRef {
-
-        let trappedFocus:{
-            elements: {
-                element: FocusableElement;
-                originalTabIndex: number;
-            }[];
-            focusedElement: HTMLElement | null;
-        } | undefined = undefined;
+        let trappedFocus:
+            | {
+                  elements: {
+                      element: FocusableElement;
+                      originalTabIndex: number;
+                  }[];
+                  focusedElement: HTMLElement | null;
+              }
+            | undefined = undefined;
         // Before creating the dialog, trap focus
         // This means that we get all elements which are tabbable and set the tabindex to -1 for the duration of the popup
         if (args.trapFocus) {
@@ -198,7 +199,13 @@ export class DialogService {
         this.dialogStack.push({ dialogRef, zIndex, args });
 
         // Set the backdrop
-        this.setBackdropAndEscape();
+        const backdrop = this.createBackdrop(
+            args,
+            dialogRef,
+            zIndex - 1,
+            insertAfterElement
+        );
+        this.setEscapeHandler();
 
         // Create an injector that provides the DialogRef
         const injector = Injector.create({
@@ -221,18 +228,19 @@ export class DialogService {
         );
         dialogRef.dialogElement = dialogElement;
 
-        if (insertAfterElement) {
-            insertAfterElement.insertAdjacentElement('afterend', dialogElement);
-        } else {
-            document.body.appendChild(dialogElement);
-        }
+        // always insert element after the backdrop
+        backdrop.insertAdjacentElement('afterend', dialogElement);
         // Handle container position and window resize event
-        dialogRef.reposition = (getArgs: (originalArgs: IDialogPositionAndSizeArgs) => void) => {
+        dialogRef.reposition = (
+            getArgs: (originalArgs: IDialogPositionAndSizeArgs) => void
+        ) => {
             getArgs(args);
             DialogService.calculateAndSetPosition(dialogElement, args);
-        }
-        const resizeSubscription = this.manageDialogPosition(dialogElement, args);
-
+        };
+        const resizeSubscription = this.manageDialogPosition(
+            dialogElement,
+            args
+        );
 
         // Handle dialog close
         dialogRef.afterClosed$.subscribe(() => {
@@ -243,12 +251,14 @@ export class DialogService {
             componentView.destroy();
             dialogElement.remove();
 
-            
             const dialogIndex = this.dialogStack.findIndex(
                 (d) => d.zIndex === zIndex
             );
             this.dialogStack.splice(dialogIndex, 1);
-            this.setBackdropAndEscape();
+            // clear backdrop
+            backdrop.remove();
+            // set escape handler
+            this.setEscapeHandler();
             // restore focus to the elements that were trapped
             if (trappedFocus) {
                 this.restoreFocus(trappedFocus);
@@ -258,45 +268,43 @@ export class DialogService {
         return dialogRef;
     }
 
-    // Moves the backdrop behind the topmost dialog
-    // called when a dialog is created/destroyed
-    // create or destroy the backdrop as needed
-    backdrop: HTMLDivElement | null = null;
-    escapeSubscription: Subscription | null = null;
-    private setBackdropAndEscape() {
-        // remove backdrop if needed
-        if (this.dialogStack.length <= 0) {
-            this.backdrop?.remove();
-            this.backdrop = null;
-            return;
-        } else if (!this.backdrop) {
-            // create backdrop if needed
-            this.backdrop = document.createElement('div');
-            this.backdrop.classList.add('dialog-backdrop');
-            document.body.appendChild(this.backdrop);
-        }
-        // reset the custom css for the backdrop
-        this.backdrop.style.cssText = '';
-        // get the dialog to set the backdrop for
-        const { dialogRef, zIndex, args } =
-            this.dialogStack[this.dialogStack.length - 1];
-
-        // set the zIndex of the backdrop
-        this.backdrop.style.zIndex = (zIndex - 1).toString();
-
+    private createBackdrop(
+        args: IDialogArgs,
+        dialogRef: DialogRef,
+        dialogZIndex: number,
+        insertAfterElement?: HTMLElement
+    ): HTMLDivElement {
+        const backdrop = document.createElement('div');
+        backdrop.classList.add('dialog-backdrop');
+        backdrop.style.zIndex = (dialogZIndex - 1).toString();
         if (args.backdropCss) {
             Object.keys(args.backdropCss).forEach((key) => {
-                (this.backdrop!.style as any)[key] = args.backdropCss![key];
+                (backdrop.style as any)[key] = args.backdropCss![key];
             });
         }
-        if (args.closeOnBackdropClick) {
-            this.backdrop.onclick = () => dialogRef.close();
+        if (insertAfterElement) {
+            insertAfterElement.insertAdjacentElement('afterend', backdrop);
+        } else {
+            document.body.appendChild(backdrop);
         }
+        if (args.closeOnBackdropClick) {
+            backdrop.onclick = () => dialogRef.close();
+        }
+        return backdrop;
+    }
 
+    escapeSubscription: Subscription | null = null;
+    private setEscapeHandler() {
         if (this.escapeSubscription) {
             this.escapeSubscription.unsubscribe();
             this.escapeSubscription = null;
         }
+        if (this.dialogStack.length <= 0) {
+            return;
+        }
+        // get the dialog to set the escape for
+        const { dialogRef, zIndex, args } =
+            this.dialogStack[this.dialogStack.length - 1];
         if (args.closeOnEscape) {
             this.escapeSubscription = fromEvent(document, 'keydown')
                 .pipe(map((e) => e as KeyboardEvent))
@@ -312,6 +320,7 @@ export class DialogService {
                 });
         }
     }
+
 
     private createView<T>(
         component: Type<T>,
@@ -345,7 +354,7 @@ export class DialogService {
         const dialogElement = (viewRef as any).rootNodes[0] as HTMLElement;
         dialogElement.classList.add('dialog-container');
         dialogElement.style.zIndex = zIndex.toString();
-       
+
         if (args.containerCss) {
             Object.keys(args.containerCss).forEach((key) => {
                 (dialogElement.style as any)[key] = args.containerCss![key];
@@ -385,44 +394,45 @@ export class DialogService {
         return dialogElement;
     }
 
-   
-   private manageDialogPosition(
-    dialogElement: HTMLElement,
-    args: IDialogPositionAndSizeArgs
-): Subscription | null {
-    // Temporarily position the dialog offscreen to get its dimensions
-    dialogElement.style.top = '-9999px';
-    dialogElement.style.left = '-9999px';
+    private manageDialogPosition(
+        dialogElement: HTMLElement,
+        args: IDialogPositionAndSizeArgs
+    ): Subscription | null {
+        // Temporarily position the dialog offscreen to get its dimensions
+        dialogElement.style.top = '-9999px';
+        dialogElement.style.left = '-9999px';
 
-    setTimeout(() => {
-        DialogService.calculateAndSetPosition(dialogElement, args);
-    }, 10);
+        setTimeout(() => {
+            DialogService.calculateAndSetPosition(dialogElement, args);
+        }, 10);
 
-    let resizeSubscription: Subscription | null = null;
+        let resizeSubscription: Subscription | null = null;
 
-    // Handle window resize event
-    resizeSubscription = fromEvent(window, 'resize').subscribe(() => {
-        DialogService.calculateAndSetPosition(dialogElement, args);
-    });
+        // Handle window resize event
+        resizeSubscription = fromEvent(window, 'resize').subscribe(() => {
+            DialogService.calculateAndSetPosition(dialogElement, args);
+        });
 
-    // Monitor changes to the size of the dialog
-    const resizeObserver = new ResizeObserver(() => {
-        DialogService.calculateAndSetPosition(dialogElement, args);
-    });
+        // Monitor changes to the size of the dialog
+        const resizeObserver = new ResizeObserver(() => {
+            DialogService.calculateAndSetPosition(dialogElement, args);
+        });
 
-    // Start observing the dialog element
-    resizeObserver.observe(dialogElement);
+        // Start observing the dialog element
+        resizeObserver.observe(dialogElement);
 
-    // Return a subscription-like object that also disconnects the observer
-    return new Subscription(() => {
-        resizeObserver.disconnect();
-        resizeSubscription?.unsubscribe();
-    });
-}
+        // Return a subscription-like object that also disconnects the observer
+        return new Subscription(() => {
+            resizeObserver.disconnect();
+            resizeSubscription?.unsubscribe();
+        });
+    }
 
-    private static calculateAndSetPosition(dialogElement: HTMLElement, args: IDialogPositionAndSizeArgs) {
-      
-        if (args.maxWidth)  {
+    private static calculateAndSetPosition(
+        dialogElement: HTMLElement,
+        args: IDialogPositionAndSizeArgs
+    ) {
+        if (args.maxWidth) {
             dialogElement.style.maxWidth = args.maxWidth;
         }
         if (args.maxHeight) {
@@ -452,12 +462,12 @@ export class DialogService {
         if (actualHeight + dialogElement.offsetTop > window.innerHeight) {
             dialogElement.style.height = `calc(100vh - ${dialogElement.offsetTop}px)`;
             dialogElement.style.overflowY = 'auto';
-        } 
+        }
         // if dialog is wider than the available page width, set it to scroll
         if (actualWidth + dialogElement.offsetLeft > window.innerWidth) {
             dialogElement.style.width = `calc(100vw - ${dialogElement.offsetLeft}px)`;
             dialogElement.style.overflowX = 'auto';
-        } 
+        }
     }
 
     private trapFocus(): {
@@ -482,15 +492,13 @@ export class DialogService {
             focusedElement: focusedElement,
         };
     }
-    private restoreFocus(
-        obj: {
-            elements: {
-                element: FocusableElement;
-                originalTabIndex: number;
-            }[];
-            focusedElement: HTMLElement | null;
-        }
-    ) {
+    private restoreFocus(obj: {
+        elements: {
+            element: FocusableElement;
+            originalTabIndex: number;
+        }[];
+        focusedElement: HTMLElement | null;
+    }) {
         obj.elements.forEach((e) => (e.element.tabIndex = e.originalTabIndex));
         if (obj.focusedElement) {
             obj.focusedElement.focus();
