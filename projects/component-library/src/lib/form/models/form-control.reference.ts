@@ -17,7 +17,7 @@ export class FC<T extends Primitive | Primitive[] = any> extends ACTyped<
     FC<T>,
     T
 > {
-    override registerFn: ACRegisterFunctions<ACTyped<FC<T>, T>, FC<T>, T>;
+    override registerFn: FCRegisterFunctions<T>;
     protected override _value: WritableSignal<T>;
     override readonly _value$: BehaviorSubject<T>;
     constructor(params: {
@@ -77,11 +77,11 @@ export class FC<T extends Primitive | Primitive[] = any> extends ACTyped<
                 this._value.set(v);
             })
         );
-        this.registerFn = new FCRegisterFuctions<T>(this, this.subscriptions);
+        this.registerFn = new FCRegisterFunctions<T>(this, this.subscriptions);
     }
 }
 
-export class FCRegisterFuctions<
+export class FCRegisterFunctions<
     T extends Primitive | Primitive[] = any
 > extends ACRegisterFunctions<ACTyped<FC<T>, T>, FC<T>, T> {
     constructor(control: FC<T>, subscriptions: Subscription[] = []) {

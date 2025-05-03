@@ -29,11 +29,7 @@ export class FA<TItem extends Record<string, any> = any> extends ACTyped<
     FA<TItem>,
     DeepPartial<TItem>[]
 > {
-    override registerFn: ACRegisterFunctions<
-        ACTyped<FA<TItem>, DeepPartial<TItem>[]>,
-        FA<TItem>,
-        DeepPartial<TItem>[]
-    >;
+    override registerFn: FARegisterFunctions<TItem>;
     protected override _value: WritableSignal<DeepPartial<TItem>[]>;
     protected override readonly _value$: BehaviorSubject<DeepPartial<TItem>[]>;
     get controls$(): ReadonlyBehaviorSubject<FG<TItem>[]> {
@@ -68,9 +64,10 @@ export class FA<TItem extends Record<string, any> = any> extends ACTyped<
         });
 
         super('array', control, params.controls);
-        this.registerFn = new FARegisterFuctions<
-            TItem
-        >(this, this.subscriptions);
+        this.registerFn = new FARegisterFunctions<TItem>(
+            this,
+            this.subscriptions
+        );
         this._controls = signal(this.controls$.value);
 
         this._value$ = new BehaviorSubject<DeepPartial<TItem>[]>(control.value);
@@ -187,7 +184,7 @@ export class FA<TItem extends Record<string, any> = any> extends ACTyped<
         return this.controls$.value[index];
     }
 }
-export class FARegisterFuctions<
+export class FARegisterFunctions<
     TItem extends Record<string, any> = any
 > extends ACRegisterFunctions<
     ACTyped<FA<TItem>, DeepPartial<TItem>[]>,
@@ -195,7 +192,7 @@ export class FARegisterFuctions<
     DeepPartial<TItem>[]
 > {
     constructor(
-        override control: FA<TItem>,
+        protected override control: FA<TItem>,
         subscriptions: Subscription[] = []
     ) {
         super(control, subscriptions);

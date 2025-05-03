@@ -29,7 +29,7 @@ export class FG<TSource extends Record<string, any> = any> extends ACTyped<
     FG<TSource>,
     DeepPartial<TSource>
 > {
-    override registerFn: ACRegisterFunctions<ACTyped<FG<TSource>, DeepPartial<TSource>>, FG<TSource>, DeepPartial<TSource>>;
+    override registerFn: FGRegisterFunctions<TSource>;
     protected override _value: WritableSignal<DeepPartial<TSource>>;
     protected override readonly _value$: BehaviorSubject<DeepPartial<TSource>>;
     readonly controls: FormReferencesOf<TSource>;
@@ -111,7 +111,7 @@ export class FGRegisterFunctions<
     TSource extends Record<string, any> = any
 > extends ACRegisterFunctions<ACTyped<FG<TSource>, DeepPartial<TSource>>, FG<TSource>, DeepPartial<TSource>> {
     
-    constructor(override control: FG<TSource>, subscriptions: Subscription[] = []) {
+    constructor(protected override control: FG<TSource>, subscriptions: Subscription[] = []) {
         super(control, subscriptions);
     }
 

@@ -792,7 +792,7 @@ export class ACRegisterFunctions<
         protected subscriptions: Subscription[]
     ) {}
 
-    registerEnableChange(callback: (enabled: boolean) => void): TChild {
+    enableChange(callback: (enabled: boolean) => void): TChild {
         this.subscriptions.push(
             this.control.meta$
                 .pipe(
@@ -804,13 +804,13 @@ export class ACRegisterFunctions<
         return this.control as unknown as TChild;
     }
 
-    registerMetaChange(callback: (meta: AbstractControlMeta) => void): TChild {
+    metaChange(callback: (meta: AbstractControlMeta) => void): TChild {
         this.subscriptions.push(
             this.control.meta$.subscribe((meta) => callback(meta))
         );
         return this.control as unknown as TChild;
     }
-    forceAlwaysDisabled(): TChild {
+    alwaysDisabled(): TChild {
         this.control.metaFn.disable();
         this.subscriptions.push(
             this.control.meta$.subscribe((meta) => {

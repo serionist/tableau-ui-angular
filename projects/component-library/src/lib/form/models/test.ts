@@ -10,8 +10,7 @@ import { combineLatest } from 'rxjs';
 const a = new FC<boolean>({
     defaultValue: true,
 });
-
-
+a.registerFn
 const b = new ControlReferenceBuilder();
 const a2 = b.control('asd'); 
 export interface ITest {
@@ -66,6 +65,7 @@ const g = new FG<ITest>({
         }),
     },
 });
+g.registerFn
 const gbuilder = b.group<ITest>({
     name: b.control<string>('test'),
     age: b.control<number>(0),
