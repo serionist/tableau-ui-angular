@@ -6,6 +6,7 @@ import {
     FormControl,
     FormControlStatus,
     FormGroup,
+    FormResetEvent,
     ValidationErrors,
     ValidatorFn,
 } from '@angular/forms';
@@ -28,36 +29,16 @@ import { FG } from './form-group.reference';
 import { ReadonlyBehaviorSubject } from '../types/readonly-behaviorsubject';
 import { Signal, signal, WritableSignal } from '@angular/core';
 import { FC } from './form-control.reference';
+import { ControlRegistry } from './control-registry';
 
 export abstract class AC<TValue = any> {
-    readonly id: string = generateRandomString();
+    readonly id: number;
     readonly type: 'control' | 'group' | 'array';
-    /** @internal */
-    readonly __private_control: AbstractControl;
-    readonly childList: AC[];
+    protected readonly control: AbstractControl;
 
-    protected _parent: AC | undefined;
-    /**
-     *  The parent of this control
-     */
-    get parent(): AC | undefined {
-        return this._parent;
-    }
-    /**
-     * The root of this control. This is the top level control in the tree.
-     */
-    get root(): AC | undefined {
-        let parent = this.parent;
-        while (parent) {
-            if (parent.parent) {
-                parent = parent.parent;
-            } else {
-                return parent;
-            }
-        }
-        return undefined;
-    }
     protected subscriptions: Subscription[] = [];
+
+    readonly hierarchy: ACHierarchy;
 
     protected abstract readonly _value$: BehaviorSubject<TValue>;
     protected abstract readonly _value: WritableSignal<TValue>;
@@ -75,32 +56,28 @@ export abstract class AC<TValue = any> {
     get meta(): Signal<AbstractControlMeta> {
         return this._metaSignal;
     }
-    private readonly _enabled$: BehaviorSubject<boolean>;
-    private readonly _enabledSignal: WritableSignal<boolean>;
-    get enabled$(): ReadonlyBehaviorSubject<boolean> {
-        return this._enabled$;
-    }
-    get enabled(): Signal<boolean> {
-        return this._enabledSignal;
-    }
 
     constructor(
         type: 'control' | 'group' | 'array',
         control: AbstractControl,
         childList: AC[] = []
     ) {
-        this.__private_control = control;
-        this.childList = childList.map((c) => {
-            c._parent = this;
-            return c;
-        });
+        this.id = ControlRegistry.register(control);
+        this.control = control;
+        this.hierarchy = new ACHierarchy(this, childList);
+        this.subscriptions.push(
+            this.hierarchy.childList$.subscribe((childList) => {
+                childList.forEach((c) => {
+                    c.hierarchy.parent = this;
+                });
+            })
+        );
         this.type = type;
-        this._validators = new ValidatorOperations(this.__private_control);
         const initialMeta = AbstractControlMeta.fromControl(this);
         this._meta$ = new BehaviorSubject<AbstractControlMeta>(initialMeta);
         this._metaSignal = signal<AbstractControlMeta>(initialMeta);
         this.subscriptions.push(
-            this.__private_control.events
+            this.control.events
                 .pipe(
                     map(() => AbstractControlMeta.fromControl(this)),
                     distinctUntilChanged((a, b) =>
@@ -112,28 +89,9 @@ export abstract class AC<TValue = any> {
                     this._metaSignal.set(meta);
                 })
         );
-        this._enabled$ = new BehaviorSubject<boolean>(
-            this.__private_control.enabled
-        );
-        this._enabledSignal = signal<boolean>(this.__private_control.enabled);
-        this.subscriptions.push(
-            this.meta$
-                .pipe(
-                    map((meta) => meta.validity !== 'DISABLED'),
-                    distinctUntilChanged()
-                )
-                .subscribe((enabled) => {
-                    this._enabled$.next(enabled);
-                })
-        );
-        this.subscriptions.push(
-            this._enabled$.subscribe((enabled) => {
-                this._enabledSignal.set(enabled);
-            })
-        );
     }
     public getRawValue(): TValue {
-        return this.__private_control.getRawValue() as TValue;
+        return this.control.getRawValue() as TValue;
     }
     /**
      * Sets a new value for the form control.
@@ -167,62 +125,166 @@ export abstract class AC<TValue = any> {
             emitViewToModelChange?: boolean;
         }
     ) {
-        this.__private_control.setValue(value, options);
-    }
-    /**
-     * Sets errors on a form control when running validations manually, rather than automatically.
-     *
-     * Calling `setErrors` also updates the validity of the parent control.
-     *
-     * @param opts Configuration options that determine how the control propagates
-     * changes and emits events after the control errors are set.
-     * * `emitEvent`: When true or not supplied (the default), the `statusChanges`
-     * observable emits an event after the errors are set.
-     *
-     * @usageNotes
-     *
-     * ### Manually set the errors for a control
-     *
-     * ```ts
-     * const login = new FormControl('someLogin');
-     * login.setErrors({
-     *   notUnique: true
-     * });
-     *
-     * expect(login.valid).toEqual(false);
-     * expect(login.errors).toEqual({ notUnique: true });
-     *
-     * login.setValue('someOtherLogin');
-     *
-     * expect(login.valid).toEqual(true);
-     * ```
-     */
-    public setErrors(errors: ValidationErrors | null, emitEvent = true) {
-        this.__private_control.setErrors(errors, { emitEvent });
+        this.control.setValue(value, options);
     }
 
-    public updateAllValidation(markAsTouched = true) {
-        AC._updateAllValidation(this, markAsTouched);
+    /**
+     * Recalculates the value and validation status of the control.
+     *
+     * By default, it also updates the value and validity of its ancestors.
+     *
+     * @param opts Configuration options determine how the control propagates changes and emits events
+     * after updates and validity checks are applied.
+     * * `onlySelf`: When true, only update this control. When false or not supplied,
+     * update all direct ancestors. Default is false.
+     * * `emitEvent`: When true or not supplied (the default), the `statusChanges`,
+     * `valueChanges` and `events`
+     * observables emit events with the latest status and value when the control is updated.
+     * When false, no events are emitted.
+     */
+    updateValueAndValidity(
+        includeAncestors: boolean,
+        includeDescendants: boolean,
+        markAsTouched: boolean,
+        markAsDirty: boolean,
+        emitEvent: boolean = true
+    ): void {
+        AC._updateValueAndValidity(
+            this,
+            includeAncestors,
+            includeDescendants,
+            markAsTouched,
+            markAsDirty,
+            emitEvent
+        );
     }
-    private static _updateAllValidation(f: AC, markAsTouched = true) {
-        for (const child of f.childList) {
-            this._updateAllValidation(child, markAsTouched);
+    private static _updateValueAndValidity(
+        f: AC,
+        includeAncestors: boolean,
+        includeDescendants: boolean,
+        markAsTouched: boolean,
+        markAsDirty: boolean,
+        emitEvent: boolean
+    ) {
+        if (includeDescendants) {
+            for (const child of f.hierarchy.childList$.value) {
+                this._updateValueAndValidity(
+                    child,
+                    false,
+                    includeDescendants,
+                    markAsTouched,
+                    markAsDirty,
+                    emitEvent
+                );
+            }
         }
 
         if (markAsTouched) {
-            f.__private_control.markAsTouched({ onlySelf: true });
+            f.control.markAsTouched({ onlySelf: true, emitEvent: false });
         }
-        f.__private_control.updateValueAndValidity({ onlySelf: true });
+        if (markAsDirty) {
+            f.control.markAsDirty({ onlySelf: true, emitEvent: false });
+        }
+        f.control.updateValueAndValidity({ onlySelf: true, emitEvent });
+        if (includeAncestors) {
+            let parent = f.hierarchy.parent;
+            while (parent) {
+                this._updateValueAndValidity(
+                    parent,
+                    false,
+                    false,
+                    markAsTouched,
+                    markAsDirty,
+                    emitEvent
+                );
+                parent = parent.hierarchy.parent;
+            }
+        }
     }
+    public async isInvalid() {
+        return firstValueFrom(
+            this.meta$.pipe(
+                map((e) => {
+                    if (e.validity === 'INVALID') {
+                        return true;
+                    } else if (e.validity !== 'PENDING') {
+                        return false;
+                    }
+                    return undefined;
+                }),
+                filter((e) => e !== undefined)
+            )
+        );
+    }
+
+    destroy(): void {
+        this.subscriptions.forEach((sub) => sub.unsubscribe());
+        this.subscriptions.length = 0;
+        ControlRegistry.unregister(this.id);
+        this.hierarchy.childList$.value.forEach((child) => child.destroy());
+    }
+}
+export abstract class ACTyped<TChild extends AC, TValue> extends AC<TValue> {
+    readonly submitted$: Observable<TChild>;
+    readonly reset$: Observable<TChild>;
+    readonly metaFn: ACMetaFunctions<TChild, TValue>;
+    readonly validatorFn: ACValidators<TChild>;
+    abstract readonly registerFn: ACRegisterFunctions<
+        ACTyped<TChild, TValue>,
+        TChild,
+        TValue
+    >;
+    constructor(
+        type: 'control' | 'group' | 'array',
+        control: AbstractControl,
+        childList: AC[] = []
+    ) {
+        super(type, control, childList);
+        this.metaFn = new ACMetaFunctions(this.control, this);
+        this.validatorFn = new ACValidators(this.control);
+        this.submitted$ = this.control.events.pipe(
+            filter((e) => e instanceof SubmitEvent),
+            map(() => this as unknown as TChild)
+        );
+        this.reset$ = this.control.events.pipe(
+            filter((e) => e instanceof FormResetEvent),
+            map(() => this as unknown as TChild)
+        );
+    }
+}
+export class ACHierarchy {
+    constructor(private ctrl: AC, initialChildren: AC[]) {
+        this.childList$ = new BehaviorSubject<AC[]>(initialChildren);
+    }
+
+    /**
+     *  The parent of this control
+     */
+    parent: AC | undefined;
+    /**
+     * The root of this control. This is the top level control in the tree.
+     */
+    get root(): AC | undefined {
+        let parent = this.parent;
+        while (parent) {
+            if (parent.hierarchy.parent) {
+                parent = parent.hierarchy.parent;
+            } else {
+                return parent;
+            }
+        }
+        return undefined;
+    }
+    readonly childList$: BehaviorSubject<AC[]>;
 
     public getChild(path?: string | string[]): Observable<AC | null> {
         if (!path) {
-            return AC._getChild(this, []);
+            return ACHierarchy._getChild(this.ctrl, []);
         }
         if (typeof path === 'string') {
             path = path.split('.').filter((p) => p !== '');
         }
-        return AC._getChild(this, path).pipe(
+        return ACHierarchy._getChild(this.ctrl, path).pipe(
             map((e) => {
                 if (e === undefined) {
                     return null;
@@ -255,86 +317,24 @@ export abstract class AC<TValue = any> {
         }
         return of(null);
     }
-
-    private readonly _validators: ValidatorOperations;
-    get validators(): ValidatorOperations {
-        return this._validators;
-    }
-
-    public enable(emitEvent = true, enableAncestors = false) {
-        // this is needed!
-        // it is possible to enable an enabled control again
-        // this will re-enable all child controls, which we might have changed
-        if (this.enabled()) {
-            return;
-        }
-
-        this.__private_control.enable({
-            onlySelf: !enableAncestors,
-            emitEvent: emitEvent,
-        });
-    }
-    public disable(emitEvent = true, disableAncestors = false) {
-        // this is needed!
-        // it is possible to disable an disable control again
-        // this will re-disable all child controls, which we might have changed
-        if (!this.enabled()) {
-            return;
-        }
-        this.__private_control.disable({
-            onlySelf: !disableAncestors,
-            emitEvent: emitEvent,
-        });
-    }
-    /**
-     * Recalculates the value and validation status of the control.
-     *
-     * By default, it also updates the value and validity of its ancestors.
-     *
-     * @param opts Configuration options determine how the control propagates changes and emits events
-     * after updates and validity checks are applied.
-     * * `onlySelf`: When true, only update this control. When false or not supplied,
-     * update all direct ancestors. Default is false.
-     * * `emitEvent`: When true or not supplied (the default), the `statusChanges`,
-     * `valueChanges` and `events`
-     * observables emit events with the latest status and value when the control is updated.
-     * When false, no events are emitted.
-     */
-    updateValueAndValidity(opts?: {
-        onlySelf?: boolean;
-        emitEvent?: boolean;
-    }): void {
-        this.__private_control.updateValueAndValidity(opts);
-    }
-
-    public async isInvalid() {
-        return firstValueFrom(
-            this.meta$.pipe(
-                map((e) => {
-                    if (e.validity === 'INVALID') {
-                        return true;
-                    } else if (e.validity !== 'PENDING') {
-                        return false;
-                    }
-                    return undefined;
-                }),
-                filter((e) => e !== undefined)
-            )
-        );
-    }
-
     public printHierarchy() {
-        return AC._getHierarchyData(this);
+        return ACHierarchy._getHierarchyData(this.ctrl);
     }
 
     private static _getHierarchyData(control: AC, name = ''): ACHierarchyData {
-        if (control.meta().validity !== control.__private_control.status) {
+        const ctrl = ControlRegistry.controls.get(control.id);
+        if (!ctrl) {
+            throw new Error(
+                `Control with id ${control.id} not found in registry.`
+            );
+        }
+        if (control.meta().validity !== ctrl.status) {
             throw new Error(
                 `Control ${
                     name ?? control.id
-                } has a different status than the meta. ${
-                    control.__private_control.status
-                } != ${control.meta().validity}`
+                } has a different status than the meta. ${ctrl.status} != ${
+                    control.meta().validity
+                }`
             );
         }
         const ret = {
@@ -367,49 +367,47 @@ export abstract class AC<TValue = any> {
 
         return ret;
     }
-    destroy(): void {
-        this.subscriptions.forEach((sub) => sub.unsubscribe());
-        this.subscriptions.length = 0;
-        this.childList.forEach((child) => child.destroy());
-    }
 }
-export abstract class ACTyped<TChild extends AC, TValue> extends AC<TValue> {
-    // registerParentEnableChange(callback: (enabled: boolean) => void): TChild {
-    //     this.subscriptions.push(
-    //         this.afterParentEnableChange.subscribe((e) => callback(e))
-    //     );
-    //     return this as unknown as TChild;
-    // }
-    registerEnableChange(callback: (enabled: boolean) => void): TChild {
-        this.subscriptions.push(this.enabled$.subscribe((e) => callback(e)));
-        return this as unknown as TChild;
-    }
-
-    registerMetaChange(callback: (meta: AbstractControlMeta) => void): TChild {
-        this.subscriptions.push(this.meta$.subscribe((meta) => callback(meta)));
-        return this as unknown as TChild;
-    }
-    forceAlwaysDisabled(): TChild {
-        this.__private_control.disable();
-        this.subscriptions.push(
-            this.meta$.subscribe((meta) => {
-                if (meta.enabled) {
-                    this.__private_control.disable();
-                }
-            })
-        );
-        return this as unknown as TChild;
-    }
-    // override forceAlwaysEnabled(): TChild {
-    //   this.control.enable();
-    //   this.registerParentEnableChange(true, () => this.control.enable());
-    //   this.registerEnableChange(true, () => this.control.enable());
-    //   return this as unknown as TChild;
-    // }
+export interface ACHierarchyData {
+    status: FormControlStatus;
+    value: any;
+    meta: AbstractControlMeta;
+    children?: { [key: string]: ACHierarchyData };
 }
 
-export class ValidatorOperations {
+export class ACValidators<TChild extends AC, TValue = any> {
     constructor(private control: AbstractControl) {}
+
+    /**
+     * Returns the function that is used to determine the validity of this control synchronously.
+     * If multiple validators have been added, this will be a single composed function.
+     * See `Validators.compose()` for additional information.
+     */
+    get validator(): ValidatorFn | null {
+        return this.control.validator;
+    }
+    /**
+     * Sets the function that is used to determine the validity of this control synchronously.
+     * It's recommended to use 'setValidators' or 'addValidators' instead, which will compose this function
+     */
+    set validator(validator: ValidatorFn | null) {
+        this.control.validator = validator;
+    }
+    /**
+     * Returns the function that is used to determine the validity of this control asynchronously.
+     * If multiple validators have been added, this will be a single composed function.
+     * See `Validators.compose()` for additional information.
+     */
+    get asyncValidator(): AsyncValidatorFn | null {
+        return this.control.asyncValidator;
+    }
+    /**
+     * Sets the function that is used to determine the validity of this control asynchronously.
+     * It's recommended to use 'setAsyncValidators' or 'addAsyncValidators' instead, which will compose this function
+     */
+    set asyncValidator(asyncValidatorFn: AsyncValidatorFn | null) {
+        this.control.asyncValidator = asyncValidatorFn;
+    }
 
     /**
      * Sets the synchronous validators that are active on this control.  Calling
@@ -421,8 +419,9 @@ export class ValidatorOperations {
      * If you want to add a new validator without affecting existing ones, consider
      * using `addValidators()` method instead.
      */
-    setValidators(validators: ValidatorFn | ValidatorFn[] | null): void {
+    setValidators(validators: ValidatorFn | ValidatorFn[] | null): TChild {
         this.control.setValidators(validators);
+        return this.control as unknown as TChild;
     }
     /**
      * Sets the asynchronous validators that are active on this control. Calling this
@@ -436,8 +435,9 @@ export class ValidatorOperations {
      */
     setAsyncValidators(
         validators: AsyncValidatorFn | AsyncValidatorFn[] | null
-    ): void {
+    ): TChild {
         this.control.setAsyncValidators(validators);
+        return this.control as unknown as TChild;
     }
     /**
      * Add a synchronous validator or validators to this control, without affecting other validators.
@@ -451,8 +451,9 @@ export class ValidatorOperations {
      *
      * @param validators The new validator function or functions to add to this control.
      */
-    addValidators(validators: ValidatorFn | ValidatorFn[]): void {
+    addValidators(validators: ValidatorFn | ValidatorFn[]): TChild {
         this.control.addValidators(validators);
+        return this.control as unknown as TChild;
     }
     /**
      * Add an asynchronous validator or validators to this control, without affecting other
@@ -467,8 +468,9 @@ export class ValidatorOperations {
      */
     addAsyncValidators(
         validators: AsyncValidatorFn | AsyncValidatorFn[]
-    ): void {
+    ): TChild {
         this.control.addAsyncValidators(validators);
+        return this.control as unknown as TChild;
     }
     /**
      * Remove a synchronous validator from this control, without affecting other validators.
@@ -499,8 +501,9 @@ export class ValidatorOperations {
      *
      * @param validators The validator or validators to remove.
      */
-    removeValidators(validators: ValidatorFn | ValidatorFn[]): void {
+    removeValidators(validators: ValidatorFn | ValidatorFn[]): TChild {
         this.control.removeValidators(validators);
+        return this.control as unknown as TChild;
     }
     /**
      * Remove an asynchronous validator from this control, without affecting other validators.
@@ -515,8 +518,9 @@ export class ValidatorOperations {
      */
     removeAsyncValidators(
         validators: AsyncValidatorFn | AsyncValidatorFn[]
-    ): void {
+    ): TChild {
         this.control.removeAsyncValidators(validators);
+        return this.control as unknown as TChild;
     }
     /**
      * Check whether a synchronous validator function is present on this control. The provided
@@ -562,8 +566,9 @@ export class ValidatorOperations {
      * `updateValueAndValidity()` for the new validation to take effect.
      *
      */
-    clearValidators(): void {
+    clearValidators(): TChild {
         this.control.clearValidators();
+        return this.control as unknown as TChild;
     }
     /**
      * Empties out the async validator list.
@@ -572,31 +577,295 @@ export class ValidatorOperations {
      * `updateValueAndValidity()` for the new validation to take effect.
      *
      */
-    clearAsyncValidators(): void {
+    clearAsyncValidators(): TChild {
         this.control.clearAsyncValidators();
+        return this.control as unknown as TChild;
     }
+}
+export class ACMetaFunctions<TChild extends AC, TValue = any> {
+    constructor(
+        private control: AbstractControl,
+        private ctrl: ACTyped<TChild, TValue>
+    ) {}
+
+    /**
+     * Sets errors on a form control when running validations manually, rather than automatically.
+     *
+     * Calling `setErrors` also updates the validity of the parent control.
+     *
+     * @param opts Configuration options that determine how the control propagates
+     * changes and emits events after the control errors are set.
+     * * `emitEvent`: When true or not supplied (the default), the `statusChanges`
+     * observable emits an event after the errors are set.
+     *
+     * @usageNotes
+     *
+     * ### Manually set the errors for a control
+     *
+     * ```ts
+     * const login = new FormControl('someLogin');
+     * login.setErrors({
+     *   notUnique: true
+     * });
+     *
+     * expect(login.valid).toEqual(false);
+     * expect(login.errors).toEqual({ notUnique: true });
+     *
+     * login.setValue('someOtherLogin');
+     *
+     * expect(login.valid).toEqual(true);
+     * ```
+     */
+    public setErrors(
+        errors: ValidationErrors | null,
+        emitEvent = true
+    ): TChild {
+        this.control.setErrors(errors, { emitEvent });
+        return this.ctrl as unknown as TChild;
+    }
+
+    /**
+     * Marks the control as `touched`. A control is touched by focus and
+     * blur events that do not change the value.
+     *
+     *
+     * @see {@link markAsUntouched()}
+     * @see {@link markAsDirty()}
+     * @see {@link markAsPristine()}
+     *
+     * @param emitEvent When true, the meta$ observable emits an event. Default is true.
+     * @param markAncestors When true, marks all ancestors of the control as well
+     */
+    markAsTouched(markAncestors = false, emitEvent = true): TChild {
+        if (!markAncestors && this.control.touched) {
+            return this.ctrl as unknown as TChild;
+        }
+        this.control.markAsTouched({
+            onlySelf: !markAncestors,
+            emitEvent: emitEvent,
+        });
+        return this.ctrl as unknown as TChild;
+    }
+    /**
+     * Marks the control and all its descendant controls as `touched`.
+     * @see {@link markAsTouched()}
+     *
+     * @param emitEvent When true, the meta$ observable emits an event. Default is true.
+     */
+    markAllAsTouched(emitEvent = true): TChild {
+        this.control.markAllAsTouched({
+            emitEvent: emitEvent,
+        });
+        return this.ctrl as unknown as TChild;
+    }
+    /**
+     * Marks the control as `untouched`.
+     *
+     * If the control has any children, also marks all children as `untouched`
+     * and recalculates the `touched` status of all parent controls.
+     *
+     * @see {@link markAsTouched()}
+     * @see {@link markAsDirty()}
+     * @see {@link markAsPristine()}
+     *
+     * @param emitEvent When true, the meta$ observable emits an event. Default is true.
+     * @param markAncestors When true, mark only this control. When false or not supplied,
+     * marks all direct ancestors. Default is false.
+     */
+    markAsUntouched(emitEvent = true, markAncestors = false): TChild {
+        this.control.markAsUntouched({
+            onlySelf: !markAncestors,
+            emitEvent: emitEvent,
+        });
+        return this.ctrl as unknown as TChild;
+    }
+    /**
+     * Marks the control as `dirty`. A control becomes dirty when
+     * the control's value is changed through the UI; compare `markAsTouched`.
+     *
+     * If the control is already dirty this does nothing
+     *
+     * @see {@link markAsTouched()}
+     * @see {@link markAsUntouched()}
+     * @see {@link markAsPristine()}
+     *
+     * @param emitEvent When true, the meta$ observable emits an event. Default is true.
+     * @param markAncestors When true, mark only this control. When false or not supplied,
+     * marks all direct ancestors. Default is false.
+     */
+    markAsDirty(emitEvent = true, markAncestors = false): TChild {
+        if (this.ctrl.meta$.value.dirty) {
+            return this.ctrl as unknown as TChild;
+        }
+        this.control.markAsDirty({
+            onlySelf: !markAncestors,
+            emitEvent: emitEvent,
+        });
+        return this.ctrl as unknown as TChild;
+    }
+    /**
+     * Marks the control as `pristine`.
+     *
+     * If the control has any children, marks all children as `pristine`,
+     * and recalculates the `pristine` status of all parent
+     * controls.
+     *
+     * If the control is already pristine, this does nothing
+     *
+     * @see {@link markAsTouched()}
+     * @see {@link markAsUntouched()}
+     * @see {@link markAsDirty()}
+     *
+     * @param emitEvent When true, the meta$ observable emits an event. Default is true.
+     * @param markAncestors When true, mark only this control. When false or not supplied,
+     * marks all direct ancestors. Default is false.
+     */
+    markAsPristine(emitEvent = true, markAncestors = false): TChild {
+        if (this.ctrl.meta$.value.pristine) {
+            return this.ctrl as unknown as TChild;
+        }
+        this.control.markAsPristine({
+            onlySelf: !markAncestors,
+            emitEvent: emitEvent,
+        });
+        return this.ctrl as unknown as TChild;
+    }
+
+    /**
+     * Disables the control. This means the control is exempt from validation checks and
+     * excluded from the aggregate value of any parent. Its validity is `DISABLED`.
+     *
+     * If the control has children, all children are also disabled.
+     *
+     * If the control is already disabled, this does nothing.
+     *
+     * @see {@link AbstractControlMeta.validity}
+     *
+     * @param emitEvent When true, the meta$ observable emits an event. Default is true.
+     * @param markAncestors When true, mark only this control. When false or not supplied,
+     * marks all direct ancestors. Default is false.
+     */
+    disable(emitEvent = true, markAncestors = false): TChild {
+        if (!this.control.enabled) {
+            return this.ctrl as unknown as TChild;
+        }
+        this.control.disable({
+            onlySelf: !markAncestors,
+            emitEvent: emitEvent,
+        });
+        this.control.disable({ onlySelf: !markAncestors });
+        return this.ctrl as unknown as TChild;
+    }
+    /**
+     * Enables the control. This means the control is included in validation checks and
+     * the aggregate value of its parent. Its status recalculates based on its value and
+     * its validators.
+     *
+     * By default, if the control has children, all children are enabled.
+     *
+     * If the control is already enabled, this does nothing.
+     *
+     * @see {@link AbstractControl.status}
+     *
+     * @param emitEvent When true, the meta$ observable emits an event. Default is true.
+     * @param markAncestors When true, mark only this control. When false or not supplied,
+     * marks all direct ancestors. Default is false.
+     */
+    enable(emitEvent = true, markAncestors = false): TChild {
+        if (this.control.enabled) {
+            return this.ctrl as unknown as TChild;
+        }
+        this.control.enable({
+            onlySelf: !markAncestors,
+            emitEvent: emitEvent,
+        });
+        return this.ctrl as unknown as TChild;
+    }
+}
+export class ACRegisterFunctions<
+    TACTyped extends ACTyped<TChild, TValue>,
+    TChild extends AC,
+    TValue = any
+> {
+    constructor(
+        protected control: TACTyped,
+        protected subscriptions: Subscription[]
+    ) {}
+
+    registerEnableChange(callback: (enabled: boolean) => void): TChild {
+        this.subscriptions.push(
+            this.control.meta$
+                .pipe(
+                    map((e) => e.enabled),
+                    distinctUntilChanged()
+                )
+                .subscribe((e) => callback(e))
+        );
+        return this.control as unknown as TChild;
+    }
+
+    registerMetaChange(callback: (meta: AbstractControlMeta) => void): TChild {
+        this.subscriptions.push(
+            this.control.meta$.subscribe((meta) => callback(meta))
+        );
+        return this.control as unknown as TChild;
+    }
+    forceAlwaysDisabled(): TChild {
+        this.control.metaFn.disable();
+        this.subscriptions.push(
+            this.control.meta$.subscribe((meta) => {
+                if (meta.enabled) {
+                    this.control.metaFn.disable();
+                }
+            })
+        );
+        return this.control as unknown as TChild;
+    }
+    // override forceAlwaysEnabled(): TChild {
+    //   this.control.enable();
+    //   this.registerParentEnableChange(true, () => this.control.enable());
+    //   this.registerEnableChange(true, () => this.control.enable());
+    //   return this as unknown as TChild;
+    // }
 }
 
 export class AbstractControlMeta {
     private constructor(
-        public touched: boolean,
-        public validity: FormControlStatus,
-        public dirty: boolean,
-        public enabled: boolean,
-        public errors: ValidationErrors | null,
-        public childControls: AbstractControlMeta[] | undefined
+        public readonly untouched: boolean,
+        public readonly touched: boolean,
+        public readonly validity: FormControlStatus,
+        public readonly pristine: boolean,
+        public readonly dirty: boolean,
+        public readonly enabled: boolean,
+        public readonly disabled: boolean,
+        public readonly updateOn: 'change' | 'blur' | 'submit',
+        public readonly errors: ValidationErrors | null,
+        public readonly childControls:
+            | readonly AbstractControlMeta[]
+            | undefined
     ) {}
 
     static fromControl(control: AC): AbstractControlMeta {
         let childControls: AbstractControlMeta[] | undefined = undefined;
-
+        const c = ControlRegistry.controls.get(control.id);
+        if (!c) {
+            throw new Error(
+                `Control with id ${control.id} not found in registry.`
+            );
+        }
         return new AbstractControlMeta(
-            control.__private_control.touched,
-            control.__private_control.status,
-            control.__private_control.dirty,
-            control.__private_control.enabled,
-            control.__private_control.errors,
-            control.childList.map((c) => AbstractControlMeta.fromControl(c))
+            c.untouched,
+            c.touched,
+            c.status,
+            c.pristine,
+            c.dirty,
+            c.enabled,
+            c.disabled,
+            c.updateOn,
+            c.errors,
+            control.hierarchy.childList$.value.map((c) =>
+                AbstractControlMeta.fromControl(c)
+            )
         );
     }
 
@@ -692,10 +961,7 @@ export class AbstractControlMeta {
         }
         return true;
     }
-    private static validationErrorsEqual(
-        a: ValidationErrors | null,
-        b: ValidationErrors | null
-    ): boolean {
+    private static validationErrorsEqual(a: any, b: any): boolean {
         if (a === b) {
             return true;
         }
@@ -714,8 +980,21 @@ export class AbstractControlMeta {
             if (typeof a[key] !== typeof b[key]) {
                 return false;
             }
-            if (typeof a[key] === 'object') {
-                if (JSON.stringify(a[key]) !== JSON.stringify(b[key])) {
+
+            if (Array.isArray(a[key]) && !Array.isArray(b[key])) {
+                if (a[key].length !== b[key].length) {
+                    return false;
+                }
+                for (let i = 0; i < a[key].length; i++) {
+                    if (!this.validationErrorsEqual(a[key][i], b[key][i])) {
+                        return false;
+                    }
+                }
+            } else if (
+                typeof a[key] === 'object' &&
+                typeof b[key] === 'object'
+            ) {
+                if (!this.validationErrorsEqual(a[key], b[key])) {
                     return false;
                 }
             } else {
@@ -726,10 +1005,4 @@ export class AbstractControlMeta {
         }
         return true;
     }
-}
-export interface ACHierarchyData {
-    status: FormControlStatus;
-    value: any;
-    meta: AbstractControlMeta;
-    children?: { [key: string]: ACHierarchyData };
 }

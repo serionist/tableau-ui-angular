@@ -12,7 +12,6 @@ const a = new FC<boolean>({
 });
 
 
-
 const b = new ControlReferenceBuilder();
 const a2 = b.control('asd'); 
 export interface ITest {
@@ -67,7 +66,6 @@ const g = new FG<ITest>({
         }),
     },
 });
-
 const gbuilder = b.group<ITest>({
     name: b.control<string>('test'),
     age: b.control<number>(0),

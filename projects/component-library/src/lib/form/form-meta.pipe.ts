@@ -17,7 +17,7 @@ export class FormMetaPipe {
         if (!form) {
             return of(null);
         }
-        return form
+        return form.hierarchy
             .getChild(path)
             .pipe(switchMap((c) => (c ? c.meta$ : of(null))));
     }

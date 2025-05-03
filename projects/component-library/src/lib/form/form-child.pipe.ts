@@ -35,7 +35,7 @@ export class FormChildPipe {
         if (!form) {
             return of(null) as any;
         }
-        return form.getChild(path).pipe(
+        return form.hierarchy.getChild(path).pipe(
             map((c) => {
                 if (!c) {
                     return null;

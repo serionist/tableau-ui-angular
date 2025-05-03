@@ -7,7 +7,7 @@ import {
 } from '@angular/forms';
 import { ControlsOf } from '../types/controls-of';
 import { Primitive } from '../types/primitive';
-import { AC, ACTyped } from './abstract-control.reference';
+import { AC, ACRegisterFunctions, ACTyped } from './abstract-control.reference';
 import { FC } from './form-control.reference';
 import { FG } from './form-group.reference';
 import { DeepPartial } from '../types/deep-partial';
@@ -16,24 +16,33 @@ import {
     combineLatest,
     distinctUntilChanged,
     filter,
+    map,
     Observable,
     startWith,
+    Subscription,
 } from 'rxjs';
-import { signal, WritableSignal } from '@angular/core';
+import { Signal, signal, WritableSignal } from '@angular/core';
 import { ReadonlyBehaviorSubject } from '../types/readonly-behaviorsubject';
+import { ControlRegistry } from './control-registry';
 
 export class FA<TItem extends Record<string, any> = any> extends ACTyped<
     FA<TItem>,
     DeepPartial<TItem>[]
 > {
+    override registerFn: ACRegisterFunctions<
+        ACTyped<FA<TItem>, DeepPartial<TItem>[]>,
+        FA<TItem>,
+        DeepPartial<TItem>[]
+    >;
     protected override _value: WritableSignal<DeepPartial<TItem>[]>;
     protected override readonly _value$: BehaviorSubject<DeepPartial<TItem>[]>;
-    private readonly _controls$: BehaviorSubject<FG<TItem>[]>;
-    private readonly _controls: WritableSignal<FG<TItem>[]>;
     get controls$(): ReadonlyBehaviorSubject<FG<TItem>[]> {
-        return this._controls$;
+        return this.hierarchy.childList$ as unknown as ReadonlyBehaviorSubject<
+            FG<TItem>[]
+        >;
     }
-    get controls(): WritableSignal<FG<TItem>[]> {
+    private readonly _controls: WritableSignal<FG<TItem>[]>;
+    get controls(): Signal<FG<TItem>[]> {
         return this._controls;
     }
     constructor(params: {
@@ -42,9 +51,15 @@ export class FA<TItem extends Record<string, any> = any> extends ACTyped<
         asyncValidators?: AsyncValidatorFn | AsyncValidatorFn[];
         updateOn?: 'change' | 'blur' | 'submit';
     }) {
-        const controlsArray = params.controls.map(
-            (child) => child.__private_control as FormGroup<ControlsOf<TItem>>
-        );
+        const controlsArray = params.controls.map((child) => {
+            const control = ControlRegistry.controls.get(child.id);
+            if (!control) {
+                throw new Error(
+                    `Control with id ${child.id} not found in registry.`
+                );
+            }
+            return control as FormGroup<ControlsOf<TItem>>;
+        });
 
         const control = new FormArray(controlsArray, {
             validators: params.validators,
@@ -53,8 +68,10 @@ export class FA<TItem extends Record<string, any> = any> extends ACTyped<
         });
 
         super('array', control, params.controls);
-        this._controls$ = new BehaviorSubject<FG<TItem>[]>(params.controls);
-        this._controls = signal(this._controls$.value);
+        this.registerFn = new FARegisterFuctions<
+            TItem
+        >(this, this.subscriptions);
+        this._controls = signal(this.controls$.value);
 
         this._value$ = new BehaviorSubject<DeepPartial<TItem>[]>(control.value);
         this._value = signal(control.value);
@@ -95,13 +112,93 @@ export class FA<TItem extends Record<string, any> = any> extends ACTyped<
             })
         );
         this.subscriptions.push(
-            this._controls$.subscribe((v) => this._controls.set(v))
+            this.controls$.subscribe((v) => this._controls.set(v))
         );
     }
     private get formArray() {
-        return this.__private_control as FormArray<
-            FormGroup<ControlsOf<TItem>>
-        >;
+        return this.control as FormArray<FormGroup<ControlsOf<TItem>>>;
+    }
+
+    push(
+        control: FG<TItem>,
+        options?: {
+            emitEvent?: boolean;
+        }
+    ) {
+        const c = ControlRegistry.controls.get(control.id);
+        if (!c) {
+            throw new Error(
+                `Control with id ${control.id} not found in registry.`
+            );
+        }
+        this.formArray.push(c as FormGroup<ControlsOf<TItem>>, options);
+        const childList = this.hierarchy.childList$.value;
+        childList.push(control);
+        this.hierarchy.childList$.next(childList);
+    }
+
+    removeAt(
+        index: number,
+        destroyControl: boolean,
+        options?: { emitEvent?: boolean }
+    ) {
+        this.formArray.removeAt(index, options);
+        const childList = this.hierarchy.childList$.value;
+        const control = childList.splice(index, 1)[0];
+        if (control && destroyControl) {
+            control.destroy();
+        }
+        this.hierarchy.childList$.next(childList);
+    }
+    insert(
+        index: number,
+        control: FG<TItem>,
+        options?: {
+            emitEvent?: boolean;
+        }
+    ) {
+        const c = ControlRegistry.controls.get(control.id);
+        if (!c) {
+            throw new Error(
+                `Control with id ${control.id} not found in registry.`
+            );
+        }
+
+        this.formArray.insert(
+            index,
+            c as FormGroup<ControlsOf<TItem>>,
+            options
+        );
+        const childList = this.hierarchy.childList$.value;
+        childList.splice(index, 0, control);
+        this.hierarchy.childList$.next(childList);
+    }
+    clear(destroyControls: boolean, options?: { emitEvent?: boolean }) {
+        this.formArray.clear(options);
+        const childList = this.hierarchy.childList$.value;
+        if (destroyControls) {
+            childList.forEach((child) => {
+                child.destroy();
+            });
+        }
+        this.hierarchy.childList$.next([]);
+    }
+    at(index: number): FG<TItem> {
+        return this.controls$.value[index];
+    }
+}
+export class FARegisterFuctions<
+    TItem extends Record<string, any> = any
+> extends ACRegisterFunctions<
+    ACTyped<FA<TItem>, DeepPartial<TItem>[]>,
+    FA<TItem>,
+    DeepPartial<TItem>[]
+> {
+    constructor(
+        override control: FA<TItem>,
+        subscriptions: Subscription[] = []
+    ) {
+        super(control, subscriptions);
     }
 
     /**
@@ -117,11 +214,12 @@ export class FA<TItem extends Record<string, any> = any> extends ACTyped<
         alsoRunOnDisabled: boolean = false
     ): FA<TItem> {
         const subs: [Observable<DeepPartial<TItem>[]>, Observable<boolean>?] = [
-            this.value$,
+            this.control.value$,
         ];
         if (alsoRunOnEnabled || alsoRunOnDisabled) {
             subs.push(
-                this.enabled$.pipe(
+                this.control.meta$.pipe(
+                    map((e) => e.enabled),
                     filter((enabled) => {
                         if (enabled && alsoRunOnEnabled) {
                             return true;
@@ -138,68 +236,6 @@ export class FA<TItem extends Record<string, any> = any> extends ACTyped<
                 callback(v);
             })
         );
-        return this;
+        return this.control as unknown as FA<TItem>;
     }
-    push(
-        control: FG<TItem>,
-        options?: {
-            emitEvent?: boolean;
-        }
-    ) {
-        this.formArray.push(
-            control.__private_control as FormGroup<ControlsOf<TItem>>,
-            options
-        );
-        this.childList.push(control);
-        this._controls$.next([...this.controls$.value, control]);
-    }
-
-    removeAt(index: number, options?: { emitEvent?: boolean }) {
-        this.formArray.removeAt(index, options);
-        this.childList[index].destroy();
-        this.childList.splice(index, 1);
-        const controls = this.controls$.value;
-        controls.splice(index, 1);
-        this._controls$.next(controls);
-    }
-    insert(
-        index: number,
-        control: FG<TItem>,
-        options?: {
-            emitEvent?: boolean;
-        }
-    ) {
-        this.formArray.insert(
-            index,
-            control.__private_control as FormGroup<ControlsOf<TItem>>,
-            options
-        );
-        this.childList.splice(index, 0, control);
-        const controls = this.controls$.value;
-        controls.splice(index, 0, control);
-        this._controls$.next(controls);
-    }
-    clear(options?: { emitEvent?: boolean }) {
-        this.formArray.clear(options);
-        this.childList.forEach((child) => {
-            child.destroy();
-        });
-        this.childList.length = 0;
-        this._controls$.next([]);
-    }
-    at(index: number): FG<TItem> {
-        return this.controls$.value[index];
-    }
-    // setControl(
-    //     index: number,
-    //     control: TItem extends Record<string, any>
-    //         ? FG<ControlsOf<TItem>>
-    //         : TItem extends Primitive | Primitive[]
-    //         ? FC<TItem>
-    //         : never,
-    //     options?: { emitEvent?: boolean }
-    // ) {
-    //     this.__private_control.setControl(index, control.__private_abstractcontrol as any, options);
-    //     this.childList[index] = control;
-    // }
 }

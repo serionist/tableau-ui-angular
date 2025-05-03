@@ -10,6 +10,7 @@ import {
     FormControl,
     FormGroup,
 } from '@angular/forms';
+import { ControlRegistry } from './models/control-registry';
 
 @Pipe({
     name: 'formControl',
@@ -35,36 +36,43 @@ export class FormControlPipe {
         if (!form) {
             return of(null) as any;
         }
-        return form.getChild(path).pipe(
+        return form.hierarchy.getChild(path).pipe(
             map((c) => {
                 if (!c) {
                     return null;
                 }
+                const control = ControlRegistry.controls.get(c.id);
+                if (!control) {
+                    console.warn(
+                        `Control with id ${c.id} not found in registry.`
+                    );
+                    return null;
+                }
                 if (type === 'control') {
-                    if (c.__private_control instanceof FormControl) {
-                        return c.__private_control;
+                    if (control instanceof FormControl) {
+                        return control;
                     }
                     throw new Error(
                         'Expected a FormControl, but got a ' + c.type
                     );
                 }
                 if (type === 'group') {
-                    if (c.__private_control instanceof FormGroup) {
-                        return c.__private_control;
+                    if (control instanceof FormGroup) {
+                        return control;
                     }
                     throw new Error(
                         'Expected a FormGroup, but got a ' + c.type
                     );
                 }
                 if (type === 'array') {
-                    if (c.__private_control instanceof FormArray) {
-                        return c.__private_control;
+                    if (control instanceof FormArray) {
+                        return control;
                     }
                     throw new Error(
                         'Expected a FormArray, but got a ' + c.type
                     );
                 }
-                return c.__private_control;
+                return control;
             })
         ) as unknown as Observable<
             T extends 'control'

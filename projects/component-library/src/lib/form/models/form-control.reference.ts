@@ -1,13 +1,15 @@
 import { AsyncValidatorFn, FormControl, ValidatorFn } from '@angular/forms';
 import { Primitive } from '../types/primitive';
-import { AC, ACTyped } from './abstract-control.reference';
+import { AC, ACRegisterFunctions, ACTyped } from './abstract-control.reference';
 import {
     BehaviorSubject,
     combineLatest,
     distinctUntilChanged,
     filter,
+    map,
     Observable,
     startWith,
+    Subscription,
 } from 'rxjs';
 import { signal, WritableSignal } from '@angular/core';
 
@@ -15,6 +17,7 @@ export class FC<T extends Primitive | Primitive[] = any> extends ACTyped<
     FC<T>,
     T
 > {
+    override registerFn: ACRegisterFunctions<ACTyped<FC<T>, T>, FC<T>, T>;
     protected override _value: WritableSignal<T>;
     override readonly _value$: BehaviorSubject<T>;
     constructor(params: {
@@ -74,6 +77,15 @@ export class FC<T extends Primitive | Primitive[] = any> extends ACTyped<
                 this._value.set(v);
             })
         );
+        this.registerFn = new FCRegisterFuctions<T>(this, this.subscriptions);
+    }
+}
+
+export class FCRegisterFuctions<
+    T extends Primitive | Primitive[] = any
+> extends ACRegisterFunctions<ACTyped<FC<T>, T>, FC<T>, T> {
+    constructor(control: FC<T>, subscriptions: Subscription[] = []) {
+        super(control, subscriptions);
     }
 
     /**
@@ -88,22 +100,29 @@ export class FC<T extends Primitive | Primitive[] = any> extends ACTyped<
         alsoRunOnEnabled: boolean = false,
         alsoRunOnDisabled: boolean = false
     ): FC<T> {
-        const subs: [Observable<T>, Observable<boolean>?] = [this.value$];
+        const subs: [Observable<T>, Observable<boolean>?] = [
+            this.control.value$,
+        ];
         if (alsoRunOnEnabled || alsoRunOnDisabled) {
-          subs.push(this.enabled$.pipe(filter(enabled => {
-            if (enabled && alsoRunOnEnabled) {
-                return true;
-            } else if (!enabled && alsoRunOnDisabled) {
-                return true;
-            }
-            return false;
-          })))
+            subs.push(
+                this.control.meta$.pipe(
+                    map((e) => e.enabled),
+                    filter((enabled) => {
+                        if (enabled && alsoRunOnEnabled) {
+                            return true;
+                        } else if (!enabled && alsoRunOnDisabled) {
+                            return true;
+                        }
+                        return false;
+                    })
+                )
+            );
         }
         this.subscriptions.push(
             combineLatest(subs).subscribe(([v, e]) => {
                 callback(v);
             })
         );
-        return this;
+        return this.control as unknown as FC<T>;
     }
 }
