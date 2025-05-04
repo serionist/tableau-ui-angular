@@ -59,6 +59,7 @@ export class DialogsPageComponent {
             await this.dialogService.openConfirmationTemplateDialog(
                 'This a random confirmation dialog',
                 template,
+                undefined,
                 color,
                 acceptBtnText,
                 cancelBtnText,

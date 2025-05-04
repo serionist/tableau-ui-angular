@@ -23,7 +23,7 @@ import {
 import { debounceTime, fromEvent, map, Subscription, zip } from 'rxjs';
 import { FocusableElement, tabbable } from 'tabbable';
 import { IconComponent } from '../icon/icon.component';
-import { ConfirmationDialogComponent } from './confirmation-dialog.component';
+import { ConfirmationDialogComponent, IConfirmationDialogData } from './confirmation-dialog.component';
 import { TableauUiDialogModule } from './tableau-ui-dialog.module';
 import { TemplateDialogComponent } from './template-dialog.component';
 import { TAB_DATA_REF } from './data.ref';
@@ -91,16 +91,18 @@ export class DialogService {
             header: { title, allowClose: true },
         } as IModalArgs;
         return new Promise((resolve) => {
-            const inputs: { [key: string]: any } = {
+            const data: IConfirmationDialogData = {
                 content: message,
                 color,
                 autofocus,
+                acceptBtnText,
+                cancelBtnText,
+                contentTemplate: undefined,
+                contentTemplateContext: undefined,
             };
-            if (acceptBtnText) inputs['acceptBtnText'] = acceptBtnText;
-            if (cancelBtnText) inputs['cancelBtnText'] = cancelBtnText;
             const dialogRef = this.openModal(
                 ConfirmationDialogComponent,
-                inputs,
+                data,
                 modalArgs
             );
             dialogRef.afterClosed$.subscribe((result) => {
@@ -109,9 +111,10 @@ export class DialogService {
         });
     }
 
-    openConfirmationTemplateDialog(
+    openConfirmationTemplateDialog<TContext extends any = any>(
         title: string,
-        template: TemplateRef<any>,
+        template: TemplateRef<TContext>,
+        templateContext: TContext,
         color: 'primary' | 'error' | 'secondary',
         acceptBtnText: string | undefined,
         cancelBtnText: string | undefined,
@@ -123,16 +126,18 @@ export class DialogService {
             header: { title, allowClose: true },
         } as IModalArgs;
         return new Promise((resolve) => {
-            const inputs: { [key: string]: any } = {
-                contentTemplate: template,
+            const data: IConfirmationDialogData = {
+                content: undefined,
                 color,
                 autofocus,
+                acceptBtnText,
+                cancelBtnText,
+                contentTemplate: template,
+                contentTemplateContext: templateContext,
             };
-            if (acceptBtnText) inputs['acceptBtnText'] = acceptBtnText;
-            if (cancelBtnText) inputs['cancelBtnText'] = cancelBtnText;
             const dialogRef = this.openModal(
                 ConfirmationDialogComponent,
-                inputs,
+                data,
                 modalArgs
             );
             dialogRef.afterClosed$.subscribe((result) => {
@@ -157,13 +162,9 @@ export class DialogService {
         contentTemplateContext?: T,
         insertAfterElement?: HTMLElement
     ) {
-        const inputs: { [key: string]: any } = {
-            contentTemplate,
-            contentTemplateContext,
-        };
         return this.openDialog(
             TemplateDialogComponent,
-            inputs,
+            { contentTemplate, contentTemplateContext },
             args,
             insertAfterElement
         );
