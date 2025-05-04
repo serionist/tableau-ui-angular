@@ -13,7 +13,7 @@ export class DialogsPageComponent {
     openDialog(): void {
         const dialogRef = this.dialogService.openModal(
             ExampleDialogComponent,
-            { message: 'This is a dynamic message!' },
+            'This is a dynamic message!',
             {
                 width: 'calc(100vw - 100px)',
                 height: 'fit-content',

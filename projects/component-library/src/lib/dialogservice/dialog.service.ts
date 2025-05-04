@@ -26,6 +26,7 @@ import { IconComponent } from '../icon/icon.component';
 import { ConfirmationDialogComponent } from './confirmation-dialog.component';
 import { TableauUiDialogModule } from './tableau-ui-dialog.module';
 import { TemplateDialogComponent } from './template-dialog.component';
+import { TAB_DATA_REF } from './data.ref';
 
 // Styles for the dialog container are in _dialog.service.scss in the styles folder
 @Injectable({
@@ -36,9 +37,9 @@ export class DialogService {
     appRef = inject(ApplicationRef);
     environmentInjector = inject(EnvironmentInjector);
 
-    openModal<T>(
-        component: Type<T>,
-        inputs: { [key: string]: any } = {},
+    openModal<TData extends any = any, TComponent extends any = any>(
+        component: Type<TComponent>,
+        data: TData,
         args?: IModalArgs
     ): DialogRef {
         const a = {
@@ -72,7 +73,7 @@ export class DialogService {
             trapFocus: true,
         } as IDialogArgs;
 
-        const ref = this.openDialog(component, inputs, a);
+        const ref = this.openDialog(component, data, a);
         return ref;
     }
 
@@ -167,9 +168,9 @@ export class DialogService {
             insertAfterElement
         );
     }
-    openDialog<T>(
-        component: Type<T>,
-        inputs: { [key: string]: any } = {},
+    openDialog<TData extends any = any, TComponent extends any = any>(
+        component: Type<TComponent>,
+        data: TData,
         args: IDialogArgs = {},
         insertAfterElement?: HTMLElement
     ): DialogRef {
@@ -209,12 +210,14 @@ export class DialogService {
 
         // Create an injector that provides the DialogRef
         const injector = Injector.create({
-            providers: [{ provide: TAB_DIALOG_REF, useValue: dialogRef }],
+            providers: [{ provide: TAB_DIALOG_REF, useValue: dialogRef },
+                { provide: TAB_DATA_REF, useValue: data },
+            ],
             parent: this.injector,
         });
 
         // Create the component view
-        const componentView = this.createView(component, inputs, injector);
+        const componentView = this.createView(component, injector);
         // Attach component to the application
         this.appRef.attachView(componentView);
 
@@ -321,26 +324,17 @@ export class DialogService {
         }
     }
 
-
-    private createView<T>(
-        component: Type<T>,
-        inputs: { [key: string]: any } = {},
+    private createView<TComponent>(
+        component: Type<TComponent>,
         injector: Injector
     ): ViewRef {
-        const componentRef: ComponentRef<T> = createComponent(component, {
-            environmentInjector: this.environmentInjector,
-            elementInjector: injector,
-        });
-        // Set inputs on the component
-        // They can be either static or function (signals)
-        const instance = componentRef.instance as any;
-        Object.keys(inputs).forEach((key) => {
-            if (typeof instance[key]?.set === 'function') {
-                instance[key].set(inputs[key]);
-            } else {
-                instance[key] = inputs[key];
+        const componentRef: ComponentRef<TComponent> = createComponent(
+            component,
+            {
+                environmentInjector: this.environmentInjector,
+                elementInjector: injector,
             }
-        });
+        );
         return componentRef.hostView;
     }
 
