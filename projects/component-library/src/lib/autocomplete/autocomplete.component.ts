@@ -30,16 +30,12 @@ import { generateRandomString } from '../utils';
     templateUrl: './autocomplete.component.html',
     styleUrls: ['./autocomplete.component.scss'],
 })
-export class AutoCompleteComponent implements OnInit, OnDestroy {
+export class AutoCompleteComponent {
     dialogService = inject(DialogService);
     elementRef = inject(ElementRef);
 
     dropdownId: string;
 
-    /**
-     * The parent control to which the autocomplete is attached to
-     */
-    parentControl = input.required<HTMLInputElement>();
     /**
      * The CSS text to apply to the dropdown container
      * @remarks
@@ -72,11 +68,14 @@ export class AutoCompleteComponent implements OnInit, OnDestroy {
 
     options = contentChildren<OptionComponent>(OptionComponent);
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    dropdownPrefix: Signal<PrefixComponent | undefined> = contentChild<PrefixComponent>(PrefixComponent);
+    dropdownPrefix: Signal<PrefixComponent | undefined> =
+        contentChild<PrefixComponent>(PrefixComponent);
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    dropdownSuffix: Signal<SuffixComponent | undefined> = contentChild<SuffixComponent>(SuffixComponent);
+    dropdownSuffix: Signal<SuffixComponent | undefined> =
+        contentChild<SuffixComponent>(SuffixComponent);
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    dropdownTemplate: Signal<TemplateRef<any> | undefined> = viewChild<TemplateRef<any>>('dropdownTemplate');
+    dropdownTemplate: Signal<TemplateRef<any> | undefined> =
+        viewChild<TemplateRef<any>>('dropdownTemplate');
 
     constructor() {
         const id = generateRandomString();
@@ -85,55 +84,35 @@ export class AutoCompleteComponent implements OnInit, OnDestroy {
             this.highlightedOption.set(undefined);
         });
     }
-    
-    ngOnInit(): void {
-        this.parentControl().addEventListener('focus', () =>
-            this.openDropdown()
-        );
-        this.parentControl().addEventListener('blur', () =>
-            this.closeDropdown()
-        );
-        this.parentControl().addEventListener('click', () => this.openDropdown());
-        this.parentControl().addEventListener('input', () => this.openDropdown());
-    
-    }
-    ngOnDestroy(): void {
-        this.parentControl().removeEventListener('focus', () =>
-            this.openDropdown()
-        );
-        this.parentControl().removeEventListener('blur', () =>
-            this.closeDropdown()
-        );
-        this.parentControl().removeEventListener('mouseup', () =>
-            this.openDropdown()
-        );
-        this.parentControl().removeEventListener('input', () =>
-            this.openDropdown()
-        );
-    }
 
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    openDialog: WritableSignal<DialogRef | undefined> = signal<DialogRef | undefined>(undefined);
-    openDropdown() {
+    private openDialog: WritableSignal<
+        { ref: DialogRef; el: HTMLInputElement } | undefined
+    > = signal< { ref: DialogRef; el: HTMLInputElement }  | undefined>(undefined);
+    openDropdown(parentControl: HTMLInputElement) {
         if (
-            this.parentControl().hasAttribute('disabled') &&
-            this.parentControl().getAttribute('disabled') !== 'false'
+            parentControl.hasAttribute('disabled') &&
+            parentControl.getAttribute('disabled') !== 'false'
         ) {
             return;
         }
         if (this.openDialog()) {
-            return;
+            if (this.openDialog()?.el === parentControl) {
+                return;
+            }
+            this.openDialog()?.ref.close();
         }
 
-        const inputRect = this.parentControl().getBoundingClientRect();
+        const inputRect = parentControl.getBoundingClientRect();
 
         const ref = this.dialogService.openTemplateDialog(
             this.dropdownTemplate()!,
             {
                 //top: inputRect.bottom + 'px',
                 top(actualWidth, actualHeight) {
-                    if (inputRect.bottom + actualHeight > window.innerHeight &&
-                        inputRect.top - actualHeight> 0
+                    if (
+                        inputRect.bottom + actualHeight > window.innerHeight &&
+                        inputRect.top - actualHeight > 0
                     ) {
                         return inputRect.top - actualHeight + 'px';
                     }
@@ -146,28 +125,38 @@ export class AutoCompleteComponent implements OnInit, OnDestroy {
                 backdropCss: {
                     pointerEvents: 'none',
                 },
-            }, null, this.parentControl()
+            },
+            null,
+            parentControl
         );
-        
+
         this.registerKeyNavigation();
         ref.afterClosed$.subscribe(() => {
             this.unregisterKeyNavigation();
-            if (this.openDialog() === ref) {
+            if (this.openDialog()?.ref === ref) {
                 this.openDialog.set(undefined);
             }
         });
-        this.openDialog.set(ref);
+        this.openDialog.set({ ref, el: parentControl });
     }
     closeDropdown() {
-        this.openDialog()?.close();
+        this.openDialog()?.ref.close();
     }
 
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    highlightedOption: WritableSignal<OptionComponent | undefined> = signal<OptionComponent | undefined>(undefined);
+    highlightedOption: WritableSignal<OptionComponent | undefined> = signal<
+        OptionComponent | undefined
+    >(undefined);
 
     selectValue(option: OptionComponent) {
-        this.parentControl().value = option.value();
-        this.parentControl().dispatchEvent(new Event('input', { bubbles: true }));
+        const el = this.openDialog()?.el;
+        if (!el) {
+            return;
+        }
+        el.value = option.value();
+        el.dispatchEvent(
+            new Event('input', { bubbles: true })
+        );
         this.closeDropdown();
     }
 
@@ -201,7 +190,7 @@ export class AutoCompleteComponent implements OnInit, OnDestroy {
      * - global keydown event when dropdown is open
      * @returns
      */
-    onKeyDown(e: KeyboardEvent) {
+    private onKeyDown(e: KeyboardEvent) {
         if (e.key === 'Enter') {
             // if dropdown is not open
             if (this.openDialog) {
@@ -211,7 +200,7 @@ export class AutoCompleteComponent implements OnInit, OnDestroy {
                     this.selectValue(this.highlightedOption()!);
                 } else {
                     // if an option is not highlighted, close the dropdown
-                    this.openDialog()?.close();
+                    this.openDialog()?.ref.close();
                 }
             }
             e.preventDefault();

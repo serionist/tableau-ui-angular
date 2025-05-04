@@ -18,7 +18,4 @@ export class TemplateDialogComponent<TData extends any = any> {
         contentTemplateContext: TData;
     }>(TAB_DATA_REF);
 
-    ngOnInit() {
-        console.log('TemplateDialogComponent initialized with data:', this.data);
-    }
 }

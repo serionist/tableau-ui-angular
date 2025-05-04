@@ -88,8 +88,9 @@
                         type="text"
                         [value]="searchValue$ | async"
                         (input)="searchValueChanged($any($event.target).value)"
+                        [tabAutoComplete]="autocomplete"
                     />
-                    <tab-autocomplete [parentControl]="autocompleteInput">
+                    <tab-autocomplete #autocomplete>
                         <tab-prefix>
                             <div
                                 style="
