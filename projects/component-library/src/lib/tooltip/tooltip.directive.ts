@@ -24,14 +24,17 @@ export class TooltipDirective implements OnDestroy {
     tooltipPosition = input<'top' | 'bottom' | 'left' | 'right'>('top');
     tooltipMargin = input<string>('5px');
 
+    openTooltip() {
+        if (this.tooltip()) {
+            this.createTooltip();
+        }
+    }
     private tooltipElement: HTMLElement | null = null;
 
     private elementRef = inject(ElementRef);
 
     @HostListener('mouseenter') onMouseEnter() {
-        if (this.tooltip()) {
-            this.createTooltip();
-        }
+        this.openTooltip();
     }
 
     @HostListener('mouseleave') onMouseLeave() {
