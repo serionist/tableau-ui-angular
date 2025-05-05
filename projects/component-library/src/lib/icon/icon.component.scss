@@ -10,7 +10,7 @@
   //  font-family: "Material Symbols Rounded";
     font-weight: normal;
     font-style: normal;
-    font-size: round(1.2em, 1px);
+    font-size: 1.2em;
     line-height: 1;
     letter-spacing: normal;
     text-transform: none;
@@ -26,6 +26,7 @@
     text-rendering: optimizeLegibility;
     font-feature-settings: "liga";
 
+    
     &.fill {
         font-variation-settings: "FILL" 1;
     }
@@ -50,5 +51,10 @@
         &[disabled] {
             color: #c9c9c9 !important;
         }
+    }
+}
+@supports (width: round(1em, 1px)) {
+    :host {
+        font-size: round(1.2em, 1px);
     }
 }

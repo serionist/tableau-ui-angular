@@ -18,13 +18,19 @@
         opacity: 0;
         padding: 0;
         pointer-events: none;
-        width: round(1.2em, 1px);
-        height:  round(1.2em, 1px);
+        width: 1.2em;
+        height: 1.2em;
         font-size: var(--twc-font-size-body);
         min-height: 0;
         &:focus-visible + .box {
             outline: 2px solid var(--twc-color-primary);
             outline-offset: 2px;
+        }
+    }
+    @supports (width: round(1em, 1px)) {
+        input {
+            width: round(1.2em, 1px);
+            height:  round(1.2em, 1px);
         }
     }
     .box {

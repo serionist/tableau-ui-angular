@@ -17,8 +17,8 @@
         grid-column: 1;
         grid-row: 1;
         box-sizing: border-box;
-        height: round(1.2em, 2px);
-        width: round(1.2em, 2px);
+        width: 1.2em;
+        height: 1.2em;
         min-height: 0;
         background-color: initial;
         cursor: default;
@@ -42,17 +42,31 @@
         border: 1px solid #2e2e2e;
         box-sizing: border-box;
         justify-items: center;
-        width: round(1.2em, 2px);
-        height: round(1.2em, 2px);
+        width: 1.2em;
+        height: 1.2em;
         border-radius: 100%;
         display: grid;
         align-items: center;
         justify-items: center;
         .filler {
-            width: round(0.7em, 2px);
-            height: round(0.7em, 2px);
+            width: 0.7em;
+            height: 0.7em;
             border-radius: 100%;
             background-color: #2e2e2e;
+        }
+    }
+    @supports (width: round(1em, 1px)) {
+        input {
+            width: round(1.2em, 1px);
+            height:  round(1.2em, 1px);
+        }
+        .box {
+            width: round(1.2em, 2px);
+            height: round(1.2em, 2px);
+            .filler {
+                width: round(0.7em, 2px);
+                height: round(0.7em, 2px);
+            }
         }
     }
 
