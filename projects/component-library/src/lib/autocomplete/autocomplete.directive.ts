@@ -1,24 +1,52 @@
-import { Directive, ElementRef, Host, HostListener, inject, input, OnDestroy, OnInit } from "@angular/core";
-import { AutoCompleteComponent } from "./autocomplete.component";
-
+import {
+    Directive,
+    effect,
+    ElementRef,
+    Host,
+    HostListener,
+    inject,
+    input,
+    OnDestroy,
+    OnInit,
+} from '@angular/core';
+import { AutoCompleteComponent } from './autocomplete.component';
+import { Subscription } from 'rxjs';
 @Directive({
     selector: 'input[tabAutoComplete]',
-    standalone: false
+    standalone: false,
 })
-export class AutoCompleteDirective implements OnDestroy{
-    
-    ref = inject<ElementRef<HTMLInputElement>>(ElementRef);
-    tabAutoComplete = input.required<AutoCompleteComponent>();
-
+export class AutoCompleteDirective implements OnDestroy {
+    private readonly ref = inject<ElementRef<HTMLInputElement>>(ElementRef);
+    readonly tabAutoComplete = input.required<AutoCompleteComponent>();
+    private autoCompleteSelectedSub: Subscription | undefined = undefined;
+    private readonly autocompleteChanged = effect(() => {
+        const autoComplete = this.tabAutoComplete();
+        if (this.autoCompleteSelectedSub) {
+            this.autoCompleteSelectedSub.unsubscribe();
+        }
+        this.autoCompleteSelectedSub = autoComplete.selectValue$.subscribe(
+            (option) => {
+                const el = this.ref.nativeElement;
+                if (!el) {
+                    return;
+                }
+                el.value = option.value();
+                el.dispatchEvent(
+                    new Event('input', { bubbles: true })
+                );
+                autoComplete.closeDropdown();
+            }
+        );
+    });
 
     @HostListener('focusin')
     onFocusIn() {
-      this.tabAutoComplete().openDropdown(this.ref.nativeElement);
+        this.tabAutoComplete().openDropdown(this.ref.nativeElement);
     }
-    
+
     @HostListener('focusout')
     onFocusOut() {
-      this.tabAutoComplete().closeDropdown();
+        this.tabAutoComplete().closeDropdown();
     }
 
     @HostListener('input', ['$event'])
@@ -34,5 +62,4 @@ export class AutoCompleteDirective implements OnDestroy{
     ngOnDestroy(): void {
         this.tabAutoComplete().closeDropdown();
     }
-    
 }

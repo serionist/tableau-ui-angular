@@ -46,19 +46,25 @@
         margin-top: 0.1rem;
         font-size: 0.9em;
         grid-row: 3;
-        .hints {
-            display: grid;
-            grid-template-columns: auto 1fr;
-            max-width: 100%;
-            overflow: hidden;
-            gap: 8px;
-            ::ng-deep [type="prefix"] {
-                grid-column: 1;
-            }
-            ::ng-deep [type="suffix"] {
-                grid-column: 2;
-                justify-self: end;
-            }
+
+        display: grid;
+        grid-template-columns: auto 1fr;
+        max-width: 100%;
+        overflow: hidden;
+        gap: 8px;
+        ::ng-deep tab-hint {
+            grid-row: 1;
+        }
+        ::ng-deep tab-hint[type="prefix"] {
+            grid-column: 1;
+        }
+        ::ng-deep tab-hint[type="suffix"] {
+            grid-column: 2;
+            justify-self: end;
+        }
+        ::ng-deep tab-error {
+            grid-row: 1;
+            grid-column: 1;
         }
     }
 

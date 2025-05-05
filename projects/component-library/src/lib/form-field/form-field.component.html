@@ -14,11 +14,8 @@
   </div>
   @if (hintElement() || errorElement()) {
       <div class="form-extra-info">
-          @if (!errorElement() && hintElement()) {
-              <div class="hints">
-                  <ng-content select="tab-hint"></ng-content>
-              </div>
-              
+          @if (hintElement() && (!errorElement() || hintElement()!.showOnError())) {
+            <ng-content select="tab-hint"></ng-content>
           }
           @if (errorElement()) {
               <ng-content select="tab-error"></ng-content>

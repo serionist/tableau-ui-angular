@@ -14,7 +14,7 @@
                 @for (option of options(); track option.value()) {
                 <div
                     class="option-wrapper"
-                    (click)="selectValue(option)"
+                    (click)="selectValue$.next(option)"
                     (mousedown)="optionMouseDown($event)"
                     [class.disabled]="option.disabled()"
                     [class.highlight]="

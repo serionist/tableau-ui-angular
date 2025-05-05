@@ -20,7 +20,7 @@ import { PrefixComponent } from '../common/prefix';
 import { SuffixComponent } from '../common/suffix';
 import { DialogService } from '../dialogservice/dialog.service';
 import { DialogRef } from '../dialogservice/dialog.ref';
-import { fromEvent, map, Subscription } from 'rxjs';
+import { fromEvent, map, Subject, Subscription } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { generateRandomString } from '../utils';
 
@@ -31,18 +31,19 @@ import { generateRandomString } from '../utils';
     styleUrls: ['./autocomplete.component.scss'],
 })
 export class AutoCompleteComponent {
-    dialogService = inject(DialogService);
-    elementRef = inject(ElementRef);
+    private readonly dialogService = inject(DialogService);
+    private readonly elementRef = inject(ElementRef);
 
-    dropdownId: string;
+    protected readonly dropdownId: string;
 
+    public readonly selectValue$ = new Subject<OptionComponent>();
     /**
      * The CSS text to apply to the dropdown container
      * @remarks
      * Use this to apply height, maxHeight, etc. to the dropdown container
      * @default '{}'
      */
-    dropdownContainerCss = model<{ [key: string]: string }>({});
+    readonly dropdownContainerCss = model<{ [key: string]: string }>({});
     /**
      * The CSS text to apply to the options container in the dropdown
      * @remarks
@@ -51,7 +52,7 @@ export class AutoCompleteComponent {
      *
      * @default "{ maxHeight: '300px', height: 'fit-content'}"
      */
-    dropdownOptionsContainerCss = model<{ [key: string]: string }>({
+    readonly dropdownOptionsContainerCss = model<{ [key: string]: string }>({
         maxHeight: '300px',
         height: 'fit-content',
     });
@@ -60,21 +61,21 @@ export class AutoCompleteComponent {
      * @remarks
      * Use this to display the 'icon', 'text', and 'hint' properties of the options conditionally
      */
-    dropdownValueTemplateContext = model<IOptionGridContext>({
+    readonly dropdownValueTemplateContext = model<IOptionGridContext>({
         renderIcon: true,
         renderText: true,
         renderHint: true,
     });
 
-    options = contentChildren<OptionComponent>(OptionComponent);
+    protected readonly options = contentChildren<OptionComponent>(OptionComponent);
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    dropdownPrefix: Signal<PrefixComponent | undefined> =
+    protected readonly dropdownPrefix: Signal<PrefixComponent | undefined> =
         contentChild<PrefixComponent>(PrefixComponent);
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    dropdownSuffix: Signal<SuffixComponent | undefined> =
+    protected readonly dropdownSuffix: Signal<SuffixComponent | undefined> =
         contentChild<SuffixComponent>(SuffixComponent);
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    dropdownTemplate: Signal<TemplateRef<any> | undefined> =
+    protected readonly dropdownTemplate: Signal<TemplateRef<any> | undefined> =
         viewChild<TemplateRef<any>>('dropdownTemplate');
 
     constructor() {
@@ -94,11 +95,11 @@ export class AutoCompleteComponent {
             parentControl.hasAttribute('disabled') &&
             parentControl.getAttribute('disabled') !== 'false'
         ) {
-            return;
+            return undefined;
         }
         if (this.openDialog()) {
             if (this.openDialog()?.el === parentControl) {
-                return;
+                return this.openDialog()?.ref;
             }
             this.openDialog()?.ref.close();
         }
@@ -138,36 +139,25 @@ export class AutoCompleteComponent {
             }
         });
         this.openDialog.set({ ref, el: parentControl });
+        return ref;
     }
     closeDropdown() {
         this.openDialog()?.ref.close();
     }
 
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    highlightedOption: WritableSignal<OptionComponent | undefined> = signal<
+    protected readonly highlightedOption: WritableSignal<OptionComponent | undefined> = signal<
         OptionComponent | undefined
     >(undefined);
 
-    selectValue(option: OptionComponent) {
-        const el = this.openDialog()?.el;
-        if (!el) {
-            return;
-        }
-        el.value = option.value();
-        el.dispatchEvent(
-            new Event('input', { bubbles: true })
-        );
-        this.closeDropdown();
-    }
-
-    optionMouseDown(event: MouseEvent) {
+    protected optionMouseDown(event: MouseEvent) {
         if (event) {
             event.preventDefault();
             event.stopPropagation();
         }
     }
 
-    optionKeyNavSubscription: Subscription | undefined;
+    private optionKeyNavSubscription: Subscription | undefined;
     private registerKeyNavigation() {
         this.unregisterKeyNavigation();
         this.optionKeyNavSubscription = fromEvent(document, 'keydown')
@@ -197,7 +187,7 @@ export class AutoCompleteComponent {
                 // if dropdown is open
                 // if an option is highlighted, select it
                 if (this.highlightedOption()) {
-                    this.selectValue(this.highlightedOption()!);
+                    this.selectValue$.next(this.highlightedOption()!);
                 } else {
                     // if an option is not highlighted, close the dropdown
                     this.openDialog()?.ref.close();

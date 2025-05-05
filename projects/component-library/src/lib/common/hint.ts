@@ -15,6 +15,7 @@ import { ChangeDetectionStrategy, Component, ElementRef, inject, input, model } 
 })
 export class HintComponent {
     type = input<'prefix' | 'suffix'>('prefix');
+    showOnError = input<boolean>(false);
     elementRef = inject(ElementRef);
 
 }
