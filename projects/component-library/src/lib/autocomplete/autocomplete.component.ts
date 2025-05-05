@@ -282,11 +282,7 @@ export class AutoCompleteComponent {
 
             if (nextIndex !== -1) {
                 this.highlightedOption.set(this.options()[nextIndex]);
-                console.log(
-                    document.querySelector(
-                        `#${this.dropdownId} .option-wrapper.highlight`
-                    )
-                );
+                
                 setTimeout(
                     () =>
                         document

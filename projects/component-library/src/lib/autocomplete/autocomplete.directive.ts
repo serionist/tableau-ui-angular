@@ -11,14 +11,14 @@ export class AutoCompleteDirective implements OnDestroy{
     tabAutoComplete = input.required<AutoCompleteComponent>();
 
 
-    @HostListener('focus')
-    onFocus() {
-        this.tabAutoComplete().openDropdown(this.ref.nativeElement);
+    @HostListener('focusin')
+    onFocusIn() {
+      this.tabAutoComplete().openDropdown(this.ref.nativeElement);
     }
-
-    @HostListener('blur')
-    onBlur() {
-        this.tabAutoComplete().closeDropdown();
+    
+    @HostListener('focusout')
+    onFocusOut() {
+      this.tabAutoComplete().closeDropdown();
     }
 
     @HostListener('input', ['$event'])
