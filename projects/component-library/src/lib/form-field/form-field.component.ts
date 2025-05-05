@@ -30,7 +30,7 @@ import { SuffixComponent } from '../common/suffix';
     templateUrl: './form-field.component.html',
     styleUrl: './form-field.component.scss',
     host: {
-        'class.disabled': 'inputDisabled()',
+        '[class.disabled]': 'inputDisabled()',
         '[attr.aria-disabled]': 'inputDisabled()',
         'style.display': 'grid'
     },
