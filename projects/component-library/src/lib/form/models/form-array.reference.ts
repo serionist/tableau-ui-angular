@@ -206,7 +206,7 @@ export class FARegisterFunctions<
      * @param alsoRunOnDisabled Whether to also run the callback when the control is disabled.
      */
     valueChange(
-        callback: (value: DeepPartial<TItem>[]) => void,
+        callback: (value: DeepPartial<TItem>[], controls: FG<TItem>[]) => void,
         alsoRunOnEnabled: boolean = false,
         alsoRunOnDisabled: boolean = false
     ): FA<TItem> {
@@ -230,7 +230,7 @@ export class FARegisterFunctions<
         }
         this.subscriptions.push(
             combineLatest(subs).subscribe(([v, e]) => {
-                callback(v);
+                callback(v, this.control.controls());
             })
         );
         return this.control as unknown as FA<TItem>;
