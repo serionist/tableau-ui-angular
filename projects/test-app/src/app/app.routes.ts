@@ -18,6 +18,7 @@ import { LocalDevelopmentComponent } from './pages/local-development/local-devel
 import { TreePageComponent } from './pages/tree-page/tree-page.component';
 import { MenuPageComponent } from './pages/menu-page/menu-page.component';
 import { DatePickerPageComponent } from './pages/date-picker-page/date-picker-page.component';
+import { ExpansionPageComponent } from './pages/expansion-page/expansion-page.component';
 export const routes: Routes = [
     {
         'path': '',
@@ -96,6 +97,15 @@ export const routes: Routes = [
         title: 'Dialogs',
         data: {
             page: 'dialogs'
+        }
+
+    },
+    {
+        path: 'expansion-panel',
+        component: ExpansionPageComponent,
+        title: 'Expansion Panels',
+        data: {
+            page: 'expansion-panel'
         }
 
     },

@@ -94,6 +94,13 @@
         ></tab-nav-bar-button>
 
         <tab-nav-bar-button
+        icon="top_panel_open"
+        text="Expansion Panel"
+        link="/expansion-panel"
+        [isActive]="(page$ | async) === 'expansion-panel'"
+    ></tab-nav-bar-button>
+
+        <tab-nav-bar-button
             icon="toast"
             text="Snackbar"
             link="/snackbar"

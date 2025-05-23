@@ -1,4 +1,4 @@
-import { AbstractControl, FormControl, FormGroup } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Primitive } from '../types/primitive';
 import { FC } from './form-control.reference';
 import { FG } from './form-group.reference';
@@ -10,7 +10,10 @@ import { combineLatest } from 'rxjs';
 const a = new FC<boolean>({
     defaultValue: true,
 });
-a.registerFn
+
+
+
+
 const b = new ControlReferenceBuilder();
 const a2 = b.control('asd'); 
 export interface ITest {
@@ -65,9 +68,8 @@ const g = new FG<ITest>({
         }),
     },
 });
-g.registerFn
 const gbuilder = b.group<ITest>({
-    name: b.control<string>('test'),
+    name: b.control<string>('test', Validators.required),
     age: b.control<number>(0),
     address: b.group<IAddress>({
         street: b.control<string>('test'),
@@ -85,6 +87,7 @@ const gbuilder = b.group<ITest>({
 const arr = new FA<ITest>({
     controls: [g]
 });
+
 
 combineLatest([
     a.value$,

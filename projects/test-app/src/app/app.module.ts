@@ -50,11 +50,13 @@ import {
     TableauUiAutoCompleteModule,
     TableauUiMenuModule,
     TableauUiDatePickerModule,
-    TableauUiFormModule
+    TableauUiFormModule,
+    TableauUiExpansionPanelModule
 } from 'component-library';
 import { MenuPageComponent } from './pages/menu-page/menu-page.component';
 import { DatePickerPageComponent } from './pages/date-picker-page/date-picker-page.component';
 import { TreeNodeContainerComponent } from './pages/tree-page/tree-node-container.component';
+import { ExpansionPageComponent } from './pages/expansion-page/expansion-page.component';
 
 @NgModule({
     declarations: [
@@ -80,7 +82,8 @@ import { TreeNodeContainerComponent } from './pages/tree-page/tree-node-containe
         TreePageComponent,
         MenuPageComponent,
         DatePickerPageComponent,
-        TreeNodeContainerComponent
+        TreeNodeContainerComponent,
+        ExpansionPageComponent
     ],
     imports: [
         BrowserModule,
@@ -107,7 +110,8 @@ import { TreeNodeContainerComponent } from './pages/tree-page/tree-node-containe
         TableauUiAutoCompleteModule,
         TableauUiMenuModule,
         TableauUiDatePickerModule,
-        TableauUiFormModule
+        TableauUiFormModule,
+        TableauUiExpansionPanelModule
         // TableauUiAllModule
     ],
     providers: [

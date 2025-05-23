@@ -1,0 +1,202 @@
+<div class="page">
+    <div class="title">
+        <h1>Expansion Panel</h1>
+        <div class="text-light text-large">
+            Expansion panels are a way to show and hide content.
+        </div>
+    </div>
+    <tab-separator></tab-separator>
+    <div class="content">
+        <div class="section">
+            <h3>Module</h3>
+            <p>
+                To use the component, import one of the following modules into
+                your module/component:
+            </p>
+
+            <ul>
+                <li>
+                    <code>TableauUiExpansionPanelModule</code> - for granular import
+                </li>
+                <li>
+                    <code>TableauUiAllModule</code> - to import all components
+                    from this library
+                </li>
+            </ul>
+        </div>
+        <div class="section">
+            <h3>Examples</h3>
+            <div class="section">
+                <h4>Single expansion panels</h4>
+
+                <div>Simplest implementation</div>
+                <tab-expansion-panel>
+                    <tab-expansion-panel-title>
+                        <div class="header">
+                            <tab-icon value="info"></tab-icon>
+                        <span>Simple Expansion Panel</span>
+                        </div>
+                    </tab-expansion-panel-title>
+                    <div>This is the sample content</div>
+                </tab-expansion-panel>
+                <div>Disabled</div>
+                <tab-expansion-panel [disabled]="true">
+                    <tab-expansion-panel-title>
+                        <div class="header">
+                            <tab-icon value="info"></tab-icon>
+                        <span>Simple Expansion Panel</span>
+                        </div>
+                    </tab-expansion-panel-title>
+                    <div>This is the sample content</div>
+                </tab-expansion-panel>
+                <div>Has a specific collapsed header, nonspecific expanded header</div>
+                <tab-expansion-panel >
+                    <tab-expansion-panel-title collapsed>
+                        <div class="header">
+                            <tab-icon value="info"></tab-icon>
+                        <span>Simple Expansion Panel is collapsed</span>
+                        </div>
+                    </tab-expansion-panel-title>
+                    <tab-expansion-panel-title>
+                        <div class="header">
+                            <tab-icon value="info"></tab-icon>
+                        <span>Simple Expansion Panel</span>
+                        </div>
+                    </tab-expansion-panel-title>
+                    <div>This is the sample content</div>
+                </tab-expansion-panel>
+                <div>Has a specific expanded header, nonspecific collapsed header</div>
+                <tab-expansion-panel >
+                    <tab-expansion-panel-title expanded>
+                        <div class="header">
+                            <tab-icon value="info"></tab-icon>
+                        <span>Simple Expansion Panel is expanded</span>
+                        </div>
+                    </tab-expansion-panel-title>
+                    <tab-expansion-panel-title>
+                        <div class="header">
+                            <tab-icon value="info"></tab-icon>
+                        <span>Simple Expansion Panel</span>
+                        </div>
+                    </tab-expansion-panel-title>
+                    <div>This is the sample content</div>
+                </tab-expansion-panel>
+                <div>Has a specific collapsed and expanded headers</div>
+                <tab-expansion-panel >
+                    <tab-expansion-panel-title expanded>
+                        <div class="header">
+                            <tab-icon value="info"></tab-icon>
+                        <span>Simple Expansion Panel is expanded</span>
+                        </div>
+                    </tab-expansion-panel-title>
+                    <tab-expansion-panel-title collapsed>
+                        <div class="header">
+                            <tab-icon value="info"></tab-icon>
+                        <span>Simple Expansion Panel is collapsed</span>
+                        </div>
+                    </tab-expansion-panel-title>
+                    <div>This is the sample content</div>
+                </tab-expansion-panel>
+                <div>Has large header and disabled hover</div>
+                <tab-expansion-panel [noHeaderHover]="true">
+                    <tab-expansion-panel-title>
+                        <div class="header special">
+                            <tab-icon value="info"></tab-icon>
+                            <span>Simple Expansion Panel is collapsed</span>
+                            <button (click)="specialButtonClick($event)">test</button>
+                        </div>
+                        <p>Szevasz</p>
+                    </tab-expansion-panel-title>
+                    <div>This is the sample content</div>
+                </tab-expansion-panel>
+                
+            </div>
+            <div class="section">
+                <h4>Accordion</h4>
+                <tab-accordion>
+                    <tab-expansion-panel>
+                        <tab-expansion-panel-title>
+                            <div class="header">
+                                <tab-icon value="info"></tab-icon>
+                            <span>Simple Expansion Panel</span>
+                            </div>
+                        </tab-expansion-panel-title>
+                        <div>This is the sample content</div>
+                    </tab-expansion-panel>
+                    <div>Disabled</div>
+                    <tab-expansion-panel [disabled]="true">
+                        <tab-expansion-panel-title>
+                            <div class="header">
+                                <tab-icon value="info"></tab-icon>
+                            <span>Simple Expansion Panel</span>
+                            </div>
+                        </tab-expansion-panel-title>
+                        <div>This is the sample content</div>
+                    </tab-expansion-panel>
+                    <div>Has a specific collapsed header, nonspecific expanded header</div>
+                    <tab-expansion-panel >
+                        <tab-expansion-panel-title collapsed>
+                            <div class="header">
+                                <tab-icon value="info"></tab-icon>
+                            <span>Simple Expansion Panel is collapsed</span>
+                            </div>
+                        </tab-expansion-panel-title>
+                        <tab-expansion-panel-title>
+                            <div class="header">
+                                <tab-icon value="info"></tab-icon>
+                            <span>Simple Expansion Panel</span>
+                            </div>
+                        </tab-expansion-panel-title>
+                        <div>This is the sample content</div>
+                    </tab-expansion-panel>
+                    <div>Has a specific expanded header, nonspecific collapsed header</div>
+                    <tab-expansion-panel >
+                        <tab-expansion-panel-title expanded>
+                            <div class="header">
+                                <tab-icon value="info"></tab-icon>
+                            <span>Simple Expansion Panel is expanded</span>
+                            </div>
+                        </tab-expansion-panel-title>
+                        <tab-expansion-panel-title>
+                            <div class="header">
+                                <tab-icon value="info"></tab-icon>
+                            <span>Simple Expansion Panel</span>
+                            </div>
+                        </tab-expansion-panel-title>
+                        <div>This is the sample content</div>
+                    </tab-expansion-panel>
+                    <div>Has a specific collapsed and expanded headers</div>
+                    <tab-expansion-panel >
+                        <tab-expansion-panel-title expanded>
+                            <div class="header">
+                                <tab-icon value="info"></tab-icon>
+                            <span>Simple Expansion Panel is expanded</span>
+                            </div>
+                        </tab-expansion-panel-title>
+                        <tab-expansion-panel-title collapsed>
+                            <div class="header">
+                                <tab-icon value="info"></tab-icon>
+                            <span>Simple Expansion Panel is collapsed</span>
+                            </div>
+                        </tab-expansion-panel-title>
+                        <div>This is the sample content</div>
+                    </tab-expansion-panel>
+                    <div>Has large header and disabled hover</div>
+                    <tab-expansion-panel [noHeaderHover]="true">
+                        <tab-expansion-panel-title>
+                            <div class="header special">
+                                <tab-icon value="info"></tab-icon>
+                                <span>Simple Expansion Panel is collapsed</span>
+                                <button (click)="specialButtonClick($event)">test</button>
+                            </div>
+                            <p>Szevasz</p>
+                        </tab-expansion-panel-title>
+                        <div>This is the sample content</div>
+                    </tab-expansion-panel>
+                    
+                </tab-accordion>
+                
+            </div>
+        </div>
+    </div>
+</div>
