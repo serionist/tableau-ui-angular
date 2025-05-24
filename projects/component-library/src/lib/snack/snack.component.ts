@@ -1,17 +1,26 @@
-import { ChangeDetectionStrategy, Component, inject, model, ModelSignal, TemplateRef } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    model,
+    ModelSignal,
+    TemplateRef,
+} from '@angular/core';
 import { TAB_SNACK_REF } from './snack.ref';
+import { TAB_SNACK_DATA_REF } from './data.ref';
 @Component({
     template: `
-        <div class="snack-content" [ngClass]="type()">
+        <div class="snack-content" [ngClass]="data.type">
             <div class="content">
-                <tab-icon class="icon" value="{{ type() }}"></tab-icon>
-                <div *ngIf="template(); else textContent">
+                <tab-icon class="icon" value="{{ data.type }}"></tab-icon>
+                <div *ngIf="data.contentTemplate; else textContent">
                     <ng-container
-                        *ngTemplateOutlet="template()!"
+                        [ngTemplateOutlet]="data.contentTemplate!"
+                        [ngTemplateOutletContext]="data.contentTemplateContext"
                     ></ng-container>
                 </div>
                 <ng-template #textContent>
-                    <div>{{ message() }}</div>
+                    <div>{{ data.message }}</div>
                 </ng-template>
 
                 <tab-icon
@@ -21,8 +30,7 @@ import { TAB_SNACK_REF } from './snack.ref';
                     (keydown.enter)="snackRef.close(true)"
                     (keydown.space)="snackRef.close(true)"
                     value="close"
-                    ></tab-icon
-                >
+                ></tab-icon>
             </div>
         </div>
     `,
@@ -66,13 +74,14 @@ import { TAB_SNACK_REF } from './snack.ref';
         `,
     ],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
+    standalone: false,
 })
-export class SnackComponent {
-    type = model<'info' | 'error'>('info');
-    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    message: ModelSignal<string | undefined> = model<string>();
-    template: ModelSignal<TemplateRef<any> | undefined> = model<TemplateRef<any>>();
-
+export class SnackComponent<TData extends any = any> {
+    data = inject<{
+        type: 'info' | 'error';
+        message: string | undefined;
+        contentTemplate: TemplateRef<TData> | undefined;
+        contentTemplateContext: TData;
+    }>(TAB_SNACK_DATA_REF);
     snackRef = inject(TAB_SNACK_REF);
 }

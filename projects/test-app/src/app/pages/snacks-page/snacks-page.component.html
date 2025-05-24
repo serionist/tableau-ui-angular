@@ -42,15 +42,15 @@
                         <button color="error" (click)="snackService.openSnack('This is a simple snack for 5 seconds', 5000, 'error', 'bottom')">Simple Snack from bottom, 5 secs</button>
                 </div>
                 <div class="spacer">
-                    <ng-template #snackTemplate>
-                        <span>This is a random template</span>
+                    <ng-template #snackTemplate let-text="text">
+                        <span>This is a random template</span><span> {{text}}</span>
                         <tab-checkbox [value]="true">Checkbox</tab-checkbox>
                     </ng-template>
-                    <button color="primary" (click)="snackService.openSnackFromTemplate(snackTemplate, 5000)">Templated Snack from top, 5 secs</button>
-                    <button color="error" (click)="snackService.openSnackFromTemplate(snackTemplate, 5000, 'error')">Templated Snack from top, 5 secs</button>
+                    <button color="primary" (click)="snackService.openSnackFromTemplate(snackTemplate, { text: '1'}, 5000)">Templated Snack from top, 5 secs</button>
+                    <button color="error" (click)="snackService.openSnackFromTemplate(snackTemplate,  { text: '2'},  5000, 'error')">Templated Snack from top, 5 secs</button>
 
-                    <button color="primary" (click)="snackService.openSnackFromTemplate(snackTemplate, 5000, 'info', 'bottom')">Templated Snack from bottom, 5 secs</button>
-                    <button color="error" (click)="snackService.openSnackFromTemplate(snackTemplate, 5000, 'error', 'bottom')">Templated Snack from bottom, 5 secs</button>
+                    <button color="primary" (click)="snackService.openSnackFromTemplate(snackTemplate,  { text: '3'}, 5000, 'info', 'bottom')">Templated Snack from bottom, 5 secs</button>
+                    <button color="error" (click)="snackService.openSnackFromTemplate(snackTemplate,  { text: '4'}, 5000, 'error', 'bottom')">Templated Snack from bottom, 5 secs</button>
 
 
                     <button color="primary" (click)="openCustomSnack(5000)">Custom Component Snack from top, 5 secs</button>

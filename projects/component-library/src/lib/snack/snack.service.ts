@@ -13,6 +13,7 @@ import {
 import { SnackRef, TAB_SNACK_REF } from './snack.ref';
 import { SnackComponent } from './snack.component';
 import { TableauUiSnackModule } from './tableau-ui-snack.module';
+import { TAB_SNACK_DATA_REF } from './data.ref';
 
 // Styles for the snack container are in _snack.service.scss in the styles folder
 @Injectable({
@@ -32,30 +33,41 @@ export class SnackService {
     ): SnackRef {
         return this.openSnackComponent(
             SnackComponent,
-            { type, message },
+            {
+                type,
+                message,
+                contentTemplate: undefined,
+                contentTemplateContext: undefined
+            },
             duration,
             type,
             location
         );
     }
-    openSnackFromTemplate(
-        template: TemplateRef<any>,
+    openSnackFromTemplate<T extends any = any>(
+        template: TemplateRef<T>,
+        templateContext?: T,
         duration: number | undefined = 5000,
         type: 'info' | 'error' = 'info',
         location: 'top' | 'bottom' = 'top'
     ) {
         return this.openSnackComponent(
             SnackComponent,
-            { type, template },
+            {
+                type,
+                message: undefined,
+                contentTemplate: template,
+                contentTemplateContext: templateContext || {}
+            },
             duration,
             type,
             location
         );
     }
 
-    openSnackComponent(
-        component: Type<any>,
-        inputs: { [key: string]: any } = {},
+    openSnackComponent<TData extends any = any, TComponent extends any = any>(
+        component: Type<TComponent>,
+        data: TData,
         duration: number | undefined = 5000,
         type: 'info' | 'error' = 'info',
         location: 'top' | 'bottom' = 'top'
@@ -81,12 +93,14 @@ export class SnackService {
         const snackRef = new SnackRef();
         // Create an injector that provides the SnackRef
         const injector = Injector.create({
-            providers: [{ provide: TAB_SNACK_REF, useValue: snackRef }],
+            providers: [{ provide: TAB_SNACK_REF, useValue: snackRef },
+                { provide: TAB_SNACK_DATA_REF, useValue: data }
+            ],
             parent: this.injector,
         });
 
         // Create the component view
-        const componentView = this.createView(component, inputs, injector);
+        const componentView = this.createView(component, injector);
         // Attach component to the application
         this.appRef.attachView(componentView);
 
@@ -149,25 +163,17 @@ export class SnackService {
         return snackRef;
     }
 
-    private createView<T>(
-        component: Type<T>,
-        inputs: { [key: string]: any } = {},
+    private createView<TComponent>(
+        component: Type<TComponent>,
         injector: Injector
     ): ViewRef {
-        const componentRef: ComponentRef<T> = createComponent(component, {
-            environmentInjector: this.environmentInjector,
-            elementInjector: injector,
-        });
-        // Set inputs on the component
-        // They can be either static or function (signals)
-        const instance = componentRef.instance as any;
-        Object.keys(inputs).forEach((key) => {
-            if (typeof instance[key]?.set === 'function') {
-                instance[key].set(inputs[key]);
-            } else {
-                instance[key] = inputs[key];
+        const componentRef: ComponentRef<TComponent> = createComponent(
+            component,
+            {
+                environmentInjector: this.environmentInjector,
+                elementInjector: injector,
             }
-        });
+        );
         return componentRef.hostView;
     }
 }
