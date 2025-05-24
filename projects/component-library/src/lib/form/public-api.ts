@@ -1,6 +1,7 @@
 export * from './form-get-error.pipe';
 export * from './form-has-error.pipe';
 export * from './form-control.pipe';
+export * from './form-control-required.pipe';
 export * from './form-array-value.pipe';
 export * from './form-meta.pipe';
 export * from './form-group-value.pipe';
@@ -17,5 +18,6 @@ export * from './types/form-references-of';
 export * from './types/deep-partial';
 export * from './types/primitive';
 export * from './types/readonly-behaviorsubject';
+
 
 

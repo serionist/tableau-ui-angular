@@ -9,6 +9,7 @@ import { CommonModule } from '@angular/common';
 import { FormControlValuePipe } from './form-control-value.pipe';
 import { FormGroupValuePipe } from './form-group-value.pipe';
 import { FormChildPipe } from './form-child.pipe';
+import { FormControlRequiredPipe } from './form-control-required.pipe';
 
 @NgModule({
     imports: [ReactiveFormsModule, CommonModule],
@@ -20,7 +21,8 @@ import { FormChildPipe } from './form-child.pipe';
         FormMetaPipe,
         FormGroupValuePipe,
         FormControlValuePipe,
-        FormChildPipe
+        FormChildPipe,
+        FormControlRequiredPipe
     ],
     exports: [
         FormArrayValuePipe,
@@ -30,7 +32,8 @@ import { FormChildPipe } from './form-child.pipe';
         FormMetaPipe,
         FormGroupValuePipe,
         FormControlValuePipe,
-        FormChildPipe
+        FormChildPipe,
+        FormControlRequiredPipe
     ],
 })
 export class TableauUiFormModule {}
