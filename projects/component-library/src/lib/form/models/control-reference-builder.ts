@@ -4,7 +4,12 @@ import { Primitive } from "../types/primitive";
 import { FC } from "./form-control.reference";
 import { FG } from "./form-group.reference";
 import { FA } from "./form-array.reference";
+import { Injectable } from "@angular/core";
+import { TableauUiFormModule } from "../tableau-ui-form.module";
 
+@Injectable({
+  providedIn: TableauUiFormModule
+})
 export class ControlReferenceBuilder {
     control<T extends Primitive | Primitive[]>(
       value: T,
