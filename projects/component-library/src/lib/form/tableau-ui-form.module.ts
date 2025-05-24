@@ -10,7 +10,7 @@ import { FormControlValuePipe } from './form-control-value.pipe';
 import { FormGroupValuePipe } from './form-group-value.pipe';
 import { FormChildPipe } from './form-child.pipe';
 import { FormControlRequiredPipe } from './form-control-required.pipe';
-
+import { ControlReferenceBuilder } from './models/control-reference-builder';
 @NgModule({
     imports: [ReactiveFormsModule, CommonModule],
     declarations: [
@@ -35,5 +35,6 @@ import { FormControlRequiredPipe } from './form-control-required.pipe';
         FormChildPipe,
         FormControlRequiredPipe
     ],
+    providers: [ControlReferenceBuilder]
 })
 export class TableauUiFormModule {}
