@@ -35,7 +35,7 @@ export class ButtonComponent {
     tabindex = input('0');
     type = input<'submit' | 'button'>('button');
     color = input<'primary' | 'secondary' | 'error' | 'plain'>('secondary');
-    layout = input<'default' | 'icon'>('default');
+    layout = input<'default' | 'icon' | 'small-icon'>('default');
     inline = input(false);
 
     @HostListener('keydown', ['$event'])

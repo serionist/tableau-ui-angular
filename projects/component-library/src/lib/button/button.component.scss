@@ -65,6 +65,10 @@
         min-height: 1.5rem;
         min-width: 1.5rem;
     }
+    &[layout="small-icon"] {
+        min-height: 1rem;
+        min-width: 1rem;
+    }
     &.loading .loader-wrapper {
         visibility: visible !important;
     }
