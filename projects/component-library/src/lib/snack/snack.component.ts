@@ -6,21 +6,33 @@ import {
     ModelSignal,
     TemplateRef,
 } from '@angular/core';
-import { TAB_SNACK_REF } from './snack.ref';
+import { SnackRef, TAB_SNACK_REF } from './snack.ref';
 import { TAB_SNACK_DATA_REF } from './data.ref';
 @Component({
     template: `
         <div class="snack-content" [ngClass]="data.type">
             <div class="content">
                 <tab-icon class="icon" value="{{ data.type }}"></tab-icon>
-                <div *ngIf="data.contentTemplate; else textContent">
+                @if (data.contentTemplate) {
+                <div>
                     <ng-container
                         [ngTemplateOutlet]="data.contentTemplate!"
                         [ngTemplateOutletContext]="data.contentTemplateContext"
                     ></ng-container>
                 </div>
+                } @else {
+                <div class="text">
+                    {{ data.message }}
+                    @if (data.actionLink && data.action) {
+                    <a [routerLink]="[]" (click)="data.action(snackRef)">{{
+                        data.actionLink
+                    }}</a>
+                    }
+                </div>
+                }
+                <div *ngIf="data.contentTemplate; else textContent"></div>
                 <ng-template #textContent>
-                    <div>{{ data.message }}</div>
+                    <div></div>
                 </ng-template>
 
                 <tab-icon
@@ -56,6 +68,11 @@ import { TAB_SNACK_DATA_REF } from './data.ref';
                 border-right: 1px solid transparent;
                 padding: 0 8px;
             }
+            .content div.text {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
             .info .content div {
                 border-color: #90d0fe;
             }
@@ -80,6 +97,8 @@ export class SnackComponent<TData extends any = any> {
     data = inject<{
         type: 'info' | 'error';
         message: string | undefined;
+        actionLink: string | undefined;
+        action: ((s: SnackRef) => void) | undefined;
         contentTemplate: TemplateRef<TData> | undefined;
         contentTemplateContext: TData;
     }>(TAB_SNACK_DATA_REF);

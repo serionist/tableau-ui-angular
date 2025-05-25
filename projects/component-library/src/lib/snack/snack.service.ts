@@ -44,6 +44,17 @@ export class SnackService {
             location
         );
     }
+
+    openSnackWithAction(
+        message: string,
+        actionLabel: string,
+        action: (s: SnackRef) => void,
+        duration: number | undefined = 5000,
+        type: 'info' | 'error' = 'info',
+        location: 'top' | 'bottom' = 'top'
+    ) {
+        
+    }
     openSnackFromTemplate<T extends any = any>(
         template: TemplateRef<T>,
         templateContext?: T,
