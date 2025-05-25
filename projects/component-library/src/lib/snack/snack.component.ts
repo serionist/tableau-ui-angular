@@ -12,7 +12,7 @@ import { TAB_SNACK_DATA_REF } from './data.ref';
     template: `
         <div class="snack-content" [ngClass]="data.type">
             <div class="content">
-                <tab-icon class="icon" value="{{ data.type }}"></tab-icon>
+                <tab-icon class="icon" value="{{ data.type === 'success' ? 'check' : data.type }}"></tab-icon>
                 @if (data.contentTemplate) {
                 <div>
                     <ng-container
@@ -60,6 +60,9 @@ import { TAB_SNACK_DATA_REF } from './data.ref';
             .error .icon {
                 color: var(--twc-color-error);
             }
+            .success .icon {
+                color: var(--twc-color-success);
+            }
             .content {
                 display: flex;
                 line-height: 1.5;
@@ -95,7 +98,7 @@ import { TAB_SNACK_DATA_REF } from './data.ref';
 })
 export class SnackComponent<TData extends any = any> {
     data = inject<{
-        type: 'info' | 'error';
+        type: 'info' | 'error' | 'success';
         message: string | undefined;
         actionLink: string | undefined;
         action: ((s: SnackRef) => void) | undefined;

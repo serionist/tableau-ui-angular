@@ -28,7 +28,7 @@ export class SnackService {
     openSnack(
         message: string,
         duration: number | undefined = 5000,
-        type: 'info' | 'error' = 'info',
+        type: 'info' | 'error' | 'success' = 'info',
         location: 'top' | 'bottom' = 'top'
     ): SnackRef {
         return this.openSnackComponent(
@@ -50,16 +50,29 @@ export class SnackService {
         actionLabel: string,
         action: (s: SnackRef) => void,
         duration: number | undefined = 5000,
-        type: 'info' | 'error' = 'info',
+        type: 'info' | 'error'  | 'success'= 'info',
         location: 'top' | 'bottom' = 'top'
     ) {
-        
+        return this.openSnackComponent(
+            SnackComponent,
+            {
+                type,
+                message,
+                actionLink: actionLabel,
+                action: action,
+                contentTemplate: undefined,
+                contentTemplateContext: undefined
+            },
+            duration,
+            type,
+            location
+        );
     }
     openSnackFromTemplate<T extends any = any>(
         template: TemplateRef<T>,
         templateContext?: T,
         duration: number | undefined = 5000,
-        type: 'info' | 'error' = 'info',
+        type: 'info' | 'error' | 'success' = 'info',
         location: 'top' | 'bottom' = 'top'
     ) {
         return this.openSnackComponent(
@@ -80,7 +93,7 @@ export class SnackService {
         component: Type<TComponent>,
         data: TData,
         duration: number | undefined = 5000,
-        type: 'info' | 'error' = 'info',
+        type: 'info' | 'error' | 'success' = 'info',
         location: 'top' | 'bottom' = 'top'
     ): SnackRef {
         // check if snack container exists

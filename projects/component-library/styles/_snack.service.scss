@@ -64,6 +64,13 @@
                     background-color: var(--twc-color-error);
                 }
             }
+            &.success {
+                border-color: var(--twc-color-success);
+                background-color: #d4f8d4;
+                .timer {
+                    background-color: var(--twc-color-success);
+                }
+            }
 
             
         }

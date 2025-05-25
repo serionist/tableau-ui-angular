@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { ExampleSnackComponent } from './example-snack.component';
-import { SnackService } from 'component-library';
+import { SnackRef, SnackService } from 'component-library';
 
 
 @Component({
@@ -13,7 +13,7 @@ export class SnacksPageComponent {
     snackService = inject(SnackService);
     async openCustomSnack(
         duration: number | undefined = 5000,
-        type: 'info' | 'error' = 'info',
+        type: 'info' | 'error' | 'success'= 'info',
         location: 'top' | 'bottom' = 'top'
     ) {
         const snackRef = await this.snackService.openSnackComponent(
@@ -26,5 +26,10 @@ export class SnacksPageComponent {
         snackRef.afterClosed$.subscribe((result) => {
             console.log('Snack closed with result:', result);
         });
+    }
+
+    snackAction(snackRef: SnackRef) {
+        snackRef.close();
+        this.snackService.openSnack('Action executed!', 3000, 'info', 'top');
     }
 }
