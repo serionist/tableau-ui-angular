@@ -13,15 +13,15 @@ export abstract class UsedIcons {
     // these icons are used by the library itself
     builtInIcons: string[] = [
         'check',
-        'arrow_back_ios',
-        'arrow_forward_ios',
         'clear',
-        'keyboard_arrow_up',
+       
         'close',
         'info',
         'error',
+        'keyboard_arrow_up',
         'keyboard_arrow_right',
         'keyboard_arrow_down',
+        'keyboard_arrow_left',
     ]
 
     public getAllIcons(): string[] {

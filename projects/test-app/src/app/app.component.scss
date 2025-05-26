@@ -12,6 +12,13 @@
     padding: 0.5em;
 }
 
-tab-nav-bar[expanded="true"] {
-    width: 220px;
+tab-nav-bar {
+    &[expanded="true"] {
+        width: 220px;
+    }
+
+    tab-separator {
+        margin: 1rem 1rem;
+        width: calc(100% - 2rem);
+    }
 }

@@ -4,8 +4,9 @@
  [class.active]="isActive()"
  [attr.disabled]="disabled()"
  [tooltip]="isExpanded() ? undefined: text()" 
+ (click)="click.emit()"
  tooltipPosition="right">
-    <tab-icon [value]="icon()"></tab-icon>
+    <ng-content select="tab-icon"></ng-content>
     @if (isExpanded()) {
         <span>{{ text() }}</span>
     }

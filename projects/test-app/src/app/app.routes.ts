@@ -19,6 +19,7 @@ import { TreePageComponent } from './pages/tree-page/tree-page.component';
 import { MenuPageComponent } from './pages/menu-page/menu-page.component';
 import { DatePickerPageComponent } from './pages/date-picker-page/date-picker-page.component';
 import { ExpansionPageComponent } from './pages/expansion-page/expansion-page.component';
+import { ScrollerPageComponent } from './pages/scroller-page/scroller-page.component';
 export const routes: Routes = [
     {
         'path': '',
@@ -196,5 +197,14 @@ export const routes: Routes = [
         data: {
             page: 'radios'
         }
+    },
+    {
+        path: 'scroller',
+        component: ScrollerPageComponent,
+        title: 'Arrow Scroller',
+        data: {
+            page: 'scroller'
+        }
+
     },
 ];

@@ -27,6 +27,7 @@
         </div>
         <div class="section">
             <h3>Example</h3>
+            <p>Simple Tab Group</p>
             <tab-group>
                 <tab [disabled]="true">
                     <div tab-header>First tab</div>
@@ -54,6 +55,96 @@
                     </div>
                 </tab>
             </tab-group>
+            <p>Tab group with larger text and no header padding</p>
+            <tab-group class="large" headerPadding="0">
+                <tab [disabled]="true">
+                    <div tab-header>First tab</div>
+                    <div>
+                        <p>This is the first tab. It is disabled.</p>
+                    </div>
+                </tab>
+                <tab>
+                    <div tab-header>Second tab</div>
+                    <div>
+                        <p>This is the second tab.</p>
+                    </div>
+                </tab>
+                <tab [disabled]="true">
+                    <div tab-header>Third tab</div>
+                    <div>
+                        <p>This is the third tab.</p>
+                    </div>
+                </tab>
+
+                <tab>
+                    <div tab-header>Fourth tab</div>
+                    <div>
+                        <p>This is the fourth tab.</p>
+                    </div>
+                </tab>
+            </tab-group>
+
+            <p>Tab group that is too narrow, needs horizontal scrolling</p>
+            <div style="width: 300px;">
+                <tab-group>
+                    <tab [disabled]="true">
+                        <div tab-header>First tab</div>
+                        <div>
+                            <p>This is the first tab. It is disabled.</p>
+                        </div>
+                    </tab>
+                    <tab>
+                        <div tab-header>Second tab</div>
+                        <div>
+                            <p>This is the second tab.</p>
+                        </div>
+                    </tab>
+                    <tab [disabled]="true">
+                        <div tab-header>Third tab</div>
+                        <div>
+                            <p>This is the third tab.</p>
+                        </div>
+                    </tab>
+    
+                    <tab>
+                        <div tab-header>Fourth tab</div>
+                        <div>
+                            <p>This is the fourth tab.</p>
+                        </div>
+                    </tab>
+                </tab-group>
+            </div>
+
+            <p>Tab group that is too narrow with larger text, needs horizontal scrolling. Scroll arrows are larger</p>
+            <div style="width: 300px;">
+                <tab-group class="large" scrollArrowsIconSize="2rem">
+                    <tab [disabled]="true">
+                        <div tab-header>First tab</div>
+                        <div>
+                            <p>This is the first tab. It is disabled.</p>
+                        </div>
+                    </tab>
+                    <tab>
+                        <div tab-header>Second tab</div>
+                        <div>
+                            <p>This is the second tab.</p>
+                        </div>
+                    </tab>
+                    <tab [disabled]="true">
+                        <div tab-header>Third tab</div>
+                        <div>
+                            <p>This is the third tab.</p>
+                        </div>
+                    </tab>
+    
+                    <tab>
+                        <div tab-header>Fourth tab</div>
+                        <div>
+                            <p>This is the fourth tab.</p>
+                        </div>
+                    </tab>
+                </tab-group>
+            </div>
         </div>
     </div>
 </div>

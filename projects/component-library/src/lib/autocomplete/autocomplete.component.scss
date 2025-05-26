@@ -57,7 +57,7 @@
             }
 
             &:not(.disabled).highlight {
-                background-color: var(--twc-menu-highlight-background-color);
+                background-color: var(--twc-color-highlight);
                 &:not(.selected) {
                     outline: var(--twc-menu-highlight-outline);
                     outline-offset: var(--twc-menu-highlight-outline-offset);

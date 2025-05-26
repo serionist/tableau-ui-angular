@@ -32,7 +32,8 @@ export class Icons extends UsedIcons {
         "flowchart",
         "more_vert",
         "calendar_clock",
-        "top_panel_open"
+        "top_panel_open",
+        "unfold_more_double"
     ];
 
 }

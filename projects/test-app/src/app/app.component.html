@@ -1,156 +1,187 @@
 <div class="main-content">
     <tab-nav-bar #navBar>
-        <tab-nav-bar-footer>
-            <div class="version">v{{ version }}</div>
-        </tab-nav-bar-footer>
+        @if (navBar.expanded()) {
+            <tab-nav-bar-footer>
+                <div class="version">v{{ version }}</div>
+            </tab-nav-bar-footer>
+        }
         <tab-nav-bar-header>
             <img class="logo" src="tableau_ui_logo.svg" alt="Tableau UI Logo" />
         </tab-nav-bar-header>
 
         <tab-nav-bar-button
-            icon="home"
             text="Home"
             link="/"
             [isActive]="(page$ | async) === 'home'"
-        ></tab-nav-bar-button>
+        >
+            <tab-icon value="home"></tab-icon>
+        </tab-nav-bar-button>
 
         <tab-nav-bar-button
-            icon="css"
             text="CSS & Fonts"
             link="/css"
             [isActive]="(page$ | async) === 'css'"
-        ></tab-nav-bar-button>
+        >
+            <tab-icon value="css"></tab-icon>
+        </tab-nav-bar-button>
 
         <tab-nav-bar-button
-            icon="add_circle"
             text="Icons"
             link="/icons"
             [isActive]="(page$ | async) === 'icons'"
-        ></tab-nav-bar-button>
+        >
+            <tab-icon value="add_circle"></tab-icon>
+        </tab-nav-bar-button>
 
         <tab-nav-bar-button
-            icon="developer_guide"
             text="Local Development"
             link="/local-development"
             [isActive]="(page$ | async) === 'local-development'"
-        ></tab-nav-bar-button>
+        >
+            <tab-icon value="developer_guide"></tab-icon>
+        </tab-nav-bar-button>
 
         <tab-separator></tab-separator>
 
         <tab-nav-bar-button
-            icon="trackpad_input"
             text="Buttons"
             link="/buttons"
             [isActive]="(page$ | async) === 'buttons'"
-        ></tab-nav-bar-button>
+        >
+            <tab-icon value="trackpad_input"></tab-icon>
+        </tab-nav-bar-button>
 
         <tab-nav-bar-button
-            icon="check_box"
             text="Checkbox"
             link="/checkbox"
             [isActive]="(page$ | async) === 'checkbox'"
-        ></tab-nav-bar-button>
+        >
+            <tab-icon value="check_box"></tab-icon>
+        </tab-nav-bar-button>
 
         <tab-nav-bar-button
-            icon="edit_square"
             text="Form Fields"
             link="/form-fields"
             [isActive]="(page$ | async) === 'form-fields'"
-        ></tab-nav-bar-button>
+        >
+            <tab-icon value="edit_square"></tab-icon>
+        </tab-nav-bar-button>
 
         <tab-nav-bar-button
-            icon="calendar_clock"
             text="Date Picker"
             link="/date-picker"
             [isActive]="(page$ | async) === 'date-picker'"
-        ></tab-nav-bar-button>
+        >
+            <tab-icon value="calendar_clock"></tab-icon>
+        </tab-nav-bar-button>
 
         <tab-nav-bar-button
-            icon="radio_button_checked"
             text="Radio Groups"
             link="/radios"
             [isActive]="(page$ | async) === 'radios'"
-        ></tab-nav-bar-button>
+        >
+            <tab-icon value="radio_button_checked"></tab-icon>
+        </tab-nav-bar-button>
 
         <tab-nav-bar-button
-            icon="dropdown"
             text="Select dropdown"
             link="/select"
             [isActive]="(page$ | async) === 'select'"
-        ></tab-nav-bar-button>
+        >
+            <tab-icon value="dropdown"></tab-icon>
+        </tab-nav-bar-button>
 
         <tab-nav-bar-button
-            icon="format_list_bulleted"
             text="List"
             link="/list"
             [isActive]="(page$ | async) === 'list'"
-        ></tab-nav-bar-button>
+        >
+            <tab-icon value="format_list_bulleted"></tab-icon>
+        </tab-nav-bar-button>
 
         <tab-nav-bar-button
-            icon="dialogs"
             text="Dialogs"
             link="/dialogs"
             [isActive]="(page$ | async) === 'dialogs'"
-        ></tab-nav-bar-button>
+        >
+            <tab-icon value="dialogs"></tab-icon>
+        </tab-nav-bar-button>
 
         <tab-nav-bar-button
-        icon="top_panel_open"
-        text="Expansion Panel"
-        link="/expansion-panel"
-        [isActive]="(page$ | async) === 'expansion-panel'"
-    ></tab-nav-bar-button>
+            text="Expansion Panel"
+            link="/expansion-panel"
+            [isActive]="(page$ | async) === 'expansion-panel'"
+        >
+            <tab-icon value="top_panel_open"></tab-icon>
+        </tab-nav-bar-button>
 
         <tab-nav-bar-button
-            icon="toast"
             text="Snackbar"
             link="/snackbar"
             [isActive]="(page$ | async) === 'snackbar'"
-        ></tab-nav-bar-button>
+        >
+            <tab-icon value="toast"></tab-icon>
+        </tab-nav-bar-button>
         <tab-nav-bar-button
-            icon="tooltip"
             text="Tooltips"
             link="/tooltips"
             [isActive]="(page$ | async) === 'tooltips'"
-        ></tab-nav-bar-button>
+        >
+            <tab-icon value="tooltip"></tab-icon>
+        </tab-nav-bar-button>
         <tab-nav-bar-button
-        icon="more_vert"
-        text="Menu"
-        link="/menu"
-        [isActive]="(page$ | async) === 'menu'"
-    ></tab-nav-bar-button>
+            text="Menu"
+            link="/menu"
+            [isActive]="(page$ | async) === 'menu'"
+        >
+            <tab-icon value="more_vert"></tab-icon>
+        </tab-nav-bar-button>
         <tab-nav-bar-button
-            icon="tabs"
             text="Tabs"
             link="/tabcontrol"
             [isActive]="(page$ | async) === 'tabcontrol'"
-        ></tab-nav-bar-button>
+        >
+            <tab-icon value="tabs"></tab-icon>
+        </tab-nav-bar-button>
         <tab-nav-bar-button
-            icon="side_navigation"
             text="Nav Bar"
             link="/navbar"
             [isActive]="(page$ | async) === 'navbar'"
-        ></tab-nav-bar-button>
+        >
+            <tab-icon value="side_navigation"></tab-icon>
+        </tab-nav-bar-button>
         <tab-nav-bar-button
-            icon="flowchart"
             text="Tree"
             link="/tree"
             [isActive]="(page$ | async) === 'tree'"
-        ></tab-nav-bar-button>
+        >
+            <tab-icon value="flowchart"></tab-icon>
+        </tab-nav-bar-button>
 
         <tab-nav-bar-button
-            icon="content_paste"
+        text="Arrow Scroller"
+        link="/scroller"
+        [isActive]="(page$ | async) === 'scroller'"
+    >
+        <tab-icon value="unfold_more_double"></tab-icon>
+    </tab-nav-bar-button>
+
+        <tab-nav-bar-button
             text="Clipboard"
             link="/clipboard"
             [isActive]="(page$ | async) === 'clipboard'"
-        ></tab-nav-bar-button>
+        >
+            <tab-icon value="content_paste"></tab-icon>
+        </tab-nav-bar-button>
         <tab-separator></tab-separator>
         <tab-nav-bar-button
-            icon="home"
             text="Sample Disabled"
             link="/"
             [isActive]="false"
             [disabled]="true"
-        ></tab-nav-bar-button>
+        >
+            <tab-icon value="home"></tab-icon>
+        </tab-nav-bar-button>
     </tab-nav-bar>
     <div><router-outlet></router-outlet></div>
 </div>

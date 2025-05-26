@@ -38,7 +38,7 @@
        
         &:not(.disabled):not(.no-hover) {
             &:hover {
-                background: var(--twc-menu-highlight-background-color);
+                background: var(--twc-color-highlight);
                 cursor: pointer;
             }
         }

@@ -8,15 +8,17 @@ import { TableauUiTooltipModule } from '../tooltip/tableau-ui-tooltip.module';
 import { NavBarButtonComponent } from './nav-bar-button/nav-bar-button.component';
 import { NavBarComponent } from './nav-bar.component';
 import { TableauUiButtonModule } from '../button/tableau-ui-button.module';
+import { TableauUiArrowScrollModule } from "../arrow-scroll/tableau-ui-arrow-scroll.module";
 
 @NgModule({
     imports: [
-        CommonModule,
-        RouterModule,
-        TableauUiIconModule,
-        TableauUiTooltipModule,
-        TableauUiButtonModule
-    ],
+    CommonModule,
+    RouterModule,
+    TableauUiIconModule,
+    TableauUiTooltipModule,
+    TableauUiButtonModule,
+    TableauUiArrowScrollModule
+],
     declarations: [
         NavBarHeaderComponent,
         NavBarFooterComponent,

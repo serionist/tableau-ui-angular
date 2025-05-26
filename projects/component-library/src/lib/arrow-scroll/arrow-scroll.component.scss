@@ -1,0 +1,48 @@
+:host {
+    display: grid;
+    &.vertical {
+        grid-template-rows: auto 1fr auto;
+        .scroll-arrow {
+            display: flex;
+            flex-direction: column;
+            button {
+                width: 100%;
+            }
+        }
+        .scroll-container {
+            grid-row: 2;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+      
+    }
+    &.horizontal {
+        grid-template-columns: auto 1fr auto;
+        .scroll-arrow {
+            display: flex;
+            flex-direction: row;
+            button {
+                height: 100%;
+            }
+        }
+        .scroll-container {
+            grid-column: 2;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+    }
+}
+
+
+.scroll-container {
+    max-height: 100%;
+    max-width: 100%;
+
+    &.arrow-scroll {
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* IE 10+ */
+        &::-webkit-scrollbar {
+            display: none; /* Chrome/Safari */
+        }
+    }
+}

@@ -6,9 +6,7 @@
         tooltipPosition="right"
         color="plain"
     >
-        <tab-icon
-            [value]="expanded() ? 'arrow_back_ios' : 'arrow_forward_ios'"
-        >
+        <tab-icon [value]="expanded() ? 'keyboard_arrow_left' : 'keyboard_arrow_right'">
         </tab-icon>
     </button>
 </div>
@@ -17,9 +15,17 @@
 <div class="header"><ng-content select="tab-nav-bar-header"></ng-content></div>
 }
 
-<div class="nav" tabindex="-1">
+<tab-arrow-scroll
+    scrollDirection="vertical"
+    [scrollType]="expanded() ? 'default' : 'arrow'"
+    [buttonsColor]="'plain'"
+    [showScrollButtonSeparator]="true"
+    [buttonsCssColor]="'var(--twc-color-text-light)'"
+>
+    <tab-icon back-button value="keyboard_arrow_up"></tab-icon>
     <ng-content></ng-content>
-</div>
+    <tab-icon forward-button value="keyboard_arrow_down"></tab-icon>
+</tab-arrow-scroll>
 
 @if (footer()) {
 <div class="footer"><ng-content select="tab-nav-bar-footer"></ng-content></div>
