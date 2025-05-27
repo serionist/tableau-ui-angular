@@ -24,6 +24,7 @@ export * from './lib/date-picker/public-api';
 export * from './lib/form/public-api';
 export * from './lib/expansion-panel/public-api';
 export * from './lib/arrow-scroll/public-api';
+export * from './lib/theme/public-api';
 
 // Export all Modules
 export * from './lib/tableau-ui-module-all';

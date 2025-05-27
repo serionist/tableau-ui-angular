@@ -14,6 +14,7 @@ import {
 } from '@angular/router';
 import { filter, map, Observable, switchMap } from 'rxjs';
 import { version as LibVersion } from '../../../component-library/package.json';
+import { ThemeService } from 'component-library';
 
 @Component({
     selector: 'app-root',
@@ -28,6 +29,12 @@ export class AppComponent {
         filter((event) => event instanceof NavigationEnd),
         map(() => this.findRouteData(this.route.root, 'page'))
     );
+
+    readonly themeService = inject(ThemeService);
+
+    constructor() {
+        this.themeService.initialize();
+    }
 
     version = LibVersion;
     // Recursive function to search route tree for specified data key

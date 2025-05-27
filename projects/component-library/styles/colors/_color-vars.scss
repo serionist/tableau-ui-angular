@@ -1,0 +1,52 @@
+@use 'sass:map' as map;
+$theme-vars: (
+  color-base,
+  color-base-highlight,
+  color-text,
+  color-text-strong,
+  color-text-light,
+  color-link,
+
+  color-primary,
+  color-primary-light,
+  color-primary-highlight,
+  color-on-primary,
+
+  color-error,
+  color-error-dark,
+  color-error-light,
+
+  color-success,
+  color-success-light,
+  color-disabled,
+  color-text-gray,
+  color-highlight,
+  color-mouse-highlight,
+
+  color-border-light,
+  color-border,
+  color-border-dark,
+  color-border-dark-disabled,
+  color-focused-input,
+
+  tab-color-active-underline,
+  tab-color-inactive-underline,
+
+  dialog-color-header,
+  menu-border-color,
+  menu-box-shadow,
+  menu-highlight-background-color
+);
+
+@mixin define-theme($theme-values) {
+    @each $var-name in $theme-vars {
+      $value: map.get($theme-values, $var-name);
+  
+      @if $value != null {
+        --twc-#{$var-name}: #{$value};
+      } @else {
+        @error "Missing value for --twc-#{$var-name}";
+      }
+    }
+  }
+  

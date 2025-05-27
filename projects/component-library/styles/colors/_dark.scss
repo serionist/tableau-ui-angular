@@ -1,0 +1,45 @@
+/* dark-mode.scss */
+/* stylelint-disable declaration-property-value-disallowed-list, function-disallowed-list */
+@use './color-vars' as color-vars;
+
+body.dark-mode {
+  @include color-vars.define-theme((
+    color-base: rgb(27, 27, 27),
+    color-base-highlight: rgb(30 30 30),
+    color-text: rgb(255 255 255 / 87%),
+    color-text-strong: rgb(255 255 255),
+    color-text-light: rgb(180 180 180),
+    color-link: rgb(98, 137, 163),
+    
+    color-primary: rgb(5, 98, 138),
+    color-primary-light: rgb(27, 48, 68),
+    color-primary-highlight: rgb(20 40 60),
+    color-on-primary: rgb(0 0 0),
+
+    color-error: rgb(186 5 23),
+    color-error-dark: rgb(255 203 203),
+    color-error-light: rgb(100 1 3),
+
+    color-success: rgb(0 128 0),
+    color-success-light: rgb(0, 88, 0),
+    color-disabled: rgb(90 90 90),
+    color-text-gray: rgb(130 130 130),
+    color-highlight: rgb(60 60 60),
+    color-mouse-highlight: rgb(80 80 80),
+
+    color-border-light: rgb(70 70 70),
+    color-border: rgb(100 100 100),
+    color-border-dark: rgb(140 140 140),
+    color-border-dark-disabled: rgb(80 80 80),
+    color-focused-input: rgb(60 130 200),
+
+    tab-color-active-underline: rgb(160 160 160),
+    tab-color-inactive-underline: rgb(50 50 50),
+
+    dialog-color-header: rgb(40 40 40),
+    menu-border-color: rgb(60 60 60),
+    menu-box-shadow: 0px 2px 16px 0px rgb(0 0 0 / 40%),
+    menu-highlight-background-color: rgb(50 50 50),
+   
+  ));
+}

@@ -52,7 +52,8 @@ import {
     TableauUiDatePickerModule,
     TableauUiFormModule,
     TableauUiExpansionPanelModule,
-    TableauUiArrowScrollModule
+    TableauUiArrowScrollModule,
+    ThemeService
 } from 'component-library';
 import { MenuPageComponent } from './pages/menu-page/menu-page.component';
 import { DatePickerPageComponent } from './pages/date-picker-page/date-picker-page.component';
@@ -122,6 +123,7 @@ import { ScrollerPageComponent } from './pages/scroller-page/scroller-page.compo
     providers: [
         provideZoneChangeDetection({ eventCoalescing: true }),
         provideRouter(routes, withHashLocation()),
+        ThemeService
     ],
     bootstrap: [AppComponent],
 })

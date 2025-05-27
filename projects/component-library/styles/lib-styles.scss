@@ -1,6 +1,8 @@
 @use 'lib-variables';
 @use 'lib-mixins';
 @use 'lib-main';
+@use './colors/light';
+@use './colors/dark';
 @use 'dialog.service';
 @use 'snack.service';
 @use 'tooltips';
