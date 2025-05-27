@@ -41,6 +41,7 @@ export class MenuComponent {
      * @default '{}'
      */
     menuContainerCss = model<Record<string, string>>({
+        marginTop: '-1px',
         background: 'var(--twc-color-base)',
         borderColor: 'var(--twc-color-border-light)',
         borderRadius: 'var(--twc-menu-border-radius)',

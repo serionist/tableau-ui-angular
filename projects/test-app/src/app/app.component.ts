@@ -53,11 +53,6 @@ export class AppComponent {
 
 
     paletteMenu = viewChild.required<MenuComponent>('paletteMenu');
-    paletteMenuContainerCss = computed(() => {
-        const existing = this.paletteMenu().menuContainerCss();
-        existing['marginTop'] = '-1px';
-        return existing;
-    });
     paletteTheme = computed(() => this.themeService.theme().mode);
     paletteThemeChange = (theme: 'light' | 'dark' | 'auto') => {
         this.themeService.setColorMode(theme);

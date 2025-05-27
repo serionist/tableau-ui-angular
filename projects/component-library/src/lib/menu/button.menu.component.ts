@@ -22,6 +22,7 @@ import { MenuButtonGroupComponent } from './menu-button-group.component';
 export class ButtonMenuComponent extends MenuComponent implements OnDestroy {
     override menuContainerCss: ModelSignal<Record<string, string>> = model<Record<string, string>>({
         pointerEvents: 'none',
+        marginTop: '-1px',
     });
 
     override closeOnBackdropClick: InputSignal<boolean> = model(true);
