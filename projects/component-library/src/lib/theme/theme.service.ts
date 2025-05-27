@@ -16,6 +16,12 @@ import { BehaviorSubject, combineLatest } from 'rxjs';
 })
 export class ThemeService {
     private readonly themeKey = 'theme-config';
+    private readonly defaultTheme: ThemeConfig = {
+        fontSize: '12px',
+        mode: 'auto',
+    };
+
+    
     private readonly theme$ = new BehaviorSubject<ThemeConfig>(
         this.getInitialTheme()
     );
@@ -40,9 +46,6 @@ export class ThemeService {
             });
 
         this.theme$.subscribe((theme) => {
-            if (!theme) {
-                return;
-            }
             localStorage.setItem(this.themeKey, JSON.stringify(theme));
             document.documentElement.style.setProperty(
                 '--twc-font-size',
@@ -94,10 +97,7 @@ export class ThemeService {
         this.theme$.next(this.defaultTheme);
     }
 
-    private readonly defaultTheme: ThemeConfig = {
-        fontSize: '12px',
-        mode: 'auto',
-    };
+   
     private getInitialTheme(): ThemeConfig {
         const storedTheme = localStorage.getItem(this.themeKey);
         if (storedTheme) {
