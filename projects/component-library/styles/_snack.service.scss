@@ -6,21 +6,22 @@
     right: 0;
     visibility: hidden;
     z-index: 2000;
+
     &.top {
         top: 0;
-        margin-top: 15px;
+        margin-top: 1.25rem;
     }
+
     &.bottom {
         bottom: 0;
-        margin-bottom: 2px;
+        margin-bottom: 0.25rem;
     }
 
     .snack-container {
         display: flex;
         flex-direction: column;
         align-items: center;
-        max-width: 800px;
-
+        max-width: 800px; // stylelint-disable-line declaration-property-unit-disallowed-list
         transition: transform 200ms ease-in-out;
 
         .snack-wrapper {
@@ -28,45 +29,49 @@
             border: 1px solid transparent;
             border-left-width: 8px;
             border-radius: 4px;
-            box-shadow: 1px 1px 2px 0px rgba(0, 0, 0, 0.15);
+            box-shadow: var(--twc-menu-box-shadow);
             box-sizing: border-box;
             color: var(--twc-color-text);
             display: flex;
             flex-direction: column;
             font-size: var(--twc-font-size-body);
             justify-content: flex-start;
-            margin-bottom: 3px;
+            margin-bottom: 0.25rem;
             position: relative;
             visibility: visible;
             height: auto;
             transition: opacity 200ms;
-
             opacity: 0;
 
             .timer {
-                height: 2px;
+                height: 2px; // stylelint-disable-line declaration-property-unit-disallowed-list
                 width: 100%;
-                margin-top: -2px;
+                margin-top: -2px; // stylelint-disable-line declaration-property-unit-disallowed-list
                 transition: width 1000ms linear;
             }
+
             &.info {
-                background-color: #cfe9fe;
-                border-color: #05628a;
+                background-color: var(--twc-color-primary-light);
+                border-color: var(--twc-color-primary);
+
                 .timer {
-                    background-color: #05628a;
+                    background-color: var(--twc-color-primary);
                 }
             }
           
             &.error {
                 border-color: var(--twc-color-error);
-                background-color: #ffcbcb;
+                background-color: var(--twc-color-error-light);
+
                 .timer {
                     background-color: var(--twc-color-error);
                 }
             }
+
             &.success {
                 border-color: var(--twc-color-success);
-                background-color: #d4f8d4;
+                background-color: var(--twc-color-success-light);
+
                 .timer {
                     background-color: var(--twc-color-success);
                 }

@@ -1,7 +1,4 @@
 :host {
-    -moz-user-select: none;
-    -ms-user-select: none;
-    -webkit-user-select: none;
     border: 1px solid transparent;
     border-radius: 2px;
     box-sizing: border-box;
@@ -13,12 +10,15 @@
     height: fit-content;
     user-select: none;
     width: fit-content;
+
     &[inline="true"] {
         display: inline-flex;
     }
+
     &[inline="false"] {
         display: flex;
     }
+
     min-height: 1rem;
     min-width: 1rem;
     padding: 0;
@@ -29,19 +29,23 @@
     &:hover {
         text-decoration: none;
     }
+
     .content-wrapper {
         display: flex;
         justify-content: center;
         align-items: center;
         pointer-events: none;
+
         .loader-wrapper {
             visibility: hidden;
             display: flex;
+
             @keyframes loading-button-spinner {
                 100% {
                     transform: rotate(360deg);
                 }
             }
+
             img {
                 animation: loading-button-spinner 1s linear infinite;
                 cursor: wait;
@@ -50,91 +54,110 @@
             }
         }
     }
+
     &[layout="default"] {
         min-height: 2em;
         line-height: 1.5;
-        min-width: 96px;
-        padding: 0 24px;
+        min-width: 8rem;
+        padding: 0 2rem;
+
         .loader-wrapper {
-            margin-left: -18px;
-            margin-right: 4px;
+            margin-left: -1.5rem;
+            margin-right: 0.3rem;
+
             // margin-top: 2px;
         }
     }
+
     &[layout="icon"] {
         min-height: 1.5rem;
         min-width: 1.5rem;
     }
+
     &[layout="small-icon"] {
         min-height: 1rem;
         min-width: 1rem;
     }
+
     &.loading .loader-wrapper {
         visibility: visible !important;
     }
 
     &.primary {
-        &:not([disabled]):not([disabled="false"]) {
+        &:not([disabled], [disabled="false"]) {
             background-color: var(--twc-color-primary);
             color: var(--twc-color-on-primary);
+
             &:hover {
                 background-color: var(--twc-color-primary-highlight);
             }
         }
+
         &[disabled]:not([disabled="false"]) {
-            background-color: #c9c9c9 !important;
-            color: #939393 !important;
+            background-color: var(--twc-menu-border-color) !important;
+            color: var(--twc-color-text-gray) !important;
         }
     }
+
     &.secondary {
-        &:not([disabled]):not([disabled="false"]) {
+        &:not([disabled], [disabled="false"]) {
             background-color: transparent;
-            border-color: #747474;
-            color: #2e2e2e;
+            border-color: var(--twc-color-border);
+            color: var(--twc-color-border-dark);
+
             &:hover {
-                background-color: #aeaeae;
+                background-color: var(--twc-color-border-dark-disabled);
             }
         }
+
         &[disabled]:not([disabled="false"]) {
             background-color: transparent !important;
-            border-color: #c9c9c9 !important;
-            color: #c9c9c9 !important;
+            border-color: var(--twc-menu-border-color) !important;
+            color: var(--twc-menu-border-color) !important;
         }
     }
+
     &.error {
-        &:not([disabled]):not([disabled="false"]) {
-            background-color: #ba0517;
+        &:not([disabled], [disabled="false"]) {
+            background-color: var(--twc-color-error);
             color: var(--twc-color-on-primary);
+
             &:hover {
-                background-color: #640103;
+                background-color: var(--twc-color-error-dark);
             }
         }
+
         &[disabled]:not([disabled="false"]) {
-            background-color: #c9c9c9 !important;
-            color: #939393 !important;
+            background-color: var(--twc-menu-border-color) !important;
+            color: var(--twc-color-text-gray) !important;
         }
     }
+
     &.plain {
-        &:not([disabled]):not([disabled="false"]) {
+        &:not([disabled], [disabled="false"]) {
             background-color: transparent;
-            color: #2e2e2e;
+            color: var(--twc-color-border-dark);
+
             &:hover {
-                background-color: #aeaeae;
+                background-color: var(--twc-color-border-dark-disabled);
             }
         }
+
         &[disabled]:not([disabled="false"]) {
             background-color: transparent !important;
-            color: #c9c9c9 !important;
+            color: var(--twc-menu-border-color) !important;
         }
     }
+
     &[disabled]:not([disabled="false"]) {
         cursor: default;
         pointer-events: none;
     }
+
     &:focus-visible,
     &:focus {
-        box-shadow: inset 0 0 0 2px white;
-        outline: 2px solid #0b5cab;
+        box-shadow: inset 0 0 0 2px var(--twc-color-base);
+        outline: 2px solid var(--twc-color-focused-input);
         outline-offset: -2px;
     }
 }

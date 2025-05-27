@@ -5,7 +5,8 @@ body,html {
     line-height: 1.5;
     margin: 0;
 }
-@media (max-resolution: 120dpi) {
+
+@media (resolution <= 120dpi) {
     body {
         font-family: var(twc-low-dpi-font-family);
     }
@@ -24,6 +25,7 @@ h4,.text-body-large {
     font-weight: bold;
     margin: 0.5em 0;
 }
+
 h3,
 .text-subtitle {
     font-size: var(--twc-font-size-subtitle);
@@ -43,6 +45,7 @@ h2,
     margin: 0.5em 0;
     line-height: 0.75em;
 }
+
 h1,
 .text-page-title {
     font-size: var(--twc-font-size-page-title);
@@ -50,15 +53,18 @@ h1,
     margin: 0.5em 0;
     line-height: 0.75em;
 }
+
 a {
     color: var(--twc-color-link);
     text-decoration: none;
+
     &:hover {
         text-decoration: underline;
     }
+
     &:focus-visible {
-        box-shadow: inset 0 0 0 2px white;
-        outline: 2px solid #0b5cab;
+        box-shadow: inset 0 0 0 2px var(--twc-color-base);
+        outline: 2px solid var(--twc-color-focused-input);
         outline-offset: -2px;
     }
 }

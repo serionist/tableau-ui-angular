@@ -30,10 +30,6 @@ import { TAB_SNACK_DATA_REF } from './data.ref';
                     }
                 </div>
                 }
-                <div *ngIf="data.contentTemplate; else textContent"></div>
-                <ng-template #textContent>
-                    <div></div>
-                </ng-template>
 
                 <tab-icon
                     class="close"
@@ -82,14 +78,17 @@ import { TAB_SNACK_DATA_REF } from './data.ref';
             .error .content div {
                 border-color: #ffa1a1;
             }
+            .success .content div {
+                border-color: rgb(147, 206, 147);
+            }
             .close {
                 font-size: 1.5em;
                 margin-left: 0.25em;
-                color: #2e2e2e;
+                color: var(--twc-color-border-dark);
                 cursor: pointer;
             }
             .close:hover {
-                background-color: #aeaeae;
+                background-color: var(--twc-color-border-dark-disabled);
             }
         `,
     ],

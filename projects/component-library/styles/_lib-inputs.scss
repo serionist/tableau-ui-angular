@@ -11,20 +11,18 @@ textarea,
 .tab-input {
     width: 100%;
     min-height: 2em;
-    -webkit-appearance: none;
+    appearance: none;
     background-color: transparent;
     border: var(--twc-input-border);
     border-radius: var(--twc-input-border-radius);
     box-sizing: border-box;
-    color: #2e2e2e;
+    color: var(--twc-color-border-dark);
     font-family: var(--twc-font-family);
     font-size: var(--twc-font-size-body);
-    padding-left: 7px;
-    padding-right: 7px;
-    outline-style: solid;
-    outline-width: 0px;
-    outline-offset: 0px;
-    outline-color: #0b5cab;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    outline: var(--twc-color-focused-input) solid 0;
+    outline-offset: 0;
 
     &:not(
             textarea,
@@ -34,40 +32,49 @@ textarea,
             [type="radio" i],
             .tab-input
         ) {
-        overflow-clip-margin: 0px !important;
+        overflow-clip-margin: 0 !important;
         overflow: clip !important;
     }
+
     &.ng-invalid.ng-touched,
     &.ng-touched.tab-error {
         outline-color: var(--twc-color-error);
         outline-width: 1px;
         outline-offset: -1px;
     }
+
     &:focus {
         outline-width: 2px !important;
         outline-offset: -2px !important;
     }
+
     &:hover:enabled:not(:focus) {
-        background-color: #e5e5e5;
-        border-color: #747474;
+        background-color: var(--twc-menu-highlight-background-color);
+        border-color: var(--twc-color-border);
     }
+
+    // stylelint-disable-next-line no-descending-specificity
     &::placeholder,&.placeholder,.placeholder {
        color: var(--twc-color-text-light);
     }
+
     &[disabled] {
-        background-color: rgba(255, 255, 255, 0);
-        border-color: #c9c9c9;
+        background-color: transparent;
+        border-color: var(--twc-menu-border-color);
         color: var(--twc-color-disabled);
+
         &::placeholder {
             color: var(--twc-color-disabled);
         }
-        &::-ms-input-placeholder {
+        // stylelint-disable-next-line selector-pseudo-element-no-unknown
+        &::input-placeholder {
             color: var(--twc-color-disabled);
         }
     }
 }
+// stylelint-disable-next-line no-descending-specificity
 textarea {
     resize: vertical;
-    padding-top: 0.2rem;
-    padding-bottom: 0.2rem;
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
 }

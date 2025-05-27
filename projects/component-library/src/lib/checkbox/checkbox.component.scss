@@ -1,14 +1,33 @@
 :host {
     box-sizing: border-box;
     width: fit-content;
-    -webkit-user-select: none;
+
     // line-height: 1em;
     user-select: none;
+
     // align-items: center;
     display: grid;
     grid-template-columns: auto auto;
     grid-template-rows: auto auto;
     column-gap: 0.5em;
+
+    .box {
+        background-color: var(--twc-color-base);
+        border: 1px solid var(--twc-color-border-dark);
+        border-radius: 1px;
+        box-sizing: border-box;
+        display: grid;
+        justify-items: center;
+        width: 1.2em;
+        height: 1.2em;
+        grid-column: 1;
+        grid-row: 1;
+
+        svg {
+            width: 1em;
+            height: 1em;
+        }
+    }
 
     input {
         grid-column: 1;
@@ -22,49 +41,44 @@
         height: 1.2em;
         font-size: var(--twc-font-size-body);
         min-height: 0;
+
         &:focus-visible + .box {
             outline: 2px solid var(--twc-color-primary);
             outline-offset: 2px;
         }
     }
+    // stylelint-disable declaration-property-unit-disallowed-list
     @supports (width: round(1em, 1px)) {
         input {
             width: round(1.2em, 1px);
             height:  round(1.2em, 1px);
         }
     }
-    .box {
-        background-color: white;
-        border: 1px solid #2e2e2e;
-        border-radius: 1px;
-        box-sizing: border-box;
-        display: grid;
-        justify-items: center;
-        width: 1.2em;
-        height: 1.2em;
-        grid-column: 1;
-        grid-row: 1;
-        svg {
-            width: 1em;
-            height: 1em;
-        }
-    }
+    // stylelint-enable declaration-property-unit-disallowed-list
+   
+
     &:hover:not(.disabled) .box {
-        background-color: #c9c9c9;
-        border-color: #2e2e2e;
+        background-color: var(--twc-menu-border-color);
+        border-color: var(--twc-color-border-dark);
     }
+
     &:active:not(.disabled) .box {
-        background-color: #aeaeae;
-        border-color: #2e2e2e;
+        background-color: var(--twc-color-border-dark-disabled);
+        border-color: var(--twc-color-border-dark);
     }
+
     &:not(.disabled) {
         cursor: pointer;
     }
+
     &.disabled {
         color: var(--twc-color-disabled);
+
+        // stylelint-disable-next-line no-descending-specificity
         .box {
             border-color: var(--twc-color-disabled);
         }
+        // stylelint-disable-next-line selector-pseudo-element-no-unknown
         ::ng-deep .tab-hint {
             color: var(--twc-color-disabled);
         }
@@ -72,7 +86,6 @@
 
     .label {
         line-height: 1.2;
-        -webkit-user-select: none;
         overflow: hidden;
         text-overflow: ellipsis;
         user-select: none;
@@ -84,6 +97,7 @@
         grid-column: 2;
         grid-row: 2;
         font-size: 0.9em;
+
         // margin-top: -0.1em;
         // .error {
         //     color: var(--twc-color-error);

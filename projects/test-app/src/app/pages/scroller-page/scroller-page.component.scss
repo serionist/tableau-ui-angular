@@ -2,12 +2,14 @@
     grid-template-columns: auto auto;
     gap: 1em;
 }
+
 .icon-container {
     display: flex;
     align-items: center;
     gap: 0.5rem;
 }
-[layout=icon] {
+
+[layout="icon"] {
     min-height: 1.5rem;
     min-width: 1.5rem;
 }

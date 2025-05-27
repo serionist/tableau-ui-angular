@@ -1,17 +1,20 @@
+// stylelint-disable no-descending-specificity
 .tab-option {
     line-height: 1.2;
+
     &.disabled {
         .icon,.content,.hint {
             color: var(--twc-color-disabled);
         }
     }
 }
+
 .icon {
     margin-right: 0.25em;
 
 }
-.content {
-}
+
+
 .hint {
     font-size: 0.9em;
     color: var(--twc-color-text-gray);
@@ -21,26 +24,32 @@
     display: grid;
     grid-template-columns: auto 1fr;
     grid-template-rows: auto auto;
+
     .icon {
         grid-column: 1;
         grid-row: 1;
         display: flex;
     }
+
     .content {
         grid-column: 2;
         grid-row: 1;
         align-self: center;
     }
+
     .hint {
         grid-column: 2;
         grid-row: 2;
     }
 }
+
 .line {
     .icon {
         vertical-align: middle;
     }
+
     .content {
        // vertical-align: middle;
     }
 }
+// stylelint-enable no-descending-specificity

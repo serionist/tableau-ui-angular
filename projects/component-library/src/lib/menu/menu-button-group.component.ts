@@ -59,7 +59,7 @@ import { generateRandomString } from '../utils';
         `,
         `
             .menu-group {
-                background: white;
+                background: var(--twc-color-base);
                 border-color: var(--twc-menu-border-color);
                 border-radius: var(--twc-menu-border-radius);
                 border-style: solid;

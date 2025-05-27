@@ -1,20 +1,18 @@
 :host {
-    background-color: var(--twc-color-highlight-background);
+    background-color: var(--twc-color-base-highlight);
     border-right: 1px solid var(--twc-color-border-light);
     box-sizing: border-box;
-    display: flex;
     flex-direction: column;
-    height: 100vh;
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow: hidden auto;
     transition: width 0.3s ease-in-out;
     white-space: nowrap;
     display: grid;
     grid-template-rows: auto auto 1fr auto;
 
-    &[expanded="true"] {
-        width: 300px;
-    }
+    // &[expanded="true"] {
+    //     width: 300px;
+    // }
+
     &[expanded="false"] {
         width: 3.5rem;
     }
@@ -22,11 +20,14 @@
     .menu-toggle-button {
         justify-self: end;
         height: 3rem;
+
         // margin-bottom: 8px;
         display: grid;
         align-items: center;
+
         button {
             font-size: 1.5rem;
+
             tab-icon {
                 font-variation-settings: "FILL" 0, "wght" 100, "GRAD" 0,
                     "opsz" 24;
@@ -40,8 +41,10 @@
         overflow-x: hidden;
         margin-bottom: 1em;
     }
+
     tab-arrow-scroll {
         grid-row: 3;
+
        tab-icon[back-button],tab-icon[forward-button] {
             font-variation-settings: "FILL" 0, "wght" 100, "GRAD" 0, "opsz" 24;
             font-size: 2rem;
@@ -49,6 +52,7 @@
 
        
     }
+
     .footer {
         margin-top: 1rem;
         grid-row: 4;

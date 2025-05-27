@@ -1,12 +1,14 @@
 .main-content {
     display: grid;
-    height: 100vh;
+    height: 100vh; // stylelint-disable-line declaration-property-unit-disallowed-list
     grid-template-columns: auto 1fr;
 }
+
 .logo {
     width: calc(100% - 2em);
     margin: 0 1em;
 }
+
 .version {
     justify-self: center;
     padding: 0.5em;
@@ -14,11 +16,11 @@
 
 tab-nav-bar {
     &[expanded="true"] {
-        width: 220px;
+        width: 220px; // stylelint-disable-line declaration-property-unit-disallowed-list
     }
 
     tab-separator {
-        margin: 1rem 1rem;
+        margin: 1rem;
         width: calc(100% - 2rem);
     }
 }

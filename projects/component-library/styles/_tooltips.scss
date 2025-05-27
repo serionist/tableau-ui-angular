@@ -3,14 +3,14 @@
     z-index: 1000;
     pointer-events: none;
     overflow: hidden;
-    background-color: white;
-    border: 1px solid #d4d4d4;
+    background-color: var(--twc-color-base);
+    border: 1px solid var(--twc-color-border-light);
     border-radius: 1px;
-    box-shadow: 0 2px 16px 0 rgba(51, 51, 51, 0.15);
+    box-shadow: var(--twc-menu-box-shadow);
     box-sizing: border-box;
     display: block;
-    font-size: 12px;
+    font-size: 1rem;
     line-height: normal;
-    padding: 12px;
+    padding: 1rem;
 }
 
