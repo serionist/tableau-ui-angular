@@ -219,7 +219,7 @@ export class TabTreeComponent implements AfterContentInit, OnDestroy {
             from: { top: number; left: number };
             to: { top: number; left: number };
         }[] = [];
-        for (let child of this.registry.nodes()) {
+        for (const child of this.registry.nodes()) {
             if (this.redrawCounter !== currentRedrawCounter) {
                 return;
             }

@@ -171,8 +171,6 @@ export class FGRegisterFunctions<
         const subs: [Observable<T>, Observable<boolean>?] = [
             ctrl.value$.pipe(
                 map((v) => {
-                    if (alsoRunOnEnabled) {
-                    }
                     return v;
                 })
             ),

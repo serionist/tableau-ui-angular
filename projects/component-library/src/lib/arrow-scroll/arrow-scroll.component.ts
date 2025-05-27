@@ -131,6 +131,7 @@ export class ArrowScrollComponent implements AfterViewInit, OnDestroy {
     });
 
     private observer: ResizeObserver | null = null;
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     private scrollHandler: (event: Event) => void = () => {};
     ngAfterViewInit(): void {
         const el = this.scrollContainer().nativeElement;
@@ -172,7 +173,7 @@ export class ArrowScrollComponent implements AfterViewInit, OnDestroy {
             clientWidth: el.clientWidth,
         });
     }
-
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     private wheelHandler: (event: WheelEvent) => void = () => {};
     private overrideMouseWheelForHorizontal(el: HTMLDivElement) {
         this.wheelHandler = (event: WheelEvent) => {
@@ -192,6 +193,7 @@ export class ArrowScrollComponent implements AfterViewInit, OnDestroy {
     private removeMouseWheelOverride(el: HTMLDivElement) {
         if (el && this.wheelHandler) {
             el.removeEventListener('wheel', this.wheelHandler);
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
             this.wheelHandler = () => {};
         }
     }

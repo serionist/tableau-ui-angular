@@ -12,6 +12,7 @@ import {
 } from '@angular/core';
 
 @Component({
+    // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'button:not([tab-menu-button]),a[button]:not([tab-menu-button])',
     templateUrl: './button.component.html',
     styleUrls: ['./button.component.scss'],

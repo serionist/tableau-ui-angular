@@ -20,9 +20,7 @@ import { MenuButtonGroupComponent } from './menu-button-group.component';
     styleUrls: ['./menu.component.scss'],
 })
 export class ButtonMenuComponent extends MenuComponent implements OnDestroy {
-    override menuContainerCss: ModelSignal<{ [key: string]: string }> = model<{
-        [key: string]: string;
-    }>({
+    override menuContainerCss: ModelSignal<Record<string, string>> = model<Record<string, string>>({
         pointerEvents: 'none',
     });
 

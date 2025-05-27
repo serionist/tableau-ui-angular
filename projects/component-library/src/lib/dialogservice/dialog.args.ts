@@ -1,7 +1,7 @@
 export interface IDialogArgs extends IModalArgs, IDialogPositionAndSizeArgs{
    
-    backdropCss?: { [key: string]: string};
-    containerCss?: { [key: string]: string};
+    backdropCss?: Record<string, string>;
+    containerCss?: Record<string, string>;
     trapFocus?: boolean;
     
   }

@@ -42,7 +42,9 @@ export class RadiogroupComponent implements ControlValueAccessor {
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     errorElement: Signal<ErrorComponent | undefined> = contentChild(ErrorComponent);
 
+    // eslint-disable-next-line  @typescript-eslint/no-empty-function  
     onChange = (value: any) => {};
+    // eslint-disable-next-line  @typescript-eslint/no-empty-function
     onTouched = () => {};
 
     writeValue(value: any): void {

@@ -11,8 +11,8 @@ import {
     viewChild,
 } from '@angular/core';
 import {
-    ExpansionPanelTitleCollapsedContent,
-    ExpansionPanelTitleExpandedContent,
+    ExpansionPanelTitleCollapsedContentDirective,
+    ExpansionPanelTitleExpandedContentDirective,
 } from './expansion-panel-title.component';
 import { generateRandomString } from '../utils';
 import { AccordionComponent } from './accordion.component';
@@ -52,11 +52,11 @@ export class ExpansionPanelComponent implements OnInit, OnDestroy {
     noHeaderHover = input<boolean>(false);
 
     protected expandedHeader: Signal<
-        ExpansionPanelTitleExpandedContent | undefined
-    > = contentChild(ExpansionPanelTitleExpandedContent);
+        ExpansionPanelTitleExpandedContentDirective | undefined
+    > = contentChild(ExpansionPanelTitleExpandedContentDirective);
     protected collapsedHeader: Signal<
-        ExpansionPanelTitleCollapsedContent | undefined
-    > = contentChild(ExpansionPanelTitleCollapsedContent);
+        ExpansionPanelTitleCollapsedContentDirective | undefined
+    > = contentChild(ExpansionPanelTitleCollapsedContentDirective);
 
     private accordion = inject(AccordionComponent, {
         skipSelf: true,
@@ -79,5 +79,11 @@ export class ExpansionPanelComponent implements OnInit, OnDestroy {
             return;
         }
         this.expanded.set(expanded);
+    }
+    onclick() {
+        if (this.disabled()) {
+            return;
+        }
+        this.setExpanded(!this.expanded());
     }
 }

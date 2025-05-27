@@ -81,10 +81,11 @@ import { ScrollerPageComponent } from './pages/scroller-page/scroller-page.compo
         SelectPageComponent,
         ListPageComponent,
         LocalDevelopmentComponent,
+        TreeNodeContainerComponent,
         TreePageComponent,
         MenuPageComponent,
         DatePickerPageComponent,
-        TreeNodeContainerComponent,
+       
         ExpansionPageComponent,
         ScrollerPageComponent
     ],

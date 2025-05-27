@@ -1,9 +1,9 @@
 @if (scrollArrowsVisible()) {
 <div
     class="scroll-arrow"
-    [style.margin-bottom]="scrollDirection() == 'vertical' ? buttonsGap() : '0'"
+    [style.margin-bottom]="scrollDirection() === 'vertical' ? buttonsGap() : '0'"
     [style.margin-right]="
-        scrollDirection() == 'horizontal' ? buttonsGap() : '0'
+        scrollDirection() === 'horizontal' ? buttonsGap() : '0'
     "
 >
     <button
@@ -39,8 +39,8 @@
 @if (scrollArrowsVisible()) {
 <div
     class="scroll-arrow"
-    [style.margin-top]="scrollDirection() == 'vertical' ? buttonsGap() : '0'"
-    [style.margin-left]="scrollDirection() == 'horizontal' ? buttonsGap() : '0'"
+    [style.margin-top]="scrollDirection() === 'vertical' ? buttonsGap() : '0'"
+    [style.margin-left]="scrollDirection() === 'horizontal' ? buttonsGap() : '0'"
 >
     @if (showScrollButtonSeparator()) {
     <tab-separator

@@ -40,7 +40,7 @@ export class MenuComponent {
      * Use this to apply height, maxHeight, etc. to the dropdown container
      * @default '{}'
      */
-    menuContainerCss = model<{ [key: string]: string }>({
+    menuContainerCss = model<Record<string, string>>({
         background: 'white',
         borderColor: 'var(--twc-menu-border-color)',
         borderRadius: 'var(--twc-menu-border-radius)',
@@ -49,7 +49,7 @@ export class MenuComponent {
         boxShadow: 'var(--twc-menu-box-shadow)',
     });
     // The default CSS text to apply to the dropdown container. This is used to set the default values for the menuContainerCss property.
-    private defaultContainerCss: { [key: string]: string } = {
+    private defaultContainerCss: Record<string, string> = {
         outline: 'none',
         color: 'var(--twc-color-text)',
         lineHeight: 'normal',
@@ -64,7 +64,7 @@ export class MenuComponent {
      * Use this to apply user-select: none, etc. to the backdrop container
      * @default '{}'
      */
-    backdropCss = model<{ [key: string]: string }>({});
+    backdropCss = model<Record<string, string>>({});
     /**
      * The width of the container
      * @remarks
@@ -163,7 +163,7 @@ export class MenuComponent {
             {
                 top: (_, actualHeight) => {
                     switch (this.menuLocation()) {
-                        case 'top':
+                        case 'top': {
                             const val = parentRect.top - actualHeight;
                             if (
                                 val < 0 &&
@@ -173,17 +173,19 @@ export class MenuComponent {
                                 return `${parentRect.bottom}px`;
                             }
                             return `${parentRect.top - actualHeight}px`;
-                        case 'bottom':
-                            const val2 = parentRect.bottom;
+                        }
+                        case 'bottom': {
+                            const val = parentRect.bottom;
                             if (
-                                val2 + actualHeight > window.innerHeight &&
+                                val + actualHeight > window.innerHeight &&
                                 parentRect.top - actualHeight > 0
                             ) {
                                 return `${parentRect.top - actualHeight}px`;
                             }
-                            return `${val2}px`;
+                            return `${val}px`;
+                        }
                         case 'left':
-                        case 'right':
+                        case 'right': {
                             // the top parameter is the top parameter of the parent control by default
                             let top = parentRect.top;
                             // if it is higher than the availale window
@@ -192,11 +194,12 @@ export class MenuComponent {
                             }
                             top = Math.max(top, 0);
                             return `${top}px`;
+                        }
                     }
                 },
                 left: (actualWidth, _) => {
                     switch (this.menuLocation()) {
-                        case 'left':
+                        case 'left': {
                             const val = parentRect.left - actualWidth;
                             if (
                                 val < 0 &&
@@ -206,17 +209,19 @@ export class MenuComponent {
                                 return `${parentRect.right}px`;
                             }
                             return `${parentRect.left - actualWidth}px`;
-                        case 'right':
-                            const val2 = parentRect.right;
+                        }
+                        case 'right': {
+                            const val = parentRect.right;
                             if (
-                                val2 + actualWidth > window.innerWidth &&
+                                val + actualWidth > window.innerWidth &&
                                 parentRect.left - actualWidth > 0
                             ) {
                                 return `${parentRect.left - actualWidth}px`;
                             }
-                            return `${val2}px`;
+                            return `${val}px`;
+                        }
                         case 'top':
-                        case 'bottom':
+                        case 'bottom': {
                             // the left parameter is the left parameter of the parent control by default
                             let left = parentRect.left;
                             // if it is wider than the availale window
@@ -225,6 +230,7 @@ export class MenuComponent {
                             }
                             left = Math.max(left, 0);
                             return `${left}px`;
+                        }
                     }
                 },
                 width:

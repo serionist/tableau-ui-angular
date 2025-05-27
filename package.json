@@ -1,35 +1,39 @@
 {
-    "name": "tableau-component-library",
-    "version": "0.0.0",
-    "workspaces": [
-        "projects/*"
-    ],
-    "scripts": {
-        "start": "concurrently \"npx ng build component-library --watch\" \"npx wait-on dist/component-library/fesm2022/tableau-ui-angular.mjs && ng serve --port 4201\" \"npm run test-app:watch-icons\"",
-        "test-app:icons:download": "node projects/component-library/used-icons/scripts/update-icons.js projects/test-app/src/icons.ts projects/test-app/public/icons",
-        "test-app:watch-icons": "npm run test-app:icons:download && npx chokidar \"projects/test-app/src/icons.ts\" -c \"npm run test-app:icons:download\"",
-        "copy-assets": "cpy README.md LICENSE Add-Benton-Sans.md dist/component-library",
-        "build:component-library": "ng build component-library && npm run copy-assets",
-        "build:github-pages": "ng build component-library && npm run test-app:icons:download && ng build test-app --base-href /tableau-ui-angular/",
-        "package": "npx ng-packagr -p projects/component-library/ng-package.json && npm run copy-assets",
-        "publish": "npx ng-packagr -p projects/component-library/ng-package.json && npm run copy-assets && cd dist/component-library && npm publish",
-        "dev:link": "ng build component-library --configuration development && node scripts/link-info.js && ng build component-library --watch --configuration development"
-    },
-    "private": true,
-    "devDependencies": {
-        "@angular-devkit/build-angular": "^19.2.9",
-        "@angular/cli": "^19.2.9",
-        "@angular/compiler-cli": "^19.2.8",
-        "@types/jasmine": "~5.1.0",
-        "cpy-cli": "^5.0.0",
-        "jasmine-core": "~5.4.0",
-        "karma": "~6.4.0",
-        "karma-chrome-launcher": "~3.2.0",
-        "karma-coverage": "~2.2.0",
-        "karma-jasmine": "~5.1.0",
-        "karma-jasmine-html-reporter": "~2.1.0",
-        "ng-packagr": "^19.2.2",
-        "typescript": "~5.5.2",
-        "wait-on": "^8.0.3"
-    }
+  "name": "tableau-component-library",
+  "version": "0.0.0",
+  "workspaces": [
+    "projects/*"
+  ],
+  "scripts": {
+    "start": "concurrently \"npx ng build component-library --watch\" \"npx wait-on dist/component-library/fesm2022/tableau-ui-angular.mjs && ng serve --port 4201\" \"npm run test-app:watch-icons\"",
+    "test-app:icons:download": "node projects/component-library/used-icons/scripts/update-icons.js projects/test-app/src/icons.ts projects/test-app/public/icons",
+    "test-app:watch-icons": "npm run test-app:icons:download && npx chokidar \"projects/test-app/src/icons.ts\" -c \"npm run test-app:icons:download\"",
+    "copy-assets": "cpy README.md LICENSE Add-Benton-Sans.md dist/component-library",
+    "build:component-library": "ng build component-library && npm run copy-assets",
+    "build:github-pages": "ng build component-library && npm run test-app:icons:download && ng build test-app --base-href /tableau-ui-angular/",
+    "package": "npx ng-packagr -p projects/component-library/ng-package.json && npm run copy-assets",
+    "publish": "npx ng-packagr -p projects/component-library/ng-package.json && npm run copy-assets && cd dist/component-library && npm publish",
+    "dev:link": "ng build component-library --configuration development && node scripts/link-info.js && ng build component-library --watch --configuration development",
+    "lint": "ng lint"
+  },
+  "private": true,
+  "devDependencies": {
+    "@angular-devkit/build-angular": "^19.2.9",
+    "@angular/cli": "^19.2.9",
+    "@angular/compiler-cli": "^19.2.8",
+    "@types/jasmine": "~5.1.0",
+    "angular-eslint": "19.5.0",
+    "cpy-cli": "^5.0.0",
+    "eslint": "^9.27.0",
+    "jasmine-core": "~5.4.0",
+    "karma": "~6.4.0",
+    "karma-chrome-launcher": "~3.2.0",
+    "karma-coverage": "~2.2.0",
+    "karma-jasmine": "~5.1.0",
+    "karma-jasmine-html-reporter": "~2.1.0",
+    "ng-packagr": "^19.2.2",
+    "typescript": "~5.5.2",
+    "typescript-eslint": "8.32.1",
+    "wait-on": "^8.0.3"
+  }
 }

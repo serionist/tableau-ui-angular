@@ -12,7 +12,4 @@ export class CssPageComponent {
     terminalOptions = MonacoHelper.getOptions('shell');
     code: string = '@use "tableau-ui-angular/styles/lib-styles" as libStyles;';
 
-    getEditorOptions(lang: string) {
-      
-    }
 }

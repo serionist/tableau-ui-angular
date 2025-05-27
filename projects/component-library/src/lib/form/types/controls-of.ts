@@ -1,6 +1,7 @@
 import { FormArray, FormGroup, FormControl } from "@angular/forms";
 
 export type ControlsOf<T extends Record<string, any>> = {
+  // eslint-disable-next-line @typescript-eslint/array-type
     [K in keyof T]: NonNullable<T[K]> extends Array<infer U>
       ? U extends Record<string, any>
         ?

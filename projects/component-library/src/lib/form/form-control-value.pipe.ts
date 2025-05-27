@@ -1,6 +1,6 @@
 import { AbstractControl, FormControl, isFormControl } from '@angular/forms';
 import { map, Observable, of, switchMap } from 'rxjs';
-import { Pipe } from '@angular/core';
+import { Pipe, PipeTransform } from '@angular/core';
 import { Primitive } from './types/primitive';
 import { FC } from './models/form-control.reference';
 
@@ -9,7 +9,7 @@ import { FC } from './models/form-control.reference';
     standalone: false,
     pure: true
 })
-export class FormControlValuePipe {
+export class FormControlValuePipe implements PipeTransform {
     /**
      * Transforms the value of a FormControl into an observable.
      * @param ctrl The FormControl reference (FC) instance to transform.

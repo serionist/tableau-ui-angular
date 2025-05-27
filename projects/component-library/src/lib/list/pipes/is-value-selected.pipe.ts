@@ -1,11 +1,11 @@
-import { Pipe } from '@angular/core';
+import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
     pure: true,
     name: 'isValueSelected',
     standalone: false,
 })
-export class IsValueSelectedPipe {
+export class IsValueSelectedPipe implements PipeTransform {
     transform(
         selectedValue: any,
         optionValue: any,

@@ -43,7 +43,7 @@ export class AutoCompleteComponent {
      * Use this to apply height, maxHeight, etc. to the dropdown container
      * @default '{}'
      */
-    readonly dropdownContainerCss = model<{ [key: string]: string }>({});
+    readonly dropdownContainerCss = model<Record<string, string>>({});
     /**
      * The CSS text to apply to the options container in the dropdown
      * @remarks
@@ -52,7 +52,7 @@ export class AutoCompleteComponent {
      *
      * @default "{ maxHeight: '300px', height: 'fit-content'}"
      */
-    readonly dropdownOptionsContainerCss = model<{ [key: string]: string }>({
+    readonly dropdownOptionsContainerCss = model<Record<string, string>>({
         maxHeight: '300px',
         height: 'fit-content',
     });

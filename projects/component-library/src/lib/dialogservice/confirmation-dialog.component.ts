@@ -1,4 +1,5 @@
 import {
+    AfterContentInit,
     AfterViewInit,
     ChangeDetectionStrategy,
     Component,
@@ -58,7 +59,7 @@ import { TAB_DATA_REF } from './data.ref';
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: false,
 })
-export class ConfirmationDialogComponent implements AfterViewInit {
+export class ConfirmationDialogComponent implements AfterViewInit, AfterContentInit{
 
     data = inject<IConfirmationDialogData>(TAB_DATA_REF);
 

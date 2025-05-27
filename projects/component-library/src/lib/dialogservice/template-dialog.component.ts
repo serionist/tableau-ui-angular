@@ -11,7 +11,7 @@ import { TAB_DATA_REF } from './data.ref';
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: false
 })
-export class TemplateDialogComponent<TData extends any = any> {
+export class TemplateDialogComponent<TData = any> {
 
     data = inject<{
         contentTemplate: TemplateRef<TData>;

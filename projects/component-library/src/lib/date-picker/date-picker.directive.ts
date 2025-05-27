@@ -93,7 +93,9 @@ export class DatePickerDirective implements ControlValueAccessor {
 
         }
     }
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     private _onChange: any = () => { };
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     private _onTouched: any = () => { };
     registerOnChange(fn: any): void {
         this._onChange = fn;

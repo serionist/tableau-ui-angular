@@ -68,7 +68,7 @@ export class SnackService {
             location
         );
     }
-    openSnackFromTemplate<T extends any = any>(
+    openSnackFromTemplate<T = any>(
         template: TemplateRef<T>,
         templateContext?: T,
         duration: number | undefined = 5000,
@@ -89,7 +89,7 @@ export class SnackService {
         );
     }
 
-    openSnackComponent<TData extends any = any, TComponent extends any = any>(
+    openSnackComponent<TData, TComponent = any>(
         component: Type<TComponent>,
         data: TData,
         duration: number | undefined = 5000,
@@ -146,7 +146,7 @@ export class SnackService {
         }
 
         const getMargin = () => {
-            let height = snackWrapper.offsetHeight + 3;
+            const height = snackWrapper.offsetHeight + 3;
             if (location === 'top') {
                 return `-${height}px 0 3px 0`;
             } else {

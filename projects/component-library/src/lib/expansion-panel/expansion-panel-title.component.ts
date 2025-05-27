@@ -21,7 +21,7 @@ export class ExpansionPanelTitleComponent {
     selector: 'tab-expansion-panel-title[expanded]',
     standalone: false,
 })
-export class ExpansionPanelTitleExpandedContent {
+export class ExpansionPanelTitleExpandedContentDirective {
 
 }
 
@@ -29,6 +29,6 @@ export class ExpansionPanelTitleExpandedContent {
     selector: 'tab-expansion-panel-title[collapsed]',
     standalone: false,
 })
-export class ExpansionPanelTitleCollapsedContent {
+export class ExpansionPanelTitleCollapsedContentDirective {
 
 }

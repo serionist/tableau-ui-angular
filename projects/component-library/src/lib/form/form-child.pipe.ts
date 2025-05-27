@@ -1,4 +1,4 @@
-import { Pipe } from '@angular/core';
+import { Pipe, PipeTransform } from '@angular/core';
 import { flatMap, map, Observable, of, switchMap } from 'rxjs';
 import { AC } from './models/abstract-control.reference';
 import { FA } from './models/form-array.reference';
@@ -16,7 +16,7 @@ import {
     standalone: false,
     pure: true,
 })
-export class FormChildPipe {
+export class FormChildPipe implements PipeTransform{
     transform<T extends 'control' | 'group' | 'array' | 'abstract' = 'control'>(
         form: AC | undefined | null,
         path?: string | undefined,

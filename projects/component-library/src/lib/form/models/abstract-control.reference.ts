@@ -353,7 +353,7 @@ export class ACHierarchy {
                     acc[key] = this._getHierarchyData(child, key);
                 }
                 return acc;
-            }, {} as { [key: string]: ACHierarchyData });
+            }, {} as Record<string, ACHierarchyData>);
         }
         if (control.type === 'array') {
             const arr = control as FA;
@@ -365,7 +365,7 @@ export class ACHierarchy {
                     );
                 }
                 return acc;
-            }, {} as { [key: string]: ACHierarchyData });
+            }, {} as Record<string, ACHierarchyData>);
         }
 
         return ret;
@@ -376,7 +376,7 @@ export interface ACHierarchyData {
     status: FormControlStatus;
     value: any;
     meta: AbstractControlMeta;
-    children?: { [key: string]: ACHierarchyData };
+    children?: Record<string, ACHierarchyData>;
 }
 
 export class ACValidators<TChild extends AC, TValue = any> {

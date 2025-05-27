@@ -1,6 +1,6 @@
 import { AbstractControl, FormGroup } from '@angular/forms';
 import { map, Observable, of, switchMap } from 'rxjs';
-import { Pipe } from '@angular/core';
+import { Pipe, PipeTransform } from '@angular/core';
 import { DeepPartial } from './public-api';
 import { FG } from './models/form-group.reference';
 
@@ -9,7 +9,7 @@ import { FG } from './models/form-group.reference';
     standalone: false,
     pure: true
 })
-export class FormGroupValuePipe {
+export class FormGroupValuePipe implements PipeTransform {
     transform<T extends Record<string, any> = any>(
         group: FG | null | undefined,
     ): Observable<DeepPartial<T> | null> {

@@ -27,6 +27,7 @@ import { generateRandomString } from '../utils';
     selector: 'tab-menu-button',
     template: `
         <ng-template #template>
+            <!-- eslint-disable-next-line -->
             <div
                 class="menu-button"
                 role="button"
@@ -66,7 +67,7 @@ import { generateRandomString } from '../utils';
     standalone: false,
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MenuButtonComponent implements OnDestroy, AfterViewInit {
+export class MenuButtonComponent implements OnDestroy {
     readonly id: string;
     readonly contentElement = viewChild<ElementRef>('buttonElement');
     readonly disabled = input(false);
@@ -104,13 +105,11 @@ export class MenuButtonComponent implements OnDestroy, AfterViewInit {
 
     openSubMenu = output<Event>();
 
+    // eslint-disable-next-line @angular-eslint/no-output-native
     click = output<Event>();
     constructor() {
         this.id = generateRandomString();
     }
-    ngAfterViewInit(): void {
-    }
-  
 
     hoverInterval: any | undefined = undefined;
     hoverstart = Date.now();

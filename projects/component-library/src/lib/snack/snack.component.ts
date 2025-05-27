@@ -96,7 +96,7 @@ import { TAB_SNACK_DATA_REF } from './data.ref';
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: false,
 })
-export class SnackComponent<TData extends any = any> {
+export class SnackComponent<TData = any> {
     data = inject<{
         type: 'info' | 'error' | 'success';
         message: string | undefined;

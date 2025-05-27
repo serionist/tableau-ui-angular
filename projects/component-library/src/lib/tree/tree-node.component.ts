@@ -91,7 +91,6 @@ export class TabTreeNodeComponent implements OnInit, OnDestroy {
     // The registry of the tree node. It is optional. If provided, the node will register itself and will be detected by the tree even if it's located in a sub-component
     registry = input<TreeNodeRegistry>();
 
-    ngAfterContentInit(): void {}
 
     ngOnInit(): void {
         const registry = this.registry() ?? this.tabTree?.registry;

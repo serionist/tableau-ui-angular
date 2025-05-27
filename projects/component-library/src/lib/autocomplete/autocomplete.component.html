@@ -12,6 +12,7 @@
         @if (options().length > 0) {
             <div class="option-values" [ngStyle]="dropdownOptionsContainerCss()">
                 @for (option of options(); track option.value()) {
+                <!-- eslint-disable-next-line  @angular-eslint/template/interactive-supports-focus, @angular-eslint/template/click-events-have-key-events -->
                 <div
                     class="option-wrapper"
                     (click)="selectValue$.next(option)"

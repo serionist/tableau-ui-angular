@@ -2,7 +2,7 @@ import { Component, input } from '@angular/core';
 import { TreeNodeRegistry } from 'component-library';
 
 @Component({
-    selector: 'tree-node-container',
+    selector: 'app-tree-node-container',
     template: `<tab-tree-node>
         Top Node
         <tab-tree-node>

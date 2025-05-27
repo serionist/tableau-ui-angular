@@ -35,7 +35,7 @@ import { generateRandomString } from '../utils';
             [style.top]="entry[1].top() + 'px'"
             [style.left]="entry[1].left() + 'px'"
             resizeWatcher
-            (onResized)="
+            (resized)="
                 entry[1].element = $event.currentElement.nativeElement;
                 updateSizes()
             "
@@ -83,7 +83,7 @@ import { generateRandomString } from '../utils';
         '[style.minWidth]': 'width() + "px"',
     },
 })
-export class MenuButtonGroupComponent implements OnInit, OnDestroy {
+export class MenuButtonGroupComponent implements OnDestroy {
     nativeElement = inject(ElementRef);
 
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
@@ -131,9 +131,6 @@ export class MenuButtonGroupComponent implements OnInit, OnDestroy {
         this.addMenuGroup();
     }
 
-    ngOnInit(): void {
-        // we init from childrenEffect so that we update when children change too
-    }
 
     ngOnDestroy(): void {
         this.destroyGroupsUntil();
@@ -234,8 +231,8 @@ export class MenuButtonGroupComponent implements OnInit, OnDestroy {
                 continue;
             }
             const rect = group.element.getBoundingClientRect();
-            let elWidth = rect.width;
-            let elHeight = rect.height;
+            const elWidth = rect.width;
+            const elHeight = rect.height;
             let top: number;
             let left: number;
 

@@ -14,7 +14,7 @@ export class NavBarButtonComponent {
   text = input.required<string>();
   // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
   link: InputSignal<string | any[] | UrlTree | null | undefined> = input<string | any[] | UrlTree | null | undefined>();
-
+  // eslint-disable-next-line @angular-eslint/no-output-native
   click = output<void>();
   isActive = input<boolean>(false);
   disabled = input<boolean>(false);

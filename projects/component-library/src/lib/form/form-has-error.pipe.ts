@@ -1,4 +1,4 @@
-import { Pipe } from '@angular/core';
+import { Pipe, PipeTransform } from '@angular/core';
 import { AbstractControl } from '@angular/forms';
 import { AbstractControlMeta } from './models/abstract-control.reference';
 
@@ -7,7 +7,7 @@ import { AbstractControlMeta } from './models/abstract-control.reference';
   standalone: false,
   pure: true,
 })
-export class HasFormErrorPipe {
+export class HasFormErrorPipe implements PipeTransform {
   transform(
     meta: AbstractControlMeta | null | undefined,
     specificError?: string,

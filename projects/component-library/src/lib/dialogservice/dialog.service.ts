@@ -23,7 +23,10 @@ import {
 import { debounceTime, fromEvent, map, Subscription, zip } from 'rxjs';
 import { FocusableElement, tabbable } from 'tabbable';
 import { IconComponent } from '../icon/icon.component';
-import { ConfirmationDialogComponent, IConfirmationDialogData } from './confirmation-dialog.component';
+import {
+    ConfirmationDialogComponent,
+    IConfirmationDialogData,
+} from './confirmation-dialog.component';
 import { TableauUiDialogModule } from './tableau-ui-dialog.module';
 import { TemplateDialogComponent } from './template-dialog.component';
 import { TAB_DATA_REF } from './data.ref';
@@ -37,7 +40,7 @@ export class DialogService {
     appRef = inject(ApplicationRef);
     environmentInjector = inject(EnvironmentInjector);
 
-    openModal<TData extends any = any, TComponent extends any = any>(
+    openModal<TData = any, TComponent = any>(
         component: Type<TComponent>,
         data: TData,
         args?: IModalArgs
@@ -111,7 +114,7 @@ export class DialogService {
         });
     }
 
-    openConfirmationTemplateDialog<TContext extends any = any>(
+    openConfirmationTemplateDialog<TContext = any>(
         title: string,
         template: TemplateRef<TContext>,
         templateContext: TContext,
@@ -156,7 +159,7 @@ export class DialogService {
         args: IDialogArgs;
     }[] = [];
 
-    openTemplateDialog<T extends any = any>(
+    openTemplateDialog<T = any>(
         contentTemplate: TemplateRef<T>,
         args: IDialogArgs,
         contentTemplateContext?: T,
@@ -169,7 +172,7 @@ export class DialogService {
             insertAfterElement
         );
     }
-    openDialog<TData extends any = any, TComponent extends any = any>(
+    openDialog<TData = any, TComponent = any>(
         component: Type<TComponent>,
         data: TData,
         args: IDialogArgs = {},
@@ -211,7 +214,8 @@ export class DialogService {
 
         // Create an injector that provides the DialogRef
         const injector = Injector.create({
-            providers: [{ provide: TAB_DIALOG_REF, useValue: dialogRef },
+            providers: [
+                { provide: TAB_DIALOG_REF, useValue: dialogRef },
                 { provide: TAB_DATA_REF, useValue: data },
             ],
             parent: this.injector,

@@ -37,7 +37,7 @@ import { IOptionGridContext, OptionComponent } from '../common/option';
     standalone: false
 })
 export class ListComponent
-    implements ControlValueAccessor, AfterViewInit, OnDestroy
+    implements ControlValueAccessor
 {
     options = contentChildren<OptionComponent>(OptionComponent);
     elementRef = inject(ElementRef);
@@ -104,12 +104,11 @@ export class ListComponent
             renderAsDisabled: this.itemTemplateContext().renderAsDisabled || this.disabled(),
         };
     })
-    constructor() {}
-    ngOnDestroy(): void {}
-    ngAfterViewInit(): void {}
 
     // #region ControlValueAccessor
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     onChange = (value: any) => {};
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     onTouched = () => {};
     writeValue(value: any): void {
         this.value.set(value);

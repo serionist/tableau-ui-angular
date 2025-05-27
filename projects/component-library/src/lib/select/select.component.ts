@@ -108,7 +108,7 @@ export class SelectComponent
      * Use this to apply height, maxHeight, etc. to the dropdown container
      * @default '{}'
      */
-    dropdownContainerCss = model<{ [key: string]: string }>({});
+    dropdownContainerCss = model<Record<string, string>>({});
     /**
      * The CSS text to apply to the options container in the dropdown
      * @remarks
@@ -117,7 +117,7 @@ export class SelectComponent
      * 
      * @default "{ maxHeight: '300px', height: 'fit-content'}"
      */
-    dropdownOptionsContainerCss = model<{ [key: string]: string }>({
+    dropdownOptionsContainerCss = model<Record<string, string>>({
         maxHeight: '300px',
         height: 'fit-content',
     });
@@ -249,7 +249,9 @@ export class SelectComponent
     });
     // #endregion
     // #region ControlValueAccessor
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     onChange = (value: any) => {};
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     onTouched = () => {};
     writeValue(value: any): void {
         this.value.set(value);

@@ -4,19 +4,19 @@ import { Directive, ElementRef, inject, OnDestroy, OnInit, output } from "@angul
     selector: '[resizeWatcher]',
     standalone: false
 })
-export class ResizeWatcherDirective implements OnInit, OnDestroy {
+export class ResizeWatcherDirective implements  OnDestroy {
    
     readonly element = inject(ElementRef);
     private readonly observer: ResizeObserver;
 
 
-    onResized = output<{ currentElement: ElementRef, entries: ResizeObserverEntry[]}>();
+    resized = output<{ currentElement: ElementRef, entries: ResizeObserverEntry[]}>();
     constructor() {
         if (this.element.nativeElement === undefined) {
             throw new Error('ResizeWatcherDirective: ElementRef is undefined');
         }
         this.observer = new ResizeObserver(entries => {
-            this.onResized.emit({ currentElement: this.element, entries });
+            this.resized.emit({ currentElement: this.element, entries });
         });
         this.observer.observe(this.element.nativeElement);
     }
@@ -24,7 +24,4 @@ export class ResizeWatcherDirective implements OnInit, OnDestroy {
         this.observer?.disconnect();
     }
     
-    ngOnInit(): void {
-        
-    }
 }
