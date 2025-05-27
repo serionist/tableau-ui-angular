@@ -42,6 +42,7 @@
         &.disabled {
             color: var(--twc-color-disabled);
         }
+
         &:not(.disabled, .no-hover) {
             &:hover {
                 background: var(--twc-color-highlight);

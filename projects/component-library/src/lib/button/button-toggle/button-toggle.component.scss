@@ -13,8 +13,6 @@
     padding: 0;
     align-items: stretch;
     background-color: transparent;
-    font-size: 1.2rem;
-
     outline: solid 0 var(--twc-color-focused-input);
 
     &:focus-visible {
@@ -26,6 +24,7 @@
         border-color: var(--twc-color-border-dark);
         color: var(--twc-color-text);
     }
+
     &[disabled]:not([disabled="false"]) {
         background-color: transparent !important;
         border-color: var(--twc-color-border-light) !important;
@@ -41,10 +40,12 @@
             background-color: var(--twc-color-primary);
             color: var(--twc-color-on-primary);
         }
-        &:not(.selected):not(.disabled):hover {
+
+        &:not(.selected, .disabled):hover {
             cursor: pointer;
             background-color: var(--twc-color-mouse-highlight);
         }
+
         &.disabled:hover {
             cursor: not-allowed;
         }

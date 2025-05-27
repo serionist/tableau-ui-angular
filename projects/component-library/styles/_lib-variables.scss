@@ -1,4 +1,4 @@
-/* stylelint-disable declaration-property-unit-disallowed-list */
+/* stylelint-disable declaration-property-unit-disallowed-list,declaration-property-value-disallowed-list,function-disallowed-list */
 
 :root {
     --twc-font-family: "Benton Sans", "Roboto", arial, helvetica, sans-serif;
@@ -11,24 +11,18 @@
     --twc-font-size-page-title: 2em;
     --twc-menu-border-radius: 1px;
     --twc-input-border-radius: 1px;
-
     --twc-menu-highlight-outline: 1px solid var(--twc-color-text-gray);
     --twc-menu-highlight-outline-offset: -1px;
-    --twc-menu-selected-background-color: rgba(
-        var(--twc-color-primary-r),
-        var(--twc-color-primary-g),
-        var(--twc-color-primary-b),
-        0.1
+    --twc-menu-selected-background-color: rgb(
+        var(--twc-color-primary-r) var(--twc-color-primary-g)
+            var(--twc-color-primary-b) / 10%
     );
     --twc-menu-selected-outline: 1px solid
-        rgba(
-            var(--twc-color-primary-r),
-            var(--twc-color-primary-g),
-            var(--twc-color-primary-b),
-            0.5
+        rgb(
+            var(--twc-color-primary-r) var(--twc-color-primary-g)
+                var(--twc-color-primary-b) / 50%
         );
     --twc-menu-selected-outline-offset: -1px;
-
     --twc-input-border: 1px solid var(--twc-color-border);
 }
 

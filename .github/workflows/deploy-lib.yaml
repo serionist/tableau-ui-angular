@@ -31,6 +31,10 @@ jobs:
         id: install-deps
         run: npm install
 
+      - name: Lint Code
+        id: lint
+        run: npm run lint
+
       - name: Build Component Library
         id: build-library
         run: npm run build:component-library

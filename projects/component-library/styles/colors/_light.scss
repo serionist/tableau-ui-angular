@@ -1,5 +1,6 @@
 /* stylelint-disable declaration-property-value-disallowed-list, function-disallowed-list */
 @use './color-vars' as color-vars;
+
 :root {
     @include color-vars.define-theme((
         color-base: rgb(255 255 255),
@@ -40,7 +41,7 @@
         modal-color-header: rgb(243 243 243),
         modal-color-box-shadow: rgba(0, 0, 0, 0.35),
         modal-color-backdrop: rgb(245, 245, 245, 0.33),
-        dialog-box-shadow: 0px 2px 16px 0px rgb(46 46 46 / 15%),
+        dialog-box-shadow: 0 2px 16px 0 rgb(46 46 46 / 15%),
        
     
       ));

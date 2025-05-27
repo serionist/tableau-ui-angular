@@ -1,4 +1,5 @@
 @use 'sass:map' as map;
+
 $theme-vars: (
   color-base,
   color-base-highlight,
@@ -45,7 +46,8 @@ $theme-vars: (
     @each $var-name in $theme-vars {
       $value: map.get($theme-values, $var-name);
   
-      @if $value != null {
+      @if $value {
+        // stylelint-disable-next-line declaration-property-value-disallowed-list
         --twc-#{$var-name}: #{$value};
       } @else {
         @error "Missing value for --twc-#{$var-name}";
