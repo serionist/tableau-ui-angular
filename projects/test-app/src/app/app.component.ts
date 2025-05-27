@@ -1,8 +1,10 @@
 import {
     Component,
+    computed,
     inject,
     OnInit,
     TemplateRef,
+    viewChild,
     ViewContainerRef,
 } from '@angular/core';
 import {
@@ -14,7 +16,7 @@ import {
 } from '@angular/router';
 import { filter, map, Observable, switchMap } from 'rxjs';
 import { version as LibVersion } from '../../../component-library/package.json';
-import { ThemeService } from 'component-library';
+import { MenuComponent, ThemeService } from 'component-library';
 
 @Component({
     selector: 'app-root',
@@ -47,5 +49,21 @@ export class AppComponent {
             child = child.firstChild!;
         }
         return null;
+    }
+
+
+    paletteMenu = viewChild.required<MenuComponent>('paletteMenu');
+    paletteMenuContainerCss = computed(() => {
+        const existing = this.paletteMenu().menuContainerCss();
+        existing['marginTop'] = '-1px';
+        return existing;
+    });
+    paletteTheme = computed(() => this.themeService.theme().mode);
+    paletteThemeChange = (theme: 'light' | 'dark' | 'auto') => {
+        this.themeService.setColorMode(theme);
+    }
+    paletteFontSize = computed(() => +this.themeService.theme().fontSize.replace('px', ''));
+    setPaletteFontSize = (size: number) => {
+        this.themeService.setFontSize(size + 'px');
     }
 }

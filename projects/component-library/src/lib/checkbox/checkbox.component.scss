@@ -58,12 +58,12 @@
    
 
     &:hover:not(.disabled) .box {
-        background-color: var(--twc-color-border-dark);
+        background-color: var(--twc-color-mouse-highlight);
         border-color: var(--twc-color-border-dark);
     }
 
     &:active:not(.disabled) .box {
-        background-color: var(--twc-color-border-dark-disabled);
+        background-color: var(--twc-color-disabled);
         border-color: var(--twc-color-border-dark);
     }
 

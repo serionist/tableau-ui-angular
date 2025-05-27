@@ -72,3 +72,30 @@ a {
 .text-primary {
     color: var(--twc-color-primary);
 }
+
+
+/* Base styling for all scrollbars */
+::-webkit-scrollbar {
+    width: 0.5rem;
+    height: 0.5rem;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background-color: var(--twc-color-base-highlight);
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--twc-color-border);
+    border-radius: 0.2rem;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--twc-color-border-dark);
+  }
+  
+  /* Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--twc-color-border) var(--twc-color-base-highlight);
+  }
+  

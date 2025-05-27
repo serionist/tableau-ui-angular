@@ -42,11 +42,11 @@ export class MenuComponent {
      */
     menuContainerCss = model<Record<string, string>>({
         background: 'var(--twc-color-base)',
-        borderColor: 'var(--twc-color-border-dark)',
+        borderColor: 'var(--twc-color-border-light)',
         borderRadius: 'var(--twc-menu-border-radius)',
         borderStyle: 'solid',
         borderWidth: '1px',
-        boxShadow: 'var(--twc-menu-box-shadow)',
+        boxShadow: 'var(--twc-dialog-box-shadow)',
     });
     // The default CSS text to apply to the dropdown container. This is used to set the default values for the menuContainerCss property.
     private defaultContainerCss: Record<string, string> = {
@@ -157,37 +157,37 @@ export class MenuComponent {
             return this.openDialog();
         }
 
-        const parentRect = parentControl.nativeElement.getBoundingClientRect();
+       
         const ref = this.dialogService.openTemplateDialog(
             this.template()!,
             {
-                top: (_, actualHeight) => {
+                top: (_, actualHeight, parentRect) => {
                     switch (this.menuLocation()) {
                         case 'top': {
-                            const val = parentRect.top - actualHeight;
+                            const val = parentRect!.top - actualHeight;
                             if (
                                 val < 0 &&
-                                parentRect.bottom + actualHeight <
+                                parentRect!.bottom + actualHeight <
                                     window.innerHeight
                             ) {
-                                return `${parentRect.bottom}px`;
+                                return `${parentRect!.bottom}px`;
                             }
-                            return `${parentRect.top - actualHeight}px`;
+                            return `${parentRect!.top - actualHeight}px`;
                         }
                         case 'bottom': {
-                            const val = parentRect.bottom;
+                            const val = parentRect!.bottom;
                             if (
                                 val + actualHeight > window.innerHeight &&
-                                parentRect.top - actualHeight > 0
+                                parentRect!.top - actualHeight > 0
                             ) {
-                                return `${parentRect.top - actualHeight}px`;
+                                return `${parentRect!.top - actualHeight}px`;
                             }
                             return `${val}px`;
                         }
                         case 'left':
                         case 'right': {
                             // the top parameter is the top parameter of the parent control by default
-                            let top = parentRect.top;
+                            let top = parentRect!.top;
                             // if it is higher than the availale window
                             if (top + actualHeight > window.innerHeight) {
                                 top = window.innerHeight - actualHeight;
@@ -197,33 +197,33 @@ export class MenuComponent {
                         }
                     }
                 },
-                left: (actualWidth, _) => {
+                left: (actualWidth, _, parentRect) => {
                     switch (this.menuLocation()) {
                         case 'left': {
-                            const val = parentRect.left - actualWidth;
+                            const val = parentRect!.left - actualWidth;
                             if (
                                 val < 0 &&
-                                parentRect.right + actualWidth <
+                                parentRect!.right + actualWidth <
                                     window.innerWidth
                             ) {
-                                return `${parentRect.right}px`;
+                                return `${parentRect!.right}px`;
                             }
-                            return `${parentRect.left - actualWidth}px`;
+                            return `${parentRect!.left - actualWidth}px`;
                         }
                         case 'right': {
-                            const val = parentRect.right;
+                            const val = parentRect!.right;
                             if (
                                 val + actualWidth > window.innerWidth &&
-                                parentRect.left - actualWidth > 0
+                                parentRect!.left - actualWidth > 0
                             ) {
-                                return `${parentRect.left - actualWidth}px`;
+                                return `${parentRect!.left - actualWidth}px`;
                             }
                             return `${val}px`;
                         }
                         case 'top':
                         case 'bottom': {
                             // the left parameter is the left parameter of the parent control by default
-                            let left = parentRect.left;
+                            let left = parentRect!.left;
                             // if it is wider than the availale window
                             if (left + actualWidth > window.innerWidth) {
                                 left = window.innerWidth - actualWidth;
@@ -233,10 +233,12 @@ export class MenuComponent {
                         }
                     }
                 },
-                width:
-                    this.width() === 'parentWidth'
-                        ? `${parentRect.width}px`
-                        : this.width(),
+                
+                width: (parentRect) => {
+                    return this.width() === 'parentWidth'
+                    ? `${parentRect!.width}px`
+                    : this.width();
+                },
                 closeOnBackdropClick: this.closeOnBackdropClick(),
                 closeOnEscape: this.closeOnEscape(),
                 trapFocus: this.trapFocus(),

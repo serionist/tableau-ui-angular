@@ -53,15 +53,15 @@ export class DialogService {
             closeOnBackdropClick: args?.closeOnBackdropClick ?? true,
             closeOnEscape: args?.closeOnEscape ?? true,
             backdropCss: {
-                backgroundColor: 'rgb(245, 245, 245, 0.33)',
+                backgroundColor: 'var(--twc-modal-color-backdrop)',
             },
             containerCss: {
-                backgroundColor: 'rgb(255, 255, 255)',
-                borderColor: 'rgb(212, 212, 212)',
+                backgroundColor: 'var(--twc-color-base)',
+                borderColor: 'var(--twc-color-border-light)',
                 borderStyle: 'solid',
                 borderWidth: '1px',
                 borderRadius: '1px',
-                boxShadow: '0 2px 10px rgba(0, 0, 0, 0.35)',
+                boxShadow: '0 2px 10px var(--twc-modal-color-box-shadow)',
                 cursor: 'default',
                 display: 'flex',
                 flexDirection: 'column',
@@ -243,11 +243,12 @@ export class DialogService {
             getArgs: (originalArgs: IDialogPositionAndSizeArgs) => void
         ) => {
             getArgs(args);
-            DialogService.calculateAndSetPosition(dialogElement, args);
+            DialogService.calculateAndSetPosition(dialogElement, args, insertAfterElement);
         };
         const resizeSubscription = this.manageDialogPosition(
             dialogElement,
-            args
+            args,
+            insertAfterElement
         );
 
         // Handle dialog close
@@ -395,41 +396,52 @@ export class DialogService {
 
     private manageDialogPosition(
         dialogElement: HTMLElement,
-        args: IDialogPositionAndSizeArgs
+        args: IDialogPositionAndSizeArgs,
+        insertAfterElement?: HTMLElement
     ): Subscription | null {
         // Temporarily position the dialog offscreen to get its dimensions
         dialogElement.style.top = '-9999px';
         dialogElement.style.left = '-9999px';
 
         setTimeout(() => {
-            DialogService.calculateAndSetPosition(dialogElement, args);
+            DialogService.calculateAndSetPosition(dialogElement, args, insertAfterElement);
         }, 10);
 
         let resizeSubscription: Subscription | null = null;
 
         // Handle window resize event
         resizeSubscription = fromEvent(window, 'resize').subscribe(() => {
-            DialogService.calculateAndSetPosition(dialogElement, args);
+            DialogService.calculateAndSetPosition(dialogElement, args, insertAfterElement);
         });
 
         // Monitor changes to the size of the dialog
         const resizeObserver = new ResizeObserver(() => {
-            DialogService.calculateAndSetPosition(dialogElement, args);
+            DialogService.calculateAndSetPosition(dialogElement, args, insertAfterElement);
         });
 
         // Start observing the dialog element
         resizeObserver.observe(dialogElement);
 
+        // Monitor changes to the size of the insertAfterElement
+        const insertAfterResizeObserver = new ResizeObserver(() => {
+            DialogService.calculateAndSetPosition(dialogElement, args, insertAfterElement);
+        });
+        // Start observing the insertAfterElement if it exists
+        if (insertAfterElement) {
+            insertAfterResizeObserver.observe(insertAfterElement);
+        }
         // Return a subscription-like object that also disconnects the observer
         return new Subscription(() => {
             resizeObserver.disconnect();
             resizeSubscription?.unsubscribe();
+            insertAfterResizeObserver.disconnect();
         });
     }
 
     private static calculateAndSetPosition(
         dialogElement: HTMLElement,
-        args: IDialogPositionAndSizeArgs
+        args: IDialogPositionAndSizeArgs,
+        insertAfterElement?: HTMLElement
     ) {
         if (args.maxWidth) {
             dialogElement.style.maxWidth = args.maxWidth;
@@ -439,20 +451,47 @@ export class DialogService {
         }
         dialogElement.style.overflowX = 'hidden';
         dialogElement.style.overflowY = 'hidden';
-        dialogElement.style.height = args.height ?? 'fit-content';
-        dialogElement.style.width = args.width ?? 'fit-content';
 
+        const insertAfterElementRect = insertAfterElement?.getBoundingClientRect();
+        let widthCss: string;
+        let heightCss: string;
+        if (args.width === undefined) {
+            widthCss = 'fit-content';
+        } else if (typeof args.width === 'function') {
+            if (!insertAfterElementRect) {
+                throw new Error(
+                    'When using a function for width, insertAfterElement must be provided.'
+                );
+            }
+            widthCss = args.width(insertAfterElementRect);
+        } else {
+            widthCss = args.width;
+        }
+        if (args.height === undefined) {
+            heightCss = 'fit-content';
+        } else if (typeof args.height === 'function') {
+            if (!insertAfterElementRect) {
+                throw new Error(
+                    'When using a function for height, insertAfterElement must be provided.'
+                );
+            }
+            heightCss = args.height(insertAfterElementRect);
+        } else {
+            heightCss = args.height;
+        }
+        dialogElement.style.height = heightCss;
+        dialogElement.style.width = widthCss;
         const actualWidth = dialogElement.offsetWidth;
         const actualHeight = dialogElement.offsetHeight;
 
         if (typeof args.top === 'function') {
-            dialogElement.style.top = args.top(actualWidth, actualHeight);
+            dialogElement.style.top = args.top(actualWidth, actualHeight, insertAfterElementRect);
         } else if (typeof args.top === 'string') {
             dialogElement.style.top = args.top;
         }
 
         if (typeof args.left === 'function') {
-            dialogElement.style.left = args.left(actualWidth, actualHeight);
+            dialogElement.style.left = args.left(actualWidth, actualHeight, insertAfterElementRect);
         } else if (typeof args.left === 'string') {
             dialogElement.style.left = args.left;
         }

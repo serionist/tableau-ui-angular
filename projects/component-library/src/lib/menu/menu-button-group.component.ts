@@ -64,7 +64,7 @@ import { generateRandomString } from '../utils';
                 border-radius: var(--twc-menu-border-radius);
                 border-style: solid;
                 border-width: 1px;
-                box-shadow: var(--twc-menu-box-shadow);
+                box-shadow: var(--twc-dialog-box-shadow);
                 outline: none;
 
                 color: var(--twc-color-text);

@@ -80,7 +80,7 @@
     }
     /* stylelint-enable declaration-property-unit-disallowed-list */
     &:hover:not(.disabled) .box {
-        background-color: var(--twc-color-border-dark);
+        background-color: var(--twc-color-mouse-highlight);
         border-color: var(--twc-color-border-dark);
     }
 

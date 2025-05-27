@@ -1,9 +1,9 @@
 <div class="main-content">
     <tab-nav-bar #navBar>
         @if (navBar.expanded()) {
-            <tab-nav-bar-footer>
-                <div class="version">v{{ version }}</div>
-            </tab-nav-bar-footer>
+        <tab-nav-bar-footer>
+            <div class="version">v{{ version }}</div>
+        </tab-nav-bar-footer>
         }
         <tab-nav-bar-header>
             <img class="logo" src="tableau_ui_logo.svg" alt="Tableau UI Logo" />
@@ -159,12 +159,12 @@
         </tab-nav-bar-button>
 
         <tab-nav-bar-button
-        text="Arrow Scroller"
-        link="/scroller"
-        [isActive]="(page$ | async) === 'scroller'"
-    >
-        <tab-icon value="unfold_more_double"></tab-icon>
-    </tab-nav-bar-button>
+            text="Arrow Scroller"
+            link="/scroller"
+            [isActive]="(page$ | async) === 'scroller'"
+        >
+            <tab-icon value="unfold_more_double"></tab-icon>
+        </tab-nav-bar-button>
 
         <tab-nav-bar-button
             text="Clipboard"
@@ -183,5 +183,55 @@
             <tab-icon value="home"></tab-icon>
         </tab-nav-bar-button>
     </tab-nav-bar>
-    <div><router-outlet></router-outlet></div>
+    <div>
+        <button
+            class="palette-button"
+            color="plain"
+            layout="icon"
+            [menu]="paletteMenu"
+            (click)="paletteMenu.open()"
+        >
+            <tab-icon value="palette"></tab-icon>
+        </button>
+        <tab-menu #paletteMenu [menuContainerCss]="paletteMenuContainerCss()">
+            <div class="palette-menu">
+                <div>
+                    <tab-label>Color Palette</tab-label>
+                    <tab-button-toggle
+                        [selectedValue]="paletteTheme()"
+                        (selectedValueChange)="paletteThemeChange($event)"
+                    >
+                        <tab-option
+                            icon="light_mode"
+                            text="Light Mode"
+                            value="light"
+                        ></tab-option>
+                        <tab-option
+                            icon="dark_mode"
+                            text="Dark Mode"
+                            value="dark"
+                        ></tab-option>
+                        <tab-option
+                            icon="night_sight_auto"
+                            text="Inherit from OS"
+                            value="auto"
+                        ></tab-option>
+                    </tab-button-toggle>
+                </div>
+
+                <tab-form-field>
+                    <tab-label>Default Font Size</tab-label>
+                    <input
+                        type="number"
+                        [value]="paletteFontSize()"
+                        (input)="setPaletteFontSize($any($event.target).value)"
+                        [min]="10"
+                        [max]="24"
+                    />
+                    <tab-suffix>px</tab-suffix>
+                </tab-form-field>
+            </div>
+        </tab-menu>
+        <router-outlet></router-outlet>
+    </div>
 </div>

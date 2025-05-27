@@ -22,12 +22,13 @@ export interface IDialogArgs extends IModalArgs, IDialogPositionAndSizeArgs{
   }
   
   export interface IDialogSizeArgs {
-    width?: string;
-    height?: string;
+    width?: string | ((insertAfterElementRect?: DOMRect) => string);
+    height?: string | ((insertAfterElementRect?: DOMRect) => string);
     maxWidth?: string;
     maxHeight?: string;
   }
   export interface IDialogPositionAndSizeArgs extends IDialogSizeArgs {
-    top?: string | ((actualWidth: number, actualHeight: number) => string);
-    left?: string  | ((actualWidth: number, actualHeight: number) => string);
+    top?: string | ((actualWidth: number, actualHeight: number, insertAfterElementRect?: DOMRect) => string);
+    left?: string  | ((actualWidth: number, actualHeight: number, insertAfterElementRect?: DOMRect) => string);
+  
   }

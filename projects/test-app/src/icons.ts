@@ -38,6 +38,10 @@ export class Icons extends UsedIcons {
         "format_align_right",
         "format_align_center",
         "format_align_justify",
+        "palette",
+        "light_mode",
+        "dark_mode",
+        "night_sight_auto"
     ];
 
 }

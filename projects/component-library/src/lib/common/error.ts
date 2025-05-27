@@ -7,6 +7,7 @@ import { ChangeDetectionStrategy, Component, ElementRef, inject } from '@angular
         .tab-error {
             font-size: 0.9em;
             color: var(--twc-color-error);
+            font-weight: bold;
         }
     `,
     changeDetection: ChangeDetectionStrategy.OnPush,

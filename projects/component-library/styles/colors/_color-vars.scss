@@ -35,9 +35,10 @@ $theme-vars: (
   tab-color-active-underline,
   tab-color-inactive-underline,
 
-  dialog-color-header,
-  menu-box-shadow,
-  menu-highlight-background-color
+  modal-color-header,
+  modal-color-box-shadow,
+  modal-color-backdrop,
+  dialog-box-shadow
 );
 
 @mixin define-theme($theme-values) {
