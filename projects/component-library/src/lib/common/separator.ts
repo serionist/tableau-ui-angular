@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, Component, input } from "@angular/core";
     selector: 'tab-separator',
     styles: `
     :host {
-        background-color: rgba(51, 51, 51, 0.2);
+        background-color: var(--twc-color-border-light);
     }
 `,
     template: ``,
