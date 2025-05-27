@@ -33,7 +33,11 @@ export class Icons extends UsedIcons {
         "more_vert",
         "calendar_clock",
         "top_panel_open",
-        "unfold_more_double"
+        "unfold_more_double",
+        "format_align_left",
+        "format_align_right",
+        "format_align_center",
+        "format_align_justify",
     ];
 
 }

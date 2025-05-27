@@ -89,31 +89,31 @@
             color: var(--twc-color-on-primary);
 
             &:hover {
-                background-color: var(--twc-color-primary-highlight);
+                background-color: var(--twc-color-primary-dark);
             }
         }
 
         &[disabled]:not([disabled="false"]) {
-            background-color: var(--twc-menu-border-color) !important;
-            color: var(--twc-color-text-gray) !important;
+            background-color: var(--twc-color-border-dark-disabled) !important;
+            color: var(--twc-color-text-light) !important;
         }
     }
 
     &.secondary {
         &:not([disabled], [disabled="false"]) {
             background-color: transparent;
-            border-color: var(--twc-color-border);
-            color: var(--twc-color-border-dark);
+            border-color: var(--twc-color-border-dark);
+            color: var(--twc-color-text);
 
             &:hover {
-                background-color: var(--twc-color-border-dark-disabled);
+                background-color: var(--twc-color-highlight);
             }
         }
 
         &[disabled]:not([disabled="false"]) {
             background-color: transparent !important;
-            border-color: var(--twc-menu-border-color) !important;
-            color: var(--twc-menu-border-color) !important;
+            border-color: var(--twc-color-border-light) !important;
+            color: var(--twc-color-disabled) !important;
         }
     }
 
@@ -128,24 +128,24 @@
         }
 
         &[disabled]:not([disabled="false"]) {
-            background-color: var(--twc-menu-border-color) !important;
-            color: var(--twc-color-text-gray) !important;
+            background-color: var(--twc-color-border-dark-disabled) !important;
+            color: var(--twc-color-text-light) !important;
         }
     }
 
     &.plain {
         &:not([disabled], [disabled="false"]) {
             background-color: transparent;
-            color: var(--twc-color-border-dark);
+            color: var(--twc-color-text);
 
             &:hover {
-                background-color: var(--twc-color-border-dark-disabled);
+                background-color: var(--twc-color-highlight);
             }
         }
 
         &[disabled]:not([disabled="false"]) {
             background-color: transparent !important;
-            color: var(--twc-menu-border-color) !important;
+            color: var(--twc-color-disabled) !important;
         }
     }
 

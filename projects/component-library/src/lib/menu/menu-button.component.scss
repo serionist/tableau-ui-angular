@@ -60,7 +60,7 @@
     }
 
     &[disabled]:not([disabled="false"]) {
-        color: var(--twc-menu-border-color) !important;
+        color: var(--twc-color-border-dark) !important;
         cursor: default;
         pointer-events: none;
     }

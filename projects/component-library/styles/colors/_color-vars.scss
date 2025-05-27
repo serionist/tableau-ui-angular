@@ -7,9 +7,12 @@ $theme-vars: (
   color-text-light,
   color-link,
 
+  color-primary-r,
+  color-primary-g,
+  color-primary-b,
   color-primary,
   color-primary-light,
-  color-primary-highlight,
+  color-primary-dark,
   color-on-primary,
 
   color-error,
@@ -33,7 +36,6 @@ $theme-vars: (
   tab-color-inactive-underline,
 
   dialog-color-header,
-  menu-border-color,
   menu-box-shadow,
   menu-highlight-background-color
 );

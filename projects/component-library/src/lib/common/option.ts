@@ -25,19 +25,19 @@ import { IconComponent } from '../icon/icon.component';
     standalone: false
 })
 export class OptionComponent {
-    value = input.required<any>();
-    disabled = input<boolean>(false);
+    readonly value = input.required<any>();
+    readonly disabled = input<boolean>(false);
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    text: InputSignal<string | TemplateRef<any> | undefined> = input<string | TemplateRef<any>>();
+    readonly text: InputSignal<string | TemplateRef<any> | undefined> = input<string | TemplateRef<any>>();
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    hint: InputSignal<string | TemplateRef<any> | undefined> = input<string | TemplateRef<any>>();
+    readonly hint: InputSignal<string | TemplateRef<any> | undefined> = input<string | TemplateRef<any>>();
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    icon: InputSignal<string | TemplateRef<any> | undefined> = input<string | TemplateRef<any>>();
-    template = viewChild.required<TemplateRef<IOptionGridContext>>('templateRef');
-    lineTemplate = viewChild.required<TemplateRef<IOptionLineContext>>('lineTemplateRef');
+    readonly icon: InputSignal<string | TemplateRef<any> | undefined> = input<string | TemplateRef<any>>();
+    readonly template = viewChild.required<TemplateRef<IOptionGridContext>>('templateRef');
+    readonly lineTemplate = viewChild.required<TemplateRef<IOptionLineContext>>('lineTemplateRef');
   
 
-    iconType = computed(() => {
+    protected iconType = computed(() => {
         if (!this.icon()) {
             return 'none';
         } else if (typeof this.icon() === 'string') {
@@ -46,16 +46,16 @@ export class OptionComponent {
             return 'template';
         }
     });
-    iconString = computed(() => {
+    protected iconString = computed(() => {
         return this.iconType() === 'string' ? (this.icon() as string) : '';
     });
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    iconTemplate: Signal<TemplateRef<any> | null> = computed(() => {
+    protected iconTemplate: Signal<TemplateRef<any> | null> = computed(() => {
         return this.iconType() === 'template'
             ? (this.icon() as TemplateRef<any>)
             : null;
     });
-    textType = computed(() => {
+    protected textType = computed(() => {
         if (!this.text()) {
             return 'none';
         } else if (typeof this.text() === 'string') {
@@ -64,16 +64,16 @@ export class OptionComponent {
             return 'template';
         }
     });
-    textString = computed(() => {
+    protected textString = computed(() => {
         return this.textType() === 'string' ? (this.text() as string) : '';
     });
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    textTemplate: Signal<TemplateRef<any> | null> = computed(() => {
+    protected textTemplate: Signal<TemplateRef<any> | null> = computed(() => {
         return this.textType() === 'template'
             ? (this.text() as TemplateRef<any>)
             : null;
     });
-    hintType = computed(() => {
+    protected hintType = computed(() => {
         if (!this.hint()) {
             return 'none';
         } else if (typeof this.hint() === 'string') {
@@ -82,11 +82,11 @@ export class OptionComponent {
             return 'template';
         }
     });
-    hintString = computed(() => {
+    protected hintString = computed(() => {
         return this.hintType() === 'string' ? (this.hint() as string) : '';
     });
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    hintTemplate: Signal<TemplateRef<any> | null> = computed(() => {
+    protected hintTemplate: Signal<TemplateRef<any> | null> = computed(() => {
         return this.hintType() === 'template'
             ? (this.hint() as TemplateRef<any>)
             : null;

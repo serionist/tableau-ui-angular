@@ -27,7 +27,7 @@
             </ul>
         </div>
         <div class="section">
-            <h3>Examples</h3>
+            <h3>Button examples</h3>
             <div class="section">
                 <h4>Layout: primary</h4>
                 <div class="spacer" style="width: fit-content">
@@ -150,52 +150,7 @@
                         >Error as link disabled</a
                     >
                 </div>
-                <h4>Layout: left-aligned</h4>
-                <div class="spacer" style="width: fit-content">
-                    <!-- <button layout="left-aligned" color="plain" [loading]="buttonsLoading.plain"
-                    (click)="buttonClick('plain')">Plain</button>
-                    <button layout="left-aligned" color="plain" [disabled]="true"
-    
-                    (click)="buttonClick('plain')">Plain disabled</button>
-                    <button layout="left-aligned" color="secondary" [loading]="buttonsLoading.secondary"
-                    (click)="buttonClick('secondary')">Secondary</button>
-                    <button layout="left-aligned" color="secondary" [disabled]="true"
-                    (click)="buttonClick('secondary')">Secondary disabled</button>
-                   
-    
-                    <button layout="left-aligned" color="primary" [loading]="buttonsLoading.primary"
-                    (click)="buttonClick('primary')">Primary</button>
-                    <button layout="left-aligned" color="primary" [disabled]="true"
-                    (click)="buttonClick('primary')">Primary disabled</button>
-    
-                    <button layout="left-aligned" color="error" [loading]="buttonsLoading.error"
-                    (click)="buttonClick('error')">Error</button>
-                    <button layout="left-aligned" color="error" [disabled]="true"
-                    (click)="buttonClick('error')">Error disabled</button>
-    
-    
-                    <a button layout="left-aligned" color="plain" [loading]="buttonsLoading.plain"
-                    (click)="buttonClick('plain')">Plain as link</a>
-                    <a button layout="left-aligned" color="plain" [disabled]="true"
-                    (click)="buttonClick('plain')">Plain as link disabled</a>
-    
-    
-                    <a button layout="left-aligned" color="secondary" [loading]="buttonsLoading.secondary"
-                    (click)="buttonClick('secondary')">Secondary as link</a>
-                    <a button layout="left-aligned" color="secondary" [disabled]="true"
-                    (click)="buttonClick('secondary')">Secondary as link disabled</a>
-                   
-    
-                    <a button layout="left-aligned" color="primary" [loading]="buttonsLoading.primary"
-                    (click)="buttonClick('primary')">Primary as link</a>
-                    <a button layout="left-aligned" color="primary" [disabled]="true"
-                    (click)="buttonClick('primary')">Primary as link disabled</a>
-    
-                    <a button layout="left-aligned" color="error" [loading]="buttonsLoading.error"
-                    (click)="buttonClick('error')">Error as link</a>
-                    <a button layout="left-aligned" color="error" [disabled]="true"
-                    (click)="buttonClick('error')">Error as link disabled</a> -->
-                </div>
+
                 <h4>Layout: icon</h4>
                 <div class="spacer" style="width: fit-content">
                     <div class="icon-container">
@@ -311,10 +266,9 @@
                         ></a>
                         <span>Plain as link disabled</span>
                     </div>
-                    <div  class="icon-container">
+                    <div class="icon-container">
                         <a
                             button
-                            
                             layout="icon"
                             color="secondary"
                             [loading]="buttonsLoading.secondary"
@@ -348,7 +302,7 @@
                         ></a>
                         <span>Primary as link</span>
                     </div>
-                    <div  class="icon-container">
+                    <div class="icon-container">
                         <a
                             button
                             layout="icon"
@@ -386,6 +340,79 @@
                         <span>Error as link disabled</span>
                     </div>
                 </div>
+            </div>
+        </div>
+        <div class="section">
+            <h3>Button Toggle examples</h3>
+            <div class="section">
+                <p>Icons only</p>
+                <tab-button-toggle selectedValue="left" [(selectedValue)]="buttonToggleValue">
+                    <tab-option
+                        value="left"
+                        icon="format_align_left"
+                        [disabled]="true"
+                    ></tab-option>
+                    <tab-option
+                        value="center"
+                        icon="format_align_center"
+                    ></tab-option>
+                    <tab-option
+                        value="right"
+                        icon="format_align_right"
+                    ></tab-option>
+                    <tab-option
+                        value="justify"
+                        icon="format_align_justify"
+                    ></tab-option>
+                </tab-button-toggle>
+                <p>Icon + text</p>
+                <tab-button-toggle selectedValue="left" [(selectedValue)]="buttonToggleValue">
+                    <tab-option
+                        value="left"
+                        icon="format_align_left"
+                        text="Left"
+                        [disabled]="true"
+                    ></tab-option>
+                    <tab-option
+                        value="center"
+                        icon="format_align_center"
+                        text="Center"
+                    ></tab-option>
+                    <tab-option
+                        value="right"
+                        icon="format_align_right"
+                        text="Right"
+                    ></tab-option>
+                    <tab-option
+                        value="justify"
+                        icon="format_align_justify"
+                        text="Justify"
+                    ></tab-option>
+                </tab-button-toggle>
+                <p>Icon + text disabled</p>
+                <tab-button-toggle selectedValue="left" [disabled]="true" >
+                    <tab-option
+                        value="left"
+                        icon="format_align_left"
+                        text="Left"
+                        [disabled]="true"
+                    ></tab-option>
+                    <tab-option
+                        value="center"
+                        icon="format_align_center"
+                        text="Center"
+                    ></tab-option>
+                    <tab-option
+                        value="right"
+                        icon="format_align_right"
+                        text="Right"
+                    ></tab-option>
+                    <tab-option
+                        value="justify"
+                        icon="format_align_justify"
+                        text="Justify"
+                    ></tab-option>
+                </tab-button-toggle>
             </div>
         </div>
     </div>

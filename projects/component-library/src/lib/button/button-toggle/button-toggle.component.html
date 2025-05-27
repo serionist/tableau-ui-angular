@@ -1,0 +1,11 @@
+@for (option of options(); track option.value()) {
+<div class="option" [class.disabled]="disabled() || option.disabled()"
+    [tooltip]="option.text() ? option.text() : undefined"
+    (click)="optionClicked(option)"
+    [class.selected]="selectedValue() === option.value()">
+    <ng-container
+        [ngTemplateOutlet]="option.template()"
+        [ngTemplateOutletContext]="optionRenderContext()"
+    ></ng-container>
+</div>
+}

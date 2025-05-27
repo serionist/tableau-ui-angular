@@ -7,7 +7,7 @@
 >
     <div class="tab-option grid" [class.disabled]="disabled() || renderAsDisabled">
         @if (renderIcon && iconType() !== 'none') {
-        <div class="icon">
+        <div class="icon" [style.marginRight]="renderText ? '0.25rem' : '0'">
             @if (iconType() === 'string') {
             <tab-icon [value]="iconString()"></tab-icon>
             } @else if (iconType() === 'template') {
@@ -39,7 +39,7 @@
 >
     <span class="tab-option line" [class.disabled]="disabled() || renderAsDisabled">
         @if (renderIcon && iconType() !== 'none') {
-        <span class="icon">
+        <span class="icon"  [style.marginRight]="renderText ? '0.25rem' : '0'">
             @if (iconType() === 'string') {
             <tab-icon [value]="iconString()"></tab-icon>
             } @else if (iconType() === 'template') {

@@ -9,9 +9,12 @@
         color-text-light: rgb(102 102 102),
         color-link: rgb(26 105 158),
     
-        color-primary: rgb(5, 98, 138),
+        color-primary-r: 5,
+        color-primary-g: 98,
+        color-primary-b: 138,
+        color-primary: rgb(var(--twc-color-primary-r), var(--twc-color-primary-g), var(--twc-color-primary-b)),
         color-primary-light: rgb(207 233 254),
-        color-primary-highlight: rgb(2 50 72),
+        color-primary-dark: rgb(2 50 72),
         color-on-primary: rgb(234 245 254),
     
         color-error: rgb(186 5 23),
@@ -35,16 +38,10 @@
         tab-color-inactive-underline: rgb(230 230 230),
     
         dialog-color-header: rgb(243 243 243),
-        menu-border-color: rgb(201 201 201),
         menu-box-shadow: 0px 2px 16px 0px rgb(46 46 46 / 15%),
         menu-highlight-background-color: rgb(229 229 229),
-        menu-highlight-outline: 1px solid var(--twc-color-text-gray),
-        menu-highlight-outline-offset: -1px,
-        menu-selected-background-color: rgb(var(--twc-color-primary-rgb), 0.1),
-        menu-selected-outline: 1px solid rgb(var(--twc-color-primary-rgb), 0.5),
-        menu-selected-outline-offset: -1px,
+       
     
-        input-border: 1px solid var(--twc-color-border)
       ));
     
   }
