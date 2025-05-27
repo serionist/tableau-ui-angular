@@ -40,7 +40,9 @@ export class ThemeService {
             });
 
         this.theme$.subscribe((theme) => {
-            console.log('Theme changed, saving:', theme);
+            if (!theme) {
+                return;
+            }
             localStorage.setItem(this.themeKey, JSON.stringify(theme));
             document.documentElement.style.setProperty(
                 '--twc-font-size',
