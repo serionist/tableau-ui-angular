@@ -53,13 +53,15 @@ import {
     TableauUiFormModule,
     TableauUiExpansionPanelModule,
     TableauUiArrowScrollModule,
-    ThemeService
+    ThemeService,
+    TableauUiTableModule
 } from 'component-library';
 import { MenuPageComponent } from './pages/menu-page/menu-page.component';
 import { DatePickerPageComponent } from './pages/date-picker-page/date-picker-page.component';
 import { TreeNodeContainerComponent } from './pages/tree-page/tree-node-container.component';
 import { ExpansionPageComponent } from './pages/expansion-page/expansion-page.component';
 import { ScrollerPageComponent } from './pages/scroller-page/scroller-page.component';
+import { TablePageComponent } from './pages/table-page/table-page.component';
 
 @NgModule({
     declarations: [
@@ -88,7 +90,8 @@ import { ScrollerPageComponent } from './pages/scroller-page/scroller-page.compo
         DatePickerPageComponent,
        
         ExpansionPageComponent,
-        ScrollerPageComponent
+        ScrollerPageComponent,
+        TablePageComponent
     ],
     imports: [
         BrowserModule,
@@ -117,7 +120,8 @@ import { ScrollerPageComponent } from './pages/scroller-page/scroller-page.compo
         TableauUiDatePickerModule,
         TableauUiFormModule,
         TableauUiExpansionPanelModule,
-        TableauUiArrowScrollModule
+        TableauUiArrowScrollModule,
+        TableauUiTableModule
         // TableauUiAllModule
     ],
     providers: [

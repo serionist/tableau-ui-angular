@@ -41,7 +41,8 @@ export class Icons extends UsedIcons {
         "palette",
         "light_mode",
         "dark_mode",
-        "night_sight_auto"
+        "night_sight_auto",
+        "table"
     ];
 
 }

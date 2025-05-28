@@ -20,6 +20,7 @@ import { MenuPageComponent } from './pages/menu-page/menu-page.component';
 import { DatePickerPageComponent } from './pages/date-picker-page/date-picker-page.component';
 import { ExpansionPageComponent } from './pages/expansion-page/expansion-page.component';
 import { ScrollerPageComponent } from './pages/scroller-page/scroller-page.component';
+import { TablePageComponent } from './pages/table-page/table-page.component';
 export const routes: Routes = [
     {
         'path': '',
@@ -44,6 +45,15 @@ export const routes: Routes = [
         title: 'Checkboxes',
         data: {
             page: 'checkbox'
+        }
+
+    },
+    {
+        path: 'table',
+        component: TablePageComponent,
+        title: 'Tables',
+        data: {
+            page: 'table'
         }
 
     },

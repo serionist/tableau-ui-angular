@@ -98,6 +98,13 @@
         >
             <tab-icon value="format_list_bulleted"></tab-icon>
         </tab-nav-bar-button>
+        <tab-nav-bar-button
+        text="Table"
+        link="/table"
+        [isActive]="(page$ | async) === 'table'"
+    >
+        <tab-icon value="table"></tab-icon>
+    </tab-nav-bar-button>
 
         <tab-nav-bar-button
             text="Dialogs"

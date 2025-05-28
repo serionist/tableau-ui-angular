@@ -1,0 +1,96 @@
+<table>
+    <thead>
+        <tr>
+        @for (def of displayedColumnDefs(); let index = $index; let count = $count; let
+        first = $first; let last = $last; let even = $even; let odd = $odd;
+        track def.id) {
+        <th
+            [style.minWidth]="def.col.minWidth()"
+            [style.maxWidth]="def.col.maxWidth()"
+            [style.width]="def.col.width()"
+            [class.resizeable]="def.col.resizable()"
+            [class.sortable]="def.col.sortable()"
+            [class.pinned-left]="def.pinnedLeft"
+            [class.pinned-right]="def.pinnedRight"
+            [ngClass]="
+                def.col
+                    | headerContext : index : first : last : even : odd : count
+                    | headerClass
+            "
+        >
+            @if (def.col.header()) {
+            <ng-container
+                [ngTemplateOutlet]="def.col.header()!.templateRef"
+                [ngTemplateOutletContext]="
+                    def.col
+                        | headerContext
+                            : index
+                            : first
+                            : last
+                            : even
+                            : odd
+                            : count
+                "
+            ></ng-container>
+            }
+        </th>
+        }
+    </tr>
+    </thead>
+    <tbody>
+        @for (row of data(); let index = $index; let count = $count; let first =
+        $first; let last = $last; let even = $even; let odd = $odd; track
+        idField() ? row[idField()!] : index) {
+        <tr>
+            @for (def of displayedColumnDefs(); let colindex = $index; let colcount =
+            $count; let colfirst = $first; let collast = $last; let coleven =
+            $even; let colodd = $odd; track def.id) {
+            <td
+                [class.pinned-left]="def.pinnedLeft"
+                [class.pinned-right]="def.pinnedRight"
+                [ngClass]="
+                    def.col
+                        | cellContext
+                            : def.col
+                            : index
+                            : first
+                            : last
+                            : even
+                            : odd
+                            : count
+                            : colindex
+                            : colfirst
+                            : collast
+                            : coleven
+                            : colodd
+                            : colcount
+                        | cellClass
+                "
+            >
+                <ng-container
+                    [ngTemplateOutlet]="def.col.cell().templateRef"
+                    [ngTemplateOutletContext]="
+                        row
+                            | cellContext
+                                : def.col
+                                : index
+                                : first
+                                : last
+                                : even
+                                : odd
+                                : count
+                                : colindex
+                                : colfirst
+                                : collast
+                                : coleven
+                                : colodd
+                                : colcount
+                    "
+                ></ng-container>
+            </td>
+
+            }
+        </tr>
+        }
+    </tbody>
+</table>

@@ -20,6 +20,7 @@ import { TableauUiDatePickerModule } from './date-picker/tableau-ui-date-picker.
 import { TableauUiFormModule } from './form/tableau-ui-form.module';
 import { TableauUiExpansionPanelModule } from './expansion-panel/tableau-ui-expansion-panel.module';
 import { TableauUiArrowScrollModule } from './arrow-scroll/tableau-ui-arrow-scroll.module';
+import { TableauUiTableModule } from './table/tableau-ui-table.module';
 
 @NgModule({
     imports: [
@@ -43,7 +44,8 @@ import { TableauUiArrowScrollModule } from './arrow-scroll/tableau-ui-arrow-scro
         TableauUiDatePickerModule,
         TableauUiFormModule,
         TableauUiExpansionPanelModule,
-        TableauUiArrowScrollModule
+        TableauUiArrowScrollModule,
+        TableauUiTableModule
     ],
     declarations: [],
     exports: [ TableauUiButtonModule,
@@ -66,7 +68,8 @@ import { TableauUiArrowScrollModule } from './arrow-scroll/tableau-ui-arrow-scro
         TableauUiDatePickerModule,
         TableauUiFormModule,
         TableauUiExpansionPanelModule,
-        TableauUiArrowScrollModule
+        TableauUiArrowScrollModule,
+        TableauUiTableModule
     ],
 })
 export class TableauUiAllModule {}

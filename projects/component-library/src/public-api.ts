@@ -25,6 +25,7 @@ export * from './lib/form/public-api';
 export * from './lib/expansion-panel/public-api';
 export * from './lib/arrow-scroll/public-api';
 export * from './lib/theme/public-api';
+export * from './lib/table/public-api';
 
 // Export all Modules
 export * from './lib/tableau-ui-module-all';
