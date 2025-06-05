@@ -1,13 +1,27 @@
 import {
+    AfterViewInit,
     ChangeDetectionStrategy,
     Component,
     computed,
     contentChild,
     contentChildren,
+    effect,
+    ElementRef,
+    inject,
     input,
     model,
+    OnDestroy,
+    resource,
+    ResourceLoader,
+    ResourceLoaderParams,
+    signal,
+    viewChild,
+    viewChildren,
 } from '@angular/core';
-import { ColumnDefDirective } from './column-def/column-def.directive';
+import { ColumnDefDirective } from './defs/column-def/column-def.directive';
+import { DataSort } from './sorting/data-sort';
+import { ColRenderedWidthDirective } from './column-widths/col-rendered-width.directive';
+
 
 @Component({
     selector: 'tab-table',
@@ -17,7 +31,11 @@ import { ColumnDefDirective } from './column-def/column-def.directive';
     changeDetection: ChangeDetectionStrategy.OnPush,
     host: {},
 })
-export class TableComponent {
+export class TableComponent implements AfterViewInit, OnDestroy {
+    private readonly RESIZER_WIDTH = 9;
+
+
+
     // replace with dynamic datasource later
     readonly data = input.required<Record<string, unknown>[]>();
 
@@ -35,6 +53,40 @@ export class TableComponent {
      * @default undefined
      */
     readonly displayedColumns = model<string[] | undefined>(undefined);
+
+    
+    /**
+     * The margin for all header cells
+     * @default '0.5rem'
+     */
+    readonly headerMargin = input<string>('0.5rem');
+
+    /**
+     * The margin for all data cells
+     * @default '0 0.5rem'
+     */
+    readonly dataMargin = input<string>('0 0.5rem');
+
+    /**
+     * The height of the table data row.
+     * This must be a valid CSS value.
+     * Fixed height is required for virtual scrolling to work properly.
+     * If the height is not fixed, the table will not be able to calculate the row heights and will not be able to scroll properly.
+     * @default '2.5rem'
+     */
+    readonly dataRowHeight = input<string>('2.5rem');
+    /**
+     * The sorting mode. When multi sort is enabled, holding SHIFT when clicking a column header will add it to the sort list
+     * @default single
+     */
+    readonly sortMode = input<'single' | 'multi'>('single');
+
+    /**
+     * The sort models. Initial sort mode can be provided here.
+     * This gets updated when the sort is changed by the user on the UI dynamically
+     * @default []
+     */
+    readonly sort = model<DataSort[]>([]);
 
     /**
      * The column ID to pin to the left side of the table.
@@ -109,4 +161,39 @@ export class TableComponent {
         }
         return ret;
     });
+
+    protected readonly columnWidthDirectives = viewChildren(ColRenderedWidthDirective);
+    private hostElement = inject<ElementRef<HTMLElement>>(ElementRef);
+    private resizeObserver: ResizeObserver | undefined;
+
+    ngAfterViewInit(): void {
+        const host = this.hostElement.nativeElement;
+        this.resizeObserver = new ResizeObserver(() => {
+           // const bodyScrollSize = host.clientHeight - thead.clientHeight;
+           // console.log('ResizeObserver triggered', bodyScrollSize);
+
+        });
+        this.resizeObserver.observe(host);
+    }
+
+    ngOnDestroy(): void {
+        if (this.resizeObserver) {
+            this.resizeObserver.disconnect();
+            this.resizeObserver = undefined;
+        }
+    }
+
+    onColumnHeaderClick(e: MouseEvent, def: ColumnDefDirective) {
+        if (!def.sortable()) {
+            return;
+        }
+        console.log('Column header clicked', def.id());
+        e.preventDefault();
+        e.stopPropagation();
+        (e.target as HTMLElement).blur();
+    }
+
+    
+
+
 }

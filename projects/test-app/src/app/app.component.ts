@@ -59,6 +59,9 @@ export class AppComponent {
     }
     paletteFontSize = computed(() => +this.themeService.theme().fontSize.replace('px', ''));
     setPaletteFontSize = (size: number) => {
+        if (size < 10 || size > 24) {
+            return;
+        }
         this.themeService.setFontSize(size + 'px');
     }
 }

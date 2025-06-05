@@ -22,6 +22,9 @@ export abstract class UsedIcons {
         'keyboard_arrow_right',
         'keyboard_arrow_down',
         'keyboard_arrow_left',
+        'swap_vert',
+        'arrow_downward',
+        'arrow_upward'
     ]
 
     public getAllIcons(): string[] {

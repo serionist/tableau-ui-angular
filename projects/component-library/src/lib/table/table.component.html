@@ -1,43 +1,186 @@
-<table>
-    <thead>
-        <tr>
+<div class="table" role="table">
+    <!-- Column Row -->
+    <div class="column-row" #headerRow>
         @for (def of displayedColumnDefs(); let index = $index; let count = $count; let
         first = $first; let last = $last; let even = $even; let odd = $odd;
         track def.id) {
-        <th
-            [style.minWidth]="def.col.minWidth()"
-            [style.maxWidth]="def.col.maxWidth()"
-            [style.width]="def.col.width()"
+
+        @let headerContext = def.col | headerContext : index : first : last : even : odd : count;
+        <div class="column-header" #header
+            role="columnheader"
+            [attr.data-column-id]="def.id"
+            [attr.data-column-index]="index"
+            [attr.data-column-count]="count"
+            [attr.data-column-first]="first"
+            [attr.data-column-last]="last"
+            [attr.data-column-even]="even"
+            [attr.data-column-odd]="odd"
+            [style.minWidth]="def.col.minWidth() | colWidth:'width'"
+            [style.maxWidth]="def.col.maxWidth() | colWidth:'width'"
+            [style.width]="def.col.width() | colWidth:'widthUnitsOnly'"
+            [style.flexGrow]="def.col.width() | colWidth:'flexGrowOnly'"
             [class.resizeable]="def.col.resizable()"
-            [class.sortable]="def.col.sortable()"
+            [class.sortable]="def.col.sortable()" 
             [class.pinned-left]="def.pinnedLeft"
             [class.pinned-right]="def.pinnedRight"
-            [ngClass]="
-                def.col
-                    | headerContext : index : first : last : even : odd : count
-                    | headerClass
-            "
-        >
-            @if (def.col.header()) {
-            <ng-container
-                [ngTemplateOutlet]="def.col.header()!.templateRef"
-                [ngTemplateOutletContext]="
-                    def.col
-                        | headerContext
-                            : index
-                            : first
-                            : last
-                            : even
-                            : odd
-                            : count
-                "
-            ></ng-container>
-            }
-        </th>
+            
+            [ngClass]="headerContext | headerClass" 
+            [colRenderedWidth]="def.id">
+            <div class="content" [style.padding]="headerMargin()" >
+                <ng-template #colText>
+                    <div class="text">
+                        @if (def.col.header()) {
+                        <ng-container [ngTemplateOutlet]="def.col.header()!.templateRef" [ngTemplateOutletContext]="
+                                headerContext
+                            "></ng-container>
+    
+                        }
+                    </div>
+                </ng-template>
+                @if (def.col.sortable()) {
+                <button class="sort-button" color="plain" layout="small-icon" (click)="onColumnHeaderClick($event, def.col)">
+                   <div class="content">
+                    <ng-container [ngTemplateOutlet]="colText"></ng-container>
+                    @switch ((sort() | sortInfoPipe:def.id)?.mode) {
+                    @case ('asc') {
+                    <tab-icon value="arrow_upward"></tab-icon>
+                    @if (sortMode() === 'multi' && (sort() | sortInfoPipe:def.id)?.order !== undefined) {
+                    <span class="sort-order">
+                        {{ (sort() | sortInfoPipe:def.id)?.order}}
+                    </span>
+                    }
+                    }
+                    @case ('desc') {
+                    <tab-icon value="arrow_downward"></tab-icon>
+                    @if (sortMode() === 'multi' && (sort() | sortInfoPipe:def.id)?.order !== undefined) {
+                    <span class="sort-order">
+                        {{ (sort() | sortInfoPipe:def.id)?.order}}
+                    </span>
+                    }
+                    }
+                    @default {
+                    <tab-icon class="no-sort" value="swap_vert"></tab-icon>
+                    }
+                    }
+                   </div>
+                </button>
+                } @else {
+                <ng-container [ngTemplateOutlet]="colText"></ng-container>
+                }
+            </div>
+            <div class="resizer" [resizerFor]="header">
+                <div class="line"></div>
+            </div>
+        </div>
+
+       
+    }
+    </div>
+
+    <div class="data-rows">
+        @for (row of data(); let index = $index; let count = $count; let first =
+        $first; let last = $last; let even = $even; let odd = $odd; track
+        idField() ? row[idField()!] : index) {
+            <div class="row" role="row"
+            [style.height]="dataRowHeight()">
+                @for (def of displayedColumnDefs(); let colindex = $index; let colcount =
+                $count; let colfirst = $first; let collast = $last; let coleven =
+                $even; let colodd = $odd; track def.id) {
+                @let cellContext = row
+                | cellContext
+                : def.col
+                : index
+                : first
+                : last
+                : even
+                : odd
+                : count
+                : colindex
+                : colfirst
+                : collast
+                : coleven
+                : colodd
+                : colcount;
+                <div class="cell"
+                    role="cell"
+                    #cell
+                    [attr.data-column-id]="def.id"
+                    [attr.data-column-index]="colindex"
+                    [attr.data-column-count]="colcount"
+                    [attr.data-column-first]="colfirst"
+                    [attr.data-column-last]="collast"
+                    [attr.data-column-even]="coleven"
+                    [attr.data-column-odd]="colodd"
+                    [class.pinned-left]="def.pinnedLeft" 
+                    [class.pinned-right]="def.pinnedRight" 
+                    [style.padding]="dataMargin()" 
+
+                    
+                    [style.width]="columnWidthDirectives() | cellWidth:def.id:cell | async"
+                    [ngClass]="cellContext | cellClass">
+                    <ng-container [ngTemplateOutlet]="def.col.cell().templateRef" [ngTemplateOutletContext]="
+                            cellContext
+                        "></ng-container>
+                </div>
+                }
+            </div>
         }
-    </tr>
+    </div>
+
+    
+</div>
+<!-- @if (leftResizer().show) {
+    <div class="resizer left" [style.top]="leftResizer().top" [style.left]="leftResizer().left"
+        [style.width]="leftResizer().width" [style.height]="leftResizer().height"
+        (mouseenter)="onResizerMouseEnter($event, 'left')" (mouseleave)="onResizerMouseLeave($event)"
+        [class.dragging]="leftResizer().dragging" (mousedown)="onResizerMouseDown($event, 'left')">
+        <div class="line"></div>
+    </div>
+    }
+    @if (rightResizer().show) {
+    <div class="resizer right" [style.top]="rightResizer().top" [style.left]="rightResizer().left"
+        [style.width]="rightResizer().width" [style.height]="rightResizer().height"
+        (mouseenter)="onResizerMouseEnter($event, 'right')" (mouseleave)="onResizerMouseLeave($event)"
+        [class.dragging]="rightResizer().dragging" (mousedown)="onResizerMouseDown($event, 'right')">
+        <div class="line"></div>
+    </div>
+} -->
+
+<!-- <table>
+    <colgroup>
+        @for (def of displayedColumnDefs(); let index = $index; let count = $count; let
+        first = $first; let last = $last; let even = $even; let odd = $odd;
+        track def.id) {
+        <col [style.width]="def.col.width()">
+        }
+    </colgroup>
+    <thead #thead>
+        <tr>
+            @for (def of displayedColumnDefs(); let index = $index; let count = $count; let
+            first = $first; let last = $last; let even = $even; let odd = $odd;
+            track def.id) {
+
+            @let headerContext = def.col
+            | headerContext : index : first : last : even : odd : count;
+
+            <th [style.width]="def.col.width()" [class.resizeable]="def.col.resizable()"
+                [class.sortable]="def.col.sortable()" [class.pinned-left]="def.pinnedLeft"
+                [class.pinned-right]="def.pinnedRight" [style.padding]="headerPadding()" [ngClass]="
+                headerContext
+                    | headerClass
+            " (mouseenter)="onColumnHeaderEnter($event, def.col)" (mouseleave)="onColumnHeaderLeave($event)">
+                @if (def.col.header()) {
+                <ng-container [ngTemplateOutlet]="def.col.header()!.templateRef" [ngTemplateOutletContext]="
+                    headerContext
+                "></ng-container>
+
+                }
+
+            </th>
+            }
+        </tr>
     </thead>
-    <tbody>
+    <tbody #tbody>
         @for (row of data(); let index = $index; let count = $count; let first =
         $first; let last = $last; let even = $even; let odd = $odd; track
         idField() ? row[idField()!] : index) {
@@ -45,52 +188,37 @@
             @for (def of displayedColumnDefs(); let colindex = $index; let colcount =
             $count; let colfirst = $first; let collast = $last; let coleven =
             $even; let colodd = $odd; track def.id) {
-            <td
-                [class.pinned-left]="def.pinnedLeft"
-                [class.pinned-right]="def.pinnedRight"
-                [ngClass]="
-                    def.col
-                        | cellContext
-                            : def.col
-                            : index
-                            : first
-                            : last
-                            : even
-                            : odd
-                            : count
-                            : colindex
-                            : colfirst
-                            : collast
-                            : coleven
-                            : colodd
-                            : colcount
-                        | cellClass
-                "
-            >
-                <ng-container
-                    [ngTemplateOutlet]="def.col.cell().templateRef"
-                    [ngTemplateOutletContext]="
-                        row
-                            | cellContext
-                                : def.col
-                                : index
-                                : first
-                                : last
-                                : even
-                                : odd
-                                : count
-                                : colindex
-                                : colfirst
-                                : collast
-                                : coleven
-                                : colodd
-                                : colcount
-                    "
-                ></ng-container>
+            @let cellContext = row
+            | cellContext
+            : def.col
+            : index
+            : first
+            : last
+            : even
+            : odd
+            : count
+            : colindex
+            : colfirst
+            : collast
+            : coleven
+            : colodd
+            : colcount;
+            <td [class.pinned-left]="def.pinnedLeft" [class.pinned-right]="def.pinnedRight"
+                [style.padding]="dataPadding()" [ngClass]="
+                    
+                        cellContext | cellClass
+                ">
+                <ng-container [ngTemplateOutlet]="def.col.cell().templateRef" [ngTemplateOutletContext]="
+                       cellContext
+                    "></ng-container>
             </td>
 
             }
         </tr>
         }
     </tbody>
+
+
 </table>
+
+} -->

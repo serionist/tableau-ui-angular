@@ -1,16 +1,23 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { TableComponent } from './table.component';
-import { HeaderDefDirective } from './header-def/header-def.directive';
-import { ColumnDefDirective } from './column-def/column-def.directive';
-import { CellDefDirective } from './cell-def/cell-def.directive';
-import { HeaderClassPipe } from './header-def/header-class.pipe';
-import { HeaderContextPipe } from './header-def/header-context.pipe';
-import { CellContextPipe } from './cell-def/cell-context.pipe';
-import { CellClassPipe } from './cell-def/cell-class.pipe';
+import { HeaderDefDirective } from './defs/header-def/header-def.directive';
+import { ColumnDefDirective } from './defs/column-def/column-def.directive';
+import { CellDefDirective } from './defs/cell-def/cell-def.directive';
+import { HeaderClassPipe } from './defs/header-def/header-class.pipe';
+import { HeaderContextPipe } from './defs/header-def/header-context.pipe';
+import { CellContextPipe } from './defs/cell-def/cell-context.pipe';
+import { CellClassPipe } from './defs/cell-def/cell-class.pipe';
+import { SortInfoPipe } from './sorting/sort-info-pipe';
+import { TableauUiIconModule } from '../icon/tableau-ui-icon.module';
+import { TableauUiButtonModule } from '../button/tableau-ui-button.module';
+import { ColWidthPipe } from './column-widths/col-width.pipe';
+import { ColRenderedWidthDirective } from './column-widths/col-rendered-width.directive';
+import { CellWidthPipe } from './column-widths/cell-width.pipe';
+import { ResizerDirective } from './column-widths/resizer.directive';
 
 @NgModule({
-    imports: [CommonModule],
+    imports: [CommonModule, TableauUiIconModule, TableauUiButtonModule],
     declarations: [
         TableComponent,
         HeaderDefDirective,
@@ -19,7 +26,12 @@ import { CellClassPipe } from './cell-def/cell-class.pipe';
         ColumnDefDirective,
         CellDefDirective,
         CellContextPipe,
-        CellClassPipe
+        CellClassPipe,
+        SortInfoPipe,
+        ColWidthPipe,
+        ColRenderedWidthDirective,
+        CellWidthPipe,
+        ResizerDirective
     ],
     exports: [
         TableComponent,

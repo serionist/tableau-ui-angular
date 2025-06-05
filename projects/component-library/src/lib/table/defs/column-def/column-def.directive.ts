@@ -1,4 +1,4 @@
-import { contentChild, Directive, input } from '@angular/core';
+import { contentChild, Directive, input, signal } from '@angular/core';
 import { CellDefDirective } from '../cell-def/cell-def.directive';
 import { HeaderDefDirective } from '../header-def/header-def.directive';
 import { HeaderContext } from '../header-def/header-context';
@@ -16,32 +16,37 @@ export class ColumnDefDirective {
         alias: 'tabColumnDef',
     });
 
+    
     /**
-     * The minimum CSS width of the column.
-     * Can be undefined, in which case the column will not have a minimum width.
-     * @default '1rem'
+     * The CSS width of the column.
+     * Can be a string representing a CSS value (e.g., '100px', '20%', '1rem') or a number repesenting flex-grow (fill space).
+     * @default "1"
      */
-    readonly minWidth = input<string | undefined>('1rem');
+    readonly width = input<string | number>(1);
 
     /**
-     * The maximum CSS width of the column.
-     * Can be undefined, in which case the column will not have a maximum width.
+     * The CSS minimum width of the column.
+     * Can be a string representing a CSS value (e.g., '100px', '20%', '1rem'). If no unit is provided, it will be treated as pixels.
+     * @default "100px"
+     */
+    readonly minWidth = input<string>('5rem');
+
+    /**
+     * The CSS maximum width of the column.
+     * Can be a string representing a CSS value (e.g., '100px', '20%', '1rem'). If no unit is provided, it will be treated as pixels.
+     * If undefined, there is no maximum width.
      * @default undefined
      */
     readonly maxWidth = input<string | undefined>(undefined);
-
-    /**
-     * The CSS width of the column.
-     * Can be undefined, in which case the column will behave as table layout dictates.
-     * @default undefined
-     */
-    readonly width = input<string | undefined>(undefined);
 
     /**
      * Whether the column is resizable by the user.
      * @default true
      */
     readonly resizable = input<boolean>(true);
+
+
+
 
     /**
      * Whether the column is sortable by the user.
