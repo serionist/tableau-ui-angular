@@ -1,6 +1,7 @@
 :host {
     display: block;
     overflow: auto;
+    // stylelint-disable-next-line declaration-property-unit-disallowed-list
     min-height: 300px;
 
     .table {
@@ -28,29 +29,35 @@
 
             .column-header {
                 display: grid;
-                grid-template-columns: 100% 0px;
+                // stylelint-disable-next-line declaration-property-unit-disallowed-list
+                grid-template-columns: 100% 0;
                 grid-template-rows: auto;
+
                 .content {
                     grid-column: 1;
                     grid-row: 1;
+
                     .header-button {
                         .content {
                             display: grid;
                             gap: 0.5rem;
                             grid-template-columns: 1fr auto;
-                         
+
                             .text {
                                 user-select: none;
                                 overflow: hidden;
                                 text-overflow: ellipsis;
                                 white-space: nowrap;
                             }
+
                             .sort-indicator {
                                 display: flex;
                                 align-items: center;
+
                                 .no-sort {
                                     color: var(--twc-color-text-gray);
                                 }
+
                                 span {
                                     font-size: 0.8em;
                                     color: var(--twc-color-text-gray);
@@ -58,12 +65,15 @@
                                 }
                             }
                         }
+
                         &.not-sortable {
                             outline: none;
                             cursor: default;
+
                             &:hover {
                                 background: initial;
                             }
+
                             .content {
                                 gap: 0;
                                 grid-template-columns: 1fr;
@@ -84,6 +94,7 @@
                 &.pinned-right {
                     box-shadow: inset 0 -1px 0 var(--twc-color-border),
                         inset 1px 0 0 var(--twc-color-border);
+                    // stylelint-disable-next-line declaration-property-unit-disallowed-list
                     right: 0;
                     background: var(--twc-color-base);
                     position: sticky;
@@ -93,31 +104,42 @@
                 .resizer {
                     grid-column: 2;
                     grid-row: 1;
+                    // stylelint-disable-next-line declaration-property-unit-disallowed-list
                     width: 8px;
                     cursor: col-resize;
                     display: flex;
                     justify-content: center;
                     z-index: 3;
+                    // stylelint-disable-next-line declaration-property-unit-disallowed-list
                     margin-left: -4px;
+                    // stylelint-disable-next-line declaration-property-unit-disallowed-list
                     margin-right: -4px;
                 }
 
                 &:hover .resizer .line {
+                    // stylelint-disable-next-line declaration-property-unit-disallowed-list
                     width: 1px;
                     background: var(--twc-color-border-light);
                 }
+
                 .resizer.enabled:hover .line {
+                    // stylelint-disable-next-line declaration-property-unit-disallowed-list
                     width: 3px;
                     background: var(--twc-color-primary);
                 }
+
                 .resizer:not(.enabled):hover {
                     cursor: not-allowed;
+
                     .line {
+                        // stylelint-disable-next-line declaration-property-unit-disallowed-list
                         width: 3px;
                         background: var(--twc-color-error);
                     }
                 }
+
                 .resizer.enabled.dragging .line {
+                    // stylelint-disable-next-line declaration-property-unit-disallowed-list
                     width: 3px;
                     background: var(--twc-color-primary);
                 }
@@ -127,11 +149,13 @@
         .data-rows {
             width: fit-content;
             z-index: 1;
+
             .no-data {
                 color: var(--twc-color-text-gray);
                 margin-top: 0.5rem;
                 font-size: var(--twc-font-size-subtitle);
             }
+
             .row {
                 display: flex;
                 width: fit-content;
@@ -140,11 +164,13 @@
                 .cell {
                     display: flex;
                     align-items: center;
+
                     &::content {
                         overflow: hidden;
                         text-overflow: ellipsis;
                         white-space: nowrap;
                     }
+
                     &.pinned-left {
                         box-shadow: inset 0 -1px 0 var(--twc-color-border-light),
                             inset -1px 0 0 var(--twc-color-border-light);
@@ -167,21 +193,26 @@
                         width: 100%;
                         height: 1em;
                         max-height: 70%;
+
                         &.loader {
                             background-color: var(--twc-color-highlight);
                             animation: pulse 1.2s infinite ease-in-out;
                         }
+
                         @keyframes pulse {
                             0% {
                                 opacity: 1;
                             }
+
                             50% {
                                 opacity: 0.3;
                             }
+
                             100% {
                                 opacity: 1;
                             }
                         }
+
                         &.error {
                             background-color: var(--twc-color-error);
                             opacity: 0.3;
@@ -190,23 +221,29 @@
                 }
             }
         }
+
         .data-rows.striped {
             .row:not(.even) {
                 background-color: var(--twc-color-mouse-highlight);
-                .pinned-left,.pinned-right {
+
+                .pinned-left,
+                .pinned-right {
                     background-color: var(--twc-color-mouse-highlight);
                 }
             }
         }
     }
 }
+
 .default-header-tooltip {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+
     .column-name {
         font-weight: bold;
     }
+
     .sort {
         display: flex;
         flex-direction: column;

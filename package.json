@@ -15,6 +15,7 @@
     "publish": "npx ng-packagr -p projects/component-library/ng-package.json && npm run copy-assets && cd dist/component-library && npm publish",
     "dev:link": "ng build component-library --configuration development && node scripts/link-info.js && ng build component-library --watch --configuration development",
     "lint:js": "ng lint",
+    "lint:js:fix": "ng lint --fix",
     "lint:scss": "stylelint \"projects/**/*.{scss,css}\"",
     "lint:scss:fix": "stylelint \"projects/**/*.{scss,css}\" --fix",
     "lint": "npm run lint:js && npm run lint:scss"

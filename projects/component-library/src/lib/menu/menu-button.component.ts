@@ -27,7 +27,7 @@ import { generateRandomString } from '../utils';
     selector: 'tab-menu-button',
     template: `
         <ng-template #template>
-            <!-- eslint-disable-next-line -->
+             
             <div
                 class="menu-button"
                 role="button"
