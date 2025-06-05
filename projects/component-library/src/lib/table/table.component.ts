@@ -21,7 +21,7 @@ import {
     viewChild,
     viewChildren,
 } from '@angular/core';
-import { ColumnDefDirective } from './defs/column-def/column-def.directive';
+import { ColumnDefDirective, SortOrderPair } from './defs/column-def/column-def.directive';
 import { DataSort } from './sorting/data-sort';
 import { ColRenderedWidthDirective } from './column-widths/col-rendered-width.directive';
 import { DataManager } from './data/data-manager';
@@ -138,6 +138,7 @@ export class TableComponent implements AfterViewInit, OnDestroy {
             col: ColumnDefDirective;
             pinnedLeft: boolean;
             pinnedRight: boolean;
+            sortOrder: SortOrderPair;
         }[] = [];
         if (pinnedLeftColumn) {
             ret.push({
@@ -145,6 +146,7 @@ export class TableComponent implements AfterViewInit, OnDestroy {
                 col: pinnedLeftColumn,
                 pinnedLeft: true,
                 pinnedRight: false,
+                sortOrder: pinnedLeftColumn.sortOrder()
             });
         }
         for (const col of columnDefs.filter(
@@ -155,6 +157,7 @@ export class TableComponent implements AfterViewInit, OnDestroy {
                 col,
                 pinnedLeft: false,
                 pinnedRight: false,
+                sortOrder: col.sortOrder()
             });
         }
         if (pinnedRightColumn) {
@@ -163,6 +166,7 @@ export class TableComponent implements AfterViewInit, OnDestroy {
                 col: pinnedRightColumn,
                 pinnedLeft: false,
                 pinnedRight: true,
+                sortOrder: pinnedRightColumn.sortOrder()
             });
         }
         return ret;

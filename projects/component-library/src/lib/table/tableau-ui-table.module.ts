@@ -15,9 +15,10 @@ import { ColWidthPipe } from './column-widths/col-width.pipe';
 import { ColRenderedWidthDirective } from './column-widths/col-rendered-width.directive';
 import { CellWidthPipe } from './column-widths/cell-width.pipe';
 import { ResizerDirective } from './column-widths/resizer.directive';
+import { TableauUiTooltipModule } from '../tooltip/tableau-ui-tooltip.module';
 
 @NgModule({
-    imports: [CommonModule, TableauUiIconModule, TableauUiButtonModule],
+    imports: [CommonModule, TableauUiIconModule, TableauUiButtonModule, TableauUiTooltipModule],
     declarations: [
         TableComponent,
         HeaderDefDirective,

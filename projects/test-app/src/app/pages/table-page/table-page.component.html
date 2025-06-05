@@ -37,10 +37,26 @@
                     <ng-template tabCellDef let-data>{{ data.id }}</ng-template>
                 </ng-container>
                 <ng-container tabColumnDef="name" [headerClass]="customCalculatedClass"
-                    minWidth="100px" maxWidth="200px">
+                    minWidth="100px" maxWidth="200px" [headerTooltip]="customNameHeaderTooltip" [cellTooltip]="customNameCellTooltip">
                     <ng-template tabHeaderDef let-data>Name</ng-template>
                     <ng-template tabCellDef let-data>{{ data.name }}</ng-template>
                 </ng-container>
+                <ng-template #customNameHeaderTooltip let-template="template" 
+                let-ctx="ctx"
+                let-sortMode="sortMode"
+                let-sortable="sortable"
+                let-sortOrder="sortOrder"
+                let-currentSort="currentSort"
+                let-allSorts="allSorts">
+                    <div>Custom tooltip for: </div>
+                    <ng-container [ngTemplateOutlet]="template" [ngTemplateOutletContext]="ctx"></ng-container>
+                </ng-template>
+                <ng-template #customNameCellTooltip let-template="template"
+                let-ctx="ctx"
+                >
+                    <div>Custom tooltip data: </div>
+                    <ng-container [ngTemplateOutlet]="template" [ngTemplateOutletContext]="ctx"></ng-container>
+            </ng-template>
                 <ng-container tabColumnDef="age" [resizable]="false">
                     <ng-template tabHeaderDef let-data>Age</ng-template>
                     <ng-template tabCellDef let-data>{{ data.age }}</ng-template>

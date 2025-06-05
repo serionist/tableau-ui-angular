@@ -34,20 +34,32 @@
                 .content {
                     grid-column: 1;
                     grid-row: 1;
-                    .sort-button .content {
-                        display: grid;
-                        gap: 0.5rem;
-                        grid-template-columns: 1fr auto;
-                        .no-sort {
-                            color: var(--twc-color-text-gray);
+                    .header-button {
+                        .content {
+                            display: grid;
+                            gap: 0.5rem;
+                            grid-template-columns: 1fr auto;
+                            .no-sort {
+                                color: var(--twc-color-text-gray);
+                            }
+                            .text {
+                                user-select: none;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
+                                white-space: nowrap;
+                            }
                         }
-                    }
-
-                    .text {
-                        user-select: none;
-                        overflow: hidden;
-                        text-overflow: ellipsis;
-                        white-space: nowrap;
+                        &.not-sortable {
+                            outline: none;
+                            cursor: default;
+                            &:hover {
+                                background: initial;
+                            }
+                            .content {
+                                gap: 0;
+                                grid-template-columns: 1fr;
+                            }
+                        }
                     }
                 }
 
@@ -85,11 +97,18 @@
                     width: 1px;
                     background: var(--twc-color-border-light);
                 }
-                .resizer:hover .line {
+                .resizer.enabled:hover .line {
                     width: 3px;
                     background: var(--twc-color-border-light);
                 }
-                .resizer.dragging .line {
+                .resizer:not(.enabled):hover {
+                    cursor: not-allowed;
+                    .line {
+                        width: 3px;
+                        background: var(--twc-color-error);
+                    }
+                }
+                .resizer.enabled.dragging .line {
                     width: 3px;
                     background: var(--twc-color-primary);
                 }
@@ -158,5 +177,19 @@
                 }
             }
         }
+    }
+}
+.default-header-tooltip {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    .column-name {
+        font-weight: bold;
+    }
+    .sort {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        color: var(--twc-color-text-gray);
     }
 }

@@ -1,8 +1,9 @@
-import { contentChild, Directive, input, signal } from '@angular/core';
+import { contentChild, Directive, input, signal, TemplateRef } from '@angular/core';
 import { CellDefDirective } from '../cell-def/cell-def.directive';
 import { HeaderDefDirective } from '../header-def/header-def.directive';
 import { HeaderContext } from '../header-def/header-context';
 import { CellContext } from '../cell-def/cell-context';
+import { DataSort } from '../../sorting/data-sort';
 
 @Directive({
     selector: '[tabColumnDef]',
@@ -16,7 +17,6 @@ export class ColumnDefDirective {
         alias: 'tabColumnDef',
     });
 
-    
     /**
      * The CSS width of the column.
      * Can be a string representing a CSS value (e.g., '100px', '20%', '1rem') or a number repesenting flex-grow (fill space).
@@ -45,14 +45,18 @@ export class ColumnDefDirective {
      */
     readonly resizable = input<boolean>(true);
 
-
-
-
     /**
      * Whether the column is sortable by the user.
      * @default true
      */
     readonly sortable = input<boolean>(true);
+
+    /**
+     * The sort order of the column when it is sorted.
+     * Can be 'asc' for ascending, 'desc' for descending, or an array of two values to indicate the order of sorting.
+     * @default "['asc', 'desc']"
+     */
+    readonly sortOrder = input<SortOrderPair>(['asc', 'desc']);
 
     /**
      * The CSS class to apply to the column header.
@@ -71,10 +75,42 @@ export class ColumnDefDirective {
      * @default undefined
      */
     readonly cellClass = input<
-        string | ((ctx: CellContext) => string | undefined) | undefined>(undefined);
+        string | ((ctx: CellContext) => string | undefined) | undefined
+    >(undefined);
 
+    /**
+     * The tooltip for the column header.
+     * It can be a string, a TemplateRef, or 'default' to use the default tooltip.
+     * If 'default', it will show the column name and sort information.
+     * If a TemplateRef is provided, it will be used to render the tooltip with HeaderTooltipArgs as a context.
+     * If undefined, no tooltip will be shown.
+     * @default 'default'
+     */
+    readonly headerTooltip = input<'default' | string | TemplateRef<HeaderTooltipArgs> | undefined>('default');
 
+    /**
+     * The tooltip for the column cells.
+     * It can be a string or a TemplateRef.
+     * If a TemplateRef is provided, it will be used to render the tooltip with CellContext as a context.
+     * If undefined, no tooltip will be shown.
+     * @default undefined
+     */
+    readonly cellTooltip = input<undefined | TemplateRef<CellContext>>(undefined);
 
     readonly cell = contentChild.required(CellDefDirective);
     readonly header = contentChild(HeaderDefDirective);
+}
+export type SortOrderPair = ['asc', 'desc'] | ['desc', 'asc'];
+export interface HeaderTooltipArgs {
+    ctx: HeaderContext;
+    template: TemplateRef<HeaderContext>;
+    sortMode: 'single' | 'multi';
+    sortable: boolean;
+    sortOrder: SortOrderPair;
+    currentSort: DataSort | undefined;
+    allSorts: DataSort[];
+}
+export interface CellTooltipArgs {
+    ctx: CellContext;
+    template: TemplateRef<CellContext>;
 }

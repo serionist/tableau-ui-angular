@@ -10,13 +10,14 @@ export class ResizerDirective {
   readonly columnElement = input.required<HTMLElement>({
     alias: 'resizerFor'
   });
+  readonly enabled = input<boolean>(true);
   private readonly resizerElement = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly renderer = inject(Renderer2);
 
   private dragging: ResizerDraggingOptions | undefined;
   @HostListener('mousedown', ['$event'])
   onMouseDown(event: MouseEvent): void {
-    if (this.dragging !== undefined) {
+    if (this.dragging !== undefined || !this.enabled()) {
       return;
     }
     const element = this.columnElement();
