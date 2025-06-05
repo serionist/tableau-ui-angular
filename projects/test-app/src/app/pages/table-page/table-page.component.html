@@ -28,7 +28,7 @@
         <div class="section">
             <h3>Example</h3>
             <tab-checkbox [(value)]="show_first_3_columns">Only show first 3 columns</tab-checkbox>
-            <tab-table [data]="data" style="max-height: 300px;" [data]="data"
+            <tab-table style="max-height: 300px;" [getDataBlock]="loadBlock" 
                 idField="id" pinnedLeftColumn="id" pinnedRightColumn="email"
                 [displayedColumns]="show_first_3_columns() ? ['id', 'name', 'age'] : undefined">
                 <ng-container tabColumnDef="id" headerClass="custom-static-class"
@@ -40,11 +40,11 @@
                     <ng-template tabHeaderDef let-data>Name</ng-template>
                     <ng-template tabCellDef let-data>{{ data.name }}</ng-template>
                 </ng-container>
-                <ng-container tabColumnDef="age">
+                <ng-container tabColumnDef="age" [resizable]="false">
                     <ng-template tabHeaderDef let-data>Age</ng-template>
                     <ng-template tabCellDef let-data>{{ data.age }}</ng-template>
                 </ng-container>
-                <ng-container tabColumnDef="gender">
+                <ng-container tabColumnDef="gender" [sortable]="false">
                     <ng-template tabHeaderDef let-data>Gender</ng-template>
                     <ng-template tabCellDef let-data>{{ data.gender }}</ng-template>
                 </ng-container>

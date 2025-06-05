@@ -1,12 +1,14 @@
 import {
     AfterViewInit,
     ChangeDetectionStrategy,
+    ChangeDetectorRef,
     Component,
     computed,
     contentChild,
     contentChildren,
     effect,
     ElementRef,
+    HostListener,
     inject,
     input,
     model,
@@ -15,6 +17,7 @@ import {
     ResourceLoader,
     ResourceLoaderParams,
     signal,
+    untracked,
     viewChild,
     viewChildren,
 } from '@angular/core';
@@ -23,7 +26,7 @@ import { DataSort } from './sorting/data-sort';
 import { ColRenderedWidthDirective } from './column-widths/col-rendered-width.directive';
 import { DataManager } from './data/data-manager';
 import { DataRequest } from './data/data-request';
-
+import { DataResponse } from './data/data-response';
 
 @Component({
     selector: 'tab-table',
@@ -34,18 +37,6 @@ import { DataRequest } from './data/data-request';
     host: {},
 })
 export class TableComponent implements AfterViewInit, OnDestroy {
-
-
-    // replace with dynamic datasource later
-    readonly data = input.required<Record<string, unknown>[]>();
-
-    /**
-     * The unique identified of each row model in the table.
-     * This is used to track changes in the table and to identify rows uniquely.
-     * If undefined, the table will use the index of the row as the unique identifier.
-     * @default undefined
-     */
-    readonly idField = input.required<string | undefined>();
     /**
      * The column IDs to display in the table. The order of the IDs determines the order of the columns.
      * If undefined, all columns will be displayed in the order they are defined in the table.
@@ -58,19 +49,16 @@ export class TableComponent implements AfterViewInit, OnDestroy {
      * The function to get a data block. Provides an offset, count, sort and an abortsignal
      * Handling abort is recommended, as many block requests may be fired that are canceled when the user scrolls fast
      */
-    readonly getDataBlock = input.required<(req: DataRequest) => Record<string, unknown>[] | Error>();
+    readonly getDataBlock =
+        input.required<(req: DataRequest) => Promise<DataResponse>>();
 
     /**
-     * The margin for all header cells
-     * @default '0.5rem'
+     * The number of data blocks to load before and after the currently displayed block(s) based on scroll position.
+     * This is used to determine how many blocks to load in advance for smooth scrolling.
+     * A data block is a chunk of data that is loaded from the server. It's size is is whatever fits the current viewport.
+     * @default 3
      */
-    readonly headerMargin = input<string>('0.5rem');
-
-    /**
-     * The margin for all data cells
-     * @default '0 0.5rem'
-     */
-    readonly dataMargin = input<string>('0 0.5rem');
+    readonly dataBlockWindow = input<number>(3);
 
     /**
      * The height of the table data row.
@@ -80,6 +68,19 @@ export class TableComponent implements AfterViewInit, OnDestroy {
      * @default '2.5rem'
      */
     readonly dataRowHeight = input<string>('2.5rem');
+
+    /**
+     * The margin for all header cells
+     * @default '0.5rem'
+     */
+    readonly headerPadding = input<string>('0.5rem');
+
+    /**
+     * The margin for all data cells
+     * @default '0 0.5rem'
+     */
+    readonly dataPadding = input<string>('0 0.5rem');
+
     /**
      * The sorting mode. When multi sort is enabled, holding SHIFT when clicking a column header will add it to the sort list
      * @default single
@@ -165,44 +166,111 @@ export class TableComponent implements AfterViewInit, OnDestroy {
             });
         }
         return ret;
+    }, {
+        equal: (a, b) => {
+            if (a.length !== b.length) {
+                return false;
+                
+            }
+            for (let i = 0; i < a.length; i++) {
+                if (
+                    a[i].id !== b[i].id ||
+                    a[i].pinnedLeft !== b[i].pinnedLeft ||
+                    a[i].pinnedRight !== b[i].pinnedRight ||
+                    a[i].col.id() !== b[i].col.id()
+                ) {
+                    return false;
+                }
+            }
+            return true;
+        }
     });
 
-    protected readonly columnWidthDirectives = viewChildren(ColRenderedWidthDirective);
+    protected readonly columnWidthDirectives = viewChildren(
+        ColRenderedWidthDirective
+    );
     private hostElement = inject<ElementRef<HTMLElement>>(ElementRef);
-    private headerRow = viewChild.required<ElementRef<HTMLElement>>('headerRow');
-    private dataRowSizer = viewChild.required<ElementRef<HTMLElement>>('dataSizer');
+    private cdr = inject<ChangeDetectorRef>(ChangeDetectorRef);
+    private headerRow =
+        viewChild.required<ElementRef<HTMLElement>>('headerRow');
+    private dataRowSizer =
+        viewChild.required<ElementRef<HTMLElement>>('dataSizer');
 
-    private dataWindowHeightPx = signal<number | undefined>(undefined);
+    private verticalScrollBarWidthPx = signal<number>(0, {
+        equal: (a, b) => a === b
+    });
+    private dataWindowHeightPx = signal<number | undefined>(undefined, {
+        equal: (a, b) => a === b
+    });
     private dataWindowHeightObserver: ResizeObserver | undefined;
-    private dataRowHeightPx = signal<number | undefined>(undefined);
+    private dataRowHeightPx = signal<number | undefined>(undefined, {
+        equal: (a, b) => a === b
+    });
     private dataRowHeightObserver: ResizeObserver | undefined;
-    protected readonly dataManager = new DataManager();
+    protected readonly dataManager = new DataManager(this.cdr);
     ngAfterViewInit(): void {
         const host = this.hostElement.nativeElement;
         this.dataWindowHeightObserver = new ResizeObserver(() => {
-            this.dataWindowHeightPx.set(host.clientHeight - this.headerRow().nativeElement.clientHeight);
+            this.dataWindowHeightPx.set(
+                host.offsetHeight - this.headerRow().nativeElement.offsetHeight
+            );
+            this.verticalScrollBarWidthPx.set(
+                host.offsetWidth - host.clientWidth
+            );
         });
         this.dataWindowHeightObserver.observe(host);
 
         this.dataRowHeightObserver = new ResizeObserver(() => {
-            this.dataRowHeightPx.set(this.dataRowSizer().nativeElement.clientHeight);
+            this.dataRowHeightPx.set(
+                this.dataRowSizer().nativeElement.offsetHeight
+            );
         });
         this.dataRowHeightObserver.observe(host);
-
     }
 
+    private a1 = effect(() => console.log('dataWindowHeightPx changed', this.dataWindowHeightPx()));
+    private a2 = effect(() => console.log('dataRowHeightPx changed', this.dataRowHeightPx()));
+    private a3 = effect(() => console.log('sort changed', this.sort()));
+    private a4 = effect(() => console.log('getDataBlock changed', this.getDataBlock()));
+    private a5 = effect(() => console.log('dataBlockWindow changed', this.dataBlockWindow()));
+    private a6 = effect(() => console.log('displayedColumnDefs changed', this.displayedColumnDefs()));
     private readonly dataManagerReset = effect(() => {
         const dataWindowHeight = this.dataWindowHeightPx();
         const dataRowHeight = this.dataRowHeightPx();
         const sort = this.sort();
         const getDataBlock = this.getDataBlock();
-        if (!dataRowHeight || !dataWindowHeight || !sort || !getDataBlock) {
+        const dataBlockWindow =this.dataBlockWindow();
+        const displayedColumns = this.displayedColumnDefs();
+        if (
+            !dataRowHeight ||
+            !dataWindowHeight ||
+            !sort ||
+            !getDataBlock ||
+            !displayedColumns
+        ) {
             return;
         }
-        this.dataManager.reset(dataWindowHeight, dataRowHeight, sort, getDataBlock);
+        // this.hostElement.nativeElement.scrollTo({
+        //     top: 0,
+        //     left: 0,
+        //     behavior: 'auto',
+        // });
+        untracked(() =>
+            this.dataManager.reset(
+                dataWindowHeight,
+                dataRowHeight,
+                sort,
+                displayedColumns.map(e => e.id),
+                dataBlockWindow,
+                getDataBlock
+            )
+        );
     });
 
-
+    @HostListener('scroll', ['$event.target'])
+    onScroll(element: HTMLElement) {
+        this.dataManager.setScrollPosition(element.scrollTop);
+    }
     ngOnDestroy(): void {
         if (this.dataWindowHeightObserver) {
             this.dataWindowHeightObserver.disconnect();
@@ -224,8 +292,7 @@ export class TableComponent implements AfterViewInit, OnDestroy {
         (e.target as HTMLElement).blur();
     }
 
+    // reload() {
 
-
-
-
+    // }
 }

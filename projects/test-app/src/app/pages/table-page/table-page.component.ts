@@ -1,6 +1,6 @@
 import { Component, ResourceLoader, ResourceLoaderParams, signal } from '@angular/core';
-import { small_data } from './table-data-sample';
-import { HeaderContext } from 'component-library';
+import { small_data, data } from './table-data-sample';
+import { DataRequest, DataResponse, HeaderContext } from 'component-library';
 
 @Component({
     selector: 'app-table-page',
@@ -10,7 +10,6 @@ import { HeaderContext } from 'component-library';
 })
 export class TablePageComponent {
 
-    data = small_data;
 
     show_first_3_columns = signal(false);
     
@@ -24,6 +23,22 @@ export class TablePageComponent {
     //         data: []
     //     }
     // }
+
+    async loadBlock(req: DataRequest): Promise<DataResponse> {
+        console.log('Loading data block with request:', req);
+        // Simulate a data load with a delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        const slicedData = data.slice(req.offset, req.offset + req.count);
+        // Return a mock response
+        const ret = {
+            count: slicedData.length,
+            offset: req.offset,
+            total: data.length,
+            data: slicedData
+        };
+        console.log('Loaded data block:', ret);
+        return ret;
+    }
 
     customCalculatedClass(ctx: HeaderContext): string | undefined {
         return `custom-dynamic-class-${ctx.index % 3}`;

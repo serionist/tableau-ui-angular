@@ -5,7 +5,7 @@
 
     .table {
         min-height: 100%;
-        min-width: 100%;
+        // min-width: 100%;
         display: grid;
         grid-template-rows: auto 1fr;
 
@@ -53,7 +53,8 @@
                 }
 
                 &.pinned-left {
-                    box-shadow: inset 0 -1px 0 var(--twc-color-border), inset -1px 0 0 var(--twc-color-border);
+                    box-shadow: inset 0 -1px 0 var(--twc-color-border),
+                        inset -1px 0 0 var(--twc-color-border);
                     left: 0;
                     background: var(--twc-color-base);
                     position: sticky;
@@ -61,7 +62,8 @@
                 }
 
                 &.pinned-right {
-                    box-shadow: inset 0 -1px 0 var(--twc-color-border), inset 1px 0 0 var(--twc-color-border);
+                    box-shadow: inset 0 -1px 0 var(--twc-color-border),
+                        inset 1px 0 0 var(--twc-color-border);
                     right: 0;
                     background: var(--twc-color-base);
                     position: sticky;
@@ -93,9 +95,6 @@
                     background: var(--twc-color-primary);
                 }
             }
-
-
-
         }
 
         .data-rows {
@@ -108,7 +107,6 @@
                 box-shadow: inset 0 -1px 0 var(--twc-color-border-light);
 
                 .cell {
-                   
                     display: flex;
                     align-items: center;
                     &::content {
@@ -117,24 +115,49 @@
                         white-space: nowrap;
                     }
                     &.pinned-left {
-                        box-shadow: inset 0 -1px 0 var(--twc-color-border-light), inset -1px 0 0 var(--twc-color-border-light);
+                        box-shadow: inset 0 -1px 0 var(--twc-color-border-light),
+                            inset -1px 0 0 var(--twc-color-border-light);
                         left: 0;
                         background: var(--twc-color-base);
                         position: sticky;
                     }
 
                     &.pinned-right {
-                        box-shadow: inset 0 -1px 0 var(--twc-color-border-light), inset 1px 0 0 var(--twc-color-border-light);
+                        box-shadow: inset 0 -1px 0 var(--twc-color-border-light),
+                            inset 1px 0 0 var(--twc-color-border-light);
                         right: 0;
                         background: var(--twc-color-base);
                         position: sticky;
+                    }
+
+                    .status {
+                        border-radius: 1em;
+                        min-height: 1em;
+                        width: 100%;
+                        height: 1em;
+                        max-height: 70%;
+                        &.loader {
+                            background-color: var(--twc-color-highlight);
+                            animation: pulse 1.2s infinite ease-in-out;
+                        }
+                        @keyframes pulse {
+                            0% {
+                                opacity: 1;
+                            }
+                            50% {
+                                opacity: 0.3;
+                            }
+                            100% {
+                                opacity: 1;
+                            }
+                        }
+                        &.error {
+                            background-color: var(--twc-color-error);
+                            opacity: 0.3;
+                        }
                     }
                 }
             }
         }
     }
-
-
-
-
 }

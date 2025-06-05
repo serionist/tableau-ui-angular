@@ -1,4 +1,5 @@
-<div class="table" role="table">
+<div class="table" role="table"
+    [style.minWidth]="'calc(100% - ${1})'">
     <!--Data Row Sizer. This is a position fixed, 0px wide row with the given row height px. used to calculate the actual height of data rows prior to virtualizing-->
     <div class="data-sizer" [style.height]="dataRowHeight()" #dataSizer></div>
     <!-- Column Row -->
@@ -28,7 +29,7 @@
             
             [ngClass]="headerContext | headerClass" 
             [colRenderedWidth]="def.id">
-            <div class="content" [style.padding]="headerMargin()" >
+            <div class="content" [style.padding]="headerPadding()" >
                 <ng-template #colText>
                     <div class="text">
                         @if (def.col.header()) {
@@ -70,9 +71,12 @@
                 <ng-container [ngTemplateOutlet]="colText"></ng-container>
                 }
             </div>
-            <div class="resizer" [resizerFor]="header">
-                <div class="line"></div>
-            </div>
+            @if (def.col.resizable()) {
+                <div class="resizer" [resizerFor]="header">
+                    <div class="line"></div>
+                </div>
+            }
+            
         </div>
 
        
@@ -80,53 +84,67 @@
     </div>
 
     <div class="data-rows" >
-        @for (row of data(); let index = $index; let count = $count; let first =
-        $first; let last = $last; let even = $even; let odd = $odd; track
-        idField() ? row[idField()!] : index) {
-            <div class="row" role="row"
-            [style.height]="dataRowHeight()">
-                @for (def of displayedColumnDefs(); let colindex = $index; let colcount =
-                $count; let colfirst = $first; let collast = $last; let coleven =
-                $even; let colodd = $odd; track def.id) {
-                @let cellContext = row
-                | cellContext
-                : def.col
-                : index
-                : first
-                : last
-                : even
-                : odd
-                : count
-                : colindex
-                : colfirst
-                : collast
-                : coleven
-                : colodd
-                : colcount;
-                <div class="cell"
-                    role="cell"
-                    #cell
-                    [attr.data-column-id]="def.id"
-                    [attr.data-column-index]="colindex"
-                    [attr.data-column-count]="colcount"
-                    [attr.data-column-first]="colfirst"
-                    [attr.data-column-last]="collast"
-                    [attr.data-column-even]="coleven"
-                    [attr.data-column-odd]="colodd"
-                    [class.pinned-left]="def.pinnedLeft" 
-                    [class.pinned-right]="def.pinnedRight" 
-                    [style.padding]="dataMargin()" 
-
-                    
-                    [style.width]="columnWidthDirectives() | cellWidth:def.id:cell | async"
-                    [ngClass]="cellContext | cellClass">
-                    <ng-container [ngTemplateOutlet]="def.col.cell().templateRef" [ngTemplateOutletContext]="
-                            cellContext
-                        "></ng-container>
+        <div class="virtualize pre" [style.height]="dataManager.blocks().prePixels + 'px'"></div>
+        @for (block of dataManager.blocks().blocks; track block.id) {
+            @for (row of block.data(); let index = $index; let count = $count; let first =
+            $first; let last = $last; let even = $even; let odd = $odd; track index) {
+                <div class="row" role="row"
+                [style.height]="dataRowHeight()">
+                    @for (def of displayedColumnDefs(); let colindex = $index; let colcount =
+                    $count; let colfirst = $first; let collast = $last; let coleven =
+                    $even; let colodd = $odd; track def.id) {
+                    @let cellContext = row
+                    | cellContext
+                    : def.col
+                    : block.offset + index
+                    : block.offset === 0 && first
+                    : block.offset + index === dataManager.totalRowCount()
+                    : (block.offset + index) % 2 === 0
+                    : (block.offset + index) % 2 === 1
+                    : dataManager.totalRowCount()
+                    : colindex
+                    : colfirst
+                    : collast
+                    : coleven
+                    : colodd
+                    : colcount;
+                    <div class="cell"
+                        role="cell"
+                        [attr.data-column-id]="def.id"
+                        [attr.data-column-index]="block.offset + index"
+                        [attr.data-column-count]="dataManager.totalRowCount()"
+                        [attr.data-column-first]="colfirst"
+                        [attr.data-column-last]="collast"
+                        [attr.data-column-even]="coleven"
+                        [attr.data-column-odd]="colodd"
+                        [class.pinned-left]="def.pinnedLeft" 
+                        [class.pinned-right]="def.pinnedRight" 
+                        [style.padding]="dataPadding()" 
+    
+                        
+                        [style.width]="columnWidthDirectives() | cellWidth:def.id:dataPadding() | async"
+                        [ngClass]="cellContext | cellClass">
+                        @switch (block.status()) {
+                            @case ('loading') {
+                                <div class="status loader"></div>
+                            }
+                            @case ('error') {
+                                <div class="status error"></div>
+                            }
+                            @case ('success') {
+                                <ng-container [ngTemplateOutlet]="def.col.cell().templateRef" [ngTemplateOutletContext]="
+                                    cellContext
+                                "></ng-container>
+                            }
+                        }
+                        
+                    </div>
+                    }
                 </div>
-                }
-            </div>
+            }
         }
+        <div class="virtualize post" [style.height]="dataManager.blocks().postPixels + 'px'"></div>
+       
     </div>
 
     
