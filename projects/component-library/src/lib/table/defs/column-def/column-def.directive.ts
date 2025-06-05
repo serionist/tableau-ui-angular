@@ -18,6 +18,13 @@ export class ColumnDefDirective {
     });
 
     /**
+     * The property name of the column, used for sorting purposes.
+     * If not provided, it will default to the column ID.
+     * @default undefined
+     */
+    readonly propertyName = input<string | undefined>(undefined);
+
+    /**
      * The CSS width of the column.
      * Can be a string representing a CSS value (e.g., '100px', '20%', '1rem') or a number repesenting flex-grow (fill space).
      * @default "1"
@@ -107,7 +114,7 @@ export interface HeaderTooltipArgs {
     sortMode: 'single' | 'multi';
     sortable: boolean;
     sortOrder: SortOrderPair;
-    currentSort: DataSort | undefined;
+    currentSort: { info: DataSort, index: number } | undefined;
     allSorts: DataSort[];
 }
 export interface CellTooltipArgs {

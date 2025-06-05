@@ -1,4 +1,4 @@
 export interface DataSort {
-    columnId: string;
-    mode: 'asc' | 'desc';
+    property: string;
+    direction: 'asc' | 'desc';
 }

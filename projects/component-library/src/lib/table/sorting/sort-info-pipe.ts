@@ -5,15 +5,14 @@ import { DataSort } from "./data-sort";
     standalone: false
 })
 export class SortInfoPipe implements PipeTransform {
-    transform(sorts: DataSort[], colId: string) {
-        const sortIndex = sorts.findIndex(e => e.columnId === colId);
-        if (sortIndex) {
+    transform(sorts: DataSort[], colId: string, propertyName: string | undefined): { info: DataSort, index: number} | undefined {
+        const p = propertyName ?? colId;
+        const index = sorts.findIndex(e => e.property === p);
+        if (index === -1) {
             return undefined;
         }
-        return {
-            mode: sorts[sortIndex].mode,
-            order: sortIndex + 1
-        }
+        const info = sorts[index];
+        return { info, index };
     }
 
 }

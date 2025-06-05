@@ -1,9 +1,8 @@
-tab-group {
-    margin-top: 1rem;
-}
 
-.large {
-    [tab-header] {
-        font-size: 1.2rem;
-    }
+.options {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
 }

@@ -5,7 +5,6 @@
 
     .table {
         min-height: 100%;
-        min-width: 100%;
         display: grid;
         grid-template-rows: auto 1fr;
 
@@ -39,14 +38,24 @@
                             display: grid;
                             gap: 0.5rem;
                             grid-template-columns: 1fr auto;
-                            .no-sort {
-                                color: var(--twc-color-text-gray);
-                            }
+                         
                             .text {
                                 user-select: none;
                                 overflow: hidden;
                                 text-overflow: ellipsis;
                                 white-space: nowrap;
+                            }
+                            .sort-indicator {
+                                display: flex;
+                                align-items: center;
+                                .no-sort {
+                                    color: var(--twc-color-text-gray);
+                                }
+                                span {
+                                    font-size: 0.8em;
+                                    color: var(--twc-color-text-gray);
+                                    margin-top: 0.1em;
+                                }
                             }
                         }
                         &.not-sortable {
@@ -99,7 +108,7 @@
                 }
                 .resizer.enabled:hover .line {
                     width: 3px;
-                    background: var(--twc-color-border-light);
+                    background: var(--twc-color-primary);
                 }
                 .resizer:not(.enabled):hover {
                     cursor: not-allowed;
@@ -118,7 +127,11 @@
         .data-rows {
             width: fit-content;
             z-index: 1;
-
+            .no-data {
+                color: var(--twc-color-text-gray);
+                margin-top: 0.5rem;
+                font-size: var(--twc-font-size-subtitle);
+            }
             .row {
                 display: flex;
                 width: fit-content;
@@ -177,6 +190,14 @@
                 }
             }
         }
+        .data-rows.striped {
+            .row:not(.even) {
+                background-color: var(--twc-color-mouse-highlight);
+                .pinned-left,.pinned-right {
+                    background-color: var(--twc-color-mouse-highlight);
+                }
+            }
+        }
     }
 }
 .default-header-tooltip {
@@ -190,6 +211,7 @@
         display: flex;
         flex-direction: column;
         gap: 0.25rem;
+        font-size: 0.8em;
         color: var(--twc-color-text-gray);
     }
 }

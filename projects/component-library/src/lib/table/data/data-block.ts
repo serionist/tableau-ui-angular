@@ -40,9 +40,9 @@ export class DataBlock {
         private readonly request: (req: DataRequest) => Promise<DataResponse>
     ) {}
 
-    public async load(): Promise<boolean> {
+    public async load() {
         if (this.status() === 'loading' || this.status() === 'success') {
-            return true;
+            return;
         }
         try {
             this._status.set('loading');
@@ -54,25 +54,23 @@ export class DataBlock {
                 abort: this.abort.signal,
             });
 
-            if (data.offset !== this.offset || data.count > this.count) {
+            if (data.data.length > this.count) {
                 console.warn(
-                    `Data block ${this.id} received unexpected data: offset ${data.offset}, count ${data.count}, expected offset ${this.offset}, count ${this.count}`
+                    `Data block ${this.id} received unexpected data: count ${data.data.length}, expected max count ${this.count}`
                 );
                 this._status.set('error');
-                return false;
+                return;
             }
 
             this._response.set(data);
             this._status.set('success');
-            return true;
         } catch (error) {
             if (this.abort.signal.aborted) {
                 this._status.set('canceled');
-                return false;
+                return;
             }
             this._status.set('error');
             console.error('Error loading data block:', error);
-            return false;
         }
     }
     public destroy() {

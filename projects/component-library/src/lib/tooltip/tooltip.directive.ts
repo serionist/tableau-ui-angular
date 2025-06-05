@@ -9,6 +9,7 @@ import {
     OnDestroy,
     ViewContainerRef,
     InputSignal,
+    effect,
 } from '@angular/core';
 
 // Style contained in _tooltips.scss in the styles folder
@@ -23,6 +24,15 @@ export class TooltipDirective implements OnDestroy {
     tooltipContext = input<any>();
     tooltipPosition = input<'top' | 'bottom' | 'left' | 'right'>('top');
     tooltipMargin = input<string>('5px');
+
+    private tooltipChanged = effect(() => {
+        const tooltip = this.tooltip();
+        const tooltipContext = this.tooltipContext();
+        if (this.tooltipElement) {
+            this.destroyTooltip();
+            this.openTooltip();
+        }
+    });
 
     openTooltip() {
         if (this.tooltip()) {
