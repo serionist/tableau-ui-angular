@@ -21,6 +21,8 @@ import {
 import { ColumnDefDirective } from './defs/column-def/column-def.directive';
 import { DataSort } from './sorting/data-sort';
 import { ColRenderedWidthDirective } from './column-widths/col-rendered-width.directive';
+import { DataManager } from './data/data-manager';
+import { DataRequest } from './data/data-request';
 
 
 @Component({
@@ -32,8 +34,6 @@ import { ColRenderedWidthDirective } from './column-widths/col-rendered-width.di
     host: {},
 })
 export class TableComponent implements AfterViewInit, OnDestroy {
-    private readonly RESIZER_WIDTH = 9;
-
 
 
     // replace with dynamic datasource later
@@ -45,7 +45,7 @@ export class TableComponent implements AfterViewInit, OnDestroy {
      * If undefined, the table will use the index of the row as the unique identifier.
      * @default undefined
      */
-    readonly idField = input<string | undefined>(undefined);
+    readonly idField = input.required<string | undefined>();
     /**
      * The column IDs to display in the table. The order of the IDs determines the order of the columns.
      * If undefined, all columns will be displayed in the order they are defined in the table.
@@ -54,7 +54,12 @@ export class TableComponent implements AfterViewInit, OnDestroy {
      */
     readonly displayedColumns = model<string[] | undefined>(undefined);
 
-    
+    /**
+     * The function to get a data block. Provides an offset, count, sort and an abortsignal
+     * Handling abort is recommended, as many block requests may be fired that are canceled when the user scrolls fast
+     */
+    readonly getDataBlock = input.required<(req: DataRequest) => Record<string, unknown>[] | Error>();
+
     /**
      * The margin for all header cells
      * @default '0.5rem'
@@ -164,22 +169,48 @@ export class TableComponent implements AfterViewInit, OnDestroy {
 
     protected readonly columnWidthDirectives = viewChildren(ColRenderedWidthDirective);
     private hostElement = inject<ElementRef<HTMLElement>>(ElementRef);
-    private resizeObserver: ResizeObserver | undefined;
+    private headerRow = viewChild.required<ElementRef<HTMLElement>>('headerRow');
+    private dataRowSizer = viewChild.required<ElementRef<HTMLElement>>('dataSizer');
 
+    private dataWindowHeightPx = signal<number | undefined>(undefined);
+    private dataWindowHeightObserver: ResizeObserver | undefined;
+    private dataRowHeightPx = signal<number | undefined>(undefined);
+    private dataRowHeightObserver: ResizeObserver | undefined;
+    protected readonly dataManager = new DataManager();
     ngAfterViewInit(): void {
         const host = this.hostElement.nativeElement;
-        this.resizeObserver = new ResizeObserver(() => {
-           // const bodyScrollSize = host.clientHeight - thead.clientHeight;
-           // console.log('ResizeObserver triggered', bodyScrollSize);
-
+        this.dataWindowHeightObserver = new ResizeObserver(() => {
+            this.dataWindowHeightPx.set(host.clientHeight - this.headerRow().nativeElement.clientHeight);
         });
-        this.resizeObserver.observe(host);
+        this.dataWindowHeightObserver.observe(host);
+
+        this.dataRowHeightObserver = new ResizeObserver(() => {
+            this.dataRowHeightPx.set(this.dataRowSizer().nativeElement.clientHeight);
+        });
+        this.dataRowHeightObserver.observe(host);
+
     }
 
+    private readonly dataManagerReset = effect(() => {
+        const dataWindowHeight = this.dataWindowHeightPx();
+        const dataRowHeight = this.dataRowHeightPx();
+        const sort = this.sort();
+        const getDataBlock = this.getDataBlock();
+        if (!dataRowHeight || !dataWindowHeight || !sort || !getDataBlock) {
+            return;
+        }
+        this.dataManager.reset(dataWindowHeight, dataRowHeight, sort, getDataBlock);
+    });
+
+
     ngOnDestroy(): void {
-        if (this.resizeObserver) {
-            this.resizeObserver.disconnect();
-            this.resizeObserver = undefined;
+        if (this.dataWindowHeightObserver) {
+            this.dataWindowHeightObserver.disconnect();
+            this.dataWindowHeightObserver = undefined;
+        }
+        if (this.dataRowHeightObserver) {
+            this.dataRowHeightObserver.disconnect();
+            this.dataRowHeightObserver = undefined;
         }
     }
 
@@ -193,7 +224,8 @@ export class TableComponent implements AfterViewInit, OnDestroy {
         (e.target as HTMLElement).blur();
     }
 
-    
+
+
 
 
 }

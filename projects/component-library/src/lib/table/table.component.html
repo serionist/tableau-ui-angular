@@ -1,4 +1,6 @@
 <div class="table" role="table">
+    <!--Data Row Sizer. This is a position fixed, 0px wide row with the given row height px. used to calculate the actual height of data rows prior to virtualizing-->
+    <div class="data-sizer" [style.height]="dataRowHeight()" #dataSizer></div>
     <!-- Column Row -->
     <div class="column-row" #headerRow>
         @for (def of displayedColumnDefs(); let index = $index; let count = $count; let
@@ -77,7 +79,7 @@
     }
     </div>
 
-    <div class="data-rows">
+    <div class="data-rows" >
         @for (row of data(); let index = $index; let count = $count; let first =
         $first; let last = $last; let even = $even; let odd = $odd; track
         idField() ? row[idField()!] : index) {
@@ -129,96 +131,3 @@
 
     
 </div>
-<!-- @if (leftResizer().show) {
-    <div class="resizer left" [style.top]="leftResizer().top" [style.left]="leftResizer().left"
-        [style.width]="leftResizer().width" [style.height]="leftResizer().height"
-        (mouseenter)="onResizerMouseEnter($event, 'left')" (mouseleave)="onResizerMouseLeave($event)"
-        [class.dragging]="leftResizer().dragging" (mousedown)="onResizerMouseDown($event, 'left')">
-        <div class="line"></div>
-    </div>
-    }
-    @if (rightResizer().show) {
-    <div class="resizer right" [style.top]="rightResizer().top" [style.left]="rightResizer().left"
-        [style.width]="rightResizer().width" [style.height]="rightResizer().height"
-        (mouseenter)="onResizerMouseEnter($event, 'right')" (mouseleave)="onResizerMouseLeave($event)"
-        [class.dragging]="rightResizer().dragging" (mousedown)="onResizerMouseDown($event, 'right')">
-        <div class="line"></div>
-    </div>
-} -->
-
-<!-- <table>
-    <colgroup>
-        @for (def of displayedColumnDefs(); let index = $index; let count = $count; let
-        first = $first; let last = $last; let even = $even; let odd = $odd;
-        track def.id) {
-        <col [style.width]="def.col.width()">
-        }
-    </colgroup>
-    <thead #thead>
-        <tr>
-            @for (def of displayedColumnDefs(); let index = $index; let count = $count; let
-            first = $first; let last = $last; let even = $even; let odd = $odd;
-            track def.id) {
-
-            @let headerContext = def.col
-            | headerContext : index : first : last : even : odd : count;
-
-            <th [style.width]="def.col.width()" [class.resizeable]="def.col.resizable()"
-                [class.sortable]="def.col.sortable()" [class.pinned-left]="def.pinnedLeft"
-                [class.pinned-right]="def.pinnedRight" [style.padding]="headerPadding()" [ngClass]="
-                headerContext
-                    | headerClass
-            " (mouseenter)="onColumnHeaderEnter($event, def.col)" (mouseleave)="onColumnHeaderLeave($event)">
-                @if (def.col.header()) {
-                <ng-container [ngTemplateOutlet]="def.col.header()!.templateRef" [ngTemplateOutletContext]="
-                    headerContext
-                "></ng-container>
-
-                }
-
-            </th>
-            }
-        </tr>
-    </thead>
-    <tbody #tbody>
-        @for (row of data(); let index = $index; let count = $count; let first =
-        $first; let last = $last; let even = $even; let odd = $odd; track
-        idField() ? row[idField()!] : index) {
-        <tr>
-            @for (def of displayedColumnDefs(); let colindex = $index; let colcount =
-            $count; let colfirst = $first; let collast = $last; let coleven =
-            $even; let colodd = $odd; track def.id) {
-            @let cellContext = row
-            | cellContext
-            : def.col
-            : index
-            : first
-            : last
-            : even
-            : odd
-            : count
-            : colindex
-            : colfirst
-            : collast
-            : coleven
-            : colodd
-            : colcount;
-            <td [class.pinned-left]="def.pinnedLeft" [class.pinned-right]="def.pinnedRight"
-                [style.padding]="dataPadding()" [ngClass]="
-                    
-                        cellContext | cellClass
-                ">
-                <ng-container [ngTemplateOutlet]="def.col.cell().templateRef" [ngTemplateOutletContext]="
-                       cellContext
-                    "></ng-container>
-            </td>
-
-            }
-        </tr>
-        }
-    </tbody>
-
-
-</table>
-
-} -->

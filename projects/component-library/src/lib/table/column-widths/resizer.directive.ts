@@ -4,7 +4,7 @@ import { Directive, ElementRef, HostListener, inject, input, OnInit, Renderer2 }
   selector: '[resizerFor]',
   standalone: false
 })
-export class ResizerDirective implements OnInit {
+export class ResizerDirective {
 
 
   readonly columnElement = input.required<HTMLElement>({
@@ -12,10 +12,6 @@ export class ResizerDirective implements OnInit {
   });
   private readonly resizerElement = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly renderer = inject(Renderer2);
-
-  ngOnInit(): void {
-    console.log('resizer', this.columnElement());
-  }
 
   private dragging: ResizerDraggingOptions | undefined;
   @HostListener('mousedown', ['$event'])
