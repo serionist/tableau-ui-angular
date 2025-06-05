@@ -21,16 +21,16 @@
         "email": "osvaysoma@gmail.com"
     },
     "engines": {
-        "node": ">=22.10.0",
-        "npm": ">=10.9.0"
+        "node": ">=22.16.0",
+        "npm": ">=10.9.2"
     },
     "homepage": "https://serionist.github.io/tableau-ui-angular/",
     "version": "0.1.109",
     "peerDependencies": {
-        "@angular/common": "^19.2.8",
-        "@angular/core": "^19.2.8",
-        "@angular/forms": "^19.2.8",
-        "@angular/router": "^19.2.8"
+        "@angular/common": "20.0.1",
+        "@angular/core": "20.0.1",
+        "@angular/forms": "20.0.1",
+        "@angular/router": "20.0.1"
     },
     "dependencies": {
         "tabbable": "^6.2.0"

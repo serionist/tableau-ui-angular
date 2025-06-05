@@ -1,13 +1,36 @@
 import {
+    AfterViewInit,
     ChangeDetectionStrategy,
+    ChangeDetectorRef,
     Component,
     computed,
     contentChild,
     contentChildren,
+    effect,
+    ElementRef,
+    HostListener,
+    inject,
     input,
     model,
+    OnDestroy,
+    resource,
+    ResourceLoader,
+    ResourceLoaderParams,
+    signal,
+    TemplateRef,
+    untracked,
+    viewChild,
+    viewChildren,
 } from '@angular/core';
-import { ColumnDefDirective } from './column-def/column-def.directive';
+import {
+    ColumnDefDirective,
+    SortOrderPair,
+} from './defs/column-def/column-def.directive';
+import { DataSort } from './sorting/data-sort';
+import { ColRenderedWidthDirective } from './column-widths/col-rendered-width.directive';
+import { DataManager } from './data/data-manager';
+import { DataRequest } from './data/data-request';
+import { DataResponse } from './data/data-response';
 
 @Component({
     selector: 'tab-table',
@@ -17,96 +40,367 @@ import { ColumnDefDirective } from './column-def/column-def.directive';
     changeDetection: ChangeDetectionStrategy.OnPush,
     host: {},
 })
-export class TableComponent {
-    // replace with dynamic datasource later
-    readonly data = input.required<Record<string, unknown>[]>();
-
-    /**
-     * The unique identified of each row model in the table.
-     * This is used to track changes in the table and to identify rows uniquely.
-     * If undefined, the table will use the index of the row as the unique identifier.
-     * @default undefined
-     */
-    readonly idField = input<string | undefined>(undefined);
+export class TableComponent implements AfterViewInit, OnDestroy {
     /**
      * The column IDs to display in the table. The order of the IDs determines the order of the columns.
      * If undefined, all columns will be displayed in the order they are defined in the table.
-     * Users can show/hide columns dynamically from a built-in control, in which case, this changes
      * @default undefined
      */
-    readonly displayedColumns = model<string[] | undefined>(undefined);
+    readonly displayedColumns = input<string[] | undefined>(undefined);
+
+    /**
+     * The function to get a data block. Provides an offset, count, sort and an abortsignal
+     * Handling abort is recommended, as many block requests may be fired that are canceled when the user scrolls fast
+     */
+    readonly getDataBlock =
+        input.required<(req: DataRequest) => Promise<DataResponse>>();
+
+    /**
+     * The number of data blocks to load before and after the currently displayed block(s) based on scroll position.
+     * This is used to determine how many blocks to load in advance for smooth scrolling.
+     * A data block is a chunk of data that is loaded from the server. It's size is is whatever fits the current viewport.
+     * @default 3
+     */
+    readonly dataBlockWindow = input<number>(3);
+
+    /**
+     * The height of the table data row.
+     * This must be a valid CSS value.
+     * Fixed height is required for virtual scrolling to work properly.
+     * If the height is not fixed, the table will not be able to calculate the row heights and will not be able to scroll properly.
+     * @default '2.5rem'
+     */
+    readonly dataRowHeight = input<string>('2.5rem');
+
+    /**
+     * The margin for all header cells
+     * @default '0.5rem'
+     */
+    readonly headerPadding = input<string>('0.5rem');
+
+    /**
+     * The margin for all data cells
+     * @default '0 0.5rem'
+     */
+    readonly dataPadding = input<string>('0 0.5rem');
+
+    /**
+     * The sorting mode. When multi sort is enabled, holding SHIFT when clicking a column header will add it to the sort list
+     * @default single
+     */
+    readonly sortMode = input<'single' | 'multi'>('single');
+
+    /**
+     * The sort models. Initial sort mode can be provided here.
+     * This gets updated when the sort is changed by the user on the UI dynamically
+     * @default []
+     */
+    readonly sort = model<DataSort[]>([]);
 
     /**
      * The column ID to pin to the left side of the table.
      * If undefined, no column will be pinned to the left.
-     * This can be changed dynamically by the user from a built-in control.
      * @default undefined
      */
-    readonly pinnedLeftColumn = model<string | undefined>(undefined);
+    readonly pinnedLeftColumn = input<string | undefined>(undefined);
 
     /**
      * The column ID to pin to the right side of the table.
      * If undefined, no column will be pinned to the right.
-     * This can be changed dynamically by the user from a built-in control.
      * @default undefined
      */
-    readonly pinnedRightColumn = model<string | undefined>(undefined);
+    readonly pinnedRightColumn = input<string | undefined>(undefined);
+
+    /**
+     * Whether to show a striped table.
+     * This will alternate the background color of the rows.
+     * @default false
+     */
+    readonly striped = input<boolean>(false);
+
+    /**
+     * The template to use when there is no data to display.
+     * If 'default', a default template will be used.
+     * If a TemplateRef is provided, it will be used as the no data template.
+     * @default 'default'
+     */
+    readonly noDataTemplate = input<TemplateRef<any> | 'default'>('default');
 
     private readonly columnDefs = contentChildren(ColumnDefDirective);
-    protected readonly displayedColumnDefs = computed(() => {
-        let columnDefs = this.columnDefs();
-        const displayedColumns = this.displayedColumns();
-        const pinnedLeftColumnId = this.pinnedLeftColumn();
-        const pinnedRightColumnId = this.pinnedRightColumn();
-        if (displayedColumns) {
-            const displayColumnDefs = [];
-            for (const colId of displayedColumns) {
-                const colDef = columnDefs.find((e) => e.id() === colId);
-                if (colDef) {
-                    displayColumnDefs.push(colDef);
+    protected readonly displayedColumnDefs = computed(
+        () => {
+            let columnDefs = this.columnDefs();
+            const displayedColumns = this.displayedColumns();
+            const pinnedLeftColumnId = this.pinnedLeftColumn();
+            const pinnedRightColumnId = this.pinnedRightColumn();
+            if (displayedColumns) {
+                const displayColumnDefs = [];
+                for (const colId of displayedColumns) {
+                    const colDef = columnDefs.find((e) => e.id() === colId);
+                    if (colDef) {
+                        displayColumnDefs.push(colDef);
+                    }
+                }
+                columnDefs = displayColumnDefs;
+            }
+            const pinnedLeftColumn = columnDefs.find(
+                (e) => e.id() === pinnedLeftColumnId
+            );
+            const pinnedRightColumn = columnDefs.find(
+                (e) => e.id() === pinnedRightColumnId
+            );
+
+            const ret: {
+                id: string;
+                col: ColumnDefDirective;
+                pinnedLeft: boolean;
+                pinnedRight: boolean;
+                sortOrder: SortOrderPair;
+            }[] = [];
+            if (pinnedLeftColumn) {
+                ret.push({
+                    id: pinnedLeftColumn.id(),
+                    col: pinnedLeftColumn,
+                    pinnedLeft: true,
+                    pinnedRight: false,
+                    sortOrder: pinnedLeftColumn.sortOrder(),
+                });
+            }
+            for (const col of columnDefs.filter(
+                (e) => e !== pinnedLeftColumn && e !== pinnedRightColumn
+            )) {
+                ret.push({
+                    id: col.id(),
+                    col,
+                    pinnedLeft: false,
+                    pinnedRight: false,
+                    sortOrder: col.sortOrder(),
+                });
+            }
+            if (pinnedRightColumn) {
+                ret.push({
+                    id: pinnedRightColumn.id(),
+                    col: pinnedRightColumn,
+                    pinnedLeft: false,
+                    pinnedRight: true,
+                    sortOrder: pinnedRightColumn.sortOrder(),
+                });
+            }
+            return ret;
+        },
+        {
+            equal: (a, b) => {
+                if (a.length !== b.length) {
+                    return false;
+                }
+                for (let i = 0; i < a.length; i++) {
+                    if (
+                        a[i].id !== b[i].id ||
+                        a[i].pinnedLeft !== b[i].pinnedLeft ||
+                        a[i].pinnedRight !== b[i].pinnedRight ||
+                        a[i].col.id() !== b[i].col.id()
+                    ) {
+                        return false;
+                    }
+                }
+                return true;
+            },
+        }
+    );
+
+    protected readonly columnWidthDirectives = viewChildren(
+        ColRenderedWidthDirective
+    );
+    private hostElement = inject<ElementRef<HTMLElement>>(ElementRef);
+    private cdr = inject<ChangeDetectorRef>(ChangeDetectorRef);
+    private headerRow =
+        viewChild.required<ElementRef<HTMLElement>>('headerRow');
+    private dataRowSizer =
+        viewChild.required<ElementRef<HTMLElement>>('dataSizer');
+
+    private dataWindowHeightPx = signal<number | undefined>(undefined, {
+        equal: (a, b) => a === b,
+    });
+    private dataWindowHeightObserver: ResizeObserver | undefined;
+    private dataRowHeightPx = signal<number | undefined>(undefined, {
+        equal: (a, b) => a === b,
+    });
+    private dataRowHeightObserver: ResizeObserver | undefined;
+    protected readonly dataManager = new DataManager(this.cdr);
+    ngAfterViewInit(): void {
+        const host = this.hostElement.nativeElement;
+        this.dataWindowHeightObserver = new ResizeObserver(() => {
+            this.dataWindowHeightPx.set(
+                host.offsetHeight - this.headerRow().nativeElement.offsetHeight - 15
+            );
+        });
+        this.dataWindowHeightObserver.observe(host);
+
+        this.dataRowHeightObserver = new ResizeObserver(() => {
+            this.dataRowHeightPx.set(
+                this.dataRowSizer().nativeElement.offsetHeight
+            );
+        });
+        this.dataRowHeightObserver.observe(host);
+    }
+
+    private readonly dataManagerReset = effect(() => {
+        const dataWindowHeight = this.dataWindowHeightPx();
+        const dataRowHeight = this.dataRowHeightPx();
+        const sort = this.sort();
+        const getDataBlock = this.getDataBlock();
+        const dataBlockWindow = this.dataBlockWindow();
+        const displayedColumns = this.displayedColumnDefs();
+
+        // this.hostElement.nativeElement.scrollTo({
+        //     top: 0,
+        //     left: 0,
+        //     behavior: 'auto',
+        // });
+        untracked(() =>
+            this.resetInternal(
+                dataWindowHeight,
+                dataRowHeight,
+                sort,
+                getDataBlock,
+                dataBlockWindow,
+                displayedColumns
+            )
+        );
+    });
+
+    @HostListener('scroll', ['$event.target'])
+    private onScroll(element: HTMLElement) {
+        this.dataManager.setScrollPosition(element.scrollTop);
+    }
+    ngOnDestroy(): void {
+        if (this.dataWindowHeightObserver) {
+            this.dataWindowHeightObserver.disconnect();
+            this.dataWindowHeightObserver = undefined;
+        }
+        if (this.dataRowHeightObserver) {
+            this.dataRowHeightObserver.disconnect();
+            this.dataRowHeightObserver = undefined;
+        }
+    }
+
+    protected onColumnHeaderClick(e: MouseEvent, def: ColumnDefDirective) {
+        if (!def.sortable()) {
+            return;
+        }
+        console.log('Column header clicked', def.id());
+        e.preventDefault();
+        e.stopPropagation();
+        (e.target as HTMLElement).blur();
+
+        const propertyName = def.propertyName() || def.id();
+        const sort = this.sort();
+        const sortOrder = def.sortOrder();
+        const currentSort = sort.find((e) => e.property === propertyName);
+        if (this.sortMode() === 'single' || e.shiftKey === false) {
+            if (currentSort?.direction === sortOrder[1]) {
+                this.sort.set([]);
+            } else {
+                this.sort.set([
+                    {
+                        property: propertyName,
+                        direction:
+                            currentSort === undefined
+                                ? sortOrder[0]
+                                : currentSort.direction === 'asc'
+                                ? 'desc'
+                                : 'asc',
+                    },
+                ]);
+            }
+        } else {
+            for (const s of sort) {
+                if (s.property === propertyName) {
+                    // toggle sort mode
+                    if (s.direction === def.sortOrder()[1]) {
+                        // remove sort
+                        this.sort.set(
+                            sort.filter((e) => e.property !== propertyName)
+                        );
+                        return;
+                    } else {
+                        s.direction = s.direction === 'asc' ? 'desc' : 'asc';
+                        this.sort.set([...sort]);
+                    }
+
+                    return;
                 }
             }
-            columnDefs = displayColumnDefs;
+            // add new sort
+            this.sort.set([
+                ...sort,
+                {
+                    property: propertyName,
+                    direction: def.sortOrder()[0],
+                },
+            ]);
         }
-        const pinnedLeftColumn = columnDefs.find(
-            (e) => e.id() === pinnedLeftColumnId
-        );
-        const pinnedRightColumn = columnDefs.find(
-            (e) => e.id() === pinnedRightColumnId
-        );
+    }
 
-        const ret: {
-            id: string;
-            col: ColumnDefDirective;
-            pinnedLeft: boolean;
-            pinnedRight: boolean;
-        }[] = [];
-        if (pinnedLeftColumn) {
-            ret.push({
-                id: pinnedLeftColumn.id(),
-                col: pinnedLeftColumn,
-                pinnedLeft: true,
-                pinnedRight: false,
-            });
+    private resetInternal(
+        dataWindowHeight: number | undefined,
+        dataRowHeight: number | undefined,
+        sort: DataSort[] | undefined,
+        getDataBlock: ((req: DataRequest) => Promise<DataResponse>) | undefined,
+        dataBlockWindow: number,
+        displayedColumns:
+            | {
+                  id: string;
+                  col: ColumnDefDirective;
+                  pinnedLeft: boolean;
+                  pinnedRight: boolean;
+                  sortOrder: SortOrderPair;
+              }[]
+            | undefined
+    ): boolean {
+        if (
+            !dataRowHeight ||
+            !dataWindowHeight ||
+            !sort ||
+            !getDataBlock ||
+            !displayedColumns
+        ) {
+            console.warn(
+                'Table reset called with undefined parameters, ignoring'
+            );
+            return false;
         }
-        for (const col of columnDefs.filter(
-            (e) => e !== pinnedLeftColumn && e !== pinnedRightColumn
-        )) {
-            ret.push({
-                id: col.id(),
-                col,
-                pinnedLeft: false,
-                pinnedRight: false,
-            });
+        this.dataManager.reset(
+            dataWindowHeight,
+            dataRowHeight,
+            sort,
+            displayedColumns.map((e) => e.id),
+            dataBlockWindow,
+            getDataBlock
+        );
+        return true;
+    }
+    reset(resetSort: boolean = false) {
+        if (resetSort) {
+            this.sort.set([]);
         }
-        if (pinnedRightColumn) {
-            ret.push({
-                id: pinnedRightColumn.id(),
-                col: pinnedRightColumn,
-                pinnedLeft: false,
-                pinnedRight: true,
-            });
+        const dataWindowHeight = this.dataWindowHeightPx();
+        const dataRowHeight = this.dataRowHeightPx();
+        const sort = this.sort();
+        const getDataBlock = this.getDataBlock();
+        const dataBlockWindow = this.dataBlockWindow();
+        const displayedColumns = this.displayedColumnDefs();
+        if (
+            this.resetInternal(
+                dataWindowHeight,
+                dataRowHeight,
+                sort,
+                getDataBlock,
+                dataBlockWindow,
+                displayedColumns
+            )
+        ) {
+            console.log('Table reset successfully');
         }
-        return ret;
-    });
+    }
 }

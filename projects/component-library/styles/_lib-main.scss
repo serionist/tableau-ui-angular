@@ -4,6 +4,7 @@ body,html {
     color: var(--twc-color-text);
     line-height: 1.5;
     margin: 0;
+    background-color: var(--twc-color-base);
 }
 
 @media (resolution <= 120dpi) {
