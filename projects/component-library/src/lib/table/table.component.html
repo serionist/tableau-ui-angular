@@ -1,9 +1,9 @@
-<div class="table" role="table"
-    [style.minWidth]="'calc(100% - ${1})'">
+<div class="table" role="table">
     <!--Data Row Sizer. This is a position fixed, 0px wide row with the given row height px. used to calculate the actual height of data rows prior to virtualizing-->
     <div class="data-sizer" [style.height]="dataRowHeight()" #dataSizer></div>
     <!-- Column Row -->
-    <div class="column-row" #headerRow>
+    <div class="column-row" #headerRow
+    [style.minWidth]="`calc(100% - ${verticalScrollBarWidthPx()}px)`">
         @for (def of displayedColumnDefs(); let index = $index; let count = $count; let
         first = $first; let last = $last; let even = $even; let odd = $odd;
         track def.id) {

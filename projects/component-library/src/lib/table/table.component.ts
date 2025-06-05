@@ -196,7 +196,7 @@ export class TableComponent implements AfterViewInit, OnDestroy {
     private dataRowSizer =
         viewChild.required<ElementRef<HTMLElement>>('dataSizer');
 
-    private verticalScrollBarWidthPx = signal<number>(0, {
+    protected verticalScrollBarWidthPx = signal<number>(0, {
         equal: (a, b) => a === b
     });
     private dataWindowHeightPx = signal<number | undefined>(undefined, {

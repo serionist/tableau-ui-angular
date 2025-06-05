@@ -28,6 +28,9 @@ export class TablePageComponent {
         console.log('Loading data block with request:', req);
         // Simulate a data load with a delay
         await new Promise(resolve => setTimeout(resolve, 1000));
+        if (req.abort.aborted) {
+            console.warn('Data load aborted:', req);
+        }
         const slicedData = data.slice(req.offset, req.offset + req.count);
         // Return a mock response
         const ret = {

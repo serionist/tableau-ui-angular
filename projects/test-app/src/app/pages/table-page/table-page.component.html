@@ -36,7 +36,8 @@
                     <ng-template tabHeaderDef let-data>ID</ng-template>
                     <ng-template tabCellDef let-data>{{ data.id }}</ng-template>
                 </ng-container>
-                <ng-container tabColumnDef="name" [headerClass]="customCalculatedClass">
+                <ng-container tabColumnDef="name" [headerClass]="customCalculatedClass"
+                    minWidth="100px" maxWidth="200px">
                     <ng-template tabHeaderDef let-data>Name</ng-template>
                     <ng-template tabCellDef let-data>{{ data.name }}</ng-template>
                 </ng-container>
