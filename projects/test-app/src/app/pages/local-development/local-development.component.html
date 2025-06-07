@@ -8,7 +8,7 @@
             </p>
         </div>
     </div>
-    <tab-separator></tab-separator>
+    <tab-separator />
     <div class="content">
         <div class="section">
             <h3>Purpose</h3>
@@ -24,34 +24,34 @@
                     style="height: 30px; width: 150px; margin-bottom: 5px;"
                     ngModel="npm run dev:link"
                     [options]="terminalOptions"
-                ></ngx-monaco-editor> </li>
+                /> </li>
                 <li>Update the <code>angular.json</code> file of the <b>consuming project</b> to preserve symlinks:
                     <ngx-monaco-editor
                             style="height: 220px; width: 430px; margin-bottom: 5px;"
                             [options]="jsonOptions"
                             [ngModel]="angularJsonContent"
-                        ></ngx-monaco-editor>
+                        />
                 </li>
                 <li>Update the <code>tsconfig.json</code> file of the <b>consuming project</b> to add paths for this library. This is required for <code>ng serve</code> to detect code live changes and recompile:
                     <ngx-monaco-editor
                             style="height: 120px; width: 430px; margin-bottom: 5px;"
                             [options]="jsonOptions"
                             [ngModel]="tsconfigJsonContent"
-                        ></ngx-monaco-editor>
+                        />
                 </li>
                 <li>Run the following command from the root of the <b>consuming project</b> to install <code>npx link</code>. We use this instead if <code>npm link</code> since its much safer:
                     <ngx-monaco-editor
                     style="height: 25px; width: 550px; margin-bottom: 5px;"
                     ngModel="npm install --save-dev link"
                     [options]="terminalOptions"
-                ></ngx-monaco-editor>
+                />
                 </li>
                 <li>Run the following command from the root of the <b>consuming project</b> to link the library:
                     <ngx-monaco-editor
                     style="height: 25px; width: 550px; margin-bottom: 5px;"
                     ngModel="npx link [path-to-this-library]/dist/component-library"
                     [options]="terminalOptions"
-                ></ngx-monaco-editor>
+                />
                 </li>
             </ol>
         </div>
@@ -62,7 +62,7 @@
         style="height: 30px; width: 500px; margin-bottom: 5px;"
         ngModel="npm install"
         [options]="terminalOptions"
-    ></ngx-monaco-editor>
+    />
     </div>
     </div>
 </div>

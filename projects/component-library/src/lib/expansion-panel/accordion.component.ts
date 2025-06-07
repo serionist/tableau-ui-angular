@@ -5,7 +5,7 @@ import { Subscription } from 'rxjs';
 @Component({
     selector: 'tab-accordion',
     standalone: false,
-    template: '<ng-content select="tab-expansion-panel"></ng-content>',
+    template: '<ng-content select="tab-expansion-panel" />',
     styles: `
     :host {
         height: 100%;

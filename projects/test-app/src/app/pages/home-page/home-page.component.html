@@ -7,7 +7,7 @@
             library.
         </div>
     </div>
-    <tab-separator></tab-separator>
+    <tab-separator />
     
     <div class="content">
         <div class="section">
@@ -36,7 +36,7 @@
                         style="height: 20px; width: 280px; margin-bottom: 5px;"
                         ngModel="npm install tableau-ui-angular"
                         [options]="terminalOptions"
-                    ></ngx-monaco-editor>
+                    />
                 </li>
                 <li>
                     Follow the <a [routerLink]="'css'"><b>CSS & Fonts</b></a> guide to import the styles and fonts into your application.
@@ -65,7 +65,7 @@
                     style="height: 300px; width: 500px; margin-bottom: 5px;"
                     [options]="tsOptions"
                     [ngModel]="sampleTsCode"
-                ></ngx-monaco-editor>
+                />
                 <b>Note: </b><span>You can use the <code>TableauUiAllModule</code> to import all components.</span>
                 </li>
                 <li>
@@ -74,7 +74,7 @@
                     style="height: 70px; width: 650px; margin-bottom: 5px;"
                     [options]="htmlOptions"
                     [ngModel]="sampleHtmlCode"
-                ></ngx-monaco-editor>
+                />
                 </li>
             </ol>
         </div>

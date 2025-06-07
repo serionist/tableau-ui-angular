@@ -7,7 +7,7 @@
             users to easily read and compare information.
         </div>
     </div>
-    <tab-separator></tab-separator>
+    <tab-separator />
     <div class="content">
         <div class="section">
             <h3>Module</h3>
@@ -83,7 +83,7 @@
                     <ng-container
                         [ngTemplateOutlet]="template"
                         [ngTemplateOutletContext]="ctx"
-                    ></ng-container>
+                    />
                 </ng-template>
                 <ng-template
                     #customNameCellTooltip
@@ -94,7 +94,7 @@
                     <ng-container
                         [ngTemplateOutlet]="template"
                         [ngTemplateOutletContext]="ctx"
-                    ></ng-container>
+                    />
                 </ng-template>
                 <ng-container tabColumnDef="age" [resizable]="false">
                     <ng-template let-data tabHeaderDef>Age</ng-template>

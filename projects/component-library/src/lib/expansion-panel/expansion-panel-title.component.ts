@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, Directive } from "@angular/core";
 
 @Component({
     selector: 'tab-expansion-panel-title',
-    template: `<ng-content></ng-content>`,
+    template: `<ng-content />`,
     styles: `
         :host {
             align-items: center;

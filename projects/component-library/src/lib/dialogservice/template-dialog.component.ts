@@ -7,7 +7,7 @@ import { TAB_DATA_REF } from './data.ref';
         ]
         [ngTemplateOutlet]="data.contentTemplate"
         [ngTemplateOutletContext]="data.contentTemplateContext"
-    ></ng-container>`,
+    />`,
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: false
 })

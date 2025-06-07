@@ -50,7 +50,7 @@
                         <div class="content">
                             <div class="text">
                                 @if (def.col.$header()) {
-                                    <ng-container [ngTemplateOutlet]="def.col.$header()!.templateRef" [ngTemplateOutletContext]="headerContext"></ng-container>
+                                    <ng-container [ngTemplateOutlet]="def.col.$header()!.templateRef" [ngTemplateOutletContext]="headerContext" />
                                 }
                             </div>
                             @if (def.col.$sortable()) {
@@ -58,13 +58,13 @@
                                     @let currentSort = $sort() | sortInfoPipe: def.id : def.col.$propertyName();
                                     @switch (currentSort?.info?.direction) {
                                         @case ('asc') {
-                                            <tab-icon value="arrow_upward"></tab-icon>
+                                            <tab-icon value="arrow_upward" />
                                         }
                                         @case ('desc') {
-                                            <tab-icon value="arrow_downward"></tab-icon>
+                                            <tab-icon value="arrow_downward" />
                                         }
                                         @default {
-                                            <tab-icon class="no-sort" value="swap_vert"></tab-icon>
+                                            <tab-icon class="no-sort" value="swap_vert" />
                                         }
                                     }
                                     @if ($sortMode() === 'multi' && currentSort) {
@@ -85,7 +85,7 @@
             <ng-template #defaultHeaderTemplate let-template="template" let-ctx="ctx" let-sortMode="sortMode" let-sortable="sortable" let-sortOrder="sortOrder" let-currentSort="currentSort" let-allSorts="allSorts">
                 <div class="default-header-tooltip">
                     <div class="column-name">
-                        <ng-container [ngTemplateOutlet]="template" [ngTemplateOutletContext]="ctx"></ng-container>
+                        <ng-container [ngTemplateOutlet]="template" [ngTemplateOutletContext]="ctx" />
                     </div>
 
                     @if (sortable) {
@@ -151,7 +151,7 @@
         @let dmBlocks = dataManager.$blocks();
         @if (dmBlocks.prePixels === 0 && dmBlocks.postPixels === 0 && dmBlocks.blocks.length === 0 && dataManager.$totalRowCount() === 0) {
             @let _noDataTemplate = $noDataTemplate();
-            <ng-container [ngTemplateOutlet]="_noDataTemplate === 'default' ? defaultNoData : _noDataTemplate"></ng-container>
+            <ng-container [ngTemplateOutlet]="_noDataTemplate === 'default' ? defaultNoData : _noDataTemplate" />
             <ng-template #defaultNoData>
                 <div class="no-data" [style.padding]="$dataPadding()">
                     <span>No data available</span>
@@ -211,7 +211,7 @@
                                         <div class="status error"></div>
                                     }
                                     @case ('success') {
-                                        <ng-container [ngTemplateOutlet]="def.col.$cell().templateRef" [ngTemplateOutletContext]="cellContext"></ng-container>
+                                        <ng-container [ngTemplateOutlet]="def.col.$cell().templateRef" [ngTemplateOutletContext]="cellContext" />
                                     }
                                 }
                             </div>

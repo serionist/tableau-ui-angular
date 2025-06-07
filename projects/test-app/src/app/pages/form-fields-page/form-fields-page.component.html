@@ -8,7 +8,7 @@
             Supports both Reactive Forms and simple value binding.
         </div>
     </div>
-    <tab-separator></tab-separator>
+    <tab-separator />
     <div class="content">
         <div class="section">
             <h3>Module</h3>
@@ -78,7 +78,7 @@
                     <tab-hint>Hint on the left side</tab-hint>
                     <tab-hint type="suffix">Hint on the right side</tab-hint>
                     <tab-prefix>
-                        <tab-icon value="search"></tab-icon>
+                        <tab-icon value="search" />
                     </tab-prefix>
                     <tab-suffix>Suffix</tab-suffix>
                 </tab-form-field>
@@ -100,25 +100,25 @@
                                     align-items: center;
                                 "
                             >
-                                <tab-icon value="search"></tab-icon>
+                                <tab-icon value="search" />
                                 Suggestions
                             </div>
-                            <tab-separator></tab-separator>
+                            <tab-separator />
                         </tab-prefix>
                         @if ($searching()) {
                         <tab-prefix>
-                            <tab-loading-gif></tab-loading-gif>
+                            <tab-loading-gif />
                         </tab-prefix>
                         } @else { @for (result of searchResults$ | async; track
                         result.name) {
                         <tab-option
                             [text]="result.name"
                             [value]="result.name"
-                        ></tab-option>
+                        />
                         } }
 
                         <tab-suffix>
-                            <tab-separator></tab-separator>
+                            <tab-separator />
                             <tab-hint style="display: block; margin: 0.5rem"
                                 >{{
                                     (searchResults$ | async)?.length || 0
@@ -168,7 +168,7 @@
                             >Hint on the right side</tab-hint
                         >
                         <tab-prefix>
-                            <tab-icon value="search"></tab-icon>
+                            <tab-icon value="search" />
                         </tab-prefix>
                         <tab-suffix>Suffix</tab-suffix>
                     </tab-form-field>
@@ -185,7 +185,7 @@
                             >Hint on the right side</tab-hint
                         >
                         <tab-prefix>
-                            <tab-icon value="search"></tab-icon>
+                            <tab-icon value="search" />
                         </tab-prefix>
                         <tab-suffix>Suffix</tab-suffix>
                     </tab-form-field>
@@ -203,7 +203,7 @@
                             >Hint on the right side</tab-hint
                         >
                         <tab-prefix>
-                            <tab-icon value="search"></tab-icon>
+                            <tab-icon value="search" />
                         </tab-prefix>
                         <tab-suffix>Suffix</tab-suffix>
                         @if (form | formMeta:'validation' | async | formHasError) {
@@ -223,7 +223,7 @@
                             >Hint on the right side</tab-hint
                         >
                         <tab-prefix>
-                            <tab-icon value="search"></tab-icon>
+                            <tab-icon value="search" />
                         </tab-prefix>
                         <tab-suffix>Suffix</tab-suffix>
                     </tab-form-field>
@@ -237,7 +237,7 @@
                         />
                         <tab-hint>Enter -1 for multiple errors</tab-hint>
                         <tab-prefix>
-                            <tab-icon value="search"></tab-icon>
+                            <tab-icon value="search" />
                         </tab-prefix>
                         <tab-suffix>Suffix</tab-suffix>
                         @if (form | formMeta:'number' | async | formHasError:'required') {

@@ -51,9 +51,9 @@ import { generateRandomString } from '../utils';
                         />
                     </span>
                 }
-                <div class="button-content"><ng-content></ng-content></div>
+                <div class="button-content"><ng-content /></div>
                 @if ($children().length > 0) {
-                    <tab-icon class="expand" value="keyboard_arrow_right"></tab-icon>
+                    <tab-icon class="expand" value="keyboard_arrow_right" />
                 }
             </div>
         </ng-template>

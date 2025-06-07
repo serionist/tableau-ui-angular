@@ -12,13 +12,13 @@ import { TAB_SNACK_DATA_REF } from './data.ref';
     template: `
         <div class="snack-content" [ngClass]="data.type">
             <div class="content">
-                <tab-icon class="icon" [value]="data.type === 'success' ? 'check' : data.type"></tab-icon>
+                <tab-icon class="icon" [value]="data.type === 'success' ? 'check' : data.type" />
                 @if (data.contentTemplate) {
                 <div>
                     <ng-container
                         [ngTemplateOutlet]="data.contentTemplate!"
                         [ngTemplateOutletContext]="data.contentTemplateContext"
-                    ></ng-container>
+                    />
                 </div>
                 } @else {
                 <div class="text">
@@ -38,7 +38,7 @@ import { TAB_SNACK_DATA_REF } from './data.ref';
                     (click)="snackRef.close(true)"
                     (keydown.enter)="snackRef.close(true)"
                     (keydown.space)="snackRef.close(true)"
-                ></tab-icon>
+                />
             </div>
         </div>
     `,

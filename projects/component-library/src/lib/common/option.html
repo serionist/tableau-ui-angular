@@ -9,23 +9,23 @@
         @if (renderIcon && $iconType() !== 'none') {
         <div class="icon" [style.marginRight]="renderText ? '0.25rem' : '0'">
             @if ($iconType() === 'string') {
-            <tab-icon [value]="$iconString()"></tab-icon>
+            <tab-icon [value]="$iconString()" />
             } @else if ($iconType() === 'template') {
-            <ng-container *ngTemplateOutlet="$iconTemplate()"></ng-container>
+            <ng-container *ngTemplateOutlet="$iconTemplate()" />
             }
         </div>
         } @if (renderText && $textType() !== 'none') {
         <div class="content">
             @if ($textType() === 'string') { {{ $textString() }} } @else if
             ($textType() === 'template') {
-            <ng-container *ngTemplateOutlet="$textTemplate()"></ng-container>
+            <ng-container *ngTemplateOutlet="$textTemplate()" />
             }
         </div>
         } @if (renderHint && $hintType() !== 'none') {
         <div class="hint">
             @if ($hintType() === 'string') { {{ $hintString() }} } @else if
             ($hintType() === 'template') {
-            <ng-container *ngTemplateOutlet="$hintTemplate()"></ng-container>
+            <ng-container *ngTemplateOutlet="$hintTemplate()" />
             }
         </div>
         }
@@ -41,16 +41,16 @@
         @if (renderIcon && $iconType() !== 'none') {
         <span class="icon"  [style.marginRight]="renderText ? '0.25rem' : '0'">
             @if ($iconType() === 'string') {
-            <tab-icon [value]="$iconString()"></tab-icon>
+            <tab-icon [value]="$iconString()" />
             } @else if ($iconType() === 'template') {
-            <ng-container *ngTemplateOutlet="$iconTemplate()"></ng-container>
+            <ng-container *ngTemplateOutlet="$iconTemplate()" />
             }
         </span>
         } @if (renderText && $textType() !== 'none') {
         <span class="content">
             @if ($textType() === 'string') { {{ $textString() }} } @else if
             ($textType() === 'template') {
-            <ng-container *ngTemplateOutlet="$textTemplate()"></ng-container>
+            <ng-container *ngTemplateOutlet="$textTemplate()" />
             }
         </span>
         }

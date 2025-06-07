@@ -7,7 +7,7 @@
             Supports both Reactive Forms and simple value binding.
         </div>
     </div>
-    <tab-separator></tab-separator>
+    <tab-separator />
     <div class="content">
         <div class="section">
             <h3>Module</h3>
@@ -43,19 +43,19 @@
                         icon="home"
                         hint="There are 2 ways to create tab-options; by values and by templates"
                         [value]="1"
-                    ></tab-option>
+                    />
                     <tab-option
                         text="Disabled value"
                         hint="with random hint"
                         [value]="2"
                         [disabled]="true"
-                    ></tab-option>
+                    />
                     <ng-template #iconRef>
                         <tab-icon
                             color="success"
                             value="home"
                             [fill]="true"
-                        ></tab-icon>
+                        />
                     </ng-template>
                     <ng-template #textRef
                         >This option is provided as a
@@ -72,7 +72,7 @@
                         [icon]="iconRef"
                         [text]="textRef"
                         [hint]="hintRef"
-                    ></tab-option>
+                    />
                     <ng-template #combinationRef
                         >This option is provided as a <b>combination</b> of text
                         and template</ng-template
@@ -102,19 +102,19 @@
                         icon="home"
                         hint="There are 2 ways to create tab-options; by values and by templates"
                         [value]="1"
-                    ></tab-option>
+                    />
                     <tab-option
                         text="Disabled value"
                         hint="with random hint"
                         [value]="2"
                         [disabled]="true"
-                    ></tab-option>
+                    />
                     <ng-template #iconRef>
                         <tab-icon
                             color="success"
                             value="home"
                             [fill]="true"
-                        ></tab-icon>
+                        />
                     </ng-template>
                     <ng-template #textRef
                         >This option is provided as a
@@ -131,7 +131,7 @@
                         [icon]="iconRef"
                         [text]="textRef"
                         [hint]="hintRef"
-                    ></tab-option>
+                    />
                     <ng-template #combinationRef
                         >This option is provided as a <b>combination</b> of text
                         and template</ng-template

@@ -14,10 +14,10 @@ import {
     selector: 'tab',
     template: `
         <ng-template #headerTemplate>
-            <ng-content select="[tab-header]" ></ng-content>
+            <ng-content select="[tab-header]" />
         </ng-template>
         <ng-template #contentTemplate>
-            <ng-content></ng-content>
+            <ng-content />
         </ng-template>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush,

@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, ElementRef, inject } from '@angular
 
 @Component({
     selector: 'tab-error',
-    template: `<div class="tab-error"><ng-content></ng-content></div>`,
+    template: `<div class="tab-error"><ng-content /></div>`,
     styles: `
         .tab-error {
             font-size: 0.9em;

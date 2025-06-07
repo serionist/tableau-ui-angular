@@ -1,17 +1,4 @@
-import {
-    AfterContentInit,
-    AfterViewInit,
-    ChangeDetectionStrategy,
-    Component,
-    ElementRef,
-    inject,
-    input,
-    model,
-    ModelSignal,
-    TemplateRef,
-    ViewChild,
-    viewChild,
-} from '@angular/core';
+import { AfterContentInit, AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, inject, input, model, ModelSignal, TemplateRef, ViewChild, viewChild } from '@angular/core';
 import { ButtonComponent } from '../button/button.component';
 import { TAB_DIALOG_REF } from './dialog.ref';
 import { TAB_DATA_REF } from './data.ref';
@@ -19,25 +6,19 @@ import { TAB_DATA_REF } from './data.ref';
 @Component({
     template: `
         <div class="dialog-content">
-            <div *ngIf="data.contentTemplate; else textContent">
-                <ng-container
-                    *ngTemplateOutlet="data.contentTemplate"
-                ></ng-container>
-            </div>
-            <ng-template #textContent>
+            @if (data.contentTemplate) {
+                <div>
+                    <ng-container *ngTemplateOutlet="data.contentTemplate" />
+                </div>
+            } @else {
                 <div>{{ data.content }}</div>
-            </ng-template>
+            }
         </div>
         <div class="dialog-actions">
             <button #cancel tabindex="0" (click)="dialogRef.close(false)">
                 {{ data.cancelBtnText ?? 'Cancel' }}
             </button>
-            <button
-                #accept
-                tabindex="0"
-                [color]="data.color"
-                (click)="dialogRef.close(true)"
-            >
+            <button #accept tabindex="0" [color]="data.color" (click)="dialogRef.close(true)">
                 {{ data.acceptBtnText ?? 'OK' }}
             </button>
         </div>
@@ -59,8 +40,7 @@ import { TAB_DATA_REF } from './data.ref';
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: false,
 })
-export class ConfirmationDialogComponent implements AfterViewInit, AfterContentInit{
-
+export class ConfirmationDialogComponent implements AfterViewInit, AfterContentInit {
     protected data = inject<IConfirmationDialogData>(TAB_DATA_REF);
 
     protected dialogRef = inject(TAB_DIALOG_REF);

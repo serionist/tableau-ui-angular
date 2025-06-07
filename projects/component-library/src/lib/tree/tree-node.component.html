@@ -45,15 +45,15 @@
                 [value]="
                     $expanded() ? 'keyboard_arrow_down' : 'keyboard_arrow_right'
                 "
-            ></tab-icon>
+            />
         </button>
         <div class="header-content">
             @if ($expanded() && $expandedContent()) {
-                <ng-content select="[expandedContent]"></ng-content>
+                <ng-content select="[expandedContent]" />
             } @else if (!$expanded() && $collapsedContent()) {
-                <ng-content select="[collapsedContent]"></ng-content>
+                <ng-content select="[collapsedContent]" />
             }
-            <ng-content></ng-content>
+            <ng-content />
             
         </div>
     </div>

@@ -7,7 +7,7 @@
             library.
         </div>
     </div>
-    <tab-separator></tab-separator>
+    <tab-separator />
 
     <div class="content">
         <div class="section">
@@ -31,7 +31,7 @@
                             value="add_circle"
                             color="success"
                             [fill]="true"
-                        ></tab-icon>
+                        />
                         <span
                             >All the icons are hosted locally</span
                         >
@@ -41,7 +41,7 @@
                             value="add_circle"
                             color="success"
                             [fill]="true"
-                        ></tab-icon>
+                        />
                         <span
                             >Simple installation and usage</span
                         >
@@ -51,7 +51,7 @@
                             value="do_not_disturb_on"
                             [fill]="true"
                             [color]="'error'"
-                        ></tab-icon>
+                        />
                         <span
                             >Large size. Browser downloads at least ~4.5MB+
                             (uncompressed) to make icons available. May be a lot more if multiple icon styles are used (outlined/rounded/sharp)</span
@@ -65,7 +65,7 @@
                             value="add_circle"
                             color="success"
                             [fill]="true"
-                        ></tab-icon>
+                        />
                         <span
                             >Only loads the used icons, small download size (a
                             few kilobytes, depending on the number of icons
@@ -78,7 +78,7 @@
                             value="do_not_disturb_on"
                             [fill]="true"
                             [color]="'error'"
-                        ></tab-icon>
+                        />
                         <span
                             >Harder to set up and use. Each used icon needs to be recorded by the developer.</span
                         >
@@ -109,12 +109,12 @@
                     "
                     ngModel='&lt;tab-icon value="home"&gt;&lt;/tab-icon&gt;'
                     [options]="htmlOptions"
-                ></ngx-monaco-editor>
+                />
                 <span>This will render: </span>
                 <tab-icon
                     value="home"
                     style="font-size: 18px; vertical-align: middle"
-                ></tab-icon>
+                />
             </div>
             <ul>
                 <li>
@@ -168,7 +168,7 @@
                 margin-right: 1em;
             "
             [options]="htmlOptions"
-            [ngModel]="fullConfigExample"></ngx-monaco-editor>
+            [ngModel]="fullConfigExample" />
         </div>
 
         <div class="section">
@@ -180,7 +180,7 @@
                         style="height: 25px; width: 270px"
                         ngModel="npm install material-symbols"
                         [options]="terminalOptions"
-                    ></ngx-monaco-editor>
+                    />
                 </li>
                 <li>
                     Import the rounded icons by updating your
@@ -189,7 +189,7 @@
                         style="height: 75px; width: 730px"
                         [options]="scssOptions"
                         [ngModel]="localImportCode"
-                    ></ngx-monaco-editor>
+                    />
                 </li>
                 <li>
                     Add the <code>TableauUiIconModule</code> to your module/component imports:
@@ -197,7 +197,7 @@
                         style="height: 280px; width: 520px"
                         [options]="tsOptions"
                         [ngModel]="localModuleCode"
-                    ></ngx-monaco-editor>
+                    />
                 </li>
                 <li>Use the Icon as it's shown in the Usage section</li>
             </ol>
@@ -219,7 +219,7 @@
                     style="height: 25px; width: 300px"
                     ngModel="npm install --save-dev axios"
                     [options]="terminalOptions"
-                ></ngx-monaco-editor>
+                />
                 </li>
                 <li>
                     Create an <code>icons.ts</code> and inherit the <code>UsedIcons</code> class that is coming from this library. <br />
@@ -228,7 +228,7 @@
                         style="height: 550px; width: 870px"
                         [options]="tsOptions"
                         [ngModel]="iconsTsCode"
-                    ></ngx-monaco-editor>
+                    />
                 </li>
                
                 <li>
@@ -239,7 +239,7 @@
                     style="height: 150px; width: 870px"
                     [options]="jsonOptions"
                     [ngModel]="iconsDownloadContent"
-                ></ngx-monaco-editor>
+                />
                 </li>
                 <li>
                     <div>Let's modify our <code>styles.scss</code> to pull in the css file downloaded by our script.</div>
@@ -249,7 +249,7 @@
                     style="height: 25px; width: 870px"
                     ngModel="@use '../public/icons/material-icons.css';"
                     [options]="scssOptions"
-                ></ngx-monaco-editor>
+                />
                     <div><i>NOTE: </i>You can also import this .css file in any way you want, even from the HTML directly</div>
                 </li>
                 <li>
@@ -259,13 +259,13 @@
                     style="height: 25px; width: 300px"
                     ngModel="npm install --save-dev chokidar-cli"
                     [options]="terminalOptions"
-                ></ngx-monaco-editor>
+                />
                     <div>Update your <code>package.json</code>, and add the following script:</div>
                     <ngx-monaco-editor
                     style="height: 150px; width: 870px"
                     [options]="jsonOptions"
                     [ngModel]="iconsWatchContent"
-                ></ngx-monaco-editor>
+                />
                 </li>
                 <li>
                     <div>Let's modify our build process - we want to download the icons before our build begins.</div>
@@ -275,7 +275,7 @@
                     style="height: 150px; width: 870px"
                     [options]="jsonOptions"
                     [ngModel]="npmInstallContent"
-                ></ngx-monaco-editor>
+                />
                 </li>
                 <li>
                     <div>Let's modify our development serve process - we want our dev version to automatically monitor and download icons when doing <code>ng serve</code></div>
@@ -284,13 +284,13 @@
                     style="height: 25px; width: 300px"
                     ngModel="npm install --save-dev concurrently"
                     [options]="terminalOptions"
-                ></ngx-monaco-editor>
+                />
                     <div>Update your <code>package.json</code>, and add the following script:</div>
                     <ngx-monaco-editor
                     style="height: 150px; width: 870px"
                     [options]="jsonOptions"
                     [ngModel]="ngServeContent"
-                ></ngx-monaco-editor>
+                />
                 </li>
 
             </ol>

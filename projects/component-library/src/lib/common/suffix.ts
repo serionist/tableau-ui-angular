@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, ElementRef } from "@angular/core";
 
 @Component({
     selector: 'tab-suffix',
-    template: `<ng-content></ng-content>`,
+    template: `<ng-content />`,
     styles: `
       
       `,

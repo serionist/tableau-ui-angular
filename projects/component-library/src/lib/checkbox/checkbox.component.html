@@ -17,15 +17,15 @@
 
 
 <div class="label">
-    <ng-content></ng-content>
+    <ng-content />
 </div>
 
 @if ($hintElement() || $errorElement()) {
 <div class="extra-info">
     @if ($hintElement() && !$errorElement()) {
-    <ng-content select="tab-hint"></ng-content>
+    <ng-content select="tab-hint" />
     } @if ($errorElement()) {
-    <ng-content select="tab-error"></ng-content>
+    <ng-content select="tab-error" />
     }
 </div>
 }

@@ -6,7 +6,7 @@
  [attr.disabled]="$disabled()" 
  [tooltip]="$isExpanded() ? undefined: $text()"
  (click)="click.emit()">
-    <ng-content select="tab-icon"></ng-content>
+    <ng-content select="tab-icon" />
     @if ($isExpanded()) {
         <span>{{ $text() }}</span>
     }

@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, ElementRef, inject, input, model } 
 
 @Component({
     selector: 'tab-hint',
-    template: `<div class="tab-hint" [ngClass]="$type()"><ng-content></ng-content></div>`,
+    template: `<div class="tab-hint" [ngClass]="$type()"><ng-content /></div>`,
     styles: `
         .tab-hint {
             font-size: 0.9em;

@@ -13,7 +13,7 @@
         <ng-container
             [ngTemplateOutlet]="v.template"
             [ngTemplateOutletContext]="$selectedValueTemplateContext()"
-        ></ng-container>
+        />
         @if (!last) {
         <span>, </span>
         } } }
@@ -29,7 +29,7 @@
     (click)="clearValue($event)"
     (keydown)="clearKeyDown($event)"
 >
-    <tab-icon value="clear"></tab-icon>
+    <tab-icon value="clear" />
 </button>
 
 } @if ($showChevron()) {
@@ -37,7 +37,7 @@
     class="dropdown"
     icon-button
     [value]="$dropdownOpen() ? 'keyboard_arrow_up' : 'keyboard_arrow_down'"
-></tab-icon>
+/>
 }
 
 <ng-template #dropdownTemplate>
@@ -48,7 +48,7 @@
     >
         @if ($dropdownPrefix()) {
         <div class="options-prefix">
-            <ng-content select="tab-prefix"></ng-content>
+            <ng-content select="tab-prefix" />
         </div>
         }
         <div class="option-values" [ngStyle]="$dropdownOptionsContainerCss()">
@@ -71,7 +71,7 @@
             >
                 <div class="check" [ngClass]="$selectedCheckIconLocation()">
                     @if ( (option | isSelectedValue:$allowMultiple(): $value())) {
-                    <tab-icon value="check"></tab-icon>
+                    <tab-icon value="check" />
                     }
                 </div>
                 <div class="option-content">
@@ -80,14 +80,14 @@
                         [ngTemplateOutletContext]="
                             $dropdownValueTemplateContext()
                         "
-                    ></ng-container>
+                    />
                 </div>
             </div>
             }
         </div>
         @if ($dropdownSuffix()) {
         <div class="options-suffix">
-            <ng-content select="tab-suffix"></ng-content>
+            <ng-content select="tab-suffix" />
         </div>
         }
     </div>

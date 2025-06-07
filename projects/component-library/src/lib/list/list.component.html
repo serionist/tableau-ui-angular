@@ -16,14 +16,14 @@
 >
     <div class="check" [ngClass]="$selectedCheckIconLocation()">
         @if (($value() | isValueSelected : option.$value() : $allowMultiple())) {
-        <tab-icon value="check"></tab-icon>
+        <tab-icon value="check" />
         }
     </div>
     <div class="option-content">
         <ng-container
             [ngTemplateOutlet]="option.$template()"
             [ngTemplateOutletContext]="$itemTemplateActualContext()"
-        ></ng-container>
+        />
     </div>
 </div>
 }

@@ -3,8 +3,8 @@
     scrollDirection="horizontal"
     [buttonsCssColor]="'var(--twc-color-text-light)'"
 >
-    <tab-icon back-button value="keyboard_arrow_left" [style.fontSize]="$scrollArrowsIconSize()"></tab-icon>
-    <tab-icon forward-button value="keyboard_arrow_right" [style.fontSize]="$scrollArrowsIconSize()"></tab-icon>
+    <tab-icon back-button value="keyboard_arrow_left" [style.fontSize]="$scrollArrowsIconSize()" />
+    <tab-icon forward-button value="keyboard_arrow_right" [style.fontSize]="$scrollArrowsIconSize()" />
     <div class="tab-headers-container">
         <div class="tab-headers">
             @for (tab of $tabs(); let i = $index; track i) {
@@ -20,7 +20,7 @@
                 <div class="tab-header">
                     <ng-container
                         *ngTemplateOutlet="tab.$headerTemplate()"
-                    ></ng-container>
+                    />
                 </div>
             </div>
             }
@@ -30,9 +30,12 @@
 </tab-arrow-scroll>
 <div class="tab-headers-underline"></div>
 <div class="tab-content">
-    <ng-container *ngIf="$selectedTab()">
-        <ng-container
-            *ngTemplateOutlet="$selectedTab()!.$contentTemplate()"
-        ></ng-container>
-    </ng-container>
+    @if ($selectedTab()) {
+        <ng-container >
+            <ng-container
+                *ngTemplateOutlet="$selectedTab()!.$contentTemplate()"
+            />
+        </ng-container>
+    }
+   
 </div>

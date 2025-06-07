@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, input, InputSignal, model, ModelSig
 
 @Component({
     selector: 'tab-nav-bar-header',
-    template: '<ng-content></ng-content>',
+    template: '<ng-content />',
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: false
 })

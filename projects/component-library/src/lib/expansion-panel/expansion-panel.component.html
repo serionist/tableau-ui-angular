@@ -7,24 +7,24 @@
 >
     @if ($expanded() && $expandedHeader()) {
     <div>
-        <ng-content select="tab-expansion-panel-title[expanded]"></ng-content>
+        <ng-content select="tab-expansion-panel-title[expanded]" />
     </div>
     } @else if (!$expanded() && $collapsedHeader()) {
     <div>
-        <ng-content select="tab-expansion-panel-title[collapsed]"></ng-content>
+        <ng-content select="tab-expansion-panel-title[collapsed]" />
     </div>
     } @else {
-    <div><ng-content select="tab-expansion-panel-title"></ng-content></div>
+    <div><ng-content select="tab-expansion-panel-title" /></div>
     }
     <button layout="icon" color="plain" [disabled]="$disabled()">
         <tab-icon
             [value]="$expanded() ? 'keyboard_arrow_up' : 'keyboard_arrow_down'"
-        ></tab-icon>
+        />
     </button>
 </div>
 
 @if ($expanded()) {
 <div class="content">
-    <ng-content></ng-content>
+    <ng-content />
 </div>
 }

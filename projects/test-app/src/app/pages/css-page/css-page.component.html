@@ -7,7 +7,7 @@
             library.
         </div>
     </div>
-    <tab-separator></tab-separator>
+    <tab-separator />
     
     <div class="content section">
         <h3>Importing Tableau UI CSS</h3>
@@ -19,7 +19,7 @@
             style="height: 20px; width: 500px"
             [options]="scssOptions"
             [ngModel]="code"
-        ></ngx-monaco-editor>
+        />
     
         <h3>Importing Fonts</h3>
         <div>Tableau UI supports the following fonts in this priority order:</div>
@@ -65,7 +65,7 @@
                         [ngModel]="
                             'node node_modules/tableau-ui-angular/styles/fonts/downloadFonts.js https://your-tableau-server.com public/fonts'
                         "
-                    ></ngx-monaco-editor>
+                    />
                 </li>
                 <li>
                     Import the fonts into your app by adding this line to your
@@ -75,7 +75,7 @@
                         style="height: 20px; width: 300px"
                         ngModel="@include libStyles.font-import('/fonts');"
                         [options]="scssOptions"
-                    ></ngx-monaco-editor>
+                    />
                     (Replace <code>/fonts</code> with the path to your font files)
                 </li>
             </ol>
@@ -89,7 +89,7 @@
                 style="height: 35px;"
                 ngModel="@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');"
                 [options]="scssOptions"
-            ></ngx-monaco-editor>
+            />
             <h4>To use Arial</h4>
             <div>
                 Arial is a free font that is already included in your browser. You

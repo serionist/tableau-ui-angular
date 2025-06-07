@@ -6,7 +6,7 @@
     >
         @if ($dropdownPrefix()) {
         <div class="options-prefix">
-            <ng-content select="tab-prefix"></ng-content>
+            <ng-content select="tab-prefix" />
         </div>
         }
         @if ($options().length > 0) {
@@ -30,7 +30,7 @@
                             [ngTemplateOutletContext]="
                                 $dropdownValueTemplateContext()
                             "
-                        ></ng-container>
+                        />
                     </div>
                 </div>
                 }
@@ -39,7 +39,7 @@
        
         @if ($dropdownSuffix()) {
         <div class="options-suffix">
-            <ng-content select="tab-suffix"></ng-content>
+            <ng-content select="tab-suffix" />
         </div>
         }
     </div>

@@ -6,13 +6,12 @@
         [tooltip]="$expanded() ? 'Collapse menu' : 'Expand menu'"
         (click)="$expanded.set(!$expanded())"
     >
-        <tab-icon [value]="$expanded() ? 'keyboard_arrow_left' : 'keyboard_arrow_right'">
-        </tab-icon>
+        <tab-icon [value]="$expanded() ? 'keyboard_arrow_left' : 'keyboard_arrow_right'" />
     </button>
 </div>
 
 @if ($header()) {
-<div class="header"><ng-content select="tab-nav-bar-header"></ng-content></div>
+<div class="header"><ng-content select="tab-nav-bar-header" /></div>
 }
 
 <tab-arrow-scroll
@@ -22,11 +21,11 @@
     [showScrollButtonSeparator]="true"
     [buttonsCssColor]="'var(--twc-color-text-light)'"
 >
-    <tab-icon back-button value="keyboard_arrow_up"></tab-icon>
-    <ng-content></ng-content>
-    <tab-icon forward-button value="keyboard_arrow_down"></tab-icon>
+    <tab-icon back-button value="keyboard_arrow_up" />
+    <ng-content />
+    <tab-icon forward-button value="keyboard_arrow_down" />
 </tab-arrow-scroll>
 
 @if ($footer()) {
-<div class="footer"><ng-content select="tab-nav-bar-footer"></ng-content></div>
+<div class="footer"><ng-content select="tab-nav-bar-footer" /></div>
 }

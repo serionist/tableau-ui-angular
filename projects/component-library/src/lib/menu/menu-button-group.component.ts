@@ -46,7 +46,7 @@ import { generateRandomString } from '../utils';
             @for (btnEntry of entry[1].buttons | entries; track btnEntry[0]) {
             <ng-container
                 *ngTemplateOutlet="btnEntry[1].$template()"
-            ></ng-container>
+            />
             }
         </div>
         }`,

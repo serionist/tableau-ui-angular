@@ -5,7 +5,7 @@
         <h1>Buttons</h1>
         <div class="text-light text-large">Buttons are used to trigger actions or events.</div>
     </div>
-    <tab-separator></tab-separator>
+    <tab-separator />
     <div class="content">
         <div class="section">
             <h3>Module</h3>
@@ -55,98 +55,98 @@
                 <div class="spacer" style="width: fit-content">
                     <div class="icon-container">
                         <button layout="icon" color="plain" [loading]="buttonsLoading.plain" (click)="buttonClick('plain')">
-                            <tab-icon value="home"></tab-icon>
+                            <tab-icon value="home" />
                         </button>
                         <span>Plain</span>
                     </div>
                     <div class="icon-container">
                         <button layout="icon" color="plain" [disabled]="true" (click)="buttonClick('plain')">
-                            <tab-icon value="home"></tab-icon>
+                            <tab-icon value="home" />
                         </button>
                         <span>Plain disabled</span>
                     </div>
                     <div class="icon-container">
                         <button layout="icon" color="secondary" [loading]="buttonsLoading.secondary" (click)="buttonClick('secondary')">
-                            <tab-icon value="home"></tab-icon>
+                            <tab-icon value="home" />
                         </button>
                         <span>Secondary</span>
                     </div>
                     <div class="icon-container">
                         <button layout="icon" color="secondary" [disabled]="true" (click)="buttonClick('secondary')">
-                            <tab-icon value="home"></tab-icon>
+                            <tab-icon value="home" />
                         </button>
                         <span>Secondary disabled</span>
                     </div>
                     <div class="icon-container">
                         <button layout="icon" color="primary" [loading]="buttonsLoading.primary" (click)="buttonClick('primary')">
-                            <tab-icon value="home"></tab-icon>
+                            <tab-icon value="home" />
                         </button>
                         <span>Primary</span>
                     </div>
                     <div class="icon-container">
                         <button layout="icon" color="primary" [disabled]="true" (click)="buttonClick('primary')">
-                            <tab-icon value="home"></tab-icon>
+                            <tab-icon value="home" />
                         </button>
                         <span>Primary disabled</span>
                     </div>
                     <div class="icon-container">
                         <button layout="icon" color="error" [loading]="buttonsLoading.error" (click)="buttonClick('error')">
-                            <tab-icon value="home"></tab-icon>
+                            <tab-icon value="home" />
                         </button>
                         <span>Error</span>
                     </div>
                     <div class="icon-container">
                         <button layout="icon" color="error" [disabled]="true" (click)="buttonClick('error')">
-                            <tab-icon value="home"></tab-icon>
+                            <tab-icon value="home" />
                         </button>
 
                         <span>Error disabled</span>
                     </div>
                     <div class="icon-container">
                         <a button layout="icon" color="plain" [loading]="buttonsLoading.plain" (click)="buttonClick('plain')">
-                            <tab-icon value="home"></tab-icon>
+                            <tab-icon value="home" />
                         </a>
                         <span>Plain as link</span>
                     </div>
                     <div class="icon-container">
                         <a button layout="icon" color="plain" [disabled]="true" (click)="buttonClick('plain')">
-                            <tab-icon value="home"></tab-icon>
+                            <tab-icon value="home" />
                         </a>
                         <span>Plain as link disabled</span>
                     </div>
                     <div class="icon-container">
                         <a button layout="icon" color="secondary" [loading]="buttonsLoading.secondary" (click)="buttonClick('secondary')">
-                            <tab-icon value="home"></tab-icon>
+                            <tab-icon value="home" />
                         </a>
                         <span>Secondary as link</span>
                     </div>
                     <div class="icon-container">
                         <a button layout="icon" color="secondary" [disabled]="true" (click)="buttonClick('secondary')">
-                            <tab-icon value="home"></tab-icon>
+                            <tab-icon value="home" />
                         </a>
                         <span>Secondary as link disabled</span>
                     </div>
                     <div class="icon-container">
                         <a button layout="icon" color="primary" [loading]="buttonsLoading.primary" (click)="buttonClick('primary')">
-                            <tab-icon value="home"></tab-icon>
+                            <tab-icon value="home" />
                         </a>
                         <span>Primary as link</span>
                     </div>
                     <div class="icon-container">
                         <a button layout="icon" color="primary" [disabled]="true" (click)="buttonClick('primary')">
-                            <tab-icon value="home"></tab-icon>
+                            <tab-icon value="home" />
                         </a>
                         <span>Primary as link disabled</span>
                     </div>
                     <div class="icon-container">
                         <a button layout="icon" color="error" [loading]="buttonsLoading.error" (click)="buttonClick('error')">
-                            <tab-icon value="home"></tab-icon>
+                            <tab-icon value="home" />
                         </a>
                         <span>Error as link</span>
                     </div>
                     <div class="icon-container">
                         <a button layout="icon" color="error" [disabled]="true" (click)="buttonClick('error')">
-                            <tab-icon value="home"></tab-icon>
+                            <tab-icon value="home" />
                         </a>
 
                         <span>Error as link disabled</span>
@@ -159,24 +159,24 @@
             <div class="section">
                 <p>Icons only</p>
                 <tab-button-toggle [(selectedValue)]="buttonToggleValue">
-                    <tab-option value="left" icon="format_align_left" [disabled]="true"></tab-option>
-                    <tab-option value="center" icon="format_align_center"></tab-option>
-                    <tab-option value="right" icon="format_align_right"></tab-option>
-                    <tab-option value="justify" icon="format_align_justify"></tab-option>
+                    <tab-option value="left" icon="format_align_left" [disabled]="true" />
+                    <tab-option value="center" icon="format_align_center" />
+                    <tab-option value="right" icon="format_align_right" />
+                    <tab-option value="justify" icon="format_align_justify" />
                 </tab-button-toggle>
                 <p>Icon + text</p>
                 <tab-button-toggle [(selectedValue)]="buttonToggleValue">
-                    <tab-option value="left" icon="format_align_left" text="Left" [disabled]="true"></tab-option>
-                    <tab-option value="center" icon="format_align_center" text="Center"></tab-option>
-                    <tab-option value="right" icon="format_align_right" text="Right"></tab-option>
-                    <tab-option value="justify" icon="format_align_justify" text="Justify"></tab-option>
+                    <tab-option value="left" icon="format_align_left" text="Left" [disabled]="true" />
+                    <tab-option value="center" icon="format_align_center" text="Center" />
+                    <tab-option value="right" icon="format_align_right" text="Right" />
+                    <tab-option value="justify" icon="format_align_justify" text="Justify" />
                 </tab-button-toggle>
                 <p>Icon + text disabled</p>
                 <tab-button-toggle selectedValue="left" [disabled]="true">
-                    <tab-option value="left" icon="format_align_left" text="Left" [disabled]="true"></tab-option>
-                    <tab-option value="center" icon="format_align_center" text="Center"></tab-option>
-                    <tab-option value="right" icon="format_align_right" text="Right"></tab-option>
-                    <tab-option value="justify" icon="format_align_justify" text="Justify"></tab-option>
+                    <tab-option value="left" icon="format_align_left" text="Left" [disabled]="true" />
+                    <tab-option value="center" icon="format_align_center" text="Center" />
+                    <tab-option value="right" icon="format_align_right" text="Right" />
+                    <tab-option value="justify" icon="format_align_justify" text="Justify" />
                 </tab-button-toggle>
             </div>
         </div>
