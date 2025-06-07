@@ -11,11 +11,11 @@ import { DataRequest, DataResponse, HeaderContext, TableComponent } from 'compon
 export class TablePageComponent {
 
 
-    show_first_3_columns = signal(false);
-    striped = signal(false);
-    showData = signal(true);
-    errorOnData = signal(false);
-    customNoDataTemplate = signal(false);
+    $show_first_3_columns = signal(false);
+    $striped = signal(false);
+    $showData = signal(true);
+    $errorOnData = signal(false);
+    $customNoDataTemplate = signal(false);
     // async loadData(params: ResourceLoaderParams<DataTrigger>): Promise<DataResponse> {
     //     console.log('Triggered stuff', params);
     //     return {
@@ -33,14 +33,14 @@ export class TablePageComponent {
         if (req.abort.aborted) {
             console.warn('Data load aborted:', req);
         }
-        if (!this.showData()) {
+        if (!this.$showData()) {
             console.log('Data loading is disabled, returning empty response');
             return {
                 total: 0,
                 data: []
             };
         }
-        if (this.errorOnData() && req.offset > 20) {
+        if (this.$errorOnData() && req.offset > 20) {
             console.error('Simulated error on data load');
             throw new Error('Simulated error on data load');
         }
@@ -68,8 +68,8 @@ export class TablePageComponent {
     }
     private tabTable = viewChild.required<TableComponent>(TableComponent);
     reset(showData: boolean, errorOnData: boolean) {
-        this.showData.set(showData);
-        this.errorOnData.set(errorOnData);
+        this.$showData.set(showData);
+        this.$errorOnData.set(errorOnData);
         this.tabTable().reset();
     }
     customCalculatedClass(ctx: HeaderContext): string | undefined {

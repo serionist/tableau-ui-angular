@@ -15,7 +15,7 @@ import {
     padding: 1em 2em;"
         >
             <h2>Example Dialog</h2>
-            <p>{{ message() }}</p>
+            <p>{{ $message() }}</p>
             <button (click)="openAnother()">Open another dialog</button>
             <button (click)="closeDialog()">Close</button>
         </div>
@@ -23,14 +23,14 @@ import {
     standalone: false,
 })
 export class ExampleDialogComponent {
-    readonly message: Signal<string>;
+    readonly $message: Signal<string>;
     dialogService = inject(DialogService);
 
     // Injecting the DialogRef and data using inject() function
     data = inject<string>(TAB_DATA_REF);
     dialogRef = inject(TAB_DIALOG_REF);
     constructor() {
-        this.message = signal(this.data);
+        this.$message = signal(this.data);
     }
     // OR
     // constructor(

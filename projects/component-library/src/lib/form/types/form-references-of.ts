@@ -2,7 +2,7 @@ import { FA, FC, FG } from '../public-api';
 
 export type FormReferencesOf<T extends Record<string, any>> = {
     // eslint-disable-next-line @typescript-eslint/array-type
-    [K in keyof T]: NonNullable<T[K]> extends Array<infer U>
+    [K in keyof T]-?: NonNullable<T[K]> extends Array<infer U>
         ? U extends Record<string, any>
             ? FA<NonNullable<U> | Extract<U, undefined>>
             : FC<T[K]>

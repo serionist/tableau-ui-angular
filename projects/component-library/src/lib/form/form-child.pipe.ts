@@ -35,7 +35,7 @@ export class FormChildPipe implements PipeTransform{
         if (!form) {
             return of(null) as any;
         }
-        return form.hierarchy.getChild(path).pipe(
+        return form.hierarchy.getChild$(path).pipe(
             map((c) => {
                 if (!c) {
                     return null;

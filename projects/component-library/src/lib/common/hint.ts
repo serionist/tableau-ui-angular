@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, ElementRef, inject, input, model } 
 
 @Component({
     selector: 'tab-hint',
-    template: `<div class="tab-hint" [ngClass]="type()"><ng-content></ng-content></div>`,
+    template: `<div class="tab-hint" [ngClass]="$type()"><ng-content></ng-content></div>`,
     styles: `
         .tab-hint {
             font-size: 0.9em;
@@ -14,8 +14,11 @@ import { ChangeDetectionStrategy, Component, ElementRef, inject, input, model } 
     standalone: false
 })
 export class HintComponent {
-    type = input<'prefix' | 'suffix'>('prefix');
-    showOnError = input<boolean>(false);
-    elementRef = inject(ElementRef);
+    $type = input<'prefix' | 'suffix'>('prefix', {
+        alias: 'type'
+    });
+    $showOnError = input<boolean>(false, {
+        alias: 'showOnError'
+    });
 
 }

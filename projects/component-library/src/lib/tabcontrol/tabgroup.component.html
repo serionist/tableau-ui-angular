@@ -4,23 +4,23 @@
     style="width: 100%"
     [buttonsCssColor]="'var(--twc-color-text-light)'"
 >
-    <tab-icon back-button value="keyboard_arrow_left" [style.fontSize]="scrollArrowsIconSize()"></tab-icon>
-    <tab-icon forward-button value="keyboard_arrow_right" [style.fontSize]="scrollArrowsIconSize()"></tab-icon>
+    <tab-icon back-button value="keyboard_arrow_left" [style.fontSize]="$scrollArrowsIconSize()"></tab-icon>
+    <tab-icon forward-button value="keyboard_arrow_right" [style.fontSize]="$scrollArrowsIconSize()"></tab-icon>
     <div class="tab-headers-container">
         <div class="tab-headers">
-            @for (tab of tabs(); let i = $index; track i) {
+            @for (tab of $tabs(); let i = $index; track i) {
             <div #tab
                 class="tab"
                 (click)="selectTab(i)"
-                [class.active]="selectedIndex() === i"
-                [class.disabled]="tab.disabled()"
-                [tabindex]="tab.disabled() ? -1 : 0"
+                [class.active]="$selectedIndex() === i"
+                [class.disabled]="tab.$disabled()"
+                [tabindex]="tab.$disabled() ? -1 : 0"
                 (keydown)="onkeydown(i, $event)"
-                [style.padding]="headerPadding()"
+                [style.padding]="$headerPadding()"
             >
                 <div class="tab-header">
                     <ng-container
-                        *ngTemplateOutlet="tab.headerTemplate()"
+                        *ngTemplateOutlet="tab.$headerTemplate()"
                     ></ng-container>
                 </div>
             </div>
@@ -31,9 +31,9 @@
 </tab-arrow-scroll>
 <div class="tab-headers-underline"></div>
 <div class="tab-content">
-    <ng-container *ngIf="selectedTab()">
+    <ng-container *ngIf="$selectedTab()">
         <ng-container
-            *ngTemplateOutlet="selectedTab()!.contentTemplate()"
+            *ngTemplateOutlet="$selectedTab()!.$contentTemplate()"
         ></ng-container>
     </ng-container>
 </div>

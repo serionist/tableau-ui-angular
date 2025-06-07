@@ -8,32 +8,32 @@ export class DataManager {
     constructor(private cdr: ChangeDetectorRef) {
 
     }
-    private dataRowHeightPx = signal<number>(0);
-    private dataWindowHeightPx = signal<number>(0);
-    private displayedColumns = signal<string[]>([]);
-    private sort = signal<DataSort[]>([]);
-    private dataBlockWindow = signal<number>(0);
-    private dataBlockHeightPx = computed(() => {
-        return this.dataRowHeightPx() * this.blockRowCount();
+    private $dataRowHeightPx = signal<number>(0);
+    private $dataWindowHeightPx = signal<number>(0);
+    private $displayedColumns = signal<string[]>([]);
+    private $sort = signal<DataSort[]>([]);
+    private $dataBlockWindow = signal<number>(0);
+    private $dataBlockHeightPx = computed(() => {
+        return this.$dataRowHeightPx() * this.$blockRowCount();
     });
-    private blockRowCount = computed(() => {
-        return Math.floor(this.dataWindowHeightPx() / this.dataRowHeightPx());
+    private $blockRowCount = computed(() => {
+        return Math.floor(this.$dataWindowHeightPx() / this.$dataRowHeightPx());
     });
 
-    private _totalRowCount = signal(0);
-    public get totalRowCount(): Signal<number> {
-        return this._totalRowCount;
+    private $_totalRowCount = signal(0);
+    public get $totalRowCount(): Signal<number> {
+        return this.$_totalRowCount;
     }
     private getDataBlock: (req: DataRequest) => Promise<DataResponse> =
         undefined!;
 
-    private _blocks = signal<BlocksInfo>({
+    private $_blocks = signal<BlocksInfo>({
         prePixels: 0,
         blocks: [],
         postPixels: 0,
     });
-    get blocks(): Signal<BlocksInfo> {
-        return this._blocks;
+    get $blocks(): Signal<BlocksInfo> {
+        return this.$_blocks;
     }
 
     public async reset(
@@ -45,23 +45,23 @@ export class DataManager {
         getDataBlock: (req: DataRequest) => Promise<DataResponse>
     ) {
         this.getDataBlock = getDataBlock;
-        this.dataRowHeightPx.set(dataRowHeightPx);
-        this.dataWindowHeightPx.set(dataWindowHeightPx);
-        this.displayedColumns.set(displayedColumns);
-        this.dataBlockWindow.set(dataBlockWindow);
-        this.sort.set(sort);
-        this._totalRowCount.set(0);
+        this.$dataRowHeightPx.set(dataRowHeightPx);
+        this.$dataWindowHeightPx.set(dataWindowHeightPx);
+        this.$displayedColumns.set(displayedColumns);
+        this.$dataBlockWindow.set(dataBlockWindow);
+        this.$sort.set(sort);
+        this.$_totalRowCount.set(0);
         // load initial block
         const initialBlock = new DataBlock(
             0,
             displayedColumns,
             0,
-            this.blockRowCount(),
+            this.$blockRowCount(),
             sort,
             new AbortController(),
             this.getDataBlock
         );
-        this._blocks.update((blocks) => {
+        this.$_blocks.update((blocks) => {
             // Clear existing blocks
             blocks.blocks.forEach((block) => block.destroy());
             return {
@@ -72,8 +72,8 @@ export class DataManager {
         });
         this.cdr.markForCheck();
         await initialBlock.load();
-        const initialBlockStatus = initialBlock.status();
-        const initialBlockResponse = initialBlock.response();
+        const initialBlockStatus = initialBlock.$status();
+        const initialBlockResponse = initialBlock.$response();
         if (initialBlockStatus !== 'success' || !initialBlockResponse) {
             console.error(
                 'Initial data block failed to load:',
@@ -82,23 +82,23 @@ export class DataManager {
             );
             return;
         }
-        this._totalRowCount.set(initialBlockResponse.total);
+        this.$_totalRowCount.set(initialBlockResponse.total);
         this.cdr.markForCheck();
         this.setScrollPosition(0);
     }
 
     setScrollPosition(topPx: number) {
         // get the block IDs in the current viewPort
-        const bottomPx = topPx + this.dataWindowHeightPx();
+        const bottomPx = topPx + this.$dataWindowHeightPx();
 
         const firstVisibleBlockId = Math.floor(
-            topPx / this.dataBlockHeightPx()
+            topPx / this.$dataBlockHeightPx()
         );
         const lastVisibleBlockId = Math.floor(
-            bottomPx / this.dataBlockHeightPx()
+            bottomPx / this.$dataBlockHeightPx()
         );
 
-        const dataBlockWindow = this.dataBlockWindow();
+        const dataBlockWindow = this.$dataBlockWindow();
         // we are loading
         // - [dataBlockWindow] blocks before the first visible block
         // - all the visible blocks
@@ -113,14 +113,14 @@ export class DataManager {
             if (i < 0) {
                 continue;
             }
-            if (i * this.blockRowCount() >= this._totalRowCount()) {
+            if (i * this.$blockRowCount() >= this.$_totalRowCount()) {
                 // No more data to load
                 continue;
             }
             blockIdsToLoad.push(i);
         }
 
-        this._blocks.update((existing) => {
+        this.$_blocks.update((existing) => {
             const blocks: DataBlock[] = [];
             for (const existingBlock of existing.blocks) {
                 if (blockIdsToLoad.includes(existingBlock.id)) {
@@ -134,10 +134,10 @@ export class DataManager {
                 if (!blocks.some((b) => b.id === blockId)) {
                     const newBlock = new DataBlock(
                         blockId,
-                        this.displayedColumns(),
-                        blockId * this.blockRowCount(),
-                        this.blockRowCount(),
-                        this.sort(),
+                        this.$displayedColumns(),
+                        blockId * this.$blockRowCount(),
+                        this.$blockRowCount(),
+                        this.$sort(),
                         new AbortController(),
                         this.getDataBlock
                     );
@@ -152,7 +152,7 @@ export class DataManager {
             existing.prePixels =
                 existing.blocks.length === 0
                     ? 0
-                    : existing.blocks[0].id * this.dataBlockHeightPx();
+                    : existing.blocks[0].id * this.$dataBlockHeightPx();
             // // rows after the last block
             const lastBlock =
                 existing.blocks.length === 0
@@ -161,9 +161,9 @@ export class DataManager {
             const preAndDisplayedRowsCount =
                 (lastBlock?.offset ?? 0) + (lastBlock?.count ?? 0);
             const postRowsCount =
-                this.totalRowCount() - preAndDisplayedRowsCount;
+                this.$totalRowCount() - preAndDisplayedRowsCount;
             existing.postPixels =
-                Math.max(0, postRowsCount) * this.dataRowHeightPx();
+                Math.max(0, postRowsCount) * this.$dataRowHeightPx();
             return existing;
         });
     }

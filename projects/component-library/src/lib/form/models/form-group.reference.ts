@@ -16,6 +16,7 @@ import {
     filter,
     map,
     Observable,
+    pairwise,
     startWith,
     Subscription,
 } from 'rxjs';
@@ -123,13 +124,18 @@ export class FGRegisterFunctions<
      * @param alsoRunOnDisabled Whether to also run the callback when the control is disabled.
      */
       valueChange(
-        callback: (value: DeepPartial<TSource>) => void,
+        callback: (value: DeepPartial<TSource>, oldValue: DeepPartial<TSource> | undefined, control: FG<TSource>) => void,
         alsoRunOnEnabled: boolean = false,
         alsoRunOnDisabled: boolean = false
     ): FG<TSource> {
-        const subs: [Observable<DeepPartial<TSource>>, Observable<boolean>?] = [
-            this.control.value$,
+        const subs: [Observable<[DeepPartial<TSource> | undefined, DeepPartial<TSource>]>, Observable<boolean>?] = [
+            this.control.value$.pipe(
+                            startWith(undefined as unknown as DeepPartial<TSource>),
+                            pairwise(),
+                            map((v) => [v[0] as DeepPartial<TSource> | undefined, v[1] === undefined ? v[0] : v[1]])
+                        ),
         ];
+        const control = this.control as unknown as FG<TSource>;
         if (alsoRunOnEnabled || alsoRunOnDisabled) {
             subs.push(
                 this.control.meta$.pipe(
@@ -147,10 +153,10 @@ export class FGRegisterFunctions<
         }
         this.subscriptions.push(
             combineLatest(subs).subscribe(([v, e]) => {
-                callback(v);
+                callback(v[1], v[0], control);
             })
         );
-        return this.control as unknown as FG<TSource>;
+        return control;
     }
     /**
      * Registers a callback to be called when the value of a child control changes

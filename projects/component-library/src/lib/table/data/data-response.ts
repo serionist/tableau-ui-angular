@@ -1,4 +1,4 @@
-export interface DataResponse {
+export interface DataResponse<T = unknown> {
     readonly total: number;
-    readonly data: Record<string, unknown>[];
+    readonly data: T[];
 }

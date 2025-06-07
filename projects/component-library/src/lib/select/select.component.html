@@ -1,21 +1,18 @@
 <div class="content-display">
-    @if (selectedValueTemplates().length === 0) {
-    <span class="placeholder">{{ placeholder() }}</span>
+    @if ($selectedValueTemplates().length === 0) {
+    <span class="placeholder">{{ $placeholder() }}</span>
     } @else {
     <span class="value">
-        @if (selectedValueTemplates().length >
-        multipleSelectionMaxItemsListed()) {
-        <ng-container>{{
-            multipleSelectionNumberSelectedTemplate().replace(
-                "{number}",
-                selectedValueTemplates().length.toString()
-            )
+        @if ($selectedValueTemplates().length >
+        $multipleSelectionMaxItemsListed()) {
+        <ng-container>{{ 
+            $multipleSelectionNumberSelectedTemplate() | multipleTemplate:$selectedValueTemplates().length
         }}</ng-container>
-        } @else { @for (v of selectedValueTemplates(); track v.value; let last =
+        } @else { @for (v of $selectedValueTemplates(); track v.value; let last =
         $last) {
         <ng-container
             [ngTemplateOutlet]="v.template"
-            [ngTemplateOutletContext]="selectedValueTemplateContext()"
+            [ngTemplateOutletContext]="$selectedValueTemplateContext()"
         ></ng-container>
         @if (!last) {
         <span>, </span>
@@ -23,23 +20,23 @@
     </span>
     }
 </div>
-@if (displayClearButton()) {
+@if ($displayClearButton()) {
 <button
     layout="icon"
     color="plain"
     (click)="clearValue($event)"
     (keydown)="clearKeyDown($event)"
     tabindex="0"
-    [disabled]="disabled()"
+    [disabled]="$disabled()"
 >
     <tab-icon value="clear"></tab-icon>
 </button>
 
-} @if (showChevron()) {
+} @if ($showChevron()) {
 <tab-icon
     class="dropdown"
     icon-button
-    [value]="dropdownOpen() ? 'keyboard_arrow_up' : 'keyboard_arrow_down'"
+    [value]="$dropdownOpen() ? 'keyboard_arrow_up' : 'keyboard_arrow_down'"
 ></tab-icon>
 }
 
@@ -47,47 +44,48 @@
     <div
         class="dropdown-container"
         [id]="dropdownId"
-        [ngStyle]="dropdownContainerCss()"
+        [ngStyle]="$dropdownContainerCss()"
     >
-        @if (dropdownPrefix()) {
+        @if ($dropdownPrefix()) {
         <div class="options-prefix">
             <ng-content select="tab-prefix"></ng-content>
         </div>
         }
-        <div class="option-values" [ngStyle]="dropdownOptionsContainerCss()">
-            @for (option of options(); track option.value()) {
+        <div class="option-values" [ngStyle]="$dropdownOptionsContainerCss()">
+            @for (option of $options(); track option.$value()) {
             <!-- eslint-disable-next-line @angular-eslint/template/interactive-supports-focus, @angular-eslint/template/click-events-have-key-events -->
             <div
                 class="option-wrapper"
                 (click)="selectValue(option)"
                 (mousedown)="optionMouseDown($event)"
-                [class.disabled]="option.disabled()"
+                [class.disabled]="option.$disabled()"
                 [class.highlight]="
-                    !!highlightedOption() &&
-                    highlightedOption()!.value() === option.value()
+                    !!$highlightedOption() &&
+                    $highlightedOption()!.$value() === option.$value()
                 "
                 [class.selected]="
-                    isValueSelected(option) && selectedItemHighlight()
+                    (option | isSelectedValue:$allowMultiple(): $value()) &&
+                     $selectedItemHighlight()
                 "
-                (mouseenter)="highlightedOption.set(option)"
+                (mouseenter)="$highlightedOption.set(option)"
             >
-                <div class="check" [ngClass]="selectedCheckIconLocation()">
-                    @if (isValueSelected(option)) {
+                <div class="check" [ngClass]="$selectedCheckIconLocation()">
+                    @if ( (option | isSelectedValue:$allowMultiple(): $value())) {
                     <tab-icon value="check"></tab-icon>
                     }
                 </div>
                 <div class="option-content">
                     <ng-container
-                        [ngTemplateOutlet]="option.template()"
+                        [ngTemplateOutlet]="option.$template()"
                         [ngTemplateOutletContext]="
-                            dropdownValueTemplateContext()
+                            $dropdownValueTemplateContext()
                         "
                     ></ng-container>
                 </div>
             </div>
             }
         </div>
-        @if (dropdownSuffix()) {
+        @if ($dropdownSuffix()) {
         <div class="options-suffix">
             <ng-content select="tab-suffix"></ng-content>
         </div>

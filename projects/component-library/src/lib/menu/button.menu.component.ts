@@ -20,13 +20,17 @@ import { MenuButtonGroupComponent } from './menu-button-group.component';
     styleUrls: ['./menu.component.scss'],
 })
 export class ButtonMenuComponent extends MenuComponent implements OnDestroy {
-    override menuContainerCss: ModelSignal<Record<string, string>> = model<Record<string, string>>({
+    override $menuContainerCss: ModelSignal<Record<string, string>> = model<Record<string, string>>({
         pointerEvents: 'none',
         marginTop: '-1px',
+    }, {
+        alias: 'menuContainerCss',
     });
 
-    override closeOnBackdropClick: InputSignal<boolean> = model(true);
-    override width: ModelSignal<'parentWidth' | 'fit-content' | string> =
+    override $closeOnBackdropClick: InputSignal<boolean> = model(true, {
+        alias: 'closeOnBackdropClick',
+    });
+    override $width: ModelSignal<'parentWidth' | 'fit-content' | string> =
         model('fit-content');
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     menuGroup: Signal<MenuButtonGroupComponent | undefined> = contentChild(

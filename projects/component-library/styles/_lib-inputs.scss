@@ -21,10 +21,11 @@ textarea,
     font-size: var(--twc-font-size-body);
     padding-left: 0.5rem;
     padding-right: 0.5rem;
-   
+    outline: none;
+
     &:focus-visible {
-        outline-color: var(--twc-color-focused-input);
-        outline-width: 2px;
+        border-color: var(--twc-color-focused-input);
+        border-width: 2px;
     }
 
     &:not(
@@ -41,9 +42,13 @@ textarea,
 
     &.ng-invalid.ng-touched,
     &.ng-touched.tab-error {
-        outline-color: var(--twc-color-error);
-        outline-width: 1px;
-        outline-offset: -1px;
+        border-color: var(--twc-color-error);
+        border-width: 2px;
+
+        // // outline-offset: -1px;
+        // &:focus-visible {
+        //     border: none;
+        // }
     }
 
     // &:focus {
@@ -53,7 +58,6 @@ textarea,
 
     &:hover:enabled:not(:focus) {
         background-color: var(--twc-color-mouse-highlight);
-        border-color: var(--twc-color-border);
     }
 
     // stylelint-disable-next-line no-descending-specificity
@@ -63,7 +67,7 @@ textarea,
 
     &[disabled] {
         background-color: transparent;
-        border-color: var(--twc-color-border-dark);
+        border-color: var(--twc-color-disabled);
         color: var(--twc-color-disabled);
 
         &::placeholder {

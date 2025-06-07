@@ -45,7 +45,7 @@ export abstract class AC<TValue = any> {
     get value$(): ReadonlyBehaviorSubject<TValue> {
         return this._value$;
     }
-    get value(): Signal<TValue> {
+    get $value(): Signal<TValue> {
         return this._value;
     }
     private readonly _meta$: BehaviorSubject<AbstractControlMeta>;
@@ -53,7 +53,7 @@ export abstract class AC<TValue = any> {
     get meta$(): ReadonlyBehaviorSubject<AbstractControlMeta> {
         return this._meta$;
     }
-    get meta(): Signal<AbstractControlMeta> {
+    get $meta(): Signal<AbstractControlMeta> {
         return this._metaSignal;
     }
 
@@ -144,7 +144,7 @@ export abstract class AC<TValue = any> {
      * observables emit events with the latest status and value when the control is updated.
      * When false, no events are emitted.
      */
-    updateValueAndValidity(
+    public updateValueAndValidity(
         includeAncestors: boolean,
         includeDescendants: boolean,
         markAsTouched: boolean,
@@ -279,14 +279,14 @@ export class ACHierarchy {
     }
     readonly childList$: BehaviorSubject<AC[]>;
 
-    public getChild(path?: string | string[]): Observable<AC | null> {
+    public getChild$(path?: string | string[]): Observable<AC | null> {
         if (!path) {
-            return ACHierarchy._getChild(this.ctrl, []);
+            return ACHierarchy._getChild$(this.ctrl, []);
         }
         if (typeof path === 'string') {
             path = path.split('.').filter((p) => p !== '');
         }
-        return ACHierarchy._getChild(this.ctrl, path).pipe(
+        return ACHierarchy._getChild$(this.ctrl, path).pipe(
             map((e) => {
                 if (e === undefined) {
                     return null;
@@ -295,7 +295,7 @@ export class ACHierarchy {
             })
         );
     }
-    private static _getChild(form: AC, parts: string[]): Observable<AC | null> {
+    private static _getChild$(form: AC, parts: string[]): Observable<AC | null> {
         const key = parts.shift();
         if (key === undefined) {
             return of(form);
@@ -307,7 +307,7 @@ export class ACHierarchy {
                 return of(null);
             }
             return (form as FA).controls$.pipe(
-                switchMap((controls) => this._getChild(controls[index], parts))
+                switchMap((controls) => this._getChild$(controls[index], parts))
             );
         }
         if (form.type === 'group') {
@@ -315,7 +315,7 @@ export class ACHierarchy {
             if (!control) {
                 return of(null);
             }
-            return this._getChild(control, parts);
+            return this._getChild$(control, parts);
         }
         return of(null);
     }
@@ -330,19 +330,19 @@ export class ACHierarchy {
                 `Control with id ${control.id} not found in registry.`
             );
         }
-        if (control.meta().validity !== ctrl.status) {
+        if (control.$meta().validity !== ctrl.status) {
             throw new Error(
                 `Control ${
                     name ?? control.id
                 } has a different status than the meta. ${ctrl.status} != ${
-                    control.meta().validity
+                    control.$meta().validity
                 }`
             );
         }
         const ret = {
-            status: control.meta().validity,
-            value: control.value(),
-            meta: control.meta(),
+            status: control.$meta().validity,
+            value: control.$value(),
+            meta: control.$meta(),
             id: control.id,
         } as ACHierarchyData;
         if (control.type === 'group') {

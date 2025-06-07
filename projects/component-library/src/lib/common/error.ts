@@ -14,5 +14,4 @@ import { ChangeDetectionStrategy, Component, ElementRef, inject } from '@angular
     standalone: false
 })
 export class ErrorComponent {
-    elementRef = inject(ElementRef);
 }

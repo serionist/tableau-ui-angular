@@ -52,12 +52,12 @@ export class AppComponent {
     }
 
 
-    paletteMenu = viewChild.required<MenuComponent>('paletteMenu');
-    paletteTheme = computed(() => this.themeService.theme().mode);
+    $paletteMenu = viewChild.required<MenuComponent>('paletteMenu');
+    $paletteTheme = computed(() => this.themeService.$theme().mode);
     paletteThemeChange = (theme: 'light' | 'dark' | 'auto') => {
         this.themeService.setColorMode(theme);
     }
-    paletteFontSize = computed(() => +this.themeService.theme().fontSize.replace('px', ''));
+    $paletteFontSize = computed(() => +this.themeService.$theme().fontSize.replace('px', ''));
     setPaletteFontSize = (size: number) => {
         if (size < 10 || size > 24) {
             return;

@@ -1,6 +1,6 @@
 <div class="main-content">
     <tab-nav-bar #navBar>
-        @if (navBar.expanded()) {
+        @if (navBar.$expanded()) {
         <tab-nav-bar-footer>
             <div class="version">v{{ version }}</div>
         </tab-nav-bar-footer>
@@ -205,7 +205,7 @@
                 <div>
                     <tab-label>Color Palette</tab-label>
                     <tab-button-toggle
-                        [selectedValue]="paletteTheme()"
+                        [selectedValue]="$paletteTheme()"
                         (selectedValueChange)="paletteThemeChange($event)"
                     >
                         <tab-option
@@ -230,7 +230,7 @@
                     <tab-label>Base Font Size</tab-label>
                     <input
                         type="number"
-                        [value]="paletteFontSize()"
+                        [value]="$paletteFontSize()"
                         (input)="setPaletteFontSize($any($event.target).value)"
                         [min]="10"
                         [max]="24"

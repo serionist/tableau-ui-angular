@@ -7,20 +7,22 @@ import { Directive, ElementRef, HostListener, inject, input, OnInit, Renderer2 }
 export class ResizerDirective {
 
 
-  readonly columnElement = input.required<HTMLElement>({
+  readonly $columnElement = input.required<HTMLElement>({
     alias: 'resizerFor'
   });
-  readonly enabled = input<boolean>(true);
+  readonly $enabled = input<boolean>(true, {
+    alias: 'enabled'
+  });
   private readonly resizerElement = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly renderer = inject(Renderer2);
 
   private dragging: ResizerDraggingOptions | undefined;
   @HostListener('mousedown', ['$event'])
   onMouseDown(event: MouseEvent): void {
-    if (this.dragging !== undefined || !this.enabled()) {
+    if (this.dragging !== undefined || !this.$enabled()) {
       return;
     }
-    const element = this.columnElement();
+    const element = this.$columnElement();
     this.dragging = {
       columnElement: element,
       startWidth: +getComputedStyle(element).width.replace('px', ''),

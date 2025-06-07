@@ -96,7 +96,7 @@
                 <code>formControlName</code> property.
             </p>
             <div class="spacer">
-                <tab-radiogroup [formControl]="formControl">
+                <tab-radiogroup [formControl]="(formControl | formControl | async)!">
                     <tab-option
                         [value]="1"
                         text="This option is provided as a set of values"
@@ -144,14 +144,14 @@
                     >
                         <tab-hint>with a hint</tab-hint>
                     </tab-option>
-                    @if (formControl.hasError('required')) {
+                    @if (formControl | formMeta | async | formHasError:'required') {
                     <tab-error>Required</tab-error>
-                    } @if (formControl.hasError('min')) {
+                    } @if (formControl | formMeta | async | formHasError:'min') {
                     <tab-error
                         >Minimum value is 1 (first item can't be
                         selected)</tab-error
                     >
-                    } @if (formControl.hasError('max')) {
+                    } @if (formControl | formMeta | async | formHasError:'max') {
                     <tab-error
                         >Maximum value is 3 (fourth item can't be
                         selected)</tab-error

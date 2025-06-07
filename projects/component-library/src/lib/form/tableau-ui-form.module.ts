@@ -9,7 +9,7 @@ import { CommonModule } from '@angular/common';
 import { FormControlValuePipe } from './form-control-value.pipe';
 import { FormGroupValuePipe } from './form-group-value.pipe';
 import { FormChildPipe } from './form-child.pipe';
-import { FormControlRequiredPipe } from './form-control-required.pipe';
+
 import { ControlReferenceBuilder } from './models/control-reference-builder';
 @NgModule({
     imports: [ReactiveFormsModule, CommonModule],
@@ -21,8 +21,7 @@ import { ControlReferenceBuilder } from './models/control-reference-builder';
         FormMetaPipe,
         FormGroupValuePipe,
         FormControlValuePipe,
-        FormChildPipe,
-        FormControlRequiredPipe
+        FormChildPipe
     ],
     exports: [
         FormArrayValuePipe,
@@ -32,8 +31,7 @@ import { ControlReferenceBuilder } from './models/control-reference-builder';
         FormMetaPipe,
         FormGroupValuePipe,
         FormControlValuePipe,
-        FormChildPipe,
-        FormControlRequiredPipe
+        FormChildPipe
     ],
     providers: [ControlReferenceBuilder]
 })

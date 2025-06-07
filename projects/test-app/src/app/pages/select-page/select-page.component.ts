@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
-import { IOptionLineContext, SnackService } from 'component-library';
+import { ControlReferenceBuilder, IOptionLineContext, SnackService } from 'component-library';
 import { BehaviorSubject, debounceTime, startWith, Subject } from 'rxjs';
 
 
@@ -14,26 +14,25 @@ export class SelectPageComponent implements OnInit {
    
 
     snack = inject(SnackService);
+    b = inject(ControlReferenceBuilder);
 // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    singleSelectValue: WritableSignal<number | undefined> = signal<number | undefined>(undefined);
+    $singleSelectValue: WritableSignal<number | undefined> = signal<number | undefined>(undefined);
     singleSelectValueChanged(val: number | undefined) {
-        this.singleSelectValue.set(val);
+        this.$singleSelectValue.set(val);
         console.log('single select value changed', val);
         this.snack.openSnack('Single select value changed to: ' + val);
     }
 
 
-    singleFormControl = new FormControl(4, [Validators.required, Validators.min(1), Validators.max(3)]);
-    singleFormControl2 = new FormControl(4, [Validators.required, Validators.min(1), Validators.max(3)]);
-    singleFormControl3 = new FormControl(4, [Validators.required, Validators.min(1), Validators.max(3)]);
-    disabledSingleFormControl = new FormControl({ value: 2, disabled: true });
+    singleFormControl = this.b.control<number | undefined>(4, [Validators.required, Validators.min(1), Validators.max(3)]);
+    singleFormControl2 = this.b.control<number | undefined>(4, [Validators.required, Validators.min(1), Validators.max(3)]);
+    singleFormControl3 = this.b.control<number | undefined>(4, [Validators.required, Validators.min(1), Validators.max(3)]);
+    disabledSingleFormControl = this.b.control<number | undefined>(2, undefined, undefined, true);
 
-    multiFormControl = new FormControl([1, 3], [Validators.required]);
+    multiFormControl = this.b.control<number[] | undefined>([1, 3], [Validators.required]);
 
     ngOnInit(): void {
-     this.singleFormControl.markAsTouched();
-     this.singleFormControl.updateValueAndValidity();
-     this.multiFormControl.valueChanges.subscribe((val) => {
+     this.multiFormControl.value$.subscribe((val) => {
           console.log('multi select value changed', val);
           this.snack.openSnack('Multi select value changed to: ' + val);
       });
@@ -76,7 +75,7 @@ export class SelectPageComponent implements OnInit {
     }
 
     searchValue$ = new BehaviorSubject<string>('');
-    searching = signal(false);
+    $searching = signal(false);
     searchResults$ = new BehaviorSubject<{ id: number, name: string }[]>(this.randomNames);
 
     searchBounce = new Subject<void>();
@@ -86,10 +85,10 @@ export class SelectPageComponent implements OnInit {
    
     }
     performSearch() {
-      this.searching.set(true);
+      this.$searching.set(true);
       setTimeout(() => {
         this.searchResults$.next(this.randomNames.filter(e => e.search.includes(this.getSearchString(this.searchValue$.value))));
-        this.searching.set(false);
+        this.$searching.set(false);
       }, 1000);
     }
 

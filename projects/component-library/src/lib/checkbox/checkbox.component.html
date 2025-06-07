@@ -1,15 +1,15 @@
 <input
     name=""
     type="checkbox"
-    [value]="value()"
-    [checked]="value()"
+    [value]="$value()"
+    [checked]="$value()"
     (change)="toggleValue()"
-    [tabindex]="disabled() ? -1 : 0"
+    [tabindex]="$disabled() ? -1 : 0"
     (keydown)="onKeyDown($event)"
 />
 
 <div class="box">
-    @if (value()) {
+    @if ($value()) {
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12"><path fill="currentColor" transform="translate(-2, -2)" d="M7.2 12.3c-.2 0-.4-.1-.5-.2l-3-3L4.8 8l2.3 2.3 4-6.7 1.3.8L7.9 12c-.2.2-.4.3-.7.3z"/></svg>
     }
 </div>
@@ -20,11 +20,11 @@
     <ng-content></ng-content>
 </div>
 
-@if (hintElement() || errorElement()) {
+@if ($hintElement() || $errorElement()) {
 <div class="extra-info">
-    @if (hintElement() && !errorElement()) {
+    @if ($hintElement() && !$errorElement()) {
     <ng-content select="tab-hint"></ng-content>
-    } @if (errorElement()) {
+    } @if ($errorElement()) {
     <ng-content select="tab-error"></ng-content>
     }
 </div>

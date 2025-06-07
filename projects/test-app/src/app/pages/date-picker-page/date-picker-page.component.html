@@ -68,18 +68,18 @@
                     </div>
                     <tab-form-field>
                         <input
-                        [type]="'date'"
+                        type="date"
                         min="2000-01-01"
                         max="2030-12-31"
-                        [formControl]="simpleControl"
+                        [formControl]="(simpleControl | formControl | async)!"
                     />
-                    @if (simpleControl.hasError('required') && simpleControl.touched) {
+                    @if (simpleControl | formMeta | async | formHasError:'required') {
                         <tab-error>Required</tab-error>
                     }
-                    @if (simpleControl.hasError('minDate') && simpleControl.touched) {
+                    @if (simpleControl | formMeta | async | formHasError:'minDate') {
                         <tab-error>Minimum 2000-01-01</tab-error>
                     }
-                    @if (simpleControl.hasError('maxDate') && simpleControl.touched) {
+                    @if (simpleControl | formMeta | async | formHasError:'maxDate') {
                         <tab-error>Minimum 2030-12-31</tab-error>
                     }
                     </tab-form-field>
@@ -94,16 +94,16 @@
                         [type]="'datetime'"
                         min="2000-01-01T00:00"
                         max="2030-12-31T23:59"
-                        [formControl]="simpleControl"
+                        [formControl]="(simpleControl | formControl | async)!"
                     />
-                    @if (simpleControl.hasError('required') && simpleControl.touched) {
+                    @if (simpleControl | formMeta | async | formHasError:'required') {
                         <tab-error>Required</tab-error>
                     }
-                    @if (simpleControl.hasError('minDate') && simpleControl.touched) {
-                        <tab-error>Minimum 2000-01-01 00:00</tab-error>
+                    @if (simpleControl | formMeta | async | formHasError:'minDate') {
+                        <tab-error>Minimum 2000-01-01</tab-error>
                     }
-                    @if (simpleControl.hasError('maxDate') && simpleControl.touched) {
-                        <tab-error>Minimum 2030-12-31 00:00</tab-error>
+                    @if (simpleControl | formMeta | async | formHasError:'maxDate') {
+                        <tab-error>Minimum 2030-12-31</tab-error>
                     }
                     </tab-form-field>
                 </div>

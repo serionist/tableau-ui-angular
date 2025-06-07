@@ -27,22 +27,25 @@ import { generateRandomString } from '../utils';
 
 @Component({
     selector: 'tab-menu-button-group',
-    template: ` @for (entry of menuGroupStack().entries(); track entry[1].id;) {
+    template: `
+     @for (entry of $menuGroupStack() | entries; track entry[1].id;) {
+
         <div
             [id]="entry[1].id"
             class="menu-group"
-            [style.position]="entry[1].position()"
-            [style.top]="entry[1].top() + 'px'"
-            [style.left]="entry[1].left() + 'px'"
+            [style.position]="entry[1].$position()"
+            [style.top]="entry[1].$top() + 'px'"
+            [style.left]="entry[1].$left() + 'px'"
             resizeWatcher
             (resized)="
                 entry[1].element = $event.currentElement.nativeElement;
                 updateSizes()
             "
         >
-            @for (btnEntry of entry[1].buttons.entries(); track btnEntry[0]) {
+        
+            @for (btnEntry of entry[1].buttons | entries; track btnEntry[0]) {
             <ng-container
-                *ngTemplateOutlet="btnEntry[1].template()"
+                *ngTemplateOutlet="btnEntry[1].$template()"
             ></ng-container>
             }
         </div>
@@ -60,7 +63,7 @@ import { generateRandomString } from '../utils';
         `
             .menu-group {
                 background: var(--twc-color-base);
-                border-color: var(--twc-color-border-dark);
+                border-color: var(--twc-color-border);
                 border-radius: var(--twc-menu-border-radius);
                 border-style: solid;
                 border-width: 1px;
@@ -79,26 +82,28 @@ import { generateRandomString } from '../utils';
     changeDetection: ChangeDetectionStrategy.OnPush,
     host: {
         tabindex: '0',
-        '[style.minHeight]': 'height() + "px"',
-        '[style.minWidth]': 'width() + "px"',
+        '[style.minHeight]': '$height() + "px"',
+        '[style.minWidth]': '$width() + "px"',
     },
 })
 export class MenuButtonGroupComponent implements OnDestroy {
-    nativeElement = inject(ElementRef);
+    readonly nativeElement = inject(ElementRef);
 
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    readonly hoverToOpenSubMenuMs: InputSignal<number | undefined> = input<
+    readonly $hoverToOpenSubMenuMs: InputSignal<number | undefined> = input<
         number | undefined
-    >(500);
+    >(500, {
+        alias: 'hoverToOpenSubMenuMs',
+    });
     readonly buttonClicked = output<{
         button: MenuButtonComponent;
         event: Event;
     }>();
 
-    readonly children = contentChildren(MenuButtonComponent);
+    protected readonly $children = contentChildren(MenuButtonComponent);
     private previousChildrenIds: string[] = [];
     readonly childrenEffect = effect(() => {
-        const children = this.children();
+        const children = this.$children();
         const ids = children.map((c) => c.id);
         const addedIds = ids.filter(
             (id) => !this.previousChildrenIds.includes(id)
@@ -111,20 +116,20 @@ export class MenuButtonGroupComponent implements OnDestroy {
         }
         this.previousChildrenIds = ids;
 
-        const hoverMs = this.hoverToOpenSubMenuMs();
+        const hoverMs = this.$hoverToOpenSubMenuMs();
         for (const child of children) {
-            if (child.hoverToOpenSubMenuMs()) {
-                child.actualHoverMs.set(child.hoverToOpenSubMenuMs());
+            if (child.$hoverToOpenSubMenuMs()) {
+                child.$actualHoverMs.set(child.$hoverToOpenSubMenuMs());
             } else {
-                child.actualHoverMs.set(hoverMs);
+                child.$actualHoverMs.set(hoverMs);
             }
         }
         this.init();
     });
-    readonly menuGroupStack = signal<IMenuGroup[]>([]);
+    readonly $menuGroupStack = signal<IMenuGroup[]>([]);
 
-    height = signal<number>(0);
-    width = signal<number>(0);
+    private readonly $height = signal<number>(0);
+    private readonly $width = signal<number>(0);
 
     init() {
         this.destroyGroupsUntil();
@@ -137,7 +142,7 @@ export class MenuButtonGroupComponent implements OnDestroy {
     }
 
     async addMenuGroup(parentButton?: MenuButtonComponent) {
-        const children = parentButton?.children() ?? this.children();
+        const children = parentButton?.$children() ?? this.$children();
         if (children.length === 0) {
             return;
         }
@@ -145,28 +150,28 @@ export class MenuButtonGroupComponent implements OnDestroy {
             id: generateRandomString(),
             // position is fixed and off screen
             // this is used to calculate actual size of the menu group
-            top: signal(-10000),
-            left: signal(-10000),
+            $top: signal(-10000),
+            $left: signal(-10000),
             element: null,
-            position: signal<'fixed' | 'absolute'>('fixed'),
+            $position: signal<'fixed' | 'absolute'>('fixed'),
             buttons: children,
             mouseoverSubscriptions: children.map((c) =>
                 c.mouseoverChange.subscribe((mouseOver) => {
                     for (const child of children) {
-                        child.highlight.set(false);
+                        child.$highlight.set(false);
                     }
                     if (mouseOver) {
                         this.nativeElement.nativeElement.focus();
-                        c.highlight.set(true);
+                        c.$highlight.set(true);
                     }
                 })
             ),
             openSubMenuSubscriptions: children
-                .filter((e) => e.children().length > 0)
+                .filter((e) => e.$children().length > 0)
                 .map((c) =>
                     c.openSubMenu.subscribe(async (e) => {
                         if (
-                            this.menuGroupStack().some(
+                            this.$menuGroupStack().some(
                                 (s) => s.parentButton?.id === c.id
                             )
                         ) {
@@ -174,16 +179,16 @@ export class MenuButtonGroupComponent implements OnDestroy {
                         }
                         const group = await this.addMenuGroup(c);
                         const firstButton = group?.buttons.find(
-                            (b) => !b.disabled()
+                            (b) => !b.$disabled()
                         );
                         if (firstButton) {
-                            firstButton.highlight.set(true);
+                            firstButton.$highlight.set(true);
                         }
                     })
                 ),
             clickSubscriptions: children.map((c) =>
                 c.click.subscribe(async (e) => {
-                    const firstGroup = this.menuGroupStack().at(0);
+                    const firstGroup = this.$menuGroupStack().at(0);
                     if (firstGroup) {
                         this.destroyGroupsUntil(firstGroup.id);
                     }
@@ -205,7 +210,7 @@ export class MenuButtonGroupComponent implements OnDestroy {
                 ? document.getElementById(parentButton.id)
                 : null,
         };
-        this.menuGroupStack.update((groups) => {
+        this.$menuGroupStack.update((groups) => {
             const newGroups = [...groups, group];
             return newGroups;
         });
@@ -217,7 +222,7 @@ export class MenuButtonGroupComponent implements OnDestroy {
     }
 
     async updateSizes() {
-        const groups = this.menuGroupStack();
+        const groups = this.$menuGroupStack();
         const currentRect =
             this.nativeElement.nativeElement.getBoundingClientRect();
 
@@ -239,7 +244,7 @@ export class MenuButtonGroupComponent implements OnDestroy {
             if (!group.parentButton) {
                 top = 0;
                 left = 0;
-                group.position.set('absolute');
+                group.$position.set('absolute');
                 minTop = Math.min(minTop, 0);
                 minLeft = Math.min(minLeft, 0);
                 maxTop = Math.max(maxTop, elHeight);
@@ -256,17 +261,17 @@ export class MenuButtonGroupComponent implements OnDestroy {
                 minLeft = Math.min(minLeft, left);
                 maxTop = Math.max(maxTop, top + elHeight);
                 maxLeft = Math.max(maxLeft, left + elWidth);
-                group.position.set('absolute');
+                group.$position.set('absolute');
             }
-            group.top.set(top);
-            group.left.set(left);
+            group.$top.set(top);
+            group.$left.set(left);
         }
-        this.height.set(maxTop - minTop);
-        this.width.set(maxLeft - minLeft);
+        this.$height.set(maxTop - minTop);
+        this.$width.set(maxLeft - minLeft);
     }
 
     async destroyGroupsUntil(id?: string) {
-        const groups = this.menuGroupStack();
+        const groups = this.$menuGroupStack();
 
         const curIndex = groups.findIndex((g) => g.id === id);
 
@@ -276,33 +281,33 @@ export class MenuButtonGroupComponent implements OnDestroy {
             group.openSubMenuSubscriptions.forEach((s) => s.unsubscribe());
             group.highlightSubscriptions.forEach((s) => s.unsubscribe());
             group.clickSubscriptions.forEach((s) => s.unsubscribe());
-            group.buttons.forEach((b) => b.highlight.set(false));
+            group.buttons.forEach((b) => b.$highlight.set(false));
             // group.element?.remove();
         }
         // this will also remove from DOM
-        this.menuGroupStack.set(groups);
+        this.$menuGroupStack.set(groups);
         this.updateSizes();
     }
     @HostListener('focusin')
     onFocusIn() {
         // clear everything except the first group in the stack
-        const groupStack = this.menuGroupStack().slice(0, 1);
+        const groupStack = this.$menuGroupStack().slice(0, 1);
         // highlight the first button in the group
-        const firstButton = groupStack[0].buttons.find((b) => !b.disabled());
+        const firstButton = groupStack[0].buttons.find((b) => !b.$disabled());
         if (firstButton) {
-            firstButton.highlight.set(true);
+            firstButton.$highlight.set(true);
         }
     }
 
     @HostListener('focusout')
     onFocusOut() {
         // clear everything except the first group in the stack
-        const groupStack = this.menuGroupStack();
+        const groupStack = this.$menuGroupStack();
         if (groupStack.length > 0) {
             const rootId = groupStack[0].id;
             this.destroyGroupsUntil(rootId);
             for (const b of groupStack[0].buttons) {
-                b.highlight.set(false);
+                b.$highlight.set(false);
             }
         }
     }
@@ -312,28 +317,28 @@ export class MenuButtonGroupComponent implements OnDestroy {
         if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
             // we only handle navitation on top of the stack
             const buttons =
-                this.menuGroupStack()[this.menuGroupStack().length - 1]
+                this.$menuGroupStack()[this.$menuGroupStack().length - 1]
                     ?.buttons;
             if (!buttons) {
                 return;
             }
 
             let currentIndex = -1;
-            currentIndex = buttons.findIndex((child) => child.highlight());
+            currentIndex = buttons.findIndex((child) => child.$highlight());
             let nextIndex: number;
             if (event.key === 'ArrowDown') {
                 if (currentIndex === -1) {
                     // find the first non disabled option
-                    nextIndex = buttons.findIndex((e) => !e.disabled());
+                    nextIndex = buttons.findIndex((e) => !e.$disabled());
                 } else {
                     // find the next option that is not disabled
                     nextIndex = buttons.findIndex(
-                        (o, i) => i > currentIndex && !o.disabled()
+                        (o, i) => i > currentIndex && !o.$disabled()
                     );
                     // if no option is found, find the next option that is not disabled before the current item
                     if (nextIndex === -1) {
                         nextIndex = buttons.findIndex(
-                            (o, i) => i < currentIndex && !o.disabled()
+                            (o, i) => i < currentIndex && !o.$disabled()
                         );
                     }
                 }
@@ -343,7 +348,7 @@ export class MenuButtonGroupComponent implements OnDestroy {
                     nextIndex = buttons
                         .slice()
                         .reverse()
-                        .findIndex((o) => !o.disabled());
+                        .findIndex((o) => !o.$disabled());
                     if (nextIndex !== -1) {
                         nextIndex = buttons.length - nextIndex - 1;
                     }
@@ -354,7 +359,7 @@ export class MenuButtonGroupComponent implements OnDestroy {
                     nextIndex = [...buttons]
                         .reverse()
                         .findIndex(
-                            (o, i) => i > flippedCurrentIndex && !o.disabled()
+                            (o, i) => i > flippedCurrentIndex && !o.$disabled()
                         );
                     // if no option is found, find the next option that is not disabled before the current item
                     if (nextIndex === -1) {
@@ -362,7 +367,7 @@ export class MenuButtonGroupComponent implements OnDestroy {
                             .reverse()
                             .findIndex(
                                 (o, i) =>
-                                    i < flippedCurrentIndex && !o.disabled()
+                                    i < flippedCurrentIndex && !o.$disabled()
                             );
                     }
                     if (nextIndex !== -1) {
@@ -374,7 +379,7 @@ export class MenuButtonGroupComponent implements OnDestroy {
             }
 
             for (const [i, b] of buttons.entries()) {
-                b.highlight.set(i === nextIndex);
+                b.$highlight.set(i === nextIndex);
             }
         }
         if (
@@ -382,22 +387,22 @@ export class MenuButtonGroupComponent implements OnDestroy {
             event.key === ' ' ||
             event.key === 'ArrowRight'
         ) {
-            const highlightedButton = this.menuGroupStack()[
-                this.menuGroupStack().length - 1
-            ]?.buttons?.find((b) => b.highlight());
-            if (!highlightedButton || highlightedButton.disabled()) {
+            const highlightedButton = this.$menuGroupStack()[
+                this.$menuGroupStack().length - 1
+            ]?.buttons?.find((b) => b.$highlight());
+            if (!highlightedButton || highlightedButton.$disabled()) {
                 return;
             }
-            if (highlightedButton.children().length > 0) {
+            if (highlightedButton.$children().length > 0) {
                 highlightedButton.onClick(event);
             } else if (event.key === 'Enter' || event.key === ' ') {
                 highlightedButton.onClick(event);
             }
         }
         if (event.key === 'ArrowLeft') {
-            if (this.menuGroupStack().length > 1) {
+            if (this.$menuGroupStack().length > 1) {
                 const parentGroupId =
-                    this.menuGroupStack()[this.menuGroupStack().length - 2].id;
+                    this.$menuGroupStack()[this.$menuGroupStack().length - 2].id;
                 this.destroyGroupsUntil(parentGroupId);
             }
         }
@@ -406,9 +411,9 @@ export class MenuButtonGroupComponent implements OnDestroy {
 
 interface IMenuGroup {
     id: string;
-    top: WritableSignal<number>;
-    left: WritableSignal<number>;
-    position: WritableSignal<'fixed' | 'absolute'>;
+    $top: WritableSignal<number>;
+    $left: WritableSignal<number>;
+    $position: WritableSignal<'fixed' | 'absolute'>;
     parentButton: HTMLElement | null;
     buttons: readonly MenuButtonComponent[];
     element: Element | null;

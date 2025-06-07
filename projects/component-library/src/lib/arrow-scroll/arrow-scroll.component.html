@@ -1,25 +1,25 @@
-@if (scrollArrowsVisible()) {
+@if ($scrollArrowsVisible()) {
 <div
     class="scroll-arrow"
-    [style.margin-bottom]="scrollDirection() === 'vertical' ? buttonsGap() : '0'"
+    [style.margin-bottom]="$scrollDirection() === 'vertical' ? $buttonsGap() : '0'"
     [style.margin-right]="
-        scrollDirection() === 'horizontal' ? buttonsGap() : '0'
+        $scrollDirection() === 'horizontal' ? $buttonsGap() : '0'
     "
 >
     <button
         class="back"
         layout="small-icon"
-        [color]="buttonsColor()"
+        [color]="$buttonsColor()"
         (click)="scroll('back')"
-        [disabled]="!canScroll().back"
-        [style.color]="buttonsCssColor()"
+        [disabled]="!$canScroll().back"
+        [style.color]="$buttonsCssColor()"
     >
         <ng-content select="tab-icon[back-button]"></ng-content>
     </button>
-    @if (showScrollButtonSeparator()) {
+    @if ($showScrollButtonSeparator()) {
     <tab-separator
         [direction]="
-            scrollDirection() === 'vertical' ? 'horizontal' : 'vertical'
+            $scrollDirection() === 'vertical' ? 'horizontal' : 'vertical'
         "
     ></tab-separator>
     }
@@ -29,33 +29,33 @@
 <div
     #scrollContainer
     class="scroll-container"
-    [class.arrow-scroll]="scrollType() === 'arrow'"
-    [class.vertical]="scrollDirection() === 'vertical'"
-    [class.horizontal]="scrollDirection() === 'horizontal'"
+    [class.arrow-scroll]="$scrollType() === 'arrow'"
+    [class.vertical]="$scrollDirection() === 'vertical'"
+    [class.horizontal]="$scrollDirection() === 'horizontal'"
 >
     <ng-content></ng-content>
 </div>
 
-@if (scrollArrowsVisible()) {
+@if ($scrollArrowsVisible()) {
 <div
     class="scroll-arrow"
-    [style.margin-top]="scrollDirection() === 'vertical' ? buttonsGap() : '0'"
-    [style.margin-left]="scrollDirection() === 'horizontal' ? buttonsGap() : '0'"
+    [style.margin-top]="$scrollDirection() === 'vertical' ? $buttonsGap() : '0'"
+    [style.margin-left]="$scrollDirection() === 'horizontal' ? $buttonsGap() : '0'"
 >
-    @if (showScrollButtonSeparator()) {
+    @if ($showScrollButtonSeparator()) {
     <tab-separator
         [direction]="
-            scrollDirection() === 'vertical' ? 'horizontal' : 'vertical'
+            $scrollDirection() === 'vertical' ? 'horizontal' : 'vertical'
         "
     ></tab-separator>
     }
     <button
         class="forward"
         layout="small-icon"
-        [color]="buttonsColor()"
+        [color]="$buttonsColor()"
         (click)="scroll('forward')"
-        [disabled]="!canScroll().forward"
-        [style.color]="buttonsCssColor()"
+        [disabled]="!$canScroll().forward"
+        [style.color]="$buttonsCssColor()"
     >
         <ng-content select="tab-icon[forward-button]"></ng-content>
     </button>

@@ -11,12 +11,14 @@ import { ChangeDetectionStrategy, Component, input } from "@angular/core";
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: false,
     host: {
-        '[style.width]': 'direction() === "horizontal" ? undefined : "1px"',
-        '[style.height]': 'direction() === "vertical" ? undefined : "1px"',
-        '[style.display]': 'direction() === "horizontal" ? "block" : "inline-block"',
+        '[style.width]': '$direction() === "horizontal" ? undefined : "1px"',
+        '[style.height]': '$direction() === "vertical" ? undefined : "1px"',
+        '[style.display]': '$direction() === "horizontal" ? "block" : "inline-block"',
     }
 })
 export class SeparatorComponent {
 
-    readonly direction = input<'horizontal' | 'vertical'>('horizontal');
+    readonly $direction = input<'horizontal' | 'vertical'>('horizontal', {
+        alias: 'direction'
+    });
 }

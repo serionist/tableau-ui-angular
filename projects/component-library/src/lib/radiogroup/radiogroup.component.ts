@@ -34,13 +34,15 @@ import { generateRandomString } from '../utils';
     standalone: false
 })
 export class RadiogroupComponent implements ControlValueAccessor {
-    disabled = signal(false);
-    value = model<any>(undefined);
-    valueChanges = output<any>();
-    name = this.generateRandomGroupName();
-    options = contentChildren(OptionComponent);
+    readonly $disabled = signal(false);
+    readonly $value = model<any>(undefined, {
+        alias: 'value'
+    });
+    readonly $valueChanges = output<any>();
+    readonly name = this.generateRandomGroupName();
+    readonly $options = contentChildren(OptionComponent);
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    errorElement: Signal<ErrorComponent | undefined> = contentChild(ErrorComponent);
+    readonly $errorElement: Signal<ErrorComponent | undefined> = contentChild(ErrorComponent);
 
     // eslint-disable-next-line  @typescript-eslint/no-empty-function  
     onChange = (value: any) => {};
@@ -48,7 +50,7 @@ export class RadiogroupComponent implements ControlValueAccessor {
     onTouched = () => {};
 
     writeValue(value: any): void {
-        this.value.set(value);
+        this.$value.set(value);
     }
 
     registerOnChange(fn: any): void {
@@ -60,15 +62,15 @@ export class RadiogroupComponent implements ControlValueAccessor {
     }
 
     setDisabledState(isDisabled: boolean): void {
-        this.disabled.set(isDisabled);
+        this.$disabled.set(isDisabled);
     }
 
     selectValue(option: OptionComponent) {
-        if (!this.disabled() && !option.disabled()) {
-            if (this.value() !== option.value()) {
-                this.value.set(option.value());
-                this.onChange(this.value());
-                this.valueChanges.emit(this.value());
+        if (!this.$disabled() && !option.$disabled()) {
+            if (this.$value() !== option.$value()) {
+                this.$value.set(option.$value());
+                this.onChange(this.$value());
+                this.$valueChanges.emit(this.$value());
             }
             this.onTouched();
         }

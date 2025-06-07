@@ -17,8 +17,8 @@ const a = new FC<boolean>({
 const b = new ControlReferenceBuilder();
 const a2 = b.control('asd'); 
 export interface ITest {
-    name: string;
-    age: number;
+    name?: string;
+    age: number | undefined;
     address: IAddress;
 }
 export interface IAddress {
@@ -32,12 +32,14 @@ export interface ITest2 {
     name: string;
     age: number;
 }
+
+const c4: NonNullable<string | undefined> = 'a';
 const g = new FG<ITest>({
     controls: {
-        name: new FC<string>({
+        name: new FC<string | undefined>({
             defaultValue: 'test',
         }),
-        age: new FC<number>({
+        age: new FC<number | undefined>({
             defaultValue: 0,
         }),
         address: new FG<IAddress>({
@@ -69,9 +71,10 @@ const g = new FG<ITest>({
     },
 });
 const gbuilder = b.group<ITest>({
-    name: b.control<string>('test', Validators.required),
-    age: b.control<number>(0),
+    name : b.control<string | undefined>('test'),
+    age: b.control<number | undefined>(0),
     address: b.group<IAddress>({
+        
         street: b.control<string>('test'),
         city: b.control<string>('test'),
         state: b.control<string>('test'),
@@ -83,6 +86,9 @@ const gbuilder = b.group<ITest>({
     }),
 
 })
+const c = gbuilder.controls.age;
+const n = gbuilder.controls.name;
+gbuilder.controls.age.setValue(10);
 
 const arr = new FA<ITest>({
     controls: [g]

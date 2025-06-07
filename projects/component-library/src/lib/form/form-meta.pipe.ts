@@ -18,7 +18,7 @@ export class FormMetaPipe implements PipeTransform {
             return of(null);
         }
         return form.hierarchy
-            .getChild(path)
+            .getChild$(path)
             .pipe(switchMap((c) => (c ? c.meta$ : of(null))));
     }
 }

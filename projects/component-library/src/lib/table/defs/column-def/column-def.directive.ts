@@ -13,7 +13,7 @@ export class ColumnDefDirective {
     /**
      * The unique identifier for the column.
      */
-    readonly id = input.required<string>({
+    readonly $id = input.required<string>({
         alias: 'tabColumnDef',
     });
 
@@ -22,21 +22,27 @@ export class ColumnDefDirective {
      * If not provided, it will default to the column ID.
      * @default undefined
      */
-    readonly propertyName = input<string | undefined>(undefined);
+    readonly $propertyName = input<string | undefined>(undefined, {
+        alias: 'propertyName',
+    });
 
     /**
      * The CSS width of the column.
      * Can be a string representing a CSS value (e.g., '100px', '20%', '1rem') or a number repesenting flex-grow (fill space).
      * @default "1"
      */
-    readonly width = input<string | number>(1);
+    readonly $width = input<string | number>(1, {
+        alias: 'width'
+    });
 
     /**
      * The CSS minimum width of the column.
      * Can be a string representing a CSS value (e.g., '100px', '20%', '1rem'). If no unit is provided, it will be treated as pixels.
      * @default "100px"
      */
-    readonly minWidth = input<string>('5rem');
+    readonly $minWidth = input<string>('5rem', {
+        alias: 'minWidth',
+    });
 
     /**
      * The CSS maximum width of the column.
@@ -44,26 +50,34 @@ export class ColumnDefDirective {
      * If undefined, there is no maximum width.
      * @default undefined
      */
-    readonly maxWidth = input<string | undefined>(undefined);
+    readonly $maxWidth = input<string | undefined>(undefined, {
+        alias: 'maxWidth',
+    });
 
     /**
      * Whether the column is resizable by the user.
      * @default true
      */
-    readonly resizable = input<boolean>(true);
+    readonly $resizable = input<boolean>(true, {
+        alias: 'resizable',
+    });
 
     /**
      * Whether the column is sortable by the user.
      * @default true
      */
-    readonly sortable = input<boolean>(true);
+    readonly $sortable = input<boolean>(true, {
+        alias: 'sortable',
+    });
 
     /**
      * The sort order of the column when it is sorted.
      * Can be 'asc' for ascending, 'desc' for descending, or an array of two values to indicate the order of sorting.
      * @default "['asc', 'desc']"
      */
-    readonly sortOrder = input<SortOrderPair>(['asc', 'desc']);
+    readonly $sortOrder = input<SortOrderPair>(['asc', 'desc'], {
+        alias: 'sortOrder',
+    });
 
     /**
      * The CSS class to apply to the column header.
@@ -71,9 +85,11 @@ export class ColumnDefDirective {
      * If undefined, no class will be applied.
      * @default undefined
      */
-    readonly headerClass = input<
+    readonly $headerClass = input<
         string | ((ctx: HeaderContext) => string | undefined) | undefined
-    >(undefined);
+    >(undefined, {
+        alias: 'headerClass',
+    });
 
     /**
      * The CSS class to apply to the column cells.
@@ -81,9 +97,11 @@ export class ColumnDefDirective {
      * If undefined, no class will be applied.
      * @default undefined
      */
-    readonly cellClass = input<
+    readonly $cellClass = input<
         string | ((ctx: CellContext) => string | undefined) | undefined
-    >(undefined);
+    >(undefined, {
+        alias: 'cellClass',
+    });
 
     /**
      * The tooltip for the column header.
@@ -93,7 +111,9 @@ export class ColumnDefDirective {
      * If undefined, no tooltip will be shown.
      * @default 'default'
      */
-    readonly headerTooltip = input<'default' | string | TemplateRef<HeaderTooltipArgs> | undefined>('default');
+    readonly $headerTooltip = input<'default' | string | TemplateRef<HeaderTooltipArgs> | undefined>('default', {
+        alias: 'headerTooltip',
+    });
 
     /**
      * The tooltip for the column cells.
@@ -102,10 +122,12 @@ export class ColumnDefDirective {
      * If undefined, no tooltip will be shown.
      * @default undefined
      */
-    readonly cellTooltip = input<undefined | TemplateRef<CellContext>>(undefined);
+    readonly $cellTooltip = input<undefined | TemplateRef<CellTooltipArgs>>(undefined, {
+        alias: 'cellTooltip',
+    });
 
-    readonly cell = contentChild.required(CellDefDirective);
-    readonly header = contentChild(HeaderDefDirective);
+    readonly $cell = contentChild.required(CellDefDirective);
+    readonly $header = contentChild(HeaderDefDirective);
 }
 export type SortOrderPair = ['asc', 'desc'] | ['desc', 'asc'];
 export interface HeaderTooltipArgs {

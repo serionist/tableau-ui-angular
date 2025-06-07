@@ -104,7 +104,7 @@
                             </div>
                             <tab-separator></tab-separator>
                         </tab-prefix>
-                        @if (searching()) {
+                        @if ($searching()) {
                         <tab-prefix>
                             <tab-loading-gif></tab-loading-gif>
                         </tab-prefix>
@@ -138,7 +138,7 @@
             </p>
             <div class="spacer">
                 <form
-                    [formGroup]="form"
+                    [formGroup]="(form | formControl:undefined:'group' | async)!"
                     class="spacer two"
                     style="max-width: 800px"
                 >
@@ -151,7 +151,7 @@
                         <input
                             type="text"
                             placeholder="Enter any text here"
-                            [formControl]="form.controls.simple2"
+                            formControlName="simple2"
                         />
                     </tab-form-field>
 
@@ -205,7 +205,7 @@
                             <tab-icon value="search"></tab-icon>
                         </tab-prefix>
                         <tab-suffix>Suffix</tab-suffix>
-                        @if (form.controls.validation.invalid) {
+                        @if (form | formMeta:'validation' | async | formHasError) {
                         <tab-error>This field is required</tab-error>
                         }
                     </tab-form-field>
@@ -239,11 +239,11 @@
                             <tab-icon value="search"></tab-icon>
                         </tab-prefix>
                         <tab-suffix>Suffix</tab-suffix>
-                        @if (form.controls.number.hasError('required')) {
+                        @if (form | formMeta:'number' | async | formHasError:'required') {
                         <tab-error>This field is required</tab-error>
-                        } @if (form.controls.number.hasError('min')) {
+                        } @if (form | formMeta:'number' | async | formHasError:'min') {
                         <tab-error>Value must be greater than 0</tab-error>
-                        } @if (form.controls.number.hasError('pattern')) {
+                        } @if (form | formMeta:'number' | async | formHasError:'pattern') {
                         <tab-error>Value must be a number</tab-error>
                         }
                     </tab-form-field>

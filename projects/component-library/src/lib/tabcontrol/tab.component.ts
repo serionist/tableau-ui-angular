@@ -14,7 +14,7 @@ import {
     selector: 'tab',
     template: `
         <ng-template #headerTemplate>
-            <ng-content select="[tab-header]"></ng-content>
+            <ng-content select="[tab-header]" ></ng-content>
         </ng-template>
         <ng-template #contentTemplate>
             <ng-content></ng-content>
@@ -24,8 +24,10 @@ import {
     standalone: false,
 })
 export class TabComponent {
-    headerTemplate = viewChild.required<TemplateRef<any>>('headerTemplate');
-    contentTemplate = viewChild.required<TemplateRef<any>>('contentTemplate');
+    readonly $headerTemplate = viewChild.required<TemplateRef<any>>('headerTemplate');
+    readonly $contentTemplate = viewChild.required<TemplateRef<any>>('contentTemplate');
 
-    disabled = input<boolean>(false);
+    readonly $disabled = input<boolean>(false, {
+        alias: 'disabled',
+    });
 }

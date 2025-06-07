@@ -80,6 +80,18 @@ export class DialogService {
         return ref;
     }
 
+    openTemplateModal<TData = any>(
+        contentTemplate: TemplateRef<TData>,
+        contentTemplateContext: TData,
+        args?: IModalArgs
+    ): DialogRef {
+        return this.openModal(
+            TemplateDialogComponent,
+            { contentTemplate, contentTemplateContext },
+            args
+        );
+    }
+
     openConfirmationMessageDialog(
         title: string,
         message: string,
@@ -108,7 +120,7 @@ export class DialogService {
                 data,
                 modalArgs
             );
-            dialogRef.afterClosed$.subscribe((result) => {
+            dialogRef.closed$.subscribe((result) => {
                 resolve(result ?? false);
             });
         });
@@ -143,7 +155,7 @@ export class DialogService {
                 data,
                 modalArgs
             );
-            dialogRef.afterClosed$.subscribe((result) => {
+            dialogRef.closed$.subscribe((result) => {
                 resolve(result ?? false);
             });
         });
@@ -252,7 +264,7 @@ export class DialogService {
         );
 
         // Handle dialog close
-        dialogRef.afterClosed$.subscribe(() => {
+        dialogRef.closed$.subscribe(() => {
             if (resizeSubscription) {
                 resizeSubscription.unsubscribe();
             }

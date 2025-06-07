@@ -35,7 +35,7 @@ export class AccordionComponent {
                 if (expanded) {
                     items.forEach((i) => {
                         if (i.id !== item.id) {
-                            i.expanded.set(false);
+                            i.$expanded.set(false);
                         }
                     });
                 }

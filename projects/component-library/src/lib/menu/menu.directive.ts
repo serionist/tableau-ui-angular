@@ -6,11 +6,13 @@ import { MenuComponent } from "./menu.component";
     standalone: false
 })
 export class MenuDirective {
-    readonly menu = input.required<MenuComponent>();
-    readonly el = inject(ElementRef);
-    constructor() {
-        effect(() => {
-            this.menu().parentControl.set(this.el);
-        });
-    }
+    readonly $menu = input.required<MenuComponent>({
+        alias: 'menu'
+    });
+    private readonly el = inject(ElementRef);
+
+    private readonly menuChanged = effect(() => {
+        this.$menu().$parentControl.set(this.el);
+    });
+
 }

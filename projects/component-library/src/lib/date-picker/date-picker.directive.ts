@@ -20,7 +20,7 @@ import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR } from '@angular/f
     standalone: false,
     host: {
         class: 'date-picker',
-        '[attr.type]': 'type() === "datetime" ? "datetime-local" : "date"',
+        '[attr.type]': '$type() === "datetime" ? "datetime-local" : "date"',
         
     },
     providers: [
@@ -35,21 +35,24 @@ export class DatePickerDirective implements ControlValueAccessor {
    
     private readonly el = inject(ElementRef<HTMLInputElement>);
 
-
     // type can only be set once. Cannot change between date and datetime
-    type = input.required<'date' | 'datetime'>();
-    originalType: 'date' | 'datetime' | undefined;
-    typeChanged = effect(() => {
+    readonly $type = input.required<'date' | 'datetime'>({
+        alias: 'type'
+    });
+    private originalType: 'date' | 'datetime' | undefined;
+    private typeChanged = effect(() => {
         if (this.originalType === undefined) {
-            this.originalType = this.type();
+            this.originalType = this.$type();
         }
-        if (this.type() !== this.originalType) {
+        if (this.$type() !== this.originalType) {
             throw new Error('DatePickerDirective: type must be "date" or "datetime", can not be changed later');
         }
     })
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    value: ModelSignal<Date | null> = model<Date | null>(null);
-    valueChange = output<Date | null>();
+    readonly $value: ModelSignal<Date | null> = model<Date | null>(null, {
+        alias: 'value'
+    });
+    readonly valueChange = output<Date | null>();
 
     @HostListener('input')
     onInput() {
@@ -64,8 +67,9 @@ export class DatePickerDirective implements ControlValueAccessor {
                 val = date;
             }
         }
-        this.value.set(val);
+        this.$value.set(val);
         this.valueChange.emit(val);
+        this._onTouched();
         this._onChange(val);
     }
     @HostListener('focus')
@@ -75,7 +79,7 @@ export class DatePickerDirective implements ControlValueAccessor {
 
     writeValue(obj: any): void {
         if (obj instanceof Date && !isNaN(obj.getTime())) {
-            if (this.type() === 'datetime') {
+            if (this.$type() === 'datetime') {
                 const year = obj.getFullYear();
                 const month = (obj.getMonth() + 1).toString().padStart(2, '0');
                 const day = obj.getDate().toString().padStart(2, '0');

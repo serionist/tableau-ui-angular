@@ -8,7 +8,7 @@
     --twc-font-size-body-large: 1.1em;
     --twc-font-size-subtitle: 1.3em;
     --twc-font-size-title: 1.4em;
-    --twc-font-size-page-title: 2em;
+    --twc-font-size-page-title: 1.6em;
     --twc-menu-border-radius: 1px;
     --twc-input-border-radius: 1px;
     --twc-menu-highlight-outline: 1px solid var(--twc-color-text-gray);
@@ -31,6 +31,6 @@
         --twc-font-size-body-large: round(1.1em, 1px);
         --twc-font-size-subtitle: round(1.3em, 1px);
         --twc-font-size-title: round(1.4em, 1px);
-        --twc-font-size-page-title: round(2em, 1px);
+        --twc-font-size-page-title: round(1.6em, 1px);
     }
 }

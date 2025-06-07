@@ -1,267 +1,225 @@
 <div class="table" role="table">
     <!--Data Row Sizer. This is a position fixed, 0px wide row with the given row height px. used to calculate the actual height of data rows prior to virtualizing-->
-    <div class="data-sizer" [style.height]="dataRowHeight()" #dataSizer></div>
+    <div class="data-sizer" [style.height]="$dataRowHeight()" #dataSizer></div>
     <!-- Column Row -->
     <div class="column-row" #headerRow [style.minWidth]="`calc(100% - 10px)`">
-        @for (def of displayedColumnDefs(); let index = $index; let count =
-        $count; let first = $first; let last = $last; let even = $even; let odd
-        = $odd; track def.id) { @let headerContext = def.col | headerContext :
-        index : first : last : even : odd : count;
-        <div
-            class="column-header"
-            #header
-            role="columnheader"
-            [attr.data-column-id]="def.id"
-            [attr.data-column-index]="index"
-            [attr.data-column-count]="count"
-            [attr.data-column-first]="first"
-            [attr.data-column-last]="last"
-            [attr.data-column-even]="even"
-            [attr.data-column-odd]="odd"
-            [style.minWidth]="def.col.minWidth() | colWidth : 'width'"
-            [style.maxWidth]="def.col.maxWidth() | colWidth : 'width'"
-            [style.width]="def.col.width() | colWidth : 'widthUnitsOnly'"
-            [style.flexGrow]="def.col.width() | colWidth : 'flexGrowOnly'"
-            [class.resizeable]="def.col.resizable()"
-            [class.sortable]="def.col.sortable()"
-            [class.pinned-left]="def.pinnedLeft"
-            [class.pinned-right]="def.pinnedRight"
-            [ngClass]="headerContext | headerClass"
-            [colRenderedWidth]="def.id"
-        >
-            <div class="content" [style.padding]="headerPadding()">
-                <button
-                    class="header-button"
-                    color="plain"
-                    layout="small-icon"
-                    (click)="onColumnHeaderClick($event, def.col)"
-                    [class.not-sortable]="!def.col.sortable()"
-                    [tabindex]="def.col.sortable() ? '0' : '-1'"
-                    [tooltip]="
-                        def.col.headerTooltip() === 'default'
-                            ? defaultHeaderTemplate
-                            : def.col.headerTooltip()
-                    "
-                    [tooltipContext]="{
-                        ctx: headerContext,
-                        template: def.col.header()!.templateRef,
-                        sortMode: sortMode(),
-                        sortable: def.col.sortable(),
-                        sortOrder: def.col.sortOrder(),
-                        currentSort:
-                            (sort()
-                            | sortInfoPipe : def.id : def.col.propertyName()),
-                        allSorts: sort()
-                    }"
-                >
-                    <div class="content">
-                        <div class="text">
-                            @if (def.col.header()) {
-                            <ng-container
-                                [ngTemplateOutlet]="
-                                    def.col.header()!.templateRef
-                                "
-                                [ngTemplateOutletContext]="headerContext"
-                            ></ng-container>
-
-                            }
-                        </div>
-                        @if (def.col.sortable()) {
-                        <div class="sort-indicator">
-                            @let currentSort = (sort() | sortInfoPipe:def.id:
-                            def.col.propertyName()); @switch
-                            (currentSort?.info?.direction) { @case ('asc') {
-                            <tab-icon value="arrow_upward"></tab-icon>
-                            } @case ('desc') {
-                            <tab-icon value="arrow_downward"></tab-icon>
-                            } @default {
-                            <tab-icon
-                                class="no-sort"
-                                value="swap_vert"
-                            ></tab-icon>
-                            } } @if (sortMode() === 'multi' && currentSort) {
-                            <span class="sort-order">
-                                {{ currentSort.index + 1 }}
-                            </span>
-                            }
-                        </div>
-                        }
-                    </div>
-                </button>
-            </div>
+        <!-- prettier-ignore -->
+        @for (def of $displayedColumnDefs(); let index = $index; let count = $count; let first = $first; let last = $last; let even = $even; let odd = $odd; track def.id) {
+            @let headerContext = def.col | headerContext: index : first : last : even : odd : count;
             <div
-                class="resizer"
-                [resizerFor]="header"
-                [enabled]="def.col.resizable()"
-                [class.enabled]="def.col.resizable()"
+                class="column-header"
+                #header
+                role="columnheader"
+                [attr.data-column-id]="def.id"
+                [attr.data-column-index]="index"
+                [attr.data-column-count]="count"
+                [attr.data-column-first]="first"
+                [attr.data-column-last]="last"
+                [attr.data-column-even]="even"
+                [attr.data-column-odd]="odd"
+                [style.minWidth]="def.col.$minWidth() | colWidth: 'width'"
+                [style.maxWidth]="def.col.$maxWidth() | colWidth: 'width'"
+                [style.width]="def.col.$width() | colWidth: 'widthUnitsOnly'"
+                [style.flexGrow]="def.col.$width() | colWidth: 'flexGrowOnly'"
+                [class.resizeable]="def.col.$resizable()"
+                [class.sortable]="def.col.$sortable()"
+                [class.pinned-left]="def.pinnedLeft"
+                [class.pinned-right]="def.pinnedRight"
+                [ngClass]="headerContext | headerClass"
+                [colRenderedWidth]="def.id"
             >
-                <div class="line"></div>
-            </div>
-        </div>
-
-        <ng-template
-            #defaultHeaderTemplate
-            let-template="template"
-            let-ctx="ctx"
-            let-sortMode="sortMode"
-            let-sortable="sortable"
-            let-sortOrder="sortOrder"
-            let-currentSort="currentSort"
-            let-allSorts="allSorts"
-        >
-            <div class="default-header-tooltip">
-                <div class="column-name">
-                    <ng-container
-                        [ngTemplateOutlet]="template"
-                        [ngTemplateOutletContext]="ctx"
-                    ></ng-container>
+                <div class="content" [style.padding]="$headerPadding()">
+                    <button
+                        class="header-button"
+                        color="plain"
+                        layout="small-icon"
+                        (click)="onColumnHeaderClick($event, def.col)"
+                        [class.not-sortable]="!def.col.$sortable()"
+                        [tabindex]="def.col.$sortable() ? '0' : '-1'"
+                        [tooltip]="def.col.$headerTooltip() === 'default' ? defaultHeaderTemplate : def.col.$headerTooltip()"
+                        [tooltipContext]="{
+                            ctx: headerContext,
+                            template: def.col.$header()!.templateRef,
+                            sortMode: $sortMode(),
+                            sortable: def.col.$sortable(),
+                            sortOrder: def.col.$sortOrder(),
+                            currentSort: ($sort() | sortInfoPipe: def.id : def.col.$propertyName()),
+                            allSorts: $sort(),
+                        }"
+                    >
+                        <div class="content">
+                            <div class="text">
+                                @if (def.col.$header()) {
+                                    <ng-container [ngTemplateOutlet]="def.col.$header()!.templateRef" [ngTemplateOutletContext]="headerContext"></ng-container>
+                                }
+                            </div>
+                            @if (def.col.$sortable()) {
+                                <div class="sort-indicator">
+                                    @let currentSort = $sort() | sortInfoPipe: def.id : def.col.$propertyName();
+                                    @switch (currentSort?.info?.direction) {
+                                        @case ('asc') {
+                                            <tab-icon value="arrow_upward"></tab-icon>
+                                        }
+                                        @case ('desc') {
+                                            <tab-icon value="arrow_downward"></tab-icon>
+                                        }
+                                        @default {
+                                            <tab-icon class="no-sort" value="swap_vert"></tab-icon>
+                                        }
+                                    }
+                                    @if ($sortMode() === 'multi' && currentSort) {
+                                        <span class="sort-order">
+                                            {{ currentSort.index + 1 }}
+                                        </span>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </button>
                 </div>
+                <div class="resizer" [resizerFor]="header" [enabled]="def.col.$resizable()" [class.enabled]="def.col.$resizable()">
+                    <div class="line"></div>
+                </div>
+            </div>
 
-                @if (sortable) {
-                <!-- @let currentSort = sort() | sortInfoPipe:def.id; -->
-                <div class="sort">
-                    @if (currentSort) {
-                    <div class="current">
-                        Currently sorted in
-                        <b
-                            >{{
-                                currentSort.info.direction === "asc"
-                                    ? "Ascending"
-                                    : "Descending"
-                            }}
-                            order.</b
-                        >
+            <ng-template #defaultHeaderTemplate let-template="template" let-ctx="ctx" let-sortMode="sortMode" let-sortable="sortable" let-sortOrder="sortOrder" let-currentSort="currentSort" let-allSorts="allSorts">
+                <div class="default-header-tooltip">
+                    <div class="column-name">
+                        <ng-container [ngTemplateOutlet]="template" [ngTemplateOutletContext]="ctx"></ng-container>
                     </div>
-                    } @let nextSort = !currentSort ? sortOrder[0] :
-                    currentSort.info.direction === sortOrder[1] ? undefined :
-                    currentSort.info.direction === 'asc' ? 'desc' : 'asc'; @let
-                    isSubSort = currentSort?.index > 0; @let addMultiSort =
-                    sortMode === 'multi' && !currentSort && allSorts.length > 0;
-                    @if (addMultiSort) {
-                    <div class="multi-sort">
-                        <b>Shift + Click</b> to add add to multi-sort in
-                        <b>{{
-                            nextSort === "asc" ? "Ascending" : "Descending"
-                        }}</b>
-                        order.
-                    </div>
-                    } @if (isSubSort) {
-                    <div class="next">
-                        @if (!nextSort) {
-                        <b>Shift + Click</b> to remove sorting this column from
-                        multi-sort. } @else { <b>Shift + Click</b> to change
-                        sorting to
-                        <b>{{
-                            nextSort === "asc" ? "Ascending" : "Descending"
-                        }}</b>
-                        order. }
-                    </div>
-                    <div class="next">
-                        @if (!nextSort) { Click to clear all sorting. } @else {
-                        Click to clear multi-sort and change to
-                        <b>{{
-                            nextSort === "asc" ? "Ascending" : "Descending"
-                        }}</b>
-                        order. }
-                    </div>
-                    } @else {
-                    <div class="next">
-                        @if (!nextSort) { Click to remove sorting. } @else {
-                        Click to sort in
-                        <b>{{
-                            nextSort === "asc" ? "Ascending" : "Descending"
-                        }}</b>
-                        order. }
-                    </div>
+
+                    @if (sortable) {
+                        <!-- @let currentSort = $sort() | sortInfoPipe:def.id; -->
+                        <div class="sort">
+                            @if (currentSort) {
+                                <div class="current">
+                                    Currently sorted in
+                                    <b>{{ currentSort.info.direction === 'asc' ? 'Ascending' : 'Descending' }} order.</b>
+                                </div>
+                            }
+                            @let nextSort = !currentSort ? sortOrder[0] : currentSort.info.direction === sortOrder[1] ? undefined : currentSort.info.direction === 'asc' ? 'desc' : 'asc';
+                            @let isSubSort = currentSort?.index > 0;
+                            @let addMultiSort = sortMode === 'multi' && !currentSort && allSorts.length > 0;
+                            @if (addMultiSort) {
+                                <div class="multi-sort">
+                                    <b>Shift + Click</b>
+                                    to add add to multi-sort in
+                                    <b>{{ nextSort === 'asc' ? 'Ascending' : 'Descending' }}</b>
+                                    order.
+                                </div>
+                            }
+                            @if (isSubSort) {
+                                <div class="next">
+                                    @if (!nextSort) {
+                                        <b>Shift + Click</b>
+                                        to remove sorting this column from multi-sort.
+                                    } @else {
+                                        <b>Shift + Click</b>
+                                        to change sorting to
+                                        <b>{{ nextSort === 'asc' ? 'Ascending' : 'Descending' }}</b>
+                                        order.
+                                    }
+                                </div>
+                                <div class="next">
+                                    @if (!nextSort) {
+                                        Click to clear all sorting.
+                                    } @else {
+                                        Click to clear multi-sort and change to
+                                        <b>{{ nextSort === 'asc' ? 'Ascending' : 'Descending' }}</b>
+                                        order.
+                                    }
+                                </div>
+                            } @else {
+                                <div class="next">
+                                    @if (!nextSort) {
+                                        Click to remove sorting.
+                                    } @else {
+                                        Click to sort in
+                                        <b>{{ nextSort === 'asc' ? 'Ascending' : 'Descending' }}</b>
+                                        order.
+                                    }
+                                </div>
+                            }
+                        </div>
                     }
                 </div>
-                }
-            </div>
-        </ng-template>
+            </ng-template>
         }
     </div>
 
-    <div class="data-rows" [class.striped]="striped()">
-        @let dmBlocks = dataManager.blocks(); @if (dmBlocks.prePixels === 0 &&
-        dmBlocks.postPixels === 0 && dmBlocks.blocks.length === 0 && dataManager.totalRowCount() === 0) {
-        @let _noDataTemplate = noDataTemplate();
-        <ng-container [ngTemplateOutlet]="_noDataTemplate === 'default' ? defaultNoData: _noDataTemplate"></ng-container>
-        <ng-template #defaultNoData>
-            <div class="no-data" [style.padding]="dataPadding()">
-                <span>No data available</span>
-            </div>
-        </ng-template>
+    <div class="data-rows" [class.striped]="$striped()">
+        @let dmBlocks = dataManager.$blocks();
+        @if (dmBlocks.prePixels === 0 && dmBlocks.postPixels === 0 && dmBlocks.blocks.length === 0 && dataManager.$totalRowCount() === 0) {
+            @let _noDataTemplate = $noDataTemplate();
+            <ng-container [ngTemplateOutlet]="_noDataTemplate === 'default' ? defaultNoData : _noDataTemplate"></ng-container>
+            <ng-template #defaultNoData>
+                <div class="no-data" [style.padding]="$dataPadding()">
+                    <span>No data available</span>
+                </div>
+            </ng-template>
         } @else {
-        <div
-            class="virtualize pre"
-            [style.height]="dmBlocks.prePixels + 'px'"
-        ></div>
+            <div class="virtualize pre" [style.height]="dmBlocks.prePixels + 'px'"></div>
 
-        @for (block of dmBlocks.blocks; track block.id) { @for (row of
-        block.data(); let index = $index; let count = $count; let first =
-        $first; let last = $last; let even = $even; let odd = $odd; track index)
-        {
-        <div
-            class="row"
-            role="row"
-            [style.height]="dataRowHeight()"
-            [class.even]="(block.offset + index) % 2 === 0"
-        >
-            @for (def of displayedColumnDefs(); let colindex = $index; let
-            colcount = $count; let colfirst = $first; let collast = $last; let
-            coleven = $even; let colodd = $odd; track def.id) { @let cellContext
-            = row | cellContext : def.col : block.offset + index : block.offset
-            === 0 && first : block.offset + index ===
-            dataManager.totalRowCount() : (block.offset + index) % 2 === 0 :
-            (block.offset + index) % 2 === 1 : dataManager.totalRowCount() :
-            colindex : colfirst : collast : coleven : colodd : colcount;
-            <div
-                class="cell"
-                role="cell"
-                [attr.data-column-id]="def.id"
-                [attr.data-column-index]="block.offset + index"
-                [attr.data-column-count]="dataManager.totalRowCount()"
-                [attr.data-column-first]="colfirst"
-                [attr.data-column-last]="collast"
-                [attr.data-column-even]="coleven"
-                [attr.data-column-odd]="colodd"
-                [class.pinned-left]="def.pinnedLeft"
-                [class.pinned-right]="def.pinnedRight"
-                [style.padding]="dataPadding()"
-                [style.width]="
-                    columnWidthDirectives()
-                        | cellWidth : def.id : dataPadding()
-                        | async
-                "
-                [ngClass]="cellContext | cellClass"
-                [tooltip]="
-                    block.status() === 'success'
-                        ? def.col.cellTooltip()
-                        : undefined
-                "
-                [tooltipContext]="{
-                    ctx: cellContext,
-                    template: def.col.cell().templateRef
-                }"
-            >
-                @switch (block.status()) { @case ('loading') {
-                <div class="status loader"></div>
-                } @case ('error') {
-                <div class="status error"></div>
-                } @case ('success') {
-                <ng-container
-                    [ngTemplateOutlet]="def.col.cell().templateRef"
-                    [ngTemplateOutletContext]="cellContext"
-                ></ng-container>
-                } }
-            </div>
+            <!-- prettier-ignore -->
+            @for (block of dmBlocks.blocks; track block.id) {
+                @for (row of block.$data(); let index = $index; let count = $count; let first = $first; let last = $last; let even = $even; let odd = $odd; track index) {
+                    <div class="row" role="row" [style.height]="$dataRowHeight()" [class.even]="(block.offset + index) % 2 === 0">
+                        <!-- prettier-ignore -->
+                        @for (def of $displayedColumnDefs(); let colindex = $index; let colcount = $count; let colfirst = $first; let collast = $last; let coleven = $even; let colodd = $odd; track def.id) {
+                            @let cellContext =
+                                row
+                                    | cellContext
+                                        : def.col
+                                        : block.offset + index
+                                        : block.offset === 0 && first
+                                        : block.offset + index === dataManager.$totalRowCount()
+                                        : (block.offset + index) % 2 === 0
+                                        : (block.offset + index) % 2 === 1
+                                        : dataManager.$totalRowCount()
+                                        : colindex
+                                        : colfirst
+                                        : collast
+                                        : coleven
+                                        : colodd
+                                        : colcount;
+                            <div
+                                class="cell"
+                                role="cell"
+                                [attr.data-column-id]="def.id"
+                                [attr.data-column-index]="block.offset + index"
+                                [attr.data-column-count]="dataManager.$totalRowCount()"
+                                [attr.data-column-first]="colfirst"
+                                [attr.data-column-last]="collast"
+                                [attr.data-column-even]="coleven"
+                                [attr.data-column-odd]="colodd"
+                                [class.pinned-left]="def.pinnedLeft"
+                                [class.pinned-right]="def.pinnedRight"
+                                [style.padding]="$dataPadding()"
+                                [style.width]="$columnWidthDirectives() | cellWidth: def.id : $dataPadding() | async"
+                                [ngClass]="cellContext | cellClass"
+                                [tooltip]="block.$status() === 'success' ? def.col.$cellTooltip() : undefined"
+                                [tooltipContext]="{
+                                    ctx: cellContext,
+                                    template: def.col.$cell().templateRef,
+                                }"
+                            >
+                                @switch (block.$status()) {
+                                    @case ('loading') {
+                                        <div class="status loader"></div>
+                                    }
+                                    @case ('error') {
+                                        <div class="status error"></div>
+                                    }
+                                    @case ('success') {
+                                        <ng-container [ngTemplateOutlet]="def.col.$cell().templateRef" [ngTemplateOutletContext]="cellContext"></ng-container>
+                                    }
+                                }
+                            </div>
+                        }
+                    </div>
+                }
             }
-        </div>
-        } }
-        <div
-            class="virtualize post"
-            [style.height]="dmBlocks.postPixels + 'px'"
-        ></div>
+            <div class="virtualize post" [style.height]="dmBlocks.postPixels + 'px'"></div>
         }
     </div>
 </div>

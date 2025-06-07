@@ -8,20 +8,28 @@ import { TooltipDirective } from '../../tooltip/tooltip.directive';
     templateUrl: './nav-bar-button.component.html',
     styleUrl: './nav-bar-button.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
+    standalone: false,
 })
 export class NavBarButtonComponent {
-  text = input.required<string>();
-  // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-  link: InputSignal<string | any[] | UrlTree | null | undefined> = input<string | any[] | UrlTree | null | undefined>();
-  // eslint-disable-next-line @angular-eslint/no-output-native
-  click = output<void>();
-  isActive = input<boolean>(false);
-  disabled = input<boolean>(false);
+    readonly $text = input.required<string>({
+        alias: 'text',
+    });
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    readonly $link: InputSignal<string | any[] | UrlTree | null | undefined> = input<string | any[] | UrlTree | null | undefined>(undefined, {
+        alias: 'link',
+    });
+    // eslint-disable-next-line @angular-eslint/no-output-native
+    click = output<void>();
+    readonly $isActive = input<boolean>(false, {
+        alias: 'isActive',
+    });
+    readonly $disabled = input<boolean>(false, {
+        alias: 'disabled',
+    });
 
-  private expanded = signal(false);
-  protected isExpanded = computed(() => this.expanded());
-  setExpandedInternal(expanded: boolean) {
-    this.expanded.set(expanded);
-  }
+    private $expanded = signal(false);
+    protected $isExpanded = computed(() => this.$expanded());
+    setExpandedInternal(expanded: boolean) {
+        this.$expanded.set(expanded);
+    }
 }

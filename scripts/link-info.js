@@ -6,6 +6,7 @@ console.log(`\n\n#### Library linking is now started
 To consume this libray in your project, you need to:
 
 1. Update the angular.json of your project, and add "preserveSymlinks": true in "projects.[your-app].architect.build.options.
+   Also add projects.[your-app].architect.serve.options.prebundle.exclude = ["tableau-ui-angular"] to avoid prebundling the library.
    Your angular.json should look like:
     "projects": {
          "[your-app]": {
@@ -13,6 +14,15 @@ To consume this libray in your project, you need to:
                 "build": {
                      "options": {
                           "preserveSymlinks": true
+                     }
+                },
+                "serve": {
+                     "options": {
+                          "prebundle": {
+                               "exclude": [
+                                    "tableau-ui-angular"
+                               ]
+                          }
                      }
                 }
               }

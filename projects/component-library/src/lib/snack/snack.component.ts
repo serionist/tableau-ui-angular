@@ -12,7 +12,7 @@ import { TAB_SNACK_DATA_REF } from './data.ref';
     template: `
         <div class="snack-content" [ngClass]="data.type">
             <div class="content">
-                <tab-icon class="icon" value="{{ data.type === 'success' ? 'check' : data.type }}"></tab-icon>
+                <tab-icon class="icon" [value]="data.type === 'success' ? 'check' : data.type"></tab-icon>
                 @if (data.contentTemplate) {
                 <div>
                     <ng-container
@@ -96,7 +96,7 @@ import { TAB_SNACK_DATA_REF } from './data.ref';
     standalone: false,
 })
 export class SnackComponent<TData = any> {
-    data = inject<{
+    protected readonly data = inject<{
         type: 'info' | 'error' | 'success';
         message: string | undefined;
         actionLink: string | undefined;
@@ -104,5 +104,5 @@ export class SnackComponent<TData = any> {
         contentTemplate: TemplateRef<TData> | undefined;
         contentTemplateContext: TData;
     }>(TAB_SNACK_DATA_REF);
-    snackRef = inject(TAB_SNACK_REF);
+    protected readonly snackRef = inject(TAB_SNACK_REF);
 }

@@ -9,8 +9,6 @@ import { CommonModule } from '@angular/common';
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: false,
     host: {
-      '[style.display]': '"flex"',
-      '[style.flexDirection]': '"column"'
     }
 })
 export class TabGroupComponent implements AfterContentInit {
@@ -19,32 +17,36 @@ export class TabGroupComponent implements AfterContentInit {
    * Padding for the tab header, can be adjusted to fit design requirements.
    * @default '0.25rem 1.5rem'
    */
-  readonly headerPadding = input<string>('0.25rem 1.5rem');
+  readonly $headerPadding = input<string>('0.25rem 1.5rem', {
+    alias: 'headerPadding',
+  });
 
   /**
    * Size of the scroll arrows icon, can be adjusted to fit design requirements.
    * @default '1.5rem'
    */
-  readonly scrollArrowsIconSize = input<string>('1.5rem');
+  readonly $scrollArrowsIconSize = input<string>('1.5rem', {
+    alias: 'scrollArrowsIconSize',
+  });
 
-  protected readonly tabs = contentChildren(TabComponent);
-  protected readonly tabElements = viewChildren<ElementRef<HTMLDivElement>>('tab');
+  protected readonly $tabs = contentChildren(TabComponent);
+  protected readonly $tabElements = viewChildren<ElementRef<HTMLDivElement>>('tab');
   // Signals to manage the selected index
-  private _selectedIndex = signal(0);
+  private $_selectedIndex = signal(0);
 
-  get selectedIndex(): Signal<number> {
-    return this._selectedIndex;
+  get $selectedIndex(): Signal<number> {
+    return this.$_selectedIndex;
   }
   // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-  readonly selectedTab: Signal<TabComponent | null> = computed(() => this.tabs()[this.selectedIndex()] ?? null);
+  readonly $selectedTab: Signal<TabComponent | null> = computed(() => this.$tabs()[this.$selectedIndex()] ?? null);
 
   selectTab(index: number) {
-    const tab = this.tabs()[index];
-    if (!tab || tab.disabled()) {
+    const tab = this.$tabs()[index];
+    if (!tab || tab.$disabled()) {
       return;
     }
-    this._selectedIndex.set(index);
-    const tabElement = this.tabElements()[index];
+    this.$_selectedIndex.set(index);
+    const tabElement = this.$tabElements()[index];
     if (tabElement) {
       tabElement.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
@@ -52,9 +54,9 @@ export class TabGroupComponent implements AfterContentInit {
 
   ngAfterContentInit() {
     // Ensure the first tab is selected by default if available
-    const firstNonDisabledTabIndex = this.tabs().findIndex(tab => !tab.disabled());
+    const firstNonDisabledTabIndex = this.$tabs().findIndex(tab => !tab.$disabled());
     if (firstNonDisabledTabIndex !== -1) {
-      this._selectedIndex.set(firstNonDisabledTabIndex);
+      this.$_selectedIndex.set(firstNonDisabledTabIndex);
     }
   }
   

@@ -61,27 +61,27 @@ import { TAB_DATA_REF } from './data.ref';
 })
 export class ConfirmationDialogComponent implements AfterViewInit, AfterContentInit{
 
-    data = inject<IConfirmationDialogData>(TAB_DATA_REF);
+    protected data = inject<IConfirmationDialogData>(TAB_DATA_REF);
 
-    dialogRef = inject(TAB_DIALOG_REF);
+    protected dialogRef = inject(TAB_DIALOG_REF);
 
-    accept = viewChild.required<ButtonComponent>('accept');
-    cancel = viewChild.required<ButtonComponent>('cancel');
+    private $accept = viewChild.required<ButtonComponent>('accept');
+    private $cancel = viewChild.required<ButtonComponent>('cancel');
 
     ngAfterContentInit() {
         if (this.data.autofocus === 'accept') {
-            const acc = this.accept();
-            this.accept().nativeElement.nativeElement.focus();
+            const acc = this.$accept();
+            this.$accept().$nativeElement.nativeElement.focus();
         } else if (this.data.autofocus === 'cancel') {
-            this.cancel().nativeElement.nativeElement.focus();
+            this.$cancel().$nativeElement.nativeElement.focus();
         }
     }
     ngAfterViewInit() {
         if (this.data.autofocus === 'accept') {
-            const acc = this.accept().nativeElement;
-            this.accept().nativeElement.nativeElement.focus();
+            const acc = this.$accept().$nativeElement;
+            this.$accept().$nativeElement.nativeElement.focus();
         } else if (this.data.autofocus === 'cancel') {
-            this.cancel().nativeElement.nativeElement.focus();
+            this.$cancel().$nativeElement.nativeElement.focus();
         }
     }
 }

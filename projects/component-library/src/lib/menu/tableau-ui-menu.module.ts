@@ -8,6 +8,7 @@ import { MenuButtonComponent } from './menu-button.component';
 import { TableauUiIconModule } from '../icon/tableau-ui-icon.module';
 import { MenuButtonGroupComponent } from './menu-button-group.component';
 import { ButtonMenuComponent } from './button.menu.component';
+import { EntriesPipe } from './pipes/entries.pipe';
 
 @NgModule({
     imports: [
@@ -22,6 +23,7 @@ import { ButtonMenuComponent } from './button.menu.component';
         MenuButtonComponent,
         MenuButtonGroupComponent,
         ButtonMenuComponent,
+        EntriesPipe
     ],
     exports: [
         MenuComponent,

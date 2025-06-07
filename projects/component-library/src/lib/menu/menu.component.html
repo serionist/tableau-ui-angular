@@ -1,11 +1,11 @@
 <ng-template #dropdownTemplate>
-    @if (prefix()) {
+    @if ($prefix()) {
     <div class="options-prefix">
         <ng-content select="tab-prefix"></ng-content>
     </div>
     }
     <ng-content></ng-content>
-    @if (suffix()) {
+    @if ($suffix()) {
     <div class="options-suffix">
         <ng-content select="tab-suffix"></ng-content>
     </div>

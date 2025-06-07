@@ -27,8 +27,8 @@ import { IOptionGridContext, OptionComponent } from '../common/option';
     ],
     host: {
         class: 'tab-input',
-        '[class.silent-focus]': 'focusMode() === "silent"',
-        '[tabindex]': 'disabled() || focusMode() === "none" ? -1 : 0',
+        '[class.silent-focus]': '$focusMode() === "silent"',
+        '[tabindex]': '$disabled() || $focusMode() === "none" ? -1 : 0',
         '(keydown)': 'onKeyDown($event)',
         '(blur)': 'onBlur()',
         '(focus)': 'onFocus()',
@@ -39,8 +39,8 @@ import { IOptionGridContext, OptionComponent } from '../common/option';
 export class ListComponent
     implements ControlValueAccessor
 {
-    options = contentChildren<OptionComponent>(OptionComponent);
-    elementRef = inject(ElementRef);
+    protected readonly $options = contentChildren<OptionComponent>(OptionComponent);
+    private readonly elementRef = inject(ElementRef);
     // #region Inputs
 
     /**
@@ -51,7 +51,9 @@ export class ListComponent
      * - 'none' - The list cannot be focused or navigated using the keyboard.
      * @default 'full'
      */
-    focusMode = model<'strong' | 'silent' | 'none'>('strong');
+    readonly $focusMode = model<'strong' | 'silent' | 'none'>('strong', {
+        alias: 'focusMode',
+    });
     /**
      * Whether the list is disabled
      * @remarks
@@ -60,48 +62,60 @@ export class ListComponent
      *
      * @default false
      */
-    disabled = model(false);
+    readonly $disabled = model(false, {
+        alias: 'disabled'
+    });
     /**
      * The currently selected value.
      * @remarks
      * If allowMultiple is true, this should be an array of values.
      * If allowMultiple is false, this should be a single value.
      */
-    value = model<any | any[]>(undefined);
+    readonly $value = model<any | any[]>(undefined, {
+        alias: 'value'
+    });
     /**
      * The location of the check icon in dropdown option if an option is selected
      * @default 'none'
      */
-    selectedCheckIconLocation = model<'left' | 'right' | 'none'>('none');
+    readonly $selectedCheckIconLocation = model<'left' | 'right' | 'none'>('none', {
+        alias: 'selectedCheckIconLocation',
+    });
     /**
      * Highlight the selected item(s) with a primary back color
      * @default true
      */
-    selectedItemHighlight = model<boolean>(true);
+    readonly $selectedItemHighlight = model<boolean>(true, {
+        alias: 'selectedItemHighlight',
+    });
     /**
      * Whether multiple values can be selected
      * @default false
      */
-    allowMultiple = model<boolean>(false);
+    readonly $allowMultiple = model<boolean>(false, {
+        alias: 'allowMultiple',
+    });
     /**
      * The template context to use for the dropdown options
      * @remarks
      * Use this to display the 'icon', 'text', and 'hint' properties of the options conditionally
      */
-    itemTemplateContext = model<IOptionGridContext>({
+    readonly $itemTemplateContext = model<IOptionGridContext>({
         renderIcon: true,
         renderText: true,
         renderHint: true,
+    }, {
+        alias: 'itemTemplateContext',
     });
 
     // #endregion
 
-    itemTemplateActualContext = computed(() => {
+    protected readonly $itemTemplateActualContext = computed(() => {
         return {
-            renderIcon: this.itemTemplateContext().renderIcon,
-            renderText: this.itemTemplateContext().renderText,
-            renderHint: this.itemTemplateContext().renderHint,
-            renderAsDisabled: this.itemTemplateContext().renderAsDisabled || this.disabled(),
+            renderIcon: this.$itemTemplateContext().renderIcon,
+            renderText: this.$itemTemplateContext().renderText,
+            renderHint: this.$itemTemplateContext().renderHint,
+            renderAsDisabled: this.$itemTemplateContext().renderAsDisabled || this.$disabled(),
         };
     })
 
@@ -111,7 +125,7 @@ export class ListComponent
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     onTouched = () => {};
     writeValue(value: any): void {
-        this.value.set(value);
+        this.$value.set(value);
     }
     registerOnChange(fn: any): void {
         this.onChange = fn;
@@ -120,12 +134,12 @@ export class ListComponent
         this.onTouched = fn;
     }
     setDisabledState(isDisabled: boolean): void {
-        this.disabled.set(isDisabled);
+        this.$disabled.set(isDisabled);
     }
     // #endregion
     // #region Value selection
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    highlightedOption: WritableSignal<OptionComponent | undefined> = signal<OptionComponent | undefined>(undefined);
+    protected readonly $highlightedOption: WritableSignal<OptionComponent | undefined> = signal<OptionComponent | undefined>(undefined);
     optionMouseDown(event: MouseEvent) {
         if (event) {
             event.preventDefault();
@@ -133,21 +147,21 @@ export class ListComponent
         }
     }
     selectValue(option: OptionComponent) {
-        if (!this.disabled() && !option.disabled()) {
-            if (this.allowMultiple()) {
-                if (!this.value()?.includes(option.value())) {
-                    this.value.set([...(this.value() ?? []), option.value()]);
+        if (!this.$disabled() && !option.$disabled()) {
+            if (this.$allowMultiple()) {
+                if (!this.$value()?.includes(option.$value())) {
+                    this.$value.set([...(this.$value() ?? []), option.$value()]);
                 } else {
-                    this.value.set(
-                        (this.value() || []).filter(
-                            (e: any) => e !== option.value()
+                    this.$value.set(
+                        (this.$value() || []).filter(
+                            (e: any) => e !== option.$value()
                         )
                     );
                 }
-            } else if (this.value() !== option.value()) {
-                this.value.set(option.value());
+            } else if (this.$value() !== option.$value()) {
+                this.$value.set(option.$value());
             }
-            this.onChange(this.value());
+            this.onChange(this.$value());
             this.onTouched();
             if (this.elementRef.nativeElement.tabIndex !== -1) {
                 this.elementRef.nativeElement.focus();
@@ -160,28 +174,28 @@ export class ListComponent
     clearValue(e: Event) {
         e.preventDefault();
         e.stopPropagation();
-        if (this.disabled()) {
+        if (this.$disabled()) {
             return;
         }
-        if (this.allowMultiple()) {
-            this.value.set([]);
+        if (this.$allowMultiple()) {
+            this.$value.set([]);
         } else {
-            this.value.set(undefined);
+            this.$value.set(undefined);
         }
-        this.onChange(this.value());
+        this.onChange(this.$value());
         this.onTouched();
     }
     // #region Focus management
-    focused = signal(false);
+    protected readonly $focused = signal(false);
     onFocus() {
-        this.focused.set(true);
+        this.$focused.set(true);
     }
     onBlur() {
-        this.focused.set(false);
-        this.highlightedOption.set(undefined);
+        this.$focused.set(false);
+        this.$highlightedOption.set(undefined);
     }
     onMouseOut() {
-        this.highlightedOption.set(undefined);
+        this.$highlightedOption.set(undefined);
     }
 
     /**
@@ -194,8 +208,8 @@ export class ListComponent
      */
     onKeyDown(e: KeyboardEvent) {
         if (e.key === 'Enter' || e.key === ' ') {
-            if (this.highlightedOption()) {
-                this.selectValue(this.highlightedOption()!);
+            if (this.$highlightedOption()) {
+                this.selectValue(this.$highlightedOption()!);
             }
             e.preventDefault();
             e.stopPropagation();
@@ -207,20 +221,20 @@ export class ListComponent
 
             let currentIndex: number;
             let nextIndex: number = -1;
-            if (this.highlightedOption()) {
-                currentIndex = this.options().findIndex(
-                    (o) => o.value() === this.highlightedOption()!.value()
+            if (this.$highlightedOption()) {
+                currentIndex = this.$options().findIndex(
+                    (o) => o.$value() === this.$highlightedOption()!.$value()
                 );
             } else {
                 // find already selected option
                 let val: any;
                 if (e.key === 'ArrowDown') {
-                    val = this.allowMultiple() ? this.value()?.[this.value().length - 1] : this.value(); // find the last selected option
+                    val = this.$allowMultiple() ? this.$value()?.[this.$value().length - 1] : this.$value(); // find the last selected option
                     
                 } else {
-                    val = this.allowMultiple() ? this.value()?.[0] : this.value() // find the first selected option
+                    val = this.$allowMultiple() ? this.$value()?.[0] : this.$value() // find the first selected option
                 }
-                nextIndex = currentIndex = this.options().findIndex((o) => o.value() === val); 
+                nextIndex = currentIndex = this.$options().findIndex((o) => o.$value() === val); 
             }
 
             if (nextIndex === -1) {
@@ -228,58 +242,58 @@ export class ListComponent
                 if (e.key === 'ArrowDown') {
                     if (currentIndex === -1) {
                         // find the first non disabled option
-                        nextIndex = this.options().findIndex(
-                            (o) => !o.disabled()
+                        nextIndex = this.$options().findIndex(
+                            (o) => !o.$disabled()
                         );
                     } else {
                         // find the next option that is not disabled
-                        nextIndex = this.options().findIndex(
-                            (o, i) => i > currentIndex && !o.disabled()
+                        nextIndex = this.$options().findIndex(
+                            (o, i) => i > currentIndex && !o.$disabled()
                         );
                         // if no option is found, find the next option that is not disabled before the current item
                         if (nextIndex === -1) {
-                            nextIndex = this.options().findIndex(
-                                (o, i) => i < currentIndex && !o.disabled()
+                            nextIndex = this.$options().findIndex(
+                                (o, i) => i < currentIndex && !o.$disabled()
                             );
                         }
                     }
                 } else if (e.key === 'ArrowUp') {
                     if (currentIndex === -1) {
                         // find the last non disabled option
-                        nextIndex = this.options()
+                        nextIndex = this.$options()
                             .slice()
                             .reverse()
-                            .findIndex((o) => !o.disabled());
+                            .findIndex((o) => !o.$disabled());
                         if (nextIndex !== -1) {
-                            nextIndex = this.options().length - nextIndex - 1;
+                            nextIndex = this.$options().length - nextIndex - 1;
                         }
                     } else {
                         const flippedCurrentIndex =
-                            this.options().length - currentIndex - 1;
+                            this.$options().length - currentIndex - 1;
                         // find the next option that is not disabled
-                        nextIndex = [...this.options()]
+                        nextIndex = [...this.$options()]
                             .reverse()
                             .findIndex(
                                 (o, i) =>
-                                    i > flippedCurrentIndex && !o.disabled()
+                                    i > flippedCurrentIndex && !o.$disabled()
                             );
                         // if no option is found, find the next option that is not disabled before the current item
                         if (nextIndex === -1) {
-                            nextIndex = [...this.options()]
+                            nextIndex = [...this.$options()]
                                 .reverse()
                                 .findIndex(
                                     (o, i) =>
-                                        i < flippedCurrentIndex && !o.disabled()
+                                        i < flippedCurrentIndex && !o.$disabled()
                                 );
                         }
                         if (nextIndex !== -1) {
-                            nextIndex = this.options().length - nextIndex - 1;
+                            nextIndex = this.$options().length - nextIndex - 1;
                         }
                     }
                 }
             }
             if (nextIndex !== -1) {
-                this.highlightedOption.set(this.options()[nextIndex]);
+                this.$highlightedOption.set(this.$options()[nextIndex]);
                 setTimeout(
                     () =>
                         this.elementRef.nativeElement

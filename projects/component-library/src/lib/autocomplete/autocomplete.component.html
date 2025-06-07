@@ -2,33 +2,33 @@
     <div
         class="dropdown-container"
         [id]="dropdownId"
-        [ngStyle]="dropdownContainerCss()"
+        [ngStyle]="$dropdownContainerCss()"
     >
-        @if (dropdownPrefix()) {
+        @if ($dropdownPrefix()) {
         <div class="options-prefix">
             <ng-content select="tab-prefix"></ng-content>
         </div>
         }
-        @if (options().length > 0) {
-            <div class="option-values" [ngStyle]="dropdownOptionsContainerCss()">
-                @for (option of options(); track option.value()) {
+        @if ($options().length > 0) {
+            <div class="option-values" [ngStyle]="$dropdownOptionsContainerCss()">
+                @for (option of $options(); track option.$value()) {
                 <!-- eslint-disable-next-line  @angular-eslint/template/interactive-supports-focus, @angular-eslint/template/click-events-have-key-events -->
                 <div
                     class="option-wrapper"
                     (click)="selectValue$.next(option)"
                     (mousedown)="optionMouseDown($event)"
-                    [class.disabled]="option.disabled()"
+                    [class.disabled]="option.$disabled()"
                     [class.highlight]="
-                        !!highlightedOption() &&
-                        highlightedOption()!.value() === option.value()
+                        !!$highlightedOption() &&
+                        $highlightedOption()!.$value() === option.$value()
                     "
-                    (mouseenter)="highlightedOption.set(option)"
+                    (mouseenter)="$highlightedOption.set(option)"
                 >
                     <div class="option-content">
                         <ng-container
-                            [ngTemplateOutlet]="option.template()"
+                            [ngTemplateOutlet]="option.$template()"
                             [ngTemplateOutletContext]="
-                                dropdownValueTemplateContext()
+                                $dropdownValueTemplateContext()
                             "
                         ></ng-container>
                     </div>
@@ -37,7 +37,7 @@
             </div>
         }
        
-        @if (dropdownSuffix()) {
+        @if ($dropdownSuffix()) {
         <div class="options-suffix">
             <ng-content select="tab-suffix"></ng-content>
         </div>

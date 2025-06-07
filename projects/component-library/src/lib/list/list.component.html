@@ -1,28 +1,28 @@
-@for (option of options(); track option.value()) {
+@for (option of $options(); track option.$value()) {
     <!-- eslint-disable-next-line  @angular-eslint/template/interactive-supports-focus, @angular-eslint/template/click-events-have-key-events -->
 <div
     class="option-wrapper"
     (click)="selectValue(option)"
     (mousedown)="optionMouseDown($event)"
-    [class.disabled]="option.disabled() || disabled()"
+    [class.disabled]="option.$disabled() || $disabled()"
     [class.highlight]="
-        !!highlightedOption() && highlightedOption()!.value() === option.value()
+        !!$highlightedOption() && $highlightedOption()!.$value() === option.$value()
     "
     [class.selected]="
-        (value() | isValueSelected : option.value() : allowMultiple()) &&
-        selectedItemHighlight()
+        ($value() | isValueSelected : option.$value() : $allowMultiple()) &&
+        $selectedItemHighlight()
     "
-    (mouseenter)="highlightedOption.set(option)"
+    (mouseenter)="$highlightedOption.set(option)"
 >
-    <div class="check" [ngClass]="selectedCheckIconLocation()">
-        @if ((value() | isValueSelected : option.value() : allowMultiple())) {
+    <div class="check" [ngClass]="$selectedCheckIconLocation()">
+        @if (($value() | isValueSelected : option.$value() : $allowMultiple())) {
         <tab-icon value="check"></tab-icon>
         }
     </div>
     <div class="option-content">
         <ng-container
-            [ngTemplateOutlet]="option.template()"
-            [ngTemplateOutletContext]="itemTemplateActualContext()"
+            [ngTemplateOutlet]="option.$template()"
+            [ngTemplateOutletContext]="$itemTemplateActualContext()"
         ></ng-container>
     </div>
 </div>

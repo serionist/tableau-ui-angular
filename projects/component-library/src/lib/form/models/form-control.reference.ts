@@ -1,32 +1,14 @@
 import { AsyncValidatorFn, FormControl, ValidatorFn } from '@angular/forms';
 import { Primitive } from '../types/primitive';
 import { AC, ACRegisterFunctions, ACTyped } from './abstract-control.reference';
-import {
-    BehaviorSubject,
-    combineLatest,
-    distinctUntilChanged,
-    filter,
-    map,
-    Observable,
-    startWith,
-    Subscription,
-} from 'rxjs';
+import { BehaviorSubject, combineLatest, distinctUntilChanged, filter, map, Observable, pairwise, startWith, Subscription } from 'rxjs';
 import { signal, WritableSignal } from '@angular/core';
 
-export class FC<T extends Primitive | Primitive[] = any> extends ACTyped<
-    FC<T>,
-    T
-> {
+export class FC<T extends Primitive | Primitive[] = any> extends ACTyped<FC<T>, T> {
     override registerFn: FCRegisterFunctions<T>;
     protected override _value: WritableSignal<T>;
     override readonly _value$: BehaviorSubject<T>;
-    constructor(params: {
-        defaultValue: T;
-        initialDisabled?: boolean;
-        validators?: ValidatorFn | ValidatorFn[];
-        asyncValidators?: AsyncValidatorFn | AsyncValidatorFn[];
-        updateOn?: 'change' | 'blur' | 'submit';
-    }) {
+    constructor(params: { defaultValue: T; initialDisabled?: boolean; validators?: ValidatorFn | ValidatorFn[]; asyncValidators?: AsyncValidatorFn | AsyncValidatorFn[]; updateOn?: 'change' | 'blur' | 'submit' }) {
         const control = new FormControl<T>(
             {
                 value: params.defaultValue,
@@ -37,7 +19,7 @@ export class FC<T extends Primitive | Primitive[] = any> extends ACTyped<
                 updateOn: params.updateOn,
                 asyncValidators: params.asyncValidators,
                 validators: params.validators,
-            }
+            },
         );
         super('control', control, []);
 
@@ -66,24 +48,22 @@ export class FC<T extends Primitive | Primitive[] = any> extends ACTyped<
                             return true;
                         }
                         return a === b;
-                    })
+                    }),
                 )
                 .subscribe((v) => {
                     this._value$.next(v);
-                })
+                }),
         );
         this.subscriptions.push(
             this._value$.subscribe((v) => {
                 this._value.set(v);
-            })
+            }),
         );
         this.registerFn = new FCRegisterFunctions<T>(this, this.subscriptions);
     }
 }
 
-export class FCRegisterFunctions<
-    T extends Primitive | Primitive[] = any
-> extends ACRegisterFunctions<ACTyped<FC<T>, T>, FC<T>, T> {
+export class FCRegisterFunctions<T extends Primitive | Primitive[] = any> extends ACRegisterFunctions<ACTyped<FC<T>, T>, FC<T>, T> {
     constructor(control: FC<T>, subscriptions: Subscription[] = []) {
         super(control, subscriptions);
     }
@@ -95,14 +75,15 @@ export class FCRegisterFunctions<
      * @param alsoRunOnEnabled Whether to also run the callback when the control is enabled.
      * @param alsoRunOnDisabled Whether to also run the callback when the control is disabled.
      */
-    valueChange(
-        callback: (value: T) => void,
-        alsoRunOnEnabled: boolean = false,
-        alsoRunOnDisabled: boolean = false
-    ): FC<T> {
-        const subs: [Observable<T>, Observable<boolean>?] = [
-            this.control.value$,
+    valueChange(callback: (value: T, oldValue: T | undefined, control: FC<T>) => void, alsoRunOnEnabled: boolean = false, alsoRunOnDisabled: boolean = false): FC<T> {
+        const subs: [Observable<[T | undefined, T]>, Observable<boolean>?] = [
+            this.control.value$.pipe(
+                startWith(undefined as unknown as T),
+                pairwise(),
+                map((v) => [v[0] as T | undefined, v[1] === undefined ? v[0] : v[1]]),
+            ),
         ];
+        const ctrl = this.control as unknown as FC<T>;
         if (alsoRunOnEnabled || alsoRunOnDisabled) {
             subs.push(
                 this.control.meta$.pipe(
@@ -114,15 +95,15 @@ export class FCRegisterFunctions<
                             return true;
                         }
                         return false;
-                    })
-                )
+                    }),
+                ),
             );
         }
         this.subscriptions.push(
             combineLatest(subs).subscribe(([v, e]) => {
-                callback(v);
-            })
+                callback(v[1], v[0], ctrl);
+            }),
         );
-        return this.control as unknown as FC<T>;
+        return ctrl;
     }
 }

@@ -30,8 +30,8 @@ import { SuffixComponent } from '../common/suffix';
     templateUrl: './form-field.component.html',
     styleUrl: './form-field.component.scss',
     host: {
-        '[class.disabled]': 'inputDisabled()',
-        '[attr.aria-disabled]': 'inputDisabled()',
+        '[class.disabled]': '$inputDisabled()',
+        '[attr.aria-disabled]': '$inputDisabled()',
         'style.display': 'grid'
     },
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -40,29 +40,31 @@ import { SuffixComponent } from '../common/suffix';
 export class FormFieldComponent
     implements AfterContentInit, AfterViewInit, OnDestroy
 {
-    style = input<string>();
+    readonly $style = input<string>(undefined, {
+        alias: 'style',
+    });
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    hintElement: Signal<HintComponent | undefined> = contentChild(HintComponent);
+    protected readonly $hintElement: Signal<HintComponent | undefined> = contentChild(HintComponent);
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    errorElement: Signal<ErrorComponent | undefined> = contentChild(ErrorComponent);
+    protected readonly $errorElement: Signal<ErrorComponent | undefined> = contentChild(ErrorComponent);
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    labelElement: Signal<FormLabelComponent | undefined> = contentChild(FormLabelComponent);
+    protected readonly $labelElement: Signal<FormLabelComponent | undefined> = contentChild(FormLabelComponent);
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    prefixElement: Signal<PrefixComponent | undefined> = contentChild(PrefixComponent);
+    protected readonly $prefixElement: Signal<PrefixComponent | undefined> = contentChild(PrefixComponent);
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    suffixElement: Signal<SuffixComponent | undefined> = contentChild(SuffixComponent);
-    prefixContainer = viewChild.required<ElementRef>('prefixContainer');
-    suffixContainer = viewChild.required<ElementRef>('suffixContainer');
-    inputContainer = viewChild.required<ElementRef>('inputContainer');
-    host = inject(ElementRef<HTMLElement>);
+    protected readonly $suffixElement: Signal<SuffixComponent | undefined> = contentChild(SuffixComponent);
+    private readonly $prefixContainer = viewChild.required<ElementRef>('prefixContainer');
+    private readonly $suffixContainer = viewChild.required<ElementRef>('suffixContainer');
+    private readonly $inputContainer = viewChild.required<ElementRef>('inputContainer');
+    private readonly host = inject(ElementRef<HTMLElement>);
 
-    renderer = inject(Renderer2);
+    private readonly renderer = inject(Renderer2);
 
-    inputDisabled = signal(false);
+    private readonly $inputDisabled = signal(false);
 
-    resizeObserver?: ResizeObserver;
-    intersectionObserver?: IntersectionObserver;
-    inputObserver?: MutationObserver;
+    private resizeObserver?: ResizeObserver;
+    private intersectionObserver?: IntersectionObserver;
+    private inputObserver?: MutationObserver;
     
     ngOnDestroy(): void {
         if (this.resizeObserver) {
@@ -80,7 +82,7 @@ export class FormFieldComponent
         this.updatePrefixSuffixWidths();
 
         const input: HTMLElement =
-            this.inputContainer().nativeElement.querySelector('input,textarea,tab-select,tab-list');
+            this.$inputContainer().nativeElement.querySelector('input,textarea,tab-select,tab-list');
         if (input) {
             this.updateInputAttributes(input);
 
@@ -94,7 +96,7 @@ export class FormFieldComponent
         }
     }
     private updateInputAttributes(input: HTMLElement) {
-        this.inputDisabled.set(input.getAttribute('disabled') != null);
+        this.$inputDisabled.set(input.getAttribute('disabled') != null);
         const required = input.getAttribute('required') != null && input.getAttribute('required') !== 'false';
         const placeholder = input.getAttribute('placeholder');
         if (placeholder) {
@@ -130,33 +132,33 @@ export class FormFieldComponent
             this.updatePrefixSuffixWidths();
         });
         this.resizeObserver.observe(this.host.nativeElement);
-        if (this.prefixElement()) {
-            this.resizeObserver.observe(this.prefixContainer().nativeElement);
+        if (this.$prefixElement()) {
+            this.resizeObserver.observe(this.$prefixContainer().nativeElement);
         }
-        if (this.suffixElement()) {
-            this.resizeObserver.observe(this.suffixContainer().nativeElement);
+        if (this.$suffixElement()) {
+            this.resizeObserver.observe(this.$suffixContainer().nativeElement);
         }
     }
 
     private updatePrefixSuffixWidths(): void {
-        const prefixElement = this.prefixElement();
+        const prefixElement = this.$prefixElement();
         if (prefixElement) {
             const prefixWidth =
                 prefixElement.elementRef.nativeElement.offsetWidth;
             this.renderer.setStyle(
-                this.inputContainer().nativeElement.querySelector(
+                this.$inputContainer().nativeElement.querySelector(
                     'input,textarea,tab-select,tab-list'
                 ),
                 'padding-left',
                 `${prefixWidth + 12}px` // Adds a small margin for spacing
             );
         }
-        const suffixElement = this.suffixElement();
+        const suffixElement = this.$suffixElement();
         if (suffixElement) {
             const suffixWidth =
                 suffixElement.elementRef.nativeElement.offsetWidth;
             this.renderer.setStyle(
-                this.inputContainer().nativeElement.querySelector(
+                this.$inputContainer().nativeElement.querySelector(
                     'input,textarea,tab-select,tab-list'
                 ),
                 'padding-right',

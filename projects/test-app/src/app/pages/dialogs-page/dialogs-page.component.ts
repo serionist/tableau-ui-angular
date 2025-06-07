@@ -26,7 +26,7 @@ export class DialogsPageComponent {
             }
         );
 
-        dialogRef.afterClosed$.subscribe((result) => {
+        dialogRef.closed$.subscribe((result) => {
             console.log('Dialog closed with result:', result);
         });
     }

@@ -1,14 +1,14 @@
 
  <a
- [routerLink]="disabled() ? undefined: link()"
- [class.active]="isActive()"
- [attr.disabled]="disabled()"
- [tooltip]="isExpanded() ? undefined: text()" 
+ [routerLink]="$disabled() ? undefined: $link()"
+ [class.active]="$isActive()"
+ [attr.disabled]="$disabled()"
+ [tooltip]="$isExpanded() ? undefined: $text()" 
  (click)="click.emit()"
  tooltipPosition="right">
     <ng-content select="tab-icon"></ng-content>
-    @if (isExpanded()) {
-        <span>{{ text() }}</span>
+    @if ($isExpanded()) {
+        <span>{{ $text() }}</span>
     }
     
 </a>

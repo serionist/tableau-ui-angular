@@ -27,8 +27,8 @@ import { startWith } from 'rxjs';
     standalone: false,
     changeDetection: ChangeDetectionStrategy.OnPush,
     host: {
-        '[attr.expanded]': 'expanded() ? true : null',
-        '[attr.disabled]': 'disabled() ? true : null',
+        '[attr.expanded]': '$expanded() ? true : null',
+        '[attr.disabled]': '$disabled() ? true : null',
     },
 })
 export class ExpansionPanelComponent implements OnInit, OnDestroy {
@@ -37,24 +37,30 @@ export class ExpansionPanelComponent implements OnInit, OnDestroy {
      * The expanded state of the panel.
      * @default false
      */
-    expanded = model<boolean>(false);
-    expandedChange$ = toObservable(this.expanded).pipe(
-        startWith(this.expanded())
+    readonly $expanded = model<boolean>(false, {
+        alias: 'expanded'
+    });
+    readonly expandedChange$ = toObservable(this.$expanded).pipe(
+        startWith(this.$expanded())
     );
     /**
      * The disabled state of the panel.
      * @default false
      */
-    disabled = input<boolean>(false);
+    readonly $disabled = input<boolean>(false, {
+        alias: 'disabled',
+    });
     /**
      * Disables the hover color of the header
      */
-    noHeaderHover = input<boolean>(false);
+    readonly $noHeaderHover = input<boolean>(false, {
+        alias: 'noHeaderHover',
+    });
 
-    protected expandedHeader: Signal<
+    protected $expandedHeader: Signal<
         ExpansionPanelTitleExpandedContentDirective | undefined
     > = contentChild(ExpansionPanelTitleExpandedContentDirective);
-    protected collapsedHeader: Signal<
+    protected $collapsedHeader: Signal<
         ExpansionPanelTitleCollapsedContentDirective | undefined
     > = contentChild(ExpansionPanelTitleCollapsedContentDirective);
 
@@ -63,27 +69,29 @@ export class ExpansionPanelComponent implements OnInit, OnDestroy {
         optional: true,
     });
 
-    public registry = input<AccordionRegistry>();
+    public readonly $registry = input<AccordionRegistry>(undefined, {
+        alias: 'registry'
+    });
 
     ngOnInit(): void {
-        const registry = this.registry() ?? this.accordion?.registry;
+        const registry = this.$registry() ?? this.accordion?.registry;
         registry?.register(this);
     }
     ngOnDestroy(): void {
-        const registry = this.registry() ?? this.accordion?.registry;
+        const registry = this.$registry() ?? this.accordion?.registry;
         registry?.unregister(this);
     }
 
-    setExpanded(expanded: boolean) {
-        if (this.disabled()) {
+    protected setExpanded(expanded: boolean) {
+        if (this.$disabled()) {
             return;
         }
-        this.expanded.set(expanded);
+        this.$expanded.set(expanded);
     }
-    onclick() {
-        if (this.disabled()) {
+    protected onclick() {
+        if (this.$disabled()) {
             return;
         }
-        this.setExpanded(!this.expanded());
+        this.setExpanded(!this.$expanded());
     }
 }

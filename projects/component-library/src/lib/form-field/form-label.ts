@@ -12,6 +12,5 @@ import { ChangeDetectionStrategy, Component, ElementRef } from "@angular/core";
     standalone: false
 })
   export class FormLabelComponent {
-    constructor(public elementRef: ElementRef) {}
   }
   

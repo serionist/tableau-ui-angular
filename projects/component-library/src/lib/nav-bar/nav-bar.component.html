@@ -1,23 +1,23 @@
 <div class="menu-toggle-button">
     <button
         layout="icon"
-        (click)="expanded.set(!expanded())"
-        [tooltip]="expanded() ? 'Collapse menu' : 'Expand menu'"
+        (click)="$expanded.set(!$expanded())"
+        [tooltip]="$expanded() ? 'Collapse menu' : 'Expand menu'"
         tooltipPosition="right"
         color="plain"
     >
-        <tab-icon [value]="expanded() ? 'keyboard_arrow_left' : 'keyboard_arrow_right'">
+        <tab-icon [value]="$expanded() ? 'keyboard_arrow_left' : 'keyboard_arrow_right'">
         </tab-icon>
     </button>
 </div>
 
-@if (header()) {
+@if ($header()) {
 <div class="header"><ng-content select="tab-nav-bar-header"></ng-content></div>
 }
 
 <tab-arrow-scroll
     scrollDirection="vertical"
-    [scrollType]="expanded() ? 'default' : 'arrow'"
+    [scrollType]="$expanded() ? 'default' : 'arrow'"
     [buttonsColor]="'plain'"
     [showScrollButtonSeparator]="true"
     [buttonsCssColor]="'var(--twc-color-text-light)'"
@@ -27,6 +27,6 @@
     <tab-icon forward-button value="keyboard_arrow_down"></tab-icon>
 </tab-arrow-scroll>
 
-@if (footer()) {
+@if ($footer()) {
 <div class="footer"><ng-content select="tab-nav-bar-footer"></ng-content></div>
 }

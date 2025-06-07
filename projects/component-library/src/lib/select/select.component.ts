@@ -6,9 +6,12 @@ import {
     computed,
     contentChild,
     contentChildren,
+    effect,
     ElementRef,
     forwardRef,
     inject,
+    input,
+    InputSignal,
     model,
     ModelSignal,
     OnDestroy,
@@ -21,11 +24,7 @@ import {
     WritableSignal,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import {
-    IOptionGridContext,
-    IOptionLineContext,
-    OptionComponent,
-} from '../common/option';
+import { IOptionGridContext, IOptionLineContext, OptionComponent } from '../common/option';
 import { SnackService } from '../snack/snack.service';
 import { DialogService } from '../dialogservice/dialog.service';
 import { DialogRef } from '../dialogservice/dialog.ref';
@@ -48,36 +47,37 @@ import { generateRandomString as generateRandomString } from '../utils';
     ],
     host: {
         class: 'tab-input',
-        '[attr.wrapping-mode]': 'selectedValueWrapMode()',
-        '[tabindex]': 'disabled() ? -1 : 0',
+        '[attr.wrapping-mode]': '$selectedValueWrapMode()',
+        '[tabindex]': '$disabled() ? -1 : 0',
         '(click)': 'openDropdown()',
         '(keydown)': 'onKeyDown($event)',
-        '[attr.disabled]': 'disabled() ? true : null',
-        '[aria-disabled]': 'disabled() ? true : null',
-        '[aria-hidden]': 'disabled() ? true : null',
+        '[attr.disabled]': '$disabled() ? true : null',
+        '[aria-disabled]': '$disabled() ? true : null',
+        '[aria-hidden]': '$disabled() ? true : null',
         '[id]': 'selectId',
     },
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
+    standalone: false,
 })
-export class SelectComponent
-    implements ControlValueAccessor, AfterViewInit, OnDestroy
-{
-    selectId: string;
-    dropdownId: string;
-    options = contentChildren<OptionComponent>(OptionComponent);
+export class SelectComponent implements ControlValueAccessor, AfterViewInit, OnDestroy {
+    protected readonly selectId: string;
+    protected readonly dropdownId: string;
+    protected readonly $options = contentChildren<OptionComponent>(OptionComponent);
+    private optionsChanged = effect(() => {
+        const options = this.$options();
+        this.$highlightedOption.set(undefined);
+    });
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    dropdownPrefix: Signal<PrefixComponent | undefined> = contentChild<PrefixComponent>(PrefixComponent);
+    protected readonly $dropdownPrefix: Signal<PrefixComponent | undefined> = contentChild<PrefixComponent>(PrefixComponent);
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    dropdownSuffix: Signal<SuffixComponent | undefined> = contentChild<SuffixComponent>(SuffixComponent);
+    protected readonly $dropdownSuffix: Signal<SuffixComponent | undefined> = contentChild<SuffixComponent>(SuffixComponent);
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    dropdownTemplate: Signal<TemplateRef<any> | undefined> = viewChild<TemplateRef<any>>('dropdownTemplate');
+    private readonly $dropdownTemplate: Signal<TemplateRef<any> | undefined> = viewChild<TemplateRef<any>>('dropdownTemplate');
 
     // #region Imports
-    snackService = inject(SnackService);
-    dialogService = inject(DialogService);
-    elementRef = inject(ElementRef);
-    elRef = inject(ElementRef);
+    private readonly snackService = inject(SnackService);
+    private readonly dialogService = inject(DialogService);
+    private readonly elementRef = inject(ElementRef);
     // #endregion
     // #region Inputs
     /**
@@ -88,19 +88,25 @@ export class SelectComponent
      *
      * @default false
      */
-    disabled = model(false);
+    readonly $disabled = model(false, {
+        alias: 'disabled',
+    });
     /**
      * Placeholder text to display when no value is selected
      * // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
      */
-    placeholder: ModelSignal<string | undefined> = model<string>();
+    readonly $placeholder: InputSignal<string | undefined> = input<string>(undefined, {
+        alias: 'placeholder',
+    });
     /**
      * The currently selected value.
      * @remarks
      * If allowMultiple is true, this should be an array of values.
      * If allowMultiple is false, this should be a single value.
      */
-    value = model<any | any[]>(undefined);
+    readonly $value = model<any | any[]>(undefined, {
+        alias: 'value',
+    });
 
     /**
      * The CSS text to apply to the dropdown container
@@ -108,46 +114,66 @@ export class SelectComponent
      * Use this to apply height, maxHeight, etc. to the dropdown container
      * @default '{}'
      */
-    dropdownContainerCss = model<Record<string, string>>({});
+    readonly $dropdownContainerCss = input<Record<string, string>>(
+        {},
+        {
+            alias: 'dropdownContainerCss',
+        },
+    );
     /**
      * The CSS text to apply to the options container in the dropdown
      * @remarks
      * Use this to apply height, maxHeight, etc. to the dropdown
      * This is applied to the options container, excluding the prefix & suffix
-     * 
+     *
      * @default "{ maxHeight: '300px', height: 'fit-content'}"
      */
-    dropdownOptionsContainerCss = model<Record<string, string>>({
-        maxHeight: '300px',
-        height: 'fit-content',
-    });
+    readonly $dropdownOptionsContainerCss = input<Record<string, string>>(
+        {
+            maxHeight: '300px',
+            height: 'fit-content',
+        },
+        {
+            alias: 'dropdownOptionsContainerCss',
+        },
+    );
     /**
      * Whether to show the chevron icon on the right side of the select
      */
-    showChevron = model<boolean>(true);
+    readonly $showChevron = input<boolean>(true, {
+        alias: 'showChevron',
+    });
     /**
      * The location of the check icon in dropdown option if an option is selected
      * @default 'none'
      */
-    selectedCheckIconLocation = model<'left' | 'right' | 'none'>('none');
+    readonly $selectedCheckIconLocation = input<'left' | 'right' | 'none'>('none', {
+        alias: 'selectedCheckIconLocation',
+    });
 
     /**
      * Highlight the selected item(s) with a primary back color
      * @default true
      */
-    selectedItemHighlight = model<boolean>(true);
+    readonly $selectedItemHighlight = input<boolean>(true, {
+        alias: 'selectedItemHighlight',
+    });
     /**
      * Whether multiple values can be selected
      * @default false
      */
-    allowMultiple = model<boolean>(false);
+    readonly $allowMultiple = input<boolean>(false, {
+        alias: 'allowMultiple',
+    });
     /**
      * Whether the clear button should be displayed
      * @remarks
      * It is only displayed if there are any values selected even if this is true
      * @default false
      */
-    allowClear = model<boolean>(false);
+    readonly $allowClear = input<boolean>(false, {
+        alias: 'allowClear',
+    });
     /**
      * The wrapping mode for the selected value field
      * @remarks
@@ -155,39 +181,53 @@ export class SelectComponent
      * If set to 'truncate', the text will be truncated with an ellipsis if it is too long to fit on one line. This will keep the height of the control the same
      * @default 'wrap'
      */
-    selectedValueWrapMode = model<'wrap' | 'truncate'>('wrap');
+    readonly $selectedValueWrapMode = input<'wrap' | 'truncate'>('wrap', {
+        alias: 'selectedValueWrapMode',
+    });
     /**
      * The template context to use for the selected value field
      * @remarks
      * Use this to display the 'icon' and 'text' properties of the selected value conditionally
      */
-    selectedValueTemplateContext = model<IOptionLineContext>({
-        renderIcon: true,
-        renderText: true,
-    });
+    readonly $selectedValueTemplateContext = input<IOptionLineContext>(
+        {
+            renderIcon: true,
+            renderText: true,
+        },
+        {
+            alias: 'selectedValueTemplateContext',
+        },
+    );
     /**
      * The template context to use for the dropdown options
      * @remarks
      * Use this to display the 'icon', 'text', and 'hint' properties of the options conditionally
      */
-    dropdownValueTemplateContext = model<IOptionGridContext>({
-        renderIcon: true,
-        renderText: true,
-        renderHint: true,
-    });
+    readonly $dropdownValueTemplateContext = input<IOptionGridContext>(
+        {
+            renderIcon: true,
+            renderText: true,
+            renderHint: true,
+        },
+        {
+            alias: 'dropdownValueTemplateContext',
+        },
+    );
     /**
      * The maximum number of items to display in the selected value field when multiple items are selected
      * @default 2
      */
-    multipleSelectionMaxItemsListed = model<number>(2);
+    readonly $multipleSelectionMaxItemsListed = input<number>(2, {
+        alias: 'multipleSelectionMaxItemsListed',
+    });
     /**
      * The display template to use when more than the maximum number of items selected
      * @remarks
      * Use {number} as a placeholder for the number of items selected
      */
-    multipleSelectionNumberSelectedTemplate = model<string>(
-        '{number} items selected'
-    );
+    readonly $multipleSelectionNumberSelectedTemplate = input<string>('{number} items selected', {
+        alias: 'multipleSelectionNumberSelectedTemplate',
+    });
 
     // #endregion
     // #region Constructor + Init + Destroy
@@ -195,9 +235,6 @@ export class SelectComponent
         const id = generateRandomString();
         this.selectId = `select-${id}`;
         this.dropdownId = `dropdown-${id}`;
-        toObservable(this.options).subscribe((options) => {
-            this.highlightedOption.set(undefined);
-        });
     }
     ngAfterViewInit() {
         this.registerFocusChange();
@@ -208,28 +245,28 @@ export class SelectComponent
     }
     // #endregion
     // #region Computed
-    hasValue = computed(() => {
-        if (this.allowMultiple()) {
-            return this.value()?.length > 0;
+    readonly $hasValue = computed(() => {
+        if (this.$allowMultiple()) {
+            return this.$value()?.length > 0;
         } else {
-            return this.value() !== undefined && this.value() !== null;
+            return this.$value() !== undefined && this.$value() !== null;
         }
     });
-    selectedValueTemplates = computed(() => {
-        if (!this.hasValue()) {
+    protected readonly $selectedValueTemplates = computed(() => {
+        if (!this.$hasValue()) {
             return [];
         }
         let val: any[] = [];
-        if (Array.isArray(this.value())) {
-            val = this.value();
-        } else if (this.value() !== undefined && this.value() !== null) {
-            val = [this.value()];
+        if (Array.isArray(this.$value())) {
+            val = this.$value();
+        } else if (this.$value() !== undefined && this.$value() !== null) {
+            val = [this.$value()];
         }
         const ret = val.map((v) => ({
             value: v,
-            template: this.options()
-                .find((o) => o.value() === v)
-                ?.lineTemplate(),
+            template: this.$options()
+                .find((o) => o.$value() === v)
+                ?.$lineTemplate(),
         }));
 
         return ret.filter((e) => e.template !== undefined) as {
@@ -238,11 +275,11 @@ export class SelectComponent
         }[];
     });
 
-    displayClearButton = computed(() => {
-        if (!this.allowClear()) {
+    protected readonly $displayClearButton = computed(() => {
+        if (!this.$allowClear()) {
             return false;
         }
-        if (!this.hasValue()) {
+        if (!this.$hasValue()) {
             return false;
         }
         return true;
@@ -254,7 +291,7 @@ export class SelectComponent
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     onTouched = () => {};
     writeValue(value: any): void {
-        this.value.set(value);
+        this.$value.set(value);
     }
     registerOnChange(fn: any): void {
         this.onChange = fn;
@@ -263,85 +300,75 @@ export class SelectComponent
         this.onTouched = fn;
     }
     setDisabledState(isDisabled: boolean): void {
-        this.disabled.set(isDisabled);
+        this.$disabled.set(isDisabled);
     }
     // #endregion
     // #region Value selection
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    highlightedOption: WritableSignal<OptionComponent | undefined> = signal<OptionComponent | undefined>(undefined);
-    optionMouseDown(event: MouseEvent)  {
+    protected readonly $highlightedOption: WritableSignal<OptionComponent | undefined> = signal<OptionComponent | undefined>(undefined);
+    optionMouseDown(event: MouseEvent) {
         if (event) {
             event.preventDefault();
             event.stopPropagation();
         }
     }
     selectValue(option: OptionComponent) {
-       
-
-        if (!this.disabled() && !option.disabled()) {
-            if (this.allowMultiple()) {
-                if (!this.value()?.includes(option.value())) {
-                    this.value.set([...(this.value() ?? []), option.value()]);
+        if (!this.$disabled() && !option.$disabled()) {
+            if (this.$allowMultiple()) {
+                if (!this.$value()?.includes(option.$value())) {
+                    this.$value.set([...(this.$value() ?? []), option.$value()]);
                 } else {
-                    this.value.set(
-                        (this.value() || []).filter(
-                            (e: any) => e !== option.value()
-                        )
-                    );
+                    this.$value.set((this.$value() || []).filter((e: any) => e !== option.$value()));
                 }
-            } else if (this.value() !== option.value()) {
-                this.value.set(option.value());
+            } else if (this.$value() !== option.$value()) {
+                this.$value.set(option.$value());
             }
-            this.onChange(this.value());
+            this.onChange(this.$value());
             this.onTouched();
-            if (!this.allowMultiple()) {
-                this.dropdownReference()?.close();
+            if (!this.$allowMultiple()) {
+                this.$dropdownReference()?.close();
             }
         }
-       
     }
     clearValue(e: Event) {
         e.preventDefault();
         e.stopPropagation();
-        if (this.disabled()) {
+        if (this.$disabled()) {
             return;
         }
-        if (this.allowMultiple()) {
-            this.value.set([]);
+        if (this.$allowMultiple()) {
+            this.$value.set([]);
         } else {
-            this.value.set(undefined);
+            this.$value.set(undefined);
         }
-        this.onChange(this.value());
+        this.onChange(this.$value());
         this.onTouched();
     }
     isValueSelected(option: OptionComponent) {
-        if (this.allowMultiple()) {
-            return this.value()?.includes(option.value());
+        if (this.$allowMultiple()) {
+            return this.$value()?.includes(option.$value());
         } else {
-            return this.value() === option.value();
+            return this.$value() === option.$value();
         }
     }
     // #endregion
     // #region Dropdown
-   
-   // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    dropdownReference: WritableSignal<DialogRef | undefined> = signal<DialogRef | undefined>(undefined);
-    dropdownOpen = computed(() => this.dropdownReference() !== undefined);
 
-   
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    private readonly $dropdownReference: WritableSignal<DialogRef | undefined> = signal<DialogRef | undefined>(undefined);
+    protected readonly $dropdownOpen = computed(() => this.$dropdownReference() !== undefined);
+
     openDropdown() {
-        if (this.disabled()) {
+        if (this.$disabled()) {
             return;
         }
-        this.highlightedOption.set(undefined);
-        const elRect = this.elRef.nativeElement.getBoundingClientRect();
+        this.$highlightedOption.set(undefined);
+        const elRect = this.elementRef.nativeElement.getBoundingClientRect();
         const ref = this.dialogService.openTemplateDialog(
-            this.dropdownTemplate()!,
+            this.$dropdownTemplate()!,
             {
                 top(actualWidth, actualHeight) {
-                    if (elRect.bottom + actualHeight > window.innerHeight &&
-                        elRect.top - actualHeight> 0
-                    ) {
+                    if (elRect.bottom + actualHeight > window.innerHeight && elRect.top - actualHeight > 0) {
                         return elRect.top - actualHeight + 'px';
                     }
                     return elRect.bottom + 'px';
@@ -350,39 +377,41 @@ export class SelectComponent
                 width: elRect.width + 'px',
                 closeOnEscape: true,
                 closeOnBackdropClick: true,
-            }
-        , null, this.elementRef.nativeElement);
-       
+            },
+            null,
+            this.elementRef.nativeElement,
+        );
+
         this.registerOptionKeyNavigation();
-        ref.afterClosed$.subscribe(() => {
+        ref.closed$.subscribe(() => {
             this.unregisterOptionKeyNavigation();
-            if (this.dropdownReference() === ref) {
-                this.dropdownReference.set(undefined);
+            if (this.$dropdownReference() === ref) {
+                this.$dropdownReference.set(undefined);
             }
         });
-        this.dropdownReference.set(ref);
+        this.$dropdownReference.set(ref);
     }
     // #endregion
     // #region Keyboard navigation
-    
+
     /**
-     * 
+     *
      * @param e Handles KeyDown event for:
      * - host element
      * - global keydown event when dropdown is open
-     * @returns 
+     * @returns
      */
     onKeyDown(e: KeyboardEvent) {
         if (e.key === 'Enter' || e.key === ' ') {
-            const ref = this.dropdownReference();
+            const ref = this.$dropdownReference();
             // if dropdown is not open
             if (!ref) {
                 this.openDropdown();
             } else {
                 // if dropdown is open
                 // if an option is highlighted, select it
-                if (this.highlightedOption()) {
-                    this.selectValue(this.highlightedOption()!);
+                if (this.$highlightedOption()) {
+                    this.selectValue(this.$highlightedOption()!);
                 } else {
                     // if an option is not highlighted, close the dropdown
                     ref.close();
@@ -400,80 +429,58 @@ export class SelectComponent
             // - if this is a multiselect, ignore
             // - if this is a single select, find the next item to select
             // - if no item is selected, highlight the first/last item
-            const open = this.dropdownOpen();
-            if (this.allowMultiple() && !open) {
+            const open = this.$dropdownOpen();
+            if (this.$allowMultiple() && !open) {
                 return;
             }
 
             let currentIndex = -1;
             if (open) {
                 // find already highlighted option
-                if (this.highlightedOption()) {
-                    currentIndex = this.options().findIndex(
-                        (o) =>
-                            o.value() === this.highlightedOption()!.value()
-                    );
+                if (this.$highlightedOption()) {
+                    currentIndex = this.$options().findIndex((o) => o.$value() === this.$highlightedOption()!.$value());
                 }
             } else {
                 // find already selected option
-                currentIndex = this.options().findIndex(
-                     // we can be sure that at this point, this is a single select dropdown, so this.value() can be safely used
-                    (o) => o.value() === this.value());
+                currentIndex = this.$options().findIndex(
+                    // we can be sure that at this point, this is a single select dropdown, so this.value() can be safely used
+                    (o) => o.$value() === this.$value(),
+                );
             }
             let nextIndex: number;
             // find the next index to highlight/select
             if (e.key === 'ArrowDown') {
                 if (currentIndex === -1) {
                     // find the first non disabled option
-                    nextIndex = this.options().findIndex(
-                        (o) => !o.disabled()
-                    );
+                    nextIndex = this.$options().findIndex((o) => !o.$disabled());
                 } else {
                     // find the next option that is not disabled
-                    nextIndex = this.options().findIndex(
-                        (o, i) => i > currentIndex && !o.disabled()
-                    );
+                    nextIndex = this.$options().findIndex((o, i) => i > currentIndex && !o.$disabled());
                     // if no option is found, find the next option that is not disabled before the current item
                     if (nextIndex === -1) {
-                        nextIndex = this.options().findIndex(
-                            (o, i) => i < currentIndex && !o.disabled()
-                        );
+                        nextIndex = this.$options().findIndex((o, i) => i < currentIndex && !o.$disabled());
                     }
                 }
             } else if (e.key === 'ArrowUp') {
                 if (currentIndex === -1) {
                     // find the last non disabled option
-                    nextIndex = this.options()
+                    nextIndex = this.$options()
                         .slice()
                         .reverse()
-                        .findIndex((o) => !o.disabled());
+                        .findIndex((o) => !o.$disabled());
                     if (nextIndex !== -1) {
-                        nextIndex =
-                            this.options().length - nextIndex - 1;
+                        nextIndex = this.$options().length - nextIndex - 1;
                     }
                 } else {
-                    const flippedCurrentIndex =
-                        this.options().length - currentIndex - 1;
+                    const flippedCurrentIndex = this.$options().length - currentIndex - 1;
                     // find the next option that is not disabled
-                    nextIndex = [...this.options()]
-                        .reverse()
-                        .findIndex(
-                            (o, i) =>
-                                i > flippedCurrentIndex && !o.disabled()
-                        );
+                    nextIndex = [...this.$options()].reverse().findIndex((o, i) => i > flippedCurrentIndex && !o.$disabled());
                     // if no option is found, find the next option that is not disabled before the current item
                     if (nextIndex === -1) {
-                        nextIndex = [...this.options()]
-                            .reverse()
-                            .findIndex(
-                                (o, i) =>
-                                    i < flippedCurrentIndex &&
-                                    !o.disabled()
-                            );
+                        nextIndex = [...this.$options()].reverse().findIndex((o, i) => i < flippedCurrentIndex && !o.$disabled());
                     }
                     if (nextIndex !== -1) {
-                        nextIndex =
-                            this.options().length - nextIndex - 1;
+                        nextIndex = this.$options().length - nextIndex - 1;
                     }
                 }
             } else {
@@ -482,12 +489,16 @@ export class SelectComponent
 
             if (nextIndex !== -1) {
                 if (open) {
-                    this.highlightedOption.set(this.options()[nextIndex]);
-                    setTimeout(() => document.querySelector(`#${this.dropdownId} .option-wrapper.highlight`)?.scrollIntoView({
-                        block: 'nearest',
-                    }), 10);
+                    this.$highlightedOption.set(this.$options()[nextIndex]);
+                    setTimeout(
+                        () =>
+                            document.querySelector(`#${this.dropdownId} .option-wrapper.highlight`)?.scrollIntoView({
+                                block: 'nearest',
+                            }),
+                        10,
+                    );
                 } else {
-                    this.selectValue(this.options()[nextIndex]);
+                    this.selectValue(this.$options()[nextIndex]);
                 }
             }
 
@@ -530,15 +541,8 @@ export class SelectComponent
         setTimeout(() => {
             const dropdownContainer = document.getElementById(this.dropdownId);
 
-            if (
-                !this.elementRef.nativeElement.contains(
-                    document.activeElement
-                ) && 
-                !dropdownContainer?.contains(
-                    document.activeElement
-                )
-            ) {
-                const ref = this.dropdownReference();
+            if (!this.elementRef.nativeElement.contains(document.activeElement) && !dropdownContainer?.contains(document.activeElement)) {
+                const ref = this.$dropdownReference();
                 if (ref) {
                     ref.close();
                 }
@@ -547,5 +551,4 @@ export class SelectComponent
     }
 
     // #endregion
-
 }

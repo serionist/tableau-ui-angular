@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { ThemeConfig } from './theme.config';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { BehaviorSubject, combineLatest } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
@@ -22,16 +22,19 @@ export class ThemeService {
     };
 
     
-    private readonly theme$ = new BehaviorSubject<ThemeConfig>(
+    private readonly _theme$ = new BehaviorSubject<ThemeConfig>(
         this.getInitialTheme()
     );
+    public get theme$(): Observable<ThemeConfig> {
+        return this._theme$;
+    }
     private readonly autoColor$ = new BehaviorSubject<'light' | 'dark'>(
         window.matchMedia('(prefers-color-scheme: dark)').matches
             ? 'dark'
             : 'light'
     );
-    readonly theme = toSignal(this.theme$, {
-        initialValue: this.theme$.value
+    readonly $theme = toSignal(this._theme$, {
+        initialValue: this._theme$.value
     });
 
     initialize() {
@@ -45,7 +48,7 @@ export class ThemeService {
                 }
             });
 
-        this.theme$.subscribe((theme) => {
+        this._theme$.subscribe((theme) => {
             localStorage.setItem(this.themeKey, JSON.stringify(theme));
             document.documentElement.style.setProperty(
                 '--twc-font-size',
@@ -53,7 +56,7 @@ export class ThemeService {
             );
         });
 
-        combineLatest([this.theme$, this.autoColor$]).subscribe(
+        combineLatest([this._theme$, this.autoColor$]).subscribe(
             ([theme, autoColor]) => {
                 const color = theme.mode === 'auto' ? autoColor : theme.mode;
                 switch (color) {
@@ -84,17 +87,17 @@ export class ThemeService {
     }
 
     setColorMode(mode: 'light' | 'dark' | 'auto') {
-        const theme = this.theme$.value;
+        const theme = this._theme$.value;
         theme.mode = mode;
-        this.theme$.next(theme)
+        this._theme$.next(theme)
     };
     setFontSize(fontSize: string) {
-        const theme = this.theme$.value;
+        const theme = this._theme$.value;
         theme.fontSize = fontSize;
-        this.theme$.next(theme);
+        this._theme$.next(theme);
     }
     reset() {
-        this.theme$.next(this.defaultTheme);
+        this._theme$.next(this.defaultTheme);
     }
 
    

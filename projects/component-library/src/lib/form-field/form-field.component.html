@@ -1,23 +1,23 @@
-<div class="form-label" *ngIf="labelElement()">
+<div class="form-label" *ngIf="$labelElement()">
     <ng-content select="tab-label"></ng-content>
   </div>
   <div class="form-input-wrapper">
-    <div class="prefix" *ngIf="prefixElement()" #prefixContainer>
+    <div class="prefix" *ngIf="$prefixElement()" #prefixContainer>
       <ng-content select="tab-prefix"></ng-content>
     </div>
     <div class="input-container" #inputContainer>
       <ng-content></ng-content>
     </div>
-    <div class="suffix" *ngIf="suffixElement()" #suffixContainer>
+    <div class="suffix" *ngIf="$suffixElement()" #suffixContainer>
       <ng-content select="tab-suffix"></ng-content>
     </div>
   </div>
-  @if (hintElement() || errorElement()) {
+  @if ($hintElement() || $errorElement()) {
       <div class="form-extra-info">
-          @if (hintElement() && (!errorElement() || hintElement()!.showOnError())) {
+          @if ($hintElement() && (!$errorElement() || $hintElement()!.$showOnError())) {
             <ng-content select="tab-hint"></ng-content>
           }
-          @if (errorElement()) {
+          @if ($errorElement()) {
               <ng-content select="tab-error"></ng-content>
           }
         

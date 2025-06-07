@@ -8,8 +8,8 @@ import { ErrorComponent } from '../common/error';
     selector: 'tab-checkbox',
     host: {
         'class': 'checkbox',
-        '[class.disabled]': 'disabled()',
-        '[class.checked]': 'value()',
+        '[class.disabled]': '$disabled()',
+        '[class.checked]': '$value()',
         '(click)': 'toggleValue()',
     },
     templateUrl: 'checkbox.component.html',
@@ -25,21 +25,25 @@ import { ErrorComponent } from '../common/error';
     standalone: false
 })
 export class CheckboxComponent implements ControlValueAccessor {
-    disabled = model(false);
-    value = model(false);
-    valueChanges = output<boolean>();
+    readonly $disabled = model(false, {
+        alias: 'disabled'
+    });
+    readonly $value = model(false, {
+        alias: 'value'
+    });
+    readonly valueChanges = output<boolean>();
 
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    hintElement: Signal<HintComponent | undefined> = contentChild(HintComponent);
+    protected $hintElement: Signal<HintComponent | undefined> = contentChild(HintComponent);
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    errorElement: Signal<ErrorComponent | undefined> = contentChild(ErrorComponent);
+    protected $errorElement: Signal<ErrorComponent | undefined> = contentChild(ErrorComponent);
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     onChange = (value: any) => {};
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     onTouched = () => {};
     writeValue(value: any): void {
-        this.value.set(value);
+        this.$value.set(value);
     }
     registerOnChange(fn: any): void {
         this.onChange = fn;
@@ -48,13 +52,13 @@ export class CheckboxComponent implements ControlValueAccessor {
         this.onTouched = fn;
     }
     setDisabledState(isDisabled: boolean): void {
-        this.disabled.set(isDisabled);
+        this.$disabled.set(isDisabled);
     }
     toggleValue() {
-        if (!this.disabled()) {
-            const newVal = !this.value();
-            this.value.set(newVal);
-            this.onChange(this.value());
+        if (!this.$disabled()) {
+            const newVal = !this.$value();
+            this.$value.set(newVal);
+            this.onChange(this.$value());
             this.valueChanges.emit(newVal);
             this.onTouched();
         }

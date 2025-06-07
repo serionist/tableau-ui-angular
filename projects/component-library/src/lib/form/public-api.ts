@@ -1,7 +1,6 @@
 export * from './form-get-error.pipe';
 export * from './form-has-error.pipe';
 export * from './form-control.pipe';
-export * from './form-control-required.pipe';
 export * from './form-array-value.pipe';
 export * from './form-meta.pipe';
 export * from './form-group-value.pipe';

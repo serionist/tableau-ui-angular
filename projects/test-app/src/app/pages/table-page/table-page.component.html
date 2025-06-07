@@ -26,14 +26,14 @@
         <div class="section">
             <h3>Example</h3>
             <div class="options">
-                <tab-checkbox [(value)]="show_first_3_columns"
+                <tab-checkbox [(value)]="$show_first_3_columns"
                     >Only show first 3 columns</tab-checkbox
                 >
-                <tab-checkbox [(value)]="striped">Striped</tab-checkbox>
+                <tab-checkbox [(value)]="$striped">Striped</tab-checkbox>
                 <button color="primary" (click)="reset(true, false)">Reset and show data</button>
                 <button color="primary" (click)="reset(false, false)">Reset and show no data</button>
                 <button color="primary" (click)="reset(true, true)">Reset and throw error on any block load after 20 offset</button>
-                <tab-checkbox [(value)]="customNoDataTemplate">CustomNoDataTemplate</tab-checkbox>
+                <tab-checkbox [(value)]="$customNoDataTemplate">CustomNoDataTemplate</tab-checkbox>
             </div>
             <ng-template #customnodatatemplate>
                 Custom No Data Template
@@ -43,10 +43,10 @@
                 [getDataBlock]="loadBlock"
                 [sortMode]="'multi'"
                 [displayedColumns]="
-                    show_first_3_columns() ? ['id', 'name', 'age'] : undefined
+                    $show_first_3_columns() ? ['id', 'name', 'age'] : undefined
                 "
-                [striped]="striped()"
-                [noDataTemplate]="customNoDataTemplate() ? customnodatatemplate : 'default'"
+                [striped]="$striped()"
+                [noDataTemplate]="$customNoDataTemplate() ? customnodatatemplate : 'default'"
             >
                 <ng-container
                     tabColumnDef="id"
