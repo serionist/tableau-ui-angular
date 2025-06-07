@@ -3,66 +3,77 @@
     <div class="title">
         <h1>Local Development</h1>
         <div class="text-light text-large">
-            <p>
-                This page explains how to set up local development of this library by linking it into a consuming project locally instead of importing from NPM.
-            </p>
+            <p>This page explains how to set up local development of this library by linking it into a consuming project locally instead of importing from NPM.</p>
         </div>
     </div>
     <tab-separator />
     <div class="content">
         <div class="section">
             <h3>Purpose</h3>
-            <p>When using this library, you sometimes want to host it locally instead of pulling it from NPM.<br/>
-            This way, if you make any changes to the library, they are instantly visible in your consuming application, enabling a seamless developer experience.<br/>
-        When you commit/publish your app, make sure that you update the library on NPM as well, and update your app to use the NPM version.</p>
+            <p>
+                When using this library, you sometimes want to host it locally instead of pulling it from NPM.
+                <br />
+                This way, if you make any changes to the library, they are instantly visible in your consuming application, enabling a seamless developer experience.
+                <br />
+                When you commit/publish your app, make sure that you update the library on NPM as well, and update your app to use the NPM version.
+            </p>
         </div>
         <div class="section">
             <h3>Linking the source code of this library into the consuming project</h3>
             <ol>
                 <li>Open both the source code of this library and the consuming project in an editor (such as VSCode)</li>
-                <li>Run the following command from the root of <b>this library</b>:<ngx-monaco-editor
-                    style="height: 30px; width: 150px; margin-bottom: 5px;"
-                    ngModel="npm run dev:link"
-                    [options]="terminalOptions"
-                /> </li>
-                <li>Update the <code>angular.json</code> file of the <b>consuming project</b> to preserve symlinks:
-                    <ngx-monaco-editor
-                            style="height: 220px; width: 430px; margin-bottom: 5px;"
-                            [options]="jsonOptions"
-                            [ngModel]="angularJsonContent"
-                        />
+                <li>
+                    Run the following command from the root of
+                    <b>this library</b>
+                    :
+                    <ngx-monaco-editor style="height: 30px; width: 150px; margin-bottom: 5px" ngModel="npm run dev:link" [options]="terminalOptions" />
                 </li>
-                <li>Update the <code>tsconfig.json</code> file of the <b>consuming project</b> to add paths for this library. This is required for <code>ng serve</code> to detect code live changes and recompile:
-                    <ngx-monaco-editor
-                            style="height: 120px; width: 430px; margin-bottom: 5px;"
-                            [options]="jsonOptions"
-                            [ngModel]="tsconfigJsonContent"
-                        />
+                <li>
+                    Update the
+                    <code>angular.json</code>
+                    file of the
+                    <b>consuming project</b>
+                    to preserve symlinks:
+                    <ngx-monaco-editor style="height: 220px; width: 430px; margin-bottom: 5px" [options]="jsonOptions" [ngModel]="angularJsonContent" />
                 </li>
-                <li>Run the following command from the root of the <b>consuming project</b> to install <code>npx link</code>. We use this instead if <code>npm link</code> since its much safer:
-                    <ngx-monaco-editor
-                    style="height: 25px; width: 550px; margin-bottom: 5px;"
-                    ngModel="npm install --save-dev link"
-                    [options]="terminalOptions"
-                />
+                <li>
+                    Update the
+                    <code>tsconfig.json</code>
+                    file of the
+                    <b>consuming project</b>
+                    to add paths for this library. This is required for
+                    <code>ng serve</code>
+                    to detect code live changes and recompile:
+                    <ngx-monaco-editor style="height: 120px; width: 430px; margin-bottom: 5px" [options]="jsonOptions" [ngModel]="tsconfigJsonContent" />
                 </li>
-                <li>Run the following command from the root of the <b>consuming project</b> to link the library:
-                    <ngx-monaco-editor
-                    style="height: 25px; width: 550px; margin-bottom: 5px;"
-                    ngModel="npx link [path-to-this-library]/dist/component-library"
-                    [options]="terminalOptions"
-                />
+                <li>
+                    Run the following command from the root of the
+                    <b>consuming project</b>
+                    to install
+                    <code>npx link</code>
+                    . We use this instead if
+                    <code>npm link</code>
+                    since its much safer:
+                    <ngx-monaco-editor style="height: 25px; width: 550px; margin-bottom: 5px" ngModel="npm install --save-dev link" [options]="terminalOptions" />
+                </li>
+                <li>
+                    Run the following command from the root of the
+                    <b>consuming project</b>
+                    to link the library:
+                    <ngx-monaco-editor style="height: 25px; width: 550px; margin-bottom: 5px" ngModel="npx link [path-to-this-library]/dist/component-library" [options]="terminalOptions" />
                 </li>
             </ol>
         </div>
-     <div class="section">
-        <h3>Unlinking the library</h3>
-        <div>When you've finished development or want to commit the source code of the <b>consuming project</b>, you need to <code>unlink</code> this library by running:</div>
-        <ngx-monaco-editor
-        style="height: 30px; width: 500px; margin-bottom: 5px;"
-        ngModel="npm install"
-        [options]="terminalOptions"
-    />
-    </div>
+        <div class="section">
+            <h3>Unlinking the library</h3>
+            <div>
+                When you've finished development or want to commit the source code of the
+                <b>consuming project</b>
+                , you need to
+                <code>unlink</code>
+                this library by running:
+            </div>
+            <ngx-monaco-editor style="height: 30px; width: 500px; margin-bottom: 5px" ngModel="npm install" [options]="terminalOptions" />
+        </div>
     </div>
 </div>

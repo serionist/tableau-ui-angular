@@ -21,12 +21,11 @@
     line-height: 1;
 }
 
-:host[wrapping-mode="truncate"] .content-display {
+:host[wrapping-mode='truncate'] .content-display {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-
 
 // stylelint-disable-next-line no-descending-specificity
 .dropdown {
@@ -111,7 +110,7 @@
                 outline-offset: var(--twc-menu-selected-outline-offset);
             }
 
-            // stylelint-disable-next-line selector-pseudo-element-no-unknown  
+            // stylelint-disable-next-line selector-pseudo-element-no-unknown
             ::ng-deep .tab-option {
                 line-height: normal;
             }

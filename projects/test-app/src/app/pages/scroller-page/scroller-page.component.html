@@ -2,76 +2,91 @@
 <div class="page">
     <div class="title">
         <h1>Scroller</h1>
-        <div class="text-light text-large">
-            The scroller component is used to provide arrow scrolling for
-            overflowing content.
-        </div>
+        <div class="text-light text-large">The scroller component is used to provide arrow scrolling for overflowing content.</div>
     </div>
     <tab-separator />
     <div class="content">
         <div class="section">
             <h3>Module</h3>
-            <p>
-                To use the component, import one of the following modules into
-                your module/component:
-            </p>
+            <p>To use the component, import one of the following modules into your module/component:</p>
 
             <ul>
                 <li>
-                    <code>TableauUiArrowScrollModule</code> - for granular
-                    import
+                    <code>TableauUiArrowScrollModule</code>
+                    - for granular import
                 </li>
                 <li>
-                    <code>TableauUiAllModule</code> - to import all components
-                    from this library
+                    <code>TableauUiAllModule</code>
+                    - to import all components from this library
                 </li>
             </ul>
         </div>
         <div class="section">
             <h3>Usage</h3>
             <p>
-                The <code>ArrowScrollComponent</code> exposes the following
-                properties:
+                The
+                <code>ArrowScrollComponent</code>
+                exposes the following properties:
             </p>
 
             <ul>
                 <li>
-                    <code>scrollType</code> - either <code>default</code> or
-                    <code>arrow</code>, can be used to turn on the arrow
-                    scrolling behavior or stick to the default scrollbar.
-                    <br />When <code>arrow</code> is selected, the default
-                    scrollbar is turned off and Arrow buttons are shown for
-                    scrolling
+                    <code>scrollType</code>
+                    - either
+                    <code>default</code>
+                    or
+                    <code>arrow</code>
+                    , can be used to turn on the arrow scrolling behavior or stick to the default scrollbar.
+                    <br />
+                    When
+                    <code>arrow</code>
+                    is selected, the default scrollbar is turned off and Arrow buttons are shown for scrolling
                 </li>
                 <li>
-                    <code>scrollDirection</code> - either
-                    <code>horizontal</code> or <code>vertical</code>. <br />When
-                    <code>horizontal</code> is selected, the default mousewheel
-                    scrolling scrolls horizontally even if the
-                    <code>scrollType</code> is <code>default</code>
+                    <code>scrollDirection</code>
+                    - either
+                    <code>horizontal</code>
+                    or
+                    <code>vertical</code>
+                    .
+                    <br />
+                    When
+                    <code>horizontal</code>
+                    is selected, the default mousewheel scrolling scrolls horizontally even if the
+                    <code>scrollType</code>
+                    is
+                    <code>default</code>
                 </li>
                 <li>
-                    <code>buttonsGap</code> - the gap between the arrow buttons
-                    and the scroll content
+                    <code>buttonsGap</code>
+                    - the gap between the arrow buttons and the scroll content
                 </li>
                 <li>
-                    <code>buttonsColor</code> - the color property of the
-                    scrolling arrow button. This is the <code>primary</code>,
-                    <code>secondary</code>, <code>error</code> or
-                    <code>plain</code> (default)
+                    <code>buttonsColor</code>
+                    - the color property of the scrolling arrow button. This is the
+                    <code>primary</code>
+                    ,
+                    <code>secondary</code>
+                    ,
+                    <code>error</code>
+                    or
+                    <code>plain</code>
+                    (default)
                 </li>
                 <li>
-                    <code>buttonsCssColor</code> - the actual CSS color of the
-                    arrow in the scrolling button
+                    <code>buttonsCssColor</code>
+                    - the actual CSS color of the arrow in the scrolling button
                 </li>
                 <li>
-                    <code>buttonScrollAmount</code> - how many pixels to scroll
-                    when the arrow button is clicked. Default is 100px.
+                    <code>buttonScrollAmount</code>
+                    - how many pixels to scroll when the arrow button is clicked. Default is 100px.
                 </li>
                 <li>
-                    <code>showScrollButtonSeparator</code> - set to
-                    <code>true</code> to show a separator between the arrow
-                    button and the scroll content. Default is <code>false</code>
+                    <code>showScrollButtonSeparator</code>
+                    - set to
+                    <code>true</code>
+                    to show a separator between the arrow button and the scroll content. Default is
+                    <code>false</code>
                 </li>
             </ul>
         </div>
@@ -80,132 +95,45 @@
             <div class="section">
                 <h4>Vertical arrow scroller</h4>
 
-                <tab-arrow-scroll
-                    style="width: 200px; height: 300px"
-                    scrollType="arrow"
-                    scrollDirection="vertical"
-                    buttonsGap="0.5rem"
-                >
-                    <tab-icon
-                        style="font-size: 2rem"
-                        back-button
-                        value="keyboard_arrow_up"
-                    />
-                    <tab-icon
-                        style="font-size: 2rem"
-                        forward-button
-                        value="keyboard_arrow_down"
-                    />
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                    Curabitur vestibulum maximus elementum. Vivamus euismod orci
-                    quis malesuada vestibulum. In sed porttitor elit. Nunc
-                    blandit volutpat vestibulum. In ac nulla condimentum,
-                    ultricies odio vitae, vehicula dui. Praesent vitae elementum
-                    ante. Pellentesque eu lectus quis sapien vestibulum
-                    interdum. Curabitur fringilla dolor blandit risus molestie
-                    euismod. Praesent egestas, mi ut pharetra scelerisque, nisi
-                    mauris maximus odio, id dapibus nunc arcu et diam. Cras non
-                    ex vitae nulla pulvinar porttitor nec ut dolor. Vestibulum
-                    cursus tortor sagittis, dignissim nisi non, dictum tortor.
-                    Pellentesque habitant morbi tristique senectus et netus et
-                    malesuada fames ac turpis egestas. Proin ipsum metus, dictum
-                    sit amet mi non, dapibus varius ipsum. Orci varius natoque
-                    penatibus et magnis dis parturient montes, nascetur
-                    ridiculus mus. Phasellus volutpat orci at velit finibus,
-                    feugiat fermentum ipsum rhoncus. Suspendisse convallis
-                    pellentesque scelerisque. Etiam a quam id odio cursus
-                    gravida feugiat eget ex. Nullam nec imperdiet elit.
-                    Vestibulum eu neque vel risus aliquet tempor vel nec neque.
-                    Integer ac aliquam eros, a hendrerit neque. Phasellus
-                    lobortis, libero non viverra mollis, lectus elit posuere
-                    purus, ut rutrum lorem mi et nisl. Nam ut mauris sit amet
-                    dui iaculis tempor pharetra scelerisque tellus. Donec
-                    sagittis dignissim dolor non semper. Fusce venenatis
-                    ultricies gravida. Donec nisl elit, tempus ac quam id,
-                    fermentum commodo lectus. Pellentesque aliquet condimentum
-                    ex, ac elementum nulla consectetur ac. Etiam dui orci,
-                    fermentum eget odio nec, vestibulum pellentesque sem.
-                    Maecenas libero diam, posuere convallis posuere ut, bibendum
-                    non ipsum. Sed iaculis eros nec felis tincidunt dictum.
-                    Vestibulum ante ipsum primis in faucibus orci luctus et
-                    ultrices posuere cubilia curae; Praesent vitae egestas
-                    risus. Vestibulum imperdiet risus bibendum mi tempus
-                    volutpat. Nulla et fermentum magna, a luctus sem. Nulla
-                    varius massa nec orci dictum, nec pharetra justo bibendum.
-                    Aliquam vitae neque nec velit varius laoreet et sed justo.
-                    Fusce ultrices velit nec mi posuere sodales. Curabitur at
-                    suscipit justo. Sed interdum dolor et erat dictum congue.
-                    Nam sed diam elementum, volutpat massa vel, vulputate quam.
-                    Integer velit lectus, lobortis at eros eget, dignissim
-                    sollicitudin tellus. Morbi rutrum imperdiet odio eu
-                    fermentum. Nulla in neque et nibh fermentum mattis. Fusce
-                    pellentesque accumsan metus, vitae euismod diam commodo in.
+                <tab-arrow-scroll style="width: 200px; height: 300px" scrollType="arrow" scrollDirection="vertical" buttonsGap="0.5rem">
+                    <tab-icon style="font-size: 2rem" back-button value="keyboard_arrow_up" />
+                    <tab-icon style="font-size: 2rem" forward-button value="keyboard_arrow_down" />
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur vestibulum maximus elementum. Vivamus euismod orci quis malesuada vestibulum. In sed porttitor elit. Nunc blandit volutpat
+                    vestibulum. In ac nulla condimentum, ultricies odio vitae, vehicula dui. Praesent vitae elementum ante. Pellentesque eu lectus quis sapien vestibulum interdum. Curabitur fringilla dolor blandit risus
+                    molestie euismod. Praesent egestas, mi ut pharetra scelerisque, nisi mauris maximus odio, id dapibus nunc arcu et diam. Cras non ex vitae nulla pulvinar porttitor nec ut dolor. Vestibulum cursus
+                    tortor sagittis, dignissim nisi non, dictum tortor. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Proin ipsum metus, dictum sit amet mi non, dapibus
+                    varius ipsum. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Phasellus volutpat orci at velit finibus, feugiat fermentum ipsum rhoncus. Suspendisse convallis
+                    pellentesque scelerisque. Etiam a quam id odio cursus gravida feugiat eget ex. Nullam nec imperdiet elit. Vestibulum eu neque vel risus aliquet tempor vel nec neque. Integer ac aliquam eros, a
+                    hendrerit neque. Phasellus lobortis, libero non viverra mollis, lectus elit posuere purus, ut rutrum lorem mi et nisl. Nam ut mauris sit amet dui iaculis tempor pharetra scelerisque tellus. Donec
+                    sagittis dignissim dolor non semper. Fusce venenatis ultricies gravida. Donec nisl elit, tempus ac quam id, fermentum commodo lectus. Pellentesque aliquet condimentum ex, ac elementum nulla
+                    consectetur ac. Etiam dui orci, fermentum eget odio nec, vestibulum pellentesque sem. Maecenas libero diam, posuere convallis posuere ut, bibendum non ipsum. Sed iaculis eros nec felis tincidunt
+                    dictum. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Praesent vitae egestas risus. Vestibulum imperdiet risus bibendum mi tempus volutpat. Nulla et fermentum
+                    magna, a luctus sem. Nulla varius massa nec orci dictum, nec pharetra justo bibendum. Aliquam vitae neque nec velit varius laoreet et sed justo. Fusce ultrices velit nec mi posuere sodales. Curabitur
+                    at suscipit justo. Sed interdum dolor et erat dictum congue. Nam sed diam elementum, volutpat massa vel, vulputate quam. Integer velit lectus, lobortis at eros eget, dignissim sollicitudin tellus.
+                    Morbi rutrum imperdiet odio eu fermentum. Nulla in neque et nibh fermentum mattis. Fusce pellentesque accumsan metus, vitae euismod diam commodo in.
                 </tab-arrow-scroll>
             </div>
             <div class="section">
                 <h4>Horizontal</h4>
 
-                <tab-arrow-scroll
-                    style="width: 500px;"
-                    scrollType="arrow"
-                    scrollDirection="horizontal"
-                    buttonsGap="0.5rem"
-                    [buttonScrollAmount]="500"
-                >
-                    <tab-icon
-                        back-button
-                        value="keyboard_arrow_left"
-                    />
-                    <tab-icon
-                        forward-button
-                        value="keyboard_arrow_right"
-                    />
-                   <div style="white-space: nowrap">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                    Curabitur vestibulum maximus elementum. Vivamus euismod orci
-                    quis malesuada vestibulum. In sed porttitor elit. Nunc
-                    blandit volutpat vestibulum. In ac nulla condimentum,
-                    ultricies odio vitae, vehicula dui. Praesent vitae elementum
-                    ante. Pellentesque eu lectus quis sapien vestibulum
-                    interdum. Curabitur fringilla dolor blandit risus molestie
-                    euismod. Praesent egestas, mi ut pharetra scelerisque, nisi
-                    mauris maximus odio, id dapibus nunc arcu et diam. Cras non
-                    ex vitae nulla pulvinar porttitor nec ut dolor. Vestibulum
-                    cursus tortor sagittis, dignissim nisi non, dictum tortor.
-                    Pellentesque habitant morbi tristique senectus et netus et
-                    malesuada fames ac turpis egestas. Proin ipsum metus, dictum
-                    sit amet mi non, dapibus varius ipsum. Orci varius natoque
-                    penatibus et magnis dis parturient montes, nascetur
-                    ridiculus mus. Phasellus volutpat orci at velit finibus,
-                    feugiat fermentum ipsum rhoncus. Suspendisse convallis
-                    pellentesque scelerisque. Etiam a quam id odio cursus
-                    gravida feugiat eget ex. Nullam nec imperdiet elit.
-                    Vestibulum eu neque vel risus aliquet tempor vel nec neque.
-                    Integer ac aliquam eros, a hendrerit neque. Phasellus
-                    lobortis, libero non viverra mollis, lectus elit posuere
-                    purus, ut rutrum lorem mi et nisl. Nam ut mauris sit amet
-                    dui iaculis tempor pharetra scelerisque tellus. Donec
-                    sagittis dignissim dolor non semper. Fusce venenatis
-                    ultricies gravida. Donec nisl elit, tempus ac quam id,
-                    fermentum commodo lectus. Pellentesque aliquet condimentum
-                    ex, ac elementum nulla consectetur ac. Etiam dui orci,
-                    fermentum eget odio nec, vestibulum pellentesque sem.
-                    Maecenas libero diam, posuere convallis posuere ut, bibendum
-                    non ipsum. Sed iaculis eros nec felis tincidunt dictum.
-                    Vestibulum ante ipsum primis in faucibus orci luctus et
-                    ultrices posuere cubilia curae; Praesent vitae egestas
-                    risus. Vestibulum imperdiet risus bibendum mi tempus
-                    volutpat. Nulla et fermentum magna, a luctus sem. Nulla
-                    varius massa nec orci dictum, nec pharetra justo bibendum.
-                    Aliquam vitae neque nec velit varius laoreet et sed justo.
-                    Fusce ultrices velit nec mi posuere sodales. Curabitur at
-                    suscipit justo. Sed interdum dolor et erat dictum congue.
-                    Nam sed diam elementum, volutpat massa vel, vulputate quam.
-                    Integer velit lectus, lobortis at eros eget, dignissim
-                    sollicitudin tellus. Morbi rutrum imperdiet odio eu
-                    fermentum. Nulla in neque et nibh fermentum mattis. Fusce
-                    pellentesque accumsan metus, vitae euismod diam commodo in.
-                   </div>
+                <tab-arrow-scroll style="width: 500px" scrollType="arrow" scrollDirection="horizontal" buttonsGap="0.5rem" [buttonScrollAmount]="500">
+                    <tab-icon back-button value="keyboard_arrow_left" />
+                    <tab-icon forward-button value="keyboard_arrow_right" />
+                    <div style="white-space: nowrap">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur vestibulum maximus elementum. Vivamus euismod orci quis malesuada vestibulum. In sed porttitor elit. Nunc blandit volutpat
+                        vestibulum. In ac nulla condimentum, ultricies odio vitae, vehicula dui. Praesent vitae elementum ante. Pellentesque eu lectus quis sapien vestibulum interdum. Curabitur fringilla dolor blandit
+                        risus molestie euismod. Praesent egestas, mi ut pharetra scelerisque, nisi mauris maximus odio, id dapibus nunc arcu et diam. Cras non ex vitae nulla pulvinar porttitor nec ut dolor. Vestibulum
+                        cursus tortor sagittis, dignissim nisi non, dictum tortor. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Proin ipsum metus, dictum sit amet mi non,
+                        dapibus varius ipsum. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Phasellus volutpat orci at velit finibus, feugiat fermentum ipsum rhoncus. Suspendisse
+                        convallis pellentesque scelerisque. Etiam a quam id odio cursus gravida feugiat eget ex. Nullam nec imperdiet elit. Vestibulum eu neque vel risus aliquet tempor vel nec neque. Integer ac aliquam
+                        eros, a hendrerit neque. Phasellus lobortis, libero non viverra mollis, lectus elit posuere purus, ut rutrum lorem mi et nisl. Nam ut mauris sit amet dui iaculis tempor pharetra scelerisque
+                        tellus. Donec sagittis dignissim dolor non semper. Fusce venenatis ultricies gravida. Donec nisl elit, tempus ac quam id, fermentum commodo lectus. Pellentesque aliquet condimentum ex, ac
+                        elementum nulla consectetur ac. Etiam dui orci, fermentum eget odio nec, vestibulum pellentesque sem. Maecenas libero diam, posuere convallis posuere ut, bibendum non ipsum. Sed iaculis eros nec
+                        felis tincidunt dictum. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Praesent vitae egestas risus. Vestibulum imperdiet risus bibendum mi tempus
+                        volutpat. Nulla et fermentum magna, a luctus sem. Nulla varius massa nec orci dictum, nec pharetra justo bibendum. Aliquam vitae neque nec velit varius laoreet et sed justo. Fusce ultrices velit
+                        nec mi posuere sodales. Curabitur at suscipit justo. Sed interdum dolor et erat dictum congue. Nam sed diam elementum, volutpat massa vel, vulputate quam. Integer velit lectus, lobortis at eros
+                        eget, dignissim sollicitudin tellus. Morbi rutrum imperdiet odio eu fermentum. Nulla in neque et nibh fermentum mattis. Fusce pellentesque accumsan metus, vitae euismod diam commodo in.
+                    </div>
                 </tab-arrow-scroll>
             </div>
         </div>

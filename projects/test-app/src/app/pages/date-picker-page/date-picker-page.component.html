@@ -1,110 +1,75 @@
 <div class="page">
     <div class="title">
         <h1>Date Picker</h1>
-        <div class="text-light text-large">
-            Date Picker component is a custom form control that allows users to
-            select a date/date+time
-        </div>
+        <div class="text-light text-large">Date Picker component is a custom form control that allows users to select a date/date+time</div>
     </div>
     <tab-separator />
     <div class="content">
         <div class="section">
             <h3>Module</h3>
-            <p>
-                To use the component, import one of the following modules into
-                your module/component:
-            </p>
+            <p>To use the component, import one of the following modules into your module/component:</p>
 
             <ul>
                 <li>
-                    <code>TableauUiDatePickerModule</code> - for granular import
+                    <code>TableauUiDatePickerModule</code>
+                    - for granular import
                 </li>
                 <li>
-                    <code>TableauUiAllModule</code> - to import all components
-                    from this library
+                    <code>TableauUiAllModule</code>
+                    - to import all components from this library
                 </li>
             </ul>
             <p>
-                When component is <b>datetime</b>, the displayed value is always
-                in <b>local</b> time. The .toISOString() method always converts
-                it to <b>UTC</b> though
+                When component is
+                <b>datetime</b>
+                , the displayed value is always in
+                <b>local</b>
+                time. The .toISOString() method always converts it to
+                <b>UTC</b>
+                though
             </p>
         </div>
         <div class="section">
             <h3>Examples</h3>
-            <p>
-                The following examples demonstrate the usage of the date picker
-                component.
-            </p>
+            <p>The following examples demonstrate the usage of the date picker component.</p>
             <div class="two spacer">
                 <div>
-                    <div>
-                        Simple date picker with min/max date. Manual input
-                        allows invalid dates, these are not validated
-                    </div>
-                    <input
-                        type="date"
-                        min="2000-01-01"
-                        max="2030-12-31"
-                        (valueChange)="valueChange($event)"
-                    />
+                    <div>Simple date picker with min/max date. Manual input allows invalid dates, these are not validated</div>
+                    <input type="date" min="2000-01-01" max="2030-12-31" (valueChange)="valueChange($event)" />
                 </div>
                 <div>
-                    <div>
-                        Simple datetime picker with min/max date. Manual input
-                        allows invalid dates, these are not validated
-                    </div>
-                    <input
-                        type="datetime"
-                        min="2000-01-01T00:00"
-                        max="2030-12-31T23:59"
-                        (valueChange)="valueChange($event)"
-                    />
+                    <div>Simple datetime picker with min/max date. Manual input allows invalid dates, these are not validated</div>
+                    <input type="datetime" min="2000-01-01T00:00" max="2030-12-31T23:59" (valueChange)="valueChange($event)" />
                 </div>
 
                 <div>
-                    <div>
-                        Date picker with form control & validation
-                    </div>
+                    <div>Date picker with form control & validation</div>
                     <tab-form-field>
-                        <input
-                        type="date"
-                        min="2000-01-01"
-                        max="2030-12-31"
-                        [formControl]="(simpleControl | formControl | async)!"
-                    />
-                    @if (simpleControl | formMeta | async | formHasError:'required') {
-                        <tab-error>Required</tab-error>
-                    }
-                    @if (simpleControl | formMeta | async | formHasError:'minDate') {
-                        <tab-error>Minimum 2000-01-01</tab-error>
-                    }
-                    @if (simpleControl | formMeta | async | formHasError:'maxDate') {
-                        <tab-error>Minimum 2030-12-31</tab-error>
-                    }
+                        <input type="date" min="2000-01-01" max="2030-12-31" [formControl]="(simpleControl | formControl | async)!" />
+                        @if (simpleControl | formMeta | async | formHasError: 'required') {
+                            <tab-error>Required</tab-error>
+                        }
+                        @if (simpleControl | formMeta | async | formHasError: 'minDate') {
+                            <tab-error>Minimum 2000-01-01</tab-error>
+                        }
+                        @if (simpleControl | formMeta | async | formHasError: 'maxDate') {
+                            <tab-error>Minimum 2030-12-31</tab-error>
+                        }
                     </tab-form-field>
                 </div>
                 <div>
-                    <div>
-                        Simple datetime picker with min/max date. Manual input
-                        allows invalid dates, these are not validated
-                    </div>
+                    <div>Simple datetime picker with min/max date. Manual input allows invalid dates, these are not validated</div>
                     <tab-form-field>
-                        <input date-picker
-                        min="2000-01-01T00:00"
-                        max="2030-12-31T23:59"
-                        type="datetime"
-                        [formControl]="(simpleControl | formControl | async)!"
-                    />
-                    @if (simpleControl | formMeta | async | formHasError:'required') {
-                        <tab-error>Required</tab-error>
-                    }
-                    @if (simpleControl | formMeta | async | formHasError:'minDate') {
-                        <tab-error>Minimum 2000-01-01</tab-error>
-                    }
-                    @if (simpleControl | formMeta | async | formHasError:'maxDate') {
-                        <tab-error>Minimum 2030-12-31</tab-error>
-                    }
+                        <input date-picker min="2000-01-01T00:00" max="2030-12-31T23:59" type="datetime" [formControl]="(simpleControl | formControl | async)!" />
+                        @if (simpleControl | formMeta | async | formHasError: 'required') {
+                            <tab-error>Required</tab-error>
+                        }
+                        @if (simpleControl | formMeta | async | formHasError: 'minDate') {
+                            <tab-error>Minimum 2000-01-01</tab-error>
+                        }
+                        @if (simpleControl | formMeta | async | formHasError: 'maxDate') {
+                            <tab-error>Minimum 2030-12-31</tab-error>
+                        }
                     </tab-form-field>
                 </div>
             </div>

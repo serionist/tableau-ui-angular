@@ -10,15 +10,10 @@ import { AbstractControlMeta, AC } from './models/abstract-control.reference';
     pure: true,
 })
 export class FormMetaPipe implements PipeTransform {
-    transform(
-        form: AC | undefined | null,
-        path?: string
-    ): Observable<AbstractControlMeta | null> {
+    transform(form: AC | undefined | null, path?: string): Observable<AbstractControlMeta | null> {
         if (!form) {
             return of(null);
         }
-        return form.hierarchy
-            .getChild$(path)
-            .pipe(switchMap((c) => (c ? c.meta$ : of(null))));
+        return form.hierarchy.getChild$(path).pipe(switchMap((c) => (c ? c.meta$ : of(null))));
     }
 }

@@ -106,7 +106,7 @@ export class TableComponent implements AfterViewInit, OnDestroy {
      * @default []
      */
     readonly $sort = model<DataSort[]>([], {
-        alias: 'sort'
+        alias: 'sort',
     });
 
     /**
@@ -229,14 +229,14 @@ export class TableComponent implements AfterViewInit, OnDestroy {
     protected readonly $columnWidthDirectives = viewChildren(ColRenderedWidthDirective);
     private hostElement = inject<ElementRef<HTMLElement>>(ElementRef);
     private cdr = inject<ChangeDetectorRef>(ChangeDetectorRef);
-    private $headerRow = viewChild.required<ElementRef<HTMLElement>>('headerRow');
-    private $dataRowSizer = viewChild.required<ElementRef<HTMLElement>>('dataSizer');
+    private readonly $headerRow = viewChild.required<ElementRef<HTMLElement>>('headerRow');
+    private readonly $dataRowSizer = viewChild.required<ElementRef<HTMLElement>>('dataSizer');
 
-    private $dataWindowHeightPx = signal<number | undefined>(undefined, {
+    private readonly $dataWindowHeightPx = signal<number | undefined>(undefined, {
         equal: (a, b) => a === b,
     });
     private dataWindowHeightObserver: ResizeObserver | undefined;
-    private $dataRowHeightPx = signal<number | undefined>(undefined, {
+    private readonly $dataRowHeightPx = signal<number | undefined>(undefined, {
         equal: (a, b) => a === b,
     });
     private dataRowHeightObserver: ResizeObserver | undefined;

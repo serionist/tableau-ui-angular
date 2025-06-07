@@ -7,8 +7,8 @@ export type FormReferencesOf<T extends Record<string, any>> = {
             ? FA<NonNullable<U> | Extract<U, undefined>>
             : FC<T[K]>
         : NonNullable<T[K]> extends Date
-        ? FC<T[K]>
-        : NonNullable<T[K]> extends Record<any, any>
-        ? FG<NonNullable<T[K]>>
-        : FC<T[K]>;
+          ? FC<T[K]>
+          : NonNullable<T[K]> extends Record<any, any>
+            ? FG<NonNullable<T[K]>>
+            : FC<T[K]>;
 };

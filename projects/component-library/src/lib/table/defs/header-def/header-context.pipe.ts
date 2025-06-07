@@ -7,15 +7,7 @@ import { HeaderContext } from './header-context';
     standalone: false,
 })
 export class HeaderContextPipe implements PipeTransform {
-    transform(
-        value: ColumnDefDirective,
-        index: number,
-        first: boolean,
-        last: boolean,
-        even: boolean,
-        odd: boolean,
-        count: number
-    ): HeaderContext {
+    transform(value: ColumnDefDirective, index: number, first: boolean, last: boolean, even: boolean, odd: boolean, count: number): HeaderContext {
         return {
             $implicit: value,
             index: index,
@@ -24,6 +16,6 @@ export class HeaderContextPipe implements PipeTransform {
             even: even,
             odd: odd,
             count: count,
-        }
+        };
     }
 }

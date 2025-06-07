@@ -4,8 +4,8 @@ import { TableauUiButtonModule } from '../button/tableau-ui-button.module';
 import { ConfirmationDialogComponent } from './confirmation-dialog.component';
 import { TemplateDialogComponent } from './template-dialog.component';
 @NgModule({
-    imports: [CommonModule, TableauUiButtonModule],
     declarations: [ConfirmationDialogComponent, TemplateDialogComponent],
+    imports: [CommonModule, TableauUiButtonModule],
     exports: [ConfirmationDialogComponent, TemplateDialogComponent],
 })
 export class TableauUiDialogModule {}

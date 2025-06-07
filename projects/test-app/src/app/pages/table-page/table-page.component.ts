@@ -1,21 +1,20 @@
-import { Component, ResourceLoader, ResourceLoaderParams, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ResourceLoader, ResourceLoaderParams, signal, viewChild } from '@angular/core';
 import { small_data, data } from './table-data-sample';
 import { DataRequest, DataResponse, HeaderContext, TableComponent } from 'component-library';
 
 @Component({
     selector: 'app-table-page',
+    standalone: false,
     templateUrl: './table-page.component.html',
     styleUrl: './table-page.component.scss',
-    standalone: false
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TablePageComponent {
-
-
-    $show_first_3_columns = signal(false);
-    $striped = signal(false);
-    $showData = signal(true);
-    $errorOnData = signal(false);
-    $customNoDataTemplate = signal(false);
+    readonly $show_first_3_columns = signal(false);
+    readonly $striped = signal(false);
+    readonly $showData = signal(true);
+    readonly $errorOnData = signal(false);
+    readonly $customNoDataTemplate = signal(false);
     // async loadData(params: ResourceLoaderParams<DataTrigger>): Promise<DataResponse> {
     //     console.log('Triggered stuff', params);
     //     return {
@@ -29,7 +28,7 @@ export class TablePageComponent {
     loadBlock: (req: DataRequest) => Promise<DataResponse> = async (req: DataRequest) => {
         console.log('Loading data block with request:', req);
         // Simulate a data load with a delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
         if (req.abort.aborted) {
             console.warn('Data load aborted:', req);
         }
@@ -37,7 +36,7 @@ export class TablePageComponent {
             console.log('Data loading is disabled, returning empty response');
             return {
                 total: 0,
-                data: []
+                data: [],
             };
         }
         if (this.$errorOnData() && req.offset > 20) {
@@ -55,18 +54,17 @@ export class TablePageComponent {
                 }
             }
             return 0; // No sorting applied
-        }
-        );
+        });
         const slicedData = sortedData.slice(req.offset, req.offset + req.count);
         // Return a mock response
         const ret = {
             total: data.length,
-            data: slicedData
+            data: slicedData,
         };
         console.log('Loaded data block:', ret);
         return ret;
-    }
-    private tabTable = viewChild.required<TableComponent>(TableComponent);
+    };
+    private readonly tabTable = viewChild.required<TableComponent>(TableComponent);
     reset(showData: boolean, errorOnData: boolean) {
         this.$showData.set(showData);
         this.$errorOnData.set(errorOnData);
@@ -75,5 +73,4 @@ export class TablePageComponent {
     customCalculatedClass(ctx: HeaderContext): string | undefined {
         return `custom-dynamic-class-${ctx.index % 3}`;
     }
-
 }

@@ -1,19 +1,5 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    contentChild,
-    inject,
-    input,
-    model,
-    OnDestroy,
-    OnInit,
-    Signal,
-    viewChild,
-} from '@angular/core';
-import {
-    ExpansionPanelTitleCollapsedContentDirective,
-    ExpansionPanelTitleExpandedContentDirective,
-} from './expansion-panel-title.component';
+import { ChangeDetectionStrategy, Component, contentChild, inject, input, model, OnDestroy, OnInit, Signal, viewChild } from '@angular/core';
+import { ExpansionPanelTitleCollapsedContentDirective, ExpansionPanelTitleExpandedContentDirective } from './expansion-panel-title.component';
 import { generateRandomString } from '../utils';
 import { AccordionComponent } from './accordion.component';
 import { AccordionRegistry } from './accordion.registry';
@@ -22,9 +8,9 @@ import { startWith } from 'rxjs';
 
 @Component({
     selector: 'tab-expansion-panel',
-    templateUrl: './expansion-panel.component.html',
-    styleUrls: ['./expansion-panel.component.scss'],
     standalone: false,
+    templateUrl: './expansion-panel.component.html',
+    styleUrl: './expansion-panel.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
     host: {
         '[attr.expanded]': '$expanded() ? true : null',
@@ -38,11 +24,9 @@ export class ExpansionPanelComponent implements OnInit, OnDestroy {
      * @default false
      */
     readonly $expanded = model<boolean>(false, {
-        alias: 'expanded'
+        alias: 'expanded',
     });
-    readonly expandedChange$ = toObservable(this.$expanded).pipe(
-        startWith(this.$expanded())
-    );
+    readonly expandedChange$ = toObservable(this.$expanded).pipe(startWith(this.$expanded()));
     /**
      * The disabled state of the panel.
      * @default false
@@ -57,12 +41,8 @@ export class ExpansionPanelComponent implements OnInit, OnDestroy {
         alias: 'noHeaderHover',
     });
 
-    protected $expandedHeader: Signal<
-        ExpansionPanelTitleExpandedContentDirective | undefined
-    > = contentChild(ExpansionPanelTitleExpandedContentDirective);
-    protected $collapsedHeader: Signal<
-        ExpansionPanelTitleCollapsedContentDirective | undefined
-    > = contentChild(ExpansionPanelTitleCollapsedContentDirective);
+    protected readonly $expandedHeader: Signal<ExpansionPanelTitleExpandedContentDirective | undefined> = contentChild(ExpansionPanelTitleExpandedContentDirective);
+    protected readonly $collapsedHeader: Signal<ExpansionPanelTitleCollapsedContentDirective | undefined> = contentChild(ExpansionPanelTitleCollapsedContentDirective);
 
     private accordion = inject(AccordionComponent, {
         skipSelf: true,
@@ -70,7 +50,7 @@ export class ExpansionPanelComponent implements OnInit, OnDestroy {
     });
 
     public readonly $registry = input<AccordionRegistry>(undefined, {
-        alias: 'registry'
+        alias: 'registry',
     });
 
     ngOnInit(): void {

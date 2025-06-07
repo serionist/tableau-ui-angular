@@ -11,11 +11,7 @@ export class CellClassPipe implements PipeTransform {
             return ctx.columnDef.$cellClass() as string;
         }
         if (typeof ctx.columnDef.$cellClass() === 'function') {
-            return (
-                ctx.columnDef.$cellClass() as (
-                    ctx: CellContext<T>
-                ) => string | undefined
-            )(ctx);
+            return (ctx.columnDef.$cellClass() as (ctx: CellContext<T>) => string | undefined)(ctx);
         }
         return undefined;
     }

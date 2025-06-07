@@ -1,56 +1,56 @@
 .dialog-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
 }
 
 .dialog-container {
-  position: fixed;
-  background: var(--twc-color-base);
+    position: fixed;
+    background: var(--twc-color-base);
 
-  // border-radius: 8px;
-  outline: none !important;
+    // border-radius: 8px;
+    outline: none !important;
 
-  .dialog-header {
-    user-select: none;
-    cursor: default;
-    font-size: var(--twc-font-size-body);
-    color: var(--twc-color-text);
-    background-color: var(--twc-modal-color-header);
-    height: fit-content;
-    min-height: inherit;
-    padding-right: 1.5em;
-    padding-left: 1.5em;
-    align-items: center;
-    line-height: normal;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 0.5rem;
+    .dialog-header {
+        user-select: none;
+        cursor: default;
+        font-size: var(--twc-font-size-body);
+        color: var(--twc-color-text);
+        background-color: var(--twc-modal-color-header);
+        height: fit-content;
+        min-height: inherit;
+        padding-right: 1.5em;
+        padding-left: 1.5em;
+        align-items: center;
+        line-height: normal;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 0.5rem;
 
-    .dialog-title {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      display: block;
-      margin-block: 0.83em;
-      margin-inline: 0;
-      unicode-bidi: isolate;
-      grid-column: 1;
+        .dialog-title {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: block;
+            margin-block: 0.83em;
+            margin-inline: 0;
+            unicode-bidi: isolate;
+            grid-column: 1;
+        }
+
+        tab-icon {
+            font-size: 1.5em;
+            margin: 0;
+            grid-column: 2;
+            margin-right: -0.5em;
+            cursor: pointer;
+        }
     }
-
-    tab-icon {
-      font-size: 1.5em;
-      margin: 0;
-      grid-column: 2;
-      margin-right: -0.5em;
-      cursor: pointer;
-    }
-  }
 }

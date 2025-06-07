@@ -12,13 +12,13 @@ export class TooltipDirective<T> implements OnDestroy {
         alias: 'tooltip',
     });
     readonly $tooltipContext = input<T>(undefined, {
-        alias: 'tooltipContext'
+        alias: 'tooltipContext',
     });
     readonly $tooltipPosition = input<'top' | 'bottom' | 'left' | 'right'>('top', {
-        alias: 'tooltipPosition'
+        alias: 'tooltipPosition',
     });
     readonly $tooltipMargin = input<string>('5px', {
-        alias: 'tooltipMargin'
+        alias: 'tooltipMargin',
     });
 
     private tooltipChanged = effect(() => {

@@ -1,4 +1,4 @@
-import { Component, effect } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect } from '@angular/core';
 import { AccordionRegistry } from './accordion.registry';
 
 import { Subscription } from 'rxjs';
@@ -7,21 +7,22 @@ import { Subscription } from 'rxjs';
     standalone: false,
     template: '<ng-content select="tab-expansion-panel" />',
     styles: `
-    :host {
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        ::ng-deep tab-expansion-panel:not(:first-child) {
-            margin-top: -1px;
+        :host {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            ::ng-deep tab-expansion-panel:not(:first-child) {
+                margin-top: -1px;
+            }
         }
-    }
     `,
     host: {
         '[attr.role]': '"tablist"',
         '[attr.aria-multiselectable]': 'false',
         '[attr.aria-orientation]': '"vertical"',
     },
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AccordionComponent {
     readonly registry = new AccordionRegistry();
@@ -39,7 +40,7 @@ export class AccordionComponent {
                         }
                     });
                 }
-            })
+            }),
         );
     });
 }

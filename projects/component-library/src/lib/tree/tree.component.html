@@ -1,5 +1,5 @@
 @for (node of $childrenDisplayOrder(); let i = $index; track i) {
     @if (!node.$parent() || node.$allParentsExpanded()) {
-        <ng-container *ngTemplateOutlet="node.$template()!;context:templateParams" />
+        <ng-container *ngTemplateOutlet="node.$template()!; context: templateParams" />
     }
 }

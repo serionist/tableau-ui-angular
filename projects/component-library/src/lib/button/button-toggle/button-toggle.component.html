@@ -1,12 +1,12 @@
 @for (option of $options(); track option.$value()) {
     <!--eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus-->
-<div class="option" [class.disabled]="$disabled() || option.$disabled()"
-    [tooltip]="option.$text() ? option.$text() : undefined"
-    [class.selected]="$selectedValue() === option.$value()"
-    (click)="optionClicked(option)">
-    <ng-container
-        [ngTemplateOutlet]="option.$template()"
-        [ngTemplateOutletContext]="$optionRenderContext()"
-    />
-</div>
+    <div
+        class="option"
+        [class.disabled]="$disabled() || option.$disabled()"
+        [tooltip]="option.$text() ? option.$text() : undefined"
+        [class.selected]="$selectedValue() === option.$value()"
+        (click)="optionClicked(option)"
+    >
+        <ng-container [ngTemplateOutlet]="option.$template()" [ngTemplateOutletContext]="$optionRenderContext()" />
+    </div>
 }

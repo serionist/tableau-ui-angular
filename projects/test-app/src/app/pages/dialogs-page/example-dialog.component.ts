@@ -1,13 +1,13 @@
-import { Component, inject, Inject, input, Input, model, signal, Signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, Inject, input, Input, model, signal, Signal } from '@angular/core';
 import { DialogRef, DialogService, TAB_DATA_REF, TAB_DIALOG_REF } from 'component-library';
 
 @Component({
     selector: 'app-example-dialog',
+    standalone: false,
     template: `
-    <!-- eslint-disable  @angular-eslint/template/no-inline-styles -->
+        <!-- eslint-disable  @angular-eslint/template/no-inline-styles -->
         <div
             class="dialog-content"
-            
             style="
     padding: 1em 2em;"
         >
@@ -17,7 +17,7 @@ import { DialogRef, DialogService, TAB_DATA_REF, TAB_DIALOG_REF } from 'componen
             <button (click)="closeDialog()">Close</button>
         </div>
     `,
-    standalone: false,
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExampleDialogComponent {
     readonly $message: Signal<string>;

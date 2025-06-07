@@ -1,10 +1,9 @@
-import { NgModule } from "@angular/core";
-import { TableauUiSnackModule } from "../snack/tableau-ui-snack.module";
+import { NgModule } from '@angular/core';
+import { TableauUiSnackModule } from '../snack/tableau-ui-snack.module';
 
 @NgModule({
-    imports: [TableauUiSnackModule],
     declarations: [],
-    exports: []
+    imports: [TableauUiSnackModule],
+    exports: [],
 })
-export class TableauUiClipboardModule {
-}
+export class TableauUiClipboardModule {}

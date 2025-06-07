@@ -1,5 +1,5 @@
-import { Pipe, PipeTransform } from "@angular/core";
-import { HeaderContext } from "./header-context";
+import { Pipe, PipeTransform } from '@angular/core';
+import { HeaderContext } from './header-context';
 
 @Pipe({
     name: 'headerClass',

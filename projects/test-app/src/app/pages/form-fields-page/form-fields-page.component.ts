@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, FormGroupDirective, NgForm, Validators } from '@angular/forms';
 import { ControlReferenceBuilder, SnackService } from 'component-library';
 
@@ -6,9 +6,10 @@ import { BehaviorSubject, debounceTime, skip, Subject } from 'rxjs';
 
 @Component({
     selector: 'app-form-fields-page',
+    standalone: false,
     templateUrl: './form-fields-page.component.html',
     styleUrl: './form-fields-page.component.scss',
-    standalone: false,
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FormFieldsPageComponent implements OnInit {
     snackService = inject(SnackService);
@@ -121,7 +122,7 @@ export class FormFieldsPageComponent implements OnInit {
     }
 
     searchValue$ = new BehaviorSubject<string>('');
-    $searching = signal(false);
+    readonly $searching = signal(false);
     searchResults$ = new BehaviorSubject<{ name: string }[]>(this.randomNames);
 
     searchBounce = new Subject<void>();

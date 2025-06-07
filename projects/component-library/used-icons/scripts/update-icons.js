@@ -1,18 +1,11 @@
-const fs = require("fs");
-const path = require("path");
-const axios = require("axios");
-const ts = require("typescript");
+const fs = require('fs');
+const path = require('path');
+const axios = require('axios');
+const ts = require('typescript');
 
 // Generate Material Design URL based on the provided font options and icons
-function generateMaterialDesignUrl({
-    font,
-    weights,
-    grades,
-    opticalSizes,
-    fills,
-    icons,
-}) {
-    const baseUrl = "https://fonts.googleapis.com/css2";
+function generateMaterialDesignUrl({ font, weights, grades, opticalSizes, fills, icons }) {
+    const baseUrl = 'https://fonts.googleapis.com/css2';
 
     // Helper function to format ranges
     const formatRange = (values) => {
@@ -24,10 +17,10 @@ function generateMaterialDesignUrl({
 
     // Prepare axes data
     const axes = [
-        { key: "FILL", values: fills.map((f) => (f ? 1 : 0)) },
-        { key: "GRAD", values: grades },
-        { key: "opsz", values: opticalSizes },
-        { key: "wght", values: weights },
+        { key: 'FILL', values: fills.map((f) => (f ? 1 : 0)) },
+        { key: 'GRAD', values: grades },
+        { key: 'opsz', values: opticalSizes },
+        { key: 'wght', values: weights },
     ];
 
     // Sort axes so lowercase comes before uppercase
@@ -46,29 +39,30 @@ function generateMaterialDesignUrl({
     });
 
     // Build axes and values
-    const axesKeys = axes.map(({ key }) => key).join(","); // e.g., opsz,FILL,wght,...
-    const axesValues = axes.map(({ values }) => formatRange(values)).join(","); // e.g., 24,0..1,...
+    const axesKeys = axes.map(({ key }) => key).join(','); // e.g., opsz,FILL,wght,...
+    const axesValues = axes.map(({ values }) => formatRange(values)).join(','); // e.g., 24,0..1,...
 
     // Build the URL
-    const iconNames = icons.map((icon) => encodeURIComponent(icon)).join(",");
-    const url = `${baseUrl}?family=${encodeURIComponent(
-        font
-    )}:${axesKeys}@${axesValues}&icon_names=${iconNames}&display=block`;
+    const iconNames = icons.map((icon) => encodeURIComponent(icon)).join(',');
+    const url = `${baseUrl}?family=${encodeURIComponent(font)}:${axesKeys}@${axesValues}&icon_names=${iconNames}&display=block`;
 
     return url;
 }
 
 // Download a file from a URL
 async function downloadFile(url, outputPath) {
-    const response = await axios.get(url, { responseType: "arraybuffer", headers: {
-        "User-Agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
-    } });
+    const response = await axios.get(url, {
+        responseType: 'arraybuffer',
+        headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+        },
+    });
     fs.writeFileSync(outputPath, response.data);
 }
 
 function loadTypeScriptFile(filePath) {
     // console.log(`Loading TypeScript file: ${filePath}`);
-    const tsSource = fs.readFileSync(filePath, "utf-8");
+    const tsSource = fs.readFileSync(filePath, 'utf-8');
 
     // Get the directory of the file being loaded
     const fileDir = path.dirname(filePath);
@@ -84,7 +78,7 @@ function loadTypeScriptFile(filePath) {
     const requireRelative = (modulePath) => {
         let resolvedPath;
         // Handle absolute or relative paths
-        if (modulePath.startsWith(".")) {
+        if (modulePath.startsWith('.')) {
             // Resolve relative paths to the directory of the TypeScript file
             resolvedPath = path.resolve(fileDir, modulePath);
         } else {
@@ -93,10 +87,7 @@ function loadTypeScriptFile(filePath) {
         }
 
         // Add .ts extension if needed
-        if (
-            !fs.existsSync(resolvedPath) &&
-            fs.existsSync(`${resolvedPath}.ts`)
-        ) {
+        if (!fs.existsSync(resolvedPath) && fs.existsSync(`${resolvedPath}.ts`)) {
             resolvedPath = `${resolvedPath}.ts`;
         }
 
@@ -111,31 +102,22 @@ function loadTypeScriptFile(filePath) {
 
     // Execute the transpiled JavaScript code in a sandboxed environment
     const moduleExports = {};
-    const script = new Function(
-        "exports",
-        "require",
-        "__dirname",
-        "__filename",
-        transpiledJs
-    );
+    const script = new Function('exports', 'require', '__dirname', '__filename', transpiledJs);
 
     script(
         moduleExports,
         requireRelative, // Custom require for resolving relative imports
         fileDir,
-        filePath
+        filePath,
     );
 
     // console.log('exports', moduleExports)
     return moduleExports;
 }
 
-
-
-
 // Main function to update icons
 async function updateIcons(iconFilePath, outputFolder) {
-    console.log("Reading icons...", iconFilePath);
+    console.log('Reading icons...', iconFilePath);
     const { Icons } = loadTypeScriptFile(iconFilePath);
 
     // Ensure Icons is a valid class
@@ -145,8 +127,8 @@ async function updateIcons(iconFilePath, outputFolder) {
 
     // Instantiate the Icons class
     const iconsInstance = new Icons();
-    if (typeof iconsInstance.getAllIcons !== "function") {
-        throw new Error("Icons class must implement getAllIcons()");
+    if (typeof iconsInstance.getAllIcons !== 'function') {
+        throw new Error('Icons class must implement getAllIcons()');
     }
 
     const allIcons = iconsInstance.getAllIcons();
@@ -165,18 +147,18 @@ async function updateIcons(iconFilePath, outputFolder) {
 
         console.log(`Processing font: ${font}`);
         const materialDesignUrl = generateMaterialDesignUrl(fontsConfig);
-      //  console.log(`Generated Material Design URL for ${font}: ${materialDesignUrl}`);
+        //  console.log(`Generated Material Design URL for ${font}: ${materialDesignUrl}`);
 
         // Ensure output folder exists
         fs.mkdirSync(outputFolder, { recursive: true });
 
-        const fontFileName = font.split(" ").join("-").toLowerCase();
+        const fontFileName = font.split(' ').join('-').toLowerCase();
         const cssPath = path.join(outputFolder, `${fontFileName}.css`);
-       // console.log(`Downloading CSS for ${font} from: ${materialDesignUrl}`);
+        // console.log(`Downloading CSS for ${font} from: ${materialDesignUrl}`);
         await downloadFile(materialDesignUrl, cssPath);
 
         // Extract font URL from the CSS
-        const cssContent = fs.readFileSync(cssPath, "utf-8");
+        const cssContent = fs.readFileSync(cssPath, 'utf-8');
         const fontUrlMatch = cssContent.match(/url\((.*?)\)/);
         if (!fontUrlMatch) {
             throw new Error(`Font URL not found in the downloaded CSS for ${font}`);
@@ -187,23 +169,20 @@ async function updateIcons(iconFilePath, outputFolder) {
         const fontUrl = fontUrlMatch[1];
         const fontPath = path.join(outputFolder, `${fontFileName}.woff2`);
 
-       // console.log(`Downloading font for ${font} from: ${fontUrl}`);
+        // console.log(`Downloading font for ${font} from: ${fontUrl}`);
         await downloadFile(fontUrl, fontPath);
 
         // Extract @font-face and update font URL
         const fontFaceMatch = cssContent.match(/@font-face {[^}]+}/g);
         if (fontFaceMatch) {
-            const updatedFontFace = fontFaceMatch[0].replace(
-                fontUrl,
-                `${fontFileName}.woff2`
-            );
+            const updatedFontFace = fontFaceMatch[0].replace(fontUrl, `${fontFileName}.woff2`);
             combinedCssContent.push(updatedFontFace);
         }
     }
 
     // Write combined CSS
-    const combinedCssPath = path.join(outputFolder, "material-icons.css");
-    fs.writeFileSync(combinedCssPath, combinedCssContent.join("\n"));
+    const combinedCssPath = path.join(outputFolder, 'material-icons.css');
+    fs.writeFileSync(combinedCssPath, combinedCssContent.join('\n'));
 
     console.log(`\n
 #### Success!
@@ -218,18 +197,15 @@ Make sure to import the generated CSS file in your project to use the updated ic
 // CLI Arguments
 const [, , iconFilePath, outputFolder] = process.argv;
 if (!iconFilePath || !outputFolder) {
-    console.error("Usage: node update-icons.js <iconFilePath> <outputFolder>");
+    console.error('Usage: node update-icons.js <iconFilePath> <outputFolder>');
     process.exit(1);
 }
 
 (async () => {
     try {
-        await updateIcons(
-            path.resolve(iconFilePath),
-            path.resolve(outputFolder)
-        );
+        await updateIcons(path.resolve(iconFilePath), path.resolve(outputFolder));
     } catch (error) {
-        console.error("Error updating icons:", error);
+        console.error('Error updating icons:', error);
         process.exit(1);
     }
 })();

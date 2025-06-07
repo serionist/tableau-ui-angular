@@ -1,12 +1,12 @@
-input[type="text"],
-input[type="password"],
-input[type="email"],
-input[type="number"],
-input[type="search"],
-input[type="tel"],
-input[type="url"],
-input[type="date"],
-input[type="datetime-local"],
+input[type='text'],
+input[type='password'],
+input[type='email'],
+input[type='number'],
+input[type='search'],
+input[type='tel'],
+input[type='url'],
+input[type='date'],
+input[type='datetime-local'],
 textarea,
 .tab-input {
     width: 100%;
@@ -28,14 +28,7 @@ textarea,
         border-width: 2px;
     }
 
-    &:not(
-            textarea,
-            [type="image" i],
-            [type="range" i],
-            [type="checkbox" i],
-            [type="radio" i],
-            .tab-input
-        ) {
+    &:not(textarea, [type='image' i], [type='range' i], [type='checkbox' i], [type='radio' i], .tab-input) {
         overflow-clip-margin: 0 !important;
         overflow: clip !important;
     }
@@ -61,8 +54,10 @@ textarea,
     }
 
     // stylelint-disable-next-line no-descending-specificity
-    &::placeholder,&.placeholder,.placeholder {
-       color: var(--twc-color-text-light);
+    .placeholder,
+    &::placeholder,
+    &.placeholder {
+        color: var(--twc-color-text-light);
     }
 
     &[disabled] {

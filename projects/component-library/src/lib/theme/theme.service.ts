@@ -1,12 +1,4 @@
-import {
-    effect,
-    EffectRef,
-    inject,
-    Injectable,
-    Injector,
-    Renderer2,
-    signal,
-} from '@angular/core';
+import { effect, EffectRef, inject, Injectable, Injector, Renderer2, signal } from '@angular/core';
 import { ThemeConfig } from './theme.config';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
@@ -21,76 +13,57 @@ export class ThemeService {
         mode: 'auto',
     };
 
-    
-    private readonly _theme$ = new BehaviorSubject<ThemeConfig>(
-        this.getInitialTheme()
-    );
+    private readonly _theme$ = new BehaviorSubject<ThemeConfig>(this.getInitialTheme());
     public get theme$(): Observable<ThemeConfig> {
         return this._theme$;
     }
-    private readonly autoColor$ = new BehaviorSubject<'light' | 'dark'>(
-        window.matchMedia('(prefers-color-scheme: dark)').matches
-            ? 'dark'
-            : 'light'
-    );
+    private readonly autoColor$ = new BehaviorSubject<'light' | 'dark'>(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
     readonly $theme = toSignal(this._theme$, {
-        initialValue: this._theme$.value
+        initialValue: this._theme$.value,
     });
 
     initialize() {
-        window
-            .matchMedia('(prefers-color-scheme: dark)')
-            .addEventListener('change', (e) => {
-                if (e.matches) {
-                    this.autoColor$.next('dark');
-                } else {
-                    this.autoColor$.next('light');
-                }
-            });
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            if (e.matches) {
+                this.autoColor$.next('dark');
+            } else {
+                this.autoColor$.next('light');
+            }
+        });
 
         this._theme$.subscribe((theme) => {
             localStorage.setItem(this.themeKey, JSON.stringify(theme));
-            document.documentElement.style.setProperty(
-                '--twc-font-size',
-                theme.fontSize
-            );
+            document.documentElement.style.setProperty('--twc-font-size', theme.fontSize);
         });
 
-        combineLatest([this._theme$, this.autoColor$]).subscribe(
-            ([theme, autoColor]) => {
-                const color = theme.mode === 'auto' ? autoColor : theme.mode;
-                switch (color) {
-                    case 'dark':
-                        {
-                            if (
-                                !document.body.classList.contains('dark-mode')
-                            ) {
-                                document.body.classList.add('dark-mode');
-                            }
+        combineLatest([this._theme$, this.autoColor$]).subscribe(([theme, autoColor]) => {
+            const color = theme.mode === 'auto' ? autoColor : theme.mode;
+            switch (color) {
+                case 'dark':
+                    {
+                        if (!document.body.classList.contains('dark-mode')) {
+                            document.body.classList.add('dark-mode');
                         }
-                        break;
-                    case 'light':
-                        {
-                            if (document.body.classList.contains('dark-mode')) {
-                                document.body.classList.remove('dark-mode');
-                            }
+                    }
+                    break;
+                case 'light':
+                    {
+                        if (document.body.classList.contains('dark-mode')) {
+                            document.body.classList.remove('dark-mode');
                         }
-                        break;
-                }
-                const fontSize = theme.fontSize;
-                document.documentElement.style.setProperty(
-                    '--twc-font-size-body',
-                    fontSize
-                );
+                    }
+                    break;
             }
-        );
+            const fontSize = theme.fontSize;
+            document.documentElement.style.setProperty('--twc-font-size-body', fontSize);
+        });
     }
 
     setColorMode(mode: 'light' | 'dark' | 'auto') {
         const theme = this._theme$.value;
         theme.mode = mode;
-        this._theme$.next(theme)
-    };
+        this._theme$.next(theme);
+    }
     setFontSize(fontSize: string) {
         const theme = this._theme$.value;
         theme.fontSize = fontSize;
@@ -100,7 +73,6 @@ export class ThemeService {
         this._theme$.next(this.defaultTheme);
     }
 
-   
     private getInitialTheme(): ThemeConfig {
         const storedTheme = localStorage.getItem(this.themeKey);
         if (storedTheme) {

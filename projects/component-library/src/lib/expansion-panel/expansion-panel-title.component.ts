@@ -1,8 +1,11 @@
-import { ChangeDetectionStrategy, Component, Directive } from "@angular/core";
+import { ChangeDetectionStrategy, Component, Directive } from '@angular/core';
 
 @Component({
     selector: 'tab-expansion-panel-title',
-    template: `<ng-content />`,
+    standalone: false,
+    template: `
+        <ng-content />
+    `,
     styles: `
         :host {
             align-items: center;
@@ -10,25 +13,18 @@ import { ChangeDetectionStrategy, Component, Directive } from "@angular/core";
             display: flex;
         }
     `,
-    standalone: false,
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExpansionPanelTitleComponent {
-
-}
+export class ExpansionPanelTitleComponent {}
 
 @Directive({
     selector: 'tab-expansion-panel-title[expanded]',
     standalone: false,
 })
-export class ExpansionPanelTitleExpandedContentDirective {
-
-}
+export class ExpansionPanelTitleExpandedContentDirective {}
 
 @Directive({
     selector: 'tab-expansion-panel-title[collapsed]',
     standalone: false,
 })
-export class ExpansionPanelTitleCollapsedContentDirective {
-
-}
+export class ExpansionPanelTitleCollapsedContentDirective {}

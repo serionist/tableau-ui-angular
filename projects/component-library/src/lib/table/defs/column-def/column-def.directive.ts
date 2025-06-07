@@ -32,7 +32,7 @@ export class ColumnDefDirective {
      * @default "1"
      */
     readonly $width = input<string | number>(1, {
-        alias: 'width'
+        alias: 'width',
     });
 
     /**
@@ -85,9 +85,7 @@ export class ColumnDefDirective {
      * If undefined, no class will be applied.
      * @default undefined
      */
-    readonly $headerClass = input<
-        string | ((ctx: HeaderContext) => string | undefined) | undefined
-    >(undefined, {
+    readonly $headerClass = input<string | ((ctx: HeaderContext) => string | undefined) | undefined>(undefined, {
         alias: 'headerClass',
     });
 
@@ -97,9 +95,7 @@ export class ColumnDefDirective {
      * If undefined, no class will be applied.
      * @default undefined
      */
-    readonly $cellClass = input<
-        string | ((ctx: CellContext) => string | undefined) | undefined
-    >(undefined, {
+    readonly $cellClass = input<string | ((ctx: CellContext) => string | undefined) | undefined>(undefined, {
         alias: 'cellClass',
     });
 
@@ -136,7 +132,7 @@ export interface HeaderTooltipArgs {
     sortMode: 'single' | 'multi';
     sortable: boolean;
     sortOrder: SortOrderPair;
-    currentSort: { info: DataSort, index: number } | undefined;
+    currentSort: { info: DataSort; index: number } | undefined;
     allSorts: DataSort[];
 }
 export interface CellTooltipArgs {

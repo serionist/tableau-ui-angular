@@ -1,23 +1,13 @@
-import {
-    AfterViewInit,
-    Component,
-    computed,
-    contentChildren,
-    ElementRef,
-    forwardRef,
-    inject,
-    model,
-    OnDestroy,
-    signal,
-    WritableSignal,
-} from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, computed, contentChildren, ElementRef, forwardRef, inject, model, OnDestroy, signal, WritableSignal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { IOptionGridContext, OptionComponent } from '../common/option';
 
 @Component({
     selector: 'tab-list',
+    standalone: false,
     templateUrl: './list.component.html',
-    styleUrls: ['./list.component.scss'],
+    styleUrl: './list.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
@@ -34,11 +24,8 @@ import { IOptionGridContext, OptionComponent } from '../common/option';
         '(focus)': 'onFocus()',
         '(mouseleave)': 'onMouseOut()',
     },
-    standalone: false
 })
-export class ListComponent
-    implements ControlValueAccessor
-{
+export class ListComponent implements ControlValueAccessor {
     protected readonly $options = contentChildren<OptionComponent>(OptionComponent);
     private readonly elementRef = inject(ElementRef);
     // #region Inputs
@@ -63,7 +50,7 @@ export class ListComponent
      * @default false
      */
     readonly $disabled = model(false, {
-        alias: 'disabled'
+        alias: 'disabled',
     });
     /**
      * The currently selected value.
@@ -72,7 +59,7 @@ export class ListComponent
      * If allowMultiple is false, this should be a single value.
      */
     readonly $value = model<any | any[]>(undefined, {
-        alias: 'value'
+        alias: 'value',
     });
     /**
      * The location of the check icon in dropdown option if an option is selected
@@ -100,13 +87,16 @@ export class ListComponent
      * @remarks
      * Use this to display the 'icon', 'text', and 'hint' properties of the options conditionally
      */
-    readonly $itemTemplateContext = model<IOptionGridContext>({
-        renderIcon: true,
-        renderText: true,
-        renderHint: true,
-    }, {
-        alias: 'itemTemplateContext',
-    });
+    readonly $itemTemplateContext = model<IOptionGridContext>(
+        {
+            renderIcon: true,
+            renderText: true,
+            renderHint: true,
+        },
+        {
+            alias: 'itemTemplateContext',
+        },
+    );
 
     // #endregion
 
@@ -117,7 +107,7 @@ export class ListComponent
             renderHint: this.$itemTemplateContext().renderHint,
             renderAsDisabled: this.$itemTemplateContext().renderAsDisabled || this.$disabled(),
         };
-    })
+    });
 
     // #region ControlValueAccessor
     // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -152,11 +142,7 @@ export class ListComponent
                 if (!this.$value()?.includes(option.$value())) {
                     this.$value.set([...(this.$value() ?? []), option.$value()]);
                 } else {
-                    this.$value.set(
-                        (this.$value() || []).filter(
-                            (e: any) => e !== option.$value()
-                        )
-                    );
+                    this.$value.set((this.$value() || []).filter((e: any) => e !== option.$value()));
                 }
             } else if (this.$value() !== option.$value()) {
                 this.$value.set(option.$value());
@@ -199,7 +185,7 @@ export class ListComponent
     }
 
     /**
-     * 
+     *
      *
      * @param e Handles KeyDown event for:
      * - host element
@@ -222,19 +208,16 @@ export class ListComponent
             let currentIndex: number;
             let nextIndex: number = -1;
             if (this.$highlightedOption()) {
-                currentIndex = this.$options().findIndex(
-                    (o) => o.$value() === this.$highlightedOption()!.$value()
-                );
+                currentIndex = this.$options().findIndex((o) => o.$value() === this.$highlightedOption()!.$value());
             } else {
                 // find already selected option
                 let val: any;
                 if (e.key === 'ArrowDown') {
                     val = this.$allowMultiple() ? this.$value()?.[this.$value().length - 1] : this.$value(); // find the last selected option
-                    
                 } else {
-                    val = this.$allowMultiple() ? this.$value()?.[0] : this.$value() // find the first selected option
+                    val = this.$allowMultiple() ? this.$value()?.[0] : this.$value(); // find the first selected option
                 }
-                nextIndex = currentIndex = this.$options().findIndex((o) => o.$value() === val); 
+                nextIndex = currentIndex = this.$options().findIndex((o) => o.$value() === val);
             }
 
             if (nextIndex === -1) {
@@ -242,19 +225,13 @@ export class ListComponent
                 if (e.key === 'ArrowDown') {
                     if (currentIndex === -1) {
                         // find the first non disabled option
-                        nextIndex = this.$options().findIndex(
-                            (o) => !o.$disabled()
-                        );
+                        nextIndex = this.$options().findIndex((o) => !o.$disabled());
                     } else {
                         // find the next option that is not disabled
-                        nextIndex = this.$options().findIndex(
-                            (o, i) => i > currentIndex && !o.$disabled()
-                        );
+                        nextIndex = this.$options().findIndex((o, i) => i > currentIndex && !o.$disabled());
                         // if no option is found, find the next option that is not disabled before the current item
                         if (nextIndex === -1) {
-                            nextIndex = this.$options().findIndex(
-                                (o, i) => i < currentIndex && !o.$disabled()
-                            );
+                            nextIndex = this.$options().findIndex((o, i) => i < currentIndex && !o.$disabled());
                         }
                     }
                 } else if (e.key === 'ArrowUp') {
@@ -268,23 +245,12 @@ export class ListComponent
                             nextIndex = this.$options().length - nextIndex - 1;
                         }
                     } else {
-                        const flippedCurrentIndex =
-                            this.$options().length - currentIndex - 1;
+                        const flippedCurrentIndex = this.$options().length - currentIndex - 1;
                         // find the next option that is not disabled
-                        nextIndex = [...this.$options()]
-                            .reverse()
-                            .findIndex(
-                                (o, i) =>
-                                    i > flippedCurrentIndex && !o.$disabled()
-                            );
+                        nextIndex = [...this.$options()].reverse().findIndex((o, i) => i > flippedCurrentIndex && !o.$disabled());
                         // if no option is found, find the next option that is not disabled before the current item
                         if (nextIndex === -1) {
-                            nextIndex = [...this.$options()]
-                                .reverse()
-                                .findIndex(
-                                    (o, i) =>
-                                        i < flippedCurrentIndex && !o.$disabled()
-                                );
+                            nextIndex = [...this.$options()].reverse().findIndex((o, i) => i < flippedCurrentIndex && !o.$disabled());
                         }
                         if (nextIndex !== -1) {
                             nextIndex = this.$options().length - nextIndex - 1;
@@ -296,12 +262,10 @@ export class ListComponent
                 this.$highlightedOption.set(this.$options()[nextIndex]);
                 setTimeout(
                     () =>
-                        this.elementRef.nativeElement
-                            .querySelector(`.option-wrapper.highlight`)
-                            ?.scrollIntoView({
-                                block: 'nearest',
-                            }),
-                    10
+                        this.elementRef.nativeElement.querySelector(`.option-wrapper.highlight`)?.scrollIntoView({
+                            block: 'nearest',
+                        }),
+                    10,
                 );
             }
 

@@ -1,18 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    Directive,
-    effect,
-    ElementRef,
-    forwardRef,
-    HostListener,
-    inject,
-    input,
-    model,
-    ModelSignal,
-    output,
-    signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, Directive, effect, ElementRef, forwardRef, HostListener, inject, input, model, ModelSignal, output, signal } from '@angular/core';
 import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Directive({
@@ -21,23 +7,21 @@ import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR } from '@angular/f
     host: {
         class: 'date-picker',
         '[attr.type]': '$type() === "datetime" ? "datetime-local" : "date"',
-        
     },
     providers: [
         {
-          provide: NG_VALUE_ACCESSOR,
-          useExisting: forwardRef(() => DatePickerDirective),
-          multi: true,
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => DatePickerDirective),
+            multi: true,
         },
-      ],
+    ],
 })
 export class DatePickerDirective implements ControlValueAccessor {
-   
     private readonly el = inject(ElementRef<HTMLInputElement>);
 
     // type can only be set once. Cannot change between date and datetime
     readonly $type = input.required<'date' | 'datetime'>({
-        alias: 'type'
+        alias: 'type',
     });
     private originalType: 'date' | 'datetime' | undefined;
     private typeChanged = effect(() => {
@@ -47,10 +31,10 @@ export class DatePickerDirective implements ControlValueAccessor {
         if (this.$type() !== this.originalType) {
             throw new Error('DatePickerDirective: type must be "date" or "datetime", can not be changed later');
         }
-    })
+    });
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     readonly $value: ModelSignal<Date | null> = model<Date | null>(null, {
-        alias: 'value'
+        alias: 'value',
     });
     readonly valueChange = output<Date | null>();
 
@@ -86,21 +70,20 @@ export class DatePickerDirective implements ControlValueAccessor {
                 const hours = obj.getHours().toString().padStart(2, '0');
                 const minutes = obj.getMinutes().toString().padStart(2, '0');
                 this.el.nativeElement.value = `${year}-${month}-${day}T${hours}:${minutes}`;
-              } else {
+            } else {
                 const year = obj.getFullYear();
                 const month = (obj.getMonth() + 1).toString().padStart(2, '0');
                 const day = obj.getDate().toString().padStart(2, '0');
                 this.el.nativeElement.value = `${year}-${month}-${day}`;
-              }
+            }
         } else {
             this.el.nativeElement.value = '';
-
         }
     }
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    private _onChange: any = () => { };
+    private _onChange: any = () => {};
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    private _onTouched: any = () => { };
+    private _onTouched: any = () => {};
     registerOnChange(fn: any): void {
         this._onChange = fn;
     }
@@ -109,9 +92,5 @@ export class DatePickerDirective implements ControlValueAccessor {
     }
     setDisabledState?(isDisabled: boolean): void {
         this.el.nativeElement.disabled = isDisabled;
-
     }
-
-    
-      
 }

@@ -7,7 +7,7 @@
     // width: 24px;
     overflow: hidden;
 
-  //  font-family: "Material Symbols Rounded";
+    //  font-family: "Material Symbols Rounded";
     font-weight: normal;
     font-style: normal;
     font-size: 1.2em;
@@ -23,11 +23,10 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizelegibility;
-    font-feature-settings: "liga";
+    font-feature-settings: 'liga';
 
-    
     &.fill {
-        font-variation-settings: "FILL" 1;
+        font-variation-settings: 'FILL' 1;
     }
 
     &.primary {

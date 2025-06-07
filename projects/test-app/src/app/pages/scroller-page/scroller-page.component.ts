@@ -1,13 +1,11 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { SnackService } from 'component-library';
 
 @Component({
     selector: 'app-scroller-page',
+    standalone: false,
     templateUrl: './scroller-page.component.html',
     styleUrl: './scroller-page.component.scss',
-    standalone: false
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ScrollerPageComponent {
-
- 
-}
+export class ScrollerPageComponent {}

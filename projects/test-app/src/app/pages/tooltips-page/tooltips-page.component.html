@@ -2,41 +2,57 @@
 <div class="page">
     <div class="title">
         <h1>Tooltips</h1>
-        <div class="text-light text-large">
-            Tooltips are used to display additional information when a user hovers over an element.
-        </div>
+        <div class="text-light text-large">Tooltips are used to display additional information when a user hovers over an element.</div>
     </div>
     <tab-separator />
     <div class="content">
         <div class="section">
             <h3>Module</h3>
-            <p>
-                To use the component, import one of the following modules into
-                your module/component:
-            </p>
+            <p>To use the component, import one of the following modules into your module/component:</p>
 
             <ul>
                 <li>
-                    <code>TableauUiTooltipModule</code> - for granular import
+                    <code>TableauUiTooltipModule</code>
+                    - for granular import
                 </li>
                 <li>
-                    <code>TableauUiAllModule</code> - to import all components
-                    from this library
+                    <code>TableauUiAllModule</code>
+                    - to import all components from this library
                 </li>
             </ul>
         </div>
         <div class="section">
             <h3>Basic information</h3>
-            <p>A tooltip can be attached to any element; icons, buttons, texts, etc
-                <br/>A tooltip can be positioned in 4 ways: <code>top</code>, <code>bottom</code>, <code>left</code>, <code>right</code>
-                <br/>A tooltip can have a margin of <code>0</code>, <code>2em</code>, <code>10px</code>, <code>5vh</code>, etc
-                <br/>A tooltip can be provided as text or as a template
-                <br/>A tooltip will automatically adjust its position if it is too close to the edge of the screen
+            <p>
+                A tooltip can be attached to any element; icons, buttons, texts, etc
+                <br />
+                A tooltip can be positioned in 4 ways:
+                <code>top</code>
+                ,
+                <code>bottom</code>
+                ,
+                <code>left</code>
+                ,
+                <code>right</code>
+                <br />
+                A tooltip can have a margin of
+                <code>0</code>
+                ,
+                <code>2em</code>
+                ,
+                <code>10px</code>
+                ,
+                <code>5vh</code>
+                , etc
+                <br />
+                A tooltip can be provided as text or as a template
+                <br />
+                A tooltip will automatically adjust its position if it is too close to the edge of the screen
             </p>
         </div>
         <div class="section">
             <h3>Examples</h3>
-            <div class="two spacer" style="width: fit-content;">
+            <div class="two spacer" style="width: fit-content">
                 <button tooltip="Tooltip value provided as text">Top TEXT tooltip, default margin</button>
                 <button tooltip="Tooltip value provided as text" tooltipPosition="left">Left TEXT tooltip, default margin</button>
                 <button tooltip="Tooltip value provided as text" tooltipPosition="bottom" tooltipMargin="2em">Bottom TEXT tooltip, changed margin (2em)</button>
@@ -47,8 +63,6 @@
                 <button tooltipPosition="left" tooltipMargin="10px" [tooltip]="tooltipTemplate">Left TEMPLATE tooltip, changed margin (10px)</button>
                 <button tooltipPosition="bottom" tooltipMargin="2em" [tooltip]="tooltipTemplate">Bottom TEMPLATE tooltip, changed margin (2em)</button>
                 <button tooltipPosition="right" [tooltip]="tooltipTemplate">Right TEMPLATE tooltip, default margin</button>
-                
-            
             </div>
         </div>
     </div>

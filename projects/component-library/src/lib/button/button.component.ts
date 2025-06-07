@@ -1,21 +1,13 @@
 import { CommonModule } from '@angular/common';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    ElementRef,
-    HostListener,
-    inject,
-    input,
-    output,
-    signal,
-    ViewEncapsulation,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, HostListener, inject, input, output, signal, ViewEncapsulation } from '@angular/core';
 
 @Component({
     // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'button:not([tab-menu-button]),a[button]:not([tab-menu-button])',
+    standalone: false,
     templateUrl: './button.component.html',
-    styleUrls: ['./button.component.scss'],
+    styleUrl: './button.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     host: {
         '[attr.type]': '$type()',
         '[class]': '$color()',
@@ -26,22 +18,20 @@ import {
         '[attr.layout]': '$layout()',
         '[attr.inline]': '$inline()',
     },
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false,
 })
 export class ButtonComponent {
     readonly $nativeElement = inject(ElementRef);
     readonly $disabled = input(false, {
-        alias: 'disabled'
+        alias: 'disabled',
     });
     readonly $loading = input(false, {
-        alias: 'loading'
+        alias: 'loading',
     });
     readonly $tabindex = input('0', {
-        alias: 'tabindex'
+        alias: 'tabindex',
     });
     readonly $type = input<'submit' | 'button'>('button', {
-        alias: 'type'
+        alias: 'type',
     });
     readonly $color = input<'primary' | 'secondary' | 'error' | 'plain'>('secondary', {
         alias: 'color',
@@ -58,8 +48,8 @@ export class ButtonComponent {
         const el = this.$nativeElement.nativeElement;
 
         if (event.code === 'Enter' || event.code === 'Space') {
-          event.preventDefault(); // stop scroll or native behavior
-          el.click(); // trigger click manually
-      }
+            event.preventDefault(); // stop scroll or native behavior
+            el.click(); // trigger click manually
+        }
     }
 }

@@ -11,26 +11,8 @@ import { ButtonMenuComponent } from './button.menu.component';
 import { EntriesPipe } from './pipes/entries.pipe';
 
 @NgModule({
-    imports: [
-        CommonModule,
-        TableauUiCommonModule,
-        TableauUiDialogModule,
-        TableauUiIconModule,
-    ],
-    declarations: [
-        MenuComponent,
-        MenuDirective,
-        MenuButtonComponent,
-        MenuButtonGroupComponent,
-        ButtonMenuComponent,
-        EntriesPipe
-    ],
-    exports: [
-        MenuComponent,
-        MenuDirective,
-        MenuButtonComponent,
-        MenuButtonGroupComponent,
-        ButtonMenuComponent,
-    ],
+    declarations: [MenuComponent, MenuDirective, MenuButtonComponent, MenuButtonGroupComponent, ButtonMenuComponent, EntriesPipe],
+    imports: [CommonModule, TableauUiCommonModule, TableauUiDialogModule, TableauUiIconModule],
+    exports: [MenuComponent, MenuDirective, MenuButtonComponent, MenuButtonGroupComponent, ButtonMenuComponent],
 })
 export class TableauUiMenuModule {}

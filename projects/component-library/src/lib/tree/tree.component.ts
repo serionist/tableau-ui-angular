@@ -22,10 +22,10 @@ import { debounceTime, Subject } from 'rxjs';
 import { TreeNodeRegistry } from './tree-node-registry';
 @Component({
     selector: 'tab-tree',
-    templateUrl: './tree.component.html',
-    styleUrls: ['./tree.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: false,
+    templateUrl: './tree.component.html',
+    styleUrl: './tree.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TabTreeComponent implements AfterContentInit, OnDestroy {
     private readonly selfElementRef = inject(ElementRef<HTMLElement>);
@@ -178,7 +178,7 @@ export class TabTreeComponent implements AfterContentInit, OnDestroy {
         id: string;
         element: HTMLDivElement;
     }[] = [];
-   
+
     private redrawCounter = 0;
     async redrawGridLines() {
         if (this.$gridLinesBorder() === undefined) {

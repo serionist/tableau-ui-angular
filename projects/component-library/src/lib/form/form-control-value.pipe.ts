@@ -7,7 +7,7 @@ import { FC } from './models/form-control.reference';
 @Pipe({
     name: 'formControlValue',
     standalone: false,
-    pure: true
+    pure: true,
 })
 export class FormControlValuePipe implements PipeTransform {
     /**
@@ -15,12 +15,10 @@ export class FormControlValuePipe implements PipeTransform {
      * @param ctrl The FormControl reference (FC) instance to transform.
      * @param fireInitial Whether to fire the initial value immediately.
      * @param onlyChangedValues Whether to only emit changed values.
-     * 
+     *
      * @returns An observable of the form control's value.
      */
-    transform<T extends Primitive = any>(
-        ctrl: FC<T> | undefined | null
-    ): Observable<T | null> {
+    transform<T extends Primitive = any>(ctrl: FC<T> | undefined | null): Observable<T | null> {
         if (!ctrl) {
             return of(null);
         }

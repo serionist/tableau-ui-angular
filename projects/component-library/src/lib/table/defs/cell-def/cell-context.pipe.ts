@@ -21,7 +21,7 @@ export class CellContextPipe implements PipeTransform {
         columnLast: boolean,
         columnEven: boolean,
         columnOdd: boolean,
-        columnCount: number
+        columnCount: number,
     ): CellContext<T> {
         return {
             $implicit: value,

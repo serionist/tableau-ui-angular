@@ -61,7 +61,7 @@
         font-size: 1.2rem;
     }
 
-    &[disabled]:not([disabled="false"]) {
+    &[disabled]:not([disabled='false']) {
         color: var(--twc-color-disabled) !important;
         cursor: default;
         pointer-events: none;

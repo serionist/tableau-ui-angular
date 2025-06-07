@@ -1,241 +1,121 @@
 <div class="main-content">
     <tab-nav-bar #navBar>
         @if (navBar.$expanded()) {
-        <tab-nav-bar-footer>
-            <div class="version">v{{ version }}</div>
-        </tab-nav-bar-footer>
+            <tab-nav-bar-footer>
+                <div class="version">v{{ version }}</div>
+            </tab-nav-bar-footer>
         }
         <tab-nav-bar-header>
             <!-- eslint-disable-next-line @angular-eslint/template/prefer-ngsrc-->
             <img class="logo" src="tableau_ui_logo.svg" alt="Tableau UI Logo" />
         </tab-nav-bar-header>
 
-        <tab-nav-bar-button
-            text="Home"
-            link="/"
-            [isActive]="(page$ | async) === 'home'"
-        >
+        <tab-nav-bar-button text="Home" link="/" [isActive]="(page$ | async) === 'home'">
             <tab-icon value="home" />
         </tab-nav-bar-button>
 
-        <tab-nav-bar-button
-            text="CSS & Fonts"
-            link="/css"
-            [isActive]="(page$ | async) === 'css'"
-        >
+        <tab-nav-bar-button text="CSS & Fonts" link="/css" [isActive]="(page$ | async) === 'css'">
             <tab-icon value="css" />
         </tab-nav-bar-button>
 
-        <tab-nav-bar-button
-            text="Icons"
-            link="/icons"
-            [isActive]="(page$ | async) === 'icons'"
-        >
+        <tab-nav-bar-button text="Icons" link="/icons" [isActive]="(page$ | async) === 'icons'">
             <tab-icon value="add_circle" />
         </tab-nav-bar-button>
 
-        <tab-nav-bar-button
-            text="Local Development"
-            link="/local-development"
-            [isActive]="(page$ | async) === 'local-development'"
-        >
+        <tab-nav-bar-button text="Local Development" link="/local-development" [isActive]="(page$ | async) === 'local-development'">
             <tab-icon value="developer_guide" />
         </tab-nav-bar-button>
 
         <tab-separator />
 
-        <tab-nav-bar-button
-            text="Buttons"
-            link="/buttons"
-            [isActive]="(page$ | async) === 'buttons'"
-        >
+        <tab-nav-bar-button text="Buttons" link="/buttons" [isActive]="(page$ | async) === 'buttons'">
             <tab-icon value="trackpad_input" />
         </tab-nav-bar-button>
 
-        <tab-nav-bar-button
-            text="Checkbox"
-            link="/checkbox"
-            [isActive]="(page$ | async) === 'checkbox'"
-        >
+        <tab-nav-bar-button text="Checkbox" link="/checkbox" [isActive]="(page$ | async) === 'checkbox'">
             <tab-icon value="check_box" />
         </tab-nav-bar-button>
 
-        <tab-nav-bar-button
-            text="Form Fields"
-            link="/form-fields"
-            [isActive]="(page$ | async) === 'form-fields'"
-        >
+        <tab-nav-bar-button text="Form Fields" link="/form-fields" [isActive]="(page$ | async) === 'form-fields'">
             <tab-icon value="edit_square" />
         </tab-nav-bar-button>
 
-        <tab-nav-bar-button
-            text="Date Picker"
-            link="/date-picker"
-            [isActive]="(page$ | async) === 'date-picker'"
-        >
+        <tab-nav-bar-button text="Date Picker" link="/date-picker" [isActive]="(page$ | async) === 'date-picker'">
             <tab-icon value="calendar_clock" />
         </tab-nav-bar-button>
 
-        <tab-nav-bar-button
-            text="Radio Groups"
-            link="/radios"
-            [isActive]="(page$ | async) === 'radios'"
-        >
+        <tab-nav-bar-button text="Radio Groups" link="/radios" [isActive]="(page$ | async) === 'radios'">
             <tab-icon value="radio_button_checked" />
         </tab-nav-bar-button>
 
-        <tab-nav-bar-button
-            text="Select dropdown"
-            link="/select"
-            [isActive]="(page$ | async) === 'select'"
-        >
+        <tab-nav-bar-button text="Select dropdown" link="/select" [isActive]="(page$ | async) === 'select'">
             <tab-icon value="dropdown" />
         </tab-nav-bar-button>
 
-        <tab-nav-bar-button
-            text="List"
-            link="/list"
-            [isActive]="(page$ | async) === 'list'"
-        >
+        <tab-nav-bar-button text="List" link="/list" [isActive]="(page$ | async) === 'list'">
             <tab-icon value="format_list_bulleted" />
         </tab-nav-bar-button>
-        <tab-nav-bar-button
-        text="Table"
-        link="/table"
-        [isActive]="(page$ | async) === 'table'"
-    >
-        <tab-icon value="table" />
-    </tab-nav-bar-button>
+        <tab-nav-bar-button text="Table" link="/table" [isActive]="(page$ | async) === 'table'">
+            <tab-icon value="table" />
+        </tab-nav-bar-button>
 
-        <tab-nav-bar-button
-            text="Dialogs"
-            link="/dialogs"
-            [isActive]="(page$ | async) === 'dialogs'"
-        >
+        <tab-nav-bar-button text="Dialogs" link="/dialogs" [isActive]="(page$ | async) === 'dialogs'">
             <tab-icon value="dialogs" />
         </tab-nav-bar-button>
 
-        <tab-nav-bar-button
-            text="Expansion Panel"
-            link="/expansion-panel"
-            [isActive]="(page$ | async) === 'expansion-panel'"
-        >
+        <tab-nav-bar-button text="Expansion Panel" link="/expansion-panel" [isActive]="(page$ | async) === 'expansion-panel'">
             <tab-icon value="top_panel_open" />
         </tab-nav-bar-button>
 
-        <tab-nav-bar-button
-            text="Snackbar"
-            link="/snackbar"
-            [isActive]="(page$ | async) === 'snackbar'"
-        >
+        <tab-nav-bar-button text="Snackbar" link="/snackbar" [isActive]="(page$ | async) === 'snackbar'">
             <tab-icon value="toast" />
         </tab-nav-bar-button>
-        <tab-nav-bar-button
-            text="Tooltips"
-            link="/tooltips"
-            [isActive]="(page$ | async) === 'tooltips'"
-        >
+        <tab-nav-bar-button text="Tooltips" link="/tooltips" [isActive]="(page$ | async) === 'tooltips'">
             <tab-icon value="tooltip" />
         </tab-nav-bar-button>
-        <tab-nav-bar-button
-            text="Menu"
-            link="/menu"
-            [isActive]="(page$ | async) === 'menu'"
-        >
+        <tab-nav-bar-button text="Menu" link="/menu" [isActive]="(page$ | async) === 'menu'">
             <tab-icon value="more_vert" />
         </tab-nav-bar-button>
-        <tab-nav-bar-button
-            text="Tabs"
-            link="/tabcontrol"
-            [isActive]="(page$ | async) === 'tabcontrol'"
-        >
+        <tab-nav-bar-button text="Tabs" link="/tabcontrol" [isActive]="(page$ | async) === 'tabcontrol'">
             <tab-icon value="tabs" />
         </tab-nav-bar-button>
-        <tab-nav-bar-button
-            text="Nav Bar"
-            link="/navbar"
-            [isActive]="(page$ | async) === 'navbar'"
-        >
+        <tab-nav-bar-button text="Nav Bar" link="/navbar" [isActive]="(page$ | async) === 'navbar'">
             <tab-icon value="side_navigation" />
         </tab-nav-bar-button>
-        <tab-nav-bar-button
-            text="Tree"
-            link="/tree"
-            [isActive]="(page$ | async) === 'tree'"
-        >
+        <tab-nav-bar-button text="Tree" link="/tree" [isActive]="(page$ | async) === 'tree'">
             <tab-icon value="flowchart" />
         </tab-nav-bar-button>
 
-        <tab-nav-bar-button
-            text="Arrow Scroller"
-            link="/scroller"
-            [isActive]="(page$ | async) === 'scroller'"
-        >
+        <tab-nav-bar-button text="Arrow Scroller" link="/scroller" [isActive]="(page$ | async) === 'scroller'">
             <tab-icon value="unfold_more_double" />
         </tab-nav-bar-button>
 
-        <tab-nav-bar-button
-            text="Clipboard"
-            link="/clipboard"
-            [isActive]="(page$ | async) === 'clipboard'"
-        >
+        <tab-nav-bar-button text="Clipboard" link="/clipboard" [isActive]="(page$ | async) === 'clipboard'">
             <tab-icon value="content_paste" />
         </tab-nav-bar-button>
         <tab-separator />
-        <tab-nav-bar-button
-            text="Sample Disabled"
-            link="/"
-            [isActive]="false"
-            [disabled]="true"
-        >
+        <tab-nav-bar-button text="Sample Disabled" link="/" [isActive]="false" [disabled]="true">
             <tab-icon value="home" />
         </tab-nav-bar-button>
     </tab-nav-bar>
     <div>
-        <button
-            class="palette-button"
-            color="plain"
-            layout="icon"
-            [menu]="paletteMenu"
-            (click)="paletteMenu.open()"
-        >
+        <button class="palette-button" color="plain" layout="icon" [menu]="paletteMenu" (click)="paletteMenu.open()">
             <tab-icon value="palette" />
         </button>
         <tab-menu #paletteMenu>
             <div class="palette-menu">
                 <div>
                     <tab-label>Color Palette</tab-label>
-                    <tab-button-toggle
-                        [selectedValue]="$paletteTheme()"
-                        (selectedValueChange)="paletteThemeChange($event)"
-                    >
-                        <tab-option
-                            icon="light_mode"
-                            text="Light Mode"
-                            value="light"
-                        />
-                        <tab-option
-                            icon="dark_mode"
-                            text="Dark Mode"
-                            value="dark"
-                        />
-                        <tab-option
-                            icon="night_sight_auto"
-                            text="Inherit from OS"
-                            value="auto"
-                        />
+                    <tab-button-toggle [selectedValue]="$paletteTheme()" (selectedValueChange)="paletteThemeChange($event)">
+                        <tab-option icon="light_mode" text="Light Mode" value="light" />
+                        <tab-option icon="dark_mode" text="Dark Mode" value="dark" />
+                        <tab-option icon="night_sight_auto" text="Inherit from OS" value="auto" />
                     </tab-button-toggle>
                 </div>
 
                 <tab-form-field>
                     <tab-label>Base Font Size</tab-label>
-                    <input
-                        type="number"
-                        [value]="$paletteFontSize()"
-                        [min]="10"
-                        [max]="24"
-                        (input)="setPaletteFontSize($event)"
-                    />
+                    <input type="number" [value]="$paletteFontSize()" [min]="10" [max]="24" (input)="setPaletteFontSize($event)" />
                     <tab-suffix>px</tab-suffix>
                 </tab-form-field>
             </div>

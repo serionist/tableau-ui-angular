@@ -25,6 +25,7 @@ import { generateRandomString } from '../utils';
 
 @Component({
     selector: 'tab-menu-button',
+    standalone: false,
     template: `
         <ng-template #template>
             <div
@@ -58,8 +59,7 @@ import { generateRandomString } from '../utils';
             </div>
         </ng-template>
     `,
-    styleUrls: ['./menu-button.component.scss'],
-    standalone: false,
+    styleUrl: './menu-button.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MenuButtonComponent implements OnDestroy {

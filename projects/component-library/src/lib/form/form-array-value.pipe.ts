@@ -7,15 +7,13 @@ import { FG } from './public-api';
 @Pipe({
     name: 'formArrayValue',
     standalone: false,
-    pure: true
+    pure: true,
 })
 export class FormArrayValuePipe implements PipeTransform {
-  transform<TItem extends Record<string, any> = any>(
-    formRef: FA<TItem> | undefined | null,
-  ): Observable<FG<TItem>[] | null> {
-    if (!formRef) {
-      return of(null);
+    transform<TItem extends Record<string, any> = any>(formRef: FA<TItem> | undefined | null): Observable<FG<TItem>[] | null> {
+        if (!formRef) {
+            return of(null);
+        }
+        return formRef.controls$;
     }
-    return formRef.controls$;
-  }
 }

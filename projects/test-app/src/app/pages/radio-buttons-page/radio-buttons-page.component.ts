@@ -1,29 +1,30 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 import { ControlReferenceBuilder, SnackService } from 'component-library';
 import { skip } from 'rxjs';
 
 @Component({
     selector: 'app-radio-buttons-page',
+    standalone: false,
     templateUrl: './radio-buttons-page.component.html',
     styleUrl: './radio-buttons-page.component.scss',
-    standalone: false
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class RadioButtonsPageComponent implements OnInit{
-  
-  snackService = inject(SnackService);
-  private b = inject(ControlReferenceBuilder);
-  simpleValue = 1;
+export class RadioButtonsPageComponent implements OnInit {
+    snackService = inject(SnackService);
+    private b = inject(ControlReferenceBuilder);
+    simpleValue = 1;
 
-  formControl = this.b.control<number | null>(null, [Validators.required, Validators.min(2), Validators.max(3)]);
+    formControl = this.b.control<number | null>(null, [Validators.required, Validators.min(2), Validators.max(3)]);
 
-  valueChanged(value: any, name: string, type: 'info' | 'error' = 'info') {
-    console.log(`Value changed for ${name}:`, value);
-    this.snackService.openSnack(`${name} set to: ${value}`, 3000, type);
-  }
-  ngOnInit(): void {
-    this.formControl.metaFn.markAllAsTouched();
-    this.formControl.value$.pipe(skip(1)).subscribe((value) => { this.valueChanged(value, 'Form Control', this.formControl.$meta().validity === 'INVALID' ? 'error': 'info'); });
-  }
-
+    valueChanged(value: any, name: string, type: 'info' | 'error' = 'info') {
+        console.log(`Value changed for ${name}:`, value);
+        this.snackService.openSnack(`${name} set to: ${value}`, 3000, type);
+    }
+    ngOnInit(): void {
+        this.formControl.metaFn.markAllAsTouched();
+        this.formControl.value$.pipe(skip(1)).subscribe((value) => {
+            this.valueChanged(value, 'Form Control', this.formControl.$meta().validity === 'INVALID' ? 'error' : 'info');
+        });
+    }
 }

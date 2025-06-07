@@ -8,12 +8,7 @@
     let-$expandButtonAlign="$expandButtonAlign"
     let-$keepButtonOffsetOnNoChildren="$keepButtonOffsetOnNoChildren"
 >
-    <div
-        class="tree-node-container"
-        [style.marginLeft]="`calc(${$depth()} * ${$childrenIndent()})`"
-        [style.alignItems]="$expandButtonAlign()"
-        [style.gap]="$expandButtonGap()"
-    >
+    <div class="tree-node-container" [style.marginLeft]="`calc(${$depth()} * ${$childrenIndent()})`" [style.alignItems]="$expandButtonAlign()" [style.gap]="$expandButtonGap()">
         <button
             layout="icon"
             color="plain"
@@ -23,29 +18,17 @@
             [inline]="true"
             [style.visibility]="$children().length === 0 ? 'hidden' : 'visible'"
             [style.fontSize]="$expandButtonSize()"
-            [style.width]="
-                $children().length !== 0 || $keepButtonOffsetOnNoChildren()
-                    ? $expandButtonSize()
-                    : '0px'
-            "
+            [style.width]="$children().length !== 0 || $keepButtonOffsetOnNoChildren() ? $expandButtonSize() : '0px'"
             [style.minWidth]="'0px'"
             [style.height]="$expandButtonSize()"
             [style.color]="$expandButtonColor() || $expandButtonColorInherited()"
-            [tooltip]="
-                $expanded()
-                    ? $expandButtonTooltip()?.collapse
-                    : $expandButtonTooltip()?.expand
-            "
+            [tooltip]="$expanded() ? $expandButtonTooltip()?.collapse : $expandButtonTooltip()?.expand"
             [tooltipPosition]="$expandButtonTooltip()?.position"
             [tooltipMargin]="$expandButtonTooltip()?.margin"
             [tooltipContext]="$expandButtonTooltip()?.context"
             (click)="setExpanded(!$expanded())"
         >
-            <tab-icon
-                [value]="
-                    $expanded() ? 'keyboard_arrow_down' : 'keyboard_arrow_right'
-                "
-            />
+            <tab-icon [value]="$expanded() ? 'keyboard_arrow_down' : 'keyboard_arrow_right'" />
         </button>
         <div class="header-content">
             @if ($expanded() && $expandedContent()) {
@@ -54,7 +37,6 @@
                 <ng-content select="[collapsedContent]" />
             }
             <ng-content />
-            
         </div>
     </div>
 </ng-template>

@@ -1,17 +1,9 @@
-import {
-    AfterContentInit,
-    ChangeDetectionStrategy,
-    Component,
-    ContentChild,
-    input,
-    TemplateRef,
-    viewChild,
-    ViewChild,
-} from '@angular/core';
+import { AfterContentInit, ChangeDetectionStrategy, Component, ContentChild, input, TemplateRef, viewChild, ViewChild } from '@angular/core';
 
 @Component({
     // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'tab',
+    standalone: false,
     template: `
         <ng-template #headerTemplate>
             <ng-content select="[tab-header]" />
@@ -21,7 +13,6 @@ import {
         </ng-template>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false,
 })
 export class TabComponent {
     readonly $headerTemplate = viewChild.required<TemplateRef<any>>('headerTemplate');

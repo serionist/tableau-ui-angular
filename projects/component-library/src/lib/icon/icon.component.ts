@@ -3,9 +3,12 @@ import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { combineLatest, map } from 'rxjs';
 @Component({
     selector: 'tab-icon',
+    standalone: false,
     template: `
         {{ $value() }}
     `,
+    styleUrl: './icon.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     host: {
         role: 'img',
         class: 'tab-icon',
@@ -15,9 +18,6 @@ import { combineLatest, map } from 'rxjs';
         '[style.font-family]': '$type()',
         '[style.font-variation-settings]': '$fontVariationSettings()',
     },
-    styleUrls: ['./icon.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false,
 })
 export class IconComponent {
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability

@@ -7,7 +7,7 @@ export interface CellContext<T = unknown> {
     last: boolean;
     even: boolean;
     odd: boolean;
-    count: number
+    count: number;
     columnIndex: number;
     columnFirst: boolean;
     columnLast: boolean;

@@ -2,10 +2,10 @@ import { AfterViewInit, ChangeDetectionStrategy, Component, computed, effect, El
 
 @Component({
     selector: 'tab-arrow-scroll',
-    templateUrl: './arrow-scroll.component.html',
-    styleUrls: ['./arrow-scroll.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: false,
+    templateUrl: './arrow-scroll.component.html',
+    styleUrl: './arrow-scroll.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     host: {
         '[style.overflow]': '"hidden"',
         '[class.horizontal]': '$scrollDirection() === "horizontal"',
@@ -27,7 +27,7 @@ export class ArrowScrollComponent implements AfterViewInit, OnDestroy {
      * 'vertical' scrolls vertically.
      */
     readonly $scrollDirection = input.required<'horizontal' | 'vertical'>({
-        alias: 'scrollDirection'
+        alias: 'scrollDirection',
     });
 
     /**
@@ -56,7 +56,7 @@ export class ArrowScrollComponent implements AfterViewInit, OnDestroy {
      * This value is in pixels for vertical scrolling and in pixels for horizontal scrolling.
      * @default 100
      */
-    readonly $buttonScrollAmount = input<number>(100,{
+    readonly $buttonScrollAmount = input<number>(100, {
         alias: 'buttonScrollAmount',
     });
     /**
@@ -66,9 +66,9 @@ export class ArrowScrollComponent implements AfterViewInit, OnDestroy {
     readonly $showScrollButtonSeparator = input<boolean>(false, {
         alias: 'showScrollButtonSeparator',
     });
-    private $scrollContainer = viewChild.required<ElementRef<HTMLDivElement>>('scrollContainer');
+    private readonly $scrollContainer = viewChild.required<ElementRef<HTMLDivElement>>('scrollContainer');
 
-    private $scrollContainerDimensions = signal<{
+    private readonly $scrollContainerDimensions = signal<{
         scrollHeight: number;
         clientHeight: number;
         scrollWidth: number;
@@ -80,14 +80,13 @@ export class ArrowScrollComponent implements AfterViewInit, OnDestroy {
         clientWidth: 0,
     });
 
-    protected $scrollArrowsVisible = computed(() => {
+    protected readonly $scrollArrowsVisible = computed(() => {
         if (this.$scrollType() === 'default') {
             return false;
         }
 
         const dimensions = this.$scrollContainerDimensions();
         if (this.$scrollDirection() === 'horizontal') {
-          
             return dimensions.scrollWidth > dimensions.clientWidth;
         } else {
             return dimensions.scrollHeight > dimensions.clientHeight;
@@ -102,8 +101,8 @@ export class ArrowScrollComponent implements AfterViewInit, OnDestroy {
         }
     });
 
-    private $scrollLeft = signal(0);
-    private $scrollTop = signal(0);
+    private readonly $scrollLeft = signal(0);
+    private readonly $scrollTop = signal(0);
 
     readonly $canScroll = computed(() => {
         const el = this.$scrollContainer().nativeElement;

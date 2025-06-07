@@ -5,10 +5,10 @@ import { TooltipDirective } from '../../tooltip/tooltip.directive';
 
 @Component({
     selector: 'tab-nav-bar-button',
+    standalone: false,
     templateUrl: './nav-bar-button.component.html',
     styleUrl: './nav-bar-button.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false,
 })
 export class NavBarButtonComponent {
     readonly $text = input.required<string>({
@@ -19,7 +19,7 @@ export class NavBarButtonComponent {
         alias: 'link',
     });
     // eslint-disable-next-line @angular-eslint/no-output-native
-    click = output<void>();
+    readonly click = output<void>();
     readonly $isActive = input<boolean>(false, {
         alias: 'isActive',
     });
@@ -27,8 +27,8 @@ export class NavBarButtonComponent {
         alias: 'disabled',
     });
 
-    private $expanded = signal(false);
-    protected $isExpanded = computed(() => this.$expanded());
+    private readonly $expanded = signal(false);
+    protected readonly $isExpanded = computed(() => this.$expanded());
     setExpandedInternal(expanded: boolean) {
         this.$expanded.set(expanded);
     }

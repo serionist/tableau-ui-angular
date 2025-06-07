@@ -3,21 +3,20 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LocalDevelopmentComponent } from './local-development.component';
 
 describe('LocalDevelopmentComponent', () => {
-  let component: LocalDevelopmentComponent;
-  let fixture: ComponentFixture<LocalDevelopmentComponent>;
+    let component: LocalDevelopmentComponent;
+    let fixture: ComponentFixture<LocalDevelopmentComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [LocalDevelopmentComponent]
-    })
-    .compileComponents();
+    beforeEach(async () => {
+        await TestBed.configureTestingModule({
+            imports: [LocalDevelopmentComponent],
+        }).compileComponents();
 
-    fixture = TestBed.createComponent(LocalDevelopmentComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+        fixture = TestBed.createComponent(LocalDevelopmentComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+    it('should create', () => {
+        expect(component).toBeTruthy();
+    });
 });

@@ -6,37 +6,37 @@ import { ErrorComponent } from '../common/error';
 
 @Component({
     selector: 'tab-checkbox',
+    standalone: false,
+    templateUrl: './checkbox.component.html',
+    styleUrl: 'checkbox.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     host: {
-        'class': 'checkbox',
+        class: 'checkbox',
         '[class.disabled]': '$disabled()',
         '[class.checked]': '$value()',
         '(click)': 'toggleValue()',
     },
-    templateUrl: 'checkbox.component.html',
-    styleUrls: ['checkbox.component.scss'],
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
             useExisting: forwardRef(() => CheckboxComponent),
-            multi: true
-        }
+            multi: true,
+        },
     ],
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
 })
 export class CheckboxComponent implements ControlValueAccessor {
     readonly $disabled = model(false, {
-        alias: 'disabled'
+        alias: 'disabled',
     });
     readonly $value = model(false, {
-        alias: 'value'
+        alias: 'value',
     });
     readonly valueChanges = output<boolean>();
 
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    protected $hintElement: Signal<HintComponent | undefined> = contentChild(HintComponent);
+    protected readonly $hintElement: Signal<HintComponent | undefined> = contentChild(HintComponent);
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    protected $errorElement: Signal<ErrorComponent | undefined> = contentChild(ErrorComponent);
+    protected readonly $errorElement: Signal<ErrorComponent | undefined> = contentChild(ErrorComponent);
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     onChange = (value: any) => {};
@@ -74,6 +74,5 @@ export class CheckboxComponent implements ControlValueAccessor {
             default:
                 return;
         }
-    }       
-
+    }
 }

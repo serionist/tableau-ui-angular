@@ -1,14 +1,4 @@
-import {
-    Directive,
-    effect,
-    ElementRef,
-    Host,
-    HostListener,
-    inject,
-    input,
-    OnDestroy,
-    OnInit,
-} from '@angular/core';
+import { Directive, effect, ElementRef, Host, HostListener, inject, input, OnDestroy, OnInit } from '@angular/core';
 import { AutoCompleteComponent } from './autocomplete.component';
 import { Subscription } from 'rxjs';
 @Directive({
@@ -18,7 +8,7 @@ import { Subscription } from 'rxjs';
 export class AutoCompleteDirective implements OnDestroy {
     private readonly ref = inject<ElementRef<HTMLInputElement>>(ElementRef);
     readonly $tabAutoComplete = input.required<AutoCompleteComponent>({
-        alias: 'tabAutoComplete'
+        alias: 'tabAutoComplete',
     });
     private autoCompleteSelectedSub: Subscription | undefined = undefined;
     private readonly autocompleteChanged = effect(() => {
@@ -26,19 +16,15 @@ export class AutoCompleteDirective implements OnDestroy {
         if (this.autoCompleteSelectedSub) {
             this.autoCompleteSelectedSub.unsubscribe();
         }
-        this.autoCompleteSelectedSub = autoComplete.selectValue$.subscribe(
-            (option) => {
-                const el = this.ref.nativeElement;
-                if (!el) {
-                    return;
-                }
-                el.value = option.$value();
-                el.dispatchEvent(
-                    new Event('input', { bubbles: true })
-                );
-                autoComplete.closeDropdown();
+        this.autoCompleteSelectedSub = autoComplete.selectValue$.subscribe((option) => {
+            const el = this.ref.nativeElement;
+            if (!el) {
+                return;
             }
-        );
+            el.value = option.$value();
+            el.dispatchEvent(new Event('input', { bubbles: true }));
+            autoComplete.closeDropdown();
+        });
     });
 
     @HostListener('focusin')

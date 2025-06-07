@@ -4,6 +4,8 @@ import { TAB_DIALOG_REF } from './dialog.ref';
 import { TAB_DATA_REF } from './data.ref';
 
 @Component({
+    selector: 'tab-confirmation-dialog',
+    standalone: false,
     template: `
         <div class="dialog-content">
             @if (data.contentTemplate) {
@@ -23,30 +25,27 @@ import { TAB_DATA_REF } from './data.ref';
             </button>
         </div>
     `,
-    styles: [
-        `
-            .dialog-content {
-                padding: 12px 18px;
-            }
-            .dialog-actions {
-                display: flex;
-                justify-content: flex-end;
-                gap: 1em;
-                padding: 12px;
-                padding-top: 0;
-            }
-        `,
-    ],
+    styles: `
+        .dialog-content {
+            padding: 12px 18px;
+        }
+        .dialog-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1em;
+            padding: 12px;
+            padding-top: 0;
+        }
+    `,
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false,
 })
 export class ConfirmationDialogComponent implements AfterViewInit, AfterContentInit {
     protected data = inject<IConfirmationDialogData>(TAB_DATA_REF);
 
     protected dialogRef = inject(TAB_DIALOG_REF);
 
-    private $accept = viewChild.required<ButtonComponent>('accept');
-    private $cancel = viewChild.required<ButtonComponent>('cancel');
+    private readonly $accept = viewChild.required<ButtonComponent>('accept');
+    private readonly $cancel = viewChild.required<ButtonComponent>('cancel');
 
     ngAfterContentInit() {
         if (this.data.autofocus === 'accept') {

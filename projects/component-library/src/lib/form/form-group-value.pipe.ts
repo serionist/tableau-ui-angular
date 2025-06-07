@@ -7,16 +7,13 @@ import { FG } from './models/form-group.reference';
 @Pipe({
     name: 'formGroupValue',
     standalone: false,
-    pure: true
+    pure: true,
 })
 export class FormGroupValuePipe implements PipeTransform {
-    transform<T extends Record<string, any> = any>(
-        group: FG | null | undefined,
-    ): Observable<DeepPartial<T> | null> {
+    transform<T extends Record<string, any> = any>(group: FG | null | undefined): Observable<DeepPartial<T> | null> {
         if (!group) {
             return of(null);
         }
         return group.value$;
-        
     }
 }

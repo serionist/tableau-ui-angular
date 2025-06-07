@@ -28,19 +28,17 @@ import { generateRandomString } from '../utils';
 
 @Component({
     selector: 'tab-form-field',
+    standalone: false,
     templateUrl: './form-field.component.html',
     styleUrl: './form-field.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     host: {
         '[class.disabled]': '$inputDisabled()',
         '[attr.aria-disabled]': '$inputDisabled()',
-        'style.display': 'grid'
+        'style.display': 'grid',
     },
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
 })
-export class FormFieldComponent
-    implements AfterContentInit, AfterViewInit, OnDestroy
-{
+export class FormFieldComponent implements AfterContentInit, AfterViewInit, OnDestroy {
     protected readonly id = generateRandomString(16);
     readonly $style = input<string>(undefined, {
         alias: 'style',
@@ -67,25 +65,12 @@ export class FormFieldComponent
     private resizeObserver?: ResizeObserver;
     private intersectionObserver?: IntersectionObserver;
     private inputObserver?: MutationObserver;
-    
-    ngOnDestroy(): void {
-        if (this.resizeObserver) {
-            this.resizeObserver.disconnect();
-        }
-        if (this.intersectionObserver) {
-            this.intersectionObserver.disconnect();
-        }
-        if (this.inputObserver) {
-            this.inputObserver.disconnect();
-        }
-    }
 
     ngAfterContentInit(): void {
         this.updatePrefixSuffixWidths();
 
-        const input: HTMLElement =
-            this.$inputContainer().nativeElement.querySelector('input,textarea,tab-select,tab-list');
-        
+        const input: HTMLElement = this.$inputContainer().nativeElement.querySelector('input,textarea,tab-select,tab-list');
+
         if (input) {
             input.id = this.id;
             this.updateInputAttributes(input);
@@ -99,6 +84,7 @@ export class FormFieldComponent
             });
         }
     }
+
     private updateInputAttributes(input: HTMLElement) {
         this.$inputDisabled.set(input.getAttribute('disabled') != null);
         const required = input.getAttribute('required') != null && input.getAttribute('required') !== 'false';
@@ -106,7 +92,7 @@ export class FormFieldComponent
         if (placeholder) {
             if (required && !placeholder.endsWith('*')) {
                 input.setAttribute('placeholder', `${placeholder}*`);
-            } 
+            }
             if (!required && placeholder.endsWith('*')) {
                 input.setAttribute('placeholder', placeholder.slice(0, -1));
             }
@@ -127,7 +113,7 @@ export class FormFieldComponent
                     }
                 });
             },
-            { threshold: 0.1 }
+            { threshold: 0.1 },
         );
         this.intersectionObserver.observe(this.host.nativeElement);
 
@@ -143,30 +129,35 @@ export class FormFieldComponent
             this.resizeObserver.observe(this.$suffixContainer().nativeElement);
         }
     }
+    ngOnDestroy(): void {
+        if (this.resizeObserver) {
+            this.resizeObserver.disconnect();
+        }
+        if (this.intersectionObserver) {
+            this.intersectionObserver.disconnect();
+        }
+        if (this.inputObserver) {
+            this.inputObserver.disconnect();
+        }
+    }
 
     private updatePrefixSuffixWidths(): void {
         const prefixElement = this.$prefixElement();
         if (prefixElement) {
-            const prefixWidth =
-                prefixElement.elementRef.nativeElement.offsetWidth;
+            const prefixWidth = prefixElement.elementRef.nativeElement.offsetWidth;
             this.renderer.setStyle(
-                this.$inputContainer().nativeElement.querySelector(
-                    'input,textarea,tab-select,tab-list'
-                ),
+                this.$inputContainer().nativeElement.querySelector('input,textarea,tab-select,tab-list'),
                 'padding-left',
-                `${prefixWidth + 12}px` // Adds a small margin for spacing
+                `${prefixWidth + 12}px`, // Adds a small margin for spacing
             );
         }
         const suffixElement = this.$suffixElement();
         if (suffixElement) {
-            const suffixWidth =
-                suffixElement.elementRef.nativeElement.offsetWidth;
+            const suffixWidth = suffixElement.elementRef.nativeElement.offsetWidth;
             this.renderer.setStyle(
-                this.$inputContainer().nativeElement.querySelector(
-                    'input,textarea,tab-select,tab-list'
-                ),
+                this.$inputContainer().nativeElement.querySelector('input,textarea,tab-select,tab-list'),
                 'padding-right',
-                `${suffixWidth + 8}px` // Adds a small margin for spacing
+                `${suffixWidth + 8}px`, // Adds a small margin for spacing
             );
         }
     }

@@ -51,11 +51,10 @@
     @supports (width: round(1em, 1px)) {
         input {
             width: round(1.2em, 1px);
-            height:  round(1.2em, 1px);
+            height: round(1.2em, 1px);
         }
     }
     // stylelint-enable declaration-property-unit-disallowed-list
-   
 
     &:hover:not(.disabled) .box {
         background-color: var(--twc-color-mouse-highlight);
@@ -104,4 +103,3 @@
         // }
     }
 }
-

@@ -1,11 +1,10 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 @Component({
     selector: 'app-tabcontrol-page',
+    standalone: false,
     templateUrl: './tabcontrol-page.component.html',
     styleUrl: './tabcontrol-page.component.scss',
-    standalone: false
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TabcontrolPageComponent {
-
-}
+export class TabcontrolPageComponent {}

@@ -11,11 +11,8 @@ const a = new FC<boolean>({
     defaultValue: true,
 });
 
-
-
-
 const b = new ControlReferenceBuilder();
-const a2 = b.control('asd'); 
+const a2 = b.control('asd');
 export interface ITest {
     name?: string;
     age: number | undefined;
@@ -71,10 +68,9 @@ const g = new FG<ITest>({
     },
 });
 const gbuilder = b.group<ITest>({
-    name : b.control<string | undefined>('test'),
+    name: b.control<string | undefined>('test'),
     age: b.control<number | undefined>(0),
     address: b.group<IAddress>({
-        
         street: b.control<string>('test'),
         city: b.control<string>('test'),
         state: b.control<string>('test'),
@@ -84,18 +80,13 @@ const gbuilder = b.group<ITest>({
             age: b.control<number>(0),
         }),
     }),
-
-})
+});
 const c = gbuilder.controls.age;
 const n = gbuilder.controls.name;
 gbuilder.controls.age.setValue(10);
 
 const arr = new FA<ITest>({
-    controls: [g]
+    controls: [g],
 });
 
-
-combineLatest([
-    a.value$,
-    arr.value$
-]).subscribe(e => e[0])
+combineLatest([a.value$, arr.value$]).subscribe((e) => e[0]);

@@ -1,11 +1,11 @@
-import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, input, InputSignal, model, ModelSignal } from "@angular/core";
+import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, input, InputSignal, model, ModelSignal } from '@angular/core';
 
 @Component({
     selector: 'tab-nav-bar-header',
+    standalone: false,
     template: '<ng-content />',
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
 })
 export class NavBarHeaderComponent {
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability

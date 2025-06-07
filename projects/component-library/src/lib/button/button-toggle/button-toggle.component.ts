@@ -1,14 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    contentChildren,
-    effect,
-    HostListener,
-    input,
-    model,
-    output,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, contentChildren, effect, HostListener, input, model, output } from '@angular/core';
 import { IOptionLineContext, OptionComponent } from '../../common/option';
 
 @Component({
@@ -39,7 +29,7 @@ export class ButtonToggleComponent {
      * @default undefined
      */
     readonly $selectedValue = model<any>(undefined, {
-        alias: 'selectedValue'
+        alias: 'selectedValue',
     });
 
     protected readonly $options = contentChildren(OptionComponent);
@@ -52,15 +42,13 @@ export class ButtonToggleComponent {
         }
     });
 
-    protected readonly $optionRenderContext = computed<IOptionLineContext>(
-        () => {
-            return {
-                renderIcon: true,
-                renderText: false,
-                renderAsDisabled: this.$disabled(),
-            };
-        }
-    );
+    protected readonly $optionRenderContext = computed<IOptionLineContext>(() => {
+        return {
+            renderIcon: true,
+            renderText: false,
+            renderAsDisabled: this.$disabled(),
+        };
+    });
 
     optionClicked(option: OptionComponent): void {
         if (this.$disabled() || option.$disabled()) {
@@ -72,9 +60,7 @@ export class ButtonToggleComponent {
     @HostListener('keydown', ['$event'])
     onKeyDown(event: KeyboardEvent): void {
         if (event.key === 'ArrowLeft') {
-            const curIndex = this.$options().findIndex(
-                (opt) => opt.$value() === this.$selectedValue()
-            );
+            const curIndex = this.$options().findIndex((opt) => opt.$value() === this.$selectedValue());
             if (curIndex === -1) {
                 // find the last enabled option
                 const lastEnabledOption = this.$options()
@@ -98,21 +84,15 @@ export class ButtonToggleComponent {
                         .reverse()
                         .find((opt) => !opt.$disabled());
                     if (prevEnabledFromEndOption) {
-                        this.$selectedValue.set(
-                            prevEnabledFromEndOption.$value()
-                        );
+                        this.$selectedValue.set(prevEnabledFromEndOption.$value());
                     }
                 }
             }
         } else if (event.key === 'ArrowRight') {
-            const curIndex = this.$options().findIndex(
-                (opt) => opt.$value() === this.$selectedValue()
-            );
+            const curIndex = this.$options().findIndex((opt) => opt.$value() === this.$selectedValue());
             if (curIndex === -1) {
                 // find the first enabled option
-                const firstEnabledOption = this.$options().find(
-                    (opt) => !opt.$disabled()
-                );
+                const firstEnabledOption = this.$options().find((opt) => !opt.$disabled());
                 if (firstEnabledOption) {
                     this.$selectedValue.set(firstEnabledOption.$value());
                 }
@@ -128,9 +108,7 @@ export class ButtonToggleComponent {
                         .slice(0, curIndex)
                         .find((opt) => !opt.$disabled());
                     if (nextEnabledFromStartOption) {
-                        this.$selectedValue.set(
-                            nextEnabledFromStartOption.$value()
-                        );
+                        this.$selectedValue.set(nextEnabledFromStartOption.$value());
                     }
                 }
             }

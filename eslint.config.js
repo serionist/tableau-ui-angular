@@ -5,6 +5,7 @@ const angular = require('angular-eslint');
 const template = require('@angular-eslint/eslint-plugin-template');
 
 module.exports = tseslint.config(
+    angular.configs.tsRecommended,
     {
         files: ['**/*.ts'],
         plugins: {
@@ -12,14 +13,31 @@ module.exports = tseslint.config(
         },
         extends: [eslint.configs.recommended, ...tseslint.configs.recommended, ...tseslint.configs.stylistic, ...angular.configs.tsRecommended],
         processor: angular.processInlineTemplates,
+        languageOptions: {
+            parser: tseslint.parser,
+            parserOptions: {
+                project: './tsconfig.json',
+                tsconfigRootDir: __dirname,
+                projectService: true,
+            },
+        },
         rules: {
-            '@angular-eslint/directive-selector': [
+            '@typescript-eslint/no-explicit-any': 'off',
+            '@typescript-eslint/no-inferrable-types': 'off',
+            '@typescript-eslint/no-unused-vars': 'off',
+            '@typescript-eslint/ban-tslint-comment': 'off',
+            //Classes decorated with @Component must have suffix "Component" (or custom) in their name. Note: As of v20, this is no longer recommended by the Angular Team.
+            '@angular-eslint/component-class-suffix': 'error',
+            //Enforces a maximum number of lines in inline template, styles and animations. See more at https://angular.dev/style-guide#style-05-04
+            '@angular-eslint/component-max-inline-declarations': [
                 'error',
                 {
-                    type: 'attribute',
-                    style: 'camelCase',
+                    template: 65,
+                    styles: 50,
+                    animations: 10,
                 },
             ],
+            //Component selectors should follow given naming rules. See more at https://angular.dev/style-guide#style-02-07, https://angular.dev/style-guide#style-05-02 and https://angular.dev/style-guide#style-05-03.
             '@angular-eslint/component-selector': [
                 'error',
                 {
@@ -28,12 +46,97 @@ module.exports = tseslint.config(
                     style: 'kebab-case',
                 },
             ],
-            '@typescript-eslint/no-explicit-any': 'off',
-            '@typescript-eslint/no-inferrable-types': 'off',
-            '@typescript-eslint/no-unused-vars': 'off',
-            '@typescript-eslint/ban-tslint-comment': 'off',
-            '@angular-eslint/prefer-standalone': 'off',
+            //Ensures consistent usage of styles/styleUrls/styleUrl within Component metadata
+            '@angular-eslint/consistent-component-styles': 'error',
+            //Ensures that classes use contextual decorators in its body
+            '@angular-eslint/contextual-decorator': 'error',
+            //Ensures that lifecycle methods are used in a correct context
+            '@angular-eslint/contextual-lifecycle': 'error',
+            //Classes decorated with @Directive must have suffix "Directive" (or custom) in their name. Note: As of v20, this is no longer recommended by the Angular Team.
+            '@angular-eslint/directive-class-suffix': 'error',
+            //Directive selectors should follow given naming rules. See more at https://angular.dev/style-guide#style-02-06 and https://angular.dev/style-guide#style-02-08.
+            '@angular-eslint/directive-selector': [
+                'error',
+                {
+                    type: 'attribute',
+                    style: 'camelCase',
+                },
+            ],
+            //Angular Lifecycle methods should not be async. Angular does not wait for async lifecycle but the code incorrectly suggests it does.
+            '@angular-eslint/no-async-lifecycle-method': 'error',
+            //The @Attribute decorator is used to obtain a single value for an attribute. This is a much less common use-case than getting a stream of values (using @Input), so often the @Attribute decorator is mistakenly used when @Input was what was intended. This rule disallows usage of @Attribute decorator altogether in order to prevent these mistakes.
+            '@angular-eslint/no-attribute-decorator': 'error',
+            //Ensures that directives not implement conflicting lifecycle interfaces.
+            '@angular-eslint/no-conflicting-lifecycle': 'error',
+            //Ensures that metadata arrays do not contain duplicate entries.
+            '@angular-eslint/no-duplicates-in-metadata-arrays': 'error',
+            //Disallows declaring empty lifecycle methods
+            '@angular-eslint/no-empty-lifecycle-method': 'error',
+            //Disallows usage of forwardRef references for DI
+            '@angular-eslint/no-forward-ref': 'off',
+            //Ensures that input bindings, including aliases, are not named or prefixed by the configured disallowed prefixes
+            '@angular-eslint/no-input-prefix': [
+                'error',
+                {
+                    prefixes: ['input', 'in'],
+                },
+            ],
+            //Ensures that input bindings are not aliased
             '@angular-eslint/no-input-rename': 'off',
+            //Disallows usage of the inputs metadata property. See more at https://angular.dev/style-guide#style-05-12
+            '@angular-eslint/no-inputs-metadata-property': 'error',
+            //Disallows explicit calls to lifecycle methods
+            '@angular-eslint/no-lifecycle-call': 'error',
+            //Ensures that output bindings, including aliases, are not named as standard DOM events
+            '@angular-eslint/no-output-native': 'error',
+            //Ensures that output bindings, including aliases, are not named "on", nor prefixed with it. See more at https://angular.dev/style-guide#style-05-16
+            '@angular-eslint/no-output-on-prefix': 'error',
+            //Ensures that output bindings are not aliased
+            '@angular-eslint/no-output-rename': 'error',
+            //Disallows usage of the outputs metadata property. See more at https://angular.dev/style-guide#style-05-12
+            '@angular-eslint/no-outputs-metadata-property': 'error',
+            //Disallows the declaration of impure pipes
+            '@angular-eslint/no-pipe-impure': 'error',
+            //Disallows usage of the queries metadata property. See more at https://angular.dev/style-guide#style-05-12.
+            '@angular-eslint/no-queries-metadata-property': 'error',
+            //Warns user about unintentionally doing logic on the signal, rather than the signal's value
+            '@angular-eslint/no-uncalled-signals': 'error',
+            //Enforce consistent prefix for pipes.
+            '@angular-eslint/pipe-prefix': 'error',
+            //Prefer using the inject() function over constructor parameter injection
+            '@angular-eslint/prefer-inject': 'error',
+            //Ensures component's changeDetection is set to ChangeDetectionStrategy.OnPush
+            '@angular-eslint/prefer-on-push-component-change-detection': 'error',
+            //Use OutputEmitterRef instead of @Output()
+            '@angular-eslint/prefer-output-emitter-ref': 'error',
+            //Prefer to declare @Output, OutputEmitterRef and OutputRef as readonly since they are not supposed to be reassigned
+            '@angular-eslint/prefer-output-readonly': 'error',
+            //Use readonly signals instead of @Input(), @ViewChild() and other legacy decorators
+            '@angular-eslint/prefer-signals': 'error',
+            //Ensures Components, Directives and Pipes do not opt out of standalone.
+            '@angular-eslint/prefer-standalone': 'off',
+            //The ./ and ../ prefix is standard syntax for relative URLs; don't depend on Angular's current ability to do without that prefix. See more at https://angular.dev/style-guide#style-05-04
+            '@angular-eslint/relative-url-prefix': 'error',
+            //Ensures that lifecycle methods are defined on the object's prototype instead of on an instance.
+            '@angular-eslint/require-lifecycle-on-prototype': 'error',
+            //Ensures that $localize tagged messages contain helpful metadata to aid with translations.
+            '@angular-eslint/require-localize-metadata': 'error',
+            //Ensures that $localize tagged messages can use runtime-loaded translations.
+            '@angular-eslint/runtime-localize': 'error',
+            //Ensures that keys in type decorators (Component, Directive, NgModule, Pipe) are sorted in a consistent order
+            '@angular-eslint/sort-keys-in-type-decorator': 'error',
+            //Ensures that lifecycle methods are declared in order of execution
+            '@angular-eslint/sort-lifecycle-methods': 'error',
+            //Component selector must be declared
+            '@angular-eslint/use-component-selector': 'error',
+            //Disallows using ViewEncapsulation.None
+            '@angular-eslint/use-component-view-encapsulation': 'error',
+            //Using the providedIn property makes Injectables tree-shakable
+            '@angular-eslint/use-injectable-provided-in': 'error',
+            //Ensures that classes implement lifecycle interfaces corresponding to the declared lifecycle methods. See more at https://angular.dev/style-guide#style-09-01
+            '@angular-eslint/use-lifecycle-interface': 'error',
+            //Ensures that Pipes implement PipeTransform interface
+            '@angular-eslint/use-pipe-transform-interface': 'error',
         },
     },
     {

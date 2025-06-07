@@ -1,32 +1,10 @@
-import {
-    ApplicationRef,
-    ComponentFactoryResolver,
-    ComponentRef,
-    createComponent,
-    EnvironmentInjector,
-    inject,
-    Injectable,
-    Injector,
-    TemplateRef,
-    Type,
-    ViewContainerRef,
-    ViewRef,
-} from '@angular/core';
+import { ApplicationRef, ComponentFactoryResolver, ComponentRef, createComponent, EnvironmentInjector, inject, Injectable, Injector, TemplateRef, Type, ViewContainerRef, ViewRef } from '@angular/core';
 import { TAB_DIALOG_REF, DialogRef } from './dialog.ref';
-import {
-    IConfirmationDialogArgs,
-    IDialogArgs,
-    IDialogHeaderArgs,
-    IDialogPositionAndSizeArgs,
-    IModalArgs,
-} from './dialog.args';
+import { IConfirmationDialogArgs, IDialogArgs, IDialogHeaderArgs, IDialogPositionAndSizeArgs, IModalArgs } from './dialog.args';
 import { debounceTime, fromEvent, map, Subscription, zip } from 'rxjs';
 import { FocusableElement, tabbable } from 'tabbable';
 import { IconComponent } from '../icon/icon.component';
-import {
-    ConfirmationDialogComponent,
-    IConfirmationDialogData,
-} from './confirmation-dialog.component';
+import { ConfirmationDialogComponent, IConfirmationDialogData } from './confirmation-dialog.component';
 import { TableauUiDialogModule } from './tableau-ui-dialog.module';
 import { TemplateDialogComponent } from './template-dialog.component';
 import { TAB_DATA_REF } from './data.ref';
@@ -40,11 +18,7 @@ export class DialogService {
     appRef = inject(ApplicationRef);
     environmentInjector = inject(EnvironmentInjector);
 
-    openModal<TData = any, TComponent = any>(
-        component: Type<TComponent>,
-        data: TData,
-        args?: IModalArgs
-    ): DialogRef {
+    openModal<TData = any, TComponent = any>(component: Type<TComponent>, data: TData, args?: IModalArgs): DialogRef {
         const a = {
             width: args?.width ?? '300px',
             height: args?.height ?? 'fit-content',
@@ -80,16 +54,8 @@ export class DialogService {
         return ref;
     }
 
-    openTemplateModal<TData = any>(
-        contentTemplate: TemplateRef<TData>,
-        contentTemplateContext: TData,
-        args?: IModalArgs
-    ): DialogRef {
-        return this.openModal(
-            TemplateDialogComponent,
-            { contentTemplate, contentTemplateContext },
-            args
-        );
+    openTemplateModal<TData = any>(contentTemplate: TemplateRef<TData>, contentTemplateContext: TData, args?: IModalArgs): DialogRef {
+        return this.openModal(TemplateDialogComponent, { contentTemplate, contentTemplateContext }, args);
     }
 
     openConfirmationMessageDialog(
@@ -99,7 +65,7 @@ export class DialogService {
         acceptBtnText: string | undefined,
         cancelBtnText: string | undefined,
         autofocus: 'accept' | 'cancel' | undefined,
-        args?: IConfirmationDialogArgs
+        args?: IConfirmationDialogArgs,
     ): Promise<boolean> {
         const modalArgs = {
             ...(args ?? {}),
@@ -115,11 +81,7 @@ export class DialogService {
                 contentTemplate: undefined,
                 contentTemplateContext: undefined,
             };
-            const dialogRef = this.openModal(
-                ConfirmationDialogComponent,
-                data,
-                modalArgs
-            );
+            const dialogRef = this.openModal(ConfirmationDialogComponent, data, modalArgs);
             dialogRef.closed$.subscribe((result) => {
                 resolve(result ?? false);
             });
@@ -134,7 +96,7 @@ export class DialogService {
         acceptBtnText: string | undefined,
         cancelBtnText: string | undefined,
         autofocus: 'accept' | 'cancel' | undefined,
-        args?: IConfirmationDialogArgs
+        args?: IConfirmationDialogArgs,
     ): Promise<boolean> {
         const modalArgs = {
             ...(args ?? {}),
@@ -150,11 +112,7 @@ export class DialogService {
                 contentTemplate: template,
                 contentTemplateContext: templateContext,
             };
-            const dialogRef = this.openModal(
-                ConfirmationDialogComponent,
-                data,
-                modalArgs
-            );
+            const dialogRef = this.openModal(ConfirmationDialogComponent, data, modalArgs);
             dialogRef.closed$.subscribe((result) => {
                 resolve(result ?? false);
             });
@@ -171,25 +129,10 @@ export class DialogService {
         args: IDialogArgs;
     }[] = [];
 
-    openTemplateDialog<T = any>(
-        contentTemplate: TemplateRef<T>,
-        args: IDialogArgs,
-        contentTemplateContext?: T,
-        insertAfterElement?: HTMLElement
-    ) {
-        return this.openDialog(
-            TemplateDialogComponent,
-            { contentTemplate, contentTemplateContext },
-            args,
-            insertAfterElement
-        );
+    openTemplateDialog<T = any>(contentTemplate: TemplateRef<T>, args: IDialogArgs, contentTemplateContext?: T, insertAfterElement?: HTMLElement) {
+        return this.openDialog(TemplateDialogComponent, { contentTemplate, contentTemplateContext }, args, insertAfterElement);
     }
-    openDialog<TData = any, TComponent = any>(
-        component: Type<TComponent>,
-        data: TData,
-        args: IDialogArgs = {},
-        insertAfterElement?: HTMLElement
-    ): DialogRef {
+    openDialog<TData = any, TComponent = any>(component: Type<TComponent>, data: TData, args: IDialogArgs = {}, insertAfterElement?: HTMLElement): DialogRef {
         let trappedFocus:
             | {
                   elements: {
@@ -208,20 +151,13 @@ export class DialogService {
         // calculate new zIndex
         let zIndex = this.zIndex;
         if (this.dialogStack.length > 0) {
-            zIndex =
-                this.dialogStack[this.dialogStack.length - 1].zIndex +
-                this.zIndexStep;
+            zIndex = this.dialogStack[this.dialogStack.length - 1].zIndex + this.zIndexStep;
         }
         // push this dialog to the new stack
         this.dialogStack.push({ dialogRef, zIndex, args });
 
         // Set the backdrop
-        const backdrop = this.createBackdrop(
-            args,
-            dialogRef,
-            zIndex - 1,
-            insertAfterElement
-        );
+        const backdrop = this.createBackdrop(args, dialogRef, zIndex - 1, insertAfterElement);
         this.setEscapeHandler();
 
         // Create an injector that provides the DialogRef
@@ -239,29 +175,17 @@ export class DialogService {
         this.appRef.attachView(componentView);
 
         // Create a container for the dialog
-        const dialogElement = this.createDialogElement(
-            componentView,
-            args,
-            injector,
-            dialogRef,
-            zIndex
-        );
+        const dialogElement = this.createDialogElement(componentView, args, injector, dialogRef, zIndex);
         dialogRef.dialogElement = dialogElement;
 
         // always insert element after the backdrop
         backdrop.insertAdjacentElement('afterend', dialogElement);
         // Handle container position and window resize event
-        dialogRef.reposition = (
-            getArgs: (originalArgs: IDialogPositionAndSizeArgs) => void
-        ) => {
+        dialogRef.reposition = (getArgs: (originalArgs: IDialogPositionAndSizeArgs) => void) => {
             getArgs(args);
             DialogService.calculateAndSetPosition(dialogElement, args, insertAfterElement);
         };
-        const resizeSubscription = this.manageDialogPosition(
-            dialogElement,
-            args,
-            insertAfterElement
-        );
+        const resizeSubscription = this.manageDialogPosition(dialogElement, args, insertAfterElement);
 
         // Handle dialog close
         dialogRef.closed$.subscribe(() => {
@@ -272,9 +196,7 @@ export class DialogService {
             componentView.destroy();
             dialogElement.remove();
 
-            const dialogIndex = this.dialogStack.findIndex(
-                (d) => d.zIndex === zIndex
-            );
+            const dialogIndex = this.dialogStack.findIndex((d) => d.zIndex === zIndex);
             this.dialogStack.splice(dialogIndex, 1);
             // clear backdrop
             backdrop.remove();
@@ -289,12 +211,7 @@ export class DialogService {
         return dialogRef;
     }
 
-    private createBackdrop(
-        args: IDialogArgs,
-        dialogRef: DialogRef,
-        dialogZIndex: number,
-        insertAfterElement?: HTMLElement
-    ): HTMLDivElement {
+    private createBackdrop(args: IDialogArgs, dialogRef: DialogRef, dialogZIndex: number, insertAfterElement?: HTMLElement): HTMLDivElement {
         const backdrop = document.createElement('div');
         backdrop.classList.add('dialog-backdrop');
         backdrop.style.zIndex = (dialogZIndex - 1).toString();
@@ -324,8 +241,7 @@ export class DialogService {
             return;
         }
         // get the dialog to set the escape for
-        const { dialogRef, zIndex, args } =
-            this.dialogStack[this.dialogStack.length - 1];
+        const { dialogRef, zIndex, args } = this.dialogStack[this.dialogStack.length - 1];
         if (args.closeOnEscape) {
             this.escapeSubscription = fromEvent(document, 'keydown')
                 .pipe(map((e) => e as KeyboardEvent))
@@ -342,27 +258,15 @@ export class DialogService {
         }
     }
 
-    private createView<TComponent>(
-        component: Type<TComponent>,
-        injector: Injector
-    ): ViewRef {
-        const componentRef: ComponentRef<TComponent> = createComponent(
-            component,
-            {
-                environmentInjector: this.environmentInjector,
-                elementInjector: injector,
-            }
-        );
+    private createView<TComponent>(component: Type<TComponent>, injector: Injector): ViewRef {
+        const componentRef: ComponentRef<TComponent> = createComponent(component, {
+            environmentInjector: this.environmentInjector,
+            elementInjector: injector,
+        });
         return componentRef.hostView;
     }
 
-    private createDialogElement(
-        viewRef: ViewRef,
-        args: IDialogArgs,
-        injector: Injector,
-        dialogRef: DialogRef,
-        zIndex: number
-    ): HTMLElement {
+    private createDialogElement(viewRef: ViewRef, args: IDialogArgs, injector: Injector, dialogRef: DialogRef, zIndex: number): HTMLElement {
         const dialogElement = (viewRef as any).rootNodes[0] as HTMLElement;
         dialogElement.classList.add('dialog-container');
         dialogElement.style.zIndex = zIndex.toString();
@@ -380,15 +284,11 @@ export class DialogService {
             titleElement.innerHTML = args.header.title;
             headerElement.appendChild(titleElement);
             if (args.header.allowClose) {
-                const iconRef: ComponentRef<IconComponent> = createComponent(
-                    IconComponent,
-                    {
-                        environmentInjector: this.environmentInjector,
-                        elementInjector: injector,
-                    }
-                );
-                const iconElement = (iconRef.hostView as any)
-                    .rootNodes[0] as HTMLElement;
+                const iconRef: ComponentRef<IconComponent> = createComponent(IconComponent, {
+                    environmentInjector: this.environmentInjector,
+                    elementInjector: injector,
+                });
+                const iconElement = (iconRef.hostView as any).rootNodes[0] as HTMLElement;
                 iconElement.textContent = 'close';
                 iconElement.setAttribute('tabindex', '0');
                 iconElement.addEventListener('click', () => dialogRef.close());
@@ -406,11 +306,7 @@ export class DialogService {
         return dialogElement;
     }
 
-    private manageDialogPosition(
-        dialogElement: HTMLElement,
-        args: IDialogPositionAndSizeArgs,
-        insertAfterElement?: HTMLElement
-    ): Subscription | null {
+    private manageDialogPosition(dialogElement: HTMLElement, args: IDialogPositionAndSizeArgs, insertAfterElement?: HTMLElement): Subscription | null {
         // Temporarily position the dialog offscreen to get its dimensions
         dialogElement.style.top = '-9999px';
         dialogElement.style.left = '-9999px';
@@ -450,11 +346,7 @@ export class DialogService {
         });
     }
 
-    private static calculateAndSetPosition(
-        dialogElement: HTMLElement,
-        args: IDialogPositionAndSizeArgs,
-        insertAfterElement?: HTMLElement
-    ) {
+    private static calculateAndSetPosition(dialogElement: HTMLElement, args: IDialogPositionAndSizeArgs, insertAfterElement?: HTMLElement) {
         if (args.maxWidth) {
             dialogElement.style.maxWidth = args.maxWidth;
         }
@@ -471,9 +363,7 @@ export class DialogService {
             widthCss = 'fit-content';
         } else if (typeof args.width === 'function') {
             if (!insertAfterElementRect) {
-                throw new Error(
-                    'When using a function for width, insertAfterElement must be provided.'
-                );
+                throw new Error('When using a function for width, insertAfterElement must be provided.');
             }
             widthCss = args.width(insertAfterElementRect);
         } else {
@@ -483,9 +373,7 @@ export class DialogService {
             heightCss = 'fit-content';
         } else if (typeof args.height === 'function') {
             if (!insertAfterElementRect) {
-                throw new Error(
-                    'When using a function for height, insertAfterElement must be provided.'
-                );
+                throw new Error('When using a function for height, insertAfterElement must be provided.');
             }
             heightCss = args.height(insertAfterElementRect);
         } else {

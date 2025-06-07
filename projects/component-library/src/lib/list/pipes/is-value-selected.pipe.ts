@@ -1,21 +1,17 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-    pure: true,
     name: 'isValueSelected',
     standalone: false,
+    pure: true,
 })
 export class IsValueSelectedPipe implements PipeTransform {
-    transform(
-        selectedValue: any,
-        optionValue: any,
-        allowMultiple: boolean
-    ): boolean {
+    transform(selectedValue: any, optionValue: any, allowMultiple: boolean): boolean {
         if (allowMultiple && Array.isArray(selectedValue)) {
             return selectedValue.includes(optionValue);
         } else {
             return (
-                selectedValue === optionValue 
+                selectedValue === optionValue
                 // ||
                 // this.safeStringify(selectedValue) ===
                 //     this.safeStringify(optionValue)

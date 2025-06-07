@@ -2,8 +2,8 @@
     <div class="title">
         <h1>Checkbox</h1>
         <div class="text-light text-large">
-            The checkbox component is a simple component that allows users to
-            select or deselect an option.<br />
+            The checkbox component is a simple component that allows users to select or deselect an option.
+            <br />
             Supports both Reactive Forms and simple value binding.
         </div>
     </div>
@@ -11,18 +11,16 @@
     <div class="content">
         <div class="section">
             <h3>Module</h3>
-            <p>
-                To use the component, import one of the following modules into
-                your module/component:
-            </p>
+            <p>To use the component, import one of the following modules into your module/component:</p>
 
             <ul>
                 <li>
-                    <code>TableauUiCheckboxModule</code> - for granular import
+                    <code>TableauUiCheckboxModule</code>
+                    - for granular import
                 </li>
                 <li>
-                    <code>TableauUiAllModule</code> - to import all components
-                    from this library
+                    <code>TableauUiAllModule</code>
+                    - to import all components from this library
                 </li>
             </ul>
         </div>
@@ -30,26 +28,16 @@
             <h3>Basic usage</h3>
             <p>
                 To use the checkbox without Reactive Forms, simply bind to the
-                <code>value</code> and <code>valueChanges</code> properties. These examples show a snack when
-                changed.
+                <code>value</code>
+                and
+                <code>valueChanges</code>
+                properties. These examples show a snack when changed.
             </p>
             <div class="spacer">
-                <tab-checkbox
-                    [(value)]="simpleValue1"
-                    (valueChanges)="valueChanged($event, 'Simple Checkbox')"
-                >
+                <tab-checkbox [(value)]="simpleValue1" (valueChanges)="valueChanged($event, 'Simple Checkbox')">This is a simple checkbox</tab-checkbox>
+                <tab-checkbox [(value)]="simpleValue2" (valueChanges)="valueChanged($event, 'Simple Checkbox with hint')">
                     This is a simple checkbox
-                </tab-checkbox>
-                <tab-checkbox
-                    [(value)]="simpleValue2"
-                    (valueChanges)="
-                        valueChanged($event, 'Simple Checkbox with hint')
-                    "
-                >
-                    This is a simple checkbox
-                    <tab-hint
-                        >This is a sample hint for the value above</tab-hint
-                    >
+                    <tab-hint>This is a sample hint for the value above</tab-hint>
                 </tab-checkbox>
             </div>
         </div>
@@ -57,49 +45,42 @@
             <h3>Reactive Forms</h3>
             <p>
                 To use the checkbox with Reactive Forms, bind to the
-                <code>formControl</code> or <code>formControlName</code> property.
+                <code>formControl</code>
+                or
+                <code>formControlName</code>
+                property.
             </p>
             <div class="spacer">
                 <form class="spacer" [formGroup]="form">
-                    <tab-checkbox
-                        formControlName="formControl1"
-                        (valueChanges)="
-                            valueChanged($event, 'Reactive Checkbox 1')
-                        "
-                    >
-                        This is a reactive checkbox bound to <b>formControlName</b>
+                    <tab-checkbox formControlName="formControl1" (valueChanges)="valueChanged($event, 'Reactive Checkbox 1')">
+                        This is a reactive checkbox bound to
+                        <b>formControlName</b>
                     </tab-checkbox>
-                    <tab-checkbox 
-                     [formControl]="form.controls.formControl2"
-                     (valueChanges)="valueChanged($event, 'Reactive Checkbox 2')">
+                    <tab-checkbox [formControl]="form.controls.formControl2" (valueChanges)="valueChanged($event, 'Reactive Checkbox 2')">
                         This is a reactive checkbox
-                        <tab-hint>bound to <b>formControl</b></tab-hint>
+                        <tab-hint>
+                            bound to
+                            <b>formControl</b>
+                        </tab-hint>
                     </tab-checkbox>
-                    <tab-checkbox 
-                    formControlName="disabledControl"
-                    (valueChanges)="valueChanged($event, 'Disabled Checkbox')">
-                       This is a disabled checkbox
-                       <tab-hint>it is unclickable</tab-hint>
-                   </tab-checkbox>
-                   <tab-checkbox 
-                    formControlName="errorControl"
-                    (valueChanges)="valueChanged($event, 'Validated Checkbox', form.controls.errorControl.invalid ? 'error': 'info')">
-                       This is a checkbox with validation
-                       <tab-hint>it always needs to be 'true'</tab-hint>
-                       @if (form.controls.errorControl.invalid) {
+                    <tab-checkbox formControlName="disabledControl" (valueChanges)="valueChanged($event, 'Disabled Checkbox')">
+                        This is a disabled checkbox
+                        <tab-hint>it is unclickable</tab-hint>
+                    </tab-checkbox>
+                    <tab-checkbox formControlName="errorControl" (valueChanges)="valueChanged($event, 'Validated Checkbox', form.controls.errorControl.invalid ? 'error' : 'info')">
+                        This is a checkbox with validation
+                        <tab-hint>it always needs to be 'true'</tab-hint>
+                        @if (form.controls.errorControl.invalid) {
                             <tab-error>Value needs to be 'true'</tab-error>
-                       }
-                   </tab-checkbox>
-                   <tab-checkbox 
-                   formControlName="disabledErrorControl"
-                   (valueChanges)="valueChanged($event, 'Disabled Validated Checkbox', form.controls.disabledErrorControl.invalid ? 'error': 'info')">
-                      This is a disabled checkbox with validation
-                      <tab-hint>it always needs to be 'true'</tab-hint>
-                      @if (form.controls.disabledErrorControl.invalid) {
-                           <tab-error>Value needs to be 'true'</tab-error>
-                      }
-                  </tab-checkbox>
-
+                        }
+                    </tab-checkbox>
+                    <tab-checkbox formControlName="disabledErrorControl" (valueChanges)="valueChanged($event, 'Disabled Validated Checkbox', form.controls.disabledErrorControl.invalid ? 'error' : 'info')">
+                        This is a disabled checkbox with validation
+                        <tab-hint>it always needs to be 'true'</tab-hint>
+                        @if (form.controls.disabledErrorControl.invalid) {
+                            <tab-error>Value needs to be 'true'</tab-error>
+                        }
+                    </tab-checkbox>
                 </form>
             </div>
         </div>

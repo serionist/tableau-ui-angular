@@ -1,28 +1,18 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ExampleSnackComponent } from './example-snack.component';
 import { SnackRef, SnackService } from 'component-library';
 
-
 @Component({
     selector: 'app-snacks-page',
+    standalone: false,
     templateUrl: './snacks-page.component.html',
     styleUrl: './snacks-page.component.scss',
-    standalone: false
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SnacksPageComponent {
     snackService = inject(SnackService);
-    async openCustomSnack(
-        duration: number | undefined = 5000,
-        type: 'info' | 'error' | 'success'= 'info',
-        location: 'top' | 'bottom' = 'top'
-    ) {
-        const snackRef = await this.snackService.openSnackComponent(
-            ExampleSnackComponent,
-            { message: 'This is a custom snack compoenent' },
-            duration,
-            type,
-            location
-        );
+    async openCustomSnack(duration: number | undefined = 5000, type: 'info' | 'error' | 'success' = 'info', location: 'top' | 'bottom' = 'top') {
+        const snackRef = await this.snackService.openSnackComponent(ExampleSnackComponent, { message: 'This is a custom snack compoenent' }, duration, type, location);
         snackRef.afterClosed$.subscribe((result) => {
             console.log('Snack closed with result:', result);
         });

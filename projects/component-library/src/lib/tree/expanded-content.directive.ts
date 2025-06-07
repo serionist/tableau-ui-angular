@@ -1,7 +1,7 @@
-import { Directive } from "@angular/core";
+import { Directive } from '@angular/core';
 
 @Directive({
     selector: '[expandedContent]',
-    standalone: false
+    standalone: false,
 })
 export class ExpandedContentDirective {}

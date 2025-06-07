@@ -1,17 +1,4 @@
-import {
-    Component,
-    contentChild,
-    ElementRef,
-    inject,
-    input,
-    model,
-    ModelSignal,
-    Signal,
-    signal,
-    TemplateRef,
-    viewChild,
-    WritableSignal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, contentChild, ElementRef, inject, input, model, ModelSignal, Signal, signal, TemplateRef, viewChild, WritableSignal } from '@angular/core';
 import { DialogService } from '../dialogservice/dialog.service';
 import { PrefixComponent } from '../common/prefix';
 import { SuffixComponent } from '../common/suffix';
@@ -19,9 +6,10 @@ import { DialogRef } from '../dialogservice/dialog.ref';
 
 @Component({
     selector: 'tab-menu',
-    templateUrl: './menu.component.html',
-    styleUrls: ['./menu.component.scss'],
     standalone: false,
+    templateUrl: './menu.component.html',
+    styleUrl: './menu.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MenuComponent {
     private readonly dialogService = inject(DialogService);
@@ -31,8 +19,7 @@ export class MenuComponent {
      * The parent control to which the autocomplete is attached to
      * // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
      */
-    readonly $parentControl: ModelSignal<ElementRef<HTMLElement> | undefined> =
-        model<ElementRef<HTMLElement>>();
+    readonly $parentControl: ModelSignal<ElementRef<HTMLElement> | undefined> = model<ElementRef<HTMLElement>>();
 
     /**
      * The CSS text to apply to the dropdown container
@@ -40,17 +27,20 @@ export class MenuComponent {
      * Use this to apply height, maxHeight, etc. to the dropdown container
      * @default '{}'
      */
-    readonly $menuContainerCss = model<Record<string, string>>({
-        marginTop: '-1px',
-        background: 'var(--twc-color-base)',
-        borderColor: 'var(--twc-color-border-light)',
-        borderRadius: 'var(--twc-menu-border-radius)',
-        borderStyle: 'solid',
-        borderWidth: '1px',
-        boxShadow: 'var(--twc-dialog-box-shadow)',
-    }, {
-        alias: 'menuContainerCss',
-    });
+    readonly $menuContainerCss = model<Record<string, string>>(
+        {
+            marginTop: '-1px',
+            background: 'var(--twc-color-base)',
+            borderColor: 'var(--twc-color-border-light)',
+            borderRadius: 'var(--twc-menu-border-radius)',
+            borderStyle: 'solid',
+            borderWidth: '1px',
+            boxShadow: 'var(--twc-dialog-box-shadow)',
+        },
+        {
+            alias: 'menuContainerCss',
+        },
+    );
     // The default CSS text to apply to the dropdown container. This is used to set the default values for the menuContainerCss property.
     private defaultContainerCss: Record<string, string> = {
         outline: 'none',
@@ -67,9 +57,12 @@ export class MenuComponent {
      * Use this to apply user-select: none, etc. to the backdrop container
      * @default '{}'
      */
-    readonly $backdropCss = model<Record<string, string>>({}, {
-        alias: 'backdropCss',
-    });
+    readonly $backdropCss = model<Record<string, string>>(
+        {},
+        {
+            alias: 'backdropCss',
+        },
+    );
     /**
      * The width of the container
      * @remarks
@@ -99,7 +92,7 @@ export class MenuComponent {
      * @default 'fit-content'
      */
     readonly $height = input<string>('fit-content', {
-        alias: 'height'
+        alias: 'height',
     });
     /**
      * The max height of the container
@@ -150,26 +143,19 @@ export class MenuComponent {
         alias: 'menuLocation',
     });
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    protected readonly $prefix: Signal<PrefixComponent | undefined> =
-        contentChild<PrefixComponent>(PrefixComponent);
+    protected readonly $prefix: Signal<PrefixComponent | undefined> = contentChild<PrefixComponent>(PrefixComponent);
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    protected readonly $suffix: Signal<SuffixComponent | undefined> =
-        contentChild<SuffixComponent>(SuffixComponent);
+    protected readonly $suffix: Signal<SuffixComponent | undefined> = contentChild<SuffixComponent>(SuffixComponent);
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    private readonly $template: Signal<TemplateRef<any> | undefined> =
-        viewChild<TemplateRef<any>>('dropdownTemplate');
+    private readonly $template: Signal<TemplateRef<any> | undefined> = viewChild<TemplateRef<any>>('dropdownTemplate');
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    private readonly $openDialog: WritableSignal<DialogRef | undefined> = signal<
-        DialogRef | undefined
-    >(undefined);
+    private readonly $openDialog: WritableSignal<DialogRef | undefined> = signal<DialogRef | undefined>(undefined);
 
     async open(forceReOpen: boolean = false) {
         const template = this.$template();
         const parentControl = this.$parentControl();
         if (!parentControl) {
-            throw new Error(
-                'Parent control is not set. Please set the parent control before opening the menu.'
-            );
+            throw new Error('Parent control is not set. Please set the parent control before opening the menu.');
         }
         if (forceReOpen) {
             this.$openDialog()?.close();
@@ -179,7 +165,6 @@ export class MenuComponent {
             return this.$openDialog();
         }
 
-       
         const ref = this.dialogService.openTemplateDialog(
             this.$template()!,
             {
@@ -187,21 +172,14 @@ export class MenuComponent {
                     switch (this.$menuLocation()) {
                         case 'top': {
                             const val = parentRect!.top - actualHeight;
-                            if (
-                                val < 0 &&
-                                parentRect!.bottom + actualHeight <
-                                    window.innerHeight
-                            ) {
+                            if (val < 0 && parentRect!.bottom + actualHeight < window.innerHeight) {
                                 return `${parentRect!.bottom}px`;
                             }
                             return `${parentRect!.top - actualHeight}px`;
                         }
                         case 'bottom': {
                             const val = parentRect!.bottom;
-                            if (
-                                val + actualHeight > window.innerHeight &&
-                                parentRect!.top - actualHeight > 0
-                            ) {
+                            if (val + actualHeight > window.innerHeight && parentRect!.top - actualHeight > 0) {
                                 return `${parentRect!.top - actualHeight}px`;
                             }
                             return `${val}px`;
@@ -223,21 +201,14 @@ export class MenuComponent {
                     switch (this.$menuLocation()) {
                         case 'left': {
                             const val = parentRect!.left - actualWidth;
-                            if (
-                                val < 0 &&
-                                parentRect!.right + actualWidth <
-                                    window.innerWidth
-                            ) {
+                            if (val < 0 && parentRect!.right + actualWidth < window.innerWidth) {
                                 return `${parentRect!.right}px`;
                             }
                             return `${parentRect!.left - actualWidth}px`;
                         }
                         case 'right': {
                             const val = parentRect!.right;
-                            if (
-                                val + actualWidth > window.innerWidth &&
-                                parentRect!.left - actualWidth > 0
-                            ) {
+                            if (val + actualWidth > window.innerWidth && parentRect!.left - actualWidth > 0) {
                                 return `${parentRect!.left - actualWidth}px`;
                             }
                             return `${val}px`;
@@ -255,11 +226,9 @@ export class MenuComponent {
                         }
                     }
                 },
-                
+
                 width: (parentRect) => {
-                    return this.$width() === 'parentWidth'
-                    ? `${parentRect!.width}px`
-                    : this.$width();
+                    return this.$width() === 'parentWidth' ? `${parentRect!.width}px` : this.$width();
                 },
                 closeOnBackdropClick: this.$closeOnBackdropClick(),
                 closeOnEscape: this.$closeOnEscape(),
@@ -274,7 +243,7 @@ export class MenuComponent {
                 backdropCss: this.$backdropCss(),
             },
             null,
-            parentControl.nativeElement
+            parentControl.nativeElement,
         );
         ref.closed$.subscribe(() => {
             if (this.$openDialog() === ref) {

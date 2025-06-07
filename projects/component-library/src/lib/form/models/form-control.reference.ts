@@ -6,7 +6,7 @@ import { signal, WritableSignal } from '@angular/core';
 
 export class FC<T extends Primitive | Primitive[] = any> extends ACTyped<FC<T>, T> {
     override registerFn: FCRegisterFunctions<T>;
-    protected override _value: WritableSignal<T>;
+    protected override readonly _value: WritableSignal<T>;
     override readonly _value$: BehaviorSubject<T>;
     constructor(params: { defaultValue: T; initialDisabled?: boolean; validators?: ValidatorFn | ValidatorFn[]; asyncValidators?: AsyncValidatorFn | AsyncValidatorFn[]; updateOn?: 'change' | 'blur' | 'submit' }) {
         const control = new FormControl<T>(

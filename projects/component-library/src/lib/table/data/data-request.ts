@@ -1,4 +1,4 @@
-import { DataSort } from "../sorting/data-sort";
+import { DataSort } from '../sorting/data-sort';
 
 export interface DataRequest {
     readonly offset: number;

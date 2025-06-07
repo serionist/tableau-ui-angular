@@ -36,8 +36,10 @@ import { generateRandomString as generateRandomString } from '../utils';
 
 @Component({
     selector: 'tab-select',
+    standalone: false,
     templateUrl: './select.component.html',
     styleUrl: './select.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
@@ -56,8 +58,6 @@ import { generateRandomString as generateRandomString } from '../utils';
         '[aria-hidden]': '$disabled() ? true : null',
         '[id]': 'selectId',
     },
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false,
 })
 export class SelectComponent implements ControlValueAccessor, AfterViewInit, OnDestroy {
     protected readonly selectId: string;

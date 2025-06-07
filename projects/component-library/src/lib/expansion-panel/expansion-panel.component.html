@@ -1,30 +1,23 @@
 <!-- eslint-disable-next-line @angular-eslint/template/interactive-supports-focus, @angular-eslint/template/click-events-have-key-events -->
-<div
-    class="header"
-    [class.disabled]="$disabled()"
-    [class.no-hover]="$noHeaderHover()"
-    (click)="onclick()"
->
+<div class="header" [class.disabled]="$disabled()" [class.no-hover]="$noHeaderHover()" (click)="onclick()">
     @if ($expanded() && $expandedHeader()) {
-    <div>
-        <ng-content select="tab-expansion-panel-title[expanded]" />
-    </div>
+        <div>
+            <ng-content select="tab-expansion-panel-title[expanded]" />
+        </div>
     } @else if (!$expanded() && $collapsedHeader()) {
-    <div>
-        <ng-content select="tab-expansion-panel-title[collapsed]" />
-    </div>
+        <div>
+            <ng-content select="tab-expansion-panel-title[collapsed]" />
+        </div>
     } @else {
-    <div><ng-content select="tab-expansion-panel-title" /></div>
+        <div><ng-content select="tab-expansion-panel-title" /></div>
     }
     <button layout="icon" color="plain" [disabled]="$disabled()">
-        <tab-icon
-            [value]="$expanded() ? 'keyboard_arrow_up' : 'keyboard_arrow_down'"
-        />
+        <tab-icon [value]="$expanded() ? 'keyboard_arrow_up' : 'keyboard_arrow_down'" />
     </button>
 </div>
 
 @if ($expanded()) {
-<div class="content">
-    <ng-content />
-</div>
+    <div class="content">
+        <ng-content />
+    </div>
 }

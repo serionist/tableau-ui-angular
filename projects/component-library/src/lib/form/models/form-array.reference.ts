@@ -12,7 +12,7 @@ import { ControlRegistry } from './control-registry';
 
 export class FA<TItem extends Record<string, any> = any> extends ACTyped<FA<TItem>, DeepPartial<TItem>[]> {
     override registerFn: FARegisterFunctions<TItem>;
-    protected override _value: WritableSignal<DeepPartial<TItem>[]>;
+    protected override readonly _value: WritableSignal<DeepPartial<TItem>[]>;
     protected override readonly _value$: BehaviorSubject<DeepPartial<TItem>[]>;
     get controls$(): ReadonlyBehaviorSubject<FG<TItem>[]> {
         return this.hierarchy.childList$ as unknown as ReadonlyBehaviorSubject<FG<TItem>[]>;
@@ -164,7 +164,7 @@ export class FARegisterFunctions<TItem extends Record<string, any> = any> extend
             this.control.value$.pipe(
                 startWith(undefined as unknown as DeepPartial<TItem[]>),
                 pairwise(),
-                map((v) => [v[0] as DeepPartial<TItem>[] | undefined, (v[1] === undefined ? v[0] : v[1]) as DeepPartial<TItem>[]])
+                map((v) => [v[0] as DeepPartial<TItem>[] | undefined, (v[1] === undefined ? v[0] : v[1]) as DeepPartial<TItem>[]]),
             ),
         ];
         const control = this.control as unknown as FA<TItem>;

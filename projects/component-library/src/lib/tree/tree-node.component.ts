@@ -34,16 +34,16 @@ import { combineLatest } from 'rxjs';
 
 @Component({
     selector: 'tab-tree-node',
-    templateUrl: './tree-node.component.html',
-    styleUrls: ['./tree-node.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: false,
+    templateUrl: './tree-node.component.html',
+    styleUrl: './tree-node.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
             useExisting: forwardRef(() => TabTreeNodeComponent),
-            multi: true
-        }
+            multi: true,
+        },
     ],
 })
 export class TabTreeNodeComponent implements OnInit, OnDestroy, TreeNodeInterface {
@@ -60,7 +60,7 @@ export class TabTreeNodeComponent implements OnInit, OnDestroy, TreeNodeInterfac
     });
 
     readonly $expanded = model<boolean>(false, {
-        alias: 'expanded'
+        alias: 'expanded',
     });
     readonly expanded$ = toObservable(this.$expanded);
     readonly expandedChange = output<boolean>();
@@ -77,7 +77,6 @@ export class TabTreeNodeComponent implements OnInit, OnDestroy, TreeNodeInterfac
 
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     readonly $template: Signal<TemplateRef<any> | undefined> = viewChild<TemplateRef<any>>('treeNodeTemplate');
-
 
     readonly $hierarchyId: InputSignal<string> = input<string>(generateRandomString(16), {
         alias: 'hierarchyId',
@@ -98,7 +97,7 @@ export class TabTreeNodeComponent implements OnInit, OnDestroy, TreeNodeInterfac
             parents.push(parent);
             parent = parent.$parent();
         }
-        return parents.every(p => p.$expanded());
+        return parents.every((p) => p.$expanded());
     });
 
     readonly $depth = signal<number>(-1);

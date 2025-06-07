@@ -8,28 +8,24 @@ import { AbstractControl, FormArray, FormControl, FormGroup } from '@angular/for
 import { ControlRegistry } from './models/control-registry';
 
 @Pipe({
-    name: 'formControl',
+    name: 'formControlRequired',
     standalone: false,
     pure: true,
 })
-export class FormControlPipe implements PipeTransform {
+export class FormControlRequiredPipe implements PipeTransform {
     transform<T extends 'control' | 'group' | 'array' | 'abstract' = 'control'>(
-        form: AC | undefined | null,
+        form: AC,
         path?: string | undefined,
         type?: T,
-    ): Observable<T extends 'control' ? FormControl | null : T extends 'group' ? FormGroup | null : T extends 'array' ? FormArray | null : T extends 'abstract' ? AbstractControl | null : AbstractControl | null> {
-        if (!form) {
-            return of(null) as any;
-        }
+    ): Observable<T extends 'control' ? FormControl : T extends 'group' ? FormGroup : T extends 'array' ? FormArray : T extends 'abstract' ? AbstractControl : AbstractControl> {
         return form.hierarchy.getChild$(path).pipe(
             map((c) => {
                 if (!c) {
-                    return null;
+                    throw new Error(`Child control not found`);
                 }
                 const control = ControlRegistry.controls.get(c.id);
                 if (!control) {
-                    console.warn(`Control with id ${c.id} not found in registry.`);
-                    return null;
+                    throw new Error(`Control with id ${c.id} not found in registry.`);
                 }
                 if (type === 'control') {
                     if (control instanceof FormControl) {
@@ -51,8 +47,6 @@ export class FormControlPipe implements PipeTransform {
                 }
                 return control;
             }),
-        ) as unknown as Observable<
-            T extends 'control' ? FormControl | null : T extends 'group' ? FormGroup | null : T extends 'array' ? FormArray | null : T extends 'abstract' ? AbstractControl | null : AbstractControl | null
-        >;
+        ) as unknown as Observable<T extends 'control' ? FormControl : T extends 'group' ? FormGroup : T extends 'array' ? FormArray : T extends 'abstract' ? AbstractControl : AbstractControl>;
     }
 }

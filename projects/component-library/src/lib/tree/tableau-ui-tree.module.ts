@@ -10,8 +10,8 @@ import { CollapsedContentDirective } from './collapsed-content.directive';
 import { ShouldShowNodePipe } from './pipes/should-show-node.pipe';
 
 @NgModule({
-    imports: [CommonModule, TableauUiButtonModule, TableauUiIconModule, TableauUiTooltipModule],
     declarations: [TabTreeComponent, TabTreeNodeComponent, ExpandedContentDirective, CollapsedContentDirective, ShouldShowNodePipe],
+    imports: [CommonModule, TableauUiButtonModule, TableauUiIconModule, TableauUiTooltipModule],
     exports: [TabTreeComponent, TabTreeNodeComponent, ExpandedContentDirective, CollapsedContentDirective],
 })
 export class TableauUiTreeModule {}

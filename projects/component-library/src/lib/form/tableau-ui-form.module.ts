@@ -12,27 +12,9 @@ import { FormChildPipe } from './form-child.pipe';
 
 import { ControlReferenceBuilder } from './models/control-reference-builder';
 @NgModule({
+    declarations: [FormArrayValuePipe, FormControlPipe, GetFormErrorPipe, HasFormErrorPipe, FormMetaPipe, FormGroupValuePipe, FormControlValuePipe, FormChildPipe],
     imports: [ReactiveFormsModule, CommonModule],
-    declarations: [
-        FormArrayValuePipe,
-        FormControlPipe,
-        GetFormErrorPipe,
-        HasFormErrorPipe,
-        FormMetaPipe,
-        FormGroupValuePipe,
-        FormControlValuePipe,
-        FormChildPipe
-    ],
-    exports: [
-        FormArrayValuePipe,
-        FormControlPipe,
-        GetFormErrorPipe,
-        HasFormErrorPipe,
-        FormMetaPipe,
-        FormGroupValuePipe,
-        FormControlValuePipe,
-        FormChildPipe
-    ],
-    providers: [ControlReferenceBuilder]
+    exports: [FormArrayValuePipe, FormControlPipe, GetFormErrorPipe, HasFormErrorPipe, FormMetaPipe, FormGroupValuePipe, FormControlValuePipe, FormChildPipe],
+    providers: [ControlReferenceBuilder],
 })
 export class TableauUiFormModule {}

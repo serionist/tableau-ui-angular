@@ -1,7 +1,8 @@
-import { Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
 @Component({
     selector: 'tab-loading-gif',
+    standalone: false,
     template: `
         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" [attr.width]="$width()" [attr.height]="$height()" [attr.color]="$color()">
             <g transform="rotate(0 50 50)">
@@ -73,16 +74,16 @@ import { Component, input } from '@angular/core';
             shape-rendering: auto;
         }
     `,
-    standalone: false,
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoadingGifComponent {
-    $color = input<string>('#355c80', {
+    readonly $color = input<string>('#355c80', {
         alias: 'color',
     });
-    $width = input<string>('24px', {
+    readonly $width = input<string>('24px', {
         alias: 'width',
     });
-    $height = input<string>('24px', {
+    readonly $height = input<string>('24px', {
         alias: 'height',
     });
 }

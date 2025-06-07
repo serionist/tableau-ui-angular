@@ -1,17 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    contentChild,
-    ContentChild,
-    contentChildren,
-    ContentChildren,
-    forwardRef,
-    model,
-    OnInit,
-    output,
-    Signal,
-    signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, contentChild, ContentChild, contentChildren, ContentChildren, forwardRef, model, OnInit, output, Signal, signal } from '@angular/core';
 import { IOptionGridContext, OptionComponent } from '../common/option';
 import { HintComponent } from '../common/hint';
 import { ErrorComponent } from '../common/error';
@@ -21,8 +8,10 @@ import { generateRandomString } from '../utils';
 
 @Component({
     selector: 'tab-radiogroup',
+    standalone: false,
     templateUrl: './radiogroup.component.html',
     styleUrl: './radiogroup.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
@@ -30,13 +19,11 @@ import { generateRandomString } from '../utils';
             multi: true,
         },
     ],
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
 })
 export class RadiogroupComponent implements ControlValueAccessor {
     readonly $disabled = signal(false);
     readonly $value = model<any>(undefined, {
-        alias: 'value'
+        alias: 'value',
     });
     readonly $valueChanges = output<any>();
     readonly name = this.generateRandomGroupName();
@@ -44,7 +31,7 @@ export class RadiogroupComponent implements ControlValueAccessor {
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     readonly $errorElement: Signal<ErrorComponent | undefined> = contentChild(ErrorComponent);
 
-    // eslint-disable-next-line  @typescript-eslint/no-empty-function  
+    // eslint-disable-next-line  @typescript-eslint/no-empty-function
     onChange = (value: any) => {};
     // eslint-disable-next-line  @typescript-eslint/no-empty-function
     onTouched = () => {};
@@ -84,7 +71,6 @@ export class RadiogroupComponent implements ControlValueAccessor {
     }
 
     generateRandomGroupName(length: number = 8): string {
-
         return `group-${generateRandomString(length)}`;
     }
 

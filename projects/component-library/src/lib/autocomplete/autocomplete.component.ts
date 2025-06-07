@@ -1,20 +1,4 @@
-import {
-    Component,
-    contentChild,
-    contentChildren,
-    Directive,
-    ElementRef,
-    inject,
-    input,
-    model,
-    OnDestroy,
-    OnInit,
-    Signal,
-    signal,
-    TemplateRef,
-    viewChild,
-    WritableSignal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, contentChild, contentChildren, Directive, ElementRef, inject, input, model, OnDestroy, OnInit, Signal, signal, TemplateRef, viewChild, WritableSignal } from '@angular/core';
 import { IOptionGridContext, OptionComponent } from '../common/option';
 import { PrefixComponent } from '../common/prefix';
 import { SuffixComponent } from '../common/suffix';
@@ -28,7 +12,8 @@ import { generateRandomString } from '../utils';
     selector: 'tab-autocomplete',
     standalone: false,
     templateUrl: './autocomplete.component.html',
-    styleUrls: ['./autocomplete.component.scss'],
+    styleUrl: './autocomplete.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AutoCompleteComponent {
     private readonly dialogService = inject(DialogService);
@@ -43,9 +28,12 @@ export class AutoCompleteComponent {
      * Use this to apply height, maxHeight, etc. to the dropdown container
      * @default '{}'
      */
-    readonly $dropdownContainerCss = model<Record<string, string>>({}, {
-        alias: 'dropdownContainerCss',
-    });
+    readonly $dropdownContainerCss = model<Record<string, string>>(
+        {},
+        {
+            alias: 'dropdownContainerCss',
+        },
+    );
     /**
      * The CSS text to apply to the options container in the dropdown
      * @remarks
@@ -54,35 +42,38 @@ export class AutoCompleteComponent {
      *
      * @default "{ maxHeight: '300px', height: 'fit-content'}"
      */
-    readonly $dropdownOptionsContainerCss = model<Record<string, string>>({
-        maxHeight: '300px',
-        height: 'fit-content',
-    }, {
-        alias: 'dropdownOptionsContainerCss',
-    });
+    readonly $dropdownOptionsContainerCss = model<Record<string, string>>(
+        {
+            maxHeight: '300px',
+            height: 'fit-content',
+        },
+        {
+            alias: 'dropdownOptionsContainerCss',
+        },
+    );
     /**
      * The template context to use for the dropdown options
      * @remarks
      * Use this to display the 'icon', 'text', and 'hint' properties of the options conditionally
      */
-    readonly $dropdownValueTemplateContext = model<IOptionGridContext>({
-        renderIcon: true,
-        renderText: true,
-        renderHint: true,
-    }, {
-        alias: 'dropdownValueTemplateContext',
-    });
+    readonly $dropdownValueTemplateContext = model<IOptionGridContext>(
+        {
+            renderIcon: true,
+            renderText: true,
+            renderHint: true,
+        },
+        {
+            alias: 'dropdownValueTemplateContext',
+        },
+    );
 
     protected readonly $options = contentChildren<OptionComponent>(OptionComponent);
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    protected readonly $dropdownPrefix: Signal<PrefixComponent | undefined> =
-        contentChild<PrefixComponent>(PrefixComponent);
+    protected readonly $dropdownPrefix: Signal<PrefixComponent | undefined> = contentChild<PrefixComponent>(PrefixComponent);
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    protected readonly $dropdownSuffix: Signal<SuffixComponent | undefined> =
-        contentChild<SuffixComponent>(SuffixComponent);
+    protected readonly $dropdownSuffix: Signal<SuffixComponent | undefined> = contentChild<SuffixComponent>(SuffixComponent);
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    protected readonly $dropdownTemplate: Signal<TemplateRef<any> | undefined> =
-        viewChild<TemplateRef<any>>('dropdownTemplate');
+    protected readonly $dropdownTemplate: Signal<TemplateRef<any> | undefined> = viewChild<TemplateRef<any>>('dropdownTemplate');
 
     constructor() {
         const id = generateRandomString();
@@ -93,14 +84,9 @@ export class AutoCompleteComponent {
     }
 
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    private $openDialog: WritableSignal<
-        { ref: DialogRef; el: HTMLInputElement } | undefined
-    > = signal< { ref: DialogRef; el: HTMLInputElement }  | undefined>(undefined);
+    private readonly $openDialog: WritableSignal<{ ref: DialogRef; el: HTMLInputElement } | undefined> = signal<{ ref: DialogRef; el: HTMLInputElement } | undefined>(undefined);
     openDropdown(parentControl: HTMLInputElement) {
-        if (
-            parentControl.hasAttribute('disabled') &&
-            parentControl.getAttribute('disabled') !== 'false'
-        ) {
+        if (parentControl.hasAttribute('disabled') && parentControl.getAttribute('disabled') !== 'false') {
             return undefined;
         }
         if (this.$openDialog()) {
@@ -117,10 +103,7 @@ export class AutoCompleteComponent {
             {
                 //top: inputRect.bottom + 'px',
                 top(actualWidth, actualHeight) {
-                    if (
-                        inputRect.bottom + actualHeight > window.innerHeight &&
-                        inputRect.top - actualHeight > 0
-                    ) {
+                    if (inputRect.bottom + actualHeight > window.innerHeight && inputRect.top - actualHeight > 0) {
                         return inputRect.top - actualHeight + 'px';
                     }
                     return inputRect.bottom + 'px';
@@ -134,7 +117,7 @@ export class AutoCompleteComponent {
                 },
             },
             null,
-            parentControl
+            parentControl,
         );
 
         this.registerKeyNavigation();
@@ -152,9 +135,7 @@ export class AutoCompleteComponent {
     }
 
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    protected readonly $highlightedOption: WritableSignal<OptionComponent | undefined> = signal<
-        OptionComponent | undefined
-    >(undefined);
+    protected readonly $highlightedOption: WritableSignal<OptionComponent | undefined> = signal<OptionComponent | undefined>(undefined);
 
     protected optionMouseDown(event: MouseEvent) {
         if (event) {
@@ -178,7 +159,6 @@ export class AutoCompleteComponent {
             this.optionKeyNavSubscription = undefined;
         }
     }
-
     /**
      *
      * @param e Handles KeyDown event for:
@@ -189,7 +169,7 @@ export class AutoCompleteComponent {
     private onKeyDown(e: KeyboardEvent) {
         if (e.key === 'Enter') {
             // if dropdown is not open
-            if (this.$openDialog) {
+            if (this.$openDialog()) {
                 // if dropdown is open
                 // if an option is highlighted, select it
                 if (this.$highlightedOption()) {
@@ -212,15 +192,13 @@ export class AutoCompleteComponent {
             // - if this is a single select, find the next item to select
             // - if no item is selected, highlight the first/last item
 
-            if (!this.$openDialog) {
+            if (!this.$openDialog()) {
                 return;
             }
 
             let currentIndex = -1;
             if (this.$highlightedOption()) {
-                currentIndex = this.$options().findIndex(
-                    (o) => o.$value() === this.$highlightedOption()!.$value()
-                );
+                currentIndex = this.$options().findIndex((o) => o.$value() === this.$highlightedOption()!.$value());
             }
             let nextIndex: number;
             // find the next index to highlight/select
@@ -230,14 +208,10 @@ export class AutoCompleteComponent {
                     nextIndex = this.$options().findIndex((o) => !o.$disabled());
                 } else {
                     // find the next option that is not disabled
-                    nextIndex = this.$options().findIndex(
-                        (o, i) => i > currentIndex && !o.$disabled()
-                    );
+                    nextIndex = this.$options().findIndex((o, i) => i > currentIndex && !o.$disabled());
                     // if no option is found, find the next option that is not disabled before the current item
                     if (nextIndex === -1) {
-                        nextIndex = this.$options().findIndex(
-                            (o, i) => i < currentIndex && !o.$disabled()
-                        );
+                        nextIndex = this.$options().findIndex((o, i) => i < currentIndex && !o.$disabled());
                     }
                 }
             } else if (e.key === 'ArrowUp') {
@@ -251,22 +225,12 @@ export class AutoCompleteComponent {
                         nextIndex = this.$options().length - nextIndex - 1;
                     }
                 } else {
-                    const flippedCurrentIndex =
-                        this.$options().length - currentIndex - 1;
+                    const flippedCurrentIndex = this.$options().length - currentIndex - 1;
                     // find the next option that is not disabled
-                    nextIndex = [...this.$options()]
-                        .reverse()
-                        .findIndex(
-                            (o, i) => i > flippedCurrentIndex && !o.$disabled()
-                        );
+                    nextIndex = [...this.$options()].reverse().findIndex((o, i) => i > flippedCurrentIndex && !o.$disabled());
                     // if no option is found, find the next option that is not disabled before the current item
                     if (nextIndex === -1) {
-                        nextIndex = [...this.$options()]
-                            .reverse()
-                            .findIndex(
-                                (o, i) =>
-                                    i < flippedCurrentIndex && !o.$disabled()
-                            );
+                        nextIndex = [...this.$options()].reverse().findIndex((o, i) => i < flippedCurrentIndex && !o.$disabled());
                     }
                     if (nextIndex !== -1) {
                         nextIndex = this.$options().length - nextIndex - 1;
@@ -278,17 +242,13 @@ export class AutoCompleteComponent {
 
             if (nextIndex !== -1) {
                 this.$highlightedOption.set(this.$options()[nextIndex]);
-                
+
                 setTimeout(
                     () =>
-                        document
-                            .querySelector(
-                                `#${this.dropdownId} .option-wrapper.highlight`
-                            )
-                            ?.scrollIntoView({
-                                block: 'nearest',
-                            }),
-                    10
+                        document.querySelector(`#${this.dropdownId} .option-wrapper.highlight`)?.scrollIntoView({
+                            block: 'nearest',
+                        }),
+                    10,
                 );
             }
 

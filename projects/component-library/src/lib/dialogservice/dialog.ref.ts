@@ -1,6 +1,6 @@
-import { InjectionToken } from "@angular/core";
-import { Subject, Observable } from "rxjs";
-import { IDialogPositionAndSizeArgs } from "./dialog.args";
+import { InjectionToken } from '@angular/core';
+import { Subject, Observable } from 'rxjs';
+import { IDialogPositionAndSizeArgs } from './dialog.args';
 
 export const TAB_DIALOG_REF = new InjectionToken<DialogRef>('TAB_DIALOG_REF');
 export class DialogRef {
@@ -9,11 +9,11 @@ export class DialogRef {
     dialogElement: HTMLElement = undefined!;
 
     reposition: (modArgs: (originalArgs: IDialogPositionAndSizeArgs) => void) => void = undefined!;
-    
+
     private _result: any = undefined;
     close(result?: any): void {
-      this._closed$.next(result ?? this._result);
-      this._closed$.complete();
+        this._closed$.next(result ?? this._result);
+        this._closed$.complete();
     }
 
     /**
@@ -24,6 +24,6 @@ export class DialogRef {
      * @param result The result to set.
      */
     setResultWithoutClosing(result: any): void {
-      this._result = result;
+        this._result = result;
     }
-  }
+}

@@ -2,10 +2,7 @@ import { AbstractControl } from '@angular/forms';
 
 export class ControlRegistry {
     private static currentId: number = 0;
-    private static _controls: Map<number, AbstractControl> = new Map<
-        number,
-        AbstractControl
-    >();
+    private static _controls: Map<number, AbstractControl> = new Map<number, AbstractControl>();
     public static get controls(): ReadonlyMap<number, AbstractControl> {
         return this._controls as ReadonlyMap<number, AbstractControl>;
     }
