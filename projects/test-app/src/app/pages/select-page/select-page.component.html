@@ -29,11 +29,11 @@
                     <tab-label>Single value, wrap, icons shown, no check, select highlight:</tab-label>
                     <tab-select
                         placeholder="Select any value"
+                        multipleSelectionNumberSelectedTemplate="{number} items selected"
                         [value]="$singleSelectValue()"
                         [allowClear]="true"
                         [allowMultiple]="false"
                         [multipleSelectionMaxItemsListed]="5"
-                        [multipleSelectionNumberSelectedTemplate]="'{number} items selected'"
                         (valueChange)="singleSelectValueChanged($event)"
                     >
                         <tab-option
@@ -69,15 +69,15 @@
                     <tab-label>Single value, truncate, only text, check right:</tab-label>
                     <tab-select
                         placeholder="Select any value"
+                        multipleSelectionNumberSelectedTemplate="{number} items selected"
+                        selectedValueWrapMode="truncate"
+                        selectedCheckIconLocation="right"
                         [value]="$singleSelectValue()"
                         [allowClear]="true"
                         [allowMultiple]="false"
                         [multipleSelectionMaxItemsListed]="5"
-                        [multipleSelectionNumberSelectedTemplate]="'{number} items selected'"
                         [selectedItemHighlight]="false"
-                        [selectedValueWrapMode]="'truncate'"
                         [selectedValueTemplateContext]="onlyTextSelectedValue"
-                        [selectedCheckIconLocation]="'right'"
                         (valueChange)="singleSelectValueChanged($event)"
                     >
                         <tab-option
@@ -114,15 +114,15 @@
                     <tab-label>Disabled</tab-label>
                     <tab-select
                         placeholder="Select any value"
+                        multipleSelectionNumberSelectedTemplate="{number} items selected"
+                        selectedValueWrapMode="truncate"
+                        selectedCheckIconLocation="right"
                         [value]="$singleSelectValue()"
                         [disabled]="true"
                         [allowClear]="true"
                         [allowMultiple]="false"
                         [multipleSelectionMaxItemsListed]="5"
-                        [multipleSelectionNumberSelectedTemplate]="'{number} items selected'"
-                        [selectedValueWrapMode]="'truncate'"
                         [selectedValueTemplateContext]="onlyTextSelectedValue"
-                        [selectedCheckIconLocation]="'right'"
                         (valueChange)="singleSelectValueChanged($event)"
                     >
                         <tab-option
@@ -158,14 +158,14 @@
                     <tab-label>Prefix & Suffix, truncate, no chevron, no clear, check left:</tab-label>
                     <tab-select
                         placeholder="Select any value"
+                        multipleSelectionNumberSelectedTemplate="{number} items selected"
+                        selectedValueWrapMode="truncate"
+                        selectedCheckIconLocation="left"
                         [value]="$singleSelectValue()"
                         [allowClear]="false"
                         [allowMultiple]="false"
                         [multipleSelectionMaxItemsListed]="5"
-                        [multipleSelectionNumberSelectedTemplate]="'{number} items selected'"
-                        [selectedValueWrapMode]="'truncate'"
                         [selectedValueTemplateContext]="onlyTextSelectedValue"
-                        [selectedCheckIconLocation]="'left'"
                         [selectedItemHighlight]="false"
                         [showChevron]="false"
                         (valueChange)="singleSelectValueChanged($event)"
@@ -213,11 +213,11 @@
                     <tab-label>Single value, wrap, icons shown, no check, selected item highlight:</tab-label>
                     <tab-select
                         placeholder="Select any value"
+                        multipleSelectionNumberSelectedTemplate="{number} items selected"
                         [formControl]="(singleFormControl | formControl | async)!"
                         [allowClear]="true"
                         [allowMultiple]="false"
                         [multipleSelectionMaxItemsListed]="5"
-                        [multipleSelectionNumberSelectedTemplate]="'{number} items selected'"
                     >
                         <tab-option
                             text="This is a looooooooooooooooong option is provided as a set of values"
@@ -261,14 +261,14 @@
                     <tab-label>Single value, truncate, only text, check right:</tab-label>
                     <tab-select
                         placeholder="Select any value"
+                        multipleSelectionNumberSelectedTemplate="{number} items selected"
+                        selectedValueWrapMode="truncate"
+                        selectedCheckIconLocation="right"
                         [formControl]="(singleFormControl2 | formControl | async)!"
                         [allowClear]="true"
                         [allowMultiple]="false"
                         [multipleSelectionMaxItemsListed]="5"
-                        [multipleSelectionNumberSelectedTemplate]="'{number} items selected'"
-                        [selectedValueWrapMode]="'truncate'"
                         [selectedValueTemplateContext]="onlyTextSelectedValue"
-                        [selectedCheckIconLocation]="'right'"
                         [selectedItemHighlight]="false"
                     >
                         <tab-option
@@ -314,14 +314,14 @@
                     <tab-label>Disabled</tab-label>
                     <tab-select
                         placeholder="Select any value"
+                        multipleSelectionNumberSelectedTemplate="{number} items selected"
+                        selectedValueWrapMode="truncate"
+                        selectedCheckIconLocation="right"
                         [formControl]="(disabledSingleFormControl | formControl | async)!"
                         [allowClear]="true"
                         [allowMultiple]="false"
                         [multipleSelectionMaxItemsListed]="5"
-                        [multipleSelectionNumberSelectedTemplate]="'{number} items selected'"
-                        [selectedValueWrapMode]="'truncate'"
                         [selectedValueTemplateContext]="onlyTextSelectedValue"
-                        [selectedCheckIconLocation]="'right'"
                     >
                         <tab-option
                             text="This is a looooooooooooooooong option is provided as a set of values"
@@ -365,14 +365,14 @@
                     <tab-label>Prefix & Suffix, truncate, no chevron, no clear, no check, select highlight:</tab-label>
                     <tab-select
                         placeholder="Select any value"
+                        multipleSelectionNumberSelectedTemplate="{number} items selected"
+                        selectedValueWrapMode="truncate"
+                        selectedCheckIconLocation="none"
                         [formControl]="(singleFormControl3 | formControl | async)!"
                         [allowClear]="false"
                         [allowMultiple]="false"
                         [multipleSelectionMaxItemsListed]="5"
-                        [multipleSelectionNumberSelectedTemplate]="'{number} items selected'"
-                        [selectedValueWrapMode]="'truncate'"
                         [selectedValueTemplateContext]="onlyTextSelectedValue"
-                        [selectedCheckIconLocation]="'none'"
                         [selectedItemHighlight]="true"
                         [showChevron]="false"
                     >
@@ -423,14 +423,14 @@
                     <tab-label>Multi value, wrap, icons shown, check left, max 2 items displayed:</tab-label>
                     <tab-select
                         placeholder="Select multiple values"
+                        multipleSelectionNumberSelectedTemplate="{number} items selected"
+                        selectedValueWrapMode="wrap"
+                        selectedCheckIconLocation="left"
                         [formControl]="(multiFormControl | formControl | async)!"
                         [allowClear]="true"
                         [allowMultiple]="true"
                         [multipleSelectionMaxItemsListed]="2"
-                        [multipleSelectionNumberSelectedTemplate]="'{number} items selected'"
-                        [selectedValueWrapMode]="'wrap'"
                         [selectedItemHighlight]="false"
-                        [selectedCheckIconLocation]="'left'"
                     >
                         <tab-option
                             text="This is a looooooooooooooooong option is provided as a set of values"
@@ -469,12 +469,12 @@
                     <tab-label>Multi value, truncate, icons shown, no check, max 2 items displayed, fix dropdown height:</tab-label>
                     <tab-select
                         placeholder="Select multiple values"
+                        selectedValueWrapMode="truncate"
+                        multipleSelectionNumberSelectedTemplate="{number} items selected"
                         [formControl]="(multiFormControl | formControl | async)!"
-                        [selectedValueWrapMode]="'truncate'"
                         [allowClear]="true"
                         [allowMultiple]="true"
                         [multipleSelectionMaxItemsListed]="2"
-                        [multipleSelectionNumberSelectedTemplate]="'{number} items selected'"
                         [dropdownOptionsContainerCss]="{ 'max-height': '80px' }"
                     >
                         <tab-option
@@ -514,12 +514,12 @@
                     <tab-label>Custom search for names</tab-label>
                     <tab-select
                         placeholder="Select multiple users"
+                        selectedValueWrapMode="truncate"
+                        multipleSelectionNumberSelectedTemplate="{number} users selected"
                         [formControl]="searchFormControl"
-                        [selectedValueWrapMode]="'truncate'"
                         [allowClear]="true"
                         [allowMultiple]="true"
                         [multipleSelectionMaxItemsListed]="2"
-                        [multipleSelectionNumberSelectedTemplate]="'{number} users selected'"
                         [dropdownOptionsContainerCss]="{ 'max-height': '80px' }"
                     >
                         <tab-prefix>

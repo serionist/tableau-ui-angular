@@ -93,7 +93,7 @@
                         <input date-picker
                         min="2000-01-01T00:00"
                         max="2030-12-31T23:59"
-                        [type]="'datetime'"
+                        type="datetime"
                         [formControl]="(simpleControl | formControl | async)!"
                     />
                     @if (simpleControl | formMeta | async | formHasError:'required') {

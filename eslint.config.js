@@ -128,13 +128,23 @@ module.exports = tseslint.config(
             //Ensures that contextual variables are used in @for blocks where possible instead of aliasing them.
             '@angular-eslint/template/prefer-contextual-for-variables': ['off'],
             //Ensures that the built-in control flow is used.
-            "@angular-eslint/template/prefer-control-flow": ['error'],
+            '@angular-eslint/template/prefer-control-flow': ['error'],
             //Ensures ngSrc is used instead of src for img elements
             '@angular-eslint/template/prefer-ngsrc': ['error'],
             //Ensures that self-closing tags are used for elements with a closing tag but no content.
-            '@angular-eslint/template/prefer-self-closing-tags': ['error']
-
-
+            '@angular-eslint/template/prefer-self-closing-tags': ['error'],
+            //Ensures that static string values use property assignment instead of property binding.
+            '@angular-eslint/template/prefer-static-string-properties': ['error'],
+            //Ensure that template literals are used instead of concatenating strings or expressions.
+            '@angular-eslint/template/prefer-template-literal': ['error'],
+            //[Accessibility] Ensures elements with ARIA roles have all required properties for that role.
+            '@angular-eslint/template/role-has-required-aria': ['error'],
+            // [Accessibility] Ensures that the scope attribute is only used on the <th> element
+            '@angular-eslint/template/table-scope': ['error'],
+            //Ensures trackBy function is used
+            '@angular-eslint/template/use-track-by-function': ['error'],
+            //[Accessibility] Ensures that correct ARIA attributes and respective values are used
+            '@angular-eslint/template/valid-aria': ['error'],
         },
     },
 );

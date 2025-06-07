@@ -16,10 +16,10 @@
 
 <tab-arrow-scroll
     scrollDirection="vertical"
+    buttonsColor="plain"
+    buttonsCssColor="var(--twc-color-text-light)"
     [scrollType]="$expanded() ? 'default' : 'arrow'"
-    [buttonsColor]="'plain'"
     [showScrollButtonSeparator]="true"
-    [buttonsCssColor]="'var(--twc-color-text-light)'"
 >
     <tab-icon back-button value="keyboard_arrow_up" />
     <ng-content />

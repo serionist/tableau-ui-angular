@@ -10,7 +10,7 @@
 >
     <div
         class="tree-node-container"
-        [style.marginLeft]="'calc(' + $depth() + ' * ' + $childrenIndent() + ')'"
+        [style.marginLeft]="`calc(${$depth()} * ${$childrenIndent()})`"
         [style.alignItems]="$expandButtonAlign()"
         [style.gap]="$expandButtonGap()"
     >

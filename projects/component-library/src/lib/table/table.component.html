@@ -158,7 +158,7 @@
                 </div>
             </ng-template>
         } @else {
-            <div class="virtualize pre" [style.height]="dmBlocks.prePixels + 'px'"></div>
+            <div class="virtualize pre" [style.height]="`${dmBlocks.prePixels}px`"></div>
 
             <!-- prettier-ignore -->
             @for (block of dmBlocks.blocks; track block.id) {
@@ -219,7 +219,7 @@
                     </div>
                 }
             }
-            <div class="virtualize post" [style.height]="dmBlocks.postPixels + 'px'"></div>
+            <div class="virtualize post" [style.height]="`${dmBlocks.postPixels}px`"></div>
         }
     </div>
 </div>

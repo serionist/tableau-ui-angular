@@ -41,8 +41,8 @@
             </ng-template>
             <tab-table #table
                 style="max-height: 300px"
+                sortMode="multi"
                 [getDataBlock]="loadBlock"
-                [sortMode]="'multi'"
                 [displayedColumns]="
                     $show_first_3_columns() ? ['id', 'name', 'age'] : undefined
                 "

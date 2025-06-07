@@ -64,11 +64,11 @@
                     <tab-list
                         placeholder="Select any value"
                         focusMode="none"
+                        selectedCheckIconLocation="right"
                         [value]="$singleSelectValue()"
                         [allowMultiple]="false"
                         [selectedItemHighlight]="false"
                         [itemTemplateContext]="onlyTextSelectedValue"
-                        [selectedCheckIconLocation]="'right'"
                         (valueChange)="singleSelectValueChanged($event)"
                     >
                         <tab-option
@@ -105,10 +105,10 @@
                     <tab-label>Disabled</tab-label>
                     <tab-list
                         placeholder="Select any value"
+                        selectedCheckIconLocation="right"
                         [value]="$singleSelectValue()"
                         [disabled]="true"
                         [allowMultiple]="false"
-                        [selectedCheckIconLocation]="'right'"
                         (valueChange)="singleSelectValueChanged($event)"
                     >
                         <tab-option
@@ -143,11 +143,11 @@
                 <tab-form-field>
                     <tab-label>Single value, only text, check left, no select highlight, silent focus:</tab-label>
                     <tab-list
+                        selectedCheckIconLocation="left"
+                        focusMode="silent"
                         [value]="$singleSelectValue()"
                         [allowMultiple]="false"
-                        [selectedCheckIconLocation]="'left'"
                         [selectedItemHighlight]="false"
-                        [focusMode]="'silent'"
                         (valueChange)="singleSelectValueChanged($event)"
                     >
                         <tab-option
@@ -298,9 +298,9 @@
                     <tab-label>Single value, only text, check right, no select highlight, no focus:</tab-label>
                     <tab-list
                         focusMode="none"
+                        selectedCheckIconLocation="right"
                         [formControl]="(singleFormControl2 | formControl | async)!"
                         [allowMultiple]="false"
-                        [selectedCheckIconLocation]="'right'"
                         [selectedItemHighlight]="false"
                         [itemTemplateContext]="onlyTextSelectedValue"
                     >
@@ -345,7 +345,7 @@
 
                 <tab-form-field>
                     <tab-label>Disabled</tab-label>
-                    <tab-list [formControl]="(disabledSingleFormControl | formControl | async)!" [selectedCheckIconLocation]="'right'" [disabled]="true">
+                    <tab-list selectedCheckIconLocation="right" [formControl]="(disabledSingleFormControl | formControl | async)!" [disabled]="true">
                         <tab-option
                             text="This is a looooooooooooooooong option is provided as a set of values"
                             icon="home"
@@ -386,7 +386,7 @@
                 </tab-form-field>
                 <tab-form-field>
                     <tab-label>Single value, only text, check left, no select highlight, silent focus:</tab-label>
-                    <tab-list [formControl]="(singleFormControl3 | formControl | async)!" [allowMultiple]="false" [selectedCheckIconLocation]="'none'" [selectedItemHighlight]="true" [focusMode]="'silent'">
+                    <tab-list selectedCheckIconLocation="none" focusMode="silent" [formControl]="(singleFormControl3 | formControl | async)!" [allowMultiple]="false" [selectedItemHighlight]="true">
                         <tab-option
                             text="This is a looooooooooooooooong option is provided as a set of values"
                             icon="home"
@@ -434,11 +434,11 @@
                     <tab-label>Multi value, wrap, icons shown, check left, max 2 items displayed:</tab-label>
                     <tab-list
                         placeholder="Select multiple values"
+                        selectedCheckIconLocation="left"
                         [formControl]="(multiFormControl | formControl | async)!"
-                        [allowMultiple]="true"
                        
+                        [allowMultiple]="true"
                         [selectedItemHighlight]="false"
-                        [selectedCheckIconLocation]="'left'"
                     >
                         <tab-option
                             text="This is a looooooooooooooooong option is provided as a set of values"

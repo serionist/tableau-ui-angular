@@ -29,7 +29,7 @@ import { generateRandomString } from '../utils';
     selector: 'tab-menu-button-group',
     template: `
      @for (entry of $menuGroupStack() | entries; track entry[1].id;) {
-
+        <!-- eslint-disable @angular-eslint/template/prefer-template-literal -->
         <div
             class="menu-group"
             resizeWatcher
