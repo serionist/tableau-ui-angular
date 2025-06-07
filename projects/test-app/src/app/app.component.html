@@ -6,6 +6,7 @@
         </tab-nav-bar-footer>
         }
         <tab-nav-bar-header>
+            <!-- eslint-disable-next-line @angular-eslint/template/prefer-ngsrc-->
             <img class="logo" src="tableau_ui_logo.svg" alt="Tableau UI Logo" />
         </tab-nav-bar-header>
 
@@ -233,7 +234,7 @@
                         [value]="$paletteFontSize()"
                         [min]="10"
                         [max]="24"
-                        (input)="setPaletteFontSize($any($event.target).value)"
+                        (input)="setPaletteFontSize($event)"
                     />
                     <tab-suffix>px</tab-suffix>
                 </tab-form-field>

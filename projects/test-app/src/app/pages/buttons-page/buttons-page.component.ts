@@ -28,7 +28,7 @@ export class ButtonsPageComponent {
         );
     }
 
-    buttonToggleValue = model<string | undefined>(undefined);
+    buttonToggleValue = model<string | undefined>('center');
     private initialButtonToggleValueChange = true;
     readonly buttonToggleChange = effect(() => {
         const val = this.buttonToggleValue();

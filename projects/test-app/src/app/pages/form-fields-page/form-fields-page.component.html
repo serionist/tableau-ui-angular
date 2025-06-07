@@ -1,3 +1,4 @@
+<!-- eslint-disable  @angular-eslint/template/no-inline-styles -->
 <div class="page">
     <div class="title">
         <h1>Form Fields</h1>
@@ -42,13 +43,13 @@
                         value=""
                         (change)="
                             valueChanged(
-                                $any($event.target).value,
+                                $event,
                                 'Simple TextBox'
                             )
                         "
                         (input)="
                             valueInput(
-                                $any($event.target).value,
+                                $event,
                                 'Simple TextBox'
                             )
                         "
@@ -63,13 +64,13 @@
                         value=""
                         (change)="
                             valueChanged(
-                                $any($event.target).value,
+                                $event,
                                 'Disabled TextBox'
                             )
                         "
                         (input)="
                             valueInput(
-                                $any($event.target).value,
+                                $event,
                                 'Disabled TextBox'
                             )
                         "
@@ -88,7 +89,7 @@
                         type="text"
                         [value]="searchValue$ | async"
                         [tabAutoComplete]="autocomplete"
-                        (input)="searchValueChanged($any($event.target).value)"
+                        (input)="searchValueChanged($event)"
                     />
                     <tab-autocomplete #autocomplete>
                         <tab-prefix>

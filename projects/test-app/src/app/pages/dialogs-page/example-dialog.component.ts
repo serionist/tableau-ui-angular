@@ -1,16 +1,13 @@
 import { Component, inject, Inject, input, Input, model, signal, Signal } from '@angular/core';
-import {
-    DialogRef,
-    DialogService,
-    TAB_DATA_REF,
-    TAB_DIALOG_REF,
-} from 'component-library';
+import { DialogRef, DialogService, TAB_DATA_REF, TAB_DIALOG_REF } from 'component-library';
 
 @Component({
     selector: 'app-example-dialog',
     template: `
+    <!-- eslint-disable  @angular-eslint/template/no-inline-styles -->
         <div
             class="dialog-content"
+            
             style="
     padding: 1em 2em;"
         >
@@ -45,12 +42,8 @@ export class ExampleDialogComponent {
     }
 
     openAnother() {
-        this.dialogService.openModal(
-            ExampleDialogComponent,
-            'Another dialog',
-            {
-                height: 'auto',
-            }
-        );
+        this.dialogService.openModal(ExampleDialogComponent, 'Another dialog', {
+            height: 'auto',
+        });
     }
 }

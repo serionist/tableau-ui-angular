@@ -43,6 +43,8 @@ module.exports = tseslint.config(
         },
         extends: [...angular.configs.templateRecommended, ...angular.configs.templateAccessibility],
         rules: {
+            // Disallows calling expressions in templates, except for output handlers
+            // Allows prefixing with $ to allow for calling Signals
             '@angular-eslint/template/no-call-expression': [
                 'error',
                 {
@@ -80,16 +82,59 @@ module.exports = tseslint.config(
             ],
             // Requires === and !== in place of == and !=
             '@angular-eslint/template/eqeqeq': ['error'],
-            "@angular-eslint/template/i18n": ['off'], // not yet needed
+            '@angular-eslint/template/i18n': ['off'], // not yet needed
             // [Accessibility] Ensures that elements with interactive handlers like (click) are focusable.
             '@angular-eslint/template/interactive-supports-focus': ['error'],
             // [Accessibility] Ensures that a label element/component is associated with a form element
             '@angular-eslint/template/label-has-associated-control': [
                 'error',
                 {
-                    controlComponents: ['input', 'select', 'textarea', 'tab-select', 'tab-list', 'tab-checkbox', 'tab-radiogroup']
+                    controlComponents: ['input', 'select', 'textarea', 'tab-select', 'tab-list', 'tab-checkbox', 'tab-radiogroup'],
                 },
             ],
+            // [Accessibility] Ensures that the mouse events mouseout and mouseover are accompanied by focus and blur events respectively. Coding for the keyboard is important for users with physical disabilities who cannot use a mouse, AT compatibility, and screenreader users. See more at
+            '@angular-eslint/template/mouse-events-have-key-events': ['error'],
+            // The use of "$any" nullifies the compile-time benefits of Angular's type system
+            '@angular-eslint/template/no-any': ['error'],
+            //Disallows calling expressions in templates, except for output handlers
+            '@angular-eslint/template/no-autofocus': ['error'],
+            //[Accessibility] Enforces that no distracting elements are used
+            '@angular-eslint/template/no-distracting-elements': ['error'],
+            //Ensures that there are no duplicate input properties or output event listeners
+            '@angular-eslint/template/no-duplicate-attributes': ['error'],
+            //Disallows the use of inline styles in HTML templates
+            '@angular-eslint/template/no-inline-styles': [
+                'error',
+                {
+                    allowBindToStyle: true,
+                    allowNgStyle: true,
+                },
+            ],
+            //Ensures that property-binding is used instead of interpolation in attributes.
+            '@angular-eslint/template/no-interpolation-in-attributes': [
+                'error',
+                {
+                    allowSubstringInterpolation: false,
+                },
+            ],
+            //Ensures that async pipe results, as well as values used with the async pipe, are not negated
+            '@angular-eslint/template/no-negated-async': ['error'],
+            // Denies nesting of tags
+            '@angular-eslint/template/no-nested-tags': ['error'],
+            //Ensures that the tabindex attribute is not positive
+            '@angular-eslint/template/no-positive-tabindex': ['error'],
+            //Prefer using @empty with @for loops instead of a separate @if or @else block to reduce code and make it easier to read.
+            '@angular-eslint/template/prefer-at-empty': ['error'],
+            //Ensures that contextual variables are used in @for blocks where possible instead of aliasing them.
+            '@angular-eslint/template/prefer-contextual-for-variables': ['off'],
+            //Ensures that the built-in control flow is used.
+            "@angular-eslint/template/prefer-control-flow": ['error'],
+            //Ensures ngSrc is used instead of src for img elements
+            '@angular-eslint/template/prefer-ngsrc': ['error'],
+            //Ensures that self-closing tags are used for elements with a closing tag but no content.
+            '@angular-eslint/template/prefer-self-closing-tags': ['error']
+
+
         },
     },
 );

@@ -10,7 +10,7 @@ import {
     RouterOutlet,
     withHashLocation,
 } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { CssPageComponent } from './pages/css-page/css-page.component';
 import { CheckboxPageComponent } from './pages/checkbox-page/checkbox-page.component';
 import { routes } from './app.routes';
@@ -98,6 +98,7 @@ import { TablePageComponent } from './pages/table-page/table-page.component';
         CommonModule,
         FormsModule,
         MonacoEditorModule.forRoot(),
+        NgOptimizedImage,
         RouterModule,
         ReactiveFormsModule,
         TableauUiNavBarModule,

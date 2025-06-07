@@ -47,6 +47,8 @@
             cursor: wait;
             margin: auto;
             overflow: hidden;
+            width: 1.1rem;
+            height: 1.1rem;
         }
     }
 
@@ -60,7 +62,7 @@
     }
 
     &[disabled]:not([disabled="false"]) {
-        color: var(--twc-color-border-dark) !important;
+        color: var(--twc-color-disabled) !important;
         cursor: default;
         pointer-events: none;
     }

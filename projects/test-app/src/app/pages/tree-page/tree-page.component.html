@@ -1,26 +1,23 @@
+<!-- eslint-disable  @angular-eslint/template/no-inline-styles -->
 <div class="page">
     <div class="title">
         <h1>Trees</h1>
-        <div class="text-light text-large">
-            Trees are used to display expandable tree nodes
-        </div>
+        <div class="text-light text-large">Trees are used to display expandable tree nodes</div>
     </div>
     <tab-separator></tab-separator>
     <div class="content">
         <div class="section">
             <h3>Module</h3>
-            <p>
-                To use the component, import one of the following modules into
-                your module/component:
-            </p>
+            <p>To use the component, import one of the following modules into your module/component:</p>
 
             <ul>
                 <li>
-                    <code>TableauUiTreeModule</code> - for granular import
+                    <code>TableauUiTreeModule</code>
+                    - for granular import
                 </li>
                 <li>
-                    <code>TableauUiAllModule</code> - to import all components
-                    from this library
+                    <code>TableauUiAllModule</code>
+                    - to import all components from this library
                 </li>
             </ul>
         </div>
@@ -36,8 +33,7 @@
         <div class="section">
             <h3>Examples</h3>
             <p>Default; no gridlines, no row gap, default sizes and indents, has button tooltips</p>
-            <tab-tree
-               >
+            <tab-tree>
                 <tab-tree-node>
                     <span>Node 1</span>
                     <tab-tree-node>
@@ -142,10 +138,7 @@
                 </tab-tree-node>
             </tab-tree>
             <p>gridlines, custom row gap, not keeping expand button offset when no items, etc</p>
-            <tab-tree style="gap: 1rem;"
-                gridLinesBorder="1px solid var(--twc-color-border)"
-                expandButtonAlign="center"
-                [keepButtonOffsetOnNoChildren]="false">
+            <tab-tree style="gap: 1rem" gridLinesBorder="1px solid var(--twc-color-border)" expandButtonAlign="center" [keepButtonOffsetOnNoChildren]="false">
                 <tab-tree-node>
                     <span>Node 1</span>
                     <tab-tree-node>
@@ -250,7 +243,8 @@
                 </tab-tree-node>
             </tab-tree>
             <p>gridlines, show root gridlines, change gridline border radius, change expand button gap/color/align, change indent, add tooltip to expand button</p>
-            <tab-tree style="gap: 1rem;"
+            <tab-tree
+                style="gap: 1rem"
                 gridLinesBorder="1px solid var(--twc-color-border)"
                 gridLinesBorderRadius="10px"
                 expandButtonColor="green"
@@ -264,7 +258,8 @@
                     collapse: 'Collapse',
                     position: 'top',
                     margin: '5px',
-                }">
+                }"
+            >
                 <tab-tree-node>
                     <span>Node 1</span>
                     <tab-tree-node>
@@ -369,8 +364,7 @@
                 </tab-tree-node>
             </tab-tree>
             <p>Different content for expanded and collapsed nodes (shown for first 2 nodes)</p>
-            <tab-tree
-               >
+            <tab-tree>
                 <tab-tree-node [expanded]="true">
                     <span expandedContent>Node 1 Expanded</span>
                     <span collapsedContent>Node 1 Collapsed</span>
@@ -478,36 +472,35 @@
             </tab-tree>
             <p>Manual hierarchy mode. Node hierarchy is determined by hierarchyId and childHierarchyId on tree nodes. hierarchyId MUST be unique</p>
             <tab-tree hierarchyMode="manual" gridLinesBorder="1px solid var(--twc-color-border)">
-               <tab-tree-node hierarchyId="5" [order]="5">This is forced last by ordering</tab-tree-node>
-               <tab-tree-node hierarchyId="6" hierarchyParentId="1" [order]="5">This is forced last in Node 1 by ordering</tab-tree-node>
+                <tab-tree-node hierarchyId="5" [order]="5">This is forced last by ordering</tab-tree-node>
+                <tab-tree-node hierarchyId="6" hierarchyParentId="1" [order]="5">This is forced last in Node 1 by ordering</tab-tree-node>
                 <tab-tree-node hierarchyId="1">Node 1</tab-tree-node>
-               <tab-tree-node hierarchyId="1.1" hierarchyParentId="1">Subnode 1</tab-tree-node>
-               <tab-tree-node hierarchyId="1.1.1" hierarchyParentId="1.1">Subnode 1.1</tab-tree-node>
-               <tab-tree-node hierarchyId="1.1.2" hierarchyParentId="1.1">Subnode 1.2</tab-tree-node>
-               <tab-tree-node hierarchyId="1.1.3" hierarchyParentId="1.1">Subnode 1.3</tab-tree-node>
-               <tab-tree-node hierarchyId="1.1.4" hierarchyParentId="1.1">Subnode 1.4</tab-tree-node>
-               <!--Submodes of subnode 2 are placed before subnode 2. This is to showcase that the order that tab-tree-nodes appear does not matter-->
-               <tab-tree-node hierarchyId="1.2.1" hierarchyParentId="1.2">Subnode 2.1</tab-tree-node>
-               <tab-tree-node hierarchyId="1.2.2" hierarchyParentId="1.2">Subnode 2.2</tab-tree-node>
-               <tab-tree-node hierarchyId="1.2.3" hierarchyParentId="1.2">Subnode 2.3</tab-tree-node>
-               <tab-tree-node hierarchyId="1.2" hierarchyParentId="1">Subnode 2</tab-tree-node>
-               <tab-tree-node hierarchyId="1.2.4" hierarchyParentId="1.2">Subnode 2.4</tab-tree-node>
-               <tab-tree-node hierarchyId="1.3" hierarchyParentId="1">Subnode 3</tab-tree-node>
+                <tab-tree-node hierarchyId="1.1" hierarchyParentId="1">Subnode 1</tab-tree-node>
+                <tab-tree-node hierarchyId="1.1.1" hierarchyParentId="1.1">Subnode 1.1</tab-tree-node>
+                <tab-tree-node hierarchyId="1.1.2" hierarchyParentId="1.1">Subnode 1.2</tab-tree-node>
+                <tab-tree-node hierarchyId="1.1.3" hierarchyParentId="1.1">Subnode 1.3</tab-tree-node>
+                <tab-tree-node hierarchyId="1.1.4" hierarchyParentId="1.1">Subnode 1.4</tab-tree-node>
+                <!--Submodes of subnode 2 are placed before subnode 2. This is to showcase that the order that tab-tree-nodes appear does not matter-->
+                <tab-tree-node hierarchyId="1.2.1" hierarchyParentId="1.2">Subnode 2.1</tab-tree-node>
+                <tab-tree-node hierarchyId="1.2.2" hierarchyParentId="1.2">Subnode 2.2</tab-tree-node>
+                <tab-tree-node hierarchyId="1.2.3" hierarchyParentId="1.2">Subnode 2.3</tab-tree-node>
+                <tab-tree-node hierarchyId="1.2" hierarchyParentId="1">Subnode 2</tab-tree-node>
+                <tab-tree-node hierarchyId="1.2.4" hierarchyParentId="1.2">Subnode 2.4</tab-tree-node>
+                <tab-tree-node hierarchyId="1.3" hierarchyParentId="1">Subnode 3</tab-tree-node>
 
-               <tab-tree-node hierarchyId="2">Node 2</tab-tree-node>
-               <tab-tree-node hierarchyId="2.1" hierarchyParentId="2">Subnode 1</tab-tree-node>
-               <tab-tree-node hierarchyId="2.1.1" hierarchyParentId="2.1">Subnode 1.1</tab-tree-node>
-               <tab-tree-node hierarchyId="2.1.2" hierarchyParentId="2.1">Subnode 1.2</tab-tree-node>
-               <tab-tree-node hierarchyId="2.1.3" hierarchyParentId="2.1">Subnode 1.3</tab-tree-node>
-               <tab-tree-node hierarchyId="2.1.4" hierarchyParentId="2.1">Subnode 1.4</tab-tree-node>
+                <tab-tree-node hierarchyId="2">Node 2</tab-tree-node>
+                <tab-tree-node hierarchyId="2.1" hierarchyParentId="2">Subnode 1</tab-tree-node>
+                <tab-tree-node hierarchyId="2.1.1" hierarchyParentId="2.1">Subnode 1.1</tab-tree-node>
+                <tab-tree-node hierarchyId="2.1.2" hierarchyParentId="2.1">Subnode 1.2</tab-tree-node>
+                <tab-tree-node hierarchyId="2.1.3" hierarchyParentId="2.1">Subnode 1.3</tab-tree-node>
+                <tab-tree-node hierarchyId="2.1.4" hierarchyParentId="2.1">Subnode 1.4</tab-tree-node>
             </tab-tree>
             <p>Nested Tree Node components. Works with both auto and manual hierarchy modes</p>
             <tab-tree #hier gridLinesBorder="1px solid var(--twc-color-border)">
-              <app-tree-node-container></app-tree-node-container>
-              <app-tree-node-container></app-tree-node-container>
-              <app-tree-node-container></app-tree-node-container>
+                <app-tree-node-container></app-tree-node-container>
+                <app-tree-node-container></app-tree-node-container>
+                <app-tree-node-container></app-tree-node-container>
             </tab-tree>
-
 
             <p>For super advanced use-cases, you can manually provide the [registry] property to tree-nodes. You can get the registry value from the top level Tree nodes' registry property.</p>
         </div>

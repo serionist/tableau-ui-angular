@@ -58,7 +58,8 @@ export class AppComponent {
         this.themeService.setColorMode(theme);
     }
     $paletteFontSize = computed(() => +this.themeService.$theme().fontSize.replace('px', ''));
-    setPaletteFontSize = (size: number) => {
+    setPaletteFontSize = (event: Event) => {
+        const size = +(event.target as HTMLInputElement).value;
         if (size < 10 || size > 24) {
             return;
         }

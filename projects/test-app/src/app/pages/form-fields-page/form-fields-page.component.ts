@@ -1,12 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import {
-    AbstractControl,
-    FormControl,
-    FormGroup,
-    FormGroupDirective,
-    NgForm,
-    Validators,
-} from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, FormGroupDirective, NgForm, Validators } from '@angular/forms';
 import { ControlReferenceBuilder, SnackService } from 'component-library';
 
 import { BehaviorSubject, debounceTime, skip, Subject } from 'rxjs';
@@ -20,19 +13,15 @@ import { BehaviorSubject, debounceTime, skip, Subject } from 'rxjs';
 export class FormFieldsPageComponent implements OnInit {
     snackService = inject(SnackService);
     private b = inject(ControlReferenceBuilder);
-    valueChanged(
-        value: string | null,
-        name: string,
-        type: 'info' | 'error' = 'info'
-    ) {
-        console.log(`Value changed for ${name}:`, value || '<empty>');
-        this.snackService.openSnack(
-            `${name} set to: ${value || '<empty>'}`,
-            3000,
-            type
-        );
+    valueChanged(event: Event, name: string, type: 'info' | 'error' = 'info') {
+        this.valueChangedInternal((event.target as HTMLInputElement).value, name, type);
     }
-    valueInput(value: string | null, name: string) {
+    private valueChangedInternal(value: string | null, name: string, type: 'info' | 'error' = 'info') {
+        console.log(`Value changed for ${name}:`, value || '<empty>');
+        this.snackService.openSnack(`${name} set to: ${value || '<empty>'}`, 3000, type);
+    }
+    valueInput(event: Event, name: string) {
+        const value = (event.target as HTMLInputElement).value;
         console.log(`Value input for ${name}:`, value || '<empty>');
     }
 
@@ -43,61 +32,23 @@ export class FormFieldsPageComponent implements OnInit {
         disabled: this.b.control<string>('', undefined, undefined, true),
         validation: this.b.control<string>('', Validators.required),
         password: this.b.control<string>(''),
-        number: this.b.control<string>('', [
-            Validators.required,
-            Validators.min(0),
-            Validators.pattern(/^\d+$/),
-        ]),
+        number: this.b.control<string>('', [Validators.required, Validators.min(0), Validators.pattern(/^\d+$/)]),
         textarea: this.b.control<string>(''),
 
         advancedValidation: this.b.control<string>('', [Validators.required]),
     });
-   
 
     ngOnInit(): void {
-        
-
-        this.form.controls.simple.value$
-            .pipe(skip(1), debounceTime(300))
-            .subscribe((value) => this.valueChanged(value, 'Simple textBox'));
-        this.form.controls.simple2.value$
-            .pipe(skip(1), debounceTime(300))
-            .subscribe((value) =>
-                this.valueChanged(value, 'Placeholder textbox')
-            );
-        this.form.controls.simple3.value$
-            .pipe(skip(1), debounceTime(300))
-            .subscribe((value) =>
-                this.valueChanged(value, 'Decorated textBox')
-            );
-        this.form.controls.disabled.value$
-            .pipe(skip(1), debounceTime(300))
-            .subscribe((value) => this.valueChanged(value, 'Disabled textBox'));
+        this.form.controls.simple.value$.pipe(skip(1), debounceTime(300)).subscribe((value) => this.valueChangedInternal(value, 'Simple textBox'));
+        this.form.controls.simple2.value$.pipe(skip(1), debounceTime(300)).subscribe((value) => this.valueChangedInternal(value, 'Placeholder textbox'));
+        this.form.controls.simple3.value$.pipe(skip(1), debounceTime(300)).subscribe((value) => this.valueChangedInternal(value, 'Decorated textBox'));
+        this.form.controls.disabled.value$.pipe(skip(1), debounceTime(300)).subscribe((value) => this.valueChangedInternal(value, 'Disabled textBox'));
         this.form.controls.validation.value$
             .pipe(skip(1), debounceTime(300))
-            .subscribe((value) =>
-                this.valueChanged(
-                    value,
-                    'Validation textBox',
-                    this.form.controls.validation.$meta().validity === 'INVALID' ? 'error' : 'info'
-                )
-            );
-        this.form.controls.password.value$
-            .pipe(skip(1), debounceTime(300))
-            .subscribe((value) => this.valueChanged(value, 'Password box'));
-        this.form.controls.number.value$
-            .pipe(skip(1), debounceTime(300))
-            .subscribe((value) =>
-                this.valueChanged(
-                    value,
-                    'Number box',
-                    this.form.controls.number.$meta().validity === 'INVALID' ? 'error' : 'info'
-                )
-            );
-        this.form.controls.textarea.value$
-            .pipe(skip(1), debounceTime(300))
-            .subscribe((value) => this.valueChanged(value, 'Text area'));
-
+            .subscribe((value) => this.valueChangedInternal(value, 'Validation textBox', this.form.controls.validation.$meta().validity === 'INVALID' ? 'error' : 'info'));
+        this.form.controls.password.value$.pipe(skip(1), debounceTime(300)).subscribe((value) => this.valueChangedInternal(value, 'Password box'));
+        this.form.controls.number.value$.pipe(skip(1), debounceTime(300)).subscribe((value) => this.valueChangedInternal(value, 'Number box', this.form.controls.number.$meta().validity === 'INVALID' ? 'error' : 'info'));
+        this.form.controls.textarea.value$.pipe(skip(1), debounceTime(300)).subscribe((value) => this.valueChangedInternal(value, 'Text area'));
 
         this.searchBounce.pipe(skip(1), debounceTime(200)).subscribe(() => this.performSearch());
     }
@@ -168,28 +119,20 @@ export class FormFieldsPageComponent implements OnInit {
             .map((e) => e.toLowerCase())
             .join('|');
     }
-    
+
     searchValue$ = new BehaviorSubject<string>('');
     $searching = signal(false);
-    searchResults$ = new BehaviorSubject<{ name: string }[]>(
-        this.randomNames
-    );
+    searchResults$ = new BehaviorSubject<{ name: string }[]>(this.randomNames);
 
     searchBounce = new Subject<void>();
-    searchValueChanged(value: string) {
-        this.searchValue$.next(value);
+    searchValueChanged(event: Event) {
+        this.searchValue$.next((event.target as HTMLInputElement).value);
         this.searchBounce.next();
     }
     performSearch() {
         this.$searching.set(true);
         setTimeout(() => {
-            this.searchResults$.next(
-                this.randomNames.filter((e) =>
-                    e.search.includes(
-                        this.getSearchString(this.searchValue$.value)
-                    )
-                )
-            );
+            this.searchResults$.next(this.randomNames.filter((e) => e.search.includes(this.getSearchString(this.searchValue$.value))));
             this.$searching.set(false);
         }, 1000);
     }
