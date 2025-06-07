@@ -1,13 +1,17 @@
-import { AbstractControl, AsyncValidatorFn, FormControl, FormGroup, ValidatorFn } from '@angular/forms';
+import type { AsyncValidatorFn, ValidatorFn } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup } from '@angular/forms';
 
-import { ControlsOf } from '../types/controls-of';
-import { FormReferencesOf } from '../types/form-references-of';
-import { AC, ACRegisterFunctions, ACTyped } from './abstract-control.reference';
-import { BehaviorSubject, combineLatest, distinctUntilChanged, filter, map, Observable, pairwise, startWith, Subscription } from 'rxjs';
-import { DeepPartial } from '../types/deep-partial';
-import { Primitive } from '../types/primitive';
-import { FC } from './form-control.reference';
-import { signal, WritableSignal } from '@angular/core';
+import type { ControlsOf } from '../types/controls-of';
+import type { FormReferencesOf } from '../types/form-references-of';
+import type { AC} from './abstract-control.reference';
+import { ACRegisterFunctions, ACTyped } from './abstract-control.reference';
+import type { Observable, Subscription } from 'rxjs';
+import { BehaviorSubject, combineLatest, distinctUntilChanged, filter, map, pairwise, startWith } from 'rxjs';
+import type { DeepPartial } from '../types/deep-partial';
+import type { Primitive } from '../types/primitive';
+import type { FC } from './form-control.reference';
+import type { WritableSignal } from '@angular/core';
+import { signal } from '@angular/core';
 import { ControlRegistry } from './control-registry';
 
 export class FG<TSource extends Record<string, any> = any> extends ACTyped<FG<TSource>, DeepPartial<TSource>> {

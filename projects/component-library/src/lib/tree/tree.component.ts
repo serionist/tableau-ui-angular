@@ -1,5 +1,9 @@
-import {
+import type {
     AfterContentInit,
+    InputSignal,
+    OnDestroy,
+    TemplateRef} from '@angular/core';
+import {
     ChangeDetectionStrategy,
     Component,
     computed,
@@ -10,14 +14,11 @@ import {
     ElementRef,
     inject,
     input,
-    InputSignal,
-    OnDestroy,
     OnInit,
-    TemplateRef,
     viewChild,
     viewChildren,
 } from '@angular/core';
-import { TabTreeNodeComponent } from './tree-node.component';
+import type { TabTreeNodeComponent } from './tree-node.component';
 import { debounceTime, Subject } from 'rxjs';
 import { TreeNodeRegistry } from './tree-node-registry';
 @Component({

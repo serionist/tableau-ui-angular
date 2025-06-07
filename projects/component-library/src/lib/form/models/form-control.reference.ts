@@ -1,8 +1,11 @@
-import { AsyncValidatorFn, FormControl, ValidatorFn } from '@angular/forms';
-import { Primitive } from '../types/primitive';
+import type { AsyncValidatorFn, ValidatorFn } from '@angular/forms';
+import { FormControl } from '@angular/forms';
+import type { Primitive } from '../types/primitive';
 import { AC, ACRegisterFunctions, ACTyped } from './abstract-control.reference';
-import { BehaviorSubject, combineLatest, distinctUntilChanged, filter, map, Observable, pairwise, startWith, Subscription } from 'rxjs';
-import { signal, WritableSignal } from '@angular/core';
+import type { Observable, Subscription } from 'rxjs';
+import { BehaviorSubject, combineLatest, distinctUntilChanged, filter, map, pairwise, startWith } from 'rxjs';
+import type { WritableSignal } from '@angular/core';
+import { signal } from '@angular/core';
 
 export class FC<T extends Primitive | Primitive[] = any> extends ACTyped<FC<T>, T> {
     override registerFn: FCRegisterFunctions<T>;

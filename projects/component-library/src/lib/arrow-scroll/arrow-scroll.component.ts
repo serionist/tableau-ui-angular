@@ -1,4 +1,5 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, computed, effect, ElementRef, HostListener, input, OnDestroy, signal, viewChild } from '@angular/core';
+import type { AfterViewInit, ElementRef, OnDestroy} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, HostListener, input, signal, viewChild } from '@angular/core';
 
 @Component({
     selector: 'tab-arrow-scroll',

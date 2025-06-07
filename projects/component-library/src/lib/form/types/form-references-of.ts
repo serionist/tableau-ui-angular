@@ -1,4 +1,4 @@
-import { FA, FC, FG } from '../public-api';
+import type { FA, FC, FG } from '../public-api';
 
 export type FormReferencesOf<T extends Record<string, any>> = {
     // eslint-disable-next-line @typescript-eslint/array-type

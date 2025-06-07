@@ -1,4 +1,5 @@
-import { Component, ContentChildren, QueryList, AfterContentInit, contentChildren, signal, computed, ChangeDetectionStrategy, Signal, input, viewChildren, ElementRef } from '@angular/core';
+import type { AfterContentInit, Signal, ElementRef } from '@angular/core';
+import { Component, ContentChildren, QueryList, contentChildren, signal, computed, ChangeDetectionStrategy, input, viewChildren } from '@angular/core';
 import { TabComponent } from './tab.component';
 import { CommonModule } from '@angular/common';
 

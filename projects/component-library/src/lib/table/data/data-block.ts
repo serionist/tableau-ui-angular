@@ -1,7 +1,8 @@
-import { computed, Signal, signal } from '@angular/core';
-import { DataSort } from '../sorting/data-sort';
-import { DataRequest } from './data-request';
-import { DataResponse } from './data-response';
+import type { Signal} from '@angular/core';
+import { computed, signal } from '@angular/core';
+import type { DataSort } from '../sorting/data-sort';
+import type { DataRequest } from './data-request';
+import type { DataResponse } from './data-response';
 
 export class DataBlock {
     private readonly $_status = signal<'idle' | 'loading' | 'success' | 'error' | 'canceled'>('idle');

@@ -1,5 +1,5 @@
 import { Directive, inject, TemplateRef } from '@angular/core';
-import { CellContext } from './cell-context';
+import type { CellContext } from './cell-context';
 
 @Directive({
     selector: '[tabCellDef]',

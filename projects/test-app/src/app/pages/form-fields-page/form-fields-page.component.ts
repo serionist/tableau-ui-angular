@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import type { OnInit} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, FormGroupDirective, NgForm, Validators } from '@angular/forms';
 import { ControlReferenceBuilder, SnackService } from 'component-library';
 
@@ -40,18 +41,18 @@ export class FormFieldsPageComponent implements OnInit {
     });
 
     ngOnInit(): void {
-        this.form.controls.simple.value$.pipe(skip(1), debounceTime(300)).subscribe((value) => this.valueChangedInternal(value, 'Simple textBox'));
-        this.form.controls.simple2.value$.pipe(skip(1), debounceTime(300)).subscribe((value) => this.valueChangedInternal(value, 'Placeholder textbox'));
-        this.form.controls.simple3.value$.pipe(skip(1), debounceTime(300)).subscribe((value) => this.valueChangedInternal(value, 'Decorated textBox'));
-        this.form.controls.disabled.value$.pipe(skip(1), debounceTime(300)).subscribe((value) => this.valueChangedInternal(value, 'Disabled textBox'));
+        this.form.controls.simple.value$.pipe(skip(1), debounceTime(300)).subscribe((value) => { this.valueChangedInternal(value, 'Simple textBox'); });
+        this.form.controls.simple2.value$.pipe(skip(1), debounceTime(300)).subscribe((value) => { this.valueChangedInternal(value, 'Placeholder textbox'); });
+        this.form.controls.simple3.value$.pipe(skip(1), debounceTime(300)).subscribe((value) => { this.valueChangedInternal(value, 'Decorated textBox'); });
+        this.form.controls.disabled.value$.pipe(skip(1), debounceTime(300)).subscribe((value) => { this.valueChangedInternal(value, 'Disabled textBox'); });
         this.form.controls.validation.value$
             .pipe(skip(1), debounceTime(300))
-            .subscribe((value) => this.valueChangedInternal(value, 'Validation textBox', this.form.controls.validation.$meta().validity === 'INVALID' ? 'error' : 'info'));
-        this.form.controls.password.value$.pipe(skip(1), debounceTime(300)).subscribe((value) => this.valueChangedInternal(value, 'Password box'));
-        this.form.controls.number.value$.pipe(skip(1), debounceTime(300)).subscribe((value) => this.valueChangedInternal(value, 'Number box', this.form.controls.number.$meta().validity === 'INVALID' ? 'error' : 'info'));
-        this.form.controls.textarea.value$.pipe(skip(1), debounceTime(300)).subscribe((value) => this.valueChangedInternal(value, 'Text area'));
+            .subscribe((value) => { this.valueChangedInternal(value, 'Validation textBox', this.form.controls.validation.$meta().validity === 'INVALID' ? 'error' : 'info'); });
+        this.form.controls.password.value$.pipe(skip(1), debounceTime(300)).subscribe((value) => { this.valueChangedInternal(value, 'Password box'); });
+        this.form.controls.number.value$.pipe(skip(1), debounceTime(300)).subscribe((value) => { this.valueChangedInternal(value, 'Number box', this.form.controls.number.$meta().validity === 'INVALID' ? 'error' : 'info'); });
+        this.form.controls.textarea.value$.pipe(skip(1), debounceTime(300)).subscribe((value) => { this.valueChangedInternal(value, 'Text area'); });
 
-        this.searchBounce.pipe(skip(1), debounceTime(200)).subscribe(() => this.performSearch());
+        this.searchBounce.pipe(skip(1), debounceTime(200)).subscribe(() => { this.performSearch(); });
     }
 
     names = [

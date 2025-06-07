@@ -1,6 +1,7 @@
-import { Pipe, PipeTransform } from '@angular/core';
-import { ColumnDefDirective } from '../column-def/column-def.directive';
-import { HeaderContext } from './header-context';
+import type { PipeTransform } from '@angular/core';
+import { Pipe } from '@angular/core';
+import type { ColumnDefDirective } from '../column-def/column-def.directive';
+import type { HeaderContext } from './header-context';
 
 @Pipe({
     name: 'headerContext',

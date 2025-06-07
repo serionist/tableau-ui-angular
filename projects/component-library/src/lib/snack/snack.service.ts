@@ -1,4 +1,5 @@
-import { ApplicationRef, ComponentRef, createComponent, EnvironmentInjector, inject, Injectable, Injector, TemplateRef, Type, ViewRef } from '@angular/core';
+import type { ComponentRef, TemplateRef, Type, ViewRef } from '@angular/core';
+import { ApplicationRef, createComponent, EnvironmentInjector, inject, Injectable, Injector } from '@angular/core';
 import { SnackRef, TAB_SNACK_REF } from './snack.ref';
 import { SnackComponent } from './snack.component';
 import { TableauUiSnackModule } from './tableau-ui-snack.module';

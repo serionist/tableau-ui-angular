@@ -1,10 +1,13 @@
-import { AbstractControl, AsyncValidatorFn, ControlEvent, FormArray, FormControl, FormControlStatus, FormGroup, FormResetEvent, ValidationErrors, ValidatorFn } from '@angular/forms';
+import type { AbstractControl, AsyncValidatorFn, FormControlStatus, ValidationErrors, ValidatorFn } from '@angular/forms';
+import { ControlEvent, FormArray, FormControl, FormGroup, FormResetEvent } from '@angular/forms';
 import { generateRandomString } from '../../utils';
-import { BehaviorSubject, distinctUntilChanged, filter, firstValueFrom, map, Observable, of, startWith, Subject, Subscription, switchMap } from 'rxjs';
-import { FA } from './form-array.reference';
-import { FG } from './form-group.reference';
-import { ReadonlyBehaviorSubject } from '../types/readonly-behaviorsubject';
-import { Signal, signal, WritableSignal } from '@angular/core';
+import type { Observable, Subscription} from 'rxjs';
+import { BehaviorSubject, distinctUntilChanged, filter, firstValueFrom, map, of, startWith, Subject, switchMap } from 'rxjs';
+import type { FA } from './form-array.reference';
+import type { FG } from './form-group.reference';
+import type { ReadonlyBehaviorSubject } from '../types/readonly-behaviorsubject';
+import type { Signal, WritableSignal } from '@angular/core';
+import { signal } from '@angular/core';
 import { FC } from './form-control.reference';
 import { ControlRegistry } from './control-registry';
 
@@ -157,10 +160,10 @@ export abstract class AC<TValue = any> {
     }
 
     destroy(): void {
-        this.subscriptions.forEach((sub) => sub.unsubscribe());
+        this.subscriptions.forEach((sub) => { sub.unsubscribe(); });
         this.subscriptions.length = 0;
         ControlRegistry.unregister(this.id);
-        this.hierarchy.childList$.value.forEach((child) => child.destroy());
+        this.hierarchy.childList$.value.forEach((child) => { child.destroy(); });
     }
 }
 export abstract class ACTyped<TChild extends AC, TValue> extends AC<TValue> {
@@ -715,13 +718,13 @@ export class ACRegisterFunctions<TACTyped extends ACTyped<TChild, TValue>, TChil
                     map((e) => e.enabled),
                     distinctUntilChanged(),
                 )
-                .subscribe((e) => callback(e)),
+                .subscribe((e) => { callback(e); }),
         );
         return this.control as unknown as TChild;
     }
 
     metaChange(callback: (meta: AbstractControlMeta) => void): TChild {
-        this.subscriptions.push(this.control.meta$.subscribe((meta) => callback(meta)));
+        this.subscriptions.push(this.control.meta$.subscribe((meta) => { callback(meta); }));
         return this.control as unknown as TChild;
     }
     alwaysDisabled(): TChild {

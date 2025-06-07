@@ -1,5 +1,5 @@
 import { Directive, inject, TemplateRef } from '@angular/core';
-import { HeaderContext } from './header-context';
+import type { HeaderContext } from './header-context';
 
 @Directive({
     selector: '[tabHeaderDef]',

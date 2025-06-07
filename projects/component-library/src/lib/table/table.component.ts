@@ -1,5 +1,8 @@
-import {
+import type {
     AfterViewInit,
+    OnDestroy,
+    TemplateRef} from '@angular/core';
+import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
@@ -12,22 +15,21 @@ import {
     inject,
     input,
     model,
-    OnDestroy,
     resource,
     ResourceLoader,
     ResourceLoaderParams,
     signal,
-    TemplateRef,
     untracked,
     viewChild,
     viewChildren,
 } from '@angular/core';
-import { ColumnDefDirective, SortOrderPair } from './defs/column-def/column-def.directive';
-import { DataSort } from './sorting/data-sort';
+import type { SortOrderPair } from './defs/column-def/column-def.directive';
+import { ColumnDefDirective } from './defs/column-def/column-def.directive';
+import type { DataSort } from './sorting/data-sort';
 import { ColRenderedWidthDirective } from './column-widths/col-rendered-width.directive';
 import { DataManager } from './data/data-manager';
-import { DataRequest } from './data/data-request';
-import { DataResponse } from './data/data-response';
+import type { DataRequest } from './data/data-request';
+import type { DataResponse } from './data/data-response';
 
 @Component({
     selector: 'tab-table',

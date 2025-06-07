@@ -22,10 +22,94 @@ module.exports = tseslint.config(
             },
         },
         rules: {
-            '@typescript-eslint/no-explicit-any': 'off',
             '@typescript-eslint/no-inferrable-types': 'off',
             '@typescript-eslint/no-unused-vars': 'off',
-            '@typescript-eslint/ban-tslint-comment': 'off',
+
+            // ## Typescript rules
+            //Require that function overload signatures be consecutive
+            '@typescript-eslint/adjacent-overload-signatures': 'error',
+            //Require consistently using T[] for arrays instead of Array<T>
+            '@typescript-eslint/array-type': 'error',
+            //Disallow awaiting a value that is not a Thenable
+            '@typescript-eslint/await-thenable': 'error',
+            //Disallow @ts-<directive> comments or require descriptions after directives
+            '@typescript-eslint/ban-ts-comment': 'error',
+            //Disallow // tslint:<rule-flag> comments
+            '@typescript-eslint/ban-tslint-comment': 'error',
+            // Enforce that literals on classes are exposed in a consistent style
+            '@typescript-eslint/class-literal-property-style': 'error',
+            //Enforce that class methods utilize this -> makes everything static if it doesn't use class properties
+            '@typescript-eslint/class-methods-use-this': 'off',
+            //Enforce specifying generic type arguments on type annotation or constructor name of a constructor call
+            '@typescript-eslint/consistent-generic-constructors': 'error',
+            //Require or disallow the Record type
+            '@typescript-eslint/consistent-indexed-object-style': 'error',
+            //Require return statements to either always or never specify values
+            '@typescript-eslint/consistent-return': 'error',
+            //Enforce consistent usage of type assertions
+            '@typescript-eslint/consistent-type-assertions': 'error',
+            //Enforce type definitions to consistently use either interface or type
+            '@typescript-eslint/consistent-type-definitions': 'error',
+            //Enforce consistent usage of type exports
+            '@typescript-eslint/consistent-type-exports': 'error',
+            //Enforce consistent usage of type imports
+            '@typescript-eslint/consistent-type-imports': 'error',
+            //Enforce default parameters to be last
+            '@typescript-eslint/default-param-last': 'off',
+            //Enforce dot notation whenever possible
+            '@typescript-eslint/dot-notation': 'error',
+            //Require explicit return types on functions and class methods
+            '@typescript-eslint/explicit-function-return-type': 'off',
+            //Require explicit accessibility modifiers on class properties and methods
+            '@typescript-eslint/explicit-member-accessibility': 'off',
+            //Require explicit return and argument types on exported functions' and classes' public class methods
+            '@typescript-eslint/explicit-module-boundary-types': 'off',
+            //Require or disallow initialization in variable declarations
+            '@typescript-eslint/init-declarations': 'off',
+            //Enforce a maximum number of parameters in function definitions
+            '@typescript-eslint/max-params': [
+                'error',
+                {
+                    max: 15,
+                },
+            ],
+            //Require a consistent member declaration order
+            '@typescript-eslint/member-ordering': 'off',
+            //Enforce using a particular method signature syntax
+            '@typescript-eslint/method-signature-style': 'error',
+            //Enforce naming conventions for everything across a codebase
+            '@typescript-eslint/naming-convention': 'off',
+            //Disallow generic Array constructors
+            '@typescript-eslint/no-array-constructor': 'error',
+            //Disallow using the delete operator on array values
+            '@typescript-eslint/no-array-delete': 'error',
+            //Require .toString() and .toLocaleString() to only be called on objects which provide useful information when stringified
+            '@typescript-eslint/no-base-to-string': 'error',
+            //Disallow non-null assertion in locations that may be confusing
+            '@typescript-eslint/no-confusing-non-null-assertion': 'error',
+            //Require expressions of type void to appear in statement position
+            '@typescript-eslint/no-confusing-void-expression': 'error',
+            //Disallow using code marked as @deprecated
+            '@typescript-eslint/no-deprecated': 'error',
+            //Disallow duplicate class members
+            '@typescript-eslint/no-dupe-class-members': 'error',
+            //Disallow duplicate enum member values
+            '@typescript-eslint/no-duplicate-enum-values': 'error',
+            //Disallow duplicate constituents of union or intersection types
+            '@typescript-eslint/no-duplicate-type-constituents': 'error',
+            //Disallow using the delete operator on computed key expressions
+            '@typescript-eslint/no-dynamic-delete': 'error',
+            //Disallow empty functions
+            '@typescript-eslint/no-empty-function': 'error',
+            //Disallow the declaration of empty interfaces
+            '@typescript-eslint/no-empty-interface': 'error',
+            //Disallow accidentally using the "empty object" type
+            '@typescript-eslint/no-empty-object-type': 'error',
+            //@typescript-eslint/no-explicit-any
+            '@typescript-eslint/no-explicit-any': 'error',
+
+            // ## Angular specific rules
+
             //Classes decorated with @Component must have suffix "Component" (or custom) in their name. Note: As of v20, this is no longer recommended by the Angular Team.
             '@angular-eslint/component-class-suffix': 'error',
             //Enforces a maximum number of lines in inline template, styles and animations. See more at https://angular.dev/style-guide#style-05-04

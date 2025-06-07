@@ -1,8 +1,9 @@
-import { ChangeDetectionStrategy, Component, contentChild, ElementRef, inject, input, model, ModelSignal, Signal, signal, TemplateRef, viewChild, WritableSignal } from '@angular/core';
+import type { ModelSignal, Signal, TemplateRef, WritableSignal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, contentChild, ElementRef, inject, input, model, signal, viewChild } from '@angular/core';
 import { DialogService } from '../dialogservice/dialog.service';
 import { PrefixComponent } from '../common/prefix';
 import { SuffixComponent } from '../common/suffix';
-import { DialogRef } from '../dialogservice/dialog.ref';
+import type { DialogRef } from '../dialogservice/dialog.ref';
 
 @Component({
     selector: 'tab-menu',
@@ -195,6 +196,9 @@ export class MenuComponent {
                             top = Math.max(top, 0);
                             return `${top}px`;
                         }
+                        default: {
+                            throw new Error(`Invalid menu location: ${this.$menuLocation()}`);
+                        }
                     }
                 },
                 left: (actualWidth, _, parentRect) => {
@@ -223,6 +227,9 @@ export class MenuComponent {
                             }
                             left = Math.max(left, 0);
                             return `${left}px`;
+                        }
+                        default: {
+                            throw new Error(`Invalid menu location: ${this.$menuLocation()}`);
                         }
                     }
                 },

@@ -1,6 +1,7 @@
-import { Directive, effect, ElementRef, Host, HostListener, inject, input, OnDestroy, OnInit } from '@angular/core';
-import { AutoCompleteComponent } from './autocomplete.component';
-import { Subscription } from 'rxjs';
+import type { OnDestroy} from '@angular/core';
+import { Directive, effect, ElementRef, Host, HostListener, inject, input, OnInit } from '@angular/core';
+import type { AutoCompleteComponent } from './autocomplete.component';
+import type { Subscription } from 'rxjs';
 @Directive({
     selector: 'input[tabAutoComplete]',
     standalone: false,

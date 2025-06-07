@@ -1,5 +1,7 @@
-import { AfterViewInit, Directive, ElementRef, inject, input, OnDestroy, Signal, signal } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import type { AfterViewInit, OnDestroy} from '@angular/core';
+import { Directive, ElementRef, inject, input, Signal, signal } from '@angular/core';
+import type { Observable } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 @Directive({
     selector: '[colRenderedWidth]',
     standalone: false,

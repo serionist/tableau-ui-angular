@@ -1,4 +1,5 @@
-import { Pipe, PipeTransform } from '@angular/core';
+import type { PipeTransform } from '@angular/core';
+import { Pipe } from '@angular/core';
 
 @Pipe({
     name: 'colWidth',
@@ -33,6 +34,8 @@ export class ColWidthPipe implements PipeTransform {
                 return value.toString();
             case 'width':
                 return `${value}px`;
+            default:
+                return '';
         }
     }
 }

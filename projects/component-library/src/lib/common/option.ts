@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, ContentChild, ElementRef, inject, input, InputSignal, Signal, signal, TemplateRef, viewChild, ViewChild, ViewContainerRef } from '@angular/core';
+import type { InputSignal, Signal, TemplateRef} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, ContentChild, ElementRef, inject, input, signal, viewChild, ViewChild, ViewContainerRef } from '@angular/core';
 import { HintComponent } from './hint';
 import { IconComponent } from '../icon/icon.component';
 

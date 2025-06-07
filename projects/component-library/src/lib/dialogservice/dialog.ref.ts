@@ -1,6 +1,7 @@
 import { InjectionToken } from '@angular/core';
-import { Subject, Observable } from 'rxjs';
-import { IDialogPositionAndSizeArgs } from './dialog.args';
+import type { Observable } from 'rxjs';
+import { Subject } from 'rxjs';
+import type { IDialogPositionAndSizeArgs } from './dialog.args';
 
 export const TAB_DIALOG_REF = new InjectionToken<DialogRef>('TAB_DIALOG_REF');
 export class DialogRef {

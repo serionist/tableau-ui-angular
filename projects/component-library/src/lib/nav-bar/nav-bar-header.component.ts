@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, input, InputSignal, model, ModelSignal } from '@angular/core';
+import type { InputSignal} from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, model, ModelSignal } from '@angular/core';
 
 @Component({
     selector: 'tab-nav-bar-header',

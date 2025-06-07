@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, inject, model, TemplateRef } from '@angular/core';
+import type { TemplateRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, model } from '@angular/core';
 import { TAB_DATA_REF } from './data.ref';
 
 @Component({

@@ -1,5 +1,6 @@
-import { AfterContentInit, AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, inject, input, model, ModelSignal, TemplateRef, ViewChild, viewChild } from '@angular/core';
-import { ButtonComponent } from '../button/button.component';
+import type { AfterContentInit, AfterViewInit, TemplateRef} from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, inject, input, model, ModelSignal, ViewChild, viewChild } from '@angular/core';
+import type { ButtonComponent } from '../button/button.component';
 import { TAB_DIALOG_REF } from './dialog.ref';
 import { TAB_DATA_REF } from './data.ref';
 

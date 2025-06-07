@@ -1,4 +1,4 @@
-import { Routes } from '@angular/router';
+import type { Routes } from '@angular/router';
 import { CheckboxPageComponent } from './pages/checkbox-page/checkbox-page.component';
 import { CssPageComponent } from './pages/css-page/css-page.component';
 import { HomePageComponent } from './pages/home-page/home-page.component';

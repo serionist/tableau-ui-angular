@@ -1,3 +1,10 @@
+import type {
+    InputSignal,
+    OnDestroy,
+    OnInit,
+    Signal,
+    TemplateRef,
+    WritableSignal} from '@angular/core';
 import {
     AfterContentInit,
     ChangeDetectionStrategy,
@@ -10,25 +17,19 @@ import {
     forwardRef,
     inject,
     input,
-    InputSignal,
     linkedSignal,
     model,
-    OnDestroy,
-    OnInit,
     output,
-    Signal,
     signal,
-    TemplateRef,
-    viewChild,
-    WritableSignal,
+    viewChild
 } from '@angular/core';
 import { CollapsedContentDirective } from './collapsed-content.directive';
 import { ExpandedContentDirective } from './expanded-content.directive';
 import { generateRandomString } from '../utils';
-import { TreeNodeRegistry } from './tree-node-registry';
+import type { TreeNodeRegistry } from './tree-node-registry';
 import { TabTreeComponent } from './tree.component';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
-import { TreeNodeInterface } from './tree-node-interface';
+import type { TreeNodeInterface } from './tree-node-interface';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { combineLatest } from 'rxjs';
 

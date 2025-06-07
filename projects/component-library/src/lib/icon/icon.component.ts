@@ -1,4 +1,5 @@
-import { Component, ContentChild, ElementRef, AfterContentInit, Input, input, contentChild, inject, ViewChild, AfterViewInit, OnInit, model, computed, ChangeDetectionStrategy, InputSignal } from '@angular/core';
+import type { InputSignal } from '@angular/core';
+import { Component, ContentChild, ElementRef, AfterContentInit, Input, input, contentChild, inject, ViewChild, AfterViewInit, OnInit, model, computed, ChangeDetectionStrategy } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { combineLatest, map } from 'rxjs';
 @Component({

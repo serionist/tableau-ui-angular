@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { TabTreeNodeComponent } from './tree-node.component';
+import type { TabTreeNodeComponent } from './tree-node.component';
 
 export class TreeNodeRegistry {
     readonly nodes = signal<TabTreeNodeComponent[]>([]);

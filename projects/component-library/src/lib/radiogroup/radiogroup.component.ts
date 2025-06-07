@@ -1,9 +1,12 @@
-import { ChangeDetectionStrategy, Component, contentChild, ContentChild, contentChildren, ContentChildren, forwardRef, model, OnInit, output, Signal, signal } from '@angular/core';
-import { IOptionGridContext, OptionComponent } from '../common/option';
+import type { Signal} from '@angular/core';
+import { ChangeDetectionStrategy, Component, contentChild, ContentChild, contentChildren, ContentChildren, forwardRef, model, OnInit, output, signal } from '@angular/core';
+import type { IOptionGridContext} from '../common/option';
+import { OptionComponent } from '../common/option';
 import { HintComponent } from '../common/hint';
 import { ErrorComponent } from '../common/error';
 import { CommonModule, NgFor, NgIf } from '@angular/common';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import type { ControlValueAccessor} from '@angular/forms';
+import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { generateRandomString } from '../utils';
 
 @Component({

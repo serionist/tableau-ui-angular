@@ -1,8 +1,10 @@
 import { AbstractControl } from '@angular/forms';
-import { map, Observable, of, switchMap } from 'rxjs';
-import { Pipe, PipeTransform } from '@angular/core';
+import type { Observable} from 'rxjs';
+import { map, of, switchMap } from 'rxjs';
+import type { PipeTransform } from '@angular/core';
+import { Pipe } from '@angular/core';
 import { FC } from './public-api';
-import { AbstractControlMeta, AC } from './models/abstract-control.reference';
+import type { AbstractControlMeta, AC } from './models/abstract-control.reference';
 
 @Pipe({
     name: 'formMeta',

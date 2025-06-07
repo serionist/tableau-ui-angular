@@ -1,10 +1,14 @@
-import { ApplicationRef, ComponentFactoryResolver, ComponentRef, createComponent, EnvironmentInjector, inject, Injectable, Injector, TemplateRef, Type, ViewContainerRef, ViewRef } from '@angular/core';
+import type { ComponentRef, TemplateRef, Type, ViewRef } from '@angular/core';
+import { ApplicationRef, ComponentFactoryResolver, createComponent, EnvironmentInjector, inject, Injectable, Injector, ViewContainerRef } from '@angular/core';
 import { TAB_DIALOG_REF, DialogRef } from './dialog.ref';
-import { IConfirmationDialogArgs, IDialogArgs, IDialogHeaderArgs, IDialogPositionAndSizeArgs, IModalArgs } from './dialog.args';
+import type { IConfirmationDialogArgs, IDialogArgs, IDialogPositionAndSizeArgs, IModalArgs } from './dialog.args';
+import { IDialogHeaderArgs } from './dialog.args';
 import { debounceTime, fromEvent, map, Subscription, zip } from 'rxjs';
-import { FocusableElement, tabbable } from 'tabbable';
+import type { FocusableElement} from 'tabbable';
+import { tabbable } from 'tabbable';
 import { IconComponent } from '../icon/icon.component';
-import { ConfirmationDialogComponent, IConfirmationDialogData } from './confirmation-dialog.component';
+import type { IConfirmationDialogData } from './confirmation-dialog.component';
+import { ConfirmationDialogComponent } from './confirmation-dialog.component';
 import { TableauUiDialogModule } from './tableau-ui-dialog.module';
 import { TemplateDialogComponent } from './template-dialog.component';
 import { TAB_DATA_REF } from './data.ref';
@@ -226,7 +230,7 @@ export class DialogService {
             document.body.appendChild(backdrop);
         }
         if (args.closeOnBackdropClick) {
-            backdrop.onclick = () => dialogRef.close();
+            backdrop.onclick = () => { dialogRef.close(); };
         }
         return backdrop;
     }
@@ -291,7 +295,7 @@ export class DialogService {
                 const iconElement = (iconRef.hostView as any).rootNodes[0] as HTMLElement;
                 iconElement.textContent = 'close';
                 iconElement.setAttribute('tabindex', '0');
-                iconElement.addEventListener('click', () => dialogRef.close());
+                iconElement.addEventListener('click', () => { dialogRef.close(); });
                 iconElement.addEventListener('keydown', (e: KeyboardEvent) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                         dialogRef.close();

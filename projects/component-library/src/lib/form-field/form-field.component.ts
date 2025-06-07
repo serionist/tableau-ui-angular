@@ -1,7 +1,10 @@
 import { CommonModule } from '@angular/common';
-import {
+import type {
     AfterContentInit,
     AfterViewInit,
+    OnDestroy,
+    Signal} from '@angular/core';
+import {
     ChangeDetectionStrategy,
     Component,
     contentChild,
@@ -10,10 +13,8 @@ import {
     ElementRef,
     inject,
     input,
-    OnDestroy,
     QueryList,
     Renderer2,
-    Signal,
     signal,
     viewChild,
     ViewChild,

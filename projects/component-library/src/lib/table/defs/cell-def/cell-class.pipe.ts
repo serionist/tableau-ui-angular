@@ -1,5 +1,6 @@
-import { Pipe, PipeTransform } from '@angular/core';
-import { CellContext } from './cell-context';
+import type { PipeTransform } from '@angular/core';
+import { Pipe } from '@angular/core';
+import type { CellContext } from './cell-context';
 
 @Pipe({
     name: 'cellClass',

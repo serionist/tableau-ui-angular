@@ -1,10 +1,13 @@
-import { ChangeDetectionStrategy, Component, contentChild, contentChildren, Directive, ElementRef, inject, input, model, OnDestroy, OnInit, Signal, signal, TemplateRef, viewChild, WritableSignal } from '@angular/core';
-import { IOptionGridContext, OptionComponent } from '../common/option';
+import type { Signal, TemplateRef, WritableSignal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, contentChild, contentChildren, Directive, ElementRef, inject, input, model, OnDestroy, OnInit, signal, viewChild } from '@angular/core';
+import type { IOptionGridContext} from '../common/option';
+import { OptionComponent } from '../common/option';
 import { PrefixComponent } from '../common/prefix';
 import { SuffixComponent } from '../common/suffix';
 import { DialogService } from '../dialogservice/dialog.service';
-import { DialogRef } from '../dialogservice/dialog.ref';
-import { fromEvent, map, Subject, Subscription } from 'rxjs';
+import type { DialogRef } from '../dialogservice/dialog.ref';
+import type { Subscription } from 'rxjs';
+import { fromEvent, map, Subject } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { generateRandomString } from '../utils';
 

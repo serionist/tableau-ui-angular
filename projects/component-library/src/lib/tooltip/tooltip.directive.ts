@@ -1,4 +1,5 @@
-import { Directive, Input, ElementRef, HostListener, TemplateRef, input, inject, OnDestroy, ViewContainerRef, InputSignal, effect } from '@angular/core';
+import type { TemplateRef, OnDestroy, InputSignal} from '@angular/core';
+import { Directive, Input, ElementRef, HostListener, input, inject, ViewContainerRef, effect } from '@angular/core';
 
 // Style contained in _tooltips.scss in the styles folder
 @Directive({

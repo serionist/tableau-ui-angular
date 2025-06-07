@@ -1,9 +1,11 @@
-import { Pipe, PipeTransform } from '@angular/core';
-import { flatMap, map, Observable, of, switchMap } from 'rxjs';
-import { AC } from './models/abstract-control.reference';
-import { FA } from './models/form-array.reference';
-import { FG } from './models/form-group.reference';
-import { FC } from './models/form-control.reference';
+import type { PipeTransform } from '@angular/core';
+import { Pipe } from '@angular/core';
+import type { Observable} from 'rxjs';
+import { flatMap, map, of, switchMap } from 'rxjs';
+import type { AC } from './models/abstract-control.reference';
+import type { FA } from './models/form-array.reference';
+import type { FG } from './models/form-group.reference';
+import type { FC } from './models/form-control.reference';
 import { AbstractControl, FormArray, FormControl, FormGroup } from '@angular/forms';
 
 @Pipe({
@@ -14,7 +16,7 @@ import { AbstractControl, FormArray, FormControl, FormGroup } from '@angular/for
 export class FormChildPipe implements PipeTransform {
     transform<T extends 'control' | 'group' | 'array' | 'abstract' = 'control'>(
         form: AC | undefined | null,
-        path?: string | undefined,
+        path?: string  ,
         type?: T,
     ): Observable<T extends 'control' ? FC | null : T extends 'group' ? FG | null : T extends 'array' ? FA | null : T extends 'abstract' ? AC | null : AC | null> {
         if (!form) {

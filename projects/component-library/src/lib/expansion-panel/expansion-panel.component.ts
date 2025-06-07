@@ -1,8 +1,9 @@
-import { ChangeDetectionStrategy, Component, contentChild, inject, input, model, OnDestroy, OnInit, Signal, viewChild } from '@angular/core';
+import type { OnDestroy, OnInit, Signal} from '@angular/core';
+import { ChangeDetectionStrategy, Component, contentChild, inject, input, model, viewChild } from '@angular/core';
 import { ExpansionPanelTitleCollapsedContentDirective, ExpansionPanelTitleExpandedContentDirective } from './expansion-panel-title.component';
 import { generateRandomString } from '../utils';
 import { AccordionComponent } from './accordion.component';
-import { AccordionRegistry } from './accordion.registry';
+import type { AccordionRegistry } from './accordion.registry';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { startWith } from 'rxjs';
 

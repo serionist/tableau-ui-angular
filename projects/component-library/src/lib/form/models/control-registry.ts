@@ -1,4 +1,4 @@
-import { AbstractControl } from '@angular/forms';
+import type { AbstractControl } from '@angular/forms';
 
 export class ControlRegistry {
     private static currentId: number = 0;

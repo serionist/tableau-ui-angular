@@ -1,5 +1,6 @@
-import { Pipe, PipeTransform } from '@angular/core';
-import { TreeNodeInterface } from '../tree-node-interface';
+import type { PipeTransform } from '@angular/core';
+import { Pipe } from '@angular/core';
+import type { TreeNodeInterface } from '../tree-node-interface';
 
 @Pipe({
     name: 'shouldShowNode',

@@ -1,3 +1,8 @@
+import type {
+    InputSignal,
+    OnDestroy,
+    OutputRefSubscription,
+    WritableSignal} from '@angular/core';
 import {
     ChangeDetectionStrategy,
     Component,
@@ -8,17 +13,13 @@ import {
     HostListener,
     inject,
     input,
-    InputSignal,
     linkedSignal,
-    OnDestroy,
     OnInit,
     output,
-    OutputRefSubscription,
     Signal,
     signal,
     TemplateRef,
-    viewChildren,
-    WritableSignal,
+    viewChildren
 } from '@angular/core';
 import { MenuButtonComponent } from './menu-button.component';
 import { Subscription } from 'rxjs';
@@ -132,7 +133,7 @@ export class MenuButtonGroupComponent implements OnDestroy {
     async addMenuGroup(parentButton?: MenuButtonComponent) {
         const children = parentButton?.$children() ?? this.$children();
         if (children.length === 0) {
-            return;
+            return undefined;
         }
         const group: IMenuGroup = {
             id: generateRandomString(),
@@ -256,11 +257,11 @@ export class MenuButtonGroupComponent implements OnDestroy {
 
         const removed = groups.splice(curIndex + 1);
         for (const group of removed) {
-            group.mouseoverSubscriptions.forEach((s) => s.unsubscribe());
-            group.openSubMenuSubscriptions.forEach((s) => s.unsubscribe());
-            group.highlightSubscriptions.forEach((s) => s.unsubscribe());
-            group.clickSubscriptions.forEach((s) => s.unsubscribe());
-            group.buttons.forEach((b) => b.$highlight.set(false));
+            group.mouseoverSubscriptions.forEach((s) => { s.unsubscribe(); });
+            group.openSubMenuSubscriptions.forEach((s) => { s.unsubscribe(); });
+            group.highlightSubscriptions.forEach((s) => { s.unsubscribe(); });
+            group.clickSubscriptions.forEach((s) => { s.unsubscribe(); });
+            group.buttons.forEach((b) => { b.$highlight.set(false); });
             // group.element?.remove();
         }
         // this will also remove from DOM

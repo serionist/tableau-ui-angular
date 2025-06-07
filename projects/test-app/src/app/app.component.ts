@@ -1,8 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, TemplateRef, viewChild, ViewContainerRef } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router, RouterOutlet, RouterState } from '@angular/router';
-import { filter, map, Observable, switchMap } from 'rxjs';
+import type { Observable} from 'rxjs';
+import { filter, map, switchMap } from 'rxjs';
 import { version as LibVersion } from '../../../component-library/package.json';
-import { MenuComponent, ThemeService } from 'component-library';
+import type { MenuComponent} from 'component-library';
+import { ThemeService } from 'component-library';
 
 @Component({
     selector: 'app-root',

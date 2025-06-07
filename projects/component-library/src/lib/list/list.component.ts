@@ -1,6 +1,9 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, computed, contentChildren, ElementRef, forwardRef, inject, model, OnDestroy, signal, WritableSignal } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { IOptionGridContext, OptionComponent } from '../common/option';
+import type { WritableSignal } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, computed, contentChildren, ElementRef, forwardRef, inject, model, OnDestroy, signal } from '@angular/core';
+import type { ControlValueAccessor} from '@angular/forms';
+import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import type { IOptionGridContext} from '../common/option';
+import { OptionComponent } from '../common/option';
 
 @Component({
     selector: 'tab-list',

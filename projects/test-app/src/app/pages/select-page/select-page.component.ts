@@ -1,6 +1,8 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
+import type { OnInit, WritableSignal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
-import { ControlReferenceBuilder, IOptionLineContext, SnackService } from 'component-library';
+import type { IOptionLineContext} from 'component-library';
+import { ControlReferenceBuilder, SnackService } from 'component-library';
 import { BehaviorSubject, debounceTime, startWith, Subject } from 'rxjs';
 
 @Component({

@@ -1,5 +1,7 @@
-import { ChangeDetectionStrategy, Component, computed, input, InputSignal, output, signal } from '@angular/core';
-import { RouterModule, UrlTree } from '@angular/router';
+import type { InputSignal} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
+import type { UrlTree } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { IconComponent } from '../../icon/icon.component';
 import { TooltipDirective } from '../../tooltip/tooltip.directive';
 

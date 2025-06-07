@@ -1,8 +1,10 @@
 import { AbstractControl, FormArray } from '@angular/forms';
-import { Observable, of } from 'rxjs';
-import { Pipe, PipeTransform } from '@angular/core';
-import { FA } from './models/form-array.reference';
-import { FG } from './public-api';
+import type { Observable} from 'rxjs';
+import { of } from 'rxjs';
+import type { PipeTransform } from '@angular/core';
+import { Pipe } from '@angular/core';
+import type { FA } from './models/form-array.reference';
+import type { FG } from './public-api';
 
 @Pipe({
     name: 'formArrayValue',

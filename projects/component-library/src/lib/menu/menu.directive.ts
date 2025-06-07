@@ -1,5 +1,5 @@
 import { Directive, effect, ElementRef, inject, input } from '@angular/core';
-import { MenuComponent } from './menu.component';
+import type { MenuComponent } from './menu.component';
 
 @Directive({
     selector: '[menu]',

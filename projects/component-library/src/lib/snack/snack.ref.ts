@@ -1,5 +1,6 @@
 import { InjectionToken } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
+import type { Observable} from 'rxjs';
+import { Subject } from 'rxjs';
 
 export const TAB_SNACK_REF = new InjectionToken<SnackRef>('TAB_SNACK_REF');
 export class SnackRef {

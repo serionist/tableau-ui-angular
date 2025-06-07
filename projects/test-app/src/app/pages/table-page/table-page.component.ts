@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, ResourceLoader, ResourceLoaderParams, signal, viewChild } from '@angular/core';
 import { small_data, data } from './table-data-sample';
-import { DataRequest, DataResponse, HeaderContext, TableComponent } from 'component-library';
+import type { DataRequest, DataResponse, HeaderContext} from 'component-library';
+import { TableComponent } from 'component-library';
 
 @Component({
     selector: 'app-table-page',
@@ -9,7 +10,7 @@ import { DataRequest, DataResponse, HeaderContext, TableComponent } from 'compon
     styleUrl: './table-page.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TablePageComponent {
+export class TablePageComponent<T = unknown> {
     readonly $show_first_3_columns = signal(false);
     readonly $striped = signal(false);
     readonly $showData = signal(true);

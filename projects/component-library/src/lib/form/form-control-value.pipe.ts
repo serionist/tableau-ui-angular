@@ -1,8 +1,10 @@
 import { AbstractControl, FormControl, isFormControl } from '@angular/forms';
-import { map, Observable, of, switchMap } from 'rxjs';
-import { Pipe, PipeTransform } from '@angular/core';
-import { Primitive } from './types/primitive';
-import { FC } from './models/form-control.reference';
+import type { Observable} from 'rxjs';
+import { map, of, switchMap } from 'rxjs';
+import type { PipeTransform } from '@angular/core';
+import { Pipe } from '@angular/core';
+import type { Primitive } from './types/primitive';
+import type { FC } from './models/form-control.reference';
 
 @Pipe({
     name: 'formControlValue',

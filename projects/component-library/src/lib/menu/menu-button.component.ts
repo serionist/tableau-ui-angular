@@ -1,3 +1,9 @@
+import type {
+    ElementRef,
+    InputSignal,
+    OnDestroy,
+    TemplateRef,
+    WritableSignal} from '@angular/core';
 import {
     AfterViewInit,
     ChangeDetectionStrategy,
@@ -5,17 +11,12 @@ import {
     contentChild,
     contentChildren,
     effect,
-    ElementRef,
     HostListener,
     inject,
     input,
-    InputSignal,
-    OnDestroy,
     output,
     signal,
-    TemplateRef,
-    viewChild,
-    WritableSignal,
+    viewChild
 } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { BehaviorSubject } from 'rxjs';

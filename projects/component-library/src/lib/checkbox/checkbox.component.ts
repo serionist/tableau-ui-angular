@@ -1,6 +1,8 @@
 import { NgIf } from '@angular/common';
-import { ChangeDetectionStrategy, Component, ContentChild, contentChild, ElementRef, forwardRef, Input, input, model, output, Signal, signal, ViewChild } from '@angular/core';
-import { CheckboxControlValueAccessor, ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
+import type { Signal} from '@angular/core';
+import { ChangeDetectionStrategy, Component, ContentChild, contentChild, ElementRef, forwardRef, Input, input, model, output, signal, ViewChild } from '@angular/core';
+import type { ControlValueAccessor} from '@angular/forms';
+import { CheckboxControlValueAccessor, FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { HintComponent } from '../common/hint';
 import { ErrorComponent } from '../common/error';
 

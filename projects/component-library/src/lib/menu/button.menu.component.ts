@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, contentChild, InputSignal, model, ModelSignal, OnDestroy, OnInit, OutputRefSubscription, Signal, viewChild } from '@angular/core';
+import type { InputSignal, ModelSignal, OnDestroy, OutputRefSubscription, Signal} from '@angular/core';
+import { ChangeDetectionStrategy, Component, contentChild, model, OnInit, viewChild } from '@angular/core';
 import { MenuComponent } from './menu.component';
 import { MenuButtonGroupComponent } from './menu-button-group.component';
 
@@ -32,7 +33,7 @@ export class ButtonMenuComponent extends MenuComponent implements OnDestroy {
         const ref = await super.open(forceReOpen);
         if (ref && this.menuGroup()) {
             window.requestAnimationFrame(() => this.menuGroup()?.nativeElement?.nativeElement?.focus());
-            const sub = this.menuGroup()?.buttonClicked.subscribe((e) => ref.close());
+            const sub = this.menuGroup()?.buttonClicked.subscribe((e) => { ref.close(); });
             if (sub) {
                 this.subs.push(sub);
             }
@@ -40,6 +41,6 @@ export class ButtonMenuComponent extends MenuComponent implements OnDestroy {
         return ref;
     }
     ngOnDestroy(): void {
-        this.subs.forEach((sub) => sub.unsubscribe());
+        this.subs.forEach((sub) => { sub.unsubscribe(); });
     }
 }

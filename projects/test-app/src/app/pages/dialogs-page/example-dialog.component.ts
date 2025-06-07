@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, inject, Inject, input, Input, model, signal, Signal } from '@angular/core';
+import type { Signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, Inject, input, Input, model, signal } from '@angular/core';
 import { DialogRef, DialogService, TAB_DATA_REF, TAB_DIALOG_REF } from 'component-library';
 
 @Component({

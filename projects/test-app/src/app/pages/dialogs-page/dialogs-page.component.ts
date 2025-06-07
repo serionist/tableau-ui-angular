@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, inject, TemplateRef } from '@angular/core';
+import type { TemplateRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ExampleDialogComponent } from './example-dialog.component';
 import { DialogService } from 'component-library';
 
@@ -28,7 +29,7 @@ export class DialogsPageComponent {
         });
     }
 
-    async openConfirmationDialog(color: 'primary' | 'error' | 'secondary' = 'secondary', autofocus?: 'accept' | 'cancel' | undefined, acceptBtnText?: string | undefined, cancelBtnText?: string | undefined) {
+    async openConfirmationDialog(color: 'primary' | 'error' | 'secondary' = 'secondary', autofocus?: 'accept' | 'cancel'  , acceptBtnText?: string  , cancelBtnText?: string  ) {
         const dialogRef = await this.dialogService.openConfirmationMessageDialog(
             'This a random confirmation dialog',
             'Are you sure you want to delete this item? This stuff must be two lines long so I generate some random text.',
@@ -43,8 +44,8 @@ export class DialogsPageComponent {
         template: TemplateRef<any>,
         color: 'primary' | 'error' | 'secondary' = 'secondary',
         autofocus: 'accept' | 'cancel' | undefined,
-        acceptBtnText?: string | undefined,
-        cancelBtnText?: string | undefined,
+        acceptBtnText?: string  ,
+        cancelBtnText?: string  ,
     ) {
         const dialogRef = await this.dialogService.openConfirmationTemplateDialog('This a random confirmation dialog', template, undefined, color, acceptBtnText, cancelBtnText, autofocus, {
             width: '500px',

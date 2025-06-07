@@ -1,6 +1,12 @@
+import type {
+    AfterViewInit,
+    InputSignal,
+    OnDestroy,
+    Signal,
+    TemplateRef,
+    WritableSignal} from '@angular/core';
 import {
     AfterContentInit,
-    AfterViewInit,
     ChangeDetectionStrategy,
     Component,
     computed,
@@ -11,24 +17,22 @@ import {
     forwardRef,
     inject,
     input,
-    InputSignal,
     model,
     ModelSignal,
-    OnDestroy,
     OnInit,
     output,
-    Signal,
     signal,
-    TemplateRef,
-    viewChild,
-    WritableSignal,
+    viewChild
 } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { IOptionGridContext, IOptionLineContext, OptionComponent } from '../common/option';
+import type { ControlValueAccessor} from '@angular/forms';
+import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import type { IOptionGridContext, IOptionLineContext} from '../common/option';
+import { OptionComponent } from '../common/option';
 import { SnackService } from '../snack/snack.service';
 import { DialogService } from '../dialogservice/dialog.service';
-import { DialogRef } from '../dialogservice/dialog.ref';
-import { fromEvent, map, Subscription } from 'rxjs';
+import type { DialogRef } from '../dialogservice/dialog.ref';
+import type { Subscription } from 'rxjs';
+import { fromEvent, map } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { PrefixComponent } from '../common/prefix';
 import { SuffixComponent } from '../common/suffix';

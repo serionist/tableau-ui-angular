@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, effect } from '@angular/core';
 import { AccordionRegistry } from './accordion.registry';
 
-import { Subscription } from 'rxjs';
+import type { Subscription } from 'rxjs';
 @Component({
     selector: 'tab-accordion',
     standalone: false,
@@ -30,7 +30,7 @@ export class AccordionComponent {
     private subs: Subscription[] = [];
     private registryChanged = effect(() => {
         const items = this.registry.nodes();
-        this.subs.forEach((sub) => sub.unsubscribe());
+        this.subs.forEach((sub) => { sub.unsubscribe(); });
         this.subs = items.map((item) =>
             item.expandedChange$.subscribe((expanded) => {
                 if (expanded) {

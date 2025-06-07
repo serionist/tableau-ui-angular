@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, contentChildren, effect, HostListener, input, model, output } from '@angular/core';
-import { IOptionLineContext, OptionComponent } from '../../common/option';
+import type { IOptionLineContext} from '../../common/option';
+import { OptionComponent } from '../../common/option';
 
 @Component({
     selector: 'tab-button-toggle',

@@ -1,4 +1,4 @@
-import { FormArray, FormGroup, FormControl } from '@angular/forms';
+import type { FormArray, FormGroup, FormControl } from '@angular/forms';
 
 export type ControlsOf<T extends Record<string, any>> = {
     // eslint-disable-next-line @typescript-eslint/array-type

@@ -1,9 +1,10 @@
-import { contentChild, Directive, input, signal, TemplateRef } from '@angular/core';
+import type { TemplateRef } from '@angular/core';
+import { contentChild, Directive, input, signal } from '@angular/core';
 import { CellDefDirective } from '../cell-def/cell-def.directive';
 import { HeaderDefDirective } from '../header-def/header-def.directive';
-import { HeaderContext } from '../header-def/header-context';
-import { CellContext } from '../cell-def/cell-context';
-import { DataSort } from '../../sorting/data-sort';
+import type { HeaderContext } from '../header-def/header-context';
+import type { CellContext } from '../cell-def/cell-context';
+import type { DataSort } from '../../sorting/data-sort';
 
 @Directive({
     selector: '[tabColumnDef]',

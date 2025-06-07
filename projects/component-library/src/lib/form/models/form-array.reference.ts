@@ -1,13 +1,16 @@
-import { FormArray, FormGroup, FormControl, ValidatorFn, AsyncValidatorFn } from '@angular/forms';
-import { ControlsOf } from '../types/controls-of';
+import type { FormGroup, ValidatorFn, AsyncValidatorFn } from '@angular/forms';
+import { FormArray, FormControl } from '@angular/forms';
+import type { ControlsOf } from '../types/controls-of';
 import { Primitive } from '../types/primitive';
 import { AC, ACRegisterFunctions, ACTyped } from './abstract-control.reference';
 import { FC } from './form-control.reference';
-import { FG } from './form-group.reference';
-import { DeepPartial } from '../types/deep-partial';
-import { BehaviorSubject, combineLatest, distinctUntilChanged, filter, map, Observable, pairwise, startWith, Subscription } from 'rxjs';
-import { Signal, signal, WritableSignal } from '@angular/core';
-import { ReadonlyBehaviorSubject } from '../types/readonly-behaviorsubject';
+import type { FG } from './form-group.reference';
+import type { DeepPartial } from '../types/deep-partial';
+import type { Observable, Subscription } from 'rxjs';
+import { BehaviorSubject, combineLatest, distinctUntilChanged, filter, map, pairwise, startWith } from 'rxjs';
+import type { Signal, WritableSignal } from '@angular/core';
+import { signal } from '@angular/core';
+import type { ReadonlyBehaviorSubject } from '../types/readonly-behaviorsubject';
 import { ControlRegistry } from './control-registry';
 
 export class FA<TItem extends Record<string, any> = any> extends ACTyped<FA<TItem>, DeepPartial<TItem>[]> {
@@ -78,7 +81,7 @@ export class FA<TItem extends Record<string, any> = any> extends ACTyped<FA<TIte
                 this._value.set(v);
             }),
         );
-        this.subscriptions.push(this.controls$.subscribe((v) => this._controls.set(v)));
+        this.subscriptions.push(this.controls$.subscribe((v) => { this._controls.set(v); }));
     }
     private get formArray() {
         return this.control as FormArray<FormGroup<ControlsOf<TItem>>>;

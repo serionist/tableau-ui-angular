@@ -1,6 +1,6 @@
-import { ValidatorFn, AsyncValidatorFn } from '@angular/forms';
-import { FormReferencesOf } from '../types/form-references-of';
-import { Primitive } from '../types/primitive';
+import type { ValidatorFn, AsyncValidatorFn } from '@angular/forms';
+import type { FormReferencesOf } from '../types/form-references-of';
+import type { Primitive } from '../types/primitive';
 import { FC } from './form-control.reference';
 import { FG } from './form-group.reference';
 import { FA } from './form-array.reference';

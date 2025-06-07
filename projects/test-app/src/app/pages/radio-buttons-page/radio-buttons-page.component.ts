@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 import { ControlReferenceBuilder, SnackService } from 'component-library';
 import { skip } from 'rxjs';
