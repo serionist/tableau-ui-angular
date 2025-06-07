@@ -2,8 +2,8 @@
     <!--eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus-->
 <div class="option" [class.disabled]="$disabled() || option.$disabled()"
     [tooltip]="option.$text() ? option.$text() : undefined"
-    (click)="optionClicked(option)"
-    [class.selected]="$selectedValue() === option.$value()">
+    [class.selected]="$selectedValue() === option.$value()"
+    (click)="optionClicked(option)">
     <ng-container
         [ngTemplateOutlet]="option.$template()"
         [ngTemplateOutletContext]="$optionRenderContext()"

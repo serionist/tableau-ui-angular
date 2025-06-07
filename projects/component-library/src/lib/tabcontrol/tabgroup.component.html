@@ -11,12 +11,12 @@
             @for (tab of $tabs(); let i = $index; track i) {
             <div #tab
                 class="tab"
-                (click)="selectTab(i)"
                 [class.active]="$selectedIndex() === i"
                 [class.disabled]="tab.$disabled()"
                 [tabindex]="tab.$disabled() ? -1 : 0"
-                (keydown)="onkeydown(i, $event)"
                 [style.padding]="$headerPadding()"
+                (click)="selectTab(i)"
+                (keydown)="onkeydown(i, $event)"
             >
                 <div class="tab-header">
                     <ng-container

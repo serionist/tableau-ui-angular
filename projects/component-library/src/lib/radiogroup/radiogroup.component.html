@@ -11,11 +11,11 @@
             type="radio"            
             [value]="option.$value()"
             [checked]="$value() === option.$value()"
-            (change)="selectValue(option)"
             [tabindex]="$disabled() || option.$disabled() ? -1 : 0"
-            (keydown)="onKeyDown($event, option)"
             [disabled]="$disabled() || option.$disabled()"
             [name]="name"
+            (change)="selectValue(option)"
+            (keydown)="onKeyDown($event, option)"
         />
         <div class="box">
             @if ($value() === option.$value()) {

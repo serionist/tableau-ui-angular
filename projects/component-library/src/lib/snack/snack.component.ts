@@ -34,10 +34,10 @@ import { TAB_SNACK_DATA_REF } from './data.ref';
                 <tab-icon
                     class="close"
                     tabindex="0"
+                    value="close"
                     (click)="snackRef.close(true)"
                     (keydown.enter)="snackRef.close(true)"
                     (keydown.space)="snackRef.close(true)"
-                    value="close"
                 ></tab-icon>
             </div>
         </div>

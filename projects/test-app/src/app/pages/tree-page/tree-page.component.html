@@ -252,13 +252,13 @@
             <p>gridlines, show root gridlines, change gridline border radius, change expand button gap/color/align, change indent, add tooltip to expand button</p>
             <tab-tree style="gap: 1rem;"
                 gridLinesBorder="1px solid var(--twc-color-border)"
-                [showRootGridLines]="true"
-                [keepButtonOffsetOnNoChildren]="true"
                 gridLinesBorderRadius="10px"
                 expandButtonColor="green"
                 expandButtonGap="1rem"
                 expandButtonAlign="start"
                 childrenIndent="1.5rem"
+                [showRootGridLines]="true"
+                [keepButtonOffsetOnNoChildren]="true"
                 [expandButtonTooltip]="{
                     expand: 'Expand',
                     collapse: 'Collapse',
@@ -502,7 +502,7 @@
                <tab-tree-node hierarchyId="2.1.4" hierarchyParentId="2.1">Subnode 1.4</tab-tree-node>
             </tab-tree>
             <p>Nested Tree Node components. Works with both auto and manual hierarchy modes</p>
-            <tab-tree gridLinesBorder="1px solid var(--twc-color-border)" #hier>
+            <tab-tree #hier gridLinesBorder="1px solid var(--twc-color-border)">
               <app-tree-node-container></app-tree-node-container>
               <app-tree-node-container></app-tree-node-container>
               <app-tree-node-container></app-tree-node-container>

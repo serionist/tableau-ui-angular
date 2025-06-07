@@ -1,10 +1,10 @@
 <div class="menu-toggle-button">
     <button
         layout="icon"
-        (click)="$expanded.set(!$expanded())"
-        [tooltip]="$expanded() ? 'Collapse menu' : 'Expand menu'"
         tooltipPosition="right"
         color="plain"
+        [tooltip]="$expanded() ? 'Collapse menu' : 'Expand menu'"
+        (click)="$expanded.set(!$expanded())"
     >
         <tab-icon [value]="$expanded() ? 'keyboard_arrow_left' : 'keyboard_arrow_right'">
         </tab-icon>

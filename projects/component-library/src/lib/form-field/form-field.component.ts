@@ -24,6 +24,7 @@ import { ErrorComponent } from '../common/error';
 import { FormLabelComponent } from './form-label';
 import { PrefixComponent } from '../common/prefix';
 import { SuffixComponent } from '../common/suffix';
+import { generateRandomString } from '../utils';
 
 @Component({
     selector: 'tab-form-field',
@@ -40,6 +41,7 @@ import { SuffixComponent } from '../common/suffix';
 export class FormFieldComponent
     implements AfterContentInit, AfterViewInit, OnDestroy
 {
+    protected readonly id = generateRandomString(16);
     readonly $style = input<string>(undefined, {
         alias: 'style',
     });
@@ -83,7 +85,9 @@ export class FormFieldComponent
 
         const input: HTMLElement =
             this.$inputContainer().nativeElement.querySelector('input,textarea,tab-select,tab-list');
+        
         if (input) {
+            input.id = this.id;
             this.updateInputAttributes(input);
 
             this.inputObserver = new MutationObserver(() => {

@@ -2,8 +2,6 @@
     <!-- eslint-disable-next-line  @angular-eslint/template/interactive-supports-focus, @angular-eslint/template/click-events-have-key-events -->
 <div
     class="option-wrapper"
-    (click)="selectValue(option)"
-    (mousedown)="optionMouseDown($event)"
     [class.disabled]="option.$disabled() || $disabled()"
     [class.highlight]="
         !!$highlightedOption() && $highlightedOption()!.$value() === option.$value()
@@ -12,6 +10,8 @@
         ($value() | isValueSelected : option.$value() : $allowMultiple()) &&
         $selectedItemHighlight()
     "
+    (click)="selectValue(option)"
+    (mousedown)="optionMouseDown($event)"
     (mouseenter)="$highlightedOption.set(option)"
 >
     <div class="check" [ngClass]="$selectedCheckIconLocation()">

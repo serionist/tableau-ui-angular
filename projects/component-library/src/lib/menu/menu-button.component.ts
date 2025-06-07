@@ -31,16 +31,16 @@ import { generateRandomString } from '../utils';
                 class="menu-button"
                 role="button"
                 type="button"
+                tabindex="-1"
                 [ngClass]="$color()"
                 [class.loading]="$loading()"
                 [class.highlight]="$highlight()"
                 [attr.disabled]="$disabled() || $loading() ? true : false"
-                tabindex="-1"
+                [id]="id"
                 (mouseenter)="onMouseEnter()"
                 (mouseleave)="onMouseLeave()"
                 (mousedown)="onMouseDown($event)"
                 (click)="onClick($event)"
-                [id]="id"
             >
                 @if ($loading()) {
                     <span class="loader-wrapper">

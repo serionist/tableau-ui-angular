@@ -28,14 +28,14 @@
             <div class="two spacer">
                 <tab-form-field>
                     <tab-label>Single value, icons shown, no check, select highlight:</tab-label>
-                    <tab-list [value]="$singleSelectValue()" (valueChange)="singleSelectValueChanged($event)" placeholder="Select any value" [allowMultiple]="false">
+                    <tab-list placeholder="Select any value" [value]="$singleSelectValue()" [allowMultiple]="false" (valueChange)="singleSelectValueChanged($event)">
                         <tab-option
-                            [value]="1"
                             text="This is a looooooooooooooooong option is provided as a set of values"
                             icon="home"
                             hint="There are 2 ways to create tab-options; by values and by templates"
+                            [value]="1"
                         ></tab-option>
-                        <tab-option [value]="2" [disabled]="true" text="Disabled value" hint="with random hint"></tab-option>
+                        <tab-option text="Disabled value" hint="with random hint" [value]="2" [disabled]="true"></tab-option>
                         <ng-template #iconRef>
                             <tab-icon color="success" value="home" [fill]="true"></tab-icon>
                         </ng-template>
@@ -52,7 +52,7 @@
                             <b>combination</b>
                             of text and template
                         </ng-template>
-                        <tab-option [value]="4" icon="home" [text]="combinationRef" hint="with a hint">
+                        <tab-option icon="home" hint="with a hint" [value]="4" [text]="combinationRef">
                             <tab-hint>with a hint</tab-hint>
                         </tab-option>
                     </tab-list>
@@ -61,22 +61,22 @@
                 <tab-form-field>
                     <tab-label>Single value, only text, check right, no select highlight, no focus:</tab-label>
                     <tab-list
-                        [value]="$singleSelectValue()"
-                        (valueChange)="singleSelectValueChanged($event)"
                         placeholder="Select any value"
+                        focusMode="none"
+                        [value]="$singleSelectValue()"
                         [allowMultiple]="false"
                         [selectedItemHighlight]="false"
                         [itemTemplateContext]="onlyTextSelectedValue"
                         [selectedCheckIconLocation]="'right'"
-                        focusMode="none"
+                        (valueChange)="singleSelectValueChanged($event)"
                     >
                         <tab-option
-                            [value]="1"
                             text="This is a looooooooooooooooong option is provided as a set of values"
                             icon="home"
                             hint="There are 2 ways to create tab-options; by values and by templates"
+                            [value]="1"
                         ></tab-option>
-                        <tab-option [value]="2" [disabled]="true" text="Disabled value" hint="with random hint"></tab-option>
+                        <tab-option text="Disabled value" hint="with random hint" [value]="2" [disabled]="true"></tab-option>
                         <ng-template #iconRef>
                             <tab-icon color="success" value="home" [fill]="true"></tab-icon>
                         </ng-template>
@@ -93,7 +93,7 @@
                             <b>combination</b>
                             of text and template
                         </ng-template>
-                        <tab-option [value]="4" icon="home" [text]="combinationRef" hint="with a hint">
+                        <tab-option icon="home" hint="with a hint" [value]="4" [text]="combinationRef">
                             <tab-hint>with a hint</tab-hint>
                         </tab-option>
                     </tab-list>
@@ -103,20 +103,20 @@
                 <tab-form-field>
                     <tab-label>Disabled</tab-label>
                     <tab-list
-                        [value]="$singleSelectValue()"
-                        (valueChange)="singleSelectValueChanged($event)"
                         placeholder="Select any value"
+                        [value]="$singleSelectValue()"
                         [disabled]="true"
                         [allowMultiple]="false"
                         [selectedCheckIconLocation]="'right'"
+                        (valueChange)="singleSelectValueChanged($event)"
                     >
                         <tab-option
-                            [value]="1"
                             text="This is a looooooooooooooooong option is provided as a set of values"
                             icon="home"
                             hint="There are 2 ways to create tab-options; by values and by templates"
+                            [value]="1"
                         ></tab-option>
-                        <tab-option [value]="2" [disabled]="true" text="Disabled value" hint="with random hint"></tab-option>
+                        <tab-option text="Disabled value" hint="with random hint" [value]="2" [disabled]="true"></tab-option>
                         <ng-template #iconRef>
                             <tab-icon color="success" value="home" [fill]="true"></tab-icon>
                         </ng-template>
@@ -133,7 +133,7 @@
                             <b>combination</b>
                             of text and template
                         </ng-template>
-                        <tab-option [value]="4" icon="home" [text]="combinationRef" hint="with a hint">
+                        <tab-option icon="home" hint="with a hint" [value]="4" [text]="combinationRef">
                             <tab-hint>with a hint</tab-hint>
                         </tab-option>
                     </tab-list>
@@ -143,19 +143,19 @@
                     <tab-label>Single value, only text, check left, no select highlight, silent focus:</tab-label>
                     <tab-list
                         [value]="$singleSelectValue()"
-                        (valueChange)="singleSelectValueChanged($event)"
                         [allowMultiple]="false"
                         [selectedCheckIconLocation]="'left'"
                         [selectedItemHighlight]="false"
                         [focusMode]="'silent'"
+                        (valueChange)="singleSelectValueChanged($event)"
                     >
                         <tab-option
-                            [value]="1"
                             text="This is a looooooooooooooooong option is provided as a set of values"
                             icon="home"
                             hint="There are 2 ways to create tab-options; by values and by templates"
+                            [value]="1"
                         ></tab-option>
-                        <tab-option [value]="2" [disabled]="true" text="Disabled value" hint="with random hint"></tab-option>
+                        <tab-option text="Disabled value" hint="with random hint" [value]="2" [disabled]="true"></tab-option>
                         <ng-template #iconRef>
                             <tab-icon color="success" value="home" [fill]="true"></tab-icon>
                         </ng-template>
@@ -172,7 +172,7 @@
                             <b>combination</b>
                             of text and template
                         </ng-template>
-                        <tab-option [value]="4" icon="home" [text]="combinationRef" hint="with a hint">
+                        <tab-option icon="home" hint="with a hint" [value]="4" [text]="combinationRef">
                             <tab-hint>with a hint</tab-hint>
                         </tab-option>
                     </tab-list>
@@ -181,14 +181,14 @@
                 <div style="height: 150px">
                     <tab-form-field style="height: 100%">
                         <tab-label>Fixed height, Single value, icons shown, no check, select highlight:</tab-label>
-                        <tab-list [value]="$singleSelectValue()" (valueChange)="singleSelectValueChanged($event)" placeholder="Select any value" [allowMultiple]="false">
+                        <tab-list placeholder="Select any value" [value]="$singleSelectValue()" [allowMultiple]="false" (valueChange)="singleSelectValueChanged($event)">
                             <tab-option
-                                [value]="1"
                                 text="This is a looooooooooooooooong option is provided as a set of values"
                                 icon="home"
                                 hint="There are 2 ways to create tab-options; by values and by templates"
+                                [value]="1"
                             ></tab-option>
-                            <tab-option [value]="2" [disabled]="true" text="Disabled value" hint="with random hint"></tab-option>
+                            <tab-option text="Disabled value" hint="with random hint" [value]="2" [disabled]="true"></tab-option>
                             <ng-template #iconRef>
                                 <tab-icon color="success" value="home" [fill]="true"></tab-icon>
                             </ng-template>
@@ -205,7 +205,7 @@
                                 <b>combination</b>
                                 of text and template
                             </ng-template>
-                            <tab-option [value]="4" icon="home" [text]="combinationRef" hint="with a hint">
+                            <tab-option icon="home" hint="with a hint" [value]="4" [text]="combinationRef">
                                 <tab-hint>with a hint</tab-hint>
                             </tab-option>
                         </tab-list>
@@ -215,14 +215,14 @@
                 <div style="height: 350px">
                     <tab-form-field style="display: block; height: 100%">
                         <tab-label>Fixed height, Single value, icons shown, no check, select highlight:</tab-label>
-                        <tab-list [value]="$singleSelectValue()" (valueChange)="singleSelectValueChanged($event)" placeholder="Select any value" [allowMultiple]="false">
+                        <tab-list placeholder="Select any value" [value]="$singleSelectValue()" [allowMultiple]="false" (valueChange)="singleSelectValueChanged($event)">
                             <tab-option
-                                [value]="1"
                                 text="This is a looooooooooooooooong option is provided as a set of values"
                                 icon="home"
                                 hint="There are 2 ways to create tab-options; by values and by templates"
+                                [value]="1"
                             ></tab-option>
-                            <tab-option [value]="2" [disabled]="true" text="Disabled value" hint="with random hint"></tab-option>
+                            <tab-option text="Disabled value" hint="with random hint" [value]="2" [disabled]="true"></tab-option>
                             <ng-template #iconRef>
                                 <tab-icon color="success" value="home" [fill]="true"></tab-icon>
                             </ng-template>
@@ -239,7 +239,7 @@
                                 <b>combination</b>
                                 of text and template
                             </ng-template>
-                            <tab-option [value]="4" icon="home" [text]="combinationRef" hint="with a hint">
+                            <tab-option icon="home" hint="with a hint" [value]="4" [text]="combinationRef">
                                 <tab-hint>with a hint</tab-hint>
                             </tab-option>
                         </tab-list>
@@ -256,12 +256,12 @@
                     <tab-label>Single value, icons shown, no check, selected item highlight:</tab-label>
                     <tab-list [formControl]="(singleFormControl | formControl | async)!" [allowMultiple]="false">
                         <tab-option
-                            [value]="1"
                             text="This is a looooooooooooooooong option is provided as a set of values"
                             icon="home"
                             hint="There are 2 ways to create tab-options; by values and by templates"
+                            [value]="1"
                         ></tab-option>
-                        <tab-option [value]="2" [disabled]="true" text="Disabled value" hint="with random hint"></tab-option>
+                        <tab-option text="Disabled value" hint="with random hint" [value]="2" [disabled]="true"></tab-option>
                         <ng-template #iconRef>
                             <tab-icon color="success" value="home" [fill]="true"></tab-icon>
                         </ng-template>
@@ -278,7 +278,7 @@
                             <b>combination</b>
                             of text and template
                         </ng-template>
-                        <tab-option [value]="4" icon="home" [text]="combinationRef" hint="with a hint">
+                        <tab-option icon="home" hint="with a hint" [value]="4" [text]="combinationRef">
                             <tab-hint>with a hint</tab-hint>
                         </tab-option>
                     </tab-list>
@@ -296,20 +296,20 @@
                 <tab-form-field>
                     <tab-label>Single value, only text, check right, no select highlight, no focus:</tab-label>
                     <tab-list
+                        focusMode="none"
                         [formControl]="(singleFormControl2 | formControl | async)!"
                         [allowMultiple]="false"
                         [selectedCheckIconLocation]="'right'"
                         [selectedItemHighlight]="false"
-                        focusMode="none"
                         [itemTemplateContext]="onlyTextSelectedValue"
                     >
                         <tab-option
-                            [value]="1"
                             text="This is a looooooooooooooooong option is provided as a set of values"
                             icon="home"
                             hint="There are 2 ways to create tab-options; by values and by templates"
+                            [value]="1"
                         ></tab-option>
-                        <tab-option [value]="2" [disabled]="true" text="Disabled value" hint="with random hint"></tab-option>
+                        <tab-option text="Disabled value" hint="with random hint" [value]="2" [disabled]="true"></tab-option>
                         <ng-template #iconRef>
                             <tab-icon color="success" value="home" [fill]="true"></tab-icon>
                         </ng-template>
@@ -326,7 +326,7 @@
                             <b>combination</b>
                             of text and template
                         </ng-template>
-                        <tab-option [value]="4" icon="home" [text]="combinationRef" hint="with a hint">
+                        <tab-option icon="home" hint="with a hint" [value]="4" [text]="combinationRef">
                             <tab-hint>with a hint</tab-hint>
                         </tab-option>
                     </tab-list>
@@ -346,12 +346,12 @@
                     <tab-label>Disabled</tab-label>
                     <tab-list [formControl]="(disabledSingleFormControl | formControl | async)!" [selectedCheckIconLocation]="'right'" [disabled]="true">
                         <tab-option
-                            [value]="1"
                             text="This is a looooooooooooooooong option is provided as a set of values"
                             icon="home"
                             hint="There are 2 ways to create tab-options; by values and by templates"
+                            [value]="1"
                         ></tab-option>
-                        <tab-option [value]="2" [disabled]="true" text="Disabled value" hint="with random hint"></tab-option>
+                        <tab-option text="Disabled value" hint="with random hint" [value]="2" [disabled]="true"></tab-option>
                         <ng-template #iconRef>
                             <tab-icon color="success" value="home" [fill]="true"></tab-icon>
                         </ng-template>
@@ -368,7 +368,7 @@
                             <b>combination</b>
                             of text and template
                         </ng-template>
-                        <tab-option [value]="4" icon="home" [text]="combinationRef" hint="with a hint">
+                        <tab-option icon="home" hint="with a hint" [value]="4" [text]="combinationRef">
                             <tab-hint>with a hint</tab-hint>
                         </tab-option>
                     </tab-list>
@@ -387,12 +387,12 @@
                     <tab-label>Single value, only text, check left, no select highlight, silent focus:</tab-label>
                     <tab-list [formControl]="(singleFormControl3 | formControl | async)!" [allowMultiple]="false" [selectedCheckIconLocation]="'none'" [selectedItemHighlight]="true" [focusMode]="'silent'">
                         <tab-option
-                            [value]="1"
                             text="This is a looooooooooooooooong option is provided as a set of values"
                             icon="home"
                             hint="There are 2 ways to create tab-options; by values and by templates"
+                            [value]="1"
                         ></tab-option>
-                        <tab-option [value]="2" [disabled]="true" text="Disabled value" hint="with random hint"></tab-option>
+                        <tab-option text="Disabled value" hint="with random hint" [value]="2" [disabled]="true"></tab-option>
                         <ng-template #iconRef>
                             <tab-icon color="success" value="home" [fill]="true"></tab-icon>
                         </ng-template>
@@ -409,7 +409,7 @@
                             <b>combination</b>
                             of text and template
                         </ng-template>
-                        <tab-option [value]="4" icon="home" [text]="combinationRef" hint="with a hint">
+                        <tab-option icon="home" hint="with a hint" [value]="4" [text]="combinationRef">
                             <tab-hint>with a hint</tab-hint>
                         </tab-option>
                     </tab-list>
@@ -432,20 +432,20 @@
                 <tab-form-field>
                     <tab-label>Multi value, wrap, icons shown, check left, max 2 items displayed:</tab-label>
                     <tab-list
-                        [formControl]="(multiFormControl | formControl | async)!"
                         placeholder="Select multiple values"
+                        [formControl]="(multiFormControl | formControl | async)!"
                         [allowMultiple]="true"
                        
                         [selectedItemHighlight]="false"
                         [selectedCheckIconLocation]="'left'"
                     >
                         <tab-option
-                            [value]="1"
                             text="This is a looooooooooooooooong option is provided as a set of values"
                             icon="home"
                             hint="There are 2 ways to create tab-options; by values and by templates"
+                            [value]="1"
                         ></tab-option>
-                        <tab-option [value]="2" [disabled]="true" text="Disabled value" hint="with random hint"></tab-option>
+                        <tab-option text="Disabled value" hint="with random hint" [value]="2" [disabled]="true"></tab-option>
                         <ng-template #iconRef>
                             <tab-icon color="success" value="home" [fill]="true"></tab-icon>
                         </ng-template>
@@ -462,7 +462,7 @@
                             <b>combination</b>
                             of text and template
                         </ng-template>
-                        <tab-option [value]="4" icon="home" [text]="combinationRef" hint="with a hint">
+                        <tab-option icon="home" hint="with a hint" [value]="4" [text]="combinationRef">
                             <tab-hint>with a hint</tab-hint>
                         </tab-option>
                     </tab-list>
@@ -475,18 +475,18 @@
                 <tab-form-field>
                     <tab-label>Multi value, truncate, icons shown, no check, max 2 items displayed, fix dropdown height:</tab-label>
                     <tab-list
-                        [formControl]="(multiFormControl | formControl | async)!"
                         placeholder="Select multiple values"
+                        [formControl]="(multiFormControl | formControl | async)!"
                         [allowMultiple]="true"
                         
                     >
                         <tab-option
-                            [value]="1"
                             text="This is a looooooooooooooooooooooooooooooooooooooooooooooong option is provided as a set of values"
                             icon="home"
                             hint="There are 2 ways to create tab-options; by values and by templates"
+                            [value]="1"
                         ></tab-option>
-                        <tab-option [value]="2" [disabled]="true" text="Disabled value" hint="with random hint"></tab-option>
+                        <tab-option text="Disabled value" hint="with random hint" [value]="2" [disabled]="true"></tab-option>
                         <ng-template #iconRef>
                             <tab-icon color="success" value="home" [fill]="true"></tab-icon>
                         </ng-template>
@@ -503,7 +503,7 @@
                             <b>combination</b>
                             of text and template
                         </ng-template>
-                        <tab-option [value]="4" icon="home" [text]="combinationRef" hint="with a hint">
+                        <tab-option icon="home" hint="with a hint" [value]="4" [text]="combinationRef">
                             <tab-hint>with a hint</tab-hint>
                         </tab-option>
                     </tab-list>

@@ -21,8 +21,8 @@
                 <li>Open both the source code of this library and the consuming project in an editor (such as VSCode)</li>
                 <li>Run the following command from the root of <b>this library</b>:<ngx-monaco-editor
                     style="height: 30px; width: 150px; margin-bottom: 5px;"
-                    [options]="terminalOptions"
                     ngModel="npm run dev:link"
+                    [options]="terminalOptions"
                 ></ngx-monaco-editor> </li>
                 <li>Update the <code>angular.json</code> file of the <b>consuming project</b> to preserve symlinks:
                     <ngx-monaco-editor
@@ -41,15 +41,15 @@
                 <li>Run the following command from the root of the <b>consuming project</b> to install <code>npx link</code>. We use this instead if <code>npm link</code> since its much safer:
                     <ngx-monaco-editor
                     style="height: 25px; width: 550px; margin-bottom: 5px;"
-                    [options]="terminalOptions"
                     ngModel="npm install --save-dev link"
+                    [options]="terminalOptions"
                 ></ngx-monaco-editor>
                 </li>
                 <li>Run the following command from the root of the <b>consuming project</b> to link the library:
                     <ngx-monaco-editor
                     style="height: 25px; width: 550px; margin-bottom: 5px;"
-                    [options]="terminalOptions"
                     ngModel="npx link [path-to-this-library]/dist/component-library"
+                    [options]="terminalOptions"
                 ></ngx-monaco-editor>
                 </li>
             </ol>
@@ -59,8 +59,8 @@
         <div>When you've finished development or want to commit the source code of the <b>consuming project</b>, you need to <code>unlink</code> this library by running:</div>
         <ngx-monaco-editor
         style="height: 30px; width: 500px; margin-bottom: 5px;"
-        [options]="terminalOptions"
         ngModel="npm install"
+        [options]="terminalOptions"
     ></ngx-monaco-editor>
     </div>
     </div>

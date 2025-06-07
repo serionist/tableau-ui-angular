@@ -2,9 +2,9 @@ import { ChangeDetectionStrategy, Component, ElementRef } from "@angular/core";
 
 @Component({
     selector: 'tab-label',
-    template: `<div class="tab-label"><ng-content></ng-content></div>`,
+    template: `<ng-content></ng-content>`,
     styles: `
-          .tab-label {
+          :host {
               color: var(--twc-color-text-light);
           }
       `,

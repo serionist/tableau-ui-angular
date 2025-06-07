@@ -87,8 +87,8 @@
                         #autocompleteInput
                         type="text"
                         [value]="searchValue$ | async"
-                        (input)="searchValueChanged($any($event.target).value)"
                         [tabAutoComplete]="autocomplete"
+                        (input)="searchValueChanged($any($event.target).value)"
                     />
                     <tab-autocomplete #autocomplete>
                         <tab-prefix>
@@ -138,9 +138,9 @@
             </p>
             <div class="spacer">
                 <form
-                    [formGroup]="(form | formControl:undefined:'group' | async)!"
                     class="spacer two"
                     style="max-width: 800px"
+                    [formGroup]="(form | formControl:undefined:'group' | async)!"
                 >
                     <tab-form-field>
                         <tab-label>Simple textbox</tab-label>

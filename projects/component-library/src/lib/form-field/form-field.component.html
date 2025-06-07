@@ -1,14 +1,14 @@
-<div class="form-label" *ngIf="$labelElement()">
-    <ng-content select="tab-label"></ng-content>
+<div *ngIf="$labelElement()" class="form-label">
+    <label [for]="id"><ng-content select="tab-label"></ng-content></label>
   </div>
   <div class="form-input-wrapper">
-    <div class="prefix" *ngIf="$prefixElement()" #prefixContainer>
+    <div *ngIf="$prefixElement()" #prefixContainer class="prefix">
       <ng-content select="tab-prefix"></ng-content>
     </div>
-    <div class="input-container" #inputContainer>
+    <div #inputContainer class="input-container">
       <ng-content></ng-content>
     </div>
-    <div class="suffix" *ngIf="$suffixElement()" #suffixContainer>
+    <div *ngIf="$suffixElement()" #suffixContainer class="suffix">
       <ng-content select="tab-suffix"></ng-content>
     </div>
   </div>

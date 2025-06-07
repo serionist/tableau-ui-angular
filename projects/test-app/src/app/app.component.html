@@ -231,9 +231,9 @@
                     <input
                         type="number"
                         [value]="$paletteFontSize()"
-                        (input)="setPaletteFontSize($any($event.target).value)"
                         [min]="10"
                         [max]="24"
+                        (input)="setPaletteFontSize($any($event.target).value)"
                     />
                     <tab-suffix>px</tab-suffix>
                 </tab-form-field>

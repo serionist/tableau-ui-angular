@@ -10,9 +10,9 @@
         class="back"
         layout="small-icon"
         [color]="$buttonsColor()"
-        (click)="scroll('back')"
         [disabled]="!$canScroll().back"
         [style.color]="$buttonsCssColor()"
+        (click)="scroll('back')"
     >
         <ng-content select="tab-icon[back-button]"></ng-content>
     </button>
@@ -53,9 +53,9 @@
         class="forward"
         layout="small-icon"
         [color]="$buttonsColor()"
-        (click)="scroll('forward')"
         [disabled]="!$canScroll().forward"
         [style.color]="$buttonsCssColor()"
+        (click)="scroll('forward')"
     >
         <ng-content select="tab-icon[forward-button]"></ng-content>
     </button>

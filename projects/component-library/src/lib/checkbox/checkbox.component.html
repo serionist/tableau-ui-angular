@@ -3,8 +3,8 @@
     type="checkbox"
     [value]="$value()"
     [checked]="$value()"
-    (change)="toggleValue()"
     [tabindex]="$disabled() ? -1 : 0"
+    (change)="toggleValue()"
     (keydown)="onKeyDown($event)"
 />
 

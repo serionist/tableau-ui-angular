@@ -31,12 +31,12 @@ import { generateRandomString } from '../utils';
      @for (entry of $menuGroupStack() | entries; track entry[1].id;) {
 
         <div
-            [id]="entry[1].id"
             class="menu-group"
+            resizeWatcher
+            [id]="entry[1].id"
             [style.position]="entry[1].$position()"
             [style.top]="entry[1].$top() + 'px'"
             [style.left]="entry[1].$left() + 'px'"
-            resizeWatcher
             (resized)="
                 entry[1].element = $event.currentElement.nativeElement;
                 updateSizes()

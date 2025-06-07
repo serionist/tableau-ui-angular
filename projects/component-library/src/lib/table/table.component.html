@@ -1,14 +1,14 @@
 <div class="table" role="table">
     <!--Data Row Sizer. This is a position fixed, 0px wide row with the given row height px. used to calculate the actual height of data rows prior to virtualizing-->
-    <div class="data-sizer" [style.height]="$dataRowHeight()" #dataSizer></div>
+    <div #dataSizer class="data-sizer" [style.height]="$dataRowHeight()"></div>
     <!-- Column Row -->
-    <div class="column-row" #headerRow [style.minWidth]="`calc(100% - 10px)`">
+    <div #headerRow class="column-row" [style.minWidth]="`calc(100% - 10px)`">
         <!-- prettier-ignore -->
         @for (def of $displayedColumnDefs(); let index = $index; let count = $count; let first = $first; let last = $last; let even = $even; let odd = $odd; track def.id) {
             @let headerContext = def.col | headerContext: index : first : last : even : odd : count;
             <div
-                class="column-header"
                 #header
+                class="column-header"
                 role="columnheader"
                 [attr.data-column-id]="def.id"
                 [attr.data-column-index]="index"
@@ -33,7 +33,6 @@
                         class="header-button"
                         color="plain"
                         layout="small-icon"
-                        (click)="onColumnHeaderClick($event, def.col)"
                         [class.not-sortable]="!def.col.$sortable()"
                         [tabindex]="def.col.$sortable() ? '0' : '-1'"
                         [tooltip]="def.col.$headerTooltip() === 'default' ? defaultHeaderTemplate : def.col.$headerTooltip()"
@@ -46,6 +45,7 @@
                             currentSort: ($sort() | sortInfoPipe: def.id : def.col.$propertyName()),
                             allSorts: $sort(),
                         }"
+                        (click)="onColumnHeaderClick($event, def.col)"
                     >
                         <div class="content">
                             <div class="text">

@@ -24,10 +24,10 @@
 <button
     layout="icon"
     color="plain"
-    (click)="clearValue($event)"
-    (keydown)="clearKeyDown($event)"
     tabindex="0"
     [disabled]="$disabled()"
+    (click)="clearValue($event)"
+    (keydown)="clearKeyDown($event)"
 >
     <tab-icon value="clear"></tab-icon>
 </button>
@@ -56,8 +56,6 @@
             <!-- eslint-disable-next-line @angular-eslint/template/interactive-supports-focus, @angular-eslint/template/click-events-have-key-events -->
             <div
                 class="option-wrapper"
-                (click)="selectValue(option)"
-                (mousedown)="optionMouseDown($event)"
                 [class.disabled]="option.$disabled()"
                 [class.highlight]="
                     !!$highlightedOption() &&
@@ -67,6 +65,8 @@
                     (option | isSelectedValue:$allowMultiple(): $value()) &&
                      $selectedItemHighlight()
                 "
+                (click)="selectValue(option)"
+                (mousedown)="optionMouseDown($event)"
                 (mouseenter)="$highlightedOption.set(option)"
             >
                 <div class="check" [ngClass]="$selectedCheckIconLocation()">

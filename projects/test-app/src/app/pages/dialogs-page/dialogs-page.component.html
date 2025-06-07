@@ -60,7 +60,7 @@
                 </div>
                 <div class="spacer">
                     <ng-template #confirmationDialogTemplate>
-                        <tab-icon [fill]="true" value="error"></tab-icon>
+                        <tab-icon value="error" [fill]="true"></tab-icon>
                         <span>This is a random template</span>
                         <tab-checkbox [value]="true">Checkbox</tab-checkbox>
                         </ng-template>
@@ -79,7 +79,7 @@
                     >
 
                    <div>
-                    <button (click)="openDialog()" color="primary">Fully custom dialog content component</button>
+                    <button color="primary" (click)="openDialog()">Fully custom dialog content component</button>
                     <div>This allows you to pass any custom component into the dialog body. No default buttons are rendered.</div>
                    </div>
                 </div>

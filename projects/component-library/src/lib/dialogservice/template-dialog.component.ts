@@ -4,9 +4,9 @@ import { TAB_DATA_REF } from './data.ref';
 
 @Component({
     template: `<ng-container
+        ]
         [ngTemplateOutlet]="data.contentTemplate"
         [ngTemplateOutletContext]="data.contentTemplateContext"
-        ]
     ></ng-container>`,
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: false

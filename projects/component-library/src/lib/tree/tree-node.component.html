@@ -15,14 +15,13 @@
         [style.gap]="$expandButtonGap()"
     >
         <button
-            [id]="headerButtonId"
-            [inline]="true"
             layout="icon"
             color="plain"
             class="header-button"
             type="button"
+            [id]="headerButtonId"
+            [inline]="true"
             [style.visibility]="$children().length === 0 ? 'hidden' : 'visible'"
-            (click)="setExpanded(!$expanded())"
             [style.fontSize]="$expandButtonSize()"
             [style.width]="
                 $children().length !== 0 || $keepButtonOffsetOnNoChildren()
@@ -40,6 +39,7 @@
             [tooltipPosition]="$expandButtonTooltip()?.position"
             [tooltipMargin]="$expandButtonTooltip()?.margin"
             [tooltipContext]="$expandButtonTooltip()?.context"
+            (click)="setExpanded(!$expanded())"
         >
             <tab-icon
                 [value]="

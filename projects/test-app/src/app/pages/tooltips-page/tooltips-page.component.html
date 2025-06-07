@@ -41,11 +41,11 @@
                 <button tooltip="Tooltip value provided as text" tooltipPosition="bottom" tooltipMargin="2em">Bottom TEXT tooltip, changed margin (2em)</button>
                 <button tooltip="Tooltip value provided as text" tooltipPosition="right">Right TEXT tooltip, default margin</button>
                 <ng-template #tooltipTemplate>Tooltip Coming from template</ng-template>
-                <button [tooltip]="tooltipTemplate" tooltipPosition="top">Top TEMPLATE tooltip, default margin</button>
-                <button [tooltip]="tooltipTemplate" tooltipPosition="left">Left TEMPLATE tooltip, default margin</button>
-                <button [tooltip]="tooltipTemplate" tooltipPosition="left" tooltipMargin="10px">Left TEMPLATE tooltip, changed margin (10px)</button>
-                <button [tooltip]="tooltipTemplate" tooltipPosition="bottom" tooltipMargin="2em">Bottom TEMPLATE tooltip, changed margin (2em)</button>
-                <button [tooltip]="tooltipTemplate" tooltipPosition="right">Right TEMPLATE tooltip, default margin</button>
+                <button tooltipPosition="top" [tooltip]="tooltipTemplate">Top TEMPLATE tooltip, default margin</button>
+                <button tooltipPosition="left" [tooltip]="tooltipTemplate">Left TEMPLATE tooltip, default margin</button>
+                <button tooltipPosition="left" tooltipMargin="10px" [tooltip]="tooltipTemplate">Left TEMPLATE tooltip, changed margin (10px)</button>
+                <button tooltipPosition="bottom" tooltipMargin="2em" [tooltip]="tooltipTemplate">Bottom TEMPLATE tooltip, changed margin (2em)</button>
+                <button tooltipPosition="right" [tooltip]="tooltipTemplate">Right TEMPLATE tooltip, default margin</button>
                 
             
             </div>

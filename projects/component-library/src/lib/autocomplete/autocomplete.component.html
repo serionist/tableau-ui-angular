@@ -15,13 +15,13 @@
                 <!-- eslint-disable-next-line  @angular-eslint/template/interactive-supports-focus, @angular-eslint/template/click-events-have-key-events -->
                 <div
                     class="option-wrapper"
-                    (click)="selectValue$.next(option)"
-                    (mousedown)="optionMouseDown($event)"
                     [class.disabled]="option.$disabled()"
                     [class.highlight]="
                         !!$highlightedOption() &&
                         $highlightedOption()!.$value() === option.$value()
                     "
+                    (click)="selectValue$.next(option)"
+                    (mousedown)="optionMouseDown($event)"
                     (mouseenter)="$highlightedOption.set(option)"
                 >
                     <div class="option-content">

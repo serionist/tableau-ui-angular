@@ -39,16 +39,16 @@
                     (valueChanges)="valueChanged($event, 'Simple radio group')"
                 >
                     <tab-option
-                        [value]="1"
                         text="This option is provided as a set of values"
                         icon="home"
                         hint="There are 2 ways to create tab-options; by values and by templates"
+                        [value]="1"
                     ></tab-option>
                     <tab-option
-                        [value]="2"
-                        [disabled]="true"
                         text="Disabled value"
                         hint="with random hint"
+                        [value]="2"
+                        [disabled]="true"
                     ></tab-option>
                     <ng-template #iconRef>
                         <tab-icon
@@ -78,10 +78,10 @@
                         and template</ng-template
                     >
                     <tab-option
-                        [value]="4"
                         icon="home"
-                        [text]="combinationRef"
                         hint="with a hint"
+                        [value]="4"
+                        [text]="combinationRef"
                     >
                         <tab-hint>with a hint</tab-hint>
                     </tab-option>
@@ -98,16 +98,16 @@
             <div class="spacer">
                 <tab-radiogroup [formControl]="(formControl | formControl | async)!">
                     <tab-option
-                        [value]="1"
                         text="This option is provided as a set of values"
                         icon="home"
                         hint="There are 2 ways to create tab-options; by values and by templates"
+                        [value]="1"
                     ></tab-option>
                     <tab-option
-                        [value]="2"
-                        [disabled]="true"
                         text="Disabled value"
                         hint="with random hint"
+                        [value]="2"
+                        [disabled]="true"
                     ></tab-option>
                     <ng-template #iconRef>
                         <tab-icon
@@ -137,10 +137,10 @@
                         and template</ng-template
                     >
                     <tab-option
-                        [value]="4"
                         icon="home"
-                        [text]="combinationRef"
                         hint="with a hint"
+                        [value]="4"
+                        [text]="combinationRef"
                     >
                         <tab-hint>with a hint</tab-hint>
                     </tab-option>

@@ -29,14 +29,14 @@ import { TAB_DATA_REF } from './data.ref';
             </ng-template>
         </div>
         <div class="dialog-actions">
-            <button (click)="dialogRef.close(false)" #cancel tabindex="0">
+            <button #cancel tabindex="0" (click)="dialogRef.close(false)">
                 {{ data.cancelBtnText ?? 'Cancel' }}
             </button>
             <button
-                [color]="data.color"
-                (click)="dialogRef.close(true)"
                 #accept
                 tabindex="0"
+                [color]="data.color"
+                (click)="dialogRef.close(true)"
             >
                 {{ data.acceptBtnText ?? 'OK' }}
             </button>
