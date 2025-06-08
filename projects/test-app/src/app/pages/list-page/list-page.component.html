@@ -211,7 +211,7 @@
             <div class="two spacer">
                 <tab-form-field>
                     <tab-label>Single value, icons shown, no check, selected item highlight:</tab-label>
-                    <tab-list [formControl]="(singleFormControl | formControl | async)!" [allowMultiple]="false">
+                    <tab-list [formControl]="singleFormControl | formControl" [allowMultiple]="false">
                         <tab-option text="This is a looooooooooooooooong option is provided as a set of values" icon="home" hint="There are 2 ways to create tab-options; by values and by templates" [value]="1" />
                         <tab-option text="Disabled value" hint="with random hint" [value]="2" [disabled]="true" />
                         <ng-template #iconRef>
@@ -250,7 +250,7 @@
                     <tab-list
                         focusMode="none"
                         selectedCheckIconLocation="right"
-                        [formControl]="(singleFormControl2 | formControl | async)!"
+                        [formControl]="singleFormControl2 | formControl"
                         [allowMultiple]="false"
                         [selectedItemHighlight]="false"
                         [itemTemplateContext]="onlyTextSelectedValue"
@@ -291,7 +291,7 @@
 
                 <tab-form-field>
                     <tab-label>Disabled</tab-label>
-                    <tab-list selectedCheckIconLocation="right" [formControl]="(disabledSingleFormControl | formControl | async)!" [disabled]="true">
+                    <tab-list selectedCheckIconLocation="right" [formControl]="disabledSingleFormControl | formControl" [disabled]="true">
                         <tab-option text="This is a looooooooooooooooong option is provided as a set of values" icon="home" hint="There are 2 ways to create tab-options; by values and by templates" [value]="1" />
                         <tab-option text="Disabled value" hint="with random hint" [value]="2" [disabled]="true" />
                         <ng-template #iconRef>
@@ -327,7 +327,7 @@
                 </tab-form-field>
                 <tab-form-field>
                     <tab-label>Single value, only text, check left, no select highlight, silent focus:</tab-label>
-                    <tab-list selectedCheckIconLocation="none" focusMode="silent" [formControl]="(singleFormControl3 | formControl | async)!" [allowMultiple]="false" [selectedItemHighlight]="true">
+                    <tab-list selectedCheckIconLocation="none" focusMode="silent" [formControl]="singleFormControl3 | formControl" [allowMultiple]="false" [selectedItemHighlight]="true">
                         <tab-option text="This is a looooooooooooooooong option is provided as a set of values" icon="home" hint="There are 2 ways to create tab-options; by values and by templates" [value]="1" />
                         <tab-option text="Disabled value" hint="with random hint" [value]="2" [disabled]="true" />
                         <ng-template #iconRef>
@@ -368,7 +368,7 @@
 
                 <tab-form-field>
                     <tab-label>Multi value, wrap, icons shown, check left, max 2 items displayed:</tab-label>
-                    <tab-list placeholder="Select multiple values" selectedCheckIconLocation="left" [formControl]="(multiFormControl | formControl | async)!" [allowMultiple]="true" [selectedItemHighlight]="false">
+                    <tab-list placeholder="Select multiple values" selectedCheckIconLocation="left" [formControl]="multiFormControl | formControl" [allowMultiple]="true" [selectedItemHighlight]="false">
                         <tab-option text="This is a looooooooooooooooong option is provided as a set of values" icon="home" hint="There are 2 ways to create tab-options; by values and by templates" [value]="1" />
                         <tab-option text="Disabled value" hint="with random hint" [value]="2" [disabled]="true" />
                         <ng-template #iconRef>
@@ -399,7 +399,7 @@
 
                 <tab-form-field>
                     <tab-label>Multi value, truncate, icons shown, no check, max 2 items displayed, fix dropdown height:</tab-label>
-                    <tab-list placeholder="Select multiple values" [formControl]="(multiFormControl | formControl | async)!" [allowMultiple]="true">
+                    <tab-list placeholder="Select multiple values" [formControl]="multiFormControl | formControl" [allowMultiple]="true">
                         <tab-option
                             text="This is a looooooooooooooooooooooooooooooooooooooooooooooong option is provided as a set of values"
                             icon="home"

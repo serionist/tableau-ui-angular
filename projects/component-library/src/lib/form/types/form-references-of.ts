@@ -1,15 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { FA, FC, FG } from '../public-api';
+import type { Primitive } from '../../common/types/primitive';
+import type { FA } from '../models/form-array/interaces';
+import type { FC } from '../models/form-control/interfaces';
+import type { FG } from '../models/form-group/interfaces';
 
 export type FormReferencesOf<T extends Record<string, any>> = {
-    // eslint-disable-next-line @typescript-eslint/array-type
-    [K in keyof T]-?: NonNullable<T[K]> extends Array<infer U>
+    [K in keyof T]-?: NonNullable<T[K]> extends (infer U)[]
         ? U extends Record<string, any>
-            ? FA<Extract<U, undefined> | NonNullable<U>>
-            : FC<T[K]>
-        : NonNullable<T[K]> extends Date
+            ? FA<Extract<U, undefined> | NonNullable<U>> // FA<Extract<U, undefined> | NonNullable<U>>
+            : U extends Primitive ? FC<T[K]>: undefined
+        : NonNullable<T[K]> extends Primitive | Primitive[]
           ? FC<T[K]>
           : NonNullable<T[K]> extends Record<string, any>
             ? FG<NonNullable<T[K]>>
-            : FC<T[K]>;
+            : undefined; // FC<T[K]>;
 };

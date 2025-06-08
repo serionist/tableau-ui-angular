@@ -71,7 +71,7 @@
                 property.
             </p>
             <div class="spacer">
-                <tab-radiogroup [formControl]="(formControl | formControl | async)!">
+                <tab-radiogroup [formControl]="formControl | formControl">
                     <tab-option text="This option is provided as a set of values" icon="home" hint="There are 2 ways to create tab-options; by values and by templates" [value]="1" />
                     <tab-option text="Disabled value" hint="with random hint" [value]="2" [disabled]="true" />
                     <ng-template #iconRef>

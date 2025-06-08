@@ -1,7 +1,7 @@
 import type { OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, FormGroupDirective, NgForm, Validators } from '@angular/forms';
-import { ControlReferenceBuilder, SnackService } from 'component-library';
+import { FB, SnackService } from 'component-library';
 
 import { BehaviorSubject, debounceTime, skip, Subject } from 'rxjs';
 
@@ -14,7 +14,7 @@ import { BehaviorSubject, debounceTime, skip, Subject } from 'rxjs';
 })
 export class FormFieldsPageComponent implements OnInit {
     snackService = inject(SnackService);
-    private readonly b = inject(ControlReferenceBuilder);
+    private readonly b = inject(FB);
     valueChanged(event: Event, name: string, type: 'error' | 'info' = 'info') {
         this.valueChangedInternal((event.target as HTMLInputElement).value, name, type);
     }

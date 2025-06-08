@@ -1,17 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { ValidatorFn, AsyncValidatorFn } from '@angular/forms';
 import type { FormReferencesOf } from '../types/form-references-of';
 import type { Primitive } from '../../common/types/primitive';
-import { FC } from './form-control.reference';
-import { FG } from './form-group.reference';
-import { FA } from './form-array.reference';
 import { Injectable } from '@angular/core';
 import { TableauUiFormModule } from '../tableau-ui-form.module';
+import type { AsyncValidatorFn, ValidatorFn } from './abstract-control/validation/interfaces';
+import type { FC } from './form-control/interfaces';
+import { FCImpl } from './form-control/impl';
+import type { FG } from './form-group/interfaces';
+import { FGImpl } from './form-group/impl';
+import type { FA } from './form-array/interaces';
+import { FAImpl } from './form-array/impl';
 
 @Injectable({
     providedIn: TableauUiFormModule,
 })
-export class ControlReferenceBuilder {
+export class FB {
     control<T extends Primitive | Primitive[]>(
         value: T,
         validators?: ValidatorFn | ValidatorFn[],
@@ -19,7 +22,7 @@ export class ControlReferenceBuilder {
         initialDisabled?: boolean,
         updateOn?: 'blur' | 'change' | 'submit',
     ): FC<T> {
-        return new FC<T>({
+        return new FCImpl<T>({
             defaultValue: value,
             validators: validators,
             asyncValidators: asyncValidators,
@@ -28,7 +31,7 @@ export class ControlReferenceBuilder {
         });
     }
     group<T extends Record<string, any>>(controls: FormReferencesOf<T>, validators?: ValidatorFn | ValidatorFn[], asyncValidators?: AsyncValidatorFn | AsyncValidatorFn[], updateOn?: 'blur' | 'change' | 'submit'): FG<T> {
-        return new FG<T>({
+        return new FGImpl<T>({
             controls: controls,
             validators: validators,
             asyncValidators: asyncValidators,
@@ -36,7 +39,7 @@ export class ControlReferenceBuilder {
         });
     }
     array<TItem extends Record<string, any>>(controls: FG<TItem>[], validators?: ValidatorFn | ValidatorFn[], asyncValidators?: AsyncValidatorFn | AsyncValidatorFn[], updateOn?: 'blur' | 'change' | 'submit'): FA<TItem> {
-        return new FA<TItem>({
+        return new FAImpl<TItem>({
             controls: controls,
             validators: validators,
             asyncValidators: asyncValidators,

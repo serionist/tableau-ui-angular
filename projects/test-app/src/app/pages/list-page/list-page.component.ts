@@ -2,7 +2,7 @@ import type { OnInit, WritableSignal } from '@angular/core';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 import type { IOptionGridContext, ListValue, Primitive } from 'component-library';
-import { ControlReferenceBuilder, SnackService } from 'component-library';
+import { FB, SnackService } from 'component-library';
 import { BehaviorSubject, debounceTime, startWith, Subject } from 'rxjs';
 
 @Component({
@@ -13,7 +13,7 @@ import { BehaviorSubject, debounceTime, startWith, Subject } from 'rxjs';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ListPageComponent implements OnInit {
-    b = inject(ControlReferenceBuilder);
+    b = inject(FB);
     snack = inject(SnackService);
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     readonly $singleSelectValue: WritableSignal<number | undefined> = signal<number | undefined>(undefined);

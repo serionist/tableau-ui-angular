@@ -45,7 +45,7 @@
                 <div>
                     <div>Date picker with form control & validation</div>
                     <tab-form-field>
-                        <input type="date" min="2000-01-01" max="2030-12-31" [formControl]="(simpleControl | formControl | async)!" />
+                        <input type="date" min="2000-01-01" max="2030-12-31" [formControl]="simpleControl | formControl" />
                         @if (simpleControl | formMeta | async | formHasError: 'required') {
                             <tab-error>Required</tab-error>
                         }
@@ -60,7 +60,7 @@
                 <div>
                     <div>Simple datetime picker with min/max date. Manual input allows invalid dates, these are not validated</div>
                     <tab-form-field>
-                        <input date-picker min="2000-01-01T00:00" max="2030-12-31T23:59" type="datetime" [formControl]="(simpleControl | formControl | async)!" />
+                        <input date-picker min="2000-01-01T00:00" max="2030-12-31T23:59" type="datetime" [formControl]="simpleControl | formControl" />
                         @if (simpleControl | formMeta | async | formHasError: 'required') {
                             <tab-error>Required</tab-error>
                         }

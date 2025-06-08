@@ -2,7 +2,7 @@ import type { OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 import type { Primitive } from 'component-library';
-import { ControlReferenceBuilder, SnackService } from 'component-library';
+import { FB, SnackService } from 'component-library';
 import { skip } from 'rxjs';
 
 @Component({
@@ -14,7 +14,7 @@ import { skip } from 'rxjs';
 })
 export class RadioButtonsPageComponent implements OnInit {
     snackService = inject(SnackService);
-    private readonly b = inject(ControlReferenceBuilder);
+    private readonly b = inject(FB);
     simpleValue = 1;
 
     formControl = this.b.control<number | null>(null, [Validators.required, Validators.min(2), Validators.max(3)]);

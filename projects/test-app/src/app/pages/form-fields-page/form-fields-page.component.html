@@ -90,7 +90,7 @@
                 property.
             </p>
             <div class="spacer">
-                <form class="spacer two" style="max-width: 800px" [formGroup]="(form | formControl: undefined : 'group' | async)!">
+                <form class="spacer two" style="max-width: 800px" [formGroup]="form | formGroup">
                     <tab-form-field>
                         <tab-label>Simple textbox</tab-label>
                         <input type="text" formControlName="simple" />

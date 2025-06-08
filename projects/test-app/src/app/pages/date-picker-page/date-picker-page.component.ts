@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
-import { ControlReferenceBuilder, IOptionLineContext, SnackService } from 'component-library';
+import { FB, IOptionLineContext, SnackService } from 'component-library';
 import { BehaviorSubject, debounceTime, startWith, Subject } from 'rxjs';
 import { DateValidators } from '../../../../../component-library/src/public-api';
 
@@ -12,7 +12,7 @@ import { DateValidators } from '../../../../../component-library/src/public-api'
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DatePickerPageComponent {
-    readonly b = inject(ControlReferenceBuilder);
+    readonly b = inject(FB);
     readonly simpleControl = this.b.control<Date>(new Date(), [Validators.required, DateValidators.minDate(new Date(2000, 0, 1)), DateValidators.maxDate(new Date(2030, 12, 31))]);
 
     constructor() {

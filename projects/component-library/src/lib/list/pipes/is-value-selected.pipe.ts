@@ -1,7 +1,7 @@
 import type { PipeTransform } from '@angular/core';
 import { Pipe } from '@angular/core';
 import type { ListValue } from '../list.component';
-import type { Primitive } from 'component-library';
+import type { Primitive } from '../../common/types/primitive';
 
 @Pipe({
     name: 'isValueSelected',
