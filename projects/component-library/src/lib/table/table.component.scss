@@ -83,7 +83,8 @@
                 }
 
                 &.pinned-left {
-                    box-shadow: inset 0 -1px 0 var(--twc-color-border),
+                    box-shadow:
+                        inset 0 -1px 0 var(--twc-color-border),
                         inset -1px 0 0 var(--twc-color-border);
                     left: 0;
                     background: var(--twc-color-base);
@@ -92,7 +93,8 @@
                 }
 
                 &.pinned-right {
-                    box-shadow: inset 0 -1px 0 var(--twc-color-border),
+                    box-shadow:
+                        inset 0 -1px 0 var(--twc-color-border),
                         inset 1px 0 0 var(--twc-color-border);
                     // stylelint-disable-next-line declaration-property-unit-disallowed-list
                     right: 0;
@@ -172,7 +174,8 @@
                     }
 
                     &.pinned-left {
-                        box-shadow: inset 0 -1px 0 var(--twc-color-border-light),
+                        box-shadow:
+                            inset 0 -1px 0 var(--twc-color-border-light),
                             inset -1px 0 0 var(--twc-color-border-light);
                         left: 0;
                         background: var(--twc-color-base);
@@ -180,7 +183,8 @@
                     }
 
                     &.pinned-right {
-                        box-shadow: inset 0 -1px 0 var(--twc-color-border-light),
+                        box-shadow:
+                            inset 0 -1px 0 var(--twc-color-border-light),
                             inset 1px 0 0 var(--twc-color-border-light);
                         right: 0;
                         background: var(--twc-color-base);

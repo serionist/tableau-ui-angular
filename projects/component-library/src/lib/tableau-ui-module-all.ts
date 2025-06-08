@@ -23,6 +23,7 @@ import { TableauUiArrowScrollModule } from './arrow-scroll/tableau-ui-arrow-scro
 import { TableauUiTableModule } from './table/tableau-ui-table.module';
 
 @NgModule({
+    declarations: [],
     imports: [
         TableauUiButtonModule,
         TableauUiCheckboxModule,
@@ -45,10 +46,10 @@ import { TableauUiTableModule } from './table/tableau-ui-table.module';
         TableauUiFormModule,
         TableauUiExpansionPanelModule,
         TableauUiArrowScrollModule,
-        TableauUiTableModule
+        TableauUiTableModule,
     ],
-    declarations: [],
-    exports: [ TableauUiButtonModule,
+    exports: [
+        TableauUiButtonModule,
         TableauUiCheckboxModule,
         TableauUiClipboardModule,
         TableauUiCommonModule,
@@ -69,7 +70,7 @@ import { TableauUiTableModule } from './table/tableau-ui-table.module';
         TableauUiFormModule,
         TableauUiExpansionPanelModule,
         TableauUiArrowScrollModule,
-        TableauUiTableModule
+        TableauUiTableModule,
     ],
 })
 export class TableauUiAllModule {}

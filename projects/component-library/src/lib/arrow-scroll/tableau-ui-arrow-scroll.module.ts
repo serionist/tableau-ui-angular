@@ -1,12 +1,12 @@
-import { NgModule } from "@angular/core";
-import { ArrowScrollComponent } from "./arrow-scroll.component";
-import { TableauUiButtonModule } from "../button/tableau-ui-button.module";
-import { TableauUiCommonModule } from "../common/tableau-ui-common.module";
+import { NgModule } from '@angular/core';
+import { ArrowScrollComponent } from './arrow-scroll.component';
+import { TableauUiButtonModule } from '../button/tableau-ui-button.module';
+import { TableauUiCommonModule } from '../common/tableau-ui-common.module';
 
 @NgModule({
-    imports: [TableauUiButtonModule, TableauUiCommonModule],
     declarations: [ArrowScrollComponent],
+    imports: [TableauUiButtonModule, TableauUiCommonModule],
     exports: [ArrowScrollComponent],
-    providers: []
+    providers: [],
 })
 export class TableauUiArrowScrollModule {}

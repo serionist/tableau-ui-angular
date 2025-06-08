@@ -1,35 +1,32 @@
 <div class="options-grid">
-    <!-- eslint-disable-next-line @angular-eslint/template/interactive-supports-focus, @angular-eslint/template/click-events-have-key-events -->
-    <label
-        *ngFor="let option of options()"
-        class="radio-option"
-        [class.disabled]="disabled() || option.disabled()"
-        [class.selected]="value() === option.value()"
-        (click)="selectValue(option)"
-    >
-        <input
-            type="radio"            
-            [value]="option.value()"
-            [checked]="value() === option.value()"
-            (change)="selectValue(option)"
-            [tabindex]="disabled() || option.disabled() ? -1 : 0"
-            (keydown)="onKeyDown($event, option)"
-            [disabled]="disabled() || option.disabled()"
-            [name]="name"
-        />
-        <div class="box">
-            @if (value() === option.value()) {
-                <div class="filler"></div>
-            }
+    @for (option of $options(); track option.$value()) {
+        <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
+        <label class="radio-option" [class.disabled]="$disabled() || option.$disabled()" [class.selected]="$value() === option.$value()" (click)="selectValue(option)">
+            <input
+                type="radio"
+                [value]="option.$value()"
+                [checked]="$value() === option.$value()"
+                [tabindex]="$disabled() || option.$disabled() ? -1 : 0"
+                [disabled]="$disabled() || option.$disabled()"
+                [name]="name"
+                (change)="selectValue(option)"
+                (keydown)="onKeyDown($event, option)"
+            />
+            <div class="box">
+                @if ($value() === option.$value()) {
+                    <div class="filler"></div>
+                }
+            </div>
+
+            <div class="label">
+                <ng-container [ngTemplateOutlet]="option.$template()" [ngTemplateOutletContext]="optionTemplateContext" />
+            </div>
+        </label>
+    }
+
+    @if ($errorElement()) {
+        <div class="extra-info">
+            <ng-content select="tab-error" />
         </div>
-       
-        <div class="label">
-            <ng-container [ngTemplateOutlet]="option.template()" [ngTemplateOutletContext]="optionTemplateContext"></ng-container>
-        </div>
-    </label>
-    @if (errorElement()) {
-    <div class="extra-info">
-        <ng-content select="tab-error"></ng-content>
-    </div>
     }
 </div>

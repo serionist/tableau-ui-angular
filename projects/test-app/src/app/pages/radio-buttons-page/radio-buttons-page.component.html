@@ -2,27 +2,25 @@
     <div class="title">
         <h1>Radio Groups</h1>
         <div class="text-light text-large">
-            The radio groups component is a simple component that allows users
-            to select one option from a list of options.<br />
+            The radio groups component is a simple component that allows users to select one option from a list of options.
+            <br />
             Supports both Reactive Forms and simple value binding.
         </div>
     </div>
-    <tab-separator></tab-separator>
+    <tab-separator />
     <div class="content">
         <div class="section">
             <h3>Module</h3>
-            <p>
-                To use the component, import one of the following modules into
-                your module/component:
-            </p>
+            <p>To use the component, import one of the following modules into your module/component:</p>
 
             <ul>
                 <li>
-                    <code>TableauUiRadioGroupModule</code> - for granular import
+                    <code>TableauUiRadioGroupModule</code>
+                    - for granular import
                 </li>
                 <li>
-                    <code>TableauUiAllModule</code> - to import all components
-                    from this library
+                    <code>TableauUiAllModule</code>
+                    - to import all components from this library
                 </li>
             </ul>
         </div>
@@ -30,59 +28,34 @@
             <h3>Basic usage</h3>
             <p>
                 To use a radio group without Reactive Forms, simply bind to the
-                <code>[value]</code> and <code>(valueChanges)</code> properties.
-                <br />These examples show a snack when changed.
+                <code>[value]</code>
+                and
+                <code>(valueChanges)</code>
+                properties.
+                <br />
+                These examples show a snack when changed.
             </p>
             <div class="spacer">
-                <tab-radiogroup
-                    [value]="simpleValue"
-                    (valueChanges)="valueChanged($event, 'Simple radio group')"
-                >
-                    <tab-option
-                        [value]="1"
-                        text="This option is provided as a set of values"
-                        icon="home"
-                        hint="There are 2 ways to create tab-options; by values and by templates"
-                    ></tab-option>
-                    <tab-option
-                        [value]="2"
-                        [disabled]="true"
-                        text="Disabled value"
-                        hint="with random hint"
-                    ></tab-option>
+                <tab-radiogroup [value]="simpleValue" (valueChanges)="valueChanged($event, 'Simple radio group')">
+                    <tab-option text="This option is provided as a set of values" icon="home" hint="There are 2 ways to create tab-options; by values and by templates" [value]="1" />
+                    <tab-option text="Disabled value" hint="with random hint" [value]="2" [disabled]="true" />
                     <ng-template #iconRef>
-                        <tab-icon
-                            color="success"
-                            value="home"
-                            [fill]="true"
-                        ></tab-icon>
+                        <tab-icon color="success" value="home" [fill]="true" />
                     </ng-template>
-                    <ng-template #textRef
-                        >This option is provided as a
-                        <b>template</b></ng-template
-                    >
+                    <ng-template #textRef>
+                        This option is provided as a
+                        <b>template</b>
+                    </ng-template>
                     <ng-template #hintRef>
-                        <tab-hint
-                            >There are 2 ways to create tab-options; by values
-                            and by templates</tab-hint
-                        >
+                        <tab-hint>There are 2 ways to create tab-options; by values and by templates</tab-hint>
                     </ng-template>
-                    <tab-option
-                        [value]="3"
-                        [icon]="iconRef"
-                        [text]="textRef"
-                        [hint]="hintRef"
-                    ></tab-option>
-                    <ng-template #combinationRef
-                        >This option is provided as a <b>combination</b> of text
-                        and template</ng-template
-                    >
-                    <tab-option
-                        [value]="4"
-                        icon="home"
-                        [text]="combinationRef"
-                        hint="with a hint"
-                    >
+                    <tab-option [value]="3" [icon]="iconRef" [text]="textRef" [hint]="hintRef" />
+                    <ng-template #combinationRef>
+                        This option is provided as a
+                        <b>combination</b>
+                        of text and template
+                    </ng-template>
+                    <tab-option icon="home" hint="with a hint" [value]="4" [text]="combinationRef">
                         <tab-hint>with a hint</tab-hint>
                     </tab-option>
                 </tab-radiogroup>
@@ -92,86 +65,54 @@
             <h3>Reactive Forms</h3>
             <p>
                 To use the radio group with Reactive Forms, bind to the
-                <code>formControl</code> or
-                <code>formControlName</code> property.
+                <code>formControl</code>
+                or
+                <code>formControlName</code>
+                property.
             </p>
             <div class="spacer">
-                <tab-radiogroup [formControl]="formControl">
-                    <tab-option
-                        [value]="1"
-                        text="This option is provided as a set of values"
-                        icon="home"
-                        hint="There are 2 ways to create tab-options; by values and by templates"
-                    ></tab-option>
-                    <tab-option
-                        [value]="2"
-                        [disabled]="true"
-                        text="Disabled value"
-                        hint="with random hint"
-                    ></tab-option>
+                <tab-radiogroup [formControl]="formControl | formControl">
+                    <tab-option text="This option is provided as a set of values" icon="home" hint="There are 2 ways to create tab-options; by values and by templates" [value]="1" />
+                    <tab-option text="Disabled value" hint="with random hint" [value]="2" [disabled]="true" />
                     <ng-template #iconRef>
-                        <tab-icon
-                            color="success"
-                            value="home"
-                            [fill]="true"
-                        ></tab-icon>
+                        <tab-icon color="success" value="home" [fill]="true" />
                     </ng-template>
-                    <ng-template #textRef
-                        >This option is provided as a
-                        <b>template</b></ng-template
-                    >
+                    <ng-template #textRef>
+                        This option is provided as a
+                        <b>template</b>
+                    </ng-template>
                     <ng-template #hintRef>
-                        <tab-hint
-                            >There are 2 ways to create tab-options; by values
-                            and by templates</tab-hint
-                        >
+                        <tab-hint>There are 2 ways to create tab-options; by values and by templates</tab-hint>
                     </ng-template>
-                    <tab-option
-                        [value]="3"
-                        [icon]="iconRef"
-                        [text]="textRef"
-                        [hint]="hintRef"
-                    ></tab-option>
-                    <ng-template #combinationRef
-                        >This option is provided as a <b>combination</b> of text
-                        and template</ng-template
-                    >
-                    <tab-option
-                        [value]="4"
-                        icon="home"
-                        [text]="combinationRef"
-                        hint="with a hint"
-                    >
+                    <tab-option [value]="3" [icon]="iconRef" [text]="textRef" [hint]="hintRef" />
+                    <ng-template #combinationRef>
+                        This option is provided as a
+                        <b>combination</b>
+                        of text and template
+                    </ng-template>
+                    <tab-option icon="home" hint="with a hint" [value]="4" [text]="combinationRef">
                         <tab-hint>with a hint</tab-hint>
                     </tab-option>
-                    @if (formControl.hasError('required')) {
-                    <tab-error>Required</tab-error>
-                    } @if (formControl.hasError('min')) {
-                    <tab-error
-                        >Minimum value is 1 (first item can't be
-                        selected)</tab-error
-                    >
-                    } @if (formControl.hasError('max')) {
-                    <tab-error
-                        >Maximum value is 3 (fourth item can't be
-                        selected)</tab-error
-                    >
+                    @if (formControl | formMeta | async | formHasError: 'required') {
+                        <tab-error>Required</tab-error>
+                    }
+                    @if (formControl | formMeta | async | formHasError: 'min') {
+                        <tab-error>Minimum value is 1 (first item can't be selected)</tab-error>
+                    }
+                    @if (formControl | formMeta | async | formHasError: 'max') {
+                        <tab-error>Maximum value is 3 (fourth item can't be selected)</tab-error>
                     }
                 </tab-radiogroup>
             </div>
         </div>
         <div class="section">
             <h3>Other</h3>
-            <p>
-                For visual reference, this is how a selected disabled Radio
-                Button looks:
-            </p>
+            <p>For visual reference, this is how a selected disabled Radio Button looks:</p>
             <tab-radiogroup [value]="2">
-                <tab-option [value]="2" [disabled]="true"
-                    >Disabled value<tab-hint
-                        >with random hint</tab-hint
-                    ></tab-option
-                >
+                <tab-option [value]="2" [disabled]="true">
+                    Disabled value
+                    <tab-hint>with random hint</tab-hint>
+                </tab-option>
             </tab-radiogroup>
         </div>
     </div>

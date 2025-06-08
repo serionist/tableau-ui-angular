@@ -1,56 +1,42 @@
-<ng-template
-    #templateRef
-    let-renderIcon="renderIcon"
-    let-renderText="renderText"
-    let-renderHint="renderHint"
-    let-renderAsDisabled="renderAsDisabled"
->
-    <div class="tab-option grid" [class.disabled]="disabled() || renderAsDisabled">
-        @if (renderIcon && iconType() !== 'none') {
+<ng-template #templateRef let-renderIcon="renderIcon" let-renderText="renderText" let-renderHint="renderHint" let-renderAsDisabled="renderAsDisabled">
+    <div class="tab-option grid" [class.disabled]="$disabled() || renderAsDisabled">
+        @if (renderIcon && $iconType() !== 'none') {
         <div class="icon" [style.marginRight]="renderText ? '0.25rem' : '0'">
-            @if (iconType() === 'string') {
-            <tab-icon [value]="iconString()"></tab-icon>
-            } @else if (iconType() === 'template') {
-            <ng-container *ngTemplateOutlet="iconTemplate()"></ng-container>
+            @if ($iconType() === 'string') {
+            <tab-icon [value]="$iconString()" />
+            } @else if ($iconType() === 'template') {
+            <ng-container *ngTemplateOutlet="$iconTemplate()" />
             }
         </div>
-        } @if (renderText && textType() !== 'none') {
+        } @if (renderText && $textType() !== 'none') {
         <div class="content">
-            @if (textType() === 'string') { {{ textString() }} } @else if
-            (textType() === 'template') {
-            <ng-container *ngTemplateOutlet="textTemplate()"></ng-container>
+            @if ($textType() === 'string') { {{ $textString() }} } @else if ($textType() === 'template') {
+            <ng-container *ngTemplateOutlet="$textTemplate()" />
             }
         </div>
-        } @if (renderHint && hintType() !== 'none') {
+        } @if (renderHint && $hintType() !== 'none') {
         <div class="hint">
-            @if (hintType() === 'string') { {{ hintString() }} } @else if
-            (hintType() === 'template') {
-            <ng-container *ngTemplateOutlet="hintTemplate()"></ng-container>
+            @if ($hintType() === 'string') { {{ $hintString() }} } @else if ($hintType() === 'template') {
+            <ng-container *ngTemplateOutlet="$hintTemplate()" />
             }
         </div>
         }
     </div>
 </ng-template>
-<ng-template
-    #lineTemplateRef
-    let-renderIcon="renderIcon"
-    let-renderText="renderText"
-    let-renderAsDisabled="renderAsDisabled"
->
-    <span class="tab-option line" [class.disabled]="disabled() || renderAsDisabled">
-        @if (renderIcon && iconType() !== 'none') {
-        <span class="icon"  [style.marginRight]="renderText ? '0.25rem' : '0'">
-            @if (iconType() === 'string') {
-            <tab-icon [value]="iconString()"></tab-icon>
-            } @else if (iconType() === 'template') {
-            <ng-container *ngTemplateOutlet="iconTemplate()"></ng-container>
+<ng-template #lineTemplateRef let-renderIcon="renderIcon" let-renderText="renderText" let-renderAsDisabled="renderAsDisabled">
+    <span class="tab-option line" [class.disabled]="$disabled() || renderAsDisabled">
+        @if (renderIcon && $iconType() !== 'none') {
+        <span class="icon" [style.marginRight]="renderText ? '0.25rem' : '0'">
+            @if ($iconType() === 'string') {
+            <tab-icon [value]="$iconString()" />
+            } @else if ($iconType() === 'template') {
+            <ng-container *ngTemplateOutlet="$iconTemplate()" />
             }
         </span>
-        } @if (renderText && textType() !== 'none') {
+        } @if (renderText && $textType() !== 'none') {
         <span class="content">
-            @if (textType() === 'string') { {{ textString() }} } @else if
-            (textType() === 'template') {
-            <ng-container *ngTemplateOutlet="textTemplate()"></ng-container>
+            @if ($textType() === 'string') { {{ $textString() }} } @else if ($textType() === 'template') {
+            <ng-container *ngTemplateOutlet="$textTemplate()" />
             }
         </span>
         }

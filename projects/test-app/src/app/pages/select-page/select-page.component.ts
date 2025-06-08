@@ -1,96 +1,135 @@
-import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
+import type { OnInit, WritableSignal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
-import { IOptionLineContext, SnackService } from 'component-library';
+import type { IOptionLineContext, Primitive, SelectValue } from 'component-library';
+import {  FB, SnackService } from 'component-library';
 import { BehaviorSubject, debounceTime, startWith, Subject } from 'rxjs';
-
 
 @Component({
     selector: 'app-select-page',
+    standalone: false,
     templateUrl: './select-page.component.html',
     styleUrl: './select-page.component.scss',
-    standalone: false
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SelectPageComponent implements OnInit {
-   
-
     snack = inject(SnackService);
-// nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    singleSelectValue: WritableSignal<number | undefined> = signal<number | undefined>(undefined);
-    singleSelectValueChanged(val: number | undefined) {
-        this.singleSelectValue.set(val);
+    b = inject(FB);
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    readonly $singleSelectValue: WritableSignal<number | undefined> = signal<number | undefined>(undefined);
+    singleSelectValueChanged(val: SelectValue) {
+        this.$singleSelectValue.set(val as number);
         console.log('single select value changed', val);
-        this.snack.openSnack('Single select value changed to: ' + val);
+        this.snack.openSnack('Single select value changed to: ' + val?.toString());
     }
 
+    singleFormControl = this.b.control<number | undefined>(4, [Validators.required, Validators.min(1), Validators.max(3)]);
+    singleFormControl2 = this.b.control<number | undefined>(4, [Validators.required, Validators.min(1), Validators.max(3)]);
+    singleFormControl3 = this.b.control<number | undefined>(4, [Validators.required, Validators.min(1), Validators.max(3)]);
+    disabledSingleFormControl = this.b.control<number | undefined>(2, undefined, undefined, true);
 
-    singleFormControl = new FormControl(4, [Validators.required, Validators.min(1), Validators.max(3)]);
-    singleFormControl2 = new FormControl(4, [Validators.required, Validators.min(1), Validators.max(3)]);
-    singleFormControl3 = new FormControl(4, [Validators.required, Validators.min(1), Validators.max(3)]);
-    disabledSingleFormControl = new FormControl({ value: 2, disabled: true });
-
-    multiFormControl = new FormControl([1, 3], [Validators.required]);
+    multiFormControl = this.b.control<number[] | undefined>([1, 3], [Validators.required]);
 
     ngOnInit(): void {
-     this.singleFormControl.markAsTouched();
-     this.singleFormControl.updateValueAndValidity();
-     this.multiFormControl.valueChanges.subscribe((val) => {
-          console.log('multi select value changed', val);
-          this.snack.openSnack('Multi select value changed to: ' + val);
-      });
-      this.searchBounce.pipe(debounceTime(300)).subscribe(() => {
-        this.performSearch();
-      });
+        this.multiFormControl.value$.subscribe((val) => {
+            console.log('multi select value changed', val);
+            this.snack.openSnack('Multi select value changed to: ' + val?.join(', '));
+        });
+        this.searchBounce.pipe(debounceTime(300)).subscribe(() => {
+            this.performSearch();
+        });
     }
     onlyTextSelectedValue: IOptionLineContext = {
-      renderIcon: false,
-      renderText: true
-    }
-
+        renderIcon: false,
+        renderText: true,
+    };
 
     // #region Search
     searchFormControl = new FormControl([]);
     names = [
-      "John Smith", "Jane Doe", "Michael Johnson", "Emily Davis", "William Brown",
-      "Olivia Wilson", "James Taylor", "Sophia Martinez", "Benjamin Lee", "Isabella Anderson",
-      "Henry Thomas", "Mia Jackson", "Daniel White", "Charlotte Harris", "Matthew Clark",
-      "Amelia Lewis", "Andrew Walker", "Harper Young", "David Hall", "Evelyn Allen",
-      "Joseph Wright", "Ella King", "Charles Scott", "Scarlett Green", "Christopher Adams",
-      "Grace Nelson", "Alexander Baker", "Zoey Carter", "Samuel Perez", "Nora Mitchell",
-      "Gabriel Roberts", "Lily Turner", "Jack Phillips", "Hannah Campbell", "Owen Parker",
-      "Aria Evans", "Lucas Edwards", "Lillian Collins", "Mason Stewart", "Avery Sanchez",
-      "Ethan Morris", "Layla Rogers", "Logan Reed", "Penelope Cook", "Jacob Morgan",
-      "Victoria Bell", "Sebastian Murphy", "Addison Bailey", "Aiden Cooper", "Riley Rivera"
+        'John Smith',
+        'Jane Doe',
+        'Michael Johnson',
+        'Emily Davis',
+        'William Brown',
+        'Olivia Wilson',
+        'James Taylor',
+        'Sophia Martinez',
+        'Benjamin Lee',
+        'Isabella Anderson',
+        'Henry Thomas',
+        'Mia Jackson',
+        'Daniel White',
+        'Charlotte Harris',
+        'Matthew Clark',
+        'Amelia Lewis',
+        'Andrew Walker',
+        'Harper Young',
+        'David Hall',
+        'Evelyn Allen',
+        'Joseph Wright',
+        'Ella King',
+        'Charles Scott',
+        'Scarlett Green',
+        'Christopher Adams',
+        'Grace Nelson',
+        'Alexander Baker',
+        'Zoey Carter',
+        'Samuel Perez',
+        'Nora Mitchell',
+        'Gabriel Roberts',
+        'Lily Turner',
+        'Jack Phillips',
+        'Hannah Campbell',
+        'Owen Parker',
+        'Aria Evans',
+        'Lucas Edwards',
+        'Lillian Collins',
+        'Mason Stewart',
+        'Avery Sanchez',
+        'Ethan Morris',
+        'Layla Rogers',
+        'Logan Reed',
+        'Penelope Cook',
+        'Jacob Morgan',
+        'Victoria Bell',
+        'Sebastian Murphy',
+        'Addison Bailey',
+        'Aiden Cooper',
+        'Riley Rivera',
     ];
-    
+
     randomNames = this.names.map((fullName, index) => {
-      const [firstName, lastName] = fullName.split(" ");
-      return {
-        id: index + 1,
-        name: fullName,
-        search: this.getSearchString(fullName)
-      };
+        const [firstName, lastName] = fullName.split(' ');
+        return {
+            id: index + 1,
+            name: fullName,
+            search: this.getSearchString(fullName),
+        };
     });
 
     getSearchString(input: string) {
-      return input.split(' ').map(e => e.toLowerCase()).join('|');
+        return input
+            .split(' ')
+            .map((e) => e.toLowerCase())
+            .join('|');
     }
 
     searchValue$ = new BehaviorSubject<string>('');
-    searching = signal(false);
-    searchResults$ = new BehaviorSubject<{ id: number, name: string }[]>(this.randomNames);
+    readonly $searching = signal(false);
+    searchResults$ = new BehaviorSubject<{ id: number; name: string }[]>(this.randomNames);
 
     searchBounce = new Subject<void>();
     searchValueChanged(value: string) {
-      this.searchValue$.next(value);
-      this.searchBounce.next();
-   
+        this.searchValue$.next(value);
+        this.searchBounce.next();
     }
     performSearch() {
-      this.searching.set(true);
-      setTimeout(() => {
-        this.searchResults$.next(this.randomNames.filter(e => e.search.includes(this.getSearchString(this.searchValue$.value))));
-        this.searching.set(false);
-      }, 1000);
+        this.$searching.set(true);
+        setTimeout(() => {
+            this.searchResults$.next(this.randomNames.filter((e) => e.search.includes(this.getSearchString(this.searchValue$.value))));
+            this.$searching.set(false);
+        }, 1000);
     }
 
     // #endregion

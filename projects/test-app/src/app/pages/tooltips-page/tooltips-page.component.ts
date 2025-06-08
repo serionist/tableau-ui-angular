@@ -1,11 +1,10 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 @Component({
     selector: 'app-tooltips-page',
+    standalone: false,
     templateUrl: './tooltips-page.component.html',
     styleUrl: './tooltips-page.component.scss',
-    standalone: false
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TooltipsPageComponent {
-
-}
+export class TooltipsPageComponent {}

@@ -1,38 +1,37 @@
-import { inject, Injectable } from "@angular/core";
-import { SnackService} from "../../public-api";
-import {TableauUiClipboardModule } from "./tableau-ui-clipboard.module";
+import { inject, Injectable } from '@angular/core';
+import { SnackService } from '../../public-api';
+import { TableauUiClipboardModule } from './tableau-ui-clipboard.module';
 @Injectable({
-    providedIn: TableauUiClipboardModule
+    providedIn: TableauUiClipboardModule,
 })
 export class ClipboardService {
     snackService = inject(SnackService);
     async writeText(text: string, handlePermissionError: boolean = true): Promise<void> {
-
+        // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
         if (!navigator.clipboard) {
             throw this.getError(handlePermissionError, 'Clipboard is not available in this browser');
         }
         const perm = await navigator.permissions.query({
-            name: 'clipboard-write'
-        } as any);
+            name: 'clipboard-write',
+        } as PermissionDescriptor & { name: 'clipboard-write' });
         if (perm.state === 'denied') {
             throw this.getError(handlePermissionError, 'Permission to write to clipboard is denied for this site');
-          
         }
         try {
             await navigator.clipboard.writeText(text);
         } catch (e) {
             throw this.getError(handlePermissionError, 'Error writing to clipboard', e);
-           
         }
     }
 
     async readText(handlePermissionError: boolean = true): Promise<string> {
+        // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
         if (!navigator.clipboard) {
             throw this.getError(handlePermissionError, 'Clipboard is not available in this browser');
         }
         const perm = await navigator.permissions.query({
-            name: 'clipboard-read'
-        } as any);
+            name: 'clipboard-read',
+        } as PermissionDescriptor & { name: 'clipboard-read' });
         if (perm.state === 'denied') {
             throw this.getError(handlePermissionError, 'Permission to write to clipboard is denied for this site');
         }
@@ -47,7 +46,7 @@ export class ClipboardService {
         console.error(message, details);
         if (handleError) {
             this.snackService.openSnack(message, 5000, 'error');
-        } 
+        }
         return new Error(message);
     }
 }

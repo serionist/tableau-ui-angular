@@ -1,21 +1,18 @@
-import { ChangeDetectionStrategy, Component, inject, model, TemplateRef } from '@angular/core';
+import type { TemplateRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, model } from '@angular/core';
 import { TAB_DATA_REF } from './data.ref';
 
-
 @Component({
-    template: `<ng-container
-        [ngTemplateOutlet]="data.contentTemplate"
-        [ngTemplateOutletContext]="data.contentTemplateContext"
-        ]
-    ></ng-container>`,
+    selector: 'tab-template-dialog',
+    standalone: false,
+    template: `
+        <ng-container ] [ngTemplateOutlet]="data.contentTemplate" [ngTemplateOutletContext]="data.contentTemplateContext" />
+    `,
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
 })
-export class TemplateDialogComponent<TData = any> {
-
+export class TemplateDialogComponent<TData> {
     data = inject<{
         contentTemplate: TemplateRef<TData>;
         contentTemplateContext: TData;
     }>(TAB_DATA_REF);
-
 }

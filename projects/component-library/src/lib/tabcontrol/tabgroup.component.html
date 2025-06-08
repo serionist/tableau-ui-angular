@@ -1,39 +1,32 @@
-<tab-arrow-scroll
-    scrollType="arrow"
-    scrollDirection="horizontal"
-    style="width: 100%"
-    [buttonsCssColor]="'var(--twc-color-text-light)'"
->
-    <tab-icon back-button value="keyboard_arrow_left" [style.fontSize]="scrollArrowsIconSize()"></tab-icon>
-    <tab-icon forward-button value="keyboard_arrow_right" [style.fontSize]="scrollArrowsIconSize()"></tab-icon>
+<tab-arrow-scroll scrollType="arrow" scrollDirection="horizontal" buttonsCssColor="var(--twc-color-text-light)">
+    <tab-icon back-button value="keyboard_arrow_left" [style.fontSize]="$scrollArrowsIconSize()" />
+    <tab-icon forward-button value="keyboard_arrow_right" [style.fontSize]="$scrollArrowsIconSize()" />
     <div class="tab-headers-container">
         <div class="tab-headers">
-            @for (tab of tabs(); let i = $index; track i) {
-            <div #tab
-                class="tab"
-                (click)="selectTab(i)"
-                [class.active]="selectedIndex() === i"
-                [class.disabled]="tab.disabled()"
-                [tabindex]="tab.disabled() ? -1 : 0"
-                (keydown)="onkeydown(i, $event)"
-                [style.padding]="headerPadding()"
-            >
-                <div class="tab-header">
-                    <ng-container
-                        *ngTemplateOutlet="tab.headerTemplate()"
-                    ></ng-container>
+            @for (tab of $tabs(); let i = $index; track i) {
+                <div
+                    #tab
+                    class="tab"
+                    [class.active]="$selectedIndex() === i"
+                    [class.disabled]="tab.$disabled()"
+                    [tabindex]="tab.$disabled() ? -1 : 0"
+                    [style.padding]="$headerPadding()"
+                    (click)="selectTab(i)"
+                    (keydown)="onkeydown(i, $event)"
+                >
+                    <div class="tab-header">
+                        <ng-container *ngTemplateOutlet="tab.$headerTemplate()" />
+                    </div>
                 </div>
-            </div>
             }
         </div>
-       
     </div>
 </tab-arrow-scroll>
 <div class="tab-headers-underline"></div>
 <div class="tab-content">
-    <ng-container *ngIf="selectedTab()">
-        <ng-container
-            *ngTemplateOutlet="selectedTab()!.contentTemplate()"
-        ></ng-container>
-    </ng-container>
+    @if ($selectedTab()) {
+        <ng-container>
+            <ng-container *ngTemplateOutlet="$selectedTab()!.$contentTemplate()" />
+        </ng-container>
+    }
 </div>

@@ -1,5 +1,5 @@
-import { signal } from "@angular/core";
-import { ExpansionPanelComponent } from "./expansion-panel.component";
+import { signal } from '@angular/core';
+import type { ExpansionPanelComponent } from './expansion-panel.component';
 
 export class AccordionRegistry {
     readonly nodes = signal<ExpansionPanelComponent[]>([]);

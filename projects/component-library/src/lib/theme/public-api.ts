@@ -1,2 +1,2 @@
 export * from './theme.service';
-export * from './theme.config';
+export type * from './theme.config';

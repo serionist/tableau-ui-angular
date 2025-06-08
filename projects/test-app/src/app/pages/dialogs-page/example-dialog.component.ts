@@ -1,36 +1,34 @@
-import { Component, inject, Inject, input, Input, model, signal, Signal } from '@angular/core';
-import {
-    DialogRef,
-    DialogService,
-    TAB_DATA_REF,
-    TAB_DIALOG_REF,
-} from 'component-library';
+import type { Signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, Inject, input, Input, model, signal } from '@angular/core';
+import { DialogRef, DialogService, injectDialogData, injectDialogRef } from 'component-library';
 
 @Component({
     selector: 'app-example-dialog',
+    standalone: false,
     template: `
+        <!-- eslint-disable  @angular-eslint/template/no-inline-styles -->
         <div
             class="dialog-content"
             style="
     padding: 1em 2em;"
         >
             <h2>Example Dialog</h2>
-            <p>{{ message() }}</p>
+            <p>{{ $message() }}</p>
             <button (click)="openAnother()">Open another dialog</button>
             <button (click)="closeDialog()">Close</button>
         </div>
     `,
-    standalone: false,
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExampleDialogComponent {
-    readonly message: Signal<string>;
+    readonly $message: Signal<string>;
     dialogService = inject(DialogService);
 
     // Injecting the DialogRef and data using inject() function
-    data = inject<string>(TAB_DATA_REF);
-    dialogRef = inject(TAB_DIALOG_REF);
+    data = injectDialogData<string>();
+    dialogRef = injectDialogRef<string>();
     constructor() {
-        this.message = signal(this.data);
+        this.$message = signal(this.data);
     }
     // OR
     // constructor(
@@ -45,12 +43,8 @@ export class ExampleDialogComponent {
     }
 
     openAnother() {
-        this.dialogService.openModal(
-            ExampleDialogComponent,
-            'Another dialog',
-            {
-                height: 'auto',
-            }
-        );
+        this.dialogService.openModal(ExampleDialogComponent, 'Another dialog', {
+            height: 'auto',
+        });
     }
 }

@@ -1,4 +1,4 @@
-import { ColumnDefDirective } from '../column-def/column-def.directive';
+import type { ColumnDefDirective } from '../column-def/column-def.directive';
 export interface CellContext<T = unknown> {
     $implicit: T;
     columnDef: ColumnDefDirective;
@@ -7,7 +7,7 @@ export interface CellContext<T = unknown> {
     last: boolean;
     even: boolean;
     odd: boolean;
-    count: number
+    count: number;
     columnIndex: number;
     columnFirst: boolean;
     columnLast: boolean;

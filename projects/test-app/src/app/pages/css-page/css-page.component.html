@@ -1,48 +1,46 @@
+<!-- eslint-disable  @angular-eslint/template/no-inline-styles -->
 <div class="page">
     <div class="title">
         <h1>CSS & Fonts</h1>
-        <div class="text-light text-large">
-            This page demonstrates the use of CSS and fonts in the component
-            library.
-        </div>
+        <div class="text-light text-large">This page demonstrates the use of CSS and fonts in the component library.</div>
     </div>
-    <tab-separator></tab-separator>
-    
+    <tab-separator />
+
     <div class="content section">
         <h3>Importing Tableau UI CSS</h3>
         <div>
-            Put the following line in the <code>styles.scss</code> file in your
-            project:
+            Put the following line in the
+            <code>styles.scss</code>
+            file in your project:
         </div>
-        <ngx-monaco-editor
-            style="height: 20px; width: 500px"
-            [options]="scssOptions"
-            [ngModel]="code"
-        ></ngx-monaco-editor>
-    
+        <ngx-monaco-editor style="height: 20px; width: 500px" [options]="scssOptions" [ngModel]="code" />
+
         <h3>Importing Fonts</h3>
         <div>Tableau UI supports the following fonts in this priority order:</div>
         <ul>
             <li>
-                <strong>Benton Sans</strong>, a proprietary font.
+                <strong>Benton Sans</strong>
+                , a proprietary font.
                 <strong>NOTE: You must have a license to use it.</strong>
             </li>
-            <li><strong>Roboto</strong>, an open source Google Font</li>
             <li>
-                <strong>Arial</strong>, a free font already included in your browser
+                <strong>Roboto</strong>
+                , an open source Google Font
+            </li>
+            <li>
+                <strong>Arial</strong>
+                , a free font already included in your browser
             </li>
         </ul>
-    
+
         <div class="indent">
             <h4>To use Benton Sans</h4>
-            <div>
-                You must have a license to use it. If you do not have a license, you
-                can use Roboto or Arial.
-            </div>
+            <div>You must have a license to use it. If you do not have a license, you can use Roboto or Arial.</div>
             <ol>
                 <li>
-                    Place the following <strong>Benton Sans</strong> fonts into a
-                    public (web hosted) directory:
+                    Place the following
+                    <strong>Benton Sans</strong>
+                    fonts into a public (web hosted) directory:
                     <ul>
                         <li><code>BentonSans-Book.woff</code></li>
                         <li><code>BentonSans-Book.woff2</code></li>
@@ -55,46 +53,35 @@
                         <li><code>BentonSans-SemiDemi_Italic.woff</code></li>
                         <li><code>BentonSans-SemiDemi_Italic.woff2</code></li>
                     </ul>
-                    Suggested directory: <code>public/fonts</code><br />
-                    Alternatively, you can download these fonts from a Tableau
-                    Server that you own, by running:
-                    <ngx-monaco-editor
-                        style="height: 35px"
-                        [options]="terminalOptions"
-                        [ngModel]="
-                            'node node_modules/tableau-ui-angular/styles/fonts/downloadFonts.js https://your-tableau-server.com public/fonts'
-                        "
-                    ></ngx-monaco-editor>
+                    Suggested directory:
+                    <code>public/fonts</code>
+                    <br />
+                    Alternatively, you can download these fonts from a Tableau Server that you own, by running:
+                    <ngx-monaco-editor style="height: 35px" ngModel="node node_modules/tableau-ui-angular/styles/fonts/downloadFonts.js https://your-tableau-server.com public/fonts" [options]="terminalOptions" />
                 </li>
                 <li>
                     Import the fonts into your app by adding this line to your
-                    <code>styles.scss</code> file (in addition to the Tableau UI CSS
-                    import above):
-                    <ngx-monaco-editor
-                        style="height: 20px; width: 300px"
-                        [options]="scssOptions"
-                        ngModel="@include libStyles.font-import('/fonts');"
-                    ></ngx-monaco-editor>
-                    (Replace <code>/fonts</code> with the path to your font files)
+                    <code>styles.scss</code>
+                    file (in addition to the Tableau UI CSS import above):
+                    <ngx-monaco-editor style="height: 20px; width: 300px" ngModel="@include libStyles.font-import('/fonts');" [options]="scssOptions" />
+                    (Replace
+                    <code>/fonts</code>
+                    with the path to your font files)
                 </li>
             </ol>
             <h4>To use Roboto</h4>
             <div>
-                Roboto is an open source Google Font. You can use it without a
-                license. To import it, add this to your
-                <code>styles.scss</code> file:
+                Roboto is an open source Google Font. You can use it without a license. To import it, add this to your
+                <code>styles.scss</code>
+                file:
             </div>
             <ngx-monaco-editor
-                style="height: 35px;"
-                [options]="scssOptions"
+                style="height: 35px"
                 ngModel="@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');"
-            ></ngx-monaco-editor>
+                [options]="scssOptions"
+            />
             <h4>To use Arial</h4>
-            <div>
-                Arial is a free font that is already included in your browser. You
-                do not need to import it.
-                </div>  
+            <div>Arial is a free font that is already included in your browser. You do not need to import it.</div>
         </div>
     </div>
-    
 </div>

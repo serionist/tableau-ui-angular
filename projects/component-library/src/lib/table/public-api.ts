@@ -1,9 +1,9 @@
 export * from './table.component';
 export * from './tableau-ui-table.module';
 export * from './defs/header-def/header-def.directive';
-export * from './defs/header-def/header-context';
+export type * from './defs/header-def/header-context';
 export * from './defs/column-def/column-def.directive';
 export * from './defs/cell-def/cell-def.directive';
-export * from './defs/cell-def/cell-context';
-export * from './data/data-request';
-export * from './data/data-response';
+export type * from './defs/cell-def/cell-context';
+export type * from './data/data-request';
+export type * from './data/data-response';

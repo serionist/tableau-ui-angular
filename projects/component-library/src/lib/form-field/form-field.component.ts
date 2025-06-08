@@ -1,108 +1,83 @@
 import { CommonModule } from '@angular/common';
-import {
-    AfterContentInit,
-    AfterViewInit,
-    ChangeDetectionStrategy,
-    Component,
-    contentChild,
-    ContentChild,
-    ContentChildren,
-    ElementRef,
-    inject,
-    input,
-    OnDestroy,
-    QueryList,
-    Renderer2,
-    Signal,
-    signal,
-    viewChild,
-    ViewChild,
-} from '@angular/core';
+import type { AfterContentInit, AfterViewInit, OnDestroy, Signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, contentChild, ContentChild, ContentChildren, ElementRef, inject, input, QueryList, Renderer2, signal, viewChild, ViewChild } from '@angular/core';
 import { ControlValueAccessor, ReactiveFormsModule } from '@angular/forms';
 import { HintComponent } from '../common/hint';
 import { ErrorComponent } from '../common/error';
 import { FormLabelComponent } from './form-label';
 import { PrefixComponent } from '../common/prefix';
 import { SuffixComponent } from '../common/suffix';
+import { generateRandomString } from '../utils';
 
 @Component({
     selector: 'tab-form-field',
+    standalone: false,
     templateUrl: './form-field.component.html',
     styleUrl: './form-field.component.scss',
-    host: {
-        '[class.disabled]': 'inputDisabled()',
-        '[attr.aria-disabled]': 'inputDisabled()',
-        'style.display': 'grid'
-    },
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
+    host: {
+        '[class.disabled]': '$inputDisabled()',
+        '[attr.aria-disabled]': '$inputDisabled()',
+        'style.display': 'grid',
+    },
 })
-export class FormFieldComponent
-    implements AfterContentInit, AfterViewInit, OnDestroy
-{
-    style = input<string>();
+export class FormFieldComponent implements AfterContentInit, AfterViewInit, OnDestroy {
+    protected readonly id = generateRandomString(16);
+    readonly $style = input<string>(undefined, {
+        alias: 'style',
+    });
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    hintElement: Signal<HintComponent | undefined> = contentChild(HintComponent);
+    protected readonly $hintElement: Signal<HintComponent | undefined> = contentChild(HintComponent);
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    errorElement: Signal<ErrorComponent | undefined> = contentChild(ErrorComponent);
+    protected readonly $errorElement: Signal<ErrorComponent | undefined> = contentChild(ErrorComponent);
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    labelElement: Signal<FormLabelComponent | undefined> = contentChild(FormLabelComponent);
+    protected readonly $labelElement: Signal<FormLabelComponent | undefined> = contentChild(FormLabelComponent);
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    prefixElement: Signal<PrefixComponent | undefined> = contentChild(PrefixComponent);
+    protected readonly $prefixElement: Signal<PrefixComponent | undefined> = contentChild(PrefixComponent);
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    suffixElement: Signal<SuffixComponent | undefined> = contentChild(SuffixComponent);
-    prefixContainer = viewChild.required<ElementRef>('prefixContainer');
-    suffixContainer = viewChild.required<ElementRef>('suffixContainer');
-    inputContainer = viewChild.required<ElementRef>('inputContainer');
-    host = inject(ElementRef<HTMLElement>);
+    protected readonly $suffixElement: Signal<SuffixComponent | undefined> = contentChild(SuffixComponent);
+    private readonly $prefixContainer = viewChild.required<ElementRef<HTMLElement>>('prefixContainer');
+    private readonly $suffixContainer = viewChild.required<ElementRef<HTMLElement>>('suffixContainer');
+    private readonly $inputContainer = viewChild.required<ElementRef<HTMLElement>>('inputContainer');
+    private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
-    renderer = inject(Renderer2);
+    private readonly renderer = inject(Renderer2);
 
-    inputDisabled = signal(false);
+    private readonly $inputDisabled = signal(false);
 
-    resizeObserver?: ResizeObserver;
-    intersectionObserver?: IntersectionObserver;
-    inputObserver?: MutationObserver;
-    
-    ngOnDestroy(): void {
-        if (this.resizeObserver) {
-            this.resizeObserver.disconnect();
-        }
-        if (this.intersectionObserver) {
-            this.intersectionObserver.disconnect();
-        }
-        if (this.inputObserver) {
-            this.inputObserver.disconnect();
-        }
-    }
+    private resizeObserver?: ResizeObserver;
+    private intersectionObserver?: IntersectionObserver;
+    private inputObserver?: MutationObserver;
 
     ngAfterContentInit(): void {
         this.updatePrefixSuffixWidths();
 
-        const input: HTMLElement =
-            this.inputContainer().nativeElement.querySelector('input,textarea,tab-select,tab-list');
-        if (input) {
-            this.updateInputAttributes(input);
+        const inputElement: HTMLElement | null = this.$inputContainer().nativeElement.querySelector('input,textarea,tab-select,tab-list');
+
+        if (inputElement) {
+            inputElement.id = this.id;
+            this.updateInputAttributes(inputElement);
 
             this.inputObserver = new MutationObserver(() => {
-                this.updateInputAttributes(input);
+                this.updateInputAttributes(inputElement);
             });
-            this.inputObserver.observe(input, {
+            this.inputObserver.observe(inputElement, {
                 attributes: true,
                 attributeFilter: ['disabled', 'placeholder', 'required'],
             });
         }
     }
-    private updateInputAttributes(input: HTMLElement) {
-        this.inputDisabled.set(input.getAttribute('disabled') != null);
-        const required = input.getAttribute('required') != null && input.getAttribute('required') !== 'false';
-        const placeholder = input.getAttribute('placeholder');
-        if (placeholder) {
+
+    private updateInputAttributes(inputElement: HTMLElement) {
+        this.$inputDisabled.set(inputElement.getAttribute('disabled') != null);
+        const required = inputElement.getAttribute('required') != null && inputElement.getAttribute('required') !== 'false';
+        const placeholder = inputElement.getAttribute('placeholder');
+        if (placeholder !== null) {
             if (required && !placeholder.endsWith('*')) {
-                input.setAttribute('placeholder', `${placeholder}*`);
-            } 
+                inputElement.setAttribute('placeholder', `${placeholder}*`);
+            }
             if (!required && placeholder.endsWith('*')) {
-                input.setAttribute('placeholder', placeholder.slice(0, -1));
+                inputElement.setAttribute('placeholder', placeholder.slice(0, -1));
             }
         }
     }
@@ -121,7 +96,7 @@ export class FormFieldComponent
                     }
                 });
             },
-            { threshold: 0.1 }
+            { threshold: 0.1 },
         );
         this.intersectionObserver.observe(this.host.nativeElement);
 
@@ -130,37 +105,42 @@ export class FormFieldComponent
             this.updatePrefixSuffixWidths();
         });
         this.resizeObserver.observe(this.host.nativeElement);
-        if (this.prefixElement()) {
-            this.resizeObserver.observe(this.prefixContainer().nativeElement);
+        if (this.$prefixElement()) {
+            this.resizeObserver.observe(this.$prefixContainer().nativeElement);
         }
-        if (this.suffixElement()) {
-            this.resizeObserver.observe(this.suffixContainer().nativeElement);
+        if (this.$suffixElement()) {
+            this.resizeObserver.observe(this.$suffixContainer().nativeElement);
+        }
+    }
+    ngOnDestroy(): void {
+        if (this.resizeObserver) {
+            this.resizeObserver.disconnect();
+        }
+        if (this.intersectionObserver) {
+            this.intersectionObserver.disconnect();
+        }
+        if (this.inputObserver) {
+            this.inputObserver.disconnect();
         }
     }
 
     private updatePrefixSuffixWidths(): void {
-        const prefixElement = this.prefixElement();
+        const prefixElement = this.$prefixElement();
         if (prefixElement) {
-            const prefixWidth =
-                prefixElement.elementRef.nativeElement.offsetWidth;
+            const prefixWidth = prefixElement.elementRef.nativeElement.offsetWidth;
             this.renderer.setStyle(
-                this.inputContainer().nativeElement.querySelector(
-                    'input,textarea,tab-select,tab-list'
-                ),
+                this.$inputContainer().nativeElement.querySelector('input,textarea,tab-select,tab-list'),
                 'padding-left',
-                `${prefixWidth + 12}px` // Adds a small margin for spacing
+                `${prefixWidth + 12}px`, // Adds a small margin for spacing
             );
         }
-        const suffixElement = this.suffixElement();
+        const suffixElement = this.$suffixElement();
         if (suffixElement) {
-            const suffixWidth =
-                suffixElement.elementRef.nativeElement.offsetWidth;
+            const suffixWidth = suffixElement.elementRef.nativeElement.offsetWidth;
             this.renderer.setStyle(
-                this.inputContainer().nativeElement.querySelector(
-                    'input,textarea,tab-select,tab-list'
-                ),
+                this.$inputContainer().nativeElement.querySelector('input,textarea,tab-select,tab-list'),
                 'padding-right',
-                `${suffixWidth + 8}px` // Adds a small margin for spacing
+                `${suffixWidth + 8}px`, // Adds a small margin for spacing
             );
         }
     }

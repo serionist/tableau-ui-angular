@@ -1,57 +1,50 @@
 @use 'sass:map' as map;
 
 $theme-vars: (
-  color-base,
-  color-base-highlight,
-  color-text,
-  color-text-strong,
-  color-text-light,
-  color-link,
-
-  color-primary-r,
-  color-primary-g,
-  color-primary-b,
-  color-primary,
-  color-primary-light,
-  color-primary-dark,
-  color-on-primary,
-
-  color-error,
-  color-error-dark,
-  color-error-light,
-
-  color-success,
-  color-success-light,
-  color-disabled,
-  color-text-gray,
-  color-highlight,
-  color-mouse-highlight,
-
-  color-border-light,
-  color-border,
-  color-border-dark,
-  color-border-dark-disabled,
-  color-focused-input,
-
-  tab-color-active-underline,
-  tab-color-inactive-underline,
-
-  modal-color-header,
-  modal-color-box-shadow,
-  modal-color-backdrop,
-  dialog-box-shadow
+    color-base,
+    color-base-highlight,
+    color-text,
+    color-text-strong,
+    color-text-light,
+    color-link,
+    color-primary-r,
+    color-primary-g,
+    color-primary-b,
+    color-primary,
+    color-primary-light,
+    color-primary-dark,
+    color-on-primary,
+    color-error,
+    color-error-dark,
+    color-error-light,
+    color-success,
+    color-success-light,
+    color-disabled,
+    color-text-gray,
+    color-highlight,
+    color-mouse-highlight,
+    color-border-light,
+    color-border,
+    color-border-dark,
+    color-border-dark-disabled,
+    color-focused-input,
+    tab-color-active-underline,
+    tab-color-inactive-underline,
+    modal-color-header,
+    modal-color-box-shadow,
+    modal-color-backdrop,
+    dialog-box-shadow
 );
 
 @mixin define-theme($theme-values) {
     @each $var-name in $theme-vars {
-      $value: map.get($theme-values, $var-name);
-  
-      @if $value {
-        // stylelint-disable-next-line declaration-property-value-disallowed-list
-        --twc-#{$var-name}: #{$value};
-      } @else {
-        @error "Missing value for --twc-#{$var-name}";
-      }
+        $value: map.get($theme-values, $var-name);
+
+        @if $value {
+            // stylelint-disable-next-line declaration-property-value-disallowed-list
+            --twc-#{$var-name}: #{$value};
+        } @else {
+            @error "Missing value for --twc-#{$var-name}";
+        }
     }
-  }
-  
+}

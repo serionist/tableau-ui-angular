@@ -15,7 +15,7 @@
     height: 100%;
 
     &.silent-focus {
-        outline-color:var(--twc-color-border-light);
+        outline-color: var(--twc-color-border-light);
     }
 
     .option-wrapper {
@@ -56,7 +56,7 @@
             grid-column: 2;
             padding: 0.25em 0;
         }
-        
+
         &:not(.disabled).highlight {
             background-color: var(--twc-color-highlight);
 
@@ -78,7 +78,7 @@
             outline-offset: var(--twc-menu-selected-outline-offset);
         }
 
-        // stylelint-disable-next-line selector-pseudo-element-no-unknown 
+        // stylelint-disable-next-line selector-pseudo-element-no-unknown
         ::ng-deep .tab-option {
             line-height: normal;
         }

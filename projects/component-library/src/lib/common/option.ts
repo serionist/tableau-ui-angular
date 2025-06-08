@@ -1,107 +1,94 @@
 import { CommonModule } from '@angular/common';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    ContentChild,
-    ElementRef,
-    input,
-    InputSignal,
-    Signal,
-    signal,
-    TemplateRef,
-    viewChild,
-    ViewChild,
-    ViewContainerRef,
-} from '@angular/core';
+import type { InputSignal, Signal, TemplateRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, ContentChild, ElementRef, inject, input, signal, viewChild, ViewChild, ViewContainerRef } from '@angular/core';
 import { HintComponent } from './hint';
 import { IconComponent } from '../icon/icon.component';
+import type { Primitive } from './types/primitive';
 
 @Component({
     selector: 'tab-option',
+    standalone: false,
     templateUrl: './option.html',
-    styleUrls: ['./option.scss'],
+    styleUrl: './option.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
 })
 export class OptionComponent {
-    readonly value = input.required<any>();
-    readonly disabled = input<boolean>(false);
+    readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
+    readonly $value = input.required<Exclude<Primitive, undefined>>({
+        alias: 'value',
+    });
+    readonly $disabled = input<boolean>(false, {
+        alias: 'disabled',
+    });
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    readonly text: InputSignal<string | TemplateRef<any> | undefined> = input<string | TemplateRef<any>>();
+    readonly $text: InputSignal<TemplateRef<unknown> | string | undefined> = input<TemplateRef<unknown> | string>(undefined, {
+        alias: 'text',
+    });
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    readonly hint: InputSignal<string | TemplateRef<any> | undefined> = input<string | TemplateRef<any>>();
+    readonly $hint: InputSignal<TemplateRef<unknown> | string | undefined> = input<TemplateRef<unknown> | string>(undefined, {
+        alias: 'hint',
+    });
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    readonly icon: InputSignal<string | TemplateRef<any> | undefined> = input<string | TemplateRef<any>>();
-    readonly template = viewChild.required<TemplateRef<IOptionGridContext>>('templateRef');
-    readonly lineTemplate = viewChild.required<TemplateRef<IOptionLineContext>>('lineTemplateRef');
-  
+    readonly $icon: InputSignal<TemplateRef<unknown> | string | undefined> = input<TemplateRef<unknown> | string>(undefined, {
+        alias: 'icon',
+    });
+    readonly $template = viewChild.required<TemplateRef<IOptionGridContext>>('templateRef');
+    readonly $lineTemplate = viewChild.required<TemplateRef<IOptionLineContext>>('lineTemplateRef');
 
-    protected iconType = computed(() => {
-        if (!this.icon()) {
+    protected readonly $iconType = computed(() => {
+        if (this.$icon() === undefined) {
             return 'none';
-        } else if (typeof this.icon() === 'string') {
+        } else if (typeof this.$icon() === 'string') {
             return 'string';
         } else {
             return 'template';
         }
     });
-    protected iconString = computed(() => {
-        return this.iconType() === 'string' ? (this.icon() as string) : '';
+    protected readonly $iconString = computed(() => {
+        return this.$iconType() === 'string' ? (this.$icon() as string) : '';
     });
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    protected iconTemplate: Signal<TemplateRef<any> | null> = computed(() => {
-        return this.iconType() === 'template'
-            ? (this.icon() as TemplateRef<any>)
-            : null;
+    protected readonly $iconTemplate: Signal<TemplateRef<unknown> | null> = computed(() => {
+        return this.$iconType() === 'template' ? (this.$icon() as TemplateRef<unknown>) : null;
     });
-    protected textType = computed(() => {
-        if (!this.text()) {
+    protected readonly $textType = computed(() => {
+        if (this.$text() === undefined) {
             return 'none';
-        } else if (typeof this.text() === 'string') {
+        } else if (typeof this.$text() === 'string') {
             return 'string';
         } else {
             return 'template';
         }
     });
-    protected textString = computed(() => {
-        return this.textType() === 'string' ? (this.text() as string) : '';
+    protected readonly $textString = computed(() => {
+        return this.$textType() === 'string' ? (this.$text() as string) : '';
     });
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    protected textTemplate: Signal<TemplateRef<any> | null> = computed(() => {
-        return this.textType() === 'template'
-            ? (this.text() as TemplateRef<any>)
-            : null;
+    protected readonly $textTemplate: Signal<TemplateRef<unknown> | null> = computed(() => {
+        return this.$textType() === 'template' ? (this.$text() as TemplateRef<unknown>) : null;
     });
-    protected hintType = computed(() => {
-        if (!this.hint()) {
+    protected readonly $hintType = computed(() => {
+        if (this.$hint() === undefined) {
             return 'none';
-        } else if (typeof this.hint() === 'string') {
+        } else if (typeof this.$hint() === 'string') {
             return 'string';
         } else {
             return 'template';
         }
     });
-    protected hintString = computed(() => {
-        return this.hintType() === 'string' ? (this.hint() as string) : '';
+    protected readonly $hintString = computed(() => {
+        return this.$hintType() === 'string' ? (this.$hint() as string) : '';
     });
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    protected hintTemplate: Signal<TemplateRef<any> | null> = computed(() => {
-        return this.hintType() === 'template'
-            ? (this.hint() as TemplateRef<any>)
-            : null;
+    protected readonly $hintTemplate: Signal<TemplateRef<unknown> | null> = computed(() => {
+        return this.$hintType() === 'template' ? (this.$hint() as TemplateRef<unknown>) : null;
     });
-
-    constructor(
-        public elementRef: ElementRef,
-        private viewContainerRef: ViewContainerRef
-    ) {}
 }
 export interface IOptionLineContext {
     renderIcon: boolean;
     renderText: boolean;
     renderAsDisabled?: boolean;
 }
-export interface IOptionGridContext extends IOptionLineContext{
+export interface IOptionGridContext extends IOptionLineContext {
     renderHint: boolean;
 }

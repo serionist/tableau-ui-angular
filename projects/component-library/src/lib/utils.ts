@@ -1,6 +1,5 @@
 export function generateRandomString(length: number = 16): string {
-    const characters =
-        'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let randomName = '';
 
     for (let i = 0; i < length; i++) {
@@ -8,6 +7,5 @@ export function generateRandomString(length: number = 16): string {
         randomName += characters.charAt(randomIndex);
     }
 
-    return `${randomName}`;
+    return randomName;
 }
-

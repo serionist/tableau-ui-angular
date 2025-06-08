@@ -11,26 +11,8 @@ import { SuffixComponent } from './suffix';
 import { ResizeWatcherDirective } from './utils/resize-watcher.directive';
 
 @NgModule({
+    declarations: [ErrorComponent, HintComponent, OptionComponent, PrefixComponent, SuffixComponent, SeparatorComponent, LoadingGifComponent, ResizeWatcherDirective],
     imports: [CommonModule, TableauUiIconModule],
-    declarations: [
-        ErrorComponent,
-        HintComponent,
-        OptionComponent,
-        PrefixComponent,
-        SuffixComponent,
-        SeparatorComponent,
-        LoadingGifComponent,
-        ResizeWatcherDirective,
-    ],
-    exports: [
-        ErrorComponent,
-        HintComponent,
-        OptionComponent,
-        SeparatorComponent,
-        LoadingGifComponent,
-        PrefixComponent,
-        SuffixComponent,
-        ResizeWatcherDirective,
-    ],
+    exports: [ErrorComponent, HintComponent, OptionComponent, SeparatorComponent, LoadingGifComponent, PrefixComponent, SuffixComponent, ResizeWatcherDirective],
 })
 export class TableauUiCommonModule {}

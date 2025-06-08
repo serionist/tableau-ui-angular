@@ -1,12 +1,12 @@
-input[type="text"],
-input[type="password"],
-input[type="email"],
-input[type="number"],
-input[type="search"],
-input[type="tel"],
-input[type="url"],
-input[type="date"],
-input[type="datetime-local"],
+input[type='text'],
+input[type='password'],
+input[type='email'],
+input[type='number'],
+input[type='search'],
+input[type='tel'],
+input[type='url'],
+input[type='date'],
+input[type='datetime-local'],
 textarea,
 .tab-input {
     width: 100%;
@@ -21,29 +21,27 @@ textarea,
     font-size: var(--twc-font-size-body);
     padding-left: 0.5rem;
     padding-right: 0.5rem;
-   
+    outline: none;
+
     &:focus-visible {
-        outline-color: var(--twc-color-focused-input);
-        outline-width: 2px;
+        border-color: var(--twc-color-focused-input);
+        border-width: 2px;
     }
 
-    &:not(
-            textarea,
-            [type="image" i],
-            [type="range" i],
-            [type="checkbox" i],
-            [type="radio" i],
-            .tab-input
-        ) {
+    &:not(textarea, [type='image' i], [type='range' i], [type='checkbox' i], [type='radio' i], .tab-input) {
         overflow-clip-margin: 0 !important;
         overflow: clip !important;
     }
 
     &.ng-invalid.ng-touched,
     &.ng-touched.tab-error {
-        outline-color: var(--twc-color-error);
-        outline-width: 1px;
-        outline-offset: -1px;
+        border-color: var(--twc-color-error);
+        border-width: 2px;
+
+        // // outline-offset: -1px;
+        // &:focus-visible {
+        //     border: none;
+        // }
     }
 
     // &:focus {
@@ -53,17 +51,18 @@ textarea,
 
     &:hover:enabled:not(:focus) {
         background-color: var(--twc-color-mouse-highlight);
-        border-color: var(--twc-color-border);
     }
 
     // stylelint-disable-next-line no-descending-specificity
-    &::placeholder,&.placeholder,.placeholder {
-       color: var(--twc-color-text-light);
+    .placeholder,
+    &::placeholder,
+    &.placeholder {
+        color: var(--twc-color-text-light);
     }
 
     &[disabled] {
         background-color: transparent;
-        border-color: var(--twc-color-border-dark);
+        border-color: var(--twc-color-disabled);
         color: var(--twc-color-disabled);
 
         &::placeholder {

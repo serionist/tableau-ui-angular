@@ -1,7 +1,7 @@
 /* You can add global styles to this file, and also import other style files */
-@use "../../component-library/styles/lib-styles" as libStyles;
+@use '../../component-library/styles/lib-styles' as libStyles;
 
-// if you use Locally Hosted Icons: 
+// if you use Locally Hosted Icons:
 // @use 'material-symbols/rounded'; // if you used icons with type: Material Symbols Rounded
 // @use 'material-symbols/outlined'; // if you used icons with type: Material Symbols Outlined
 // @use 'material-symbols/sharp'; // if you used icons with type: Material Symbols Sharp
@@ -10,8 +10,6 @@
 @use '../public/icons/material-icons.css';
 @import 'https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap';
 @include libStyles.font-import('/fonts');
-
-
 
 .page {
     height: 100vh; // stylelint-disable-line declaration-property-unit-disallowed-list
@@ -25,12 +23,11 @@
     .content {
         overflow: auto;
         grid-row: 3;
-        
     }
 
     .section {
         padding: 1em 2em 0;
-    
+
         p {
             margin-bottom: 0.5em;
         }
@@ -46,14 +43,9 @@
             column-gap: 1rem;
         }
     }
-
 }
 
 code {
     padding: 0 0.25em;
     background: var(--twc-color-highlight);
 }
-
-
-
-

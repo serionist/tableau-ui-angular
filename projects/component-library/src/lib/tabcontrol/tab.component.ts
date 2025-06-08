@@ -1,31 +1,25 @@
-import {
-    AfterContentInit,
-    ChangeDetectionStrategy,
-    Component,
-    ContentChild,
-    input,
-    TemplateRef,
-    viewChild,
-    ViewChild,
-} from '@angular/core';
+import type { TemplateRef } from '@angular/core';
+import { AfterContentInit, ChangeDetectionStrategy, Component, ContentChild, input, viewChild, ViewChild } from '@angular/core';
 
 @Component({
     // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'tab',
+    standalone: false,
     template: `
         <ng-template #headerTemplate>
-            <ng-content select="[tab-header]"></ng-content>
+            <ng-content select="[tab-header]" />
         </ng-template>
         <ng-template #contentTemplate>
-            <ng-content></ng-content>
+            <ng-content />
         </ng-template>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false,
 })
 export class TabComponent {
-    headerTemplate = viewChild.required<TemplateRef<any>>('headerTemplate');
-    contentTemplate = viewChild.required<TemplateRef<any>>('contentTemplate');
+    readonly $headerTemplate = viewChild.required<TemplateRef<unknown>>('headerTemplate');
+    readonly $contentTemplate = viewChild.required<TemplateRef<unknown>>('contentTemplate');
 
-    disabled = input<boolean>(false);
+    readonly $disabled = input<boolean>(false, {
+        alias: 'disabled',
+    });
 }

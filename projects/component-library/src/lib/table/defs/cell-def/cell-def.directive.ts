@@ -1,12 +1,10 @@
 import { Directive, inject, TemplateRef } from '@angular/core';
-import { CellContext } from './cell-context';
+import type { CellContext } from './cell-context';
 
 @Directive({
-  selector: '[tabCellDef]',
-  standalone: false
+    selector: '[tabCellDef]',
+    standalone: false,
 })
 export class CellDefDirective<T = unknown> {
-
-  public templateRef = inject(TemplateRef<CellContext<T>>)
-
+    public templateRef = inject(TemplateRef<CellContext<T>>);
 }

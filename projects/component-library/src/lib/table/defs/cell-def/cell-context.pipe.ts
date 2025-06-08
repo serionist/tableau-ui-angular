@@ -1,6 +1,7 @@
-import { Pipe, PipeTransform } from '@angular/core';
-import { ColumnDefDirective } from '../column-def/column-def.directive';
-import { CellContext } from './cell-context';
+import type { PipeTransform } from '@angular/core';
+import { Pipe } from '@angular/core';
+import type { ColumnDefDirective } from '../column-def/column-def.directive';
+import type { CellContext } from './cell-context';
 
 @Pipe({
     name: 'cellContext',
@@ -21,7 +22,7 @@ export class CellContextPipe implements PipeTransform {
         columnLast: boolean,
         columnEven: boolean,
         columnOdd: boolean,
-        columnCount: number
+        columnCount: number,
     ): CellContext<T> {
         return {
             $implicit: value,

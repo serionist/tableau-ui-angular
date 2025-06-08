@@ -1,11 +1,12 @@
-import { Component, effect, inject, model } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, model } from '@angular/core';
 import { SnackService } from 'component-library';
 
 @Component({
     selector: 'app-buttons-page',
+    standalone: false,
     templateUrl: './buttons-page.component.html',
     styleUrl: './buttons-page.component.scss',
-    standalone: false,
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ButtonsPageComponent {
     snack = inject(SnackService);
@@ -16,19 +17,15 @@ export class ButtonsPageComponent {
         error: false,
         plain: false,
     };
-    async buttonClick(color: 'primary' | 'secondary' | 'error' | 'plain') {
+    async buttonClick(color: 'error' | 'plain' | 'primary' | 'secondary') {
         this.buttonsLoading[color] = true;
         await new Promise((resolve) => setTimeout(resolve, 2000));
         this.buttonsLoading[color] = false;
         console.log('Button clicked', color);
-        this.snack.openSnack(
-            `Button ${color} clicked`,
-            2000,
-            color === 'error' ? 'error' : 'info'
-        );
+        this.snack.openSnack(`Button ${color} clicked`, 2000, color === 'error' ? 'error' : 'info');
     }
 
-    buttonToggleValue = model<string | undefined>(undefined);
+    readonly buttonToggleValue = model<string | undefined>('center');
     private initialButtonToggleValueChange = true;
     readonly buttonToggleChange = effect(() => {
         const val = this.buttonToggleValue();
@@ -37,11 +34,6 @@ export class ButtonsPageComponent {
             return;
         }
 
-        this.snack.openSnack(
-            'Button toggle value changed: ' +
-                (val ?? '[undefined]'),
-            2000,
-            'info'
-        );
+        this.snack.openSnack('Button toggle value changed: ' + (val ?? '[undefined]'), 2000, 'info');
     });
 }

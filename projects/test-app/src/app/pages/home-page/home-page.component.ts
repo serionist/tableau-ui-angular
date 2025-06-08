@@ -1,11 +1,12 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { MonacoHelper } from '../../helpers/monaco.helper';
 
 @Component({
     selector: 'app-home-page',
+    standalone: false,
     templateUrl: './home-page.component.html',
     styleUrl: './home-page.component.scss',
-    standalone: false
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomePageComponent {
     terminalOptions = MonacoHelper.getOptions('shell');
@@ -26,7 +27,7 @@ title = 'tableau-ui-angular-sample';
 }
 `;
     htmlOptions = MonacoHelper.getOptions('html');
-  sampleHtmlCode = `<button color="primary" [loading]="false" type="button" [disabled]="false">
+    sampleHtmlCode = `<button color="primary" [loading]="false" type="button" [disabled]="false">
     This is a primary Tableau Button
   </button>`;
 }

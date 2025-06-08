@@ -1,15 +1,14 @@
-import { ChangeDetectionStrategy, Component, ElementRef } from "@angular/core";
+import { ChangeDetectionStrategy, Component, ElementRef, inject } from '@angular/core';
 
 @Component({
     selector: 'tab-suffix',
-    template: `<ng-content></ng-content>`,
-    styles: `
-      
-      `,
+    standalone: false,
+    template: `
+        <ng-content />
+    `,
+    styles: ``,
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
 })
-  export class SuffixComponent {
-    constructor(public elementRef: ElementRef) {}
-  }
-  
+export class SuffixComponent {
+    readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
+}

@@ -1,207 +1,133 @@
+<!-- eslint-disable  @angular-eslint/template/no-inline-styles -->
 <div class="page">
     <div class="title">
         <h1>Table</h1>
-        <div class="text-light text-large">
-            Tables are used to display data in a structured format, allowing
-            users to easily read and compare information.
-        </div>
+        <div class="text-light text-large">Tables are used to display data in a structured format, allowing users to easily read and compare information.</div>
     </div>
-    <tab-separator></tab-separator>
+    <tab-separator />
     <div class="content">
         <div class="section">
             <h3>Module</h3>
-            <p>
-                To use the component, import one of the following modules into
-                your module/component:
-            </p>
+            <p>To use the component, import one of the following modules into your module/component:</p>
 
             <ul>
-                <li><code>TableauUiTableModule</code> - for granular import</li>
                 <li>
-                    <code>TableauUiAllModule</code> - to import all components
-                    from this library
+                    <code>TableauUiTableModule</code>
+                    - for granular import
+                </li>
+                <li>
+                    <code>TableauUiAllModule</code>
+                    - to import all components from this library
                 </li>
             </ul>
         </div>
         <div class="section">
             <h3>Example</h3>
             <div class="options">
-                <tab-checkbox [(value)]="show_first_3_columns"
-                    >Only show first 3 columns</tab-checkbox
-                >
-                <tab-checkbox [(value)]="striped">Striped</tab-checkbox>
+                <tab-checkbox [(value)]="$show_first_3_columns">Only show first 3 columns</tab-checkbox>
+                <tab-checkbox [(value)]="$striped">Striped</tab-checkbox>
                 <button color="primary" (click)="reset(true, false)">Reset and show data</button>
                 <button color="primary" (click)="reset(false, false)">Reset and show no data</button>
                 <button color="primary" (click)="reset(true, true)">Reset and throw error on any block load after 20 offset</button>
-                <tab-checkbox [(value)]="customNoDataTemplate">CustomNoDataTemplate</tab-checkbox>
+                <tab-checkbox [(value)]="$customNoDataTemplate">CustomNoDataTemplate</tab-checkbox>
             </div>
-            <ng-template #customnodatatemplate>
-                Custom No Data Template
-            </ng-template>
-            <tab-table #table
+            <ng-template #customnodatatemplate>Custom No Data Template</ng-template>
+            <tab-table
+                #table
                 style="max-height: 300px"
+                sortMode="multi"
                 [getDataBlock]="loadBlock"
-                [sortMode]="'multi'"
-                [displayedColumns]="
-                    show_first_3_columns() ? ['id', 'name', 'age'] : undefined
-                "
-                [striped]="striped()"
-                [noDataTemplate]="customNoDataTemplate() ? customnodatatemplate : 'default'"
+                [displayedColumns]="$show_first_3_columns() ? ['id', 'name', 'age'] : undefined"
+                [striped]="$striped()"
+                [noDataTemplate]="$customNoDataTemplate() ? customnodatatemplate : 'default'"
             >
-                <ng-container
-                    tabColumnDef="id"
-                    headerClass="custom-static-class"
-                >
-                    <ng-template tabHeaderDef let-data>ID</ng-template>
-                    <ng-template tabCellDef let-data>{{ data.id }}</ng-template>
+                <ng-container tabColumnDef="id" headerClass="custom-static-class">
+                    <ng-template let-data tabHeaderDef>ID</ng-template>
+                    <ng-template let-data tabCellDef>{{ data.id }}</ng-template>
                 </ng-container>
-                <ng-container
-                    tabColumnDef="name"
-                    [headerClass]="customCalculatedClass"
-                    minWidth="100px"
-                    maxWidth="200px"
-                    [headerTooltip]="customNameHeaderTooltip"
-                    [cellTooltip]="customNameCellTooltip"
-                >
-                    <ng-template tabHeaderDef let-data>Name</ng-template>
-                    <ng-template tabCellDef let-data>{{
-                        data.name
-                    }}</ng-template>
+                <ng-container tabColumnDef="name" minWidth="100px" maxWidth="200px" [headerClass]="customCalculatedClass" [headerTooltip]="customNameHeaderTooltip" [cellTooltip]="customNameCellTooltip">
+                    <ng-template let-data tabHeaderDef>Name</ng-template>
+                    <ng-template let-data tabCellDef>{{ data.name }}</ng-template>
                 </ng-container>
-                <ng-template
-                    #customNameHeaderTooltip
-                    let-template="template"
-                    let-ctx="ctx"
-                    let-sortMode="sortMode"
-                    let-sortable="sortable"
-                    let-sortOrder="sortOrder"
-                    let-currentSort="currentSort"
-                    let-allSorts="allSorts"
-                >
+                <ng-template #customNameHeaderTooltip let-template="template" let-ctx="ctx" let-sortMode="sortMode" let-sortable="sortable" let-sortOrder="sortOrder" let-currentSort="currentSort" let-allSorts="allSorts">
                     <div>Custom tooltip for:</div>
-                    <ng-container
-                        [ngTemplateOutlet]="template"
-                        [ngTemplateOutletContext]="ctx"
-                    ></ng-container>
+                    <ng-container [ngTemplateOutlet]="template" [ngTemplateOutletContext]="ctx" />
                 </ng-template>
-                <ng-template
-                    #customNameCellTooltip
-                    let-template="template"
-                    let-ctx="ctx"
-                >
+                <ng-template #customNameCellTooltip let-template="template" let-ctx="ctx">
                     <div>Custom tooltip data:</div>
-                    <ng-container
-                        [ngTemplateOutlet]="template"
-                        [ngTemplateOutletContext]="ctx"
-                    ></ng-container>
+                    <ng-container [ngTemplateOutlet]="template" [ngTemplateOutletContext]="ctx" />
                 </ng-template>
                 <ng-container tabColumnDef="age" [resizable]="false">
-                    <ng-template tabHeaderDef let-data>Age</ng-template>
-                    <ng-template tabCellDef let-data>{{
-                        data.age
-                    }}</ng-template>
+                    <ng-template let-data tabHeaderDef>Age</ng-template>
+                    <ng-template let-data tabCellDef>{{ data.age }}</ng-template>
                 </ng-container>
                 <ng-container tabColumnDef="gender" [sortable]="false">
-                    <ng-template tabHeaderDef let-data>Gender</ng-template>
-                    <ng-template tabCellDef let-data>{{
-                        data.gender
-                    }}</ng-template>
+                    <ng-template let-data tabHeaderDef>Gender</ng-template>
+                    <ng-template let-data tabCellDef>{{ data.gender }}</ng-template>
                 </ng-container>
                 <ng-container tabColumnDef="Country" propertyName="country">
-                    <ng-template tabHeaderDef let-data>Country</ng-template>
-                    <ng-template tabCellDef let-data>{{
-                        data.country
-                    }}</ng-template>
+                    <ng-template let-data tabHeaderDef>Country</ng-template>
+                    <ng-template let-data tabCellDef>{{ data.country }}</ng-template>
                 </ng-container>
                 <ng-container tabColumnDef="City" propertyName="city">
-                    <ng-template tabHeaderDef let-data>City</ng-template>
-                    <ng-template tabCellDef let-data>{{
-                        data.city
-                    }}</ng-template>
+                    <ng-template let-data tabHeaderDef>City</ng-template>
+                    <ng-template let-data tabCellDef>{{ data.city }}</ng-template>
                 </ng-container>
                 <ng-container tabColumnDef="email">
-                    <ng-template tabHeaderDef let-data>Email</ng-template>
-                    <ng-template tabCellDef let-data>{{
-                        data.email
-                    }}</ng-template>
+                    <ng-template let-data tabHeaderDef>Email</ng-template>
+                    <ng-template let-data tabCellDef>{{ data.email }}</ng-template>
                 </ng-container>
                 <ng-container tabColumnDef="phone">
-                    <ng-template tabHeaderDef let-data>Phone</ng-template>
-                    <ng-template tabCellDef let-data>{{
-                        data.phone
-                    }}</ng-template>
+                    <ng-template let-data tabHeaderDef>Phone</ng-template>
+                    <ng-template let-data tabCellDef>{{ data.phone }}</ng-template>
                 </ng-container>
                 <ng-container tabColumnDef="address">
-                    <ng-template tabHeaderDef let-data>Address</ng-template>
-                    <ng-template tabCellDef let-data>{{
-                        data.address
-                    }}</ng-template>
+                    <ng-template let-data tabHeaderDef>Address</ng-template>
+                    <ng-template let-data tabCellDef>{{ data.address }}</ng-template>
                 </ng-container>
                 <ng-container tabColumnDef="zipCode">
-                    <ng-template tabHeaderDef let-data>zipCode</ng-template>
-                    <ng-template tabCellDef let-data>{{
-                        data.zipCode
-                    }}</ng-template>
+                    <ng-template let-data tabHeaderDef>zipCode</ng-template>
+                    <ng-template let-data tabCellDef>{{ data.zipCode }}</ng-template>
                 </ng-container>
                 <ng-container tabColumnDef="username">
-                    <ng-template tabHeaderDef let-data>username</ng-template>
-                    <ng-template tabCellDef let-data>{{
-                        data.username
-                    }}</ng-template>
+                    <ng-template let-data tabHeaderDef>username</ng-template>
+                    <ng-template let-data tabCellDef>{{ data.username }}</ng-template>
                 </ng-container>
                 <ng-container tabColumnDef="birthdate">
-                    <ng-template tabHeaderDef let-data>birthdate</ng-template>
-                    <ng-template tabCellDef let-data>{{
-                        data.birthdate
-                    }}</ng-template>
+                    <ng-template let-data tabHeaderDef>birthdate</ng-template>
+                    <ng-template let-data tabCellDef>{{ data.birthdate }}</ng-template>
                 </ng-container>
                 <ng-container tabColumnDef="joinDate">
-                    <ng-template tabHeaderDef let-data>joinDate</ng-template>
-                    <ng-template tabCellDef let-data>{{
-                        data.joinDate
-                    }}</ng-template>
+                    <ng-template let-data tabHeaderDef>joinDate</ng-template>
+                    <ng-template let-data tabCellDef>{{ data.joinDate }}</ng-template>
                 </ng-container>
                 <ng-container tabColumnDef="isActive">
-                    <ng-template tabHeaderDef let-data>isActive</ng-template>
-                    <ng-template tabCellDef let-data>{{
-                        data.isActive
-                    }}</ng-template>
+                    <ng-template let-data tabHeaderDef>isActive</ng-template>
+                    <ng-template let-data tabCellDef>{{ data.isActive }}</ng-template>
                 </ng-container>
                 <ng-container tabColumnDef="score">
-                    <ng-template tabHeaderDef let-data>score</ng-template>
-                    <ng-template tabCellDef let-data>{{
-                        data.score
-                    }}</ng-template>
+                    <ng-template let-data tabHeaderDef>score</ng-template>
+                    <ng-template let-data tabCellDef>{{ data.score }}</ng-template>
                 </ng-container>
                 <ng-container tabColumnDef="role">
-                    <ng-template tabHeaderDef let-data>role</ng-template>
-                    <ng-template tabCellDef let-data>{{
-                        data.role
-                    }}</ng-template>
+                    <ng-template let-data tabHeaderDef>role</ng-template>
+                    <ng-template let-data tabCellDef>{{ data.role }}</ng-template>
                 </ng-container>
                 <ng-container tabColumnDef="department">
-                    <ng-template tabHeaderDef let-data>department</ng-template>
-                    <ng-template tabCellDef let-data>{{
-                        data.department
-                    }}</ng-template>
+                    <ng-template let-data tabHeaderDef>department</ng-template>
+                    <ng-template let-data tabCellDef>{{ data.department }}</ng-template>
                 </ng-container>
                 <ng-container tabColumnDef="employeeId">
-                    <ng-template tabHeaderDef let-data>employeeId</ng-template>
-                    <ng-template tabCellDef let-data>{{
-                        data.employeeId
-                    }}</ng-template>
+                    <ng-template let-data tabHeaderDef>employeeId</ng-template>
+                    <ng-template let-data tabCellDef>{{ data.employeeId }}</ng-template>
                 </ng-container>
                 <ng-container tabColumnDef="language">
-                    <ng-template tabHeaderDef let-data>language</ng-template>
-                    <ng-template tabCellDef let-data>{{
-                        data.language
-                    }}</ng-template>
+                    <ng-template let-data tabHeaderDef>language</ng-template>
+                    <ng-template let-data tabCellDef>{{ data.language }}</ng-template>
                 </ng-container>
                 <ng-container tabColumnDef="notes">
-                    <ng-template tabHeaderDef let-data>notes</ng-template>
-                    <ng-template tabCellDef let-data>{{
-                        data.notes
-                    }}</ng-template>
+                    <ng-template let-data tabHeaderDef>notes</ng-template>
+                    <ng-template let-data tabCellDef>{{ data.notes }}</ng-template>
                 </ng-container>
             </tab-table>
         </div>

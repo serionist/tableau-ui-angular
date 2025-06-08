@@ -1,27 +1,22 @@
 <div class="page">
     <div class="title">
         <h1>Dialogs</h1>
-        <div class="text-light text-large">
-            Dialogs are used to display information or request input from the
-            user.
-        </div>
+        <div class="text-light text-large">Dialogs are used to display information or request input from the user.</div>
     </div>
-    <tab-separator></tab-separator>
+    <tab-separator />
     <div class="content">
         <div class="section">
             <h3>Module</h3>
-            <p>
-                To use the component, import one of the following modules into
-                your module/component:
-            </p>
+            <p>To use the component, import one of the following modules into your module/component:</p>
 
             <ul>
                 <li>
-                    <code>TableauUiDialogModule</code> - for granular import
+                    <code>TableauUiDialogModule</code>
+                    - for granular import
                 </li>
                 <li>
-                    <code>TableauUiAllModule</code> - to import all components
-                    from this library
+                    <code>TableauUiAllModule</code>
+                    - to import all components from this library
                 </li>
             </ul>
         </div>
@@ -29,59 +24,34 @@
             <h3>Examples</h3>
             <div class="two">
                 <div class="spacer">
-                    <button
-                        color="primary"
-                        (click)="openConfirmationDialog('primary')"
-                    >
-                        Confirmation Dialog with message
-                    </button>
-                    <button (click)="openConfirmationDialog()">
-                        Confirmation Dialog with message
-                    </button>
-                    <button color="error" (click)="openConfirmationDialog('error')">
-                        Confirmation Dialog with message
-                    </button>
-    
-                    <button
-                        color="primary"
-                        (click)="openConfirmationDialog('primary', undefined)"
-                    >
-                        Confirmation Dialog, no autofocus
-                    </button>
-                    <button (click)="openConfirmationDialog(undefined, 'accept')">
-                        Confirmation Dialog, focus accept
-                    </button>
-                    <button
-                        color="error"
-                        (click)="openConfirmationDialog('error', 'cancel')"
-                    >
-                        Confirmation Dialog, focus cancel
-                    </button>
+                    <button color="primary" (click)="openConfirmationDialog('primary')">Confirmation Dialog with message</button>
+                    <button (click)="openConfirmationDialog()">Confirmation Dialog with message</button>
+                    <button color="error" (click)="openConfirmationDialog('error')">Confirmation Dialog with message</button>
+
+                    <button color="primary" (click)="openConfirmationDialog('primary', undefined)">Confirmation Dialog, no autofocus</button>
+                    <button (click)="openConfirmationDialog(undefined, 'accept')">Confirmation Dialog, focus accept</button>
+                    <button color="error" (click)="openConfirmationDialog('error', 'cancel')">Confirmation Dialog, focus cancel</button>
                 </div>
                 <div class="spacer">
                     <ng-template #confirmationDialogTemplate>
-                        <tab-icon [fill]="true" value="error"></tab-icon>
+                        <tab-icon value="error" [fill]="true" />
                         <span>This is a random template</span>
                         <tab-checkbox [value]="true">Checkbox</tab-checkbox>
-                        </ng-template>
-                    <button 
-                        color="primary"
-                        (click)="openConfirmationTemplateDialog(confirmationDialogTemplate, 'primary', 'accept', 'Custom Accept', 'Custom Cancel')"
-                        >Confirmation Dialog with template, focus accept, custom button texts</button
-                    >
-                    <button  (click)="openConfirmationTemplateDialog(confirmationDialogTemplate, 'secondary', 'accept', 'Custom Accept', 'Custom Cancel')"
-                        >Confirmation Dialog with template, focus accept, custom button texts</button
-                    >
-                    <button 
-                        color="error"
-                        (click)="openConfirmationTemplateDialog(confirmationDialogTemplate, 'error', 'accept', 'Custom Accept', 'Custom Cancel')"
-                        >Confirmation Dialog with template, focus accept, custom button texts</button
-                    >
+                    </ng-template>
+                    <button color="primary" (click)="openConfirmationTemplateDialog(confirmationDialogTemplate, 'primary', 'accept', 'Custom Accept', 'Custom Cancel')">
+                        Confirmation Dialog with template, focus accept, custom button texts
+                    </button>
+                    <button (click)="openConfirmationTemplateDialog(confirmationDialogTemplate, 'secondary', 'accept', 'Custom Accept', 'Custom Cancel')">
+                        Confirmation Dialog with template, focus accept, custom button texts
+                    </button>
+                    <button color="error" (click)="openConfirmationTemplateDialog(confirmationDialogTemplate, 'error', 'accept', 'Custom Accept', 'Custom Cancel')">
+                        Confirmation Dialog with template, focus accept, custom button texts
+                    </button>
 
-                   <div>
-                    <button (click)="openDialog()" color="primary">Fully custom dialog content component</button>
-                    <div>This allows you to pass any custom component into the dialog body. No default buttons are rendered.</div>
-                   </div>
+                    <div>
+                        <button color="primary" (click)="openDialog()">Fully custom dialog content component</button>
+                        <div>This allows you to pass any custom component into the dialog body. No default buttons are rendered.</div>
+                    </div>
                 </div>
             </div>
         </div>

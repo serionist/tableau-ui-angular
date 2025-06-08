@@ -2,7 +2,10 @@ import { ChangeDetectionStrategy, Component, ElementRef, inject } from '@angular
 
 @Component({
     selector: 'tab-error',
-    template: `<div class="tab-error"><ng-content></ng-content></div>`,
+    standalone: false,
+    template: `
+        <div class="tab-error"><ng-content /></div>
+    `,
     styles: `
         .tab-error {
             font-size: 0.9em;
@@ -11,8 +14,5 @@ import { ChangeDetectionStrategy, Component, ElementRef, inject } from '@angular
         }
     `,
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
 })
-export class ErrorComponent {
-    elementRef = inject(ElementRef);
-}
+export class ErrorComponent {}

@@ -29,4 +29,3 @@ export * from './lib/table/public-api';
 
 // Export all Modules
 export * from './lib/tableau-ui-module-all';
-

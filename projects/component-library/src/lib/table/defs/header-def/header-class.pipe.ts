@@ -1,5 +1,6 @@
-import { Pipe, PipeTransform } from "@angular/core";
-import { HeaderContext } from "./header-context";
+import type { PipeTransform } from '@angular/core';
+import { Pipe } from '@angular/core';
+import type { HeaderContext } from './header-context';
 
 @Pipe({
     name: 'headerClass',
@@ -7,11 +8,11 @@ import { HeaderContext } from "./header-context";
 })
 export class HeaderClassPipe implements PipeTransform {
     transform(ctx: HeaderContext): string | undefined {
-        if (typeof ctx.$implicit.headerClass() === 'string') {
-            return ctx.$implicit.headerClass() as string;
+        if (typeof ctx.$implicit.$headerClass() === 'string') {
+            return ctx.$implicit.$headerClass() as string;
         }
-        if (typeof ctx.$implicit.headerClass() === 'function') {
-            return (ctx.$implicit.headerClass() as (ctx: HeaderContext) => string | undefined)(ctx);
+        if (typeof ctx.$implicit.$headerClass() === 'function') {
+            return (ctx.$implicit.$headerClass() as (ctx: HeaderContext) => string | undefined)(ctx);
         }
         return undefined;
     }

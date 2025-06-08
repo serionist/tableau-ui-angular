@@ -4,13 +4,8 @@ import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 
-import {
-    provideRouter,
-    RouterModule,
-    RouterOutlet,
-    withHashLocation,
-} from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { provideRouter, RouterModule, RouterOutlet, withHashLocation } from '@angular/router';
+import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { CssPageComponent } from './pages/css-page/css-page.component';
 import { CheckboxPageComponent } from './pages/checkbox-page/checkbox-page.component';
 import { routes } from './app.routes';
@@ -54,7 +49,7 @@ import {
     TableauUiExpansionPanelModule,
     TableauUiArrowScrollModule,
     ThemeService,
-    TableauUiTableModule
+    TableauUiTableModule,
 } from 'component-library';
 import { MenuPageComponent } from './pages/menu-page/menu-page.component';
 import { DatePickerPageComponent } from './pages/date-picker-page/date-picker-page.component';
@@ -88,16 +83,17 @@ import { TablePageComponent } from './pages/table-page/table-page.component';
         TreePageComponent,
         MenuPageComponent,
         DatePickerPageComponent,
-       
+
         ExpansionPageComponent,
         ScrollerPageComponent,
-        TablePageComponent
+        TablePageComponent,
     ],
     imports: [
         BrowserModule,
         CommonModule,
         FormsModule,
         MonacoEditorModule.forRoot(),
+        NgOptimizedImage,
         RouterModule,
         ReactiveFormsModule,
         TableauUiNavBarModule,
@@ -121,14 +117,10 @@ import { TablePageComponent } from './pages/table-page/table-page.component';
         TableauUiFormModule,
         TableauUiExpansionPanelModule,
         TableauUiArrowScrollModule,
-        TableauUiTableModule
+        TableauUiTableModule,
         // TableauUiAllModule
     ],
-    providers: [
-        provideZoneChangeDetection({ eventCoalescing: true }),
-        provideRouter(routes, withHashLocation()),
-        ThemeService
-    ],
+    providers: [provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes, withHashLocation()), ThemeService],
     bootstrap: [AppComponent],
 })
 export class AppModule {}

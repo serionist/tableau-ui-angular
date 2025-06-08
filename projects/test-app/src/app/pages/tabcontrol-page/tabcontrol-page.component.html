@@ -1,27 +1,23 @@
+<!-- eslint-disable  @angular-eslint/template/no-inline-styles -->
 <div class="page">
     <div class="title">
         <h1>Tabs</h1>
-        <div class="text-light text-large">
-            Tabs are used to display multiple sections of content in a single
-            container.
-        </div>
+        <div class="text-light text-large">Tabs are used to display multiple sections of content in a single container.</div>
     </div>
-    <tab-separator></tab-separator>
+    <tab-separator />
     <div class="content">
         <div class="section">
             <h3>Module</h3>
-            <p>
-                To use the component, import one of the following modules into
-                your module/component:
-            </p>
+            <p>To use the component, import one of the following modules into your module/component:</p>
 
             <ul>
                 <li>
-                    <code>TableauUiTabgroupModule</code> - for granular import
+                    <code>TableauUiTabgroupModule</code>
+                    - for granular import
                 </li>
                 <li>
-                    <code>TableauUiAllModule</code> - to import all components
-                    from this library
+                    <code>TableauUiAllModule</code>
+                    - to import all components from this library
                 </li>
             </ul>
         </div>
@@ -85,7 +81,7 @@
             </tab-group>
 
             <p>Tab group that is too narrow, needs horizontal scrolling</p>
-            <div style="width: 300px;">
+            <div style="width: 300px">
                 <tab-group>
                     <tab [disabled]="true">
                         <div tab-header>First tab</div>
@@ -105,7 +101,7 @@
                             <p>This is the third tab.</p>
                         </div>
                     </tab>
-    
+
                     <tab>
                         <div tab-header>Fourth tab</div>
                         <div>
@@ -116,7 +112,7 @@
             </div>
 
             <p>Tab group that is too narrow with larger text, needs horizontal scrolling. Scroll arrows are larger</p>
-            <div style="width: 300px;">
+            <div style="width: 300px">
                 <tab-group class="large" scrollArrowsIconSize="2rem">
                     <tab [disabled]="true">
                         <div tab-header>First tab</div>
@@ -136,7 +132,7 @@
                             <p>This is the third tab.</p>
                         </div>
                     </tab>
-    
+
                     <tab>
                         <div tab-header>Fourth tab</div>
                         <div>

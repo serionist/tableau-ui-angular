@@ -1,15 +1,14 @@
-import { ChangeDetectionStrategy, Component, ElementRef } from "@angular/core";
+import { ChangeDetectionStrategy, Component, ElementRef, inject } from '@angular/core';
 
 @Component({
     selector: 'tab-prefix',
-    template: `<ng-content></ng-content>`,
-    styles: `
-      
-      `,
+    standalone: false,
+    template: `
+        <ng-content />
+    `,
+    styles: ``,
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
 })
-  export class PrefixComponent {
-    constructor(public elementRef: ElementRef) {}
-  }
-  
+export class PrefixComponent {
+    readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
+}

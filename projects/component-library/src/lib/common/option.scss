@@ -3,14 +3,13 @@
     line-height: 1.2;
 
     &.disabled {
-        .icon,.content,.hint {
+        .icon,
+        .content,
+        .hint {
             color: var(--twc-color-disabled);
         }
     }
 }
-
-
-
 
 .hint {
     font-size: 0.9em;
@@ -46,7 +45,7 @@
     }
 
     .content {
-       // vertical-align: middle;
+        // vertical-align: middle;
     }
 }
 // stylelint-enable no-descending-specificity

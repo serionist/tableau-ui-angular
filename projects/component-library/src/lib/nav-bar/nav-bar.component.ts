@@ -1,15 +1,6 @@
 import { CommonModule } from '@angular/common';
-import {
-    AfterContentInit,
-    ChangeDetectionStrategy,
-    Component,
-    contentChild,
-    contentChildren,
-    input,
-    model,
-    Signal,
-    ViewEncapsulation,
-} from '@angular/core';
+import type { AfterContentInit, Signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, contentChild, contentChildren, input, model, ViewEncapsulation } from '@angular/core';
 import { NavBarHeaderComponent } from './nav-bar-header.component';
 import { NavBarFooterComponent } from './nav-bar-footer.component';
 import { NavBarButtonComponent } from './nav-bar-button/nav-bar-button.component';
@@ -18,34 +9,36 @@ import { TooltipDirective } from '../tooltip/tooltip.directive';
 
 @Component({
     selector: 'tab-nav-bar',
+    standalone: false,
     templateUrl: './nav-bar.component.html',
     styleUrl: './nav-bar.component.scss',
-    host: {
-        '[attr.expanded]': 'expanded()',
-    },
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false,
+    host: {
+        '[attr.expanded]': '$expanded()',
+    },
 })
 export class NavBarComponent implements AfterContentInit {
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    protected header: Signal<NavBarHeaderComponent | undefined> = contentChild(
-        NavBarHeaderComponent
-    );
+    protected readonly $header: Signal<NavBarHeaderComponent | undefined> = contentChild(NavBarHeaderComponent);
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    protected footer: Signal<NavBarFooterComponent | undefined> = contentChild(
-        NavBarFooterComponent
-    );
+    protected readonly $footer: Signal<NavBarFooterComponent | undefined> = contentChild(NavBarFooterComponent);
 
-    expanded = model<boolean>(true);
+    readonly $expanded = model<boolean>(true, {
+        alias: 'expanded',
+    });
 
-    buttons = contentChildren(NavBarButtonComponent);
+    private readonly $buttons = contentChildren(NavBarButtonComponent);
 
     ngAfterContentInit(): void {
-        this.setButtonExpanded(this.expanded());
-        this.expanded.subscribe((e) => this.setButtonExpanded(e));
+        this.setButtonExpanded(this.$expanded());
+        this.$expanded.subscribe((e) => {
+            this.setButtonExpanded(e);
+        });
     }
 
     private setButtonExpanded(expanded: boolean) {
-        this.buttons().forEach((b) => b.setExpandedInternal(expanded));
+        this.$buttons().forEach((b) => {
+            b.setExpandedInternal(expanded);
+        });
     }
 }

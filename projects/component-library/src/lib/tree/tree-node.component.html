@@ -1,60 +1,42 @@
 <ng-template
     #treeNodeTemplate
-    let-childrenIndent="childrenIndent"
-    let-expandButtonSize="expandButtonSize"
-    let-expandButtonColorInherited="expandButtonColor"
-    let-expandButtonGap="expandButtonGap"
-    let-expandButtonTooltip="expandButtonTooltip"
-    let-expandButtonAlign="expandButtonAlign"
-    let-keepButtonOffsetOnNoChildren="keepButtonOffsetOnNoChildren"
+    let-$childrenIndent="$childrenIndent"
+    let-$expandButtonSize="$expandButtonSize"
+    let-$expandButtonColorInherited="$expandButtonColor"
+    let-$expandButtonGap="$expandButtonGap"
+    let-$expandButtonTooltip="$expandButtonTooltip"
+    let-$expandButtonAlign="$expandButtonAlign"
+    let-$keepButtonOffsetOnNoChildren="$keepButtonOffsetOnNoChildren"
 >
-    <div
-        class="tree-node-container"
-        [style.marginLeft]="'calc(' + depth() + ' * ' + childrenIndent() + ')'"
-        [style.alignItems]="expandButtonAlign()"
-        [style.gap]="expandButtonGap()"
-    >
+    <div class="tree-node-container" [style.marginLeft]="`calc(${$depth()} * ${$childrenIndent()})`" [style.alignItems]="$expandButtonAlign()" [style.gap]="$expandButtonGap()">
         <button
-            #headerButton
-            [inline]="true"
             layout="icon"
             color="plain"
             class="header-button"
             type="button"
-            [style.visibility]="children().length === 0 ? 'hidden' : 'visible'"
-            (click)="setExpanded(!expanded())"
-            [style.fontSize]="expandButtonSize()"
-            [style.width]="
-                children().length !== 0 || keepButtonOffsetOnNoChildren()
-                    ? expandButtonSize()
-                    : '0px'
-            "
+            [id]="headerButtonId"
+            [inline]="true"
+            [style.visibility]="$children().length === 0 ? 'hidden' : 'visible'"
+            [style.fontSize]="$expandButtonSize()"
+            [style.width]="$children().length !== 0 || $keepButtonOffsetOnNoChildren() ? $expandButtonSize() : '0px'"
             [style.minWidth]="'0px'"
-            [style.height]="expandButtonSize()"
-            [style.color]="expandButtonColor() || expandButtonColorInherited()"
-            [tooltip]="
-                expanded()
-                    ? expandButtonTooltip()?.collapse
-                    : expandButtonTooltip()?.expand
-            "
-            [tooltipPosition]="expandButtonTooltip()?.position"
-            [tooltipMargin]="expandButtonTooltip()?.margin"
-            [tooltipContext]="expandButtonTooltip()?.context"
+            [style.height]="$expandButtonSize()"
+            [style.color]="$expandButtonColor() || $expandButtonColorInherited()"
+            [tooltip]="$expanded() ? $expandButtonTooltip()?.collapse : $expandButtonTooltip()?.expand"
+            [tooltipPosition]="$expandButtonTooltip()?.position"
+            [tooltipMargin]="$expandButtonTooltip()?.margin"
+            [tooltipContext]="$expandButtonTooltip()?.context"
+            (click)="setExpanded(!$expanded())"
         >
-            <tab-icon
-                [value]="
-                    expanded() ? 'keyboard_arrow_down' : 'keyboard_arrow_right'
-                "
-            ></tab-icon>
+            <tab-icon [value]="$expanded() ? 'keyboard_arrow_down' : 'keyboard_arrow_right'" />
         </button>
         <div class="header-content">
-            @if (expanded() && expandedContent()) {
-                <ng-content select="[expandedContent]"></ng-content>
-            } @else if (!expanded() && collapsedContent()) {
-                <ng-content select="[collapsedContent]"></ng-content>
+            @if ($expanded() && $expandedContent()) {
+                <ng-content select="[expandedContent]" />
+            } @else if (!$expanded() && $collapsedContent()) {
+                <ng-content select="[collapsedContent]" />
             }
-            <ng-content></ng-content>
-            
+            <ng-content />
         </div>
     </div>
 </ng-template>

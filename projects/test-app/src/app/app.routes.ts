@@ -1,4 +1,4 @@
-import { Routes } from '@angular/router';
+import type { Routes } from '@angular/router';
 import { CheckboxPageComponent } from './pages/checkbox-page/checkbox-page.component';
 import { CssPageComponent } from './pages/css-page/css-page.component';
 import { HomePageComponent } from './pages/home-page/home-page.component';
@@ -23,198 +23,179 @@ import { ScrollerPageComponent } from './pages/scroller-page/scroller-page.compo
 import { TablePageComponent } from './pages/table-page/table-page.component';
 export const routes: Routes = [
     {
-        'path': '',
+        path: '',
         component: HomePageComponent,
         title: 'Home',
         data: {
-            page: 'home'
-        }
+            page: 'home',
+        },
     },
     {
         path: 'local-development',
         component: LocalDevelopmentComponent,
         title: 'local-development',
         data: {
-            page: 'local-development'
-        }
-
+            page: 'local-development',
+        },
     },
     {
         path: 'checkbox',
         component: CheckboxPageComponent,
         title: 'Checkboxes',
         data: {
-            page: 'checkbox'
-        }
-
+            page: 'checkbox',
+        },
     },
     {
         path: 'table',
         component: TablePageComponent,
         title: 'Tables',
         data: {
-            page: 'table'
-        }
-
+            page: 'table',
+        },
     },
     {
         path: 'select',
         component: SelectPageComponent,
         title: 'Select',
         data: {
-            page: 'select'
-        }
-
+            page: 'select',
+        },
     },
     {
         path: 'list',
         component: ListPageComponent,
         title: 'List',
         data: {
-            page: 'list'
-        }
-
+            page: 'list',
+        },
     },
     {
         path: 'css',
         component: CssPageComponent,
         title: 'CSS & Fonts',
         data: {
-            page: 'css'
-        }
-
+            page: 'css',
+        },
     },
     {
         path: 'icons',
         component: IconsPageComponent,
         title: 'Icons',
         data: {
-            page: 'icons'
-        }
-
+            page: 'icons',
+        },
     },
     {
         path: 'buttons',
         component: ButtonsPageComponent,
         title: 'Buttons',
         data: {
-            page: 'buttons'
-        }
-
+            page: 'buttons',
+        },
     },
     {
         path: 'dialogs',
         component: DialogsPageComponent,
         title: 'Dialogs',
         data: {
-            page: 'dialogs'
-        }
-
+            page: 'dialogs',
+        },
     },
     {
         path: 'expansion-panel',
         component: ExpansionPageComponent,
         title: 'Expansion Panels',
         data: {
-            page: 'expansion-panel'
-        }
-
+            page: 'expansion-panel',
+        },
     },
     {
         path: 'snackbar',
         component: SnacksPageComponent,
         title: 'Snackbar',
         data: {
-            page: 'snackbar'
-        }
-
+            page: 'snackbar',
+        },
     },
     {
         path: 'tooltips',
         component: TooltipsPageComponent,
         title: 'Tooltips',
         data: {
-            page: 'tooltips'
-        }
-
+            page: 'tooltips',
+        },
     },
     {
         path: 'tabcontrol',
         component: TabcontrolPageComponent,
         title: 'Tabs',
         data: {
-            page: 'tabcontrol'
-        }
-
+            page: 'tabcontrol',
+        },
     },
     {
         path: 'navbar',
         component: NavbarPageComponent,
         title: 'Nav Bar',
         data: {
-            page: 'navbar'
-        }
-
+            page: 'navbar',
+        },
     },
     {
         path: 'menu',
         component: MenuPageComponent,
         title: 'Menu',
         data: {
-            page: 'menu'
-        }
-
+            page: 'menu',
+        },
     },
     {
         path: 'date-picker',
         component: DatePickerPageComponent,
         title: 'Date Picker',
         data: {
-            page: 'date-picker'
-        }
-
+            page: 'date-picker',
+        },
     },
     {
         path: 'tree',
         component: TreePageComponent,
         title: 'Tree',
         data: {
-            page: 'tree'
-        }
-
+            page: 'tree',
+        },
     },
     {
         path: 'clipboard',
         component: ClipboardPageComponent,
         title: 'Clipboard',
         data: {
-            page: 'clipboard'
-        }
-
+            page: 'clipboard',
+        },
     },
     {
         path: 'form-fields',
         component: FormFieldsPageComponent,
         title: 'Form Fields',
         data: {
-            page: 'form-fields'
-        }
+            page: 'form-fields',
+        },
     },
     {
         path: 'radios',
         component: RadioButtonsPageComponent,
         title: 'Radio Buttons',
         data: {
-            page: 'radios'
-        }
+            page: 'radios',
+        },
     },
     {
         path: 'scroller',
         component: ScrollerPageComponent,
         title: 'Arrow Scroller',
         data: {
-            page: 'scroller'
-        }
-
+            page: 'scroller',
+        },
     },
 ];

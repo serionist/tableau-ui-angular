@@ -1,24 +1,44 @@
 import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
-import { Primitive } from '../types/primitive';
-import { FC } from './form-control.reference';
-import { FG } from './form-group.reference';
-import { FA } from './form-array.reference';
-import { ControlReferenceBuilder } from './control-reference-builder';
-import { AC } from './abstract-control.reference';
+import { Primitive } from '../../common/types/primitive';
+import { FB } from './fb';
 import { combineLatest } from 'rxjs';
-
-const a = new FC<boolean>({
-    defaultValue: true,
-});
+import type { FormReferencesOf } from '../types/form-references-of';
 
 
+interface test {
+    a: string;
+    b?: number;
+    c: 'a' | 'b' | 'c';
+    d: boolean[];
+    e?: boolean[];
+    f: test2;
+    g?: test2;
+    h: test2[];
+    i?: test2[];
+    j: test3;
+}
+interface test2 {
+    a: string;
+    b?: number;
+    c: boolean;
+    d: boolean[];
+    e?: boolean[];
+}
+class test3 {}
+
+//const a: FormReferencesOf<test>;
+
+// const b: ControlsOf<test>;
+
+const b = new FB();
+const a = b.control<boolean>( true, undefined, undefined );
 
 
-const b = new ControlReferenceBuilder();
-const a2 = b.control('asd'); 
+const a2 = b.control<string>('asd');
 export interface ITest {
-    name: string;
-    age: number;
+    name?: string;
+    age: number | undefined;
+    aaa: Date;
     address: IAddress;
 }
 export interface IAddress {
@@ -32,64 +52,45 @@ export interface ITest2 {
     name: string;
     age: number;
 }
-const g = new FG<ITest>({
-    controls: {
-        name: new FC<string>({
-            defaultValue: 'test',
-        }),
-        age: new FC<number>({
-            defaultValue: 0,
-        }),
-        address: new FG<IAddress>({
-            controls: {
-                street: new FC<string>({
-                    defaultValue: 'test',
-                }),
-                city: new FC<string>({
-                    defaultValue: 'test',
-                }),
-                state: new FC<string>({
-                    defaultValue: 'test',
-                }),
-                zip: new FC<string>({
-                    defaultValue: 'test',
-                }),
-                test: new FG<ITest2>({
-                    controls: {
-                        name: new FC<string>({
-                            defaultValue: 'test',
-                        }),
-                        age: new FC<number>({
-                            defaultValue: 0,
-                        }),
-                    },
-                }),
-            },
-        }),
-    },
-});
-const gbuilder = b.group<ITest>({
-    name: b.control<string>('test', Validators.required),
-    age: b.control<number>(0),
+
+const c4: NonNullable<string | undefined> = 'a';
+const gRefs: FormReferencesOf<ITest> = {
+    name: b.control<string | undefined>('test'),
+    age: b.control<number | undefined>(0),
+    aaa: b.control<Date>(new Date()),
     address: b.group<IAddress>({
         street: b.control<string>('test'),
         city: b.control<string>('test'),
         state: b.control<string>('test'),
+        zip: b.control<string>('test'),
+        test: b.group<ITest2>({
+            name: b.control<string>('test'),
+            age: b.control<number>(0),
+        }),
+    }),
+    
+    
+};
+const g = b.group<ITest>(gRefs
+);
+const gbuilder = b.group<ITest>({
+    name: b.control<string | undefined>('test'),
+    age: b.control<number | undefined>(0),
+    aaa: b.control<Date>(new Date()),
+    address: b.group<IAddress>({
+        street: b.control<string>('test'),
+        city: b.control<string>('test'),
+        state: b.control<string>('test', Validators.required),
         zip: b.control<string>('test'),
         test: b.group({
             name: b.control<string>('test'),
             age: b.control<number>(0),
         }),
     }),
-
-})
-
-const arr = new FA<ITest>({
-    controls: [g]
 });
+const c = gbuilder.controls.age;
+const n = gbuilder.controls.name;
+gbuilder.controls.age.setValue(10);
 
-
-combineLatest([
-    a.value$,
-    arr.value$
-]).subscribe(e => e[0])
+const arr = b.array<ITest>([g]);
+combineLatest([a.value$, arr.value$]).subscribe((e) => e[0]);

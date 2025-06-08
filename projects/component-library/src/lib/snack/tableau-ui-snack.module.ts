@@ -1,14 +1,12 @@
-import { CommonModule } from "@angular/common";
-import { NgModule } from "@angular/core";
-import { TableauUiIconModule } from "../icon/tableau-ui-icon.module";
-import { SnackComponent } from "./snack.component";
-import { RouterModule } from "@angular/router";
+import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
+import { TableauUiIconModule } from '../icon/tableau-ui-icon.module';
+import { SnackComponent } from './snack.component';
+import { RouterModule } from '@angular/router';
 
 @NgModule({
-    imports: [CommonModule, TableauUiIconModule, RouterModule],
     declarations: [SnackComponent],
-    exports: [SnackComponent]
+    imports: [CommonModule, TableauUiIconModule, RouterModule],
+    exports: [],
 })
-export class TableauUiSnackModule {
-
-}
+export class TableauUiSnackModule {}

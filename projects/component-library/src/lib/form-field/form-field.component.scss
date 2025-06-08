@@ -55,23 +55,22 @@
         grid-template-columns: auto 1fr;
         max-width: 100%;
         overflow: hidden;
-        gap: 0.75rem;
+        column-gap: 0.75rem;
 
         ::ng-deep tab-hint {
             grid-row: 1;
         }
 
-        ::ng-deep tab-hint[type="prefix"] {
+        ::ng-deep tab-hint[type='prefix'] {
             grid-column: 1;
         }
 
-        ::ng-deep tab-hint[type="suffix"] {
+        ::ng-deep tab-hint[type='suffix'] {
             grid-column: 2;
             justify-self: end;
         }
 
         ::ng-deep tab-error {
-            grid-row: 1;
             grid-column: 1;
         }
     }

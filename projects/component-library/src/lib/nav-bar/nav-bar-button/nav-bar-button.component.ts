@@ -1,27 +1,37 @@
-import { ChangeDetectionStrategy, Component, computed, input, InputSignal, output, signal } from '@angular/core';
-import { RouterModule, UrlTree } from '@angular/router';
+import type { InputSignal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
+import type { UrlTree } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { IconComponent } from '../../icon/icon.component';
 import { TooltipDirective } from '../../tooltip/tooltip.directive';
 
 @Component({
     selector: 'tab-nav-bar-button',
+    standalone: false,
     templateUrl: './nav-bar-button.component.html',
     styleUrl: './nav-bar-button.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
 })
 export class NavBarButtonComponent {
-  text = input.required<string>();
-  // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-  link: InputSignal<string | any[] | UrlTree | null | undefined> = input<string | any[] | UrlTree | null | undefined>();
-  // eslint-disable-next-line @angular-eslint/no-output-native
-  click = output<void>();
-  isActive = input<boolean>(false);
-  disabled = input<boolean>(false);
+    readonly $text = input.required<string>({
+        alias: 'text',
+    });
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    readonly $link: InputSignal<string[] | UrlTree | string | null | undefined> = input<string[] | UrlTree | string | null | undefined>(undefined, {
+        alias: 'link',
+    });
+    // eslint-disable-next-line @angular-eslint/no-output-native
+    readonly click = output();
+    readonly $isActive = input<boolean>(false, {
+        alias: 'isActive',
+    });
+    readonly $disabled = input<boolean>(false, {
+        alias: 'disabled',
+    });
 
-  private expanded = signal(false);
-  protected isExpanded = computed(() => this.expanded());
-  setExpandedInternal(expanded: boolean) {
-    this.expanded.set(expanded);
-  }
+    private readonly $expanded = signal(false);
+    protected readonly $isExpanded = computed(() => this.$expanded());
+    setExpandedInternal(expanded: boolean) {
+        this.$expanded.set(expanded);
+    }
 }

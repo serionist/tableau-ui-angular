@@ -1,173 +1,137 @@
+<!-- eslint-disable  @angular-eslint/template/no-inline-styles -->
 <div class="page">
     <div class="title">
         <h1>Icons</h1>
-        <div class="text-light text-large">
-            This page demonstrates the use of Material Icons in the component
-            library.
-        </div>
+        <div class="text-light text-large">This page demonstrates the use of Material Icons in the component library.</div>
     </div>
-    <tab-separator></tab-separator>
+    <tab-separator />
 
     <div class="content">
         <div class="section">
             <h3>Getting started</h3>
             <p>
-                <a href="https://fonts.google.com/icons" target="_blank"
-                    ><b>Material Design Icons</b></a
-                >
-                is an established icon set that is widely used in web
-                development. <br />The component library provides a wrapper
-                around these icons to make them easier to use. <br />There are
-                two major ways that material icons can be added into your
-                project:
+                <a href="https://fonts.google.com/icons" target="_blank"><b>Material Design Icons</b></a>
+                is an established icon set that is widely used in web development.
+                <br />
+                The component library provides a wrapper around these icons to make them easier to use.
+                <br />
+                There are two major ways that material icons can be added into your project:
             </p>
             <ul>
                 <li>
-                    <b>Locally Hosted icons</b>, imported via the Material Icons
-                    NPM Package:
+                    <b>Locally Hosted icons</b>
+                    , imported via the Material Icons NPM Package:
                     <div class="info">
-                        <tab-icon
-                            value="add_circle"
-                            [fill]="true"
-                            color="success"
-                        ></tab-icon>
-                        <span
-                            >All the icons are hosted locally</span
-                        >
+                        <tab-icon value="add_circle" color="success" [fill]="true" />
+                        <span>All the icons are hosted locally</span>
                     </div>
                     <div class="info">
-                        <tab-icon
-                            value="add_circle"
-                            [fill]="true"
-                            color="success"
-                        ></tab-icon>
-                        <span
-                            >Simple installation and usage</span
-                        >
+                        <tab-icon value="add_circle" color="success" [fill]="true" />
+                        <span>Simple installation and usage</span>
                     </div>
                     <div class="info">
-                        <tab-icon
-                            value="do_not_disturb_on"
-                            [fill]="true"
-                            [color]="'error'"
-                        ></tab-icon>
-                        <span
-                            >Large size. Browser downloads at least ~4.5MB+
-                            (uncompressed) to make icons available. May be a lot more if multiple icon styles are used (outlined/rounded/sharp)</span
-                        >
+                        <tab-icon value="do_not_disturb_on" color="error" [fill]="true" />
+                        <span>Large size. Browser downloads at least ~4.5MB+ (uncompressed) to make icons available. May be a lot more if multiple icon styles are used (outlined/rounded/sharp)</span>
                     </div>
                 </li>
                 <li style="margin-top: 0.5em">
-                    <b>Dynamic Icons</b>. Only the used icons are downloaded at build-time:
+                    <b>Dynamic Icons</b>
+                    . Only the used icons are downloaded at build-time:
                     <div class="info">
-                        <tab-icon
-                            value="add_circle"
-                            [fill]="true"
-                            color="success"
-                        ></tab-icon>
-                        <span
-                            >Only loads the used icons, small download size (a
-                            few kilobytes, depending on the number of icons
-                            used)</span
-                        >
+                        <tab-icon value="add_circle" color="success" [fill]="true" />
+                        <span>Only loads the used icons, small download size (a few kilobytes, depending on the number of icons used)</span>
                     </div>
-                    
+
                     <div class="info">
-                        <tab-icon
-                            value="do_not_disturb_on"
-                            [fill]="true"
-                            [color]="'error'"
-                        ></tab-icon>
-                        <span
-                            >Harder to set up and use. Each used icon needs to be recorded by the developer.</span
-                        >
+                        <tab-icon value="do_not_disturb_on" color="error" [fill]="true" />
+                        <span>Harder to set up and use. Each used icon needs to be recorded by the developer.</span>
                     </div>
                 </li>
             </ul>
-            <p>
-                This sample app uses Dynamic Icons, but contains commented code
-                to use Locally Hosted icons as well.
-            </p>
+            <p>This sample app uses Dynamic Icons, but contains commented code to use Locally Hosted icons as well.</p>
         </div>
         <div class="section">
             <h3>Usage</h3>
             <p>
                 To add an icon to your app, use the
-                <code>&lt;tab-icon&gt;</code> component and set the
-                <code>value</code> attribute to the name of the icon you want to
-                use.
+                <code>&lt;tab-icon&gt;</code>
+                component and set the
+                <code>value</code>
+                attribute to the name of the icon you want to use.
             </p>
             <div>
-                <ngx-monaco-editor
-                    style="
-                        height: 25px;
-                        width: 320px;
-                        display: inline-block;
-                        vertical-align: middle;
-                        margin-right: 1em;
-                    "
-                    [options]="htmlOptions"
-                    ngModel='&lt;tab-icon value="home"&gt;&lt;/tab-icon&gt;'
-                ></ngx-monaco-editor>
-                <span>This will render: </span>
-                <tab-icon
-                    value="home"
-                    style="font-size: 18px; vertical-align: middle"
-                ></tab-icon>
+                <ngx-monaco-editor style="height: 25px; width: 320px; display: inline-block; vertical-align: middle; margin-right: 1em" ngModel='&lt;tab-icon value="home"&gt;&lt;/tab-icon&gt;' [options]="htmlOptions" />
+                <span>This will render:</span>
+                <tab-icon value="home" style="font-size: 18px; vertical-align: middle" />
             </div>
             <ul>
                 <li>
                     You can search for icons on
-                    <a href="https://fonts.google.com/icons" target="_blank"
-                        ><b>Material Design Icons</b></a
-                    >. Use the icon name as it appears in the
-                    <i>Inserting the icon</i> section on the right side panel
-                    after an icon is selected.
+                    <a href="https://fonts.google.com/icons" target="_blank"><b>Material Design Icons</b></a>
+                    . Use the icon name as it appears in the
+                    <i>Inserting the icon</i>
+                    section on the right side panel after an icon is selected.
                 </li>
                 <li>
-                    The size of the icon is <code>1em</code> by default.
-                    Changing the <code>font-size</code> CSS property resizes the
-                    icon. No need to update <code>width</code> and
-                    <code>height</code>.
+                    The size of the icon is
+                    <code>1em</code>
+                    by default. Changing the
+                    <code>font-size</code>
+                    CSS property resizes the icon. No need to update
+                    <code>width</code>
+                    and
+                    <code>height</code>
+                    .
                 </li>
                 <li>
-                    Icons can be colored using the <code>color</code> attribute.
-                    Possible values: <code>primary</code>, <code>error</code>,
-                    <code>success</code>. For any custom color, the
-                    <code>color</code> CSS property can be used.
+                    Icons can be colored using the
+                    <code>color</code>
+                    attribute. Possible values:
+                    <code>primary</code>
+                    ,
+                    <code>error</code>
+                    ,
+                    <code>success</code>
+                    . For any custom color, the
+                    <code>color</code>
+                    CSS property can be used.
                 </li>
                 <li>
-                    Add <code>type="Material Symbols Outlined"</code> to change the type of the fonts. Avaialble types:
+                    Add
+                    <code>type="Material Symbols Outlined"</code>
+                    to change the type of the fonts. Avaialble types:
                     <ul>
-                        <li><code>Material Symbols Rounded</code> - default</li>
+                        <li>
+                            <code>Material Symbols Rounded</code>
+                            - default
+                        </li>
                         <li><code>Material Symbols Outlined</code></li>
                         <li><code>Material Symbols Sharp</code></li>
                     </ul>
                 </li>
                 <li>
-                    Add <code>[fill]="true"</code> to make the icon filled.
+                    Add
+                    <code>[fill]="true"</code>
+                    to make the icon filled.
                 </li>
                 <li>
-                    Add <code>[weight]="100"</code> to change the weight of the icon. The default weight is 400, possible values are: 100, 200, 300, 400, 500, 600, 700.
+                    Add
+                    <code>[weight]="100"</code>
+                    to change the weight of the icon. The default weight is 400, possible values are: 100, 200, 300, 400, 500, 600, 700.
                 </li>
                 <li>
-                    Add <code>[grade]="200"</code> to change the grade of the icon. The default grade is 0, possible values are: -25, 0, 200.
+                    Add
+                    <code>[grade]="200"</code>
+                    to change the grade of the icon. The default grade is 0, possible values are: -25, 0, 200.
                 </li>
                 <li>
-                    Add <code>[opticalSizePx]="40"</code> to change the optical size of the icon. The default optical size is 24, possible values are: 20, 24, 40, 48.
+                    Add
+                    <code>[opticalSizePx]="40"</code>
+                    to change the optical size of the icon. The default optical size is 24, possible values are: 20, 24, 40, 48.
                 </li>
             </ul>
             <div>Full configuration example:</div>
-            <ngx-monaco-editor
-            style="
-                height: 55px;
-                width: 620px;
-                display: inline-block;
-                vertical-align: middle;
-                margin-right: 1em;
-            "
-            [options]="htmlOptions"
-            [ngModel]="fullConfigExample"></ngx-monaco-editor>
+            <ngx-monaco-editor style="height: 55px; width: 620px; display: inline-block; vertical-align: middle; margin-right: 1em" [options]="htmlOptions" [ngModel]="fullConfigExample" />
         </div>
 
         <div class="section">
@@ -175,131 +139,175 @@
             <ol>
                 <li>
                     Install the Icons Package by running:
-                    <ngx-monaco-editor
-                        style="height: 25px; width: 270px"
-                        [options]="terminalOptions"
-                        ngModel="npm install material-symbols"
-                    ></ngx-monaco-editor>
+                    <ngx-monaco-editor style="height: 25px; width: 270px" ngModel="npm install material-symbols" [options]="terminalOptions" />
                 </li>
                 <li>
                     Import the rounded icons by updating your
-                    <code>style.scss</code>:
-                    <ngx-monaco-editor
-                        style="height: 75px; width: 730px"
-                        [options]="scssOptions"
-                        [ngModel]="localImportCode"
-                    ></ngx-monaco-editor>
+                    <code>style.scss</code>
+                    :
+                    <ngx-monaco-editor style="height: 75px; width: 730px" [options]="scssOptions" [ngModel]="localImportCode" />
                 </li>
                 <li>
-                    Add the <code>TableauUiIconModule</code> to your module/component imports:
-                    <ngx-monaco-editor
-                        style="height: 280px; width: 520px"
-                        [options]="tsOptions"
-                        [ngModel]="localModuleCode"
-                    ></ngx-monaco-editor>
+                    Add the
+                    <code>TableauUiIconModule</code>
+                    to your module/component imports:
+                    <ngx-monaco-editor style="height: 280px; width: 520px" [options]="tsOptions" [ngModel]="localModuleCode" />
                 </li>
                 <li>Use the Icon as it's shown in the Usage section</li>
             </ol>
-           
         </div>
-        
+
         <div class="section">
             <h3>Installing Dynamic Icons</h3>
             <p>
-                Dynamic Icons work by only downloading the <b>used icons</b> with <b>used icon properties</b> at build-time.<br/>
-                The icons are still served locally by the <b>consuming app</b>, no web access is needed for end-users. <br />
-                This requires the developer to manually specify the icons that are used in the application in a special <b>icons.ts</b> file.<br/>
-                The <b>consuming app</b> also needs to be configured to load the icons dynamically.
+                Dynamic Icons work by only downloading the
+                <b>used icons</b>
+                with
+                <b>used icon properties</b>
+                at build-time.
+                <br />
+                The icons are still served locally by the
+                <b>consuming app</b>
+                , no web access is needed for end-users.
+                <br />
+                This requires the developer to manually specify the icons that are used in the application in a special
+                <b>icons.ts</b>
+                file.
+                <br />
+                The
+                <b>consuming app</b>
+                also needs to be configured to load the icons dynamically.
             </p>
             <ol>
                 <li>
                     Install axios as a dev dependency:
-                    <ngx-monaco-editor
-                    style="height: 25px; width: 300px"
-                    [options]="terminalOptions"
-                    ngModel="npm install --save-dev axios"
-                ></ngx-monaco-editor>
+                    <ngx-monaco-editor style="height: 25px; width: 300px" ngModel="npm install --save-dev axios" [options]="terminalOptions" />
                 </li>
                 <li>
-                    Create an <code>icons.ts</code> and inherit the <code>UsedIcons</code> class that is coming from this library. <br />
-                    <code>src/icons.ts</code>:
-                    <ngx-monaco-editor
-                        style="height: 550px; width: 870px"
-                        [options]="tsOptions"
-                        [ngModel]="iconsTsCode"
-                    ></ngx-monaco-editor>
+                    Create an
+                    <code>icons.ts</code>
+                    and inherit the
+                    <code>UsedIcons</code>
+                    class that is coming from this library.
+                    <br />
+                    <code>src/icons.ts</code>
+                    :
+                    <ngx-monaco-editor style="height: 550px; width: 870px" [options]="tsOptions" [ngModel]="iconsTsCode" />
                 </li>
-               
+
                 <li>
                     <div>Let's prepare a script to extract which icons and properties you use in your project and download them as static assets.</div>
-                    <div>In this example, our fonts are stored in <code>src/fonts.ts</code> and we are downloading into our <code>public/icons</code> folder, which our application serves as static content.</div>
-                    <div>Update your <code>package.json</code>, and add the following script:</div>
-                    <ngx-monaco-editor
-                    style="height: 150px; width: 870px"
-                    [options]="jsonOptions"
-                    [ngModel]="iconsDownloadContent"
-                ></ngx-monaco-editor>
+                    <div>
+                        In this example, our fonts are stored in
+                        <code>src/fonts.ts</code>
+                        and we are downloading into our
+                        <code>public/icons</code>
+                        folder, which our application serves as static content.
+                    </div>
+                    <div>
+                        Update your
+                        <code>package.json</code>
+                        , and add the following script:
+                    </div>
+                    <ngx-monaco-editor style="height: 150px; width: 870px" [options]="jsonOptions" [ngModel]="iconsDownloadContent" />
                 </li>
                 <li>
-                    <div>Let's modify our <code>styles.scss</code> to pull in the css file downloaded by our script.</div>
-                    <div>In this example, we downloaded the css file into <code>public/icons</code>. The CSS file is called <b>material-icons.css</b></div>
-                    <div>Update your <code>styles.scss</code>, and add the following line:</div>
-                    <ngx-monaco-editor
-                    style="height: 25px; width: 870px"
-                    [options]="scssOptions"
-                    ngModel="@use '../public/icons/material-icons.css';"
-                ></ngx-monaco-editor>
-                    <div><i>NOTE: </i>You can also import this .css file in any way you want, even from the HTML directly</div>
+                    <div>
+                        Let's modify our
+                        <code>styles.scss</code>
+                        to pull in the css file downloaded by our script.
+                    </div>
+                    <div>
+                        In this example, we downloaded the css file into
+                        <code>public/icons</code>
+                        . The CSS file is called
+                        <b>material-icons.css</b>
+                    </div>
+                    <div>
+                        Update your
+                        <code>styles.scss</code>
+                        , and add the following line:
+                    </div>
+                    <ngx-monaco-editor style="height: 25px; width: 870px" ngModel="@use '../public/icons/material-icons.css';" [options]="scssOptions" />
+                    <div>
+                        <i>NOTE:</i>
+                        You can also import this .css file in any way you want, even from the HTML directly
+                    </div>
                 </li>
                 <li>
-                    <div>Let's prepare a script to automatically watch the changes to the <code>icons.ts</code> file and re-download icons on changes (also download the changes when watching is started)</div>
-                    <div>For this, we use <code>chokidar</code>, which you need to install as a dev dependency:</div>
-                    <ngx-monaco-editor
-                    style="height: 25px; width: 300px"
-                    [options]="terminalOptions"
-                    ngModel="npm install --save-dev chokidar-cli"
-                ></ngx-monaco-editor>
-                    <div>Update your <code>package.json</code>, and add the following script:</div>
-                    <ngx-monaco-editor
-                    style="height: 150px; width: 870px"
-                    [options]="jsonOptions"
-                    [ngModel]="iconsWatchContent"
-                ></ngx-monaco-editor>
+                    <div>
+                        Let's prepare a script to automatically watch the changes to the
+                        <code>icons.ts</code>
+                        file and re-download icons on changes (also download the changes when watching is started)
+                    </div>
+                    <div>
+                        For this, we use
+                        <code>chokidar</code>
+                        , which you need to install as a dev dependency:
+                    </div>
+                    <ngx-monaco-editor style="height: 25px; width: 300px" ngModel="npm install --save-dev chokidar-cli" [options]="terminalOptions" />
+                    <div>
+                        Update your
+                        <code>package.json</code>
+                        , and add the following script:
+                    </div>
+                    <ngx-monaco-editor style="height: 150px; width: 870px" [options]="jsonOptions" [ngModel]="iconsWatchContent" />
                 </li>
                 <li>
                     <div>Let's modify our build process - we want to download the icons before our build begins.</div>
-                    <div>This example assumes that your original build script was a simple <code>ng build</code> - you can append this before any existing script</div>
-                    <div>Update your <code>angular.json</code> file, and add the following configuration:</div>
-                    <ngx-monaco-editor
-                    style="height: 150px; width: 870px"
-                    [options]="jsonOptions"
-                    [ngModel]="npmInstallContent"
-                ></ngx-monaco-editor>
+                    <div>
+                        This example assumes that your original build script was a simple
+                        <code>ng build</code>
+                        - you can append this before any existing script
+                    </div>
+                    <div>
+                        Update your
+                        <code>angular.json</code>
+                        file, and add the following configuration:
+                    </div>
+                    <ngx-monaco-editor style="height: 150px; width: 870px" [options]="jsonOptions" [ngModel]="npmInstallContent" />
                 </li>
                 <li>
-                    <div>Let's modify our development serve process - we want our dev version to automatically monitor and download icons when doing <code>ng serve</code></div>
-                    <div>For this, we use <code>concurrently</code>, which you need to install as a dev dependency:</div>
-                    <ngx-monaco-editor
-                    style="height: 25px; width: 300px"
-                    [options]="terminalOptions"
-                    ngModel="npm install --save-dev concurrently"
-                ></ngx-monaco-editor>
-                    <div>Update your <code>package.json</code>, and add the following script:</div>
-                    <ngx-monaco-editor
-                    style="height: 150px; width: 870px"
-                    [options]="jsonOptions"
-                    [ngModel]="ngServeContent"
-                ></ngx-monaco-editor>
+                    <div>
+                        Let's modify our development serve process - we want our dev version to automatically monitor and download icons when doing
+                        <code>ng serve</code>
+                    </div>
+                    <div>
+                        For this, we use
+                        <code>concurrently</code>
+                        , which you need to install as a dev dependency:
+                    </div>
+                    <ngx-monaco-editor style="height: 25px; width: 300px" ngModel="npm install --save-dev concurrently" [options]="terminalOptions" />
+                    <div>
+                        Update your
+                        <code>package.json</code>
+                        , and add the following script:
+                    </div>
+                    <ngx-monaco-editor style="height: 150px; width: 870px" [options]="jsonOptions" [ngModel]="ngServeContent" />
                 </li>
-
             </ol>
-            <p>Once you've done all these steps, your <code>npm build</code> and <code>npm start</code> should
-            automatically download and update the icons that you use in your project - and even monitor the changes!</p>
-            <p>All that's left is to make sure that you record any used icon into your <code>icons.ts</code>. Also make sure that if you use non-default <code>font type</code>, <code>fill</code>, <code>weight</code>, <code>grade</code>, <code>opticalSizePx</code>, also record the values that you used.</p>
+            <p>
+                Once you've done all these steps, your
+                <code>npm build</code>
+                and
+                <code>npm start</code>
+                should automatically download and update the icons that you use in your project - and even monitor the changes!
+            </p>
+            <p>
+                All that's left is to make sure that you record any used icon into your
+                <code>icons.ts</code>
+                . Also make sure that if you use non-default
+                <code>font type</code>
+                ,
+                <code>fill</code>
+                ,
+                <code>weight</code>
+                ,
+                <code>grade</code>
+                ,
+                <code>opticalSizePx</code>
+                , also record the values that you used.
+            </p>
         </div>
-
-      
-
-        
     </div>
 </div>

@@ -19,13 +19,13 @@
         outline-width: 2px;
         outline-offset: -2px;
     }
-   
-    &:not([disabled], [disabled="false"]) {
+
+    &:not([disabled], [disabled='false']) {
         border-color: var(--twc-color-border-dark);
         color: var(--twc-color-text);
     }
 
-    &[disabled]:not([disabled="false"]) {
+    &[disabled]:not([disabled='false']) {
         background-color: transparent !important;
         border-color: var(--twc-color-border-light) !important;
         color: var(--twc-color-disabled) !important;
@@ -33,8 +33,6 @@
 
     .option {
         padding: 0.5em;
-        
-       
 
         &.selected {
             background-color: var(--twc-color-primary);

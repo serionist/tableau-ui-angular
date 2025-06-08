@@ -1,23 +1,23 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import type { ComponentFixture } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 
 import { SelectPageComponent } from './select-page.component';
 
 describe('SelectPageComponent', () => {
-  let component: SelectPageComponent;
-  let fixture: ComponentFixture<SelectPageComponent>;
+    let component: SelectPageComponent;
+    let fixture: ComponentFixture<SelectPageComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [SelectPageComponent]
-    })
-    .compileComponents();
+    beforeEach(async () => {
+        await TestBed.configureTestingModule({
+            imports: [SelectPageComponent],
+        }).compileComponents();
 
-    fixture = TestBed.createComponent(SelectPageComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+        fixture = TestBed.createComponent(SelectPageComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+    it('should create', () => {
+        expect(component).toBeTruthy();
+    });
 });
