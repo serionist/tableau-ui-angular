@@ -1,8 +1,4 @@
-import type {
-    InputSignal,
-    OnDestroy,
-    OutputRefSubscription,
-    WritableSignal} from '@angular/core';
+import type { InputSignal, OnDestroy, OutputRefSubscription, WritableSignal } from '@angular/core';
 import {
     ChangeDetectionStrategy,
     Component,
@@ -19,7 +15,7 @@ import {
     Signal,
     signal,
     TemplateRef,
-    viewChildren
+    viewChildren,
 } from '@angular/core';
 import { MenuButtonComponent } from './menu-button.component';
 import { Subscription } from 'rxjs';
@@ -83,7 +79,7 @@ import { generateRandomString } from '../utils';
     },
 })
 export class MenuButtonGroupComponent implements OnDestroy {
-    readonly nativeElement = inject(ElementRef);
+    readonly nativeElement = inject<ElementRef<HTMLElement>>(ElementRef);
 
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     readonly $hoverToOpenSubMenuMs: InputSignal<number | undefined> = input<number | undefined>(500, {
@@ -108,7 +104,7 @@ export class MenuButtonGroupComponent implements OnDestroy {
 
         const hoverMs = this.$hoverToOpenSubMenuMs();
         for (const child of children) {
-            if (child.$hoverToOpenSubMenuMs()) {
+            if (child.$hoverToOpenSubMenuMs() !== undefined) {
                 child.$actualHoverMs.set(child.$hoverToOpenSubMenuMs());
             } else {
                 child.$actualHoverMs.set(hoverMs);
@@ -130,7 +126,7 @@ export class MenuButtonGroupComponent implements OnDestroy {
         this.destroyGroupsUntil();
     }
 
-    async addMenuGroup(parentButton?: MenuButtonComponent) {
+    addMenuGroup(parentButton?: MenuButtonComponent) {
         const children = parentButton?.$children() ?? this.$children();
         if (children.length === 0) {
             return undefined;
@@ -142,7 +138,7 @@ export class MenuButtonGroupComponent implements OnDestroy {
             $top: signal(-10000),
             $left: signal(-10000),
             element: null,
-            $position: signal<'fixed' | 'absolute'>('fixed'),
+            $position: signal<'absolute' | 'fixed'>('fixed'),
             buttons: children,
             mouseoverSubscriptions: children.map((c) =>
                 c.mouseoverChange.subscribe((mouseOver) => {
@@ -158,19 +154,19 @@ export class MenuButtonGroupComponent implements OnDestroy {
             openSubMenuSubscriptions: children
                 .filter((e) => e.$children().length > 0)
                 .map((c) =>
-                    c.openSubMenu.subscribe(async (e) => {
+                    c.openSubMenu.subscribe((e) => {
                         if (this.$menuGroupStack().some((s) => s.parentButton?.id === c.id)) {
                             return;
                         }
-                        const group = await this.addMenuGroup(c);
-                        const firstButton = group?.buttons.find((b) => !b.$disabled());
+                        const g = this.addMenuGroup(c);
+                        const firstButton = g?.buttons.find((b) => !b.$disabled());
                         if (firstButton) {
                             firstButton.$highlight.set(true);
                         }
                     }),
                 ),
             clickSubscriptions: children.map((c) =>
-                c.click.subscribe(async (e) => {
+                c.click.subscribe((e) => {
                     const firstGroup = this.$menuGroupStack().at(0);
                     if (firstGroup) {
                         this.destroyGroupsUntil(firstGroup.id);
@@ -189,7 +185,7 @@ export class MenuButtonGroupComponent implements OnDestroy {
                     }
                 }),
             ),
-            parentButton: parentButton?.id ? document.getElementById(parentButton.id) : null,
+            parentButton: parentButton?.id !== undefined ? document.getElementById(parentButton.id) : null,
         };
         this.$menuGroupStack.update((groups) => {
             const newGroups = [...groups, group];
@@ -202,7 +198,7 @@ export class MenuButtonGroupComponent implements OnDestroy {
         return group;
     }
 
-    async updateSizes() {
+    updateSizes() {
         const groups = this.$menuGroupStack();
         const currentRect = this.nativeElement.nativeElement.getBoundingClientRect();
 
@@ -250,18 +246,28 @@ export class MenuButtonGroupComponent implements OnDestroy {
         this.$width.set(maxLeft - minLeft);
     }
 
-    async destroyGroupsUntil(id?: string) {
+    destroyGroupsUntil(id?: string) {
         const groups = this.$menuGroupStack();
 
         const curIndex = groups.findIndex((g) => g.id === id);
 
         const removed = groups.splice(curIndex + 1);
         for (const group of removed) {
-            group.mouseoverSubscriptions.forEach((s) => { s.unsubscribe(); });
-            group.openSubMenuSubscriptions.forEach((s) => { s.unsubscribe(); });
-            group.highlightSubscriptions.forEach((s) => { s.unsubscribe(); });
-            group.clickSubscriptions.forEach((s) => { s.unsubscribe(); });
-            group.buttons.forEach((b) => { b.$highlight.set(false); });
+            group.mouseoverSubscriptions.forEach((s) => {
+                s.unsubscribe();
+            });
+            group.openSubMenuSubscriptions.forEach((s) => {
+                s.unsubscribe();
+            });
+            group.highlightSubscriptions.forEach((s) => {
+                s.unsubscribe();
+            });
+            group.clickSubscriptions.forEach((s) => {
+                s.unsubscribe();
+            });
+            group.buttons.forEach((b) => {
+                b.$highlight.set(false);
+            });
             // group.element?.remove();
         }
         // this will also remove from DOM
@@ -293,13 +299,11 @@ export class MenuButtonGroupComponent implements OnDestroy {
     }
 
     @HostListener('keydown', ['$event'])
-    async onKeyDown(event: KeyboardEvent) {
+    onKeyDown(event: KeyboardEvent) {
         if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
             // we only handle navitation on top of the stack
-            const buttons = this.$menuGroupStack()[this.$menuGroupStack().length - 1]?.buttons;
-            if (!buttons) {
-                return;
-            }
+            const stack = this.$menuGroupStack();
+            const buttons = stack[stack.length - 1]?.buttons;
 
             let currentIndex = -1;
             currentIndex = buttons.findIndex((child) => child.$highlight());
@@ -370,7 +374,7 @@ interface IMenuGroup {
     id: string;
     $top: WritableSignal<number>;
     $left: WritableSignal<number>;
-    $position: WritableSignal<'fixed' | 'absolute'>;
+    $position: WritableSignal<'absolute' | 'fixed'>;
     parentButton: HTMLElement | null;
     buttons: readonly MenuButtonComponent[];
     element: Element | null;

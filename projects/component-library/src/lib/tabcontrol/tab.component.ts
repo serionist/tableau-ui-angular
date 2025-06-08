@@ -1,4 +1,4 @@
-import type { TemplateRef} from '@angular/core';
+import type { TemplateRef } from '@angular/core';
 import { AfterContentInit, ChangeDetectionStrategy, Component, ContentChild, input, viewChild, ViewChild } from '@angular/core';
 
 @Component({

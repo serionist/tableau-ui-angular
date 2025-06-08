@@ -1,4 +1,4 @@
-import type { OnDestroy} from '@angular/core';
+import type { OnDestroy } from '@angular/core';
 import { Directive, effect, ElementRef, Host, HostListener, inject, input, OnInit } from '@angular/core';
 import type { AutoCompleteComponent } from './autocomplete.component';
 import type { Subscription } from 'rxjs';
@@ -19,9 +19,6 @@ export class AutoCompleteDirective implements OnDestroy {
         }
         this.autoCompleteSelectedSub = autoComplete.selectValue$.subscribe((option) => {
             const el = this.ref.nativeElement;
-            if (!el) {
-                return;
-            }
             el.value = option.$value()?.toString() ?? '';
             el.dispatchEvent(new Event('input', { bubbles: true }));
             autoComplete.closeDropdown();

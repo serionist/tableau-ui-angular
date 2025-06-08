@@ -14,7 +14,6 @@ import { injectSnackData, injectSnackRef, SnackRef } from 'component-library';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExampleSnackComponent {
-
     snackRef = injectSnackRef<string>();
     snackData = injectSnackData<{ message: string }>();
 

@@ -29,7 +29,7 @@ export class DialogsPageComponent {
         });
     }
 
-    async openConfirmationDialog(color: 'primary' | 'error' | 'secondary' = 'secondary', autofocus?: 'accept' | 'cancel'  , acceptBtnText?: string  , cancelBtnText?: string  ) {
+    async openConfirmationDialog(color: 'error' | 'primary' | 'secondary' = 'secondary', autofocus?: 'accept' | 'cancel', acceptBtnText?: string, cancelBtnText?: string) {
         const dialogRef = await this.dialogService.openConfirmationMessageDialog(
             'This a random confirmation dialog',
             'Are you sure you want to delete this item? This stuff must be two lines long so I generate some random text.',
@@ -42,10 +42,10 @@ export class DialogsPageComponent {
     }
     async openConfirmationTemplateDialog(
         template: TemplateRef<unknown>,
-        color: 'primary' | 'error' | 'secondary' = 'secondary',
+        color: 'error' | 'primary' | 'secondary' = 'secondary',
         autofocus: 'accept' | 'cancel' | undefined,
-        acceptBtnText?: string  ,
-        cancelBtnText?: string  ,
+        acceptBtnText?: string,
+        cancelBtnText?: string,
     ) {
         const dialogRef = await this.dialogService.openConfirmationTemplateDialog('This a random confirmation dialog', template, undefined, color, acceptBtnText, cancelBtnText, autofocus, {
             width: '500px',

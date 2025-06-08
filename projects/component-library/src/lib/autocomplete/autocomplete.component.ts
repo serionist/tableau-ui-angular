@@ -141,10 +141,8 @@ export class AutoCompleteComponent {
     protected readonly $highlightedOption: WritableSignal<OptionComponent | undefined> = signal<OptionComponent | undefined>(undefined);
 
     protected optionMouseDown(event: MouseEvent) {
-        if (event) {
-            event.preventDefault();
-            event.stopPropagation();
-        }
+        event.preventDefault();
+        event.stopPropagation();
     }
 
     private optionKeyNavSubscription: Subscription | undefined;

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import type { InputSignal, Signal, TemplateRef} from '@angular/core';
+import type { InputSignal, Signal, TemplateRef } from '@angular/core';
 import { ChangeDetectionStrategy, Component, computed, ContentChild, ElementRef, inject, input, signal, viewChild, ViewChild, ViewContainerRef } from '@angular/core';
 import { HintComponent } from './hint';
 import { IconComponent } from '../icon/icon.component';
@@ -13,7 +13,7 @@ import type { Primitive } from './types/primitive';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OptionComponent {
-    readonly elementRef = inject(ElementRef);
+    readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
     readonly $value = input.required<Exclude<Primitive, undefined>>({
         alias: 'value',
     });
@@ -21,22 +21,22 @@ export class OptionComponent {
         alias: 'disabled',
     });
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    readonly $text: InputSignal<string | TemplateRef<unknown> | undefined> = input<string | TemplateRef<unknown>>(undefined, {
+    readonly $text: InputSignal<TemplateRef<unknown> | string | undefined> = input<TemplateRef<unknown> | string>(undefined, {
         alias: 'text',
     });
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    readonly $hint: InputSignal<string | TemplateRef<unknown> | undefined> = input<string | TemplateRef<unknown>>(undefined, {
+    readonly $hint: InputSignal<TemplateRef<unknown> | string | undefined> = input<TemplateRef<unknown> | string>(undefined, {
         alias: 'hint',
     });
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    readonly $icon: InputSignal<string | TemplateRef<unknown> | undefined> = input<string | TemplateRef<unknown>>(undefined, {
+    readonly $icon: InputSignal<TemplateRef<unknown> | string | undefined> = input<TemplateRef<unknown> | string>(undefined, {
         alias: 'icon',
     });
     readonly $template = viewChild.required<TemplateRef<IOptionGridContext>>('templateRef');
     readonly $lineTemplate = viewChild.required<TemplateRef<IOptionLineContext>>('lineTemplateRef');
 
     protected readonly $iconType = computed(() => {
-        if (!this.$icon()) {
+        if (this.$icon() === undefined) {
             return 'none';
         } else if (typeof this.$icon() === 'string') {
             return 'string';
@@ -52,7 +52,7 @@ export class OptionComponent {
         return this.$iconType() === 'template' ? (this.$icon() as TemplateRef<unknown>) : null;
     });
     protected readonly $textType = computed(() => {
-        if (!this.$text()) {
+        if (this.$text() === undefined) {
             return 'none';
         } else if (typeof this.$text() === 'string') {
             return 'string';
@@ -68,7 +68,7 @@ export class OptionComponent {
         return this.$textType() === 'template' ? (this.$text() as TemplateRef<unknown>) : null;
     });
     protected readonly $hintType = computed(() => {
-        if (!this.$hint()) {
+        if (this.$hint() === undefined) {
             return 'none';
         } else if (typeof this.$hint() === 'string') {
             return 'string';

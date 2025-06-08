@@ -11,11 +11,11 @@ import { TAB_SNACK_DATA_REF } from './data.ref';
     providedIn: TableauUiSnackModule,
 })
 export class SnackService {
-    private injector = inject(Injector);
-    private appRef = inject(ApplicationRef);
-    private environmentInjector = inject(EnvironmentInjector);
+    private readonly injector = inject(Injector);
+    private readonly appRef = inject(ApplicationRef);
+    private readonly environmentInjector = inject(EnvironmentInjector);
 
-    openSnack(message: string, duration: number | undefined = 5000, type: 'info' | 'error' | 'success' = 'info', location: 'top' | 'bottom' = 'top'): SnackRef<boolean> {
+    openSnack(message: string, duration: number | undefined = 5000, type: 'error' | 'info' | 'success' = 'info', location: 'bottom' | 'top' = 'top'): SnackRef<boolean> {
         return this.openSnackComponent<SnackComponent<unknown>, SnackComponentData<unknown>, boolean>(
             SnackComponent,
             {
@@ -35,8 +35,8 @@ export class SnackService {
         actionLabel: string,
         action: (s: SnackRef<boolean>) => void,
         duration: number | undefined = 5000,
-        type: 'info' | 'error' | 'success' = 'info',
-        location: 'top' | 'bottom' = 'top',
+        type: 'error' | 'info' | 'success' = 'info',
+        location: 'bottom' | 'top' = 'top',
     ): SnackRef<boolean> {
         return this.openSnackComponent<SnackComponent<unknown>, SnackComponentData<unknown>, boolean>(
             SnackComponent,
@@ -57,8 +57,8 @@ export class SnackService {
         template: TemplateRef<TContext>,
         templateContext?: TContext,
         duration: number | undefined = 5000,
-        type: 'info' | 'error' | 'success' = 'info',
-        location: 'top' | 'bottom' = 'top',
+        type: 'error' | 'info' | 'success' = 'info',
+        location: 'bottom' | 'top' = 'top',
     ) {
         return this.openSnackComponent<SnackComponent<TContext>, SnackComponentData<TContext>, boolean>(
             SnackComponent,
@@ -78,8 +78,8 @@ export class SnackService {
         component: Type<TComponent>,
         data: TData,
         duration: number | undefined = 5000,
-        type: 'info' | 'error' | 'success' = 'info',
-        location: 'top' | 'bottom' = 'top',
+        type: 'error' | 'info' | 'success' = 'info',
+        location: 'bottom' | 'top' = 'top',
     ): SnackRef<TResult> {
         // check if snack container exists
         let container = document.querySelector(`.tab-snacks.${location} .snack-container`);

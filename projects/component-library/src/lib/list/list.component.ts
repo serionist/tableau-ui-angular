@@ -31,7 +31,7 @@ export type ListValue = Exclude<Primitive, undefined> | Exclude<Primitive, undef
 })
 export class ListComponent implements ControlValueAccessor {
     protected readonly $options = contentChildren<OptionComponent>(OptionComponent);
-    private readonly elementRef = inject(ElementRef);
+    private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
     // #region Inputs
 
     /**
@@ -42,7 +42,7 @@ export class ListComponent implements ControlValueAccessor {
      * - 'none' - The list cannot be focused or navigated using the keyboard.
      * @default 'full'
      */
-    readonly $focusMode = model<'strong' | 'silent' | 'none'>('strong', {
+    readonly $focusMode = model<'none' | 'silent' | 'strong'>('strong', {
         alias: 'focusMode',
     });
     /**
@@ -69,7 +69,7 @@ export class ListComponent implements ControlValueAccessor {
      * The location of the check icon in dropdown option if an option is selected
      * @default 'none'
      */
-    readonly $selectedCheckIconLocation = model<'left' | 'right' | 'none'>('none', {
+    readonly $selectedCheckIconLocation = model<'left' | 'none' | 'right'>('none', {
         alias: 'selectedCheckIconLocation',
     });
     /**
@@ -109,7 +109,7 @@ export class ListComponent implements ControlValueAccessor {
             renderIcon: this.$itemTemplateContext().renderIcon,
             renderText: this.$itemTemplateContext().renderText,
             renderHint: this.$itemTemplateContext().renderHint,
-            renderAsDisabled: this.$itemTemplateContext().renderAsDisabled || this.$disabled(),
+            renderAsDisabled: this.$itemTemplateContext().renderAsDisabled ?? this.$disabled(),
         };
     });
 
@@ -135,10 +135,8 @@ export class ListComponent implements ControlValueAccessor {
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     protected readonly $highlightedOption: WritableSignal<OptionComponent | undefined> = signal<OptionComponent | undefined>(undefined);
     optionMouseDown(event: MouseEvent) {
-        if (event) {
-            event.preventDefault();
-            event.stopPropagation();
-        }
+        event.preventDefault();
+        event.stopPropagation();
     }
     selectValue(option: OptionComponent) {
         if (!this.$disabled() && !option.$disabled()) {
@@ -161,8 +159,6 @@ export class ListComponent implements ControlValueAccessor {
                 this.elementRef.nativeElement.focus();
             }
         }
-
-      
     }
     clearValue(e: Event) {
         e.preventDefault();
@@ -220,11 +216,11 @@ export class ListComponent implements ControlValueAccessor {
                 // find already selected option
                 const value = this.$value();
                 let val: Primitive;
-                
+
                 if (e.key === 'ArrowDown') {
                     // find the last selected option
                     if (this.$allowMultiple()) {
-                        if (value && Array.isArray(value) && value.length > 0) {
+                        if (value != null && Array.isArray(value) && value.length > 0) {
                             val = value[value.length - 1];
                         }
                     } else {
@@ -233,9 +229,9 @@ export class ListComponent implements ControlValueAccessor {
                         }
                     }
                 } else {
-                     // find the first selected option
-                     if (this.$allowMultiple()) {
-                        if (value && Array.isArray(value) && value.length > 0) {
+                    // find the first selected option
+                    if (this.$allowMultiple()) {
+                        if (value != null && Array.isArray(value) && value.length > 0) {
                             val = value[0];
                         }
                     } else {

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { AbstractControl, FormControl, isFormControl } from '@angular/forms';
-import type { Observable} from 'rxjs';
+import type { Observable } from 'rxjs';
 import { map, of, switchMap } from 'rxjs';
 import type { PipeTransform } from '@angular/core';
 import { Pipe } from '@angular/core';
@@ -21,7 +21,7 @@ export class FormControlValuePipe implements PipeTransform {
      *
      * @returns An observable of the form control's value.
      */
-    transform<T extends Primitive = any>(ctrl: FC<T> | undefined | null): Observable<T | null> {
+    transform<T extends Primitive = any>(ctrl: FC<T> | null | undefined): Observable<T | null> {
         if (!ctrl) {
             return of(null);
         }

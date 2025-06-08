@@ -1,4 +1,4 @@
-import type { AfterViewInit, OnDestroy} from '@angular/core';
+import type { AfterViewInit, OnDestroy } from '@angular/core';
 import { Directive, ElementRef, inject, input, Signal, signal } from '@angular/core';
 import type { Observable } from 'rxjs';
 import { BehaviorSubject } from 'rxjs';

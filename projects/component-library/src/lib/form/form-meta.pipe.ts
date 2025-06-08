@@ -1,5 +1,5 @@
 import { AbstractControl } from '@angular/forms';
-import type { Observable} from 'rxjs';
+import type { Observable } from 'rxjs';
 import { map, of, switchMap } from 'rxjs';
 import type { PipeTransform } from '@angular/core';
 import { Pipe } from '@angular/core';
@@ -12,7 +12,7 @@ import type { AbstractControlMeta, AC } from './models/abstract-control.referenc
     pure: true,
 })
 export class FormMetaPipe implements PipeTransform {
-    transform(form: AC | undefined | null, path?: string): Observable<AbstractControlMeta | null> {
+    transform(form: AC | null | undefined, path?: string): Observable<AbstractControlMeta | null> {
         if (!form) {
             return of(null);
         }

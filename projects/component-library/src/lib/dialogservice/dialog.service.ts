@@ -63,10 +63,10 @@ export class DialogService {
         return this.openModal(TemplateDialogComponent, { contentTemplate, contentTemplateContext }, args);
     }
 
-    openConfirmationMessageDialog(
+    async openConfirmationMessageDialog(
         title: string,
         message: string,
-        color: 'primary' | 'error' | 'secondary',
+        color: 'error' | 'primary' | 'secondary',
         acceptBtnText: string | undefined,
         cancelBtnText: string | undefined,
         autofocus: 'accept' | 'cancel' | undefined,
@@ -93,11 +93,11 @@ export class DialogService {
         });
     }
 
-    openConfirmationTemplateDialog<TContext>(
+    async openConfirmationTemplateDialog<TContext>(
         title: string,
         template: TemplateRef<TContext>,
         templateContext: TContext,
-        color: 'primary' | 'error' | 'secondary',
+        color: 'error' | 'primary' | 'secondary',
         acceptBtnText: string | undefined,
         cancelBtnText: string | undefined,
         autofocus: 'accept' | 'cancel' | undefined,
@@ -127,7 +127,7 @@ export class DialogService {
 
     readonly startZIndex = 100;
     readonly zIndexStep = 10;
-    private zIndex = this.startZIndex;
+    private readonly zIndex = this.startZIndex;
 
     dialogStack: {
         dialogRef: IDialogRef;
@@ -154,12 +154,12 @@ export class DialogService {
             | undefined = undefined;
         // Before creating the dialog, trap focus
         // This means that we get all elements which are tabbable and set the tabindex to -1 for the duration of the popup
-        if (args.trapFocus) {
+        if (args.trapFocus === true) {
             trappedFocus = this.trapFocus();
         }
         const dialogRef = new DialogRefInternal<TResult>();
         // calculate new zIndex
-        let zIndex = this.zIndex;
+        let { zIndex } = this;
         if (this.dialogStack.length > 0) {
             zIndex = this.dialogStack[this.dialogStack.length - 1].zIndex + this.zIndexStep;
         }
@@ -235,7 +235,7 @@ export class DialogService {
         } else {
             document.body.appendChild(backdrop);
         }
-        if (args.closeOnBackdropClick) {
+        if (args.closeOnBackdropClick === true) {
             backdrop.onclick = () => {
                 dialogRef.close();
             };
@@ -254,7 +254,7 @@ export class DialogService {
         }
         // get the dialog to set the escape for
         const { dialogRef, zIndex, args } = this.dialogStack[this.dialogStack.length - 1];
-        if (args.closeOnEscape) {
+        if (args.closeOnEscape === true) {
             this.escapeSubscription = fromEvent(document, 'keydown')
                 .pipe(map((e) => e as KeyboardEvent))
                 .subscribe((e: KeyboardEvent) => {
@@ -361,10 +361,10 @@ export class DialogService {
     }
 
     private static calculateAndSetPosition(dialogElement: HTMLElement, args: IDialogPositionAndSizeArgs, insertAfterElement?: HTMLElement) {
-        if (args.maxWidth) {
+        if (args.maxWidth !== undefined) {
             dialogElement.style.maxWidth = args.maxWidth;
         }
-        if (args.maxHeight) {
+        if (args.maxHeight !== undefined) {
             dialogElement.style.maxHeight = args.maxHeight;
         }
         dialogElement.style.overflowX = 'hidden';
@@ -435,7 +435,7 @@ export class DialogService {
             originalTabIndex: e.tabIndex,
         }));
         elementsTable.forEach((e) => (e.element.tabIndex = -1));
-        const focusedElement = document.activeElement as HTMLElement;
+        const focusedElement = document.activeElement as HTMLElement | null;
         if (focusedElement) {
             focusedElement.blur();
         }

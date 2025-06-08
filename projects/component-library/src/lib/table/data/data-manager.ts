@@ -1,4 +1,4 @@
-import type { ChangeDetectorRef, Signal} from '@angular/core';
+import type { ChangeDetectorRef, Signal } from '@angular/core';
 import { computed, signal } from '@angular/core';
 import type { DataSort } from '../sorting/data-sort';
 import { DataBlock } from './data-block';
@@ -6,7 +6,7 @@ import type { DataRequest } from './data-request';
 import type { DataResponse } from './data-response';
 
 export class DataManager {
-    constructor(private cdr: ChangeDetectorRef) {}
+    constructor(private readonly cdr: ChangeDetectorRef) {}
     private readonly $dataRowHeightPx = signal<number>(0);
     private readonly $dataWindowHeightPx = signal<number>(0);
     private readonly $displayedColumns = signal<string[]>([]);
@@ -46,7 +46,9 @@ export class DataManager {
         const initialBlock = new DataBlock(0, displayedColumns, 0, this.$blockRowCount(), sort, new AbortController(), this.getDataBlock);
         this.$_blocks.update((blocks) => {
             // Clear existing blocks
-            blocks.blocks.forEach((block) => { block.destroy(); });
+            blocks.blocks.forEach((block) => {
+                block.destroy();
+            });
             return {
                 prePixels: 0,
                 blocks: [initialBlock],
@@ -96,7 +98,7 @@ export class DataManager {
             for (const existingBlock of existing.blocks) {
                 if (blockIdsToLoad.includes(existingBlock.id)) {
                     blocks.push(existingBlock);
-                    existingBlock.load();
+                    void existingBlock.load();
                 } else {
                     existingBlock.destroy();
                 }
@@ -105,7 +107,7 @@ export class DataManager {
                 if (!blocks.some((b) => b.id === blockId)) {
                     const newBlock = new DataBlock(blockId, this.$displayedColumns(), blockId * this.$blockRowCount(), this.$blockRowCount(), this.$sort(), new AbortController(), this.getDataBlock);
                     blocks.push(newBlock);
-                    newBlock.load();
+                    void newBlock.load();
                 }
             }
 

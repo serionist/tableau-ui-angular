@@ -40,15 +40,15 @@ export class TabGroupComponent implements AfterContentInit {
     readonly $selectedTab: Signal<TabComponent | null> = computed(() => this.$tabs()[this.$selectedIndex()] ?? null);
 
     selectTab(index: number) {
-        const tab = this.$tabs()[index];
-        if (!tab || tab.$disabled()) {
+        const tabs = this.$tabs();
+
+        const tab = tabs[index];
+        if (tab.$disabled()) {
             return;
         }
         this.$_selectedIndex.set(index);
         const tabElement = this.$tabElements()[index];
-        if (tabElement) {
-            tabElement.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
+        tabElement.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
     ngAfterContentInit() {

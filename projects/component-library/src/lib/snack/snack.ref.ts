@@ -1,5 +1,5 @@
 import { inject, InjectionToken } from '@angular/core';
-import type { Observable} from 'rxjs';
+import type { Observable } from 'rxjs';
 import { Subject } from 'rxjs';
 
 export const TAB_SNACK_REF = new InjectionToken<SnackRef>('TAB_SNACK_REF');
@@ -11,7 +11,7 @@ export interface ISnackRef {
     close: () => void;
 }
 export class SnackRef<T = unknown> implements ISnackRef {
-    private _closed$ = new Subject<T | undefined>();
+    private readonly _closed$ = new Subject<T | undefined>();
     readonly closed$: Observable<T | undefined> = this._closed$.asObservable();
 
     private _result: T | undefined = undefined;

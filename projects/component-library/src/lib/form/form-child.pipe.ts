@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { PipeTransform } from '@angular/core';
 import { Pipe } from '@angular/core';
-import type { Observable} from 'rxjs';
+import type { Observable } from 'rxjs';
 import { flatMap, map, of, switchMap } from 'rxjs';
 import type { AC } from './models/abstract-control.reference';
 import type { FA } from './models/form-array.reference';
@@ -15,12 +15,13 @@ import { AbstractControl, FormArray, FormControl, FormGroup } from '@angular/for
     pure: true,
 })
 export class FormChildPipe implements PipeTransform {
-    transform<T extends 'control' | 'group' | 'array' | 'abstract' = 'control'>(
-        form: AC | undefined | null,
-        path?: string  ,
+    transform<T extends 'abstract' | 'array' | 'control' | 'group' = 'control'>(
+        form: AC | null | undefined,
+        path?: string,
         type?: T,
     ): Observable<T extends 'control' ? FC | null : T extends 'group' ? FG | null : T extends 'array' ? FA | null : T extends 'abstract' ? AC | null : AC | null> {
         if (!form) {
+            // eslint-disable-next-line  @typescript-eslint/no-unsafe-return
             return of(null) as any;
         }
         return form.hierarchy.getChild$(path).pipe(
@@ -46,7 +47,7 @@ export class FormChildPipe implements PipeTransform {
                     }
                     throw new Error('Expected a array, but got a ' + c.type);
                 }
-                return c as AC;
+                return c;
             }),
         ) as unknown as Observable<T extends 'control' ? FC | null : T extends 'group' ? FG | null : T extends 'array' ? FA | null : T extends 'abstract' ? AC | null : AC | null>;
     }

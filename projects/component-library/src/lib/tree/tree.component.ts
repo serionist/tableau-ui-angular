@@ -11,7 +11,7 @@ import { TreeNodeRegistry } from './tree-node-registry';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TabTreeComponent implements AfterContentInit, OnDestroy {
-    private readonly selfElementRef = inject(ElementRef<HTMLElement>);
+    private readonly selfElementRef = inject<ElementRef<HTMLElement>>(ElementRef);
     readonly $showRootGridLines = input<boolean>(false, {
         alias: 'showRootGridLines',
     });
@@ -77,7 +77,7 @@ export class TabTreeComponent implements AfterContentInit, OnDestroy {
                     this.hierarchyModeManualSetChildrenDepthAndId(child, this.$showRootGridLines() ? 1 : 0);
                 }
             }
-            if (this.$gridLinesBorder()) {
+            if (this.$gridLinesBorder() !== undefined) {
                 this.redrawGridLines();
             }
         });
@@ -93,10 +93,6 @@ export class TabTreeComponent implements AfterContentInit, OnDestroy {
     }
 
     hierarchyModeManualSetChildrenDepthAndId(child: TabTreeNodeComponent, currentChildDepth: number) {
-        if (child.$hierarchyId() === undefined) {
-            console.error('In TabTreeComponent, a node is defined without hierarcyId. hierarcyId is required for all nodes');
-            return;
-        }
         child.$depth.set(currentChildDepth);
         // get direct children
         const children = this.registry.nodes().filter((e) => e.$hierarchyParentId() === child.$hierarchyId());
@@ -128,7 +124,7 @@ export class TabTreeComponent implements AfterContentInit, OnDestroy {
         return ret;
     }
 
-    private resizeObserver!: ResizeObserver;
+    private resizeObserver: ResizeObserver | undefined;
     ngAfterContentInit(): void {
         this.resizeObserver = new ResizeObserver(() => {
             this.redrawGridLines();
@@ -145,7 +141,7 @@ export class TabTreeComponent implements AfterContentInit, OnDestroy {
     }[] = [];
 
     private redrawCounter = 0;
-    async redrawGridLines() {
+    redrawGridLines() {
         if (this.$gridLinesBorder() === undefined) {
             return;
         }
@@ -168,7 +164,7 @@ export class TabTreeComponent implements AfterContentInit, OnDestroy {
             // root gridlines
             if (this.$showRootGridLines() && !child.$parent()) {
                 const selfRect = this.selfElementRef.nativeElement.getBoundingClientRect();
-                if (!selfRect || !headerButtonRect) {
+                if (!headerButtonRect) {
                     continue;
                 }
                 if (this.redrawCounter !== currentRedrawCounter) {
@@ -199,7 +195,7 @@ export class TabTreeComponent implements AfterContentInit, OnDestroy {
             const selfRect = this.selfElementRef.nativeElement.getBoundingClientRect();
             const parentButtonRect = document.getElementById(child.$parent()!.headerButtonId)?.getBoundingClientRect();
 
-            if (!selfRect || !parentButtonRect) {
+            if (!parentButtonRect) {
                 continue;
             }
             if (this.redrawCounter !== currentRedrawCounter) {
@@ -235,7 +231,7 @@ export class TabTreeComponent implements AfterContentInit, OnDestroy {
             if (this.redrawCounter !== currentRedrawCounter) {
                 return;
             }
-            let l = this.existingGridLines.find((l) => l.id === line.id);
+            let l = this.existingGridLines.find((f) => f.id === line.id);
             if (!l) {
                 l = {
                     id: line.id,
@@ -262,7 +258,7 @@ export class TabTreeComponent implements AfterContentInit, OnDestroy {
 export interface ExpandButtonTooltipParams<T = unknown> {
     expand: TemplateRef<T> | string | undefined;
     collapse: TemplateRef<T> | string | undefined;
-    position: 'top' | 'bottom' | 'left' | 'right';
+    position: 'bottom' | 'left' | 'right' | 'top';
     margin?: string;
     context?: T | undefined;
 }

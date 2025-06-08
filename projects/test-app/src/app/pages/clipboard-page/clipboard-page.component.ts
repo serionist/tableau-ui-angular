@@ -11,8 +11,8 @@ import { ClipboardService, SnackService } from 'component-library';
 export class ClipboardPageComponent {
     clipboardService = inject(ClipboardService);
     snackService = inject(SnackService);
-    writeText(text: string): void {
-        this.clipboardService.writeText(text);
+    async writeText(text: string) {
+        await this.clipboardService.writeText(text);
         this.snackService.openSnack('Text copied to clipboard', 2000);
     }
     readText(): void {
@@ -22,9 +22,9 @@ export class ClipboardPageComponent {
                 alert('Read text: ' + text);
                 console.log('Read text:', text);
             })
-            .catch((error) => {
+            .catch((error: unknown) => {
                 console.error('Failed to read clipboard text:', error);
-                alert('Failed to read clipboard text: ' + error);
+                alert('Failed to read clipboard text');
             });
     }
 }

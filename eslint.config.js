@@ -8,6 +8,7 @@ module.exports = tseslint.config(
     angular.configs.tsRecommended,
     {
         files: ['**/*.ts'],
+        ignores: ['**/*.spec.ts'],
         plugins: {
             '@angular-eslint/template': template,
         },
@@ -22,9 +23,6 @@ module.exports = tseslint.config(
             },
         },
         rules: {
-            '@typescript-eslint/no-inferrable-types': 'off',
-            '@typescript-eslint/no-unused-vars': 'off',
-
             // ## Typescript rules
             //Require that function overload signatures be consecutive
             '@typescript-eslint/adjacent-overload-signatures': 'error',
@@ -101,12 +99,186 @@ module.exports = tseslint.config(
             '@typescript-eslint/no-dynamic-delete': 'error',
             //Disallow empty functions
             '@typescript-eslint/no-empty-function': 'error',
-            //Disallow the declaration of empty interfaces
-            '@typescript-eslint/no-empty-interface': 'error',
             //Disallow accidentally using the "empty object" type
             '@typescript-eslint/no-empty-object-type': 'error',
             //@typescript-eslint/no-explicit-any
             '@typescript-eslint/no-explicit-any': 'error',
+            //Disallow extra non-null assertions
+            '@typescript-eslint/no-extra-non-null-assertion': 'error',
+            //Disallow classes used as namespaces
+            '@typescript-eslint/no-extraneous-class': 'off',
+            //Require Promise-like statements to be handled appropriately
+            '@typescript-eslint/no-floating-promises': 'error',
+            //Disallow iterating over an array with a for-in loop
+            '@typescript-eslint/no-for-in-array': 'off',
+            //Disallow the use of eval()-like functions
+            '@typescript-eslint/no-implied-eval': 'error',
+            //Enforce the use of top-level import type qualifier when an import only has specifiers with inline type qualifiers
+            '@typescript-eslint/no-import-type-side-effects': 'error',
+            //Disallow explicit type declarations for variables or parameters initialized to a number, string, or boolean
+            '@typescript-eslint/no-inferrable-types': 'off',
+            //Disallow this keywords outside of classes or class-like objects
+            '@typescript-eslint/no-invalid-this': 'off',
+            //Disallow void type outside of generic or return types
+            '@typescript-eslint/no-invalid-void-type': 'error',
+            //Disallow function declarations that contain unsafe references inside loop statements
+            '@typescript-eslint/no-loop-func': 'error',
+            //Disallow magic numbers
+            '@typescript-eslint/no-magic-numbers': 'off',
+            //Disallow the void operator except when used to discard a value
+            '@typescript-eslint/no-meaningless-void-operator': 'error',
+            //Enforce valid definition of new and constructor
+            '@typescript-eslint/no-misused-new': 'error',
+            //Disallow Promises in places not designed to handle them
+            '@typescript-eslint/no-misused-promises': 'error',
+            //Disallow using the spread operator when it might cause unexpected behavior
+            '@typescript-eslint/no-misused-spread': 'error',
+            //Disallow enums from having both number and string members
+            '@typescript-eslint/no-mixed-enums': 'error',
+            //Disallow TypeScript namespaces
+            '@typescript-eslint/no-namespace': 'error',
+            //Disallow non-null assertions in the left operand of a nullish coalescing operator
+            '@typescript-eslint/no-non-null-asserted-nullish-coalescing': 'error',
+            // Disallow non-null assertions after an optional chain expression
+            '@typescript-eslint/no-non-null-asserted-optional-chain': 'error',
+            // Disallow non-null assertions using the ! postfix operator
+            '@typescript-eslint/no-non-null-assertion': 'off',
+            //Disallow variable redeclaration
+            '@typescript-eslint/no-redeclare': 'error',
+            //Disallow members of unions and intersections that do nothing or override type information
+            '@typescript-eslint/no-redundant-type-constituents': 'off',
+            // Disallow invocation of require()
+            '@typescript-eslint/no-require-imports': 'error',
+            //Disallow specified modules when loaded by import
+            '@typescript-eslint/no-restricted-imports': 'error',
+            //Disallow certain types
+            '@typescript-eslint/no-restricted-types': 'error',
+            //Disallow variable declarations from shadowing variables declared in the outer scope
+            '@typescript-eslint/no-shadow': 'error',
+            //Disallow aliasing this
+            '@typescript-eslint/no-this-alias': 'error',
+            //Disallow unnecessary equality comparisons against boolean literals
+            '@typescript-eslint/no-unnecessary-boolean-literal-compare': 'error',
+            //Disallow conditionals where the type is always truthy or always falsy
+            '@typescript-eslint/no-unnecessary-condition': 'off',
+            //Disallow unnecessary assignment of constructor property parameter
+            '@typescript-eslint/no-unnecessary-parameter-property-assignment': 'error',
+            //Disallow unnecessary namespace qualifiers
+            '@typescript-eslint/no-unnecessary-qualifier': 'error',
+            //Disallow unnecessary template expressions
+            '@typescript-eslint/no-unnecessary-template-expression': 'error',
+            // Disallow type arguments that are equal to the default
+            '@typescript-eslint/no-unnecessary-type-arguments': 'error',
+            //Disallow type assertions that do not change the type of an expression
+            '@typescript-eslint/no-unnecessary-type-assertion': 'error',
+            //Disallow unnecessary constraints on generic types
+            '@typescript-eslint/no-unnecessary-type-constraint': 'error',
+            //Disallow conversion idioms when they do not change the type or value of the expression
+            '@typescript-eslint/no-unnecessary-type-conversion': 'error',
+            //Disallow type parameters that aren't used multiple times
+            '@typescript-eslint/no-unnecessary-type-parameters': 'off',
+            //Disallow calling a function with a value with type any
+            '@typescript-eslint/no-unsafe-argument': 'error',
+            //Disallow assigning a value with type any to variables and properties
+            '@typescript-eslint/no-unsafe-assignment': 'error',
+            //Disallow calling a value with type any
+            '@typescript-eslint/no-unsafe-call': 'error',
+            //Disallow unsafe declaration merging
+            '@typescript-eslint/no-unsafe-declaration-merging': 'error',
+            //Disallow comparing an enum value with a non-enum value
+            '@typescript-eslint/no-unsafe-enum-comparison': 'error',
+            //Disallow using the unsafe built-in Function type
+            '@typescript-eslint/no-unsafe-function-type': 'error',
+            //Disallow member access on a value with type any
+            '@typescript-eslint/no-unsafe-member-access': 'error',
+            //Disallow returning a value with type any from a function
+            '@typescript-eslint/no-unsafe-return': 'error',
+            //Disallow type assertions that narrow a type
+            '@typescript-eslint/no-unsafe-type-assertion': 'off',
+            //Require unary negation to take a number
+            '@typescript-eslint/no-unsafe-unary-minus': 'error',
+            //Disallow unused expressions
+            '@typescript-eslint/no-unused-expressions': 'error',
+            //Disallow unused variables
+            '@typescript-eslint/no-unused-vars': 'off',
+            //Disallow the use of variables before they are defined
+            '@typescript-eslint/no-use-before-define': 'off',
+            //Disallow unnecessary constructors
+            '@typescript-eslint/no-useless-constructor': 'error',
+            //Disallow empty exports that don't change anything in a module file
+            '@typescript-eslint/no-useless-empty-export': 'error',
+            //Disallow require statements except in import statements
+            '@typescript-eslint/no-var-requires': 'error',
+            //Disallow using confusing built-in primitive class wrappers
+            '@typescript-eslint/no-wrapper-object-types': 'error',
+            //Enforce non-null assertions over explicit type assertions
+            '@typescript-eslint/non-nullable-type-assertion-style': 'error',
+            //Disallow throwing non-Error values as exceptions
+            '@typescript-eslint/only-throw-error': 'error',
+            //Require or disallow parameter properties in class constructors
+            '@typescript-eslint/parameter-properties': 'off',
+            //Enforce the use of as const over literal type
+            '@typescript-eslint/prefer-as-const': 'error',
+            //Require destructuring from arrays and/or objects
+            '@typescript-eslint/prefer-destructuring': 'off',
+            //Require each enum member value to be explicitly initialized
+            '@typescript-eslint/prefer-enum-initializers': 'error',
+            // Enforce the use of Array.prototype.find() over filter()[0]
+            '@typescript-eslint/prefer-find': 'error',
+            // Enforce the use of for-of loop over traditional for loop
+            '@typescript-eslint/prefer-for-of': 'error',
+            // Enforce using function types instead of interfaces with call signatures
+            '@typescript-eslint/prefer-function-type': 'error',
+            // Enforce includes() over indexOf()
+            '@typescript-eslint/prefer-includes': 'error',
+            // Require all enum members to be literal values
+            '@typescript-eslint/prefer-literal-enum-member': 'error',
+            // Require using namespace keyword over module keyword
+            '@typescript-eslint/prefer-namespace-keyword': 'error',
+            // Enforce using nullish coalescing operator (??) instead of logical OR/AND
+            '@typescript-eslint/prefer-nullish-coalescing': 'error',
+            // Enforce concise optional chaining instead of nested checks
+            '@typescript-eslint/prefer-optional-chain': 'error',
+            // Require using Error objects as Promise rejection reasons
+            '@typescript-eslint/prefer-promise-reject-errors': 'error',
+            // Require private members to be marked readonly if never modified
+            '@typescript-eslint/prefer-readonly': 'error',
+            // Require readonly function parameters to prevent mutation
+            '@typescript-eslint/prefer-readonly-parameter-types': 'off',
+            // Enforce type parameter with Array#reduce over assertion
+            '@typescript-eslint/prefer-reduce-type-parameter': 'error',
+            // Enforce RegExp.exec over String.match if no global flag
+            '@typescript-eslint/prefer-regexp-exec': 'error',
+            // Enforce returning this when only this type is returned
+            '@typescript-eslint/prefer-return-this-type': 'error',
+            // Enforce using startsWith/endsWith over other substring checks
+            '@typescript-eslint/prefer-string-starts-ends-with': 'error',
+            // Require functions returning Promise to be async
+            '@typescript-eslint/promise-function-async': 'error',
+            // Enforce getter/setter pairs to have matching types
+            '@typescript-eslint/related-getter-setter-pairs': 'error',
+            // Require compareFunction in Array#sort and Array#toSorted
+            '@typescript-eslint/require-array-sort-compare': 'error',
+            // Disallow async functions with no await or Promise return
+            '@typescript-eslint/require-await': 'error',
+            // Enforce operands in addition are the same type (number, string, bigint)
+            '@typescript-eslint/restrict-plus-operands': 'error',
+            // Enforce only string-type expressions in template literals
+            '@typescript-eslint/restrict-template-expressions': 'off',
+            // Enforce consistent use of return await
+            '@typescript-eslint/return-await': 'error',
+            // Disallow loose boolean expressions (e.g., empty object as truthy)
+            '@typescript-eslint/strict-boolean-expressions': 'error',
+            // Enforce exhaustive switch statements
+            '@typescript-eslint/switch-exhaustiveness-check': 'error',
+            // Disallow triple-slash references in favor of ES6 imports
+            '@typescript-eslint/triple-slash-reference': 'error',
+            // Enforce calling unbound methods with correct scope
+            '@typescript-eslint/unbound-method': 'off',
+            // Enforce merging function overloads when possible
+            '@typescript-eslint/unified-signatures': 'error',
+            // Enforce using unknown type in catch callback variable
+            '@typescript-eslint/use-unknown-in-catch-callback-variable': 'error',
 
             // ## Angular specific rules
 

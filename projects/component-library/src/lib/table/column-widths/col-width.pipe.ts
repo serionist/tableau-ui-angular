@@ -6,8 +6,8 @@ import { Pipe } from '@angular/core';
     standalone: false,
 })
 export class ColWidthPipe implements PipeTransform {
-    transform(value: string | number | undefined, mode: 'widthUnitsOnly' | 'flexGrowOnly' | 'width'): string {
-        if (value === undefined || value === null) {
+    transform(value: number | string | undefined, mode: 'flexGrowOnly' | 'width' | 'widthUnitsOnly'): string {
+        if (value === undefined) {
             return '';
         }
         let numberValue: number;

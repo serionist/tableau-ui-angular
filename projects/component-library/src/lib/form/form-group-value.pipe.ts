@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { AbstractControl, FormGroup } from '@angular/forms';
-import type { Observable} from 'rxjs';
+import type { Observable } from 'rxjs';
 import { map, of, switchMap } from 'rxjs';
 import type { PipeTransform } from '@angular/core';
 import { Pipe } from '@angular/core';

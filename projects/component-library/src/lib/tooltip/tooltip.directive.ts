@@ -1,4 +1,4 @@
-import type { TemplateRef, OnDestroy, InputSignal} from '@angular/core';
+import type { TemplateRef, OnDestroy, InputSignal } from '@angular/core';
 import { Directive, Input, ElementRef, HostListener, input, inject, ViewContainerRef, effect } from '@angular/core';
 
 // Style contained in _tooltips.scss in the styles folder
@@ -7,22 +7,22 @@ import { Directive, Input, ElementRef, HostListener, input, inject, ViewContaine
     standalone: false,
 })
 export class TooltipDirective<T> implements OnDestroy {
-    private viewContainerRef = inject(ViewContainerRef);
+    private readonly viewContainerRef = inject(ViewContainerRef);
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    readonly $tooltip: InputSignal<TemplateRef<T | undefined> | string | undefined | null> = input.required<TemplateRef<T | undefined> | string | undefined | null>({
+    readonly $tooltip: InputSignal<TemplateRef<T | undefined> | string | null | undefined> = input.required<TemplateRef<T | undefined> | string | null | undefined>({
         alias: 'tooltip',
     });
     readonly $tooltipContext = input<T>(undefined, {
         alias: 'tooltipContext',
     });
-    readonly $tooltipPosition = input<'top' | 'bottom' | 'left' | 'right'>('top', {
+    readonly $tooltipPosition = input<'bottom' | 'left' | 'right' | 'top'>('top', {
         alias: 'tooltipPosition',
     });
     readonly $tooltipMargin = input<string>('5px', {
         alias: 'tooltipMargin',
     });
 
-    private tooltipChanged = effect(() => {
+    private readonly tooltipChanged = effect(() => {
         const tooltip = this.$tooltip();
         const tooltipContext = this.$tooltipContext();
         if (this.tooltipElement) {
@@ -32,13 +32,13 @@ export class TooltipDirective<T> implements OnDestroy {
     });
 
     openTooltip() {
-        if (this.$tooltip()) {
+        if (this.$tooltip() != null) {
             this.createTooltip();
         }
     }
     private tooltipElement: HTMLElement | null = null;
 
-    private elementRef = inject(ElementRef);
+    private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
 
     @HostListener('mouseenter', ['$event']) onMouseEnter(e: MouseEvent) {
         if (e.buttons !== 0) {
@@ -60,7 +60,7 @@ export class TooltipDirective<T> implements OnDestroy {
         if (typeof this.$tooltip() === 'string') {
             this.tooltipElement.innerText = this.$tooltip() as string;
         } else {
-            const viewRef = (this.$tooltip() as TemplateRef<T | undefined>)!.createEmbeddedView(this.$tooltipContext());
+            const viewRef = (this.$tooltip() as TemplateRef<T | undefined>).createEmbeddedView(this.$tooltipContext());
             this.viewContainerRef.insert(viewRef); // attach to view
             viewRef.detectChanges(); // trigger bindings
             viewRef.rootNodes.forEach((node) => {

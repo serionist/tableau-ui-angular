@@ -7,5 +7,5 @@ export function generateRandomString(length: number = 16): string {
         randomName += characters.charAt(randomIndex);
     }
 
-    return `${randomName}`;
+    return randomName;
 }

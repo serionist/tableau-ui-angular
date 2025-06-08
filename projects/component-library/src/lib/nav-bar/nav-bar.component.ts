@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import type { AfterContentInit, Signal} from '@angular/core';
+import type { AfterContentInit, Signal } from '@angular/core';
 import { ChangeDetectionStrategy, Component, contentChild, contentChildren, input, model, ViewEncapsulation } from '@angular/core';
 import { NavBarHeaderComponent } from './nav-bar-header.component';
 import { NavBarFooterComponent } from './nav-bar-footer.component';
@@ -31,10 +31,14 @@ export class NavBarComponent implements AfterContentInit {
 
     ngAfterContentInit(): void {
         this.setButtonExpanded(this.$expanded());
-        this.$expanded.subscribe((e) => { this.setButtonExpanded(e); });
+        this.$expanded.subscribe((e) => {
+            this.setButtonExpanded(e);
+        });
     }
 
     private setButtonExpanded(expanded: boolean) {
-        this.$buttons().forEach((b) => { b.setExpandedInternal(expanded); });
+        this.$buttons().forEach((b) => {
+            b.setExpandedInternal(expanded);
+        });
     }
 }

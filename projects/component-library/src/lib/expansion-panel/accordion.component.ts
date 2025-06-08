@@ -28,9 +28,11 @@ export class AccordionComponent {
     readonly registry = new AccordionRegistry();
 
     private subs: Subscription[] = [];
-    private registryChanged = effect(() => {
+    private readonly registryChanged = effect(() => {
         const items = this.registry.nodes();
-        this.subs.forEach((sub) => { sub.unsubscribe(); });
+        this.subs.forEach((sub) => {
+            sub.unsubscribe();
+        });
         this.subs = items.map((item) =>
             item.expandedChange$.subscribe((expanded) => {
                 if (expanded) {

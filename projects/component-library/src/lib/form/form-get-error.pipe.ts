@@ -11,6 +11,7 @@ import type { AbstractControlMeta } from './models/abstract-control.reference';
 })
 export class GetFormErrorPipe implements PipeTransform {
     transform(meta: AbstractControlMeta | null | undefined, specificError: string, requireTouched: boolean = true, log = false): any | undefined {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const ret = meta?.getErrorValue(specificError, requireTouched);
         if (log) {
             console.log('getFormError', meta, specificError, requireTouched, ret);

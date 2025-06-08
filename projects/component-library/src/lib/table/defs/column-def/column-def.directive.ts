@@ -32,7 +32,7 @@ export class ColumnDefDirective {
      * Can be a string representing a CSS value (e.g., '100px', '20%', '1rem') or a number repesenting flex-grow (fill space).
      * @default "1"
      */
-    readonly $width = input<string | number>(1, {
+    readonly $width = input<number | string>(1, {
         alias: 'width',
     });
 
@@ -108,7 +108,7 @@ export class ColumnDefDirective {
      * If undefined, no tooltip will be shown.
      * @default 'default'
      */
-    readonly $headerTooltip = input<'default' | string | TemplateRef<HeaderTooltipArgs> | undefined>('default', {
+    readonly $headerTooltip = input<TemplateRef<HeaderTooltipArgs> | string | 'default' | undefined>('default', {
         alias: 'headerTooltip',
     });
 
@@ -119,7 +119,7 @@ export class ColumnDefDirective {
      * If undefined, no tooltip will be shown.
      * @default undefined
      */
-    readonly $cellTooltip = input<undefined | TemplateRef<CellTooltipArgs>>(undefined, {
+    readonly $cellTooltip = input<TemplateRef<CellTooltipArgs> | undefined>(undefined, {
         alias: 'cellTooltip',
     });
 
@@ -130,7 +130,7 @@ export type SortOrderPair = ['asc', 'desc'] | ['desc', 'asc'];
 export interface HeaderTooltipArgs {
     ctx: HeaderContext;
     template: TemplateRef<HeaderContext>;
-    sortMode: 'single' | 'multi';
+    sortMode: 'multi' | 'single';
     sortable: boolean;
     sortOrder: SortOrderPair;
     currentSort: { info: DataSort; index: number } | undefined;

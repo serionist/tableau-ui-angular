@@ -1,7 +1,7 @@
 import type { OnInit, WritableSignal } from '@angular/core';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
-import type { IOptionGridContext} from 'component-library';
+import type { IOptionGridContext, ListValue, Primitive } from 'component-library';
 import { ControlReferenceBuilder, SnackService } from 'component-library';
 import { BehaviorSubject, debounceTime, startWith, Subject } from 'rxjs';
 
@@ -17,10 +17,10 @@ export class ListPageComponent implements OnInit {
     snack = inject(SnackService);
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     readonly $singleSelectValue: WritableSignal<number | undefined> = signal<number | undefined>(undefined);
-    singleSelectValueChanged(val: number | undefined) {
-        this.$singleSelectValue.set(val);
+    singleSelectValueChanged(val: ListValue) {
+        this.$singleSelectValue.set(val as number);
         console.log('single select value changed', val);
-        this.snack.openSnack('Single select value changed to: ' + val);
+        this.snack.openSnack('Single select value changed to: ' + val?.toString());
     }
 
     singleFormControl = this.b.control<number | undefined>(4, [Validators.required, Validators.min(1), Validators.max(3)]);
@@ -33,7 +33,7 @@ export class ListPageComponent implements OnInit {
     ngOnInit(): void {
         this.multiFormControl.value$.subscribe((val) => {
             console.log('multi select value changed', val);
-            this.snack.openSnack('Multi select value changed to: ' + val);
+            this.snack.openSnack('Multi select value changed to: ' + val?.join(', '));
         });
         this.searchBounce.pipe(debounceTime(300)).subscribe(() => {
             this.performSearch();

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, ResourceLoader, ResourceLoaderParams, signal, viewChild } from '@angular/core';
 import { small_data, data } from './table-data-sample';
-import type { DataRequest, DataResponse, HeaderContext} from 'component-library';
+import type { DataRequest, DataResponse, HeaderContext } from 'component-library';
 import { TableComponent } from 'component-library';
 
 @Component({
@@ -46,10 +46,10 @@ export class TablePageComponent {
             throw new Error('Simulated error on data load');
         }
         const sortedData = [...data].sort((a, b) => {
-            if (req.sort && req.sort.length > 0) {
+            if (req.sort.length > 0) {
                 for (const sort of req.sort) {
-                    const aValue = (a as Record<string, string | number | boolean>)[sort.property];
-                    const bValue = (b as Record<string, string | number | boolean>)[sort.property];
+                    const aValue = (a as Record<string, boolean | number | string>)[sort.property];
+                    const bValue = (b as Record<string, boolean | number | string>)[sort.property];
                     if (aValue < bValue) return sort.direction === 'asc' ? -1 : 1;
                     if (aValue > bValue) return sort.direction === 'asc' ? 1 : -1;
                     if (aValue === bValue) continue; // Equal values, check next sort
@@ -77,24 +77,24 @@ export class TablePageComponent {
     }
 }
 export interface DataType {
-        id: number;
-        name: string;
-        age: number;
-        gender: string;
-        country: string;
-        city: string;
-        email: string;
-        phone: string;
-        address: string;
-        zipCode: string;
-        username: string;
-        birthdate: string;
-        joinDate: string;
-        isActive: boolean;
-        score: number;
-        role: string;
-        department: string;
-        employeeId: string;
-        language: string;
-        notes: string;
+    id: number;
+    name: string;
+    age: number;
+    gender: string;
+    country: string;
+    city: string;
+    email: string;
+    phone: string;
+    address: string;
+    zipCode: string;
+    username: string;
+    birthdate: string;
+    joinDate: string;
+    isActive: boolean;
+    score: number;
+    role: string;
+    department: string;
+    employeeId: string;
+    language: string;
+    notes: string;
 }

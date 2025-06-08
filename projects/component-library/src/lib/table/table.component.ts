@@ -1,7 +1,4 @@
-import type {
-    AfterViewInit,
-    OnDestroy,
-    TemplateRef} from '@angular/core';
+import type { AfterViewInit, OnDestroy, TemplateRef } from '@angular/core';
 import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
@@ -98,7 +95,7 @@ export class TableComponent implements AfterViewInit, OnDestroy {
      * The sorting mode. When multi sort is enabled, holding SHIFT when clicking a column header will add it to the sort list
      * @default single
      */
-    readonly $sortMode = input<'single' | 'multi'>('single', {
+    readonly $sortMode = input<'multi' | 'single'>('single', {
         alias: 'sortMode',
     });
 
@@ -229,8 +226,8 @@ export class TableComponent implements AfterViewInit, OnDestroy {
     );
 
     protected readonly $columnWidthDirectives = viewChildren(ColRenderedWidthDirective);
-    private hostElement = inject<ElementRef<HTMLElement>>(ElementRef);
-    private cdr = inject<ChangeDetectorRef>(ChangeDetectorRef);
+    private readonly hostElement = inject<ElementRef<HTMLElement>>(ElementRef);
+    private readonly cdr = inject<ChangeDetectorRef>(ChangeDetectorRef);
     private readonly $headerRow = viewChild.required<ElementRef<HTMLElement>>('headerRow');
     private readonly $dataRowSizer = viewChild.required<ElementRef<HTMLElement>>('dataSizer');
 
@@ -313,11 +310,11 @@ export class TableComponent implements AfterViewInit, OnDestroy {
         e.stopPropagation();
         (e.target as HTMLElement).blur();
 
-        const propertyName = def.$propertyName() || def.$id();
+        const propertyName = def.$propertyName() ?? def.$id();
         const sort = this.$sort();
         const sortOrder = def.$sortOrder();
-        const currentSort = sort.find((e) => e.property === propertyName);
-        if (this.$sortMode() === 'single' || e.shiftKey === false) {
+        const currentSort = sort.find((f) => f.property === propertyName);
+        if (this.$sortMode() === 'single' || !e.shiftKey) {
             if (currentSort?.direction === sortOrder[1]) {
                 this.$sort.set([]);
             } else {
@@ -334,7 +331,7 @@ export class TableComponent implements AfterViewInit, OnDestroy {
                     // toggle sort mode
                     if (s.direction === def.$sortOrder()[1]) {
                         // remove sort
-                        this.$sort.set(sort.filter((e) => e.property !== propertyName));
+                        this.$sort.set(sort.filter((f) => f.property !== propertyName));
                         return;
                     } else {
                         s.direction = s.direction === 'asc' ? 'desc' : 'asc';
@@ -371,11 +368,11 @@ export class TableComponent implements AfterViewInit, OnDestroy {
               }[]
             | undefined,
     ): boolean {
-        if (!dataRowHeight || !dataWindowHeight || !sort || !getDataBlock || !displayedColumns) {
+        if (dataRowHeight === undefined || dataWindowHeight === undefined || !sort || !getDataBlock || !displayedColumns) {
             console.warn('Table reset called with undefined parameters, ignoring');
             return false;
         }
-        this.dataManager.reset(
+        void this.dataManager.reset(
             dataWindowHeight,
             dataRowHeight,
             sort,

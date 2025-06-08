@@ -1,23 +1,5 @@
-import type {
-    ElementRef,
-    InputSignal,
-    OnDestroy,
-    TemplateRef,
-    WritableSignal} from '@angular/core';
-import {
-    AfterViewInit,
-    ChangeDetectionStrategy,
-    Component,
-    contentChild,
-    contentChildren,
-    effect,
-    HostListener,
-    inject,
-    input,
-    output,
-    signal,
-    viewChild
-} from '@angular/core';
+import type { ElementRef, InputSignal, OnDestroy, TemplateRef, WritableSignal } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, contentChild, contentChildren, effect, HostListener, inject, input, output, signal, viewChild } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { BehaviorSubject } from 'rxjs';
 import { MenuButtonGroupComponent } from './menu-button-group.component';
@@ -72,7 +54,7 @@ export class MenuButtonComponent implements OnDestroy {
     readonly $loading = input(false, {
         alias: 'loading',
     });
-    readonly $color = input<'primary' | 'secondary' | 'error' | 'plain'>('secondary', {
+    readonly $color = input<'error' | 'plain' | 'primary' | 'secondary'>('secondary', {
         alias: 'color',
     });
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
@@ -86,7 +68,7 @@ export class MenuButtonComponent implements OnDestroy {
         const hoverMs = this.$actualHoverMs();
         const children = this.$children();
         for (const child of children) {
-            if (child.$hoverToOpenSubMenuMs()) {
+            if (child.$hoverToOpenSubMenuMs() !== undefined) {
                 child.$actualHoverMs.set(child.$hoverToOpenSubMenuMs());
             } else {
                 child.$actualHoverMs.set(hoverMs);
@@ -119,7 +101,7 @@ export class MenuButtonComponent implements OnDestroy {
         if (!this.$disabled()) {
             this.mouseoverChange.emit(true);
             const hoverMs = this.$actualHoverMs();
-            if (hoverMs && this.$children().length > 0) {
+            if (hoverMs !== undefined && this.$children().length > 0) {
                 this.hoverstart = Date.now();
                 this.hoverInterval = setInterval(() => {
                     if (Date.now() - this.hoverstart > hoverMs) {

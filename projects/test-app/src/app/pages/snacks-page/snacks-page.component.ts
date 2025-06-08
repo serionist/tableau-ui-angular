@@ -12,7 +12,7 @@ import { SnackService } from 'component-library';
 })
 export class SnacksPageComponent {
     snackService = inject(SnackService);
-    async openCustomSnack(duration: number | undefined = 5000, type: 'info' | 'error' | 'success' = 'info', location: 'top' | 'bottom' = 'top') {
+    openCustomSnack(duration: number | undefined = 5000, type: 'error' | 'info' | 'success' = 'info', location: 'bottom' | 'top' = 'top') {
         const snackRef = this.snackService.openSnackComponent<ExampleSnackComponent, { message: string }, string>(ExampleSnackComponent, { message: 'This is a custom snack compoenent' }, duration, type, location);
         snackRef.closed$.subscribe((result) => {
             console.log('Snack closed with result:', result);

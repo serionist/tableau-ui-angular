@@ -20,7 +20,7 @@ import { ChangeDetectionStrategy, Component, ElementRef, HostListener, inject, i
     },
 })
 export class ButtonComponent {
-    readonly $nativeElement = inject(ElementRef);
+    readonly $nativeElement = inject<ElementRef<HTMLElement>>(ElementRef);
     readonly $disabled = input(false, {
         alias: 'disabled',
     });
@@ -30,10 +30,10 @@ export class ButtonComponent {
     readonly $tabindex = input('0', {
         alias: 'tabindex',
     });
-    readonly $type = input<'submit' | 'button'>('button', {
+    readonly $type = input<'button' | 'submit'>('button', {
         alias: 'type',
     });
-    readonly $color = input<'primary' | 'secondary' | 'error' | 'plain'>('secondary', {
+    readonly $color = input<'error' | 'plain' | 'primary' | 'secondary'>('secondary', {
         alias: 'color',
     });
     readonly $layout = input<'default' | 'icon' | 'small-icon'>('default', {

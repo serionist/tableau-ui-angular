@@ -17,7 +17,7 @@ export class ControlReferenceBuilder {
         validators?: ValidatorFn | ValidatorFn[],
         asyncValidators?: AsyncValidatorFn | AsyncValidatorFn[],
         initialDisabled?: boolean,
-        updateOn?: 'change' | 'blur' | 'submit',
+        updateOn?: 'blur' | 'change' | 'submit',
     ): FC<T> {
         return new FC<T>({
             defaultValue: value,
@@ -27,7 +27,7 @@ export class ControlReferenceBuilder {
             updateOn: updateOn,
         });
     }
-    group<T extends Record<string, any>>(controls: FormReferencesOf<T>, validators?: ValidatorFn | ValidatorFn[], asyncValidators?: AsyncValidatorFn | AsyncValidatorFn[], updateOn?: 'change' | 'blur' | 'submit'): FG<T> {
+    group<T extends Record<string, any>>(controls: FormReferencesOf<T>, validators?: ValidatorFn | ValidatorFn[], asyncValidators?: AsyncValidatorFn | AsyncValidatorFn[], updateOn?: 'blur' | 'change' | 'submit'): FG<T> {
         return new FG<T>({
             controls: controls,
             validators: validators,
@@ -35,7 +35,7 @@ export class ControlReferenceBuilder {
             updateOn: updateOn,
         });
     }
-    array<TItem extends Record<string, any>>(controls: FG<TItem>[], validators?: ValidatorFn | ValidatorFn[], asyncValidators?: AsyncValidatorFn | AsyncValidatorFn[], updateOn?: 'change' | 'blur' | 'submit'): FA<TItem> {
+    array<TItem extends Record<string, any>>(controls: FG<TItem>[], validators?: ValidatorFn | ValidatorFn[], asyncValidators?: AsyncValidatorFn | AsyncValidatorFn[], updateOn?: 'blur' | 'change' | 'submit'): FA<TItem> {
         return new FA<TItem>({
             controls: controls,
             validators: validators,

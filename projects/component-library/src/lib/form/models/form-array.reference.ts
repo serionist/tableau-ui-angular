@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
 import type { FormGroup, ValidatorFn, AsyncValidatorFn } from '@angular/forms';
 import { FormArray, FormControl } from '@angular/forms';
 import type { ControlsOf } from '../types/controls-of';
@@ -25,7 +25,7 @@ export class FA<TItem extends Record<string, any> = any> extends ACTyped<FA<TIte
     get $controls(): Signal<FG<TItem>[]> {
         return this._controls;
     }
-    constructor(params: { controls: FG<TItem>[]; validators?: ValidatorFn | ValidatorFn[]; asyncValidators?: AsyncValidatorFn | AsyncValidatorFn[]; updateOn?: 'change' | 'blur' | 'submit' }) {
+    constructor(params: { controls: FG<TItem>[]; validators?: ValidatorFn | ValidatorFn[]; asyncValidators?: AsyncValidatorFn | AsyncValidatorFn[]; updateOn?: 'blur' | 'change' | 'submit' }) {
         const controlsArray = params.controls.map((child) => {
             const control = ControlRegistry.controls.get(child.id);
             if (!control) {
@@ -60,6 +60,7 @@ export class FA<TItem extends Record<string, any> = any> extends ACTyped<FA<TIte
                         for (let i = 0; i < a.length; i++) {
                             const ai = a[i] as any;
                             const bi = b[i] as any;
+                            // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
                             if (ai?.ref?.id && bi?.ref?.id) {
                                 if (ai.ref.id !== bi.ref.id) {
                                     return false;
@@ -82,7 +83,11 @@ export class FA<TItem extends Record<string, any> = any> extends ACTyped<FA<TIte
                 this._value.set(v);
             }),
         );
-        this.subscriptions.push(this.controls$.subscribe((v) => { this._controls.set(v); }));
+        this.subscriptions.push(
+            this.controls$.subscribe((v) => {
+                this._controls.set(v);
+            }),
+        );
     }
     private get formArray() {
         return this.control as FormArray<FormGroup<ControlsOf<TItem>>>;
@@ -108,7 +113,7 @@ export class FA<TItem extends Record<string, any> = any> extends ACTyped<FA<TIte
         this.formArray.removeAt(index, options);
         const childList = this.hierarchy.childList$.value;
         const control = childList.splice(index, 1)[0];
-        if (control && destroyControl) {
+        if (control !== undefined && destroyControl) {
             control.destroy();
         }
         this.hierarchy.childList$.next(childList);
@@ -168,7 +173,7 @@ export class FARegisterFunctions<TItem extends Record<string, any> = any> extend
             this.control.value$.pipe(
                 startWith(undefined as unknown as DeepPartial<TItem[]>),
                 pairwise(),
-                map((v) => [v[0] as DeepPartial<TItem>[] | undefined, (v[1] === undefined ? v[0] : v[1]) as DeepPartial<TItem>[]]),
+                map((v) => [v[0] as DeepPartial<TItem>[] | undefined, (v[1] ?? v[0]) as DeepPartial<TItem>[]]),
             ),
         ];
         const control = this.control as unknown as FA<TItem>;

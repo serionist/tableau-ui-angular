@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { PipeTransform } from '@angular/core';
 import { Pipe } from '@angular/core';
-import type { Observable} from 'rxjs';
+import type { Observable } from 'rxjs';
 import { flatMap, map, of, switchMap } from 'rxjs';
 import type { AC } from './models/abstract-control.reference';
 import { FA } from './models/form-array.reference';
 import { FG } from './models/form-group.reference';
 import { FC } from './models/form-control.reference';
-import type { AbstractControl} from '@angular/forms';
+import type { AbstractControl } from '@angular/forms';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { ControlRegistry } from './models/control-registry';
 
@@ -17,12 +17,13 @@ import { ControlRegistry } from './models/control-registry';
     pure: true,
 })
 export class FormControlPipe implements PipeTransform {
-    transform<T extends 'control' | 'group' | 'array' | 'abstract' = 'control'>(
-        form: AC | undefined | null,
-        path?: string  ,
+    transform<T extends 'abstract' | 'array' | 'control' | 'group' = 'control'>(
+        form: AC | null | undefined,
+        path?: string,
         type?: T,
     ): Observable<T extends 'control' ? FormControl | null : T extends 'group' ? FormGroup | null : T extends 'array' ? FormArray | null : T extends 'abstract' ? AbstractControl | null : AbstractControl | null> {
         if (!form) {
+            // eslint-disable-next-line  @typescript-eslint/no-unsafe-return
             return of(null) as any;
         }
         return form.hierarchy.getChild$(path).pipe(

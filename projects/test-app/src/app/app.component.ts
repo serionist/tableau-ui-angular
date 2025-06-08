@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, TemplateRef, viewChild, ViewContainerRef } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router, RouterOutlet, RouterState } from '@angular/router';
-import type { Observable} from 'rxjs';
+import type { Observable } from 'rxjs';
 import { filter, map, switchMap } from 'rxjs';
 import { version as LibVersion } from '../../../component-library/package.json';
-import type { MenuComponent} from 'component-library';
+import type { MenuComponent, Primitive } from 'component-library';
 import { ThemeService } from 'component-library';
 
 @Component({
@@ -30,20 +30,20 @@ export class AppComponent {
     version = LibVersion;
     // Recursive function to search route tree for specified data key
     private findRouteData(route: ActivatedRoute, key: string): string | null {
-        let child = route;
+        let child: ActivatedRoute | null = route;
         while (child) {
-            if (child.snapshot.data && key in child.snapshot.data) {
-                return child.snapshot.data[key];
+            if (key in child.snapshot.data) {
+                return child.snapshot.data[key] as string;
             }
-            child = child.firstChild!;
+            child = child.firstChild;
         }
         return null;
     }
 
     readonly $paletteMenu = viewChild.required<MenuComponent>('paletteMenu');
     readonly $paletteTheme = computed(() => this.themeService.$theme().mode);
-    paletteThemeChange = (theme: 'light' | 'dark' | 'auto') => {
-        this.themeService.setColorMode(theme);
+    paletteThemeChange = (val: Primitive) => {
+        this.themeService.setColorMode(val as 'auto' | 'dark' | 'light');
     };
     readonly $paletteFontSize = computed(() => +this.themeService.$theme().fontSize.replace('px', ''));
     setPaletteFontSize = (event: Event) => {

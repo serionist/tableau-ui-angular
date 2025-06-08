@@ -43,7 +43,7 @@ export class MenuComponent {
         },
     );
     // The default CSS text to apply to the dropdown container. This is used to set the default values for the menuContainerCss property.
-    private defaultContainerCss: Record<string, string> = {
+    private readonly defaultContainerCss: Record<string, string> = {
         outline: 'none',
         color: 'var(--twc-color-text)',
         lineHeight: 'normal',
@@ -72,7 +72,7 @@ export class MenuComponent {
      * Use any CSS width value (1rem, 12px, etc) to explicitly set width
      * @default 'fit-content'
      */
-    readonly $width = input<'parentWidth' | 'fit-content' | string>('fit-content', {
+    readonly $width = input<string | 'fit-content' | 'parentWidth'>('fit-content', {
         alias: 'width',
     });
     /**
@@ -140,7 +140,7 @@ export class MenuComponent {
      * The menu may be repositioned if page bounds are hit to the opposite side
      * @default 'bottom'
      */
-    readonly $menuLocation = input<'top' | 'bottom' | 'left' | 'right'>('bottom', {
+    readonly $menuLocation = input<'bottom' | 'left' | 'right' | 'top'>('bottom', {
         alias: 'menuLocation',
     });
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
@@ -152,7 +152,7 @@ export class MenuComponent {
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     private readonly $openDialog: WritableSignal<DialogRef | undefined> = signal<DialogRef | undefined>(undefined);
 
-    async open(forceReOpen: boolean = false) {
+    open(forceReOpen: boolean = false) {
         const template = this.$template();
         const parentControl = this.$parentControl();
         if (!parentControl) {
@@ -188,7 +188,7 @@ export class MenuComponent {
                         case 'left':
                         case 'right': {
                             // the top parameter is the top parameter of the parent control by default
-                            let top = parentRect!.top;
+                            let { top } = parentRect!;
                             // if it is higher than the availale window
                             if (top + actualHeight > window.innerHeight) {
                                 top = window.innerHeight - actualHeight;
@@ -220,7 +220,7 @@ export class MenuComponent {
                         case 'top':
                         case 'bottom': {
                             // the left parameter is the left parameter of the parent control by default
-                            let left = parentRect!.left;
+                            let { left } = parentRect!;
                             // if it is wider than the availale window
                             if (left + actualWidth > window.innerWidth) {
                                 left = window.innerWidth - actualWidth;

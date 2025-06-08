@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { AsyncValidatorFn, ValidatorFn } from '@angular/forms';
 import { FormControl } from '@angular/forms';
 import { AC, ACRegisterFunctions, ACTyped } from './abstract-control.reference';
-/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import type { Observable, Subscription } from 'rxjs';
 import { BehaviorSubject, combineLatest, distinctUntilChanged, filter, map, pairwise, startWith } from 'rxjs';
 import type { WritableSignal } from '@angular/core';
@@ -12,7 +13,7 @@ export class FC<T extends Primitive | Primitive[] = any> extends ACTyped<FC<T>, 
     override registerFn: FCRegisterFunctions<T>;
     protected override readonly _value: WritableSignal<T>;
     override readonly _value$: BehaviorSubject<T>;
-    constructor(params: { defaultValue: T; initialDisabled?: boolean; validators?: ValidatorFn | ValidatorFn[]; asyncValidators?: AsyncValidatorFn | AsyncValidatorFn[]; updateOn?: 'change' | 'blur' | 'submit' }) {
+    constructor(params: { defaultValue: T; initialDisabled?: boolean; validators?: ValidatorFn | ValidatorFn[]; asyncValidators?: AsyncValidatorFn | AsyncValidatorFn[]; updateOn?: 'blur' | 'change' | 'submit' }) {
         const control = new FormControl<T>(
             {
                 value: params.defaultValue,
@@ -34,9 +35,11 @@ export class FC<T extends Primitive | Primitive[] = any> extends ACTyped<FC<T>, 
                 .pipe(
                     startWith(control.value),
                     distinctUntilChanged((a, b) => {
+                        // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
                         if (!a && !b) {
                             return true;
                         }
+                        // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
                         if (!a || !b) {
                             return false;
                         }
@@ -84,7 +87,7 @@ export class FCRegisterFunctions<T extends Primitive | Primitive[] = any> extend
             this.control.value$.pipe(
                 startWith(undefined as unknown as T),
                 pairwise(),
-                map((v) => [v[0] as T | undefined, v[1] === undefined ? v[0] : v[1]]),
+                map((v) => [v[0] as T | undefined, v[1] ?? v[0]]),
             ),
         ];
         const ctrl = this.control as unknown as FC<T>;

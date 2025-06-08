@@ -1,4 +1,4 @@
-import type { OnDestroy} from '@angular/core';
+import type { OnDestroy } from '@angular/core';
 import { Directive, ElementRef, inject, OnInit, output } from '@angular/core';
 
 @Directive({
@@ -6,7 +6,7 @@ import { Directive, ElementRef, inject, OnInit, output } from '@angular/core';
     standalone: false,
 })
 export class ResizeWatcherDirective implements OnDestroy {
-    readonly element = inject(ElementRef);
+    readonly element = inject<ElementRef<HTMLElement>>(ElementRef);
     private readonly observer: ResizeObserver;
 
     readonly resized = output<{ currentElement: ElementRef; entries: ResizeObserverEntry[] }>();

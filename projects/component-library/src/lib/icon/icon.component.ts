@@ -26,7 +26,7 @@ export class IconComponent {
         alias: 'value',
     });
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    readonly $color: InputSignal<'primary' | 'error' | 'success' | 'none' | null | undefined> = input<'primary' | 'error' | 'success' | 'none' | null>(undefined, {
+    readonly $color: InputSignal<'error' | 'none' | 'primary' | 'success' | null | undefined> = input<'error' | 'none' | 'primary' | 'success' | null>(undefined, {
         alias: 'color',
     });
 

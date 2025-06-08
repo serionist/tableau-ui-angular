@@ -10,5 +10,5 @@ import { ChangeDetectionStrategy, Component, ElementRef, inject } from '@angular
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PrefixComponent {
-    readonly elementRef = inject(ElementRef);
+    readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
 }

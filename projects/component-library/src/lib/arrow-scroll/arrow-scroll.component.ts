@@ -1,4 +1,4 @@
-import type { AfterViewInit, ElementRef, OnDestroy} from '@angular/core';
+import type { AfterViewInit, ElementRef, OnDestroy } from '@angular/core';
 import { ChangeDetectionStrategy, Component, computed, effect, HostListener, input, signal, viewChild } from '@angular/core';
 
 @Component({
@@ -19,7 +19,7 @@ export class ArrowScrollComponent implements AfterViewInit, OnDestroy {
      * 'default' uses the default scroll behavior,
      * 'arrow' uses arrow buttons for scrolling.
      */
-    readonly $scrollType = input.required<'default' | 'arrow'>({
+    readonly $scrollType = input.required<'arrow' | 'default'>({
         alias: 'scrollType',
     });
     /**
@@ -42,7 +42,7 @@ export class ArrowScrollComponent implements AfterViewInit, OnDestroy {
      * Color of the scroll buttons, can be adjusted to fit design requirements.
      * @default 'plain'
      */
-    readonly $buttonsColor = input<'primary' | 'secondary' | 'error' | 'plain'>('plain', {
+    readonly $buttonsColor = input<'error' | 'plain' | 'primary' | 'secondary'>('plain', {
         alias: 'buttonsColor',
     });
     /**
@@ -93,7 +93,7 @@ export class ArrowScrollComponent implements AfterViewInit, OnDestroy {
             return dimensions.scrollHeight > dimensions.clientHeight;
         }
     });
-    private scrollDirectionChanged = effect(() => {
+    private readonly scrollDirectionChanged = effect(() => {
         const el = this.$scrollContainer().nativeElement;
         if (this.$scrollDirection() === 'horizontal') {
             this.overrideMouseWheelForHorizontal(el);
@@ -182,18 +182,13 @@ export class ArrowScrollComponent implements AfterViewInit, OnDestroy {
         });
     }
     private removeMouseWheelOverride(el: HTMLDivElement) {
-        if (el && this.wheelHandler) {
-            el.removeEventListener('wheel', this.wheelHandler);
-            // eslint-disable-next-line @typescript-eslint/no-empty-function
-            this.wheelHandler = () => {};
-        }
+        el.removeEventListener('wheel', this.wheelHandler);
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        this.wheelHandler = () => {};
     }
 
     scroll(direction: 'back' | 'forward') {
         const el = this.$scrollContainer();
-        if (!el) {
-            return;
-        }
         const amount = this.$buttonScrollAmount();
         if (this.$scrollDirection() === 'horizontal') {
             el.nativeElement.scrollBy({

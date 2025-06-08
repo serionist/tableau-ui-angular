@@ -1,4 +1,4 @@
-import type { OnDestroy, OnInit, Signal} from '@angular/core';
+import type { OnDestroy, OnInit, Signal } from '@angular/core';
 import { ChangeDetectionStrategy, Component, contentChild, inject, input, model, viewChild } from '@angular/core';
 import { ExpansionPanelTitleCollapsedContentDirective, ExpansionPanelTitleExpandedContentDirective } from './expansion-panel-title.component';
 import { generateRandomString } from '../utils';
@@ -45,7 +45,7 @@ export class ExpansionPanelComponent implements OnInit, OnDestroy {
     protected readonly $expandedHeader: Signal<ExpansionPanelTitleExpandedContentDirective | undefined> = contentChild(ExpansionPanelTitleExpandedContentDirective);
     protected readonly $collapsedHeader: Signal<ExpansionPanelTitleCollapsedContentDirective | undefined> = contentChild(ExpansionPanelTitleCollapsedContentDirective);
 
-    private accordion = inject(AccordionComponent, {
+    private readonly accordion = inject(AccordionComponent, {
         skipSelf: true,
         optional: true,
     });

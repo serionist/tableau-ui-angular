@@ -1,24 +1,6 @@
 import { CommonModule } from '@angular/common';
-import type {
-    AfterContentInit,
-    AfterViewInit,
-    OnDestroy,
-    Signal} from '@angular/core';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    contentChild,
-    ContentChild,
-    ContentChildren,
-    ElementRef,
-    inject,
-    input,
-    QueryList,
-    Renderer2,
-    signal,
-    viewChild,
-    ViewChild,
-} from '@angular/core';
+import type { AfterContentInit, AfterViewInit, OnDestroy, Signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, contentChild, ContentChild, ContentChildren, ElementRef, inject, input, QueryList, Renderer2, signal, viewChild, ViewChild } from '@angular/core';
 import { ControlValueAccessor, ReactiveFormsModule } from '@angular/forms';
 import { HintComponent } from '../common/hint';
 import { ErrorComponent } from '../common/error';
@@ -54,10 +36,10 @@ export class FormFieldComponent implements AfterContentInit, AfterViewInit, OnDe
     protected readonly $prefixElement: Signal<PrefixComponent | undefined> = contentChild(PrefixComponent);
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     protected readonly $suffixElement: Signal<SuffixComponent | undefined> = contentChild(SuffixComponent);
-    private readonly $prefixContainer = viewChild.required<ElementRef>('prefixContainer');
-    private readonly $suffixContainer = viewChild.required<ElementRef>('suffixContainer');
-    private readonly $inputContainer = viewChild.required<ElementRef>('inputContainer');
-    private readonly host = inject(ElementRef<HTMLElement>);
+    private readonly $prefixContainer = viewChild.required<ElementRef<HTMLElement>>('prefixContainer');
+    private readonly $suffixContainer = viewChild.required<ElementRef<HTMLElement>>('suffixContainer');
+    private readonly $inputContainer = viewChild.required<ElementRef<HTMLElement>>('inputContainer');
+    private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
     private readonly renderer = inject(Renderer2);
 
@@ -70,32 +52,32 @@ export class FormFieldComponent implements AfterContentInit, AfterViewInit, OnDe
     ngAfterContentInit(): void {
         this.updatePrefixSuffixWidths();
 
-        const input: HTMLElement = this.$inputContainer().nativeElement.querySelector('input,textarea,tab-select,tab-list');
+        const inputElement: HTMLElement | null = this.$inputContainer().nativeElement.querySelector('input,textarea,tab-select,tab-list');
 
-        if (input) {
-            input.id = this.id;
-            this.updateInputAttributes(input);
+        if (inputElement) {
+            inputElement.id = this.id;
+            this.updateInputAttributes(inputElement);
 
             this.inputObserver = new MutationObserver(() => {
-                this.updateInputAttributes(input);
+                this.updateInputAttributes(inputElement);
             });
-            this.inputObserver.observe(input, {
+            this.inputObserver.observe(inputElement, {
                 attributes: true,
                 attributeFilter: ['disabled', 'placeholder', 'required'],
             });
         }
     }
 
-    private updateInputAttributes(input: HTMLElement) {
-        this.$inputDisabled.set(input.getAttribute('disabled') != null);
-        const required = input.getAttribute('required') != null && input.getAttribute('required') !== 'false';
-        const placeholder = input.getAttribute('placeholder');
-        if (placeholder) {
+    private updateInputAttributes(inputElement: HTMLElement) {
+        this.$inputDisabled.set(inputElement.getAttribute('disabled') != null);
+        const required = inputElement.getAttribute('required') != null && inputElement.getAttribute('required') !== 'false';
+        const placeholder = inputElement.getAttribute('placeholder');
+        if (placeholder !== null) {
             if (required && !placeholder.endsWith('*')) {
-                input.setAttribute('placeholder', `${placeholder}*`);
+                inputElement.setAttribute('placeholder', `${placeholder}*`);
             }
             if (!required && placeholder.endsWith('*')) {
-                input.setAttribute('placeholder', placeholder.slice(0, -1));
+                inputElement.setAttribute('placeholder', placeholder.slice(0, -1));
             }
         }
     }

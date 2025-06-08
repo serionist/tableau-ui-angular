@@ -1,10 +1,10 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
 import type { AsyncValidatorFn, ValidatorFn } from '@angular/forms';
 import { AbstractControl, FormControl, FormGroup } from '@angular/forms';
 
 import type { ControlsOf } from '../types/controls-of';
 import type { FormReferencesOf } from '../types/form-references-of';
-import type { AC} from './abstract-control.reference';
+import type { AC } from './abstract-control.reference';
 import { ACRegisterFunctions, ACTyped } from './abstract-control.reference';
 import type { Observable, Subscription } from 'rxjs';
 import { BehaviorSubject, combineLatest, distinctUntilChanged, filter, map, pairwise, startWith } from 'rxjs';
@@ -20,19 +20,16 @@ export class FG<TSource extends Record<string, any> = any> extends ACTyped<FG<TS
     protected override readonly _value: WritableSignal<DeepPartial<TSource>>;
     protected override readonly _value$: BehaviorSubject<DeepPartial<TSource>>;
     readonly controls: FormReferencesOf<TSource>;
-    constructor(params: { controls: FormReferencesOf<TSource>; validators?: ValidatorFn | ValidatorFn[]; asyncValidators?: AsyncValidatorFn | AsyncValidatorFn[]; updateOn?: 'change' | 'blur' | 'submit' }) {
-        const controls = Object.entries(params.controls).reduce(
-            (acc, [key, child]) => {
-                const control = ControlRegistry.controls.get((child as AC).id)!;
-                if (!control) {
-                    console.warn(`Control with id ${child.id} not found in registry.`);
-                    return acc;
-                }
-                acc[key as keyof TSource] = control as any;
+    constructor(params: { controls: FormReferencesOf<TSource>; validators?: ValidatorFn | ValidatorFn[]; asyncValidators?: AsyncValidatorFn | AsyncValidatorFn[]; updateOn?: 'blur' | 'change' | 'submit' }) {
+        const controls = Object.entries(params.controls).reduce<Partial<ControlsOf<TSource>>>((acc, [key, child]) => {
+            const control = ControlRegistry.controls.get((child as AC).id)!;
+            if (control != null) {
+                console.warn(`Control with id ${child.id} not found in registry.`);
                 return acc;
-            },
-            {} as Partial<ControlsOf<TSource>>,
-        );
+            }
+            acc[key as keyof TSource] = control as any;
+            return acc;
+        }, {});
         const control = new FormGroup<ControlsOf<TSource>>(controls as ControlsOf<TSource>, {
             validators: params.validators,
             asyncValidators: params.asyncValidators,
@@ -51,9 +48,11 @@ export class FG<TSource extends Record<string, any> = any> extends ACTyped<FG<TS
                 .pipe(
                     startWith(control.value as DeepPartial<TSource>),
                     distinctUntilChanged((a, b) => {
+                        // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
                         if (!a && !b) {
                             return true;
                         }
+                        // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
                         if (!a || !b) {
                             return false;
                         }
@@ -98,7 +97,7 @@ export class FGRegisterFunctions<TSource extends Record<string, any> = any> exte
             this.control.value$.pipe(
                 startWith(undefined as unknown as DeepPartial<TSource>),
                 pairwise(),
-                map((v) => [v[0] as DeepPartial<TSource> | undefined, v[1] === undefined ? v[0] : v[1]]),
+                map((v) => [v[0] as DeepPartial<TSource> | undefined, v[1] ?? v[0]]),
             ),
         ];
         const control = this.control as unknown as FG<TSource>;

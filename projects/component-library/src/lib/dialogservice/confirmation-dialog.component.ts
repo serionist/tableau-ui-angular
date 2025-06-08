@@ -1,4 +1,4 @@
-import type { AfterContentInit, AfterViewInit, TemplateRef} from '@angular/core';
+import type { AfterContentInit, AfterViewInit, TemplateRef } from '@angular/core';
 import { ChangeDetectionStrategy, Component, ElementRef, inject, input, model, ModelSignal, ViewChild, viewChild } from '@angular/core';
 import type { ButtonComponent } from '../button/button.component';
 import { injectDialogRef, TAB_DIALOG_REF } from './dialog.ref';
@@ -72,7 +72,7 @@ export class IConfirmationDialogData<T = unknown> {
     content: string | undefined;
     contentTemplate: TemplateRef<T> | undefined;
     contentTemplateContext: T | undefined;
-    color: 'primary' | 'error' | 'secondary' = 'secondary';
+    color: 'error' | 'primary' | 'secondary' = 'secondary';
     acceptBtnText: string | undefined;
     cancelBtnText: string | undefined;
     autofocus: 'accept' | 'cancel' | undefined;

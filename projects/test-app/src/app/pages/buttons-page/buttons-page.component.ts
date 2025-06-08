@@ -17,7 +17,7 @@ export class ButtonsPageComponent {
         error: false,
         plain: false,
     };
-    async buttonClick(color: 'primary' | 'secondary' | 'error' | 'plain') {
+    async buttonClick(color: 'error' | 'plain' | 'primary' | 'secondary') {
         this.buttonsLoading[color] = true;
         await new Promise((resolve) => setTimeout(resolve, 2000));
         this.buttonsLoading[color] = false;

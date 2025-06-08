@@ -18,7 +18,7 @@ export class ThemeService {
     public get theme$(): Observable<ThemeConfig> {
         return this._theme$;
     }
-    private readonly autoColor$ = new BehaviorSubject<'light' | 'dark'>(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    private readonly autoColor$ = new BehaviorSubject<'dark' | 'light'>(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
     readonly $theme = toSignal(this._theme$, {
         initialValue: this._theme$.value,
     });
@@ -55,12 +55,12 @@ export class ThemeService {
                     }
                     break;
             }
-            const fontSize = theme.fontSize;
+            const { fontSize } = theme;
             document.documentElement.style.setProperty('--twc-font-size-body', fontSize);
         });
     }
 
-    setColorMode(mode: 'light' | 'dark' | 'auto') {
+    setColorMode(mode: 'auto' | 'dark' | 'light') {
         const theme = this._theme$.value;
         theme.mode = mode;
         this._theme$.next(theme);
@@ -76,7 +76,7 @@ export class ThemeService {
 
     private getInitialTheme(): ThemeConfig {
         const storedTheme = localStorage.getItem(this.themeKey);
-        if (storedTheme) {
+        if (storedTheme !== null) {
             const t = JSON.parse(storedTheme) as Partial<ThemeConfig>;
             t.fontSize = t.fontSize ?? '12px';
             t.mode = t.mode ?? 'auto';

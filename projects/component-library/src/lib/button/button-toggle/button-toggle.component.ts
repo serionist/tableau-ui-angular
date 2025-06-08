@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, contentChildren, effect, HostListener, input, model, output } from '@angular/core';
-import type { IOptionLineContext} from '../../common/option';
+import type { IOptionLineContext } from '../../common/option';
 import { OptionComponent } from '../../common/option';
 import type { Primitive } from '../../common/types/primitive';
 

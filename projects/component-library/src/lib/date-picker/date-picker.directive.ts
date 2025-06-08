@@ -19,17 +19,15 @@ import { FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
     ],
 })
 export class DatePickerDirective implements ControlValueAccessor {
-    private readonly el = inject(ElementRef<HTMLInputElement>);
+    private readonly el = inject<ElementRef<HTMLInputElement>>(ElementRef);
 
     // type can only be set once. Cannot change between date and datetime
     readonly $type = input.required<'date' | 'datetime'>({
         alias: 'type',
     });
     private originalType: 'date' | 'datetime' | undefined;
-    private typeChanged = effect(() => {
-        if (this.originalType === undefined) {
-            this.originalType = this.$type();
-        }
+    private readonly typeChanged = effect(() => {
+        this.originalType ??= this.$type();
         if (this.$type() !== this.originalType) {
             throw new Error('DatePickerDirective: type must be "date" or "datetime", can not be changed later');
         }

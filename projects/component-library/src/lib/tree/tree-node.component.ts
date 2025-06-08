@@ -1,10 +1,4 @@
-import type {
-    InputSignal,
-    OnDestroy,
-    OnInit,
-    Signal,
-    TemplateRef,
-    WritableSignal} from '@angular/core';
+import type { InputSignal, OnDestroy, OnInit, Signal, TemplateRef, WritableSignal } from '@angular/core';
 import {
     AfterContentInit,
     ChangeDetectionStrategy,
@@ -21,13 +15,13 @@ import {
     model,
     output,
     signal,
-    viewChild
+    viewChild,
 } from '@angular/core';
 import { CollapsedContentDirective } from './collapsed-content.directive';
 import { ExpandedContentDirective } from './expanded-content.directive';
 import { generateRandomString } from '../utils';
 import type { TreeNodeRegistry } from './tree-node-registry';
-import type { ExpandButtonTooltipParams} from './tree.component';
+import type { ExpandButtonTooltipParams } from './tree.component';
 import { TabTreeComponent } from './tree.component';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import type { TreeNodeInterface } from './tree-node-interface';

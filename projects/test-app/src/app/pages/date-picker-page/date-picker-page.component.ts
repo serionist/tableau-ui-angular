@@ -18,10 +18,10 @@ export class DatePickerPageComponent {
     constructor() {
         this.simpleControl.value$.subscribe((value) => {
             console.log(value);
-            console.log('simpleControl valueChange', value?.toISOString());
+            console.log('simpleControl valueChange', value.toISOString());
         });
     }
-    valueChange(value: Date | null) {
+    valueChange(value: Date | undefined) {
         console.log('valueChange', value?.toISOString());
     }
 }

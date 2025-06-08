@@ -63,7 +63,7 @@ export class SelectComponent implements ControlValueAccessor, AfterViewInit, OnD
     protected readonly selectId: string;
     protected readonly dropdownId: string;
     protected readonly $options = contentChildren<OptionComponent>(OptionComponent);
-    private optionsChanged = effect(() => {
+    private readonly optionsChanged = effect(() => {
         const options = this.$options();
         this.$highlightedOption.set(undefined);
     });
@@ -77,7 +77,7 @@ export class SelectComponent implements ControlValueAccessor, AfterViewInit, OnD
     // #region Imports
     private readonly snackService = inject(SnackService);
     private readonly dialogService = inject(DialogService);
-    private readonly elementRef = inject(ElementRef);
+    private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
     // #endregion
     // #region Inputs
     /**
@@ -147,7 +147,7 @@ export class SelectComponent implements ControlValueAccessor, AfterViewInit, OnD
      * The location of the check icon in dropdown option if an option is selected
      * @default 'none'
      */
-    readonly $selectedCheckIconLocation = input<'left' | 'right' | 'none'>('none', {
+    readonly $selectedCheckIconLocation = input<'left' | 'none' | 'right'>('none', {
         alias: 'selectedCheckIconLocation',
     });
 
@@ -181,7 +181,7 @@ export class SelectComponent implements ControlValueAccessor, AfterViewInit, OnD
      * If set to 'truncate', the text will be truncated with an ellipsis if it is too long to fit on one line. This will keep the height of the control the same
      * @default 'wrap'
      */
-    readonly $selectedValueWrapMode = input<'wrap' | 'truncate'>('wrap', {
+    readonly $selectedValueWrapMode = input<'truncate' | 'wrap'>('wrap', {
         alias: 'selectedValueWrapMode',
     });
     /**
@@ -315,10 +315,8 @@ export class SelectComponent implements ControlValueAccessor, AfterViewInit, OnD
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     protected readonly $highlightedOption: WritableSignal<OptionComponent | undefined> = signal<OptionComponent | undefined>(undefined);
     optionMouseDown(event: MouseEvent) {
-        if (event) {
-            event.preventDefault();
-            event.stopPropagation();
-        }
+        event.preventDefault();
+        event.stopPropagation();
     }
     selectValue(option: OptionComponent) {
         if (!this.$disabled() && !option.$disabled()) {
@@ -558,7 +556,7 @@ export class SelectComponent implements ControlValueAccessor, AfterViewInit, OnD
         setTimeout(() => {
             const dropdownContainer = document.getElementById(this.dropdownId);
 
-            if (!this.elementRef.nativeElement.contains(document.activeElement) && !dropdownContainer?.contains(document.activeElement)) {
+            if (!this.elementRef.nativeElement.contains(document.activeElement) && dropdownContainer?.contains(document.activeElement) !== true) {
                 const ref = this.$dropdownReference();
                 if (ref) {
                     ref.close();

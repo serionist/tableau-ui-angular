@@ -1,6 +1,6 @@
 import type { TemplateRef } from '@angular/core';
 import { ChangeDetectionStrategy, Component, inject, model, ModelSignal } from '@angular/core';
-import type { SnackRef} from './snack.ref';
+import type { SnackRef } from './snack.ref';
 import { injectSnackRef, TAB_SNACK_REF } from './snack.ref';
 import { TAB_SNACK_DATA_REF } from './data.ref';
 @Component({
@@ -82,7 +82,7 @@ export class SnackComponent<TContext> {
     protected readonly snackRef = injectSnackRef<boolean>();
 }
 export interface SnackComponentData<TContext> {
-    type: 'info' | 'error' | 'success';
+    type: 'error' | 'info' | 'success';
     message: string | undefined;
     actionLink?: string | undefined;
     action?: ((s: SnackRef<boolean>) => void) | undefined;

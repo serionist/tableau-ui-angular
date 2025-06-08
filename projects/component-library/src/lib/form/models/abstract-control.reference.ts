@@ -1,8 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment,  @typescript-eslint/no-unsafe-argument */
 import type { AbstractControl, AsyncValidatorFn, FormControlStatus, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { ControlEvent, FormArray, FormControl, FormGroup, FormResetEvent } from '@angular/forms';
 import { generateRandomString } from '../../utils';
-import type { Observable, Subscription} from 'rxjs';
+import type { Observable, Subscription } from 'rxjs';
 import { BehaviorSubject, distinctUntilChanged, filter, firstValueFrom, map, of, startWith, Subject, switchMap } from 'rxjs';
 import type { FA } from './form-array.reference';
 import type { FG } from './form-group.reference';
@@ -14,7 +14,7 @@ import { ControlRegistry } from './control-registry';
 
 export abstract class AC<TValue = any> {
     readonly id: number;
-    readonly type: 'control' | 'group' | 'array';
+    readonly type: 'array' | 'control' | 'group';
     protected readonly control: AbstractControl;
 
     protected subscriptions: Subscription[] = [];
@@ -38,15 +38,15 @@ export abstract class AC<TValue = any> {
         return this._metaSignal;
     }
 
-    constructor(type: 'control' | 'group' | 'array', control: AbstractControl, childList: AC[] = []) {
+    constructor(type: 'array' | 'control' | 'group', control: AbstractControl, childList: AC[] = []) {
         this.id = ControlRegistry.register(control);
 
         this.control = control;
         this.hierarchy = new ACHierarchy(this, childList);
 
         this.subscriptions.push(
-            this.hierarchy.childList$.subscribe((childList) => {
-                childList.forEach((c) => {
+            this.hierarchy.childList$.subscribe((ch) => {
+                ch.forEach((c) => {
                     c.hierarchy.parent = this;
                 });
             }),
@@ -137,7 +137,7 @@ export abstract class AC<TValue = any> {
         }
         f.control.updateValueAndValidity({ onlySelf: true, emitEvent });
         if (includeAncestors) {
-            let parent = f.hierarchy.parent;
+            let { parent } = f.hierarchy;
             while (parent) {
                 this._updateValueAndValidity(parent, false, false, markAsTouched, markAsDirty, emitEvent);
                 parent = parent.hierarchy.parent;
@@ -161,10 +161,14 @@ export abstract class AC<TValue = any> {
     }
 
     destroy(): void {
-        this.subscriptions.forEach((sub) => { sub.unsubscribe(); });
+        this.subscriptions.forEach((sub) => {
+            sub.unsubscribe();
+        });
         this.subscriptions.length = 0;
         ControlRegistry.unregister(this.id);
-        this.hierarchy.childList$.value.forEach((child) => { child.destroy(); });
+        this.hierarchy.childList$.value.forEach((child) => {
+            child.destroy();
+        });
     }
 }
 export abstract class ACTyped<TChild extends AC, TValue> extends AC<TValue> {
@@ -173,7 +177,7 @@ export abstract class ACTyped<TChild extends AC, TValue> extends AC<TValue> {
     readonly metaFn: ACMetaFunctions<TChild, TValue>;
     readonly validatorFn: ACValidators<TChild>;
     abstract readonly registerFn: ACRegisterFunctions<ACTyped<TChild, TValue>, TChild, TValue>;
-    constructor(type: 'control' | 'group' | 'array', control: AbstractControl, childList: AC[] = []) {
+    constructor(type: 'array' | 'control' | 'group', control: AbstractControl, childList: AC[] = []) {
         super(type, control, childList);
         this.metaFn = new ACMetaFunctions(this.control, this);
         this.validatorFn = new ACValidators(this.control);
@@ -189,7 +193,7 @@ export abstract class ACTyped<TChild extends AC, TValue> extends AC<TValue> {
 }
 export class ACHierarchy {
     constructor(
-        private ctrl: AC,
+        private readonly ctrl: AC,
         initialChildren: AC[],
     ) {
         this.childList$ = new BehaviorSubject<AC[]>(initialChildren);
@@ -203,7 +207,7 @@ export class ACHierarchy {
      * The root of this control. This is the top level control in the tree.
      */
     get root(): AC | undefined {
-        let parent = this.parent;
+        let { parent } = this;
         while (parent) {
             if (parent.hierarchy.parent) {
                 parent = parent.hierarchy.parent;
@@ -215,8 +219,8 @@ export class ACHierarchy {
     }
     readonly childList$: BehaviorSubject<AC[]>;
 
-    public getChild$(path?: string | string[]): Observable<AC | null> {
-        if (!path) {
+    public getChild$(path?: string[] | string): Observable<AC | null> {
+        if (path === undefined) {
             return ACHierarchy._getChild$(this.ctrl, []);
         }
         if (typeof path === 'string') {
@@ -246,7 +250,7 @@ export class ACHierarchy {
         }
         if (form.type === 'group') {
             const control = (form as FG).controls[key];
-            if (!control) {
+            if (control !== undefined) {
                 return of(null);
             }
             return this._getChild$(control, parts);
@@ -273,28 +277,22 @@ export class ACHierarchy {
         } as ACHierarchyData;
         if (control.type === 'group') {
             const group = control as FG;
-            ret.children = Object.keys(group.controls).reduce(
-                (acc, key) => {
-                    const child = group.controls[key];
-                    if (child) {
-                        acc[key] = this._getHierarchyData(child, key);
-                    }
-                    return acc;
-                },
-                {} as Record<string, ACHierarchyData>,
-            );
+            ret.children = Object.keys(group.controls).reduce<Record<string, ACHierarchyData>>((acc, key) => {
+                const child = group.controls[key];
+                if (child !== undefined) {
+                    acc[key] = this._getHierarchyData(child, key);
+                }
+                return acc;
+            }, {});
         }
         if (control.type === 'array') {
             const arr = control as FA;
-            ret.children = arr.controls$.value.reduce(
-                (acc, child, index) => {
-                    if (child) {
-                        acc[index] = this._getHierarchyData(child, index.toString());
-                    }
-                    return acc;
-                },
-                {} as Record<string, ACHierarchyData>,
-            );
+            ret.children = arr.controls$.value.reduce<Record<string, ACHierarchyData>>((acc, child, index) => {
+                if (child !== undefined) {
+                    acc[index] = this._getHierarchyData(child, index.toString());
+                }
+                return acc;
+            }, {});
         }
 
         return ret;
@@ -309,7 +307,7 @@ export interface ACHierarchyData {
 }
 
 export class ACValidators<TChild extends AC, TValue = any> {
-    constructor(private control: AbstractControl) {}
+    constructor(private readonly control: AbstractControl) {}
 
     /**
      * Returns the function that is used to determine the validity of this control synchronously.
@@ -511,8 +509,8 @@ export class ACValidators<TChild extends AC, TValue = any> {
 }
 export class ACMetaFunctions<TChild extends AC, TValue = any> {
     constructor(
-        private control: AbstractControl,
-        private ctrl: ACTyped<TChild, TValue>,
+        private readonly control: AbstractControl,
+        private readonly ctrl: ACTyped<TChild, TValue>,
     ) {}
 
     /**
@@ -719,13 +717,19 @@ export class ACRegisterFunctions<TACTyped extends ACTyped<TChild, TValue>, TChil
                     map((e) => e.enabled),
                     distinctUntilChanged(),
                 )
-                .subscribe((e) => { callback(e); }),
+                .subscribe((e) => {
+                    callback(e);
+                }),
         );
         return this.control as unknown as TChild;
     }
 
     metaChange(callback: (meta: AbstractControlMeta) => void): TChild {
-        this.subscriptions.push(this.control.meta$.subscribe((meta) => { callback(meta); }));
+        this.subscriptions.push(
+            this.control.meta$.subscribe((meta) => {
+                callback(meta);
+            }),
+        );
         return this.control as unknown as TChild;
     }
     alwaysDisabled(): TChild {
@@ -756,7 +760,7 @@ export class AbstractControlMeta {
         public readonly dirty: boolean,
         public readonly enabled: boolean,
         public readonly disabled: boolean,
-        public readonly updateOn: 'change' | 'blur' | 'submit',
+        public readonly updateOn: 'blur' | 'change' | 'submit',
         public readonly errors: ValidationErrors | null,
         public readonly childControls: readonly AbstractControlMeta[] | undefined,
     ) {}
@@ -776,7 +780,7 @@ export class AbstractControlMeta {
             c.disabled,
             c.updateOn,
             c.errors,
-            control.hierarchy.childList$.value.map((c) => AbstractControlMeta.fromControl(c)),
+            control.hierarchy.childList$.value.map((ca) => AbstractControlMeta.fromControl(ca)),
         );
     }
 
@@ -791,7 +795,7 @@ export class AbstractControlMeta {
         if (!meta) {
             return false;
         }
-        if ((!requireTouched || meta.touched) && meta.validity === 'INVALID' && meta.errors && (!errorCode ? Object.keys(meta.errors).length > 0 : errorCode in meta.errors)) {
+        if ((!requireTouched || meta.touched) && meta.validity === 'INVALID' && meta.errors && (errorCode === undefined ? Object.keys(meta.errors).length > 0 : errorCode in meta.errors)) {
             return true;
         }
         if (meta.childControls) {
@@ -799,8 +803,8 @@ export class AbstractControlMeta {
         }
         return false;
     }
-    private static _getErrorValue(meta: AbstractControlMeta, errorCode: string, requireTouched = true): any | undefined {
-        if (!meta) {
+    private static _getErrorValue(meta: AbstractControlMeta, errorCode: string, requireTouched = true): any {
+        if (meta === undefined) {
             return undefined;
         }
         if ((!requireTouched || meta.touched) && meta.validity === 'INVALID' && meta.errors && errorCode in meta.errors) {
@@ -809,7 +813,7 @@ export class AbstractControlMeta {
         if (meta.childControls) {
             for (const c of meta.childControls) {
                 const value = this._getErrorValue(c, errorCode, requireTouched);
-                if (value) {
+                if (value !== undefined) {
                     return value;
                 }
             }
@@ -842,6 +846,7 @@ export class AbstractControlMeta {
         if (a === b) {
             return true;
         }
+        // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
         if (!a || !b) {
             return false;
         }

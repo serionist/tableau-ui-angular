@@ -1,12 +1,12 @@
-import type { Signal} from '@angular/core';
+import type { Signal } from '@angular/core';
 import { computed, signal } from '@angular/core';
 import type { DataSort } from '../sorting/data-sort';
 import type { DataRequest } from './data-request';
 import type { DataResponse } from './data-response';
 
 export class DataBlock {
-    private readonly $_status = signal<'idle' | 'loading' | 'success' | 'error' | 'canceled'>('idle');
-    public get $status(): Signal<'idle' | 'loading' | 'success' | 'error' | 'canceled'> {
+    private readonly $_status = signal<'canceled' | 'error' | 'idle' | 'loading' | 'success'>('idle');
+    public get $status(): Signal<'canceled' | 'error' | 'idle' | 'loading' | 'success'> {
         return this.$_status;
     }
     private readonly $_response = signal<DataResponse | undefined>(undefined);
