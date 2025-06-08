@@ -80,7 +80,7 @@ const gbuilder = b.group<ITest>({
     address: b.group<IAddress>({
         street: b.control<string>('test'),
         city: b.control<string>('test'),
-        state: b.control<string>('test'),
+        state: b.control<string>('test', Validators.required),
         zip: b.control<string>('test'),
         test: b.group({
             name: b.control<string>('test'),
