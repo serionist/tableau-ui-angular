@@ -23,7 +23,7 @@ export class FG<TSource extends Record<string, any> = any> extends ACTyped<FG<TS
     constructor(params: { controls: FormReferencesOf<TSource>; validators?: ValidatorFn | ValidatorFn[]; asyncValidators?: AsyncValidatorFn | AsyncValidatorFn[]; updateOn?: 'blur' | 'change' | 'submit' }) {
         const controls = Object.entries(params.controls).reduce<Partial<ControlsOf<TSource>>>((acc, [key, child]) => {
             const control = ControlRegistry.controls.get((child as AC).id)!;
-            if (control != null) {
+            if (control == null) {
                 console.warn(`Control with id ${child.id} not found in registry.`);
                 return acc;
             }
