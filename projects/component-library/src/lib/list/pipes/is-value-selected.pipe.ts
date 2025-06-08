@@ -1,5 +1,7 @@
 import type { PipeTransform } from '@angular/core';
 import { Pipe } from '@angular/core';
+import type { ListValue } from '../list.component';
+import type { Primitive } from 'component-library';
 
 @Pipe({
     name: 'isValueSelected',
@@ -7,7 +9,7 @@ import { Pipe } from '@angular/core';
     pure: true,
 })
 export class IsValueSelectedPipe implements PipeTransform {
-    transform(selectedValue: any, optionValue: any, allowMultiple: boolean): boolean {
+    transform(selectedValue: ListValue, optionValue: Exclude<Primitive, undefined>, allowMultiple: boolean): boolean {
         if (allowMultiple && Array.isArray(selectedValue)) {
             return selectedValue.includes(optionValue);
         } else {
@@ -18,15 +20,5 @@ export class IsValueSelectedPipe implements PipeTransform {
                 //     this.safeStringify(optionValue)
             );
         }
-    }
-    safeStringify(obj: any) {
-        const seen = new WeakSet();
-        return JSON.stringify(obj, function (key, value) {
-            if (typeof value === 'object' && value !== null) {
-                if (seen.has(value)) return '[Circular]';
-                seen.add(value);
-            }
-            return value;
-        });
     }
 }

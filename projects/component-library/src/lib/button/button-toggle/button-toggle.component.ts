@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, contentChildren, effect, HostListener, input, model, output } from '@angular/core';
 import type { IOptionLineContext} from '../../common/option';
 import { OptionComponent } from '../../common/option';
+import type { Primitive } from '../../common/types/primitive';
 
 @Component({
     selector: 'tab-button-toggle',
@@ -29,7 +30,7 @@ export class ButtonToggleComponent {
      * If no value is selected, it will be undefined.
      * @default undefined
      */
-    readonly $selectedValue = model<any>(undefined, {
+    readonly $selectedValue = model<Primitive>(undefined, {
         alias: 'selectedValue',
     });
 

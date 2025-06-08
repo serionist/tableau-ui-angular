@@ -17,7 +17,7 @@ export class NavBarButtonComponent {
         alias: 'text',
     });
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    readonly $link: InputSignal<string | any[] | UrlTree | null | undefined> = input<string | any[] | UrlTree | null | undefined>(undefined, {
+    readonly $link: InputSignal<string | string[] | UrlTree | null | undefined> = input<string | string[] | UrlTree | null | undefined>(undefined, {
         alias: 'link',
     });
     // eslint-disable-next-line @angular-eslint/no-output-native

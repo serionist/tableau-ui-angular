@@ -1,10 +1,11 @@
 import type { WritableSignal } from '@angular/core';
 import { AfterViewInit, ChangeDetectionStrategy, Component, computed, contentChildren, ElementRef, forwardRef, inject, model, OnDestroy, signal } from '@angular/core';
-import type { ControlValueAccessor} from '@angular/forms';
+import type { ControlValueAccessor } from '@angular/forms';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
-import type { IOptionGridContext} from '../common/option';
+import type { IOptionGridContext } from '../common/option';
 import { OptionComponent } from '../common/option';
-
+import type { Primitive } from '../common/types/primitive';
+export type ListValue = Exclude<Primitive, undefined> | Exclude<Primitive, undefined>[] | undefined;
 @Component({
     selector: 'tab-list',
     standalone: false,
@@ -61,7 +62,7 @@ export class ListComponent implements ControlValueAccessor {
      * If allowMultiple is true, this should be an array of values.
      * If allowMultiple is false, this should be a single value.
      */
-    readonly $value = model<any | any[]>(undefined, {
+    readonly $value = model<ListValue>(undefined, {
         alias: 'value',
     });
     /**
@@ -114,16 +115,16 @@ export class ListComponent implements ControlValueAccessor {
 
     // #region ControlValueAccessor
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    onChange = (value: any) => {};
+    onChange = (value: ListValue) => {};
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     onTouched = () => {};
-    writeValue(value: any): void {
+    writeValue(value: ListValue): void {
         this.$value.set(value);
     }
-    registerOnChange(fn: any): void {
+    registerOnChange(fn: (value: ListValue) => void): void {
         this.onChange = fn;
     }
-    registerOnTouched(fn: any): void {
+    registerOnTouched(fn: () => void): void {
         this.onTouched = fn;
     }
     setDisabledState(isDisabled: boolean): void {
@@ -141,11 +142,15 @@ export class ListComponent implements ControlValueAccessor {
     }
     selectValue(option: OptionComponent) {
         if (!this.$disabled() && !option.$disabled()) {
+            const value = this.$value();
+            const optionValue = option.$value();
             if (this.$allowMultiple()) {
-                if (!this.$value()?.includes(option.$value())) {
-                    this.$value.set([...(this.$value() ?? []), option.$value()]);
+                if (value === undefined || !Array.isArray(value)) {
+                    this.$value.set([optionValue]);
+                } else if (!value.includes(optionValue)) {
+                    this.$value.set([...value, optionValue]);
                 } else {
-                    this.$value.set((this.$value() || []).filter((e: any) => e !== option.$value()));
+                    this.$value.set(value.filter((e) => e !== optionValue));
                 }
             } else if (this.$value() !== option.$value()) {
                 this.$value.set(option.$value());
@@ -155,10 +160,9 @@ export class ListComponent implements ControlValueAccessor {
             if (this.elementRef.nativeElement.tabIndex !== -1) {
                 this.elementRef.nativeElement.focus();
             }
-            // if (!this.allowMultiple()) {
-            //     this.dropdownReference()?.close();
-            // }
         }
+
+      
     }
     clearValue(e: Event) {
         e.preventDefault();
@@ -214,11 +218,31 @@ export class ListComponent implements ControlValueAccessor {
                 currentIndex = this.$options().findIndex((o) => o.$value() === this.$highlightedOption()!.$value());
             } else {
                 // find already selected option
-                let val: any;
+                const value = this.$value();
+                let val: Primitive;
+                
                 if (e.key === 'ArrowDown') {
-                    val = this.$allowMultiple() ? this.$value()?.[this.$value().length - 1] : this.$value(); // find the last selected option
+                    // find the last selected option
+                    if (this.$allowMultiple()) {
+                        if (value && Array.isArray(value) && value.length > 0) {
+                            val = value[value.length - 1];
+                        }
+                    } else {
+                        if (value !== undefined && !Array.isArray(value)) {
+                            val = value;
+                        }
+                    }
                 } else {
-                    val = this.$allowMultiple() ? this.$value()?.[0] : this.$value(); // find the first selected option
+                     // find the first selected option
+                     if (this.$allowMultiple()) {
+                        if (value && Array.isArray(value) && value.length > 0) {
+                            val = value[0];
+                        }
+                    } else {
+                        if (value !== undefined && !Array.isArray(value)) {
+                            val = value;
+                        }
+                    }
                 }
                 nextIndex = currentIndex = this.$options().findIndex((o) => o.$value() === val);
             }

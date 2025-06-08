@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { FA, FC, FG } from '../public-api';
 
 export type FormReferencesOf<T extends Record<string, any>> = {
@@ -8,7 +9,7 @@ export type FormReferencesOf<T extends Record<string, any>> = {
             : FC<T[K]>
         : NonNullable<T[K]> extends Date
           ? FC<T[K]>
-          : NonNullable<T[K]> extends Record<any, any>
+          : NonNullable<T[K]> extends Record<string, any>
             ? FG<NonNullable<T[K]>>
             : FC<T[K]>;
 };

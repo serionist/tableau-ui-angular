@@ -1,7 +1,7 @@
 import type { TemplateRef } from '@angular/core';
 import { ChangeDetectionStrategy, Component, inject, model, ModelSignal } from '@angular/core';
 import type { SnackRef} from './snack.ref';
-import { TAB_SNACK_REF } from './snack.ref';
+import { injectSnackRef, TAB_SNACK_REF } from './snack.ref';
 import { TAB_SNACK_DATA_REF } from './data.ref';
 @Component({
     selector: 'tab-snack',
@@ -77,14 +77,15 @@ import { TAB_SNACK_DATA_REF } from './data.ref';
     `,
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SnackComponent<TData = any> {
-    protected readonly data = inject<{
-        type: 'info' | 'error' | 'success';
-        message: string | undefined;
-        actionLink: string | undefined;
-        action: ((s: SnackRef) => void) | undefined;
-        contentTemplate: TemplateRef<TData> | undefined;
-        contentTemplateContext: TData;
-    }>(TAB_SNACK_DATA_REF);
-    protected readonly snackRef = inject(TAB_SNACK_REF);
+export class SnackComponent<TContext> {
+    protected readonly data = inject<SnackComponentData<TContext>>(TAB_SNACK_DATA_REF);
+    protected readonly snackRef = injectSnackRef<boolean>();
+}
+export interface SnackComponentData<TContext> {
+    type: 'info' | 'error' | 'success';
+    message: string | undefined;
+    actionLink?: string | undefined;
+    action?: ((s: SnackRef<boolean>) => void) | undefined;
+    contentTemplate: TemplateRef<TContext> | undefined;
+    contentTemplateContext: TContext | undefined;
 }

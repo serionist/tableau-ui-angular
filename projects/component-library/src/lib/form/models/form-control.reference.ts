@@ -1,11 +1,12 @@
 import type { AsyncValidatorFn, ValidatorFn } from '@angular/forms';
 import { FormControl } from '@angular/forms';
-import type { Primitive } from '../types/primitive';
 import { AC, ACRegisterFunctions, ACTyped } from './abstract-control.reference';
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Observable, Subscription } from 'rxjs';
 import { BehaviorSubject, combineLatest, distinctUntilChanged, filter, map, pairwise, startWith } from 'rxjs';
 import type { WritableSignal } from '@angular/core';
 import { signal } from '@angular/core';
+import type { Primitive } from '../../common/types/primitive';
 
 export class FC<T extends Primitive | Primitive[] = any> extends ACTyped<FC<T>, T> {
     override registerFn: FCRegisterFunctions<T>;

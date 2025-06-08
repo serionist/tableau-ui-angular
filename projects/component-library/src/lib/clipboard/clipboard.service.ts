@@ -12,7 +12,7 @@ export class ClipboardService {
         }
         const perm = await navigator.permissions.query({
             name: 'clipboard-write',
-        } as any);
+          } as PermissionDescriptor & { name: 'clipboard-write' });
         if (perm.state === 'denied') {
             throw this.getError(handlePermissionError, 'Permission to write to clipboard is denied for this site');
         }
@@ -29,7 +29,7 @@ export class ClipboardService {
         }
         const perm = await navigator.permissions.query({
             name: 'clipboard-read',
-        } as any);
+          } as PermissionDescriptor & { name: 'clipboard-read' });
         if (perm.state === 'denied') {
             throw this.getError(handlePermissionError, 'Permission to write to clipboard is denied for this site');
         }

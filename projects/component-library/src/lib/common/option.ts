@@ -3,6 +3,7 @@ import type { InputSignal, Signal, TemplateRef} from '@angular/core';
 import { ChangeDetectionStrategy, Component, computed, ContentChild, ElementRef, inject, input, signal, viewChild, ViewChild, ViewContainerRef } from '@angular/core';
 import { HintComponent } from './hint';
 import { IconComponent } from '../icon/icon.component';
+import type { Primitive } from './types/primitive';
 
 @Component({
     selector: 'tab-option',
@@ -13,22 +14,22 @@ import { IconComponent } from '../icon/icon.component';
 })
 export class OptionComponent {
     readonly elementRef = inject(ElementRef);
-    readonly $value = input.required<any>({
+    readonly $value = input.required<Exclude<Primitive, undefined>>({
         alias: 'value',
     });
     readonly $disabled = input<boolean>(false, {
         alias: 'disabled',
     });
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    readonly $text: InputSignal<string | TemplateRef<any> | undefined> = input<string | TemplateRef<any>>(undefined, {
+    readonly $text: InputSignal<string | TemplateRef<unknown> | undefined> = input<string | TemplateRef<unknown>>(undefined, {
         alias: 'text',
     });
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    readonly $hint: InputSignal<string | TemplateRef<any> | undefined> = input<string | TemplateRef<any>>(undefined, {
+    readonly $hint: InputSignal<string | TemplateRef<unknown> | undefined> = input<string | TemplateRef<unknown>>(undefined, {
         alias: 'hint',
     });
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    readonly $icon: InputSignal<string | TemplateRef<any> | undefined> = input<string | TemplateRef<any>>(undefined, {
+    readonly $icon: InputSignal<string | TemplateRef<unknown> | undefined> = input<string | TemplateRef<unknown>>(undefined, {
         alias: 'icon',
     });
     readonly $template = viewChild.required<TemplateRef<IOptionGridContext>>('templateRef');
@@ -47,8 +48,8 @@ export class OptionComponent {
         return this.$iconType() === 'string' ? (this.$icon() as string) : '';
     });
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    protected readonly $iconTemplate: Signal<TemplateRef<any> | null> = computed(() => {
-        return this.$iconType() === 'template' ? (this.$icon() as TemplateRef<any>) : null;
+    protected readonly $iconTemplate: Signal<TemplateRef<unknown> | null> = computed(() => {
+        return this.$iconType() === 'template' ? (this.$icon() as TemplateRef<unknown>) : null;
     });
     protected readonly $textType = computed(() => {
         if (!this.$text()) {
@@ -63,8 +64,8 @@ export class OptionComponent {
         return this.$textType() === 'string' ? (this.$text() as string) : '';
     });
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    protected readonly $textTemplate: Signal<TemplateRef<any> | null> = computed(() => {
-        return this.$textType() === 'template' ? (this.$text() as TemplateRef<any>) : null;
+    protected readonly $textTemplate: Signal<TemplateRef<unknown> | null> = computed(() => {
+        return this.$textType() === 'template' ? (this.$text() as TemplateRef<unknown>) : null;
     });
     protected readonly $hintType = computed(() => {
         if (!this.$hint()) {
@@ -79,8 +80,8 @@ export class OptionComponent {
         return this.$hintType() === 'string' ? (this.$hint() as string) : '';
     });
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    protected readonly $hintTemplate: Signal<TemplateRef<any> | null> = computed(() => {
-        return this.$hintType() === 'template' ? (this.$hint() as TemplateRef<any>) : null;
+    protected readonly $hintTemplate: Signal<TemplateRef<unknown> | null> = computed(() => {
+        return this.$hintType() === 'template' ? (this.$hint() as TemplateRef<unknown>) : null;
     });
 }
 export interface IOptionLineContext {

@@ -103,7 +103,7 @@ export class MenuButtonComponent implements OnDestroy {
 
     readonly $children = contentChildren(MenuButtonComponent);
     readonly mouseoverChange = output<boolean>();
-    readonly $template = viewChild.required<TemplateRef<any>>('template');
+    readonly $template = viewChild.required<TemplateRef<null>>('template');
 
     readonly openSubMenu = output<Event>();
 
@@ -113,7 +113,7 @@ export class MenuButtonComponent implements OnDestroy {
         this.id = generateRandomString();
     }
 
-    hoverInterval: any | undefined = undefined;
+    hoverInterval: ReturnType<typeof setTimeout> | undefined = undefined;
     hoverstart = Date.now();
     onMouseEnter() {
         if (!this.$disabled()) {

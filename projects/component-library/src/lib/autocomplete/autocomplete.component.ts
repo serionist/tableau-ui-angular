@@ -1,6 +1,6 @@
 import type { Signal, TemplateRef, WritableSignal } from '@angular/core';
 import { ChangeDetectionStrategy, Component, contentChild, contentChildren, Directive, ElementRef, inject, input, model, OnDestroy, OnInit, signal, viewChild } from '@angular/core';
-import type { IOptionGridContext} from '../common/option';
+import type { IOptionGridContext } from '../common/option';
 import { OptionComponent } from '../common/option';
 import { PrefixComponent } from '../common/prefix';
 import { SuffixComponent } from '../common/suffix';
@@ -76,7 +76,7 @@ export class AutoCompleteComponent {
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     protected readonly $dropdownSuffix: Signal<SuffixComponent | undefined> = contentChild<SuffixComponent>(SuffixComponent);
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    protected readonly $dropdownTemplate: Signal<TemplateRef<any> | undefined> = viewChild<TemplateRef<any>>('dropdownTemplate');
+    protected readonly $dropdownTemplate: Signal<TemplateRef<null> | undefined> = viewChild<TemplateRef<null>>('dropdownTemplate');
 
     constructor() {
         const id = generateRandomString();

@@ -1,18 +1,25 @@
-import { InjectionToken } from '@angular/core';
+import { inject, InjectionToken } from '@angular/core';
 import type { Observable } from 'rxjs';
 import { Subject } from 'rxjs';
 import type { IDialogPositionAndSizeArgs } from './dialog.args';
 
-export const TAB_DIALOG_REF = new InjectionToken<DialogRef>('TAB_DIALOG_REF');
-export class DialogRef {
-    private _closed$ = new Subject<any>();
-    closed$: Observable<any> = this._closed$.asObservable();
-    dialogElement: HTMLElement = undefined!;
+export const TAB_DIALOG_REF = new InjectionToken<DialogRef<unknown>>('TAB_DIALOG_REF');
 
-    reposition: (modArgs: (originalArgs: IDialogPositionAndSizeArgs) => void) => void = undefined!;
+export function injectDialogRef<T>(): DialogRef<T> {
+    return inject(TAB_DIALOG_REF) as DialogRef<T>;
+}
 
-    private _result: any = undefined;
-    close(result?: any): void {
+export interface IDialogRef {
+    closed$: Observable<unknown | undefined>;
+    close: () => void;
+}
+export class DialogRef<T = unknown> implements IDialogRef {
+    private _closed$ = new Subject<T | undefined>();
+    readonly closed$: Observable<T | undefined> = this._closed$.asObservable();
+   
+
+    private _result: T | undefined = undefined;
+    close(result?: T): void {
         this._closed$.next(result ?? this._result);
         this._closed$.complete();
     }
@@ -24,7 +31,13 @@ export class DialogRef {
      * If the close() function is called with a non-undefined result, it will overwrite this value
      * @param result The result to set.
      */
-    setResultWithoutClosing(result: any): void {
+    setResultWithoutClosing(result?: T): void {
         this._result = result;
     }
+}
+export class DialogRefInternal<T> extends DialogRef<T> {
+   
+    dialogElement: HTMLElement = undefined!;
+
+    reposition: (modArgs: (originalArgs: IDialogPositionAndSizeArgs) => void) => void = undefined!;
 }

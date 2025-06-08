@@ -16,8 +16,8 @@ import { AfterContentInit, ChangeDetectionStrategy, Component, ContentChild, inp
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TabComponent {
-    readonly $headerTemplate = viewChild.required<TemplateRef<any>>('headerTemplate');
-    readonly $contentTemplate = viewChild.required<TemplateRef<any>>('contentTemplate');
+    readonly $headerTemplate = viewChild.required<TemplateRef<unknown>>('headerTemplate');
+    readonly $contentTemplate = viewChild.required<TemplateRef<unknown>>('contentTemplate');
 
     readonly $disabled = input<boolean>(false, {
         alias: 'disabled',

@@ -1,10 +1,4 @@
-import type {
-    AfterViewInit,
-    InputSignal,
-    OnDestroy,
-    Signal,
-    TemplateRef,
-    WritableSignal} from '@angular/core';
+import type { AfterViewInit, InputSignal, OnDestroy, Signal, TemplateRef, WritableSignal } from '@angular/core';
 import {
     AfterContentInit,
     ChangeDetectionStrategy,
@@ -22,22 +16,24 @@ import {
     OnInit,
     output,
     signal,
-    viewChild
+    viewChild,
 } from '@angular/core';
-import type { ControlValueAccessor} from '@angular/forms';
+import type { ControlValueAccessor } from '@angular/forms';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
-import type { IOptionGridContext, IOptionLineContext} from '../common/option';
+import type { IOptionGridContext, IOptionLineContext } from '../common/option';
 import { OptionComponent } from '../common/option';
 import { SnackService } from '../snack/snack.service';
 import { DialogService } from '../dialogservice/dialog.service';
-import type { DialogRef } from '../dialogservice/dialog.ref';
+import type { DialogRef, IDialogRef } from '../dialogservice/dialog.ref';
 import type { Subscription } from 'rxjs';
 import { fromEvent, map } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { PrefixComponent } from '../common/prefix';
 import { SuffixComponent } from '../common/suffix';
 import { generateRandomString as generateRandomString } from '../utils';
+import type { Primitive } from '../common/types/primitive';
 
+export type SelectValue = Exclude<Primitive, undefined> | Exclude<Primitive, undefined>[] | undefined;
 @Component({
     selector: 'tab-select',
     standalone: false,
@@ -76,7 +72,7 @@ export class SelectComponent implements ControlValueAccessor, AfterViewInit, OnD
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     protected readonly $dropdownSuffix: Signal<SuffixComponent | undefined> = contentChild<SuffixComponent>(SuffixComponent);
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    private readonly $dropdownTemplate: Signal<TemplateRef<any> | undefined> = viewChild<TemplateRef<any>>('dropdownTemplate');
+    private readonly $dropdownTemplate: Signal<TemplateRef<unknown> | undefined> = viewChild<TemplateRef<unknown>>('dropdownTemplate');
 
     // #region Imports
     private readonly snackService = inject(SnackService);
@@ -108,7 +104,7 @@ export class SelectComponent implements ControlValueAccessor, AfterViewInit, OnD
      * If allowMultiple is true, this should be an array of values.
      * If allowMultiple is false, this should be a single value.
      */
-    readonly $value = model<any | any[]>(undefined, {
+    readonly $value = model<SelectValue>(undefined, {
         alias: 'value',
     });
 
@@ -250,21 +246,29 @@ export class SelectComponent implements ControlValueAccessor, AfterViewInit, OnD
     // #endregion
     // #region Computed
     readonly $hasValue = computed(() => {
+        const value = this.$value();
+        if (value === undefined) {
+            return false;
+        }
         if (this.$allowMultiple()) {
-            return this.$value()?.length > 0;
+            if (!Array.isArray(value)) {
+                return false;
+            }
+            return value.length > 0;
         } else {
-            return this.$value() !== undefined && this.$value() !== null;
+            return true;
         }
     });
     protected readonly $selectedValueTemplates = computed(() => {
         if (!this.$hasValue()) {
             return [];
         }
-        let val: any[] = [];
-        if (Array.isArray(this.$value())) {
-            val = this.$value();
-        } else if (this.$value() !== undefined && this.$value() !== null) {
-            val = [this.$value()];
+        let val: Primitive[] = [];
+        const value = this.$value();
+        if (Array.isArray(value)) {
+            val = value;
+        } else if (value !== undefined) {
+            val = [value];
         }
         const ret = val.map((v) => ({
             value: v,
@@ -274,7 +278,7 @@ export class SelectComponent implements ControlValueAccessor, AfterViewInit, OnD
         }));
 
         return ret.filter((e) => e.template !== undefined) as {
-            value: any;
+            value: Primitive;
             template: TemplateRef<IOptionLineContext>;
         }[];
     });
@@ -291,16 +295,16 @@ export class SelectComponent implements ControlValueAccessor, AfterViewInit, OnD
     // #endregion
     // #region ControlValueAccessor
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    onChange = (value: any) => {};
+    onChange = (value: SelectValue) => {};
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     onTouched = () => {};
-    writeValue(value: any): void {
+    writeValue(value: SelectValue): void {
         this.$value.set(value);
     }
-    registerOnChange(fn: any): void {
+    registerOnChange(fn: (value: SelectValue) => void) {
         this.onChange = fn;
     }
-    registerOnTouched(fn: any): void {
+    registerOnTouched(fn: () => void): void {
         this.onTouched = fn;
     }
     setDisabledState(isDisabled: boolean): void {
@@ -318,11 +322,15 @@ export class SelectComponent implements ControlValueAccessor, AfterViewInit, OnD
     }
     selectValue(option: OptionComponent) {
         if (!this.$disabled() && !option.$disabled()) {
+            const value = this.$value();
+            const optionValue = option.$value();
             if (this.$allowMultiple()) {
-                if (!this.$value()?.includes(option.$value())) {
-                    this.$value.set([...(this.$value() ?? []), option.$value()]);
+                if (value === undefined || !Array.isArray(value)) {
+                    this.$value.set([optionValue]);
+                } else if (!value.includes(optionValue)) {
+                    this.$value.set([...value, optionValue]);
                 } else {
-                    this.$value.set((this.$value() || []).filter((e: any) => e !== option.$value()));
+                    this.$value.set(value.filter((e) => e !== optionValue));
                 }
             } else if (this.$value() !== option.$value()) {
                 this.$value.set(option.$value());
@@ -349,17 +357,22 @@ export class SelectComponent implements ControlValueAccessor, AfterViewInit, OnD
         this.onTouched();
     }
     isValueSelected(option: OptionComponent) {
+        const value = this.$value();
+        const optionValue = option.$value();
         if (this.$allowMultiple()) {
-            return this.$value()?.includes(option.$value());
+            if (!Array.isArray(value)) {
+                return false;
+            }
+            return value.includes(optionValue);
         } else {
-            return this.$value() === option.$value();
+            return value === optionValue;
         }
     }
     // #endregion
     // #region Dropdown
 
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    private readonly $dropdownReference: WritableSignal<DialogRef | undefined> = signal<DialogRef | undefined>(undefined);
+    private readonly $dropdownReference: WritableSignal<IDialogRef | undefined> = signal<IDialogRef | undefined>(undefined);
     protected readonly $dropdownOpen = computed(() => this.$dropdownReference() !== undefined);
 
     openDropdown() {

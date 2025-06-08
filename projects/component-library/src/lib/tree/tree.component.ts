@@ -1,24 +1,6 @@
-import type {
-    AfterContentInit,
-    InputSignal,
-    OnDestroy,
-    TemplateRef} from '@angular/core';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    contentChild,
-    contentChildren,
-    DoCheck,
-    effect,
-    ElementRef,
-    inject,
-    input,
-    OnInit,
-    viewChild,
-    viewChildren,
-} from '@angular/core';
-import type { TabTreeNodeComponent } from './tree-node.component';
+import type { AfterContentInit, InputSignal, OnDestroy, TemplateRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, contentChild, contentChildren, DoCheck, effect, ElementRef, inject, input, OnInit, viewChild, viewChildren } from '@angular/core';
+import type { TabTreeNodeComponent, TreeNodeTemplate } from './tree-node.component';
 import { debounceTime, Subject } from 'rxjs';
 import { TreeNodeRegistry } from './tree-node-registry';
 @Component({
@@ -52,25 +34,7 @@ export class TabTreeComponent implements AfterContentInit, OnDestroy {
         alias: 'expandButtonGap',
     });
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    readonly $expandButtonTooltip: InputSignal<
-        | {
-              expand: TemplateRef<any> | string | undefined;
-              collapse: TemplateRef<any> | string | undefined;
-              position: 'top' | 'bottom' | 'left' | 'right';
-              margin?: string;
-              context?: any | undefined;
-          }
-        | undefined
-    > = input<
-        | {
-              expand: TemplateRef<any> | string | undefined;
-              collapse: TemplateRef<any> | string | undefined;
-              position: 'top' | 'bottom' | 'left' | 'right';
-              margin?: string;
-              context?: any | undefined;
-          }
-        | undefined
-    >(undefined, {
+    readonly $expandButtonTooltip: InputSignal<ExpandButtonTooltipParams | undefined> = input<ExpandButtonTooltipParams | undefined>(undefined, {
         alias: 'expandButtonTooltip',
     });
     readonly $expandButtonAlign = input<string>('center', {
@@ -91,7 +55,7 @@ export class TabTreeComponent implements AfterContentInit, OnDestroy {
 
     // used when hierarchyMode is auto to get direct children
     // directChildren = contentChildren(TabTreeNodeComponent);
-    templateParams = {
+    templateParams: TreeNodeTemplate = {
         $childrenIndent: this.$childrenIndent,
         $expandButtonSize: this.$expandButtonSize,
         $expandButtonColor: this.$expandButtonColor,
@@ -294,4 +258,11 @@ export class TabTreeComponent implements AfterContentInit, OnDestroy {
             l.element.style.borderBottomLeftRadius = this.$gridLinesBorderRadius();
         }
     }
+}
+export interface ExpandButtonTooltipParams<T = unknown> {
+    expand: TemplateRef<T> | string | undefined;
+    collapse: TemplateRef<T> | string | undefined;
+    position: 'top' | 'bottom' | 'left' | 'right';
+    margin?: string;
+    context?: T | undefined;
 }

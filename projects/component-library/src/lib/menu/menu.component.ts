@@ -148,7 +148,7 @@ export class MenuComponent {
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     protected readonly $suffix: Signal<SuffixComponent | undefined> = contentChild<SuffixComponent>(SuffixComponent);
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    private readonly $template: Signal<TemplateRef<any> | undefined> = viewChild<TemplateRef<any>>('dropdownTemplate');
+    private readonly $template: Signal<TemplateRef<null> | undefined> = viewChild<TemplateRef<null>>('dropdownTemplate');
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     private readonly $openDialog: WritableSignal<DialogRef | undefined> = signal<DialogRef | undefined>(undefined);
 

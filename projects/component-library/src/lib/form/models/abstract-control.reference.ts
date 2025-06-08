@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { AbstractControl, AsyncValidatorFn, FormControlStatus, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { ControlEvent, FormArray, FormControl, FormGroup, FormResetEvent } from '@angular/forms';
 import { generateRandomString } from '../../utils';

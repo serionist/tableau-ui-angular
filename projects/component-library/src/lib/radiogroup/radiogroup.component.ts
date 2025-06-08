@@ -8,6 +8,7 @@ import { CommonModule, NgFor, NgIf } from '@angular/common';
 import type { ControlValueAccessor} from '@angular/forms';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { generateRandomString } from '../utils';
+import type { Primitive } from '../common/types/primitive';
 
 @Component({
     selector: 'tab-radiogroup',
@@ -25,29 +26,29 @@ import { generateRandomString } from '../utils';
 })
 export class RadiogroupComponent implements ControlValueAccessor {
     readonly $disabled = signal(false);
-    readonly $value = model<any>(undefined, {
+    readonly $value = model<Primitive>(undefined, {
         alias: 'value',
     });
-    readonly $valueChanges = output<any>();
+    readonly valueChanges = output<Primitive>();
     readonly name = this.generateRandomGroupName();
     readonly $options = contentChildren(OptionComponent);
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     readonly $errorElement: Signal<ErrorComponent | undefined> = contentChild(ErrorComponent);
 
     // eslint-disable-next-line  @typescript-eslint/no-empty-function
-    onChange = (value: any) => {};
+    onChange = (value: Primitive) => {};
     // eslint-disable-next-line  @typescript-eslint/no-empty-function
     onTouched = () => {};
 
-    writeValue(value: any): void {
+    writeValue(value: Primitive): void {
         this.$value.set(value);
     }
 
-    registerOnChange(fn: any): void {
+    registerOnChange(fn: (value: Primitive) => void): void {
         this.onChange = fn;
     }
 
-    registerOnTouched(fn: any): void {
+    registerOnTouched(fn:  () => void): void {
         this.onTouched = fn;
     }
 
@@ -60,7 +61,7 @@ export class RadiogroupComponent implements ControlValueAccessor {
             if (this.$value() !== option.$value()) {
                 this.$value.set(option.$value());
                 this.onChange(this.$value());
-                this.$valueChanges.emit(this.$value());
+                this.valueChanges.emit(this.$value());
             }
             this.onTouched();
         }

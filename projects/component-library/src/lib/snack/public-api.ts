@@ -1,5 +1,4 @@
-export * from './snack.component';
 export * from './snack.service';
-export * from './snack.ref';
+export { injectSnackRef, SnackRef} from './snack.ref';
 export * from './tableau-ui-snack.module';
-export * from './data.ref';
+export { injectSnackData } from './data.ref';

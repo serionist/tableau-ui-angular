@@ -1,6 +1,7 @@
-import type { ComponentRef, TemplateRef, Type, ViewRef } from '@angular/core';
+import type { ComponentRef, EmbeddedViewRef, TemplateRef, Type, ViewRef } from '@angular/core';
 import { ApplicationRef, createComponent, EnvironmentInjector, inject, Injectable, Injector } from '@angular/core';
 import { SnackRef, TAB_SNACK_REF } from './snack.ref';
+import type { SnackComponentData } from './snack.component';
 import { SnackComponent } from './snack.component';
 import { TableauUiSnackModule } from './tableau-ui-snack.module';
 import { TAB_SNACK_DATA_REF } from './data.ref';
@@ -14,8 +15,8 @@ export class SnackService {
     private appRef = inject(ApplicationRef);
     private environmentInjector = inject(EnvironmentInjector);
 
-    openSnack(message: string, duration: number | undefined = 5000, type: 'info' | 'error' | 'success' = 'info', location: 'top' | 'bottom' = 'top'): SnackRef {
-        return this.openSnackComponent(
+    openSnack(message: string, duration: number | undefined = 5000, type: 'info' | 'error' | 'success' = 'info', location: 'top' | 'bottom' = 'top'): SnackRef<boolean> {
+        return this.openSnackComponent<SnackComponent<unknown>, SnackComponentData<unknown>, boolean>(
             SnackComponent,
             {
                 type,
@@ -29,8 +30,15 @@ export class SnackService {
         );
     }
 
-    openSnackWithAction(message: string, actionLabel: string, action: (s: SnackRef) => void, duration: number | undefined = 5000, type: 'info' | 'error' | 'success' = 'info', location: 'top' | 'bottom' = 'top') {
-        return this.openSnackComponent(
+    openSnackWithAction(
+        message: string,
+        actionLabel: string,
+        action: (s: SnackRef<boolean>) => void,
+        duration: number | undefined = 5000,
+        type: 'info' | 'error' | 'success' = 'info',
+        location: 'top' | 'bottom' = 'top',
+    ): SnackRef<boolean> {
+        return this.openSnackComponent<SnackComponent<unknown>, SnackComponentData<unknown>, boolean>(
             SnackComponent,
             {
                 type,
@@ -45,14 +53,20 @@ export class SnackService {
             location,
         );
     }
-    openSnackFromTemplate<T = any>(template: TemplateRef<T>, templateContext?: T, duration: number | undefined = 5000, type: 'info' | 'error' | 'success' = 'info', location: 'top' | 'bottom' = 'top') {
-        return this.openSnackComponent(
+    openSnackFromTemplate<TContext, TResult>(
+        template: TemplateRef<TContext>,
+        templateContext?: TContext,
+        duration: number | undefined = 5000,
+        type: 'info' | 'error' | 'success' = 'info',
+        location: 'top' | 'bottom' = 'top',
+    ) {
+        return this.openSnackComponent<SnackComponent<TContext>, SnackComponentData<TContext>, boolean>(
             SnackComponent,
             {
                 type,
                 message: undefined,
                 contentTemplate: template,
-                contentTemplateContext: templateContext || {},
+                contentTemplateContext: templateContext,
             },
             duration,
             type,
@@ -60,7 +74,13 @@ export class SnackService {
         );
     }
 
-    openSnackComponent<TData, TComponent = any>(component: Type<TComponent>, data: TData, duration: number | undefined = 5000, type: 'info' | 'error' | 'success' = 'info', location: 'top' | 'bottom' = 'top'): SnackRef {
+    openSnackComponent<TComponent, TData, TResult>(
+        component: Type<TComponent>,
+        data: TData,
+        duration: number | undefined = 5000,
+        type: 'info' | 'error' | 'success' = 'info',
+        location: 'top' | 'bottom' = 'top',
+    ): SnackRef<TResult> {
         // check if snack container exists
         let container = document.querySelector(`.tab-snacks.${location} .snack-container`);
         if (!container) {
@@ -76,7 +96,7 @@ export class SnackService {
         const snackWrapper = document.createElement('div');
         snackWrapper.classList.add('snack-wrapper', type);
 
-        const snackRef = new SnackRef();
+        const snackRef = new SnackRef<TResult>();
         // Create an injector that provides the SnackRef
         const injector = Injector.create({
             providers: [
@@ -91,7 +111,7 @@ export class SnackService {
         // Attach component to the application
         this.appRef.attachView(componentView);
 
-        const componentElement = (componentView as any).rootNodes[0] as HTMLElement;
+        const componentElement = (componentView as EmbeddedViewRef<unknown>).rootNodes[0] as HTMLElement;
         snackWrapper.appendChild(componentElement);
         // add timer if needed
         let timer: HTMLElement | undefined;
@@ -137,7 +157,7 @@ export class SnackService {
             }, duration);
         }
 
-        snackRef.afterClosed$.subscribe(() => {
+        snackRef.closed$.subscribe(() => {
             snackWrapper.style.margin = getMargin();
             snackWrapper.style.opacity = '0';
             setTimeout(() => {

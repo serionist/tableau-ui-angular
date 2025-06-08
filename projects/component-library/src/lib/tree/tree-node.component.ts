@@ -27,6 +27,7 @@ import { CollapsedContentDirective } from './collapsed-content.directive';
 import { ExpandedContentDirective } from './expanded-content.directive';
 import { generateRandomString } from '../utils';
 import type { TreeNodeRegistry } from './tree-node-registry';
+import type { ExpandButtonTooltipParams} from './tree.component';
 import { TabTreeComponent } from './tree.component';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import type { TreeNodeInterface } from './tree-node-interface';
@@ -77,7 +78,7 @@ export class TabTreeNodeComponent implements OnInit, OnDestroy, TreeNodeInterfac
     });
 
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    readonly $template: Signal<TemplateRef<any> | undefined> = viewChild<TemplateRef<any>>('treeNodeTemplate');
+    readonly $template: Signal<TemplateRef<TreeNodeTemplate> | undefined> = viewChild<TemplateRef<TreeNodeTemplate>>('treeNodeTemplate');
 
     readonly $hierarchyId: InputSignal<string> = input<string>(generateRandomString(16), {
         alias: 'hierarchyId',
@@ -131,4 +132,13 @@ export class TabTreeNodeComponent implements OnInit, OnDestroy, TreeNodeInterfac
         this.$expanded.set(expanded);
         this.expandedChange.emit(expanded);
     }
+}
+export interface TreeNodeTemplate {
+    $childrenIndent: Signal<string>;
+    $expandButtonSize: Signal<string>;
+    $expandButtonColor: Signal<string | undefined>;
+    $expandButtonGap: Signal<string | undefined>;
+    $expandButtonTooltip: Signal<ExpandButtonTooltipParams | undefined>;
+    $expandButtonAlign: Signal<string>;
+    $keepButtonOffsetOnNoChildren: Signal<boolean>;
 }

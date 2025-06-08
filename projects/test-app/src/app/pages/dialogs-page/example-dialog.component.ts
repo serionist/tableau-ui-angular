@@ -1,6 +1,6 @@
 import type { Signal } from '@angular/core';
 import { ChangeDetectionStrategy, Component, inject, Inject, input, Input, model, signal } from '@angular/core';
-import { DialogRef, DialogService, TAB_DATA_REF, TAB_DIALOG_REF } from 'component-library';
+import { DialogRef, DialogService, injectDialogData, injectDialogRef } from 'component-library';
 
 @Component({
     selector: 'app-example-dialog',
@@ -25,8 +25,8 @@ export class ExampleDialogComponent {
     dialogService = inject(DialogService);
 
     // Injecting the DialogRef and data using inject() function
-    data = inject<string>(TAB_DATA_REF);
-    dialogRef = inject(TAB_DIALOG_REF);
+    data = injectDialogData<string>();
+    dialogRef = injectDialogRef<string>();
     constructor() {
         this.$message = signal(this.data);
     }

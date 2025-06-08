@@ -1,5 +1,5 @@
 import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
-import { Primitive } from '../types/primitive';
+import { Primitive } from '../../common/types/primitive';
 import { FC } from './form-control.reference';
 import { FG } from './form-group.reference';
 import { FA } from './form-array.reference';

@@ -10,12 +10,13 @@ import { TableComponent } from 'component-library';
     styleUrl: './table-page.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TablePageComponent<T = unknown> {
+export class TablePageComponent {
     readonly $show_first_3_columns = signal(false);
     readonly $striped = signal(false);
     readonly $showData = signal(true);
     readonly $errorOnData = signal(false);
     readonly $customNoDataTemplate = signal(false);
+
     // async loadData(params: ResourceLoaderParams<DataTrigger>): Promise<DataResponse> {
     //     console.log('Triggered stuff', params);
     //     return {
@@ -26,7 +27,7 @@ export class TablePageComponent<T = unknown> {
     //     }
     // }
 
-    loadBlock: (req: DataRequest) => Promise<DataResponse> = async (req: DataRequest) => {
+    loadBlock: (req: DataRequest) => Promise<DataResponse<DataType>> = async (req: DataRequest) => {
         console.log('Loading data block with request:', req);
         // Simulate a data load with a delay
         await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -47,8 +48,8 @@ export class TablePageComponent<T = unknown> {
         const sortedData = [...data].sort((a, b) => {
             if (req.sort && req.sort.length > 0) {
                 for (const sort of req.sort) {
-                    const aValue = (a as any)[sort.property];
-                    const bValue = (b as any)[sort.property];
+                    const aValue = (a as Record<string, string | number | boolean>)[sort.property];
+                    const bValue = (b as Record<string, string | number | boolean>)[sort.property];
                     if (aValue < bValue) return sort.direction === 'asc' ? -1 : 1;
                     if (aValue > bValue) return sort.direction === 'asc' ? 1 : -1;
                     if (aValue === bValue) continue; // Equal values, check next sort
@@ -74,4 +75,26 @@ export class TablePageComponent<T = unknown> {
     customCalculatedClass(ctx: HeaderContext): string | undefined {
         return `custom-dynamic-class-${ctx.index % 3}`;
     }
+}
+export interface DataType {
+        id: number;
+        name: string;
+        age: number;
+        gender: string;
+        country: string;
+        city: string;
+        email: string;
+        phone: string;
+        address: string;
+        zipCode: string;
+        username: string;
+        birthdate: string;
+        joinDate: string;
+        isActive: boolean;
+        score: number;
+        role: string;
+        department: string;
+        employeeId: string;
+        language: string;
+        notes: string;
 }

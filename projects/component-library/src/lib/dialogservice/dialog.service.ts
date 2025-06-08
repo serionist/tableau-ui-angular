@@ -1,10 +1,11 @@
-import type { ComponentRef, TemplateRef, Type, ViewRef } from '@angular/core';
+import type { ComponentRef, EmbeddedViewRef, TemplateRef, Type, ViewRef } from '@angular/core';
 import { ApplicationRef, ComponentFactoryResolver, createComponent, EnvironmentInjector, inject, Injectable, Injector, ViewContainerRef } from '@angular/core';
-import { TAB_DIALOG_REF, DialogRef } from './dialog.ref';
+import type { DialogRef, IDialogRef } from './dialog.ref';
+import { TAB_DIALOG_REF, DialogRefInternal } from './dialog.ref';
 import type { IConfirmationDialogArgs, IDialogArgs, IDialogPositionAndSizeArgs, IModalArgs } from './dialog.args';
 import { IDialogHeaderArgs } from './dialog.args';
 import { debounceTime, fromEvent, map, Subscription, zip } from 'rxjs';
-import type { FocusableElement} from 'tabbable';
+import type { FocusableElement } from 'tabbable';
 import { tabbable } from 'tabbable';
 import { IconComponent } from '../icon/icon.component';
 import type { IConfirmationDialogData } from './confirmation-dialog.component';
@@ -22,7 +23,7 @@ export class DialogService {
     appRef = inject(ApplicationRef);
     environmentInjector = inject(EnvironmentInjector);
 
-    openModal<TData = any, TComponent = any>(component: Type<TComponent>, data: TData, args?: IModalArgs): DialogRef {
+    openModal<TComponent, TData, TResult>(component: Type<TComponent>, data: TData, args?: IModalArgs): DialogRef<TResult> {
         const a = {
             width: args?.width ?? '300px',
             height: args?.height ?? 'fit-content',
@@ -54,11 +55,11 @@ export class DialogService {
             trapFocus: true,
         } as IDialogArgs;
 
-        const ref = this.openDialog(component, data, a);
+        const ref = this.openDialog<TComponent, TData, TResult>(component, data, a);
         return ref;
     }
 
-    openTemplateModal<TData = any>(contentTemplate: TemplateRef<TData>, contentTemplateContext: TData, args?: IModalArgs): DialogRef {
+    openTemplateModal<TContext, TResult>(contentTemplate: TemplateRef<TContext>, contentTemplateContext?: TContext, args?: IModalArgs): DialogRef<TResult> {
         return this.openModal(TemplateDialogComponent, { contentTemplate, contentTemplateContext }, args);
     }
 
@@ -85,14 +86,14 @@ export class DialogService {
                 contentTemplate: undefined,
                 contentTemplateContext: undefined,
             };
-            const dialogRef = this.openModal(ConfirmationDialogComponent, data, modalArgs);
+            const dialogRef = this.openModal<ConfirmationDialogComponent, IConfirmationDialogData, boolean>(ConfirmationDialogComponent, data, modalArgs);
             dialogRef.closed$.subscribe((result) => {
                 resolve(result ?? false);
             });
         });
     }
 
-    openConfirmationTemplateDialog<TContext = any>(
+    openConfirmationTemplateDialog<TContext>(
         title: string,
         template: TemplateRef<TContext>,
         templateContext: TContext,
@@ -116,7 +117,8 @@ export class DialogService {
                 contentTemplate: template,
                 contentTemplateContext: templateContext,
             };
-            const dialogRef = this.openModal(ConfirmationDialogComponent, data, modalArgs);
+
+            const dialogRef = this.openModal<ConfirmationDialogComponent, IConfirmationDialogData, boolean>(ConfirmationDialogComponent, data, modalArgs);
             dialogRef.closed$.subscribe((result) => {
                 resolve(result ?? false);
             });
@@ -128,15 +130,19 @@ export class DialogService {
     private zIndex = this.startZIndex;
 
     dialogStack: {
-        dialogRef: DialogRef;
+        dialogRef: IDialogRef;
         zIndex: number;
         args: IDialogArgs;
     }[] = [];
 
-    openTemplateDialog<T = any>(contentTemplate: TemplateRef<T>, args: IDialogArgs, contentTemplateContext?: T, insertAfterElement?: HTMLElement) {
-        return this.openDialog(TemplateDialogComponent, { contentTemplate, contentTemplateContext }, args, insertAfterElement);
+    openTemplateDialog<TContext, TResult>(contentTemplate: TemplateRef<TContext>, args: IDialogArgs, contentTemplateContext?: TContext, insertAfterElement?: HTMLElement) {
+        return this.openDialog<
+            TemplateDialogComponent<{ contentTemplate: TemplateRef<TContext | undefined>; contentTemplateContext: TContext | undefined }>,
+            { contentTemplate: TemplateRef<TContext>; contentTemplateContext?: TContext },
+            TResult
+        >(TemplateDialogComponent, { contentTemplate, contentTemplateContext }, args, insertAfterElement);
     }
-    openDialog<TData = any, TComponent = any>(component: Type<TComponent>, data: TData, args: IDialogArgs = {}, insertAfterElement?: HTMLElement): DialogRef {
+    openDialog<TComponent, TData, TResult>(component: Type<TComponent>, data: TData, args: IDialogArgs = {}, insertAfterElement?: HTMLElement): DialogRef<TResult> {
         let trappedFocus:
             | {
                   elements: {
@@ -151,7 +157,7 @@ export class DialogService {
         if (args.trapFocus) {
             trappedFocus = this.trapFocus();
         }
-        const dialogRef = new DialogRef();
+        const dialogRef = new DialogRefInternal<TResult>();
         // calculate new zIndex
         let zIndex = this.zIndex;
         if (this.dialogStack.length > 0) {
@@ -215,13 +221,13 @@ export class DialogService {
         return dialogRef;
     }
 
-    private createBackdrop(args: IDialogArgs, dialogRef: DialogRef, dialogZIndex: number, insertAfterElement?: HTMLElement): HTMLDivElement {
+    private createBackdrop(args: IDialogArgs, dialogRef: IDialogRef, dialogZIndex: number, insertAfterElement?: HTMLElement): HTMLDivElement {
         const backdrop = document.createElement('div');
         backdrop.classList.add('dialog-backdrop');
         backdrop.style.zIndex = (dialogZIndex - 1).toString();
         if (args.backdropCss) {
             Object.keys(args.backdropCss).forEach((key) => {
-                (backdrop.style as any)[key] = args.backdropCss![key];
+                (backdrop.style as unknown as Record<string, string>)[key] = args.backdropCss![key];
             });
         }
         if (insertAfterElement) {
@@ -230,7 +236,9 @@ export class DialogService {
             document.body.appendChild(backdrop);
         }
         if (args.closeOnBackdropClick) {
-            backdrop.onclick = () => { dialogRef.close(); };
+            backdrop.onclick = () => {
+                dialogRef.close();
+            };
         }
         return backdrop;
     }
@@ -270,14 +278,14 @@ export class DialogService {
         return componentRef.hostView;
     }
 
-    private createDialogElement(viewRef: ViewRef, args: IDialogArgs, injector: Injector, dialogRef: DialogRef, zIndex: number): HTMLElement {
-        const dialogElement = (viewRef as any).rootNodes[0] as HTMLElement;
+    private createDialogElement(viewRef: ViewRef, args: IDialogArgs, injector: Injector, dialogRef: IDialogRef, zIndex: number): HTMLElement {
+        const dialogElement = (viewRef as EmbeddedViewRef<unknown>).rootNodes[0] as HTMLElement;
         dialogElement.classList.add('dialog-container');
         dialogElement.style.zIndex = zIndex.toString();
 
         if (args.containerCss) {
             Object.keys(args.containerCss).forEach((key) => {
-                (dialogElement.style as any)[key] = args.containerCss![key];
+                (dialogElement.style as unknown as Record<string, string>)[key] = args.containerCss![key];
             });
         }
         if (args.header) {
@@ -292,10 +300,12 @@ export class DialogService {
                     environmentInjector: this.environmentInjector,
                     elementInjector: injector,
                 });
-                const iconElement = (iconRef.hostView as any).rootNodes[0] as HTMLElement;
+                const iconElement = (iconRef.hostView as EmbeddedViewRef<unknown>).rootNodes[0] as HTMLElement;
                 iconElement.textContent = 'close';
                 iconElement.setAttribute('tabindex', '0');
-                iconElement.addEventListener('click', () => { dialogRef.close(); });
+                iconElement.addEventListener('click', () => {
+                    dialogRef.close();
+                });
                 iconElement.addEventListener('keydown', (e: KeyboardEvent) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                         dialogRef.close();

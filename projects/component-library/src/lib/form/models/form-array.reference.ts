@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { FormGroup, ValidatorFn, AsyncValidatorFn } from '@angular/forms';
 import { FormArray, FormControl } from '@angular/forms';
 import type { ControlsOf } from '../types/controls-of';
-import { Primitive } from '../types/primitive';
+import { Primitive } from '../../common/types/primitive';
 import { AC, ACRegisterFunctions, ACTyped } from './abstract-control.reference';
 import { FC } from './form-control.reference';
 import type { FG } from './form-group.reference';

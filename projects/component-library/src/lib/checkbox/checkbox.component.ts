@@ -1,7 +1,7 @@
 import { NgIf } from '@angular/common';
-import type { Signal} from '@angular/core';
+import type { Signal } from '@angular/core';
 import { ChangeDetectionStrategy, Component, ContentChild, contentChild, ElementRef, forwardRef, Input, input, model, output, signal, ViewChild } from '@angular/core';
-import type { ControlValueAccessor} from '@angular/forms';
+import type { ControlValueAccessor } from '@angular/forms';
 import { CheckboxControlValueAccessor, FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { HintComponent } from '../common/hint';
 import { ErrorComponent } from '../common/error';
@@ -41,16 +41,16 @@ export class CheckboxComponent implements ControlValueAccessor {
     protected readonly $errorElement: Signal<ErrorComponent | undefined> = contentChild(ErrorComponent);
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    onChange = (value: any) => {};
+    onChange = (value: boolean) => {};
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     onTouched = () => {};
-    writeValue(value: any): void {
+    writeValue(value: boolean): void {
         this.$value.set(value);
     }
-    registerOnChange(fn: any): void {
+    registerOnChange(fn: (value: boolean) => void): void {
         this.onChange = fn;
     }
-    registerOnTouched(fn: any): void {
+    registerOnTouched(fn: () => void): void {
         this.onTouched = fn;
     }
     setDisabledState(isDisabled: boolean): void {

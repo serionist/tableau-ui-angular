@@ -22,7 +22,7 @@ export class AutoCompleteDirective implements OnDestroy {
             if (!el) {
                 return;
             }
-            el.value = option.$value();
+            el.value = option.$value()?.toString() ?? '';
             el.dispatchEvent(new Event('input', { bubbles: true }));
             autoComplete.closeDropdown();
         });

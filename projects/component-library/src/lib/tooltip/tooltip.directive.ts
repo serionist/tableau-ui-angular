@@ -9,7 +9,7 @@ import { Directive, Input, ElementRef, HostListener, input, inject, ViewContaine
 export class TooltipDirective<T> implements OnDestroy {
     private viewContainerRef = inject(ViewContainerRef);
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    readonly $tooltip: InputSignal<TemplateRef<T> | string | undefined | null> = input.required<TemplateRef<any> | string | undefined | null>({
+    readonly $tooltip: InputSignal<TemplateRef<T | undefined> | string | undefined | null> = input.required<TemplateRef<T | undefined> | string | undefined | null>({
         alias: 'tooltip',
     });
     readonly $tooltipContext = input<T>(undefined, {
@@ -60,7 +60,7 @@ export class TooltipDirective<T> implements OnDestroy {
         if (typeof this.$tooltip() === 'string') {
             this.tooltipElement.innerText = this.$tooltip() as string;
         } else {
-            const viewRef = (this.$tooltip() as TemplateRef<any>)!.createEmbeddedView(this.$tooltipContext() ?? {});
+            const viewRef = (this.$tooltip() as TemplateRef<T | undefined>)!.createEmbeddedView(this.$tooltipContext());
             this.viewContainerRef.insert(viewRef); // attach to view
             viewRef.detectChanges(); // trigger bindings
             viewRef.rootNodes.forEach((node) => {

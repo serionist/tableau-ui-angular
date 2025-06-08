@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { PipeTransform } from '@angular/core';
 import { Pipe } from '@angular/core';
 import type { Observable} from 'rxjs';

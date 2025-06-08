@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ExampleSnackComponent } from './example-snack.component';
-import type { SnackRef} from 'component-library';
+import type { SnackRef } from 'component-library';
 import { SnackService } from 'component-library';
 
 @Component({
@@ -13,8 +13,8 @@ import { SnackService } from 'component-library';
 export class SnacksPageComponent {
     snackService = inject(SnackService);
     async openCustomSnack(duration: number | undefined = 5000, type: 'info' | 'error' | 'success' = 'info', location: 'top' | 'bottom' = 'top') {
-        const snackRef = this.snackService.openSnackComponent(ExampleSnackComponent, { message: 'This is a custom snack compoenent' }, duration, type, location);
-        snackRef.afterClosed$.subscribe((result) => {
+        const snackRef = this.snackService.openSnackComponent<ExampleSnackComponent, { message: string }, string>(ExampleSnackComponent, { message: 'This is a custom snack compoenent' }, duration, type, location);
+        snackRef.closed$.subscribe((result) => {
             console.log('Snack closed with result:', result);
         });
     }

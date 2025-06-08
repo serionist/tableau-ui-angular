@@ -16,7 +16,7 @@ import { ThemeService } from 'component-library';
 export class AppComponent {
     public router = inject(Router);
     public route = inject(ActivatedRoute);
-    readonly page$: Observable<string> = this.router.events.pipe(
+    readonly page$: Observable<string | null> = this.router.events.pipe(
         filter((event) => event instanceof NavigationEnd),
         map(() => this.findRouteData(this.route.root, 'page')),
     );
@@ -29,7 +29,7 @@ export class AppComponent {
 
     version = LibVersion;
     // Recursive function to search route tree for specified data key
-    private findRouteData(route: ActivatedRoute, key: string): any {
+    private findRouteData(route: ActivatedRoute, key: string): string | null {
         let child = route;
         while (child) {
             if (child.snapshot.data && key in child.snapshot.data) {

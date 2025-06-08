@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, Inject, input, Input, model } from '@angular/core';
-import { SnackRef, TAB_SNACK_DATA_REF, TAB_SNACK_REF } from 'component-library';
+import { injectSnackData, injectSnackRef, SnackRef } from 'component-library';
 
 @Component({
     selector: 'app-example-snack',
@@ -14,8 +14,9 @@ import { SnackRef, TAB_SNACK_DATA_REF, TAB_SNACK_REF } from 'component-library';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExampleSnackComponent {
-    snackRef = inject(TAB_SNACK_REF);
-    snackData = inject<{ message: string }>(TAB_SNACK_DATA_REF);
+
+    snackRef = injectSnackRef<string>();
+    snackData = injectSnackData<{ message: string }>();
 
     closeDialog(): void {
         this.snackRef.close('Snack closed with this result');

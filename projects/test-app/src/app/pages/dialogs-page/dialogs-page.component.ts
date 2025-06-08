@@ -13,7 +13,7 @@ import { DialogService } from 'component-library';
 export class DialogsPageComponent {
     dialogService = inject(DialogService);
     openDialog(): void {
-        const dialogRef = this.dialogService.openModal(ExampleDialogComponent, 'This is a dynamic message!', {
+        const dialogRef = this.dialogService.openModal<ExampleDialogComponent, string, string>(ExampleDialogComponent, 'This is a dynamic message!', {
             width: 'calc(100vw - 100px)',
             height: 'fit-content',
             closeOnBackdropClick: true,
@@ -41,7 +41,7 @@ export class DialogsPageComponent {
         console.log('Confirmation dialog returned: ', dialogRef);
     }
     async openConfirmationTemplateDialog(
-        template: TemplateRef<any>,
+        template: TemplateRef<unknown>,
         color: 'primary' | 'error' | 'secondary' = 'secondary',
         autofocus: 'accept' | 'cancel' | undefined,
         acceptBtnText?: string  ,

@@ -1,6 +1,7 @@
 import type { OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import type { Primitive} from 'component-library';
 import { SnackService } from 'component-library';
 
 @Component({
@@ -16,7 +17,7 @@ export class CheckboxPageComponent implements OnInit {
     simpleValue1 = true;
     simpleValue2 = false;
 
-    valueChanged(value: any, name: string, type: 'info' | 'error' = 'info') {
+    valueChanged(value: Primitive, name: string, type: 'info' | 'error' = 'info') {
         console.log(`Value changed for ${name}:`, value);
         this.snackService.openSnack(`${name} set to: ${value}`, 3000, type);
     }

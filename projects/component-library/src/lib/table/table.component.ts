@@ -144,7 +144,7 @@ export class TableComponent implements AfterViewInit, OnDestroy {
      * If a TemplateRef is provided, it will be used as the no data template.
      * @default 'default'
      */
-    readonly $noDataTemplate = input<TemplateRef<any> | 'default'>('default', {
+    readonly $noDataTemplate = input<TemplateRef<unknown> | 'default'>('default', {
         alias: 'noDataTemplate',
     });
 

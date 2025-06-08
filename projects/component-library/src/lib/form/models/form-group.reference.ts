@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { AsyncValidatorFn, ValidatorFn } from '@angular/forms';
 import { AbstractControl, FormControl, FormGroup } from '@angular/forms';
 
@@ -8,7 +9,7 @@ import { ACRegisterFunctions, ACTyped } from './abstract-control.reference';
 import type { Observable, Subscription } from 'rxjs';
 import { BehaviorSubject, combineLatest, distinctUntilChanged, filter, map, pairwise, startWith } from 'rxjs';
 import type { DeepPartial } from '../types/deep-partial';
-import type { Primitive } from '../types/primitive';
+import type { Primitive } from '../../common/types/primitive';
 import type { FC } from './form-control.reference';
 import type { WritableSignal } from '@angular/core';
 import { signal } from '@angular/core';

@@ -15,5 +15,4 @@ export * from './models/abstract-control.reference';
 export type * from './types/controls-of';
 export type * from './types/form-references-of';
 export type * from './types/deep-partial';
-export type * from './types/primitive';
 export type * from './types/readonly-behaviorsubject';

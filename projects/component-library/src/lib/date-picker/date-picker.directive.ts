@@ -1,6 +1,6 @@
-import type { ModelSignal} from '@angular/core';
+import type { ModelSignal } from '@angular/core';
 import { ChangeDetectionStrategy, Component, Directive, effect, ElementRef, forwardRef, HostListener, inject, input, model, output, signal } from '@angular/core';
-import type { ControlValueAccessor} from '@angular/forms';
+import type { ControlValueAccessor } from '@angular/forms';
 import { FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Directive({
@@ -35,20 +35,20 @@ export class DatePickerDirective implements ControlValueAccessor {
         }
     });
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    readonly $value: ModelSignal<Date | null> = model<Date | null>(null, {
+    readonly $value: ModelSignal<Date | undefined> = model<Date | undefined>(undefined, {
         alias: 'value',
     });
-    readonly valueChange = output<Date | null>();
+    readonly valueChange = output<Date | undefined>();
 
     @HostListener('input')
     onInput() {
-        let val: Date | null = null;
+        let val: Date | undefined = undefined;
         if (!this.el.nativeElement.value) {
-            val = null;
+            val = undefined;
         } else {
             const date = new Date(this.el.nativeElement.value);
             if (isNaN(date.getTime())) {
-                val = null;
+                val = undefined;
             } else {
                 val = date;
             }
@@ -63,7 +63,7 @@ export class DatePickerDirective implements ControlValueAccessor {
         this._onTouched();
     }
 
-    writeValue(obj: any): void {
+    writeValue(obj: Date): void {
         if (obj instanceof Date && !isNaN(obj.getTime())) {
             if (this.$type() === 'datetime') {
                 const year = obj.getFullYear();
@@ -83,13 +83,13 @@ export class DatePickerDirective implements ControlValueAccessor {
         }
     }
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    private _onChange: any = () => {};
+    private _onChange = (value: Date | undefined) => {};
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    private _onTouched: any = () => {};
-    registerOnChange(fn: any): void {
+    private _onTouched = () => {};
+    registerOnChange(fn: (date: Date | undefined) => void): void {
         this._onChange = fn;
     }
-    registerOnTouched(fn: any): void {
+    registerOnTouched(fn: () => void): void {
         this._onTouched = fn;
     }
     setDisabledState?(isDisabled: boolean): void {
