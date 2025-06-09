@@ -1,10 +1,10 @@
 import type { Signal } from '@angular/core';
 import { ChangeDetectionStrategy, Component, inject, Inject, input, Input, model, signal } from '@angular/core';
-import { DialogRef, DialogService, injectDialogData, injectDialogRef } from 'component-library';
+import { DialogService, injectDialogData, injectDialogRef } from 'tableau-ui-angular/dialog';
 
 @Component({
     selector: 'app-example-dialog',
-    standalone: false,
+    standalone: true,
     template: `
         <!-- eslint-disable  @angular-eslint/template/no-inline-styles -->
         <div
@@ -18,6 +18,7 @@ import { DialogRef, DialogService, injectDialogData, injectDialogRef } from 'com
             <button (click)="closeDialog()">Close</button>
         </div>
     `,
+    providers: [DialogService],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExampleDialogComponent {

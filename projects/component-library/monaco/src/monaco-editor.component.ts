@@ -5,10 +5,10 @@
 import { Component, ChangeDetectionStrategy, forwardRef, viewChild, ElementRef, AfterViewInit, OnDestroy, inject, input, model, signal, effect } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MonacoLoaderService } from './monaco-loader.service';
-
+import type {editor} from 'monaco-editor'
 @Component({
     selector: 'tab-monaco-editor',
-    standalone: false,
+    standalone: true,
     template: `
         <div #editorContainer class="editor-container"></div>
     `,
@@ -36,7 +36,7 @@ export class MonacoEditorComponent implements AfterViewInit, OnDestroy, ControlV
     private readonly $editorContainer = viewChild.required<ElementRef<HTMLElement>>('editorContainer');
     private readonly loader = inject(MonacoLoaderService);
 
-    readonly options = input.required<any>();
+    readonly options = input.required<editor.IEditorConstructionOptions>();
     readonly overrideServices = input<any>();
     private readonly value = signal<string>('');
 

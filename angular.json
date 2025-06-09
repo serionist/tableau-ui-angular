@@ -42,7 +42,7 @@
       "schematics": {
         "@schematics/angular:component": {
           "style": "scss",
-          "standalone": false
+          "standalone": true
         }
       },
       "architect": {
@@ -100,7 +100,7 @@
       "schematics": {
         "@schematics/angular:component": {
           "style": "scss",
-          "standalone": false
+          "standalone": true
         }
       },
       "root": "projects/test-app",

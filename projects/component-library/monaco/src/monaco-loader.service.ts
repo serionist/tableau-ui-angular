@@ -4,19 +4,19 @@ import { Injectable } from '@angular/core';
     providedIn: 'root',
 })
 export class MonacoLoaderService {
-    private readonly loaded = false;
+    private loaded = false;
 
-    // async loadMonaco(): Promise<unknown> {
-    //     if (this.loaded) {
-    //         return import('monaco-editor');
-    //     }
-    //     this.loaded = true;
+    async loadMonaco(): Promise<unknown> {
+        if (this.loaded) {
+            return import('monaco-editor');
+        }
+        this.loaded = true;
 
-    //     // Load the monaco editor
-    //     const monaco = await import('monaco-editor');
+        // Load the monaco editor
+        const monaco = await import('monaco-editor');
 
-    //     this.loaded = true;
+        this.loaded = true;
 
-    //     return monaco;
-    // }
+        return monaco;
+    }
 }

@@ -1,31 +1,63 @@
 import { ChangeDetectionStrategy, Component, ResourceLoader, ResourceLoaderParams, signal, viewChild } from '@angular/core';
 import { small_data, data } from './table-data-sample';
-import type { DataRequest, DataResponse, HeaderContext } from 'component-library';
-import { TableComponent } from 'component-library';
+import type { DataRequest, DataResponse, HeaderContext} from 'tableau-ui-angular/table';
+import { CellDefDirective, ColumnDefDirective, HeaderDefDirective, TableComponent } from 'tableau-ui-angular/table';
+import { importSeparator } from 'tableau-ui-angular/common/imports';
+import { importCheckbox } from 'tableau-ui-angular/checkbox/imports';
+import { importButton } from 'tableau-ui-angular/button/imports';
+import { CommonModule } from '@angular/common';
+import { importTable } from 'tableau-ui-angular/table/imports';
+import type { ImportModel } from '../../components/import-details/import-model';
+import { ImportDetailsComponent } from "../../components/import-details/import-details.component";
 
 @Component({
     selector: 'app-table-page',
-    standalone: false,
+    imports: [...importSeparator(), ...importCheckbox(), ...importButton(),
+    CommonModule, TableComponent, HeaderDefDirective, ColumnDefDirective, CellDefDirective, ...importTable(), ImportDetailsComponent],
+    standalone: true,
     templateUrl: './table-page.component.html',
     styleUrl: './table-page.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TablePageComponent {
+
+    imports: ImportModel = {
+        name: 'Table',
+        providerImports: [
+            {
+                name: 'TableComponent',
+                from: 'tableau-ui-angular/table',
+                info: 'Component for displaying tabular data with sorting, filtering, and pagination.',
+            },
+            {
+                name: 'HeaderDefDirective',
+                from: 'tableau-ui-angular/table',
+                info: 'Directive for defining table headers.',
+            },
+            {
+                name: 'ColumnDefDirective',
+                from: 'tableau-ui-angular/table',
+                info: 'Directive for defining table columns.',
+            },
+            {
+                name: 'CellDefDirective',
+                from: 'tableau-ui-angular/table',
+                info: 'Directive for defining table cells.',
+            },
+        ],
+        providerImportFunctions: [
+            {
+                name: 'importTable',
+                from: 'tableau-ui-angular/table/imports',
+                info: 'Imports the Table component and its related directives.',
+            },
+        ],
+    }
     readonly $show_first_3_columns = signal(false);
     readonly $striped = signal(false);
     readonly $showData = signal(true);
     readonly $errorOnData = signal(false);
     readonly $customNoDataTemplate = signal(false);
-
-    // async loadData(params: ResourceLoaderParams<DataTrigger>): Promise<DataResponse> {
-    //     console.log('Triggered stuff', params);
-    //     return {
-    //         count: 0,
-    //         offset: 0,
-    //         totalCount: 0,
-    //         data: []
-    //     }
-    // }
 
     loadBlock: (req: DataRequest) => Promise<DataResponse<DataType>> = async (req: DataRequest) => {
         console.log('Loading data block with request:', req);

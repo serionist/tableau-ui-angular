@@ -8,21 +8,9 @@
     <tab-separator />
     <div class="content">
         <div class="section">
-            <h3>Module</h3>
-            <p>To use the component, import one of the following modules into your module/component:</p>
+            <h3>Buttons</h3>
+            <app-import-details [model]="buttonsImport" />
 
-            <ul>
-                <li>
-                    <code>TableauUiButtonModule</code>
-                    - for granular import
-                </li>
-                <li>
-                    <code>TableauUiAllModule</code>
-                    - to import all components from this library
-                </li>
-            </ul>
-        </div>
-        <div class="section">
             <h3>Button examples</h3>
             <div class="section">
                 <h4>Layout: primary</h4>
@@ -155,7 +143,9 @@
             </div>
         </div>
         <div class="section">
-            <h3>Button Toggle examples</h3>
+            <h3>Toggle Button</h3>
+            <app-import-details [model]="buttonsImport" />
+            <h3>Toggle Button examples</h3>
             <div class="section">
                 <p>Icons only</p>
                 <tab-button-toggle [(selectedValue)]="buttonToggleValue">
@@ -179,6 +169,11 @@
                     <tab-option value="justify" icon="format_align_justify" text="Justify" />
                 </tab-button-toggle>
             </div>
+        </div>
+        <div class="section">
+            <h3>All Buttons</h3>
+            <div>You can optionally use the following imports to use both button types from the same component</div>
+            <app-import-details [model]="buttonsImport" />
         </div>
     </div>
 </div>

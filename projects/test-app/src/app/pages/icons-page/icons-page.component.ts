@@ -1,9 +1,12 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { MonacoHelper } from '../../helpers/monaco.helper';
+import { importSeparator } from 'tableau-ui-angular/common/imports';
+import { importIcons } from 'tableau-ui-angular/icon/imports';
 
 @Component({
     selector: 'app-icons-page',
-    standalone: false,
+    imports: [...importSeparator(), ...importIcons()],
+    standalone: true,
     templateUrl: './icons-page.component.html',
     styleUrl: './icons-page.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,

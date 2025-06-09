@@ -1,8 +1,10 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { MonacoHelper } from '../../helpers/monaco.helper';
+import { importSeparator } from 'tableau-ui-angular/common/imports';
 @Component({
     selector: 'app-home-page',
-    standalone: false,
+    imports: [...importSeparator()],
+    standalone: true,
     templateUrl: './home-page.component.html',
     styleUrl: './home-page.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,

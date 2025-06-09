@@ -1,14 +1,22 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, TemplateRef, viewChild, ViewContainerRef } from '@angular/core';
-import { ActivatedRoute, NavigationEnd, Router, RouterOutlet, RouterState } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router, RouterModule, RouterOutlet, RouterState } from '@angular/router';
 import type { Observable } from 'rxjs';
 import { filter, map, switchMap } from 'rxjs';
 import { version as LibVersion } from '../../../component-library/package.json';
-import type { MenuComponent, Primitive } from 'component-library';
-import { ThemeService } from 'component-library';
-
+import { ThemeService } from 'tableau-ui-angular/theme';
+import type { MenuComponent } from 'tableau-ui-angular/menu';
+import type { Primitive } from 'tableau-ui-angular/types';
+import { importMenu } from 'tableau-ui-angular/menu/imports';
+import { importLabel, importOption, importSeparator } from 'tableau-ui-angular/common/imports';
+import { importNavBar } from 'tableau-ui-angular/nav-bar/imports';
+import { importIcons } from 'tableau-ui-angular/icon/imports';
+import { CommonModule } from '@angular/common';
+import { importAllButtons, importButtonToggle } from 'tableau-ui-angular/button/imports';
+import { importFormField } from 'tableau-ui-angular/form-field/imports';
 @Component({
     selector: 'app-root',
-    standalone: false,
+    imports: [...importMenu(), ...importLabel(), ...importNavBar(), ...importIcons(), CommonModule, ...importSeparator(), ...importAllButtons(), ...importOption(), ...importFormField(), RouterModule, ...importMenu()],
+    standalone: true,
     templateUrl: './app.component.html',
     styleUrl: './app.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, inject, Inject, input, Input, model } from '@angular/core';
-import { injectSnackData, injectSnackRef, SnackRef } from 'component-library';
+import { injectSnackData, injectSnackRef } from 'tableau-ui-angular/snack';
 
 @Component({
     selector: 'app-example-snack',
-    standalone: false,
+    standalone: true,
     template: `
         <div class="dialog-content">
             <h2>Example Snack</h2>
