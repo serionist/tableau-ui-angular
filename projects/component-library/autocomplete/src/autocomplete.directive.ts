@@ -4,7 +4,7 @@ import type { Subscription } from 'rxjs';
 import type { AutoCompleteComponent } from './autocomplete.component';
 @Directive({
     selector: 'input[tabAutoComplete]',
-    standalone: true,
+    standalone: false,
 })
 export class AutoCompleteDirective implements OnDestroy {
     private readonly ref = inject<ElementRef<HTMLInputElement>>(ElementRef);

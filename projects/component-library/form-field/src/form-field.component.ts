@@ -5,7 +5,7 @@ import { generateRandomString } from 'tableau-ui-angular/utils';
 
 @Component({
     selector: 'tab-form-field',
-    standalone: true,
+    standalone: false,
     templateUrl: './form-field.component.html',
     styleUrl: './form-field.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,

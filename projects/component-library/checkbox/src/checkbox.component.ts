@@ -6,7 +6,7 @@ import { CheckboxControlValueAccessor, FormControl, NG_VALUE_ACCESSOR } from '@a
 import { ErrorComponent, HintComponent } from 'tableau-ui-angular/common';
 @Component({
     selector: 'tab-checkbox',
-    standalone: true,
+    standalone: false,
     templateUrl: './checkbox.component.html',
     styleUrl: 'checkbox.component.scss',
     providers: [

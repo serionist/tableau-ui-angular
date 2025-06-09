@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, ElementRef } from '@angular/core';
 
 @Component({
     selector: 'tab-label',
-    standalone: true,
+    standalone: false,
     template: `
         <ng-content />
     `,

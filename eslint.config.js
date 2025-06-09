@@ -370,7 +370,7 @@ module.exports = tseslint.config(
             //Use readonly signals instead of @Input(), @ViewChild() and other legacy decorators
             '@angular-eslint/prefer-signals': 'error',
             //Ensures Components, Directives and Pipes do not opt out of standalone.
-            '@angular-eslint/prefer-standalone': 'error',
+            '@angular-eslint/prefer-standalone': 'off',
             //The ./ and ../ prefix is standard syntax for relative URLs; don't depend on Angular's current ability to do without that prefix. See more at https://angular.dev/style-guide#style-05-04
             '@angular-eslint/relative-url-prefix': 'error',
             //Ensures that lifecycle methods are defined on the object's prototype instead of on an instance.

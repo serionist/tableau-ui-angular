@@ -8,7 +8,7 @@ import type { DataSort } from '../../sorting/data-sort';
 
 @Directive({
     selector: '[tabColumnDef]',
-    standalone: true,
+    standalone: false,
 })
 export class ColumnDefDirective {
     /**

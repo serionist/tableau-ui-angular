@@ -13,8 +13,7 @@ import { CommonModule } from '@angular/common';
 
 @Component({
     selector: 'tab-autocomplete',
-    imports: [CommonModule],
-    standalone: true,
+    standalone: false,
     templateUrl: './autocomplete.component.html',
     styleUrl: './autocomplete.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,

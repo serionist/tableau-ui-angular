@@ -27,3 +27,5 @@ export * from './pipes/value/form-array-value.pipe';
 export * from './pipes/value/form-control-value.pipe';
 export * from './pipes/value/form-group-value.pipe';
 export * from './pipes/form-array-controls.pipe';
+
+export * from './tableau-ui-form.module';

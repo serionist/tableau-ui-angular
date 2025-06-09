@@ -6,48 +6,59 @@
     <tab-separator />
     <div class="content">
         <div class="section">
-            <h3>Menu</h3>
+            <h3>Module</h3>
+            <p>To use the component, import one of the following modules into your module/component:</p>
 
-            <app-import-details [model]="menuImport" />
-
-            <button color="primary" [menu]="simpleMenu">Click me to show a simple menu</button>
-
-            <tab-menu #simpleMenu>I have simple content</tab-menu>
+            <ul>
+                <li>
+                    <code>TableauUiMenuModule</code>
+                    - for granular import
+                </li>
+                <li>
+                    <code>TableauUiAllModule</code>
+                    - to import all components from this library
+                </li>
+            </ul>
         </div>
         <div class="section">
-            <h3>Button Menu</h3>
-            <app-import-details [model]="buttonMenuImport" />
-            <button color="secondary" [menu]="menu1" (click)="menu1.open()">Button menu</button>
-            <tab-button-menu #menu1 width="fit-content">
-                <tab-menu-button-group #group>
-                    <tab-menu-button color="secondary" (click)="snack.openSnack('haha clicked', 3000)">haha</tab-menu-button>
-                    <tab-menu-button color="primary" tab-menu-button (click)="snack.openSnack('This is a much longer text clicked', 3000)">
-                        This is a much longer text
+            <h3>Examples</h3>
+            <p>The following examples demonstrate the usage of the menu component.</p>
+            <div class="two spacer">
+                <button color="primary" [menu]="simpleMenu">Click me to show a simple menu</button>
+
+                <tab-menu #simpleMenu>I have simple content</tab-menu>
+                <button color="secondary" [menu]="menu1" (click)="menu1.open()">Button menu</button>
+                <tab-button-menu #menu1 width="fit-content">
+                    <tab-menu-button-group #group>
                         <tab-menu-button color="secondary" (click)="snack.openSnack('haha clicked', 3000)">haha</tab-menu-button>
-                        <tab-menu-button color="primary" tab-menu-button (click)="snack.openSnack('This is a much longer text clicked', 3000)">This is a much longer text</tab-menu-button>
-                        <tab-menu-button tab-menu-button color="secondary" [disabled]="true" (click)="snack.openSnack('Disabled clicked', 3000)">Disabled</tab-menu-button>
-                        <tab-menu-button color="error" tab-menu-button (click)="snack.openSnack('stuff clicked', 3000)">
-                            stuff
-                            <tab-menu-button color="secondary">haha</tab-menu-button>
+                        <tab-menu-button color="primary" tab-menu-button (click)="snack.openSnack('This is a much longer text clicked', 3000)">
+                            This is a much longer text
+                            <tab-menu-button color="secondary" (click)="snack.openSnack('haha clicked', 3000)">haha</tab-menu-button>
                             <tab-menu-button color="primary" tab-menu-button (click)="snack.openSnack('This is a much longer text clicked', 3000)">This is a much longer text</tab-menu-button>
                             <tab-menu-button tab-menu-button color="secondary" [disabled]="true" (click)="snack.openSnack('Disabled clicked', 3000)">Disabled</tab-menu-button>
                             <tab-menu-button color="error" tab-menu-button (click)="snack.openSnack('stuff clicked', 3000)">
                                 stuff
-                                <tab-menu-button color="secondary" (click)="snack.openSnack('haha clicked', 3000)">haha</tab-menu-button>
+                                <tab-menu-button color="secondary">haha</tab-menu-button>
                                 <tab-menu-button color="primary" tab-menu-button (click)="snack.openSnack('This is a much longer text clicked', 3000)">This is a much longer text</tab-menu-button>
                                 <tab-menu-button tab-menu-button color="secondary" [disabled]="true" (click)="snack.openSnack('Disabled clicked', 3000)">Disabled</tab-menu-button>
-                                <tab-menu-button color="error" tab-menu-button (click)="snack.openSnack('stuff clicked', 3000)">stuff</tab-menu-button>
+                                <tab-menu-button color="error" tab-menu-button (click)="snack.openSnack('stuff clicked', 3000)">
+                                    stuff
+                                    <tab-menu-button color="secondary" (click)="snack.openSnack('haha clicked', 3000)">haha</tab-menu-button>
+                                    <tab-menu-button color="primary" tab-menu-button (click)="snack.openSnack('This is a much longer text clicked', 3000)">This is a much longer text</tab-menu-button>
+                                    <tab-menu-button tab-menu-button color="secondary" [disabled]="true" (click)="snack.openSnack('Disabled clicked', 3000)">Disabled</tab-menu-button>
+                                    <tab-menu-button color="error" tab-menu-button (click)="snack.openSnack('stuff clicked', 3000)">stuff</tab-menu-button>
+                                    <tab-menu-button color="primary" tab-menu-button [disabled]="true" (click)="snack.openSnack('Disabled primary clicked', 3000)">Disabled primary</tab-menu-button>
+                                </tab-menu-button>
                                 <tab-menu-button color="primary" tab-menu-button [disabled]="true" (click)="snack.openSnack('Disabled primary clicked', 3000)">Disabled primary</tab-menu-button>
                             </tab-menu-button>
                             <tab-menu-button color="primary" tab-menu-button [disabled]="true" (click)="snack.openSnack('Disabled primary clicked', 3000)">Disabled primary</tab-menu-button>
                         </tab-menu-button>
+                        <tab-menu-button tab-menu-button color="secondary" [disabled]="true" (click)="snack.openSnack('Disabled clicked', 3000)">Disabled</tab-menu-button>
+                        <tab-menu-button color="error" tab-menu-button (click)="snack.openSnack('stuff clicked', 3000)">stuff</tab-menu-button>
                         <tab-menu-button color="primary" tab-menu-button [disabled]="true" (click)="snack.openSnack('Disabled primary clicked', 3000)">Disabled primary</tab-menu-button>
-                    </tab-menu-button>
-                    <tab-menu-button tab-menu-button color="secondary" [disabled]="true" (click)="snack.openSnack('Disabled clicked', 3000)">Disabled</tab-menu-button>
-                    <tab-menu-button color="error" tab-menu-button (click)="snack.openSnack('stuff clicked', 3000)">stuff</tab-menu-button>
-                    <tab-menu-button color="primary" tab-menu-button [disabled]="true" (click)="snack.openSnack('Disabled primary clicked', 3000)">Disabled primary</tab-menu-button>
-                </tab-menu-button-group>
-            </tab-button-menu>
+                    </tab-menu-button-group>
+                </tab-button-menu>
+            </div>
         </div>
     </div>
 </div>

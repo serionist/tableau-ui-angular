@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { MonacoHelper } from '../../helpers/monaco.helper';
-import { importSeparator } from 'tableau-ui-angular/common/imports';
+import { TableauUiCommonModule } from 'tableau-ui-angular/common';
 
 @Component({
     selector: 'app-local-development',
-    imports: [...importSeparator()],
+    imports: [TableauUiCommonModule],
     standalone: true,
     templateUrl: './local-development.component.html',
     styleUrl: './local-development.component.scss',

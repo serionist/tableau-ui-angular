@@ -4,7 +4,7 @@ import type { Observable } from 'rxjs';
 import { BehaviorSubject } from 'rxjs';
 @Directive({
     selector: '[colRenderedWidth]',
-    standalone: true,
+    standalone: false,
 })
 export class ColRenderedWidthDirective implements OnDestroy, AfterViewInit {
     readonly columnId = input.required<string>({

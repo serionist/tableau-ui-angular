@@ -5,7 +5,7 @@ import type { Primitive } from 'tableau-ui-angular/types';
 
 @Pipe({
     name: 'formControlValue',
-    standalone: true,
+    standalone: false,
     pure: true,
 })
 export class FormControlValuePipe implements PipeTransform {

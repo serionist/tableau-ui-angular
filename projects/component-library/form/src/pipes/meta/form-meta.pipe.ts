@@ -7,7 +7,7 @@ import type { AC } from '../../models/abstract-control/interfaces';
 
 @Pipe({
     name: 'formMeta',
-    standalone: true,
+    standalone: false,
     pure: true,
 })
 export class FormMetaPipe implements PipeTransform {

@@ -6,7 +6,7 @@ import { debounceTime, map, of } from 'rxjs';
 
 @Pipe({
     name: 'cellWidth',
-    standalone: true,
+    standalone: false,
 })
 export class CellWidthPipe implements PipeTransform {
     transform(directives: readonly ColRenderedWidthDirective[], colId: string, padding: string): Observable<string> {

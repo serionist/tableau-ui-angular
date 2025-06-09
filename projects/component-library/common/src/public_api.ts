@@ -6,3 +6,4 @@ export * from './prefix';
 export * from './suffix';
 export * from './loading-gif.component';
 export * from './label';
+export * from './tableau-ui-common.module';

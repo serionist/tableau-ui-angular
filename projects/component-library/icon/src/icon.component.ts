@@ -4,7 +4,7 @@ import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { combineLatest, map } from 'rxjs';
 @Component({
     selector: 'tab-icon',
-    standalone: true,
+    standalone: false,
     template: `
         {{ $value() }}
     `,

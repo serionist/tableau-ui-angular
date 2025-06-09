@@ -1,17 +1,11 @@
 import type { ElementRef, InputSignal, OnDestroy, TemplateRef, WritableSignal } from '@angular/core';
 import { AfterViewInit, ChangeDetectionStrategy, Component, contentChild, contentChildren, effect, HostListener, inject, input, output, signal, viewChild } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
-import { BehaviorSubject } from 'rxjs';
-import { MenuButtonGroupComponent } from './menu-button-group.component';
-import { MenuComponent } from './menu.component';
-import { CommonModule } from '@angular/common';
-import { IconComponent } from 'tableau-ui-angular/icon';
+
 import { generateRandomString } from 'tableau-ui-angular/utils';
 
 @Component({
     selector: 'tab-menu-button',
-    imports: [CommonModule, IconComponent],
-    standalone: true,
+    standalone: false,
     template: `
         <ng-template #template>
             <div

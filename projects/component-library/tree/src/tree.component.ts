@@ -5,8 +5,7 @@ import { TreeNodeRegistry } from './tree-node-registry';
 import { CommonModule } from '@angular/common';
 @Component({
     selector: 'tab-tree',
-    imports: [CommonModule],
-    standalone: true,
+    standalone: false,
     templateUrl: './tree.component.html',
     styleUrl: './tree.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,

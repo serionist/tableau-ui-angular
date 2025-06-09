@@ -3,3 +3,4 @@ export * from './menu.directive';
 export * from './menu-button.component';
 export * from './menu-button-group.component';
 export * from './button.menu.component';
+export * from './tableau-ui-menu.module';

@@ -3,7 +3,7 @@ import { Pipe } from '@angular/core';
 
 @Pipe({
     name: 'colWidth',
-    standalone: true,
+    standalone: false,
 })
 export class ColWidthPipe implements PipeTransform {
     transform(value: number | string | undefined, mode: 'flexGrowOnly' | 'width' | 'widthUnitsOnly'): string {

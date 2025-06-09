@@ -3,13 +3,9 @@ import { ChangeDetectionStrategy, Component, inject, model, ModelSignal } from '
 import type { SnackRef } from './snack.ref';
 import { injectSnackRef, TAB_SNACK_REF } from './snack.ref';
 import { TAB_SNACK_DATA_REF } from './data.ref';
-import { IconComponent } from 'tableau-ui-angular/icon';
-import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
 @Component({
     selector: 'tab-snack',
-    imports: [IconComponent, CommonModule, RouterModule],
-    standalone: true,
+    standalone: false,
     template: `
         <div class="snack-content" [ngClass]="data.type">
             <div class="content">

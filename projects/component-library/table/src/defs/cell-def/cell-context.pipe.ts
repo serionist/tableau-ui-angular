@@ -5,7 +5,7 @@ import type { CellContext } from './cell-context';
 
 @Pipe({
     name: 'cellContext',
-    standalone: true,
+    standalone: false,
 })
 export class CellContextPipe implements PipeTransform {
     transform<T>(

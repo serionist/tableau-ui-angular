@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, ElementRef, inject } from '@angular
 
 @Component({
     selector: 'tab-suffix',
-    standalone: true,
+    standalone: false,
     template: `
         <ng-content />
     `,

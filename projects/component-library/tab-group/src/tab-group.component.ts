@@ -7,8 +7,7 @@ import { IconComponent } from 'tableau-ui-angular/icon';
 
 @Component({
     selector: 'tab-group',
-    imports: [ArrowScrollComponent, IconComponent, CommonModule],
-    standalone: true,
+    standalone: false,
     templateUrl: './tab-group.component.html',
     styleUrl: './tab-group.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,

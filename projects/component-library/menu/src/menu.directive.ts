@@ -3,7 +3,7 @@ import type { MenuComponent } from './menu.component';
 
 @Directive({
     selector: '[menu]',
-    standalone: true,
+    standalone: false,
 })
 export class MenuDirective {
     readonly $menu = input.required<MenuComponent>({

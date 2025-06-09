@@ -5,7 +5,7 @@ import type { HeaderContext } from './header-context';
 
 @Pipe({
     name: 'headerContext',
-    standalone: true,
+    standalone: false,
 })
 export class HeaderContextPipe implements PipeTransform {
     transform(value: ColumnDefDirective, index: number, first: boolean, last: boolean, even: boolean, odd: boolean, count: number): HeaderContext {

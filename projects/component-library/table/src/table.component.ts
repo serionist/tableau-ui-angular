@@ -27,22 +27,10 @@ import { ColRenderedWidthDirective } from './column-widths/col-rendered-width.di
 import { DataManager } from './data/data-manager';
 import type { DataRequest } from './data/data-request';
 import type { DataResponse } from './data/data-response';
-import { HeaderContextPipe } from './defs/header-def/header-context.pipe';
-import { ColWidthPipe } from './column-widths/col-width.pipe';
-import { HeaderClassPipe } from './defs/header-def/header-class.pipe';
-import { CommonModule } from '@angular/common';
-import { TooltipDirective } from 'tableau-ui-angular/tooltip';
-import { SortInfoPipe } from './sorting/sort-info-pipe';
-import { IconComponent } from 'tableau-ui-angular/icon';
-import { ResizerDirective } from './column-widths/resizer.directive';
-import { CellContextPipe } from './defs/cell-def/cell-context.pipe';
-import { CellWidthPipe } from './column-widths/cell-width.pipe';
-import { CellClassPipe } from './defs/cell-def/cell-class.pipe';
 
 @Component({
     selector: 'tab-table',
-    imports: [HeaderContextPipe, ColWidthPipe, HeaderClassPipe, ColRenderedWidthDirective, CommonModule, TooltipDirective, SortInfoPipe, IconComponent, ResizerDirective, CellContextPipe, CellWidthPipe, CellClassPipe],
-    standalone: true,
+    standalone: false,
     templateUrl: './table.component.html',
     styleUrl: './table.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,

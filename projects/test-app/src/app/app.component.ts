@@ -4,18 +4,17 @@ import type { Observable } from 'rxjs';
 import { filter, map, switchMap } from 'rxjs';
 import { version as LibVersion } from '../../../component-library/package.json';
 import { ThemeService } from 'tableau-ui-angular/theme';
-import type { MenuComponent } from 'tableau-ui-angular/menu';
+import { TableauUiMenuModule, type MenuComponent } from 'tableau-ui-angular/menu';
 import type { Primitive } from 'tableau-ui-angular/types';
-import { importMenu } from 'tableau-ui-angular/menu/imports';
-import { importLabel, importOption, importSeparator } from 'tableau-ui-angular/common/imports';
-import { importNavBar } from 'tableau-ui-angular/nav-bar/imports';
-import { importIcons } from 'tableau-ui-angular/icon/imports';
 import { CommonModule } from '@angular/common';
-import { importAllButtons, importButtonToggle } from 'tableau-ui-angular/button/imports';
-import { importFormField } from 'tableau-ui-angular/form-field/imports';
+import { TableauUiNavBarModule } from 'tableau-ui-angular/nav-bar';
+import { TableauUiIconModule } from 'tableau-ui-angular/icon';
+import { TableauUiCommonModule } from 'tableau-ui-angular/common';
+import { TableauUiButtonModule } from 'tableau-ui-angular/button';
+import { TableauUiFormFieldModule } from 'tableau-ui-angular/form-field';
 @Component({
     selector: 'app-root',
-    imports: [...importMenu(), ...importLabel(), ...importNavBar(), ...importIcons(), CommonModule, ...importSeparator(), ...importAllButtons(), ...importOption(), ...importFormField(), RouterModule, ...importMenu()],
+    imports: [CommonModule, RouterModule, TableauUiNavBarModule, TableauUiIconModule, TableauUiCommonModule, TableauUiMenuModule, TableauUiButtonModule, TableauUiFormFieldModule],
     standalone: true,
     templateUrl: './app.component.html',
     styleUrl: './app.component.scss',

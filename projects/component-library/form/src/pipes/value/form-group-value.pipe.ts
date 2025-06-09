@@ -6,7 +6,7 @@ import type { DeepPartial } from 'tableau-ui-angular/types';
 
 @Pipe({
     name: 'formGroupValue',
-    standalone: true,
+    standalone: false,
     pure: true,
 })
 export class FormGroupValuePipe implements PipeTransform {

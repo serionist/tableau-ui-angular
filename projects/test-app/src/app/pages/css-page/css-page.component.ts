@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { MonacoHelper } from '../../helpers/monaco.helper';
-import { importSeparator } from 'tableau-ui-angular/common/imports';
+import { TableauUiCommonModule } from 'tableau-ui-angular/common';
 
 @Component({
     selector: 'app-css-page',
-    imports: [...importSeparator()],
+    imports: [TableauUiCommonModule],
     standalone: true,
     templateUrl: './css-page.component.html',
     styleUrl: './css-page.component.scss',

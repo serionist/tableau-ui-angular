@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
 @Component({
     selector: 'tab-separator',
-    standalone: true,
+    standalone: false,
     template: ``,
     styles: `
         :host {

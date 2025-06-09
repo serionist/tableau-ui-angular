@@ -8,7 +8,7 @@ import { MonacoLoaderService } from './monaco-loader.service';
 import type { editor } from 'monaco-editor';
 @Component({
     selector: 'tab-monaco-editor',
-    standalone: true,
+    standalone: false,
     template: `
         <div #editorContainer class="editor-container"></div>
     `,

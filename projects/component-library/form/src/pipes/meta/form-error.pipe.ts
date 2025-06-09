@@ -5,7 +5,7 @@ import type { Primitive } from 'tableau-ui-angular/types';
 
 @Pipe({
     name: 'formError',
-    standalone: true,
+    standalone: false,
     pure: true,
 })
 export class FormErrorPipe implements PipeTransform {

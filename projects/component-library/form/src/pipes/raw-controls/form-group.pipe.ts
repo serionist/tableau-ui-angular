@@ -6,7 +6,7 @@ import type { FGImpl } from '../../models/form-group/impl';
 
 @Pipe({
     name: 'formGroup',
-    standalone: true,
+    standalone: false,
 })
 export class FormGroupPipe implements PipeTransform {
     transform(form: AC, path?: string): FormGroup {

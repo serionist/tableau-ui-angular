@@ -10,8 +10,7 @@ import { IconComponent } from 'tableau-ui-angular/icon';
 
 @Component({
     selector: 'tab-expansion-panel',
-    imports: [IconComponent],
-    standalone: true,
+    standalone: false,
     templateUrl: './expansion-panel.component.html',
     styleUrl: './expansion-panel.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,

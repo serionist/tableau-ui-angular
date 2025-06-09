@@ -5,7 +5,7 @@ import type { OptionComponent } from 'tableau-ui-angular/common';
 
 @Pipe({
     name: 'isSelectedValue',
-    standalone: true,
+    standalone: false,
 })
 export class IsSelectedValuePipe implements PipeTransform {
     transform(option: OptionComponent, allowMultiple: boolean, value: SelectValue): boolean {

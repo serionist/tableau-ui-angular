@@ -6,7 +6,7 @@
     <tab-separator />
     <div class="content">
         <div class="section">
-            <h3>Single Expansion Panels</h3>
+            <h3>Module</h3>
             <p>To use the component, import one of the following modules into your module/component:</p>
 
             <ul>
@@ -19,8 +19,12 @@
                     - to import all components from this library
                 </li>
             </ul>
-
+        </div>
+        <div class="section">
+            <h3>Examples</h3>
             <div class="section">
+                <h4>Single expansion panels</h4>
+
                 <div>Simplest implementation</div>
                 <tab-expansion-panel>
                     <tab-expansion-panel-title>
@@ -87,82 +91,6 @@
                     <div>This is the sample content</div>
                 </tab-expansion-panel>
             </div>
-        </div>
-        <div class="section">
-            <h3>Single Expansion Panels</h3>
-            <app-import-details [model]="singleImport" />
-            <div class="section">
-                <div>Simplest implementation</div>
-                <tab-expansion-panel>
-                    <tab-expansion-panel-title>
-                        <tab-icon value="info" />
-                        <span>Simple Expansion Panel</span>
-                    </tab-expansion-panel-title>
-                    <div>This is the sample content</div>
-                </tab-expansion-panel>
-                <div>Disabled</div>
-                <tab-expansion-panel [disabled]="true">
-                    <tab-expansion-panel-title>
-                        <tab-icon value="info" />
-                        <span>Simple Expansion Panel</span>
-                    </tab-expansion-panel-title>
-                    <div>This is the sample content</div>
-                </tab-expansion-panel>
-                <div>Has a specific collapsed header, nonspecific expanded header</div>
-                <tab-expansion-panel>
-                    <tab-expansion-panel-title collapsed>
-                        <tab-icon value="info" />
-                        <span>Simple Expansion Panel is collapsed</span>
-                    </tab-expansion-panel-title>
-                    <tab-expansion-panel-title>
-                        <tab-icon value="info" />
-                        <span>Simple Expansion Panel</span>
-                    </tab-expansion-panel-title>
-                    <div>This is the sample content</div>
-                </tab-expansion-panel>
-                <div>Has a specific expanded header, nonspecific collapsed header</div>
-                <tab-expansion-panel>
-                    <tab-expansion-panel-title expanded>
-                        <tab-icon value="info" />
-                        <span>Simple Expansion Panel is expanded</span>
-                    </tab-expansion-panel-title>
-                    <tab-expansion-panel-title>
-                        <tab-icon value="info" />
-                        <span>Simple Expansion Panel</span>
-                    </tab-expansion-panel-title>
-                    <div>This is the sample content</div>
-                </tab-expansion-panel>
-                <div>Has a specific collapsed and expanded headers</div>
-                <tab-expansion-panel>
-                    <tab-expansion-panel-title expanded>
-                        <tab-icon value="info" />
-                        <span>Simple Expansion Panel is expanded</span>
-                    </tab-expansion-panel-title>
-                    <tab-expansion-panel-title collapsed>
-                        <tab-icon value="info" />
-                        <span>Simple Expansion Panel is collapsed</span>
-                    </tab-expansion-panel-title>
-                    <div>This is the sample content</div>
-                </tab-expansion-panel>
-                <div>Has large header and disabled hover</div>
-                <tab-expansion-panel [noHeaderHover]="true">
-                    <tab-expansion-panel-title>
-                        <div class="header special">
-                            <tab-icon value="info" />
-                            <span>Simple Expansion Panel is collapsed</span>
-                            <button (click)="specialButtonClick($event)">test</button>
-
-                            <p>Szevasz</p>
-                        </div>
-                    </tab-expansion-panel-title>
-                    <div>This is the sample content</div>
-                </tab-expansion-panel>
-            </div>
-        </div>
-        <div class="section">
-            <h3>Accordion</h3>
-            <app-import-details [model]="accordionImport" />
-
             <div class="section">
                 <h4>Accordion</h4>
                 <tab-accordion>

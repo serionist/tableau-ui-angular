@@ -6,7 +6,7 @@ import type { FormControl } from '@angular/forms';
 
 @Pipe({
     name: 'formControl',
-    standalone: true,
+    standalone: false,
 })
 export class FormControlPipe implements PipeTransform {
     transform(form: AC, path?: string): FormControl {

@@ -3,8 +3,7 @@ import { ChangeDetectionStrategy, Component, ElementRef, inject, input, model } 
 
 @Component({
     selector: 'tab-hint',
-    imports: [CommonModule],
-    standalone: true,
+    standalone: false,
     template: `
         <div class="tab-hint" [ngClass]="$type()"><ng-content /></div>
     `,

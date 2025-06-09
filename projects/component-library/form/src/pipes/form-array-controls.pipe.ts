@@ -4,7 +4,7 @@ import type { FA } from '../models/form-array/interaces';
 
 @Pipe({
     name: 'formArrayControls',
-    standalone: true,
+    standalone: false,
 })
 export class FormArrayControlsPipe implements PipeTransform {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

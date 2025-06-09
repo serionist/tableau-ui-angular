@@ -5,8 +5,7 @@ import { SeparatorComponent } from 'tableau-ui-angular/common';
 
 @Component({
     selector: 'tab-arrow-scroll',
-    imports: [ButtonComponent, SeparatorComponent],
-    standalone: true,
+    standalone: false,
     templateUrl: './arrow-scroll.component.html',
     styleUrl: './arrow-scroll.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,

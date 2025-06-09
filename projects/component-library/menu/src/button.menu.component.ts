@@ -5,7 +5,7 @@ import { MenuButtonGroupComponent } from './menu-button-group.component';
 
 @Component({
     selector: 'tab-button-menu',
-    standalone: true,
+    standalone: false,
     templateUrl: './menu.component.html',
     styleUrl: './menu.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,

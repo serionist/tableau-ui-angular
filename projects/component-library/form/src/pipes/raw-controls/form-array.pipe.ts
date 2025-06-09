@@ -6,7 +6,7 @@ import type { FAImpl } from '../../models/form-array/impl';
 
 @Pipe({
     name: 'formArray',
-    standalone: true,
+    standalone: false,
 })
 export class FormArrayPipe implements PipeTransform {
     transform(form: AC, path?: string): FormArray {

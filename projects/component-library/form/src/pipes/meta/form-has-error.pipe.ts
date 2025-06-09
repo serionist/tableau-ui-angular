@@ -4,7 +4,7 @@ import type { Meta } from '../../models/abstract-control/meta/interfaces';
 
 @Pipe({
     name: 'formHasError',
-    standalone: true,
+    standalone: false,
     pure: true,
 })
 export class FormHasErrorPipe implements PipeTransform {

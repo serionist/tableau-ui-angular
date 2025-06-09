@@ -4,15 +4,10 @@ import { ChangeDetectionStrategy, Component, contentChild, contentChildren, inpu
 import { NavBarHeaderComponent } from './nav-bar-header.component';
 import { NavBarFooterComponent } from './nav-bar-footer.component';
 import { NavBarButtonComponent } from './nav-bar-button/nav-bar-button.component';
-import { IconComponent } from 'tableau-ui-angular/icon';
-import { ArrowScrollComponent } from 'tableau-ui-angular/arrow-scroll';
-import { TooltipDirective } from 'tableau-ui-angular/tooltip';
-import { ButtonComponent } from 'tableau-ui-angular/button';
 
 @Component({
     selector: 'tab-nav-bar',
-    imports: [IconComponent, ArrowScrollComponent, TooltipDirective, ButtonComponent],
-    standalone: true,
+    standalone: false,
     templateUrl: './nav-bar.component.html',
     styleUrl: './nav-bar.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,

@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, Component, ElementRef, HostListener, inject, i
 @Component({
     // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'button:not([tab-menu-button]),a[button]:not([tab-menu-button])',
-    standalone: true,
+    standalone: false,
     templateUrl: './button.component.html',
     styleUrl: './button.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,

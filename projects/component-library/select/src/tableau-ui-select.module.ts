@@ -1,12 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { TableauUiIconModule } from '../icon/tableau-ui-icon.module';
-import { TableauUiCommonModule } from '../common/tableau-ui-common.module';
 import { SelectComponent } from './select.component';
-import { TableauUiButtonModule } from '../button/tableau-ui-button.module';
-import { TableauUiDialogModule } from '../dialogservice/tableau-ui-dialog.module';
 import { IsSelectedValuePipe } from './pipes/is-selected-value.pipe';
 import { MultipleTemplatePipe } from './pipes/multiple-template.pipe';
+import { TableauUiCommonModule } from 'tableau-ui-angular/common';
+import { TableauUiIconModule } from 'tableau-ui-angular/icon';
+import { TableauUiButtonModule } from 'tableau-ui-angular/button';
+import { TableauUiDialogModule } from 'tableau-ui-angular/dialog';
 
 @NgModule({
     imports: [CommonModule, TableauUiCommonModule, TableauUiIconModule, TableauUiButtonModule, TableauUiDialogModule],

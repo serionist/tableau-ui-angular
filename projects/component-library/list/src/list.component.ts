@@ -5,14 +5,10 @@ import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import type { IOptionGridContext } from 'tableau-ui-angular/common';
 import { OptionComponent } from 'tableau-ui-angular/common';
 import type { Primitive } from 'tableau-ui-angular/types';
-import { IsValueSelectedPipe } from './pipes/is-value-selected.pipe';
-import { CommonModule } from '@angular/common';
-import { IconComponent } from 'tableau-ui-angular/icon';
 export type ListValue = Exclude<Primitive, undefined> | Exclude<Primitive, undefined>[] | undefined;
 @Component({
     selector: 'tab-list',
-    imports: [IsValueSelectedPipe, CommonModule, IconComponent],
-    standalone: true,
+    standalone: false,
     templateUrl: './list.component.html',
     styleUrl: './list.component.scss',
     providers: [

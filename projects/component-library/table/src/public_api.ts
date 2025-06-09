@@ -6,3 +6,4 @@ export * from './defs/cell-def/cell-def.directive';
 export type * from './defs/cell-def/cell-context';
 export type * from './data/data-request';
 export type * from './data/data-response';
+export * from './tableau-ui-table.module';

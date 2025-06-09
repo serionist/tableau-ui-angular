@@ -2,6 +2,6 @@ import { Directive } from '@angular/core';
 
 @Directive({
     selector: '[collapsedContent]',
-    standalone: true,
+    standalone: false,
 })
 export class CollapsedContentDirective {}

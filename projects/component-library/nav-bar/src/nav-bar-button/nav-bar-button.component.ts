@@ -1,13 +1,10 @@
 import type { InputSignal } from '@angular/core';
 import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 import type { UrlTree } from '@angular/router';
-import { RouterModule } from '@angular/router';
-import { TooltipDirective } from 'tableau-ui-angular/tooltip';
 
 @Component({
     selector: 'tab-nav-bar-button',
-    imports: [RouterModule, TooltipDirective],
-    standalone: true,
+    standalone: false,
     templateUrl: './nav-bar-button.component.html',
     styleUrl: './nav-bar-button.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,

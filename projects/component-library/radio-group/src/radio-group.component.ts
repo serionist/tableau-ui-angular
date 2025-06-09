@@ -11,8 +11,7 @@ import { generateRandomString } from 'tableau-ui-angular/utils';
 
 @Component({
     selector: 'tab-radio-group',
-    imports: [CommonModule],
-    standalone: true,
+    standalone: false,
     templateUrl: './radio-group.component.html',
     styleUrl: './radio-group.component.scss',
     providers: [

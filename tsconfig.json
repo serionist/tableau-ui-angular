@@ -4,55 +4,87 @@
     "compileOnSave": false,
     "compilerOptions": {
         "paths": {
-            "component-library": ["./dist/component-library"],
-            "tableau-ui-angular/types": ["./projects/component-library/types/src/public_api.ts"],
-            "tableau-ui-angular/utils": ["./projects/component-library/utils/src/public_api.ts"],
-            "tableau-ui-angular/icon": ["./projects/component-library/icon/src/public_api.ts"],
-            "tableau-ui-angular/icon/imports": ["./projects/component-library/icon/imports/src/public_api.ts"],
-            "tableau-ui-angular/tooltip": ["./projects/component-library/tooltip/src/public_api.ts"],
-            "tableau-ui-angular/tooltip/imports": ["./projects/component-library/tooltip/imports/src/public_api.ts"],
-            "tableau-ui-angular/common": ["./projects/component-library/common/src/public_api.ts"],
-            "tableau-ui-angular/common/imports": ["./projects/component-library/common/imports/src/public_api.ts"],
-            "tableau-ui-angular/button": ["./projects/component-library/button/src/public_api.ts"],
-            "tableau-ui-angular/button/imports": ["./projects/component-library/button/imports/src/public_api.ts"],
-            "tableau-ui-angular/arrow-scroll": ["./projects/component-library/arrow-scroll/src/public_api.ts"],
-            "tableau-ui-angular/arrow-scroll/imports": ["./projects/component-library/arrow-scroll/imports/src/public_api.ts"],
-            "tableau-ui-angular/checkbox": ["./projects/component-library/checkbox/src/public_api.ts"],
-            "tableau-ui-angular/checkbox/imports": ["./projects/component-library/checkbox/imports/src/public_api.ts"],
-            "tableau-ui-angular/snack": ["./projects/component-library/snack/src/public_api.ts"],
-            "tableau-ui-angular/snack/imports": ["./projects/component-library/snack/imports/src/public_api.ts"],
-            "tableau-ui-angular/clipboard": ["./projects/component-library/clipboard/src/public_api.ts"],
-            "tableau-ui-angular/clipboard/imports": ["./projects/component-library/clipboard/imports/src/public_api.ts"],
-            "tableau-ui-angular/dialog": ["./projects/component-library/dialog/src/public_api.ts"],
-            "tableau-ui-angular/dialog/imports": ["./projects/component-library/dialog/imports/src/public_api.ts"],
-            "tableau-ui-angular/autocomplete": ["./projects/component-library/autocomplete/src/public_api.ts"],
-            "tableau-ui-angular/autocomplete/imports": ["./projects/component-library/autocomplete/imports/src/public_api.ts"],
-            "tableau-ui-angular/date-picker": ["./projects/component-library/date-picker/src/public_api.ts"],
-            "tableau-ui-angular/date-picker/imports": ["./projects/component-library/date-picker/imports/src/public_api.ts"],
-            "tableau-ui-angular/expansion-panel": ["./projects/component-library/expansion-panel/src/public_api.ts"],
-            "tableau-ui-angular/expansion-panel/imports": ["./projects/component-library/expansion-panel/imports/src/public_api.ts"],
-            "tableau-ui-angular/form": ["./projects/component-library/form/src/public_api.ts"],
-            "tableau-ui-angular/form/imports": ["./projects/component-library/form/imports/src/public_api.ts"],
-            "tableau-ui-angular/form-field": ["./projects/component-library/form-field/src/public_api.ts"],
-            "tableau-ui-angular/form-field/imports": ["./projects/component-library/form-field/imports/src/public_api.ts"],
-            "tableau-ui-angular/list": ["./projects/component-library/list/src/public_api.ts"],
-            "tableau-ui-angular/list/imports": ["./projects/component-library/list/imports/src/public_api.ts"],
-            "tableau-ui-angular/menu": ["./projects/component-library/menu/src/public_api.ts"],
-            "tableau-ui-angular/menu/imports": ["./projects/component-library/menu/imports/src/public_api.ts"],
-            "tableau-ui-angular/nav-bar": ["./projects/component-library/nav-bar/src/public_api.ts"],
-            "tableau-ui-angular/nav-bar/imports": ["./projects/component-library/nav-bar/imports/src/public_api.ts"],
-            "tableau-ui-angular/radio-group": ["./projects/component-library/radio-group/src/public_api.ts"],
-            "tableau-ui-angular/radio-group/imports": ["./projects/component-library/radio-group/imports/src/public_api.ts"],
-            "tableau-ui-angular/select": ["./projects/component-library/select/src/public_api.ts"],
-            "tableau-ui-angular/select/imports": ["./projects/component-library/select/imports/src/public_api.ts"],
-            "tableau-ui-angular/tab-group": ["./projects/component-library/tab-group/src/public_api.ts"],
-            "tableau-ui-angular/tab-group/imports": ["./projects/component-library/tab-group/imports/src/public_api.ts"],
-            "tableau-ui-angular/tree": ["./projects/component-library/tree/src/public_api.ts"],
-            "tableau-ui-angular/tree/imports": ["./projects/component-library/tree/imports/src/public_api.ts"],
-            "tableau-ui-angular/table": ["./projects/component-library/table/src/public_api.ts"],
-            "tableau-ui-angular/table/imports": ["./projects/component-library/table/imports/src/public_api.ts"],
-            "tableau-ui-angular/theme": ["./projects/component-library/theme/src/public_api.ts"],
-            "tableau-ui-angular/theme/imports": ["./projects/component-library/theme/imports/src/public_api.ts"],
+            "component-library": [
+                "./dist/component-library"
+            ],
+            "tableau-ui-angular/types": [
+                "./projects/component-library/types/src/public_api.ts"
+            ],
+            "tableau-ui-angular/utils": [
+                "./projects/component-library/utils/src/public_api.ts"
+            ],
+            "tableau-ui-angular/icon": [
+                "./projects/component-library/icon/src/public_api.ts"
+            ],
+            "tableau-ui-angular/tooltip": [
+                "./projects/component-library/tooltip/src/public_api.ts"
+            ],
+            "tableau-ui-angular/common": [
+                "./projects/component-library/common/src/public_api.ts"
+            ],
+            "tableau-ui-angular/button": [
+                "./projects/component-library/button/src/public_api.ts"
+            ],
+            "tableau-ui-angular/arrow-scroll": [
+                "./projects/component-library/arrow-scroll/src/public_api.ts"
+            ],
+            "tableau-ui-angular/checkbox": [
+                "./projects/component-library/checkbox/src/public_api.ts"
+            ],
+            "tableau-ui-angular/snack": [
+                "./projects/component-library/snack/src/public_api.ts"
+            ],
+            "tableau-ui-angular/clipboard": [
+                "./projects/component-library/clipboard/src/public_api.ts"
+            ],
+            "tableau-ui-angular/dialog": [
+                "./projects/component-library/dialog/src/public_api.ts"
+            ],
+            "tableau-ui-angular/autocomplete": [
+                "./projects/component-library/autocomplete/src/public_api.ts"
+            ],
+            "tableau-ui-angular/date-picker": [
+                "./projects/component-library/date-picker/src/public_api.ts"
+            ],
+            "tableau-ui-angular/expansion-panel": [
+                "./projects/component-library/expansion-panel/src/public_api.ts"
+            ],
+            "tableau-ui-angular/form": [
+                "./projects/component-library/form/src/public_api.ts"
+            ],
+            "tableau-ui-angular/form-field": [
+                "./projects/component-library/form-field/src/public_api.ts"
+            ],
+            "tableau-ui-angular/list": [
+                "./projects/component-library/list/src/public_api.ts"
+            ],
+            "tableau-ui-angular/menu": [
+                "./projects/component-library/menu/src/public_api.ts"
+            ],
+            "tableau-ui-angular/nav-bar": [
+                "./projects/component-library/nav-bar/src/public_api.ts"
+            ],
+            "tableau-ui-angular/radio-group": [
+                "./projects/component-library/radio-group/src/public_api.ts"
+            ],
+            "tableau-ui-angular/select": [
+                "./projects/component-library/select/src/public_api.ts"
+            ],
+            "tableau-ui-angular/tab-group": [
+                "./projects/component-library/tab-group/src/public_api.ts"
+            ],
+            "tableau-ui-angular/tree": [
+                "./projects/component-library/tree/src/public_api.ts"
+            ],
+            "tableau-ui-angular/table": [
+                "./projects/component-library/table/src/public_api.ts"
+            ],
+            "tableau-ui-angular/theme": [
+                "./projects/component-library/theme/src/public_api.ts"
+            ],
+            "tableau-ui-angular/used-icons": [
+                "./projects/component-library/used-icons/src/public_api.ts"
+            ],
         },
         "outDir": "./dist/out-tsc",
         "strict": true,
@@ -70,7 +102,10 @@
         "importHelpers": true,
         "target": "ES2022",
         "module": "ES2022",
-        "lib": ["ES2022", "dom"]
+        "lib": [
+            "ES2022",
+            "dom"
+        ]
     },
     "angularCompilerOptions": {
         "enableI18nLegacyMessageIdFormat": false,

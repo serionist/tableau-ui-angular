@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, ElementRef, inject } from '@angular/core';
 @Component({
     selector: 'tab-error',
-    standalone: true,
+    standalone: false,
     template: `
         <div class="tab-error"><ng-content /></div>
     `,

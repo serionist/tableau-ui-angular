@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
 @Component({
     selector: 'tab-loading-gif',
-    standalone: true,
+    standalone: false,
     template: `
         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" [attr.width]="$width()" [attr.height]="$height()" [attr.color]="$color()">
             <g transform="rotate(0 50 50)">

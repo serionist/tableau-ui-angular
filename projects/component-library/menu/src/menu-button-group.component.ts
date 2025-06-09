@@ -26,8 +26,7 @@ import { generateRandomString, ResizeWatcherDirective } from 'tableau-ui-angular
 
 @Component({
     selector: 'tab-menu-button-group',
-    imports: [EntriesPipe, CommonModule, ResizeWatcherDirective],
-    standalone: true,
+    standalone: false,
     template: `
         @for (entry of $menuGroupStack() | entries; track entry[1].id) {
             <!-- eslint-disable @angular-eslint/template/prefer-template-literal -->

@@ -11,18 +11,12 @@ import { OptionComponent, PrefixComponent, SuffixComponent } from 'tableau-ui-an
 import { SnackService, SnackRef } from 'tableau-ui-angular/snack';
 import type { DialogRef } from 'tableau-ui-angular/dialog';
 import { DialogService } from 'tableau-ui-angular/dialog';
-import { CommonModule } from '@angular/common';
-import { IsSelectedValuePipe } from './pipes/is-selected-value.pipe';
-import { MultipleTemplatePipe } from './pipes/multiple-template.pipe';
-import { IconComponent } from 'tableau-ui-angular/icon';
 import { generateRandomString } from 'tableau-ui-angular/utils';
-import { ButtonComponent } from 'tableau-ui-angular/button';
 
 export type SelectValue = Exclude<Primitive, undefined> | Exclude<Primitive, undefined>[] | undefined;
 @Component({
     selector: 'tab-select',
-    imports: [CommonModule, IsSelectedValuePipe, MultipleTemplatePipe, IconComponent, ButtonComponent],
-    standalone: true,
+    standalone: false,
     templateUrl: './select.component.html',
     styleUrl: './select.component.scss',
     providers: [
@@ -31,8 +25,6 @@ export type SelectValue = Exclude<Primitive, undefined> | Exclude<Primitive, und
             useExisting: forwardRef(() => SelectComponent),
             multi: true,
         },
-        SnackService,
-        DialogService,
     ],
     changeDetection: ChangeDetectionStrategy.OnPush,
     host: {
@@ -63,7 +55,6 @@ export class SelectComponent implements ControlValueAccessor, AfterViewInit, OnD
     private readonly $dropdownTemplate: Signal<TemplateRef<unknown> | undefined> = viewChild<TemplateRef<unknown>>('dropdownTemplate');
 
     // #region Imports
-    private readonly snackService = inject(SnackService);
     private readonly dialogService = inject(DialogService);
     private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
     // #endregion

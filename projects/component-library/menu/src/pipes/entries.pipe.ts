@@ -3,7 +3,7 @@ import { Pipe } from '@angular/core';
 
 @Pipe({
     name: 'entries',
-    standalone: true,
+    standalone: false,
 })
 export class EntriesPipe implements PipeTransform {
     transform<T>(arr: readonly T[]) {

@@ -4,7 +4,7 @@ import { Directive, Input, ElementRef, HostListener, input, inject, ViewContaine
 // Style contained in _tooltips.scss in the styles folder
 @Directive({
     selector: '[tooltip]',
-    standalone: true,
+    standalone: false,
 })
 export class TooltipDirective<T> implements OnDestroy {
     private readonly viewContainerRef = inject(ViewContainerRef);

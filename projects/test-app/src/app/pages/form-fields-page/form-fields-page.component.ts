@@ -3,167 +3,23 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { AbstractControl, FormControl, FormGroup, FormGroupDirective, NgForm, Validators } from '@angular/forms';
 
 import { BehaviorSubject, debounceTime, skip, Subject } from 'rxjs';
-import { importLoadingGif, importSeparator } from 'tableau-ui-angular/common/imports';
-import { FB } from 'tableau-ui-angular/form';
-import { importFormField } from 'tableau-ui-angular/form-field/imports';
-import { importFormBuilderProvider, importFormPipes } from 'tableau-ui-angular/form/imports';
-import { importIcons } from 'tableau-ui-angular/icon/imports';
-import { SnackService } from 'tableau-ui-angular/snack';
-import { importSnackProvider } from 'tableau-ui-angular/snack/imports';
-import type { ImportModel } from '../../components/import-details/import-model';
-import { ImportDetailsComponent } from '../../components/import-details/import-details.component';
-import { AutoCompleteComponent } from 'tableau-ui-angular/autocomplete';
-import { importAutocomplete } from 'tableau-ui-angular/autocomplete/imports';
+import { TableauUiAutoCompleteModule } from 'tableau-ui-angular/autocomplete';
+import { TableauUiCommonModule } from 'tableau-ui-angular/common';
+import { FB, TableauUiFormModule } from 'tableau-ui-angular/form';
+import { TableauUiFormFieldModule } from 'tableau-ui-angular/form-field';
+import { TableauUiIconModule } from 'tableau-ui-angular/icon';
+import { SnackService, TableauUiSnackModule } from 'tableau-ui-angular/snack';
 
 @Component({
     selector: 'app-form-fields-page',
-    imports: [...importSeparator(), ...importLoadingGif(), ...importIcons(), ...importFormField(), ...importFormPipes(), ImportDetailsComponent, ...importAutocomplete()],
+    imports: [TableauUiCommonModule, TableauUiSnackModule, TableauUiFormModule, TableauUiFormFieldModule, TableauUiIconModule, TableauUiAutoCompleteModule],
     standalone: true,
     templateUrl: './form-fields-page.component.html',
     styleUrl: './form-fields-page.component.scss',
-    providers: [...importSnackProvider(), ...importFormBuilderProvider()],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FormFieldsPageComponent implements OnInit {
     snackService = inject(SnackService);
-
-    imports: ImportModel = {
-        name: 'Form Fields',
-        componentImports: [
-            {
-                name: 'FormFieldComponent',
-                from: 'tableau-ui-angular/form-field',
-                info: 'Component for creating form fields with labels, errors, hints, and more.',
-            },
-        ],
-        optionalComponentImports: [
-            {
-                name: 'LabelComponent',
-                from: 'tableau-ui-angular/common',
-                info: 'Component for defining the label of the form field.',
-            },
-            {
-                name: 'HintComponent',
-                from: 'tableau-ui-angular/common',
-                info: 'Component for displaying additional information inside the form field.',
-            },
-            {
-                name: 'ErrorComponent',
-                from: 'tableau-ui-angular/common',
-                info: 'Component for displaying validation errors related to the form field.',
-            },
-            {
-                name: 'PrefixComponent',
-                from: 'tableau-ui-angular/common',
-                info: 'Component for displaying a prefix inside the form field, typically used for currency or units.',
-            },
-            {
-                name: 'SuffixComponent',
-                from: 'tableau-ui-angular/common',
-                info: 'Component for displaying a suffix inside the form field, typically used for currency or units.',
-            },
-            {
-                name: 'ReactiveFormsModule',
-                from: '@angular/forms',
-                info: 'Optional import for using form fields with reactive forms.',
-            },
-        ],
-        importFunctions: [
-            {
-                name: 'importFormField',
-                from: 'tableau-ui-angular/form-field/imports',
-                info: 'Imports form field component and all its optional imports.',
-            },
-        ],
-        optionalImportFunctions: [
-            {
-                name: 'importFormPipes',
-                from: 'tableau-ui-angular/form/imports',
-                info: 'Imports form pipes for BetterForms integration, such as `formMeta`, `formControl`, `formControlValue`, etc.',
-            },
-        ],
-    };
-
-    autocompleteImport: ImportModel = {
-        name: 'Autocomplete',
-        componentImports: [
-            {
-                name: 'AutoCompleteComponent',
-                from: 'tableau-ui-angular/autocomplete',
-                info: 'Component for creating autocomplete input fields with suggestions.',
-            },
-            {
-                name: 'AutoCompleteDirective',
-                from: 'tableau-ui-angular/autocomplete',
-                info: 'Directive for enabling autocomplete functionality on input elements.',
-            },
-            {
-                name: 'OptionComponent',
-                from: 'tableau-ui-angular/common',
-                info: 'Component for defining individual options in the autocomplete dropdown.',
-            },
-        ],
-        optionalComponentImports: [
-            {
-                name: 'LabelComponent',
-                from: 'tableau-ui-angular/common',
-                info: 'Component for defining the label of the form field.',
-            },
-            {
-                name: 'HintComponent',
-                from: 'tableau-ui-angular/common',
-                info: 'Component for displaying additional information inside the form field.',
-            },
-            {
-                name: 'ErrorComponent',
-                from: 'tableau-ui-angular/common',
-                info: 'Component for displaying validation errors related to the form field.',
-            },
-            {
-                name: 'PrefixComponent',
-                from: 'tableau-ui-angular/common',
-                info: 'Component for displaying a prefix inside the form field, typically used for currency or units.',
-            },
-            {
-                name: 'SuffixComponent',
-                from: 'tableau-ui-angular/common',
-                info: 'Component for displaying a suffix inside the form field, typically used for currency or units.',
-            },
-            {
-                name: 'ReactiveFormsModule',
-                from: '@angular/forms',
-                info: 'Optional import for using form fields with reactive forms.',
-            },
-        ],
-        importFunctions: [
-            {
-                name: 'importAutocomplete',
-                from: 'tableau-ui-angular/autocomplete/imports',
-                info: 'Imports autocomplete component and all its optional imports.',
-            },
-        ],
-        optionalImportFunctions: [
-            {
-                name: 'importFormPipes',
-                from: 'tableau-ui-angular/form/imports',
-                info: 'Imports form pipes for BetterForms integration, such as `formMeta`, `formControl`, `formControlValue`, etc.',
-            },
-        ],
-        optionalProviderImports: [
-            {
-                name: 'FB',
-                from: 'tableau-ui-angular/form',
-                info: 'Form Builder service for creating reactive forms with BetterForms.',
-            },
-        ],
-        optionalProviderImportFunctions: [
-            {
-                name: 'importFormBuilderProvider',
-                from: 'tableau-ui-angular/form/imports',
-                info: 'Imports form builder provider for creating reactive forms with BetterForms.',
-            },
-        ],
-    };
 
     private readonly b = inject(FB);
     valueChanged(event: Event, name: string, type: 'error' | 'info' = 'info') {

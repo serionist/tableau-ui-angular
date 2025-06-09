@@ -2,6 +2,6 @@ import { Directive } from '@angular/core';
 
 @Directive({
     selector: '[expandedContent]',
-    standalone: true,
+    standalone: false,
 })
 export class ExpandedContentDirective {}

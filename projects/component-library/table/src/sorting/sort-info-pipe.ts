@@ -3,7 +3,7 @@ import { Pipe } from '@angular/core';
 import type { DataSort } from './data-sort';
 @Pipe({
     name: 'sortInfoPipe',
-    standalone: true,
+    standalone: false,
 })
 export class SortInfoPipe implements PipeTransform {
     transform(sorts: DataSort[], colId: string, propertyName: string | undefined): { info: DataSort; index: number } | undefined {

@@ -4,7 +4,7 @@ import type { HeaderContext } from './header-context';
 
 @Pipe({
     name: 'headerClass',
-    standalone: true,
+    standalone: false,
 })
 export class HeaderClassPipe implements PipeTransform {
     transform(ctx: HeaderContext): string | undefined {

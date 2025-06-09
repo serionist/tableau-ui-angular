@@ -3,7 +3,7 @@ import type { HeaderContext } from './header-context';
 
 @Directive({
     selector: '[tabHeaderDef]',
-    standalone: true,
+    standalone: false,
 })
 export class HeaderDefDirective {
     public templateRef = inject(TemplateRef<HeaderContext>);

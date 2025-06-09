@@ -3,7 +3,7 @@ import { Directive, ElementRef, inject, OnInit, output } from '@angular/core';
 
 @Directive({
     selector: '[resizeWatcher]',
-    standalone: true,
+    standalone: false,
 })
 export class ResizeWatcherDirective implements OnDestroy {
     readonly element = inject<ElementRef<HTMLElement>>(ElementRef);

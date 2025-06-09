@@ -3,12 +3,10 @@ import { ChangeDetectionStrategy, Component, ElementRef, inject, input, model, M
 import { injectDialogRef, TAB_DIALOG_REF } from './dialog.ref';
 import { injectDialogData, TAB_DATA_REF } from './data.ref';
 import { CommonModule } from '@angular/common';
-import { ButtonComponent } from 'tableau-ui-angular/button';
-
+import type { ButtonComponent } from 'tableau-ui-angular/button';
 @Component({
     selector: 'tab-confirmation-dialog',
-    imports: [CommonModule, ButtonComponent],
-    standalone: true,
+    standalone: false,
     template: `
         <div class="dialog-content">
             @if (data.contentTemplate) {

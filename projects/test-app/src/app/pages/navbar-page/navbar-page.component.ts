@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { importSeparator } from 'tableau-ui-angular/common/imports';
+import { TableauUiCommonModule } from 'tableau-ui-angular/common';
 
 @Component({
     selector: 'app-navbar-page',
-    imports: [...importSeparator()],
+    imports: [TableauUiCommonModule],
     standalone: true,
     templateUrl: './navbar-page.component.html',
     styleUrl: './navbar-page.component.scss',

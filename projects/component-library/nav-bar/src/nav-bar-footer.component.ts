@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 @Component({
     selector: 'tab-nav-bar-footer',
-    standalone: true,
+    standalone: false,
     template: '<ng-content />',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })

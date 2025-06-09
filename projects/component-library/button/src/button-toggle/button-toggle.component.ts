@@ -7,8 +7,7 @@ import type { Primitive } from 'tableau-ui-angular/types';
 
 @Component({
     selector: 'tab-button-toggle',
-    imports: [CommonModule, TooltipDirective],
-    standalone: true,
+    standalone: false,
     templateUrl: './button-toggle.component.html',
     styleUrl: './button-toggle.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,

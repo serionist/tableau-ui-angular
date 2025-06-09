@@ -2,106 +2,26 @@ import type { OnInit, WritableSignal } from '@angular/core';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { BehaviorSubject, debounceTime, startWith, Subject } from 'rxjs';
-import { HintComponent, LabelComponent, OptionComponent, PrefixComponent, SuffixComponent, type IOptionLineContext } from 'tableau-ui-angular/common';
-import { importLoadingGif, importSeparator } from 'tableau-ui-angular/common/imports';
-import { FB } from 'tableau-ui-angular/form';
-import { FormFieldComponent } from 'tableau-ui-angular/form-field';
-import { importFormBuilderProvider, importFormPipes } from 'tableau-ui-angular/form/imports';
-import { IconComponent } from 'tableau-ui-angular/icon';
-import { SelectComponent, type SelectValue } from 'tableau-ui-angular/select';
-import { importSelect } from 'tableau-ui-angular/select/imports';
-import { SnackService } from 'tableau-ui-angular/snack';
-import { importSnackProvider } from 'tableau-ui-angular/snack/imports';
-import { ErrorComponent } from '../../../../../../dist/component-library/common';
-import type { ImportModel } from '../../components/import-details/import-model';
-import { importFormField } from 'tableau-ui-angular/form-field/imports';
-import { ImportDetailsComponent } from '../../components/import-details/import-details.component';
+import { HintComponent, LabelComponent, OptionComponent, PrefixComponent, SuffixComponent, TableauUiCommonModule, type IOptionLineContext } from 'tableau-ui-angular/common';
 
+import { FB, TableauUiFormModule } from 'tableau-ui-angular/form';
+import { FormFieldComponent, TableauUiFormFieldModule } from 'tableau-ui-angular/form-field';
+
+import { IconComponent, TableauUiIconModule } from 'tableau-ui-angular/icon';
+import { SelectComponent, TableauUiSelectModule, type SelectValue } from 'tableau-ui-angular/select';
+import { SnackService, TableauUiSnackModule } from 'tableau-ui-angular/snack';
 @Component({
     selector: 'app-select-page',
-    imports: [...importSeparator(), ...importSelect(), ...importFormField(), ...importFormPipes(), ...importLoadingGif(), ImportDetailsComponent],
+    imports: [TableauUiCommonModule, TableauUiFormModule, TableauUiFormFieldModule, TableauUiSelectModule, TableauUiIconModule, TableauUiSnackModule],
     standalone: true,
     templateUrl: './select-page.component.html',
     styleUrl: './select-page.component.scss',
-    providers: [importSnackProvider(), importFormBuilderProvider()],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SelectPageComponent implements OnInit {
     snack = inject(SnackService);
     b = inject(FB);
 
-    imports: ImportModel = {
-        name: 'Select',
-        componentImports: [
-            {
-                name: 'SelectComponent',
-                from: 'tableau-ui-angular/select',
-                info: 'Component for creating a dropdown select input with single or multiple selection capabilities.',
-            },
-            {
-                name: 'OptionComponent',
-                from: 'tableau-ui-angular/common',
-                info: 'Component for defining individual options within the select.',
-            },
-        ],
-        optionalComponentImports: [
-            {
-                name: 'FormFieldComponent',
-                from: 'tableau-ui-angular/form-field',
-                info: 'Optional component for wrapping the select in a form field with label and error handling.',
-            },
-            {
-                name: 'LabelComponent',
-                from: 'tableau-ui-angular/common',
-                info: 'Optional component for displaying a label associated with the select.',
-            },
-            {
-                name: 'PrefixComponent',
-                from: 'tableau-ui-angular/common',
-                info: 'Optional component for displaying a prefix icon or text before the select input.',
-            },
-            {
-                name: 'SuffixComponent',
-                from: 'tableau-ui-angular/common',
-                info: 'Optional component for displaying a suffix icon or text after the select input.',
-            },
-            {
-                name: 'HintComponent',
-                from: 'tableau-ui-angular/common',
-                info: 'Optional component for displaying hints related to the select.',
-            },
-            {
-                name: 'ErrorComponent',
-                from: 'tableau-ui-angular/common',
-                info: 'Optional component for displaying validation errors related to the select.',
-            },
-
-            {
-                name: 'ReactiveFormsModule',
-                from: '@angular/forms',
-                info: 'Optional import for using select with reactive forms.',
-            },
-        ],
-        importFunctions: [
-            {
-                name: 'importSelect',
-                from: 'tableau-ui-angular/select/imports',
-                info: 'Imports select component and all its dependencies.',
-            },
-        ],
-        optionalImportFunctions: [
-            {
-                name: 'importFormField',
-                from: 'tableau-ui-angular/form-field/imports',
-                info: 'Imports form field component to integrate with form fields, show labels, errors, hints, etc.',
-            },
-            {
-                name: 'importFormPipes',
-                from: 'tableau-ui-angular/form/imports',
-                info: 'Imports form pipes for BetterForms integration.',
-            },
-        ],
-    };
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     readonly $singleSelectValue: WritableSignal<number | undefined> = signal<number | undefined>(undefined);
     singleSelectValueChanged(val: SelectValue) {

@@ -4,7 +4,7 @@ import { AfterContentInit, ChangeDetectionStrategy, Component, ContentChild, inp
 @Component({
     // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'tab',
-    standalone: true,
+    standalone: false,
     template: `
         <ng-template #headerTemplate>
             <ng-content select="[tab-header]" />

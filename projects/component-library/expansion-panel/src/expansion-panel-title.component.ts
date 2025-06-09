@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, Directive } from '@angular/core';
 
 @Component({
     selector: 'tab-expansion-panel-title',
-    standalone: true,
+    standalone: false,
     template: `
         <ng-content />
     `,
@@ -19,12 +19,12 @@ export class ExpansionPanelTitleComponent {}
 
 @Directive({
     selector: 'tab-expansion-panel-title[expanded]',
-    standalone: true,
+    standalone: false,
 })
 export class ExpansionPanelTitleExpandedContentDirective {}
 
 @Directive({
     selector: 'tab-expansion-panel-title[collapsed]',
-    standalone: true,
+    standalone: false,
 })
 export class ExpansionPanelTitleCollapsedContentDirective {}

@@ -2,7 +2,7 @@ import { Directive, ElementRef, HostListener, inject, input, OnInit, Renderer2 }
 
 @Directive({
     selector: '[resizerFor]',
-    standalone: true,
+    standalone: false,
 })
 export class ResizerDirective {
     readonly $columnElement = input.required<HTMLElement>({

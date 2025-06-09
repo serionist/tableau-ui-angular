@@ -4,7 +4,7 @@ import { AccordionRegistry } from './accordion.registry';
 import type { Subscription } from 'rxjs';
 @Component({
     selector: 'tab-accordion',
-    standalone: true,
+    standalone: false,
     template: '<ng-content select="tab-expansion-panel" />',
     styles: `
         :host {

@@ -27,14 +27,10 @@ import type { TreeNodeInterface } from './tree-node-interface';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { combineLatest } from 'rxjs';
 import { generateRandomString } from 'tableau-ui-angular/utils';
-import { ButtonComponent } from 'tableau-ui-angular/button';
-import { TooltipDirective } from 'tableau-ui-angular/tooltip';
-import { IconComponent } from 'tableau-ui-angular/icon';
 
 @Component({
     selector: 'tab-tree-node',
-    imports: [ButtonComponent, TooltipDirective, IconComponent],
-    standalone: true,
+    standalone: false,
     templateUrl: './tree-node.component.html',
     styleUrl: './tree-node.component.scss',
     providers: [

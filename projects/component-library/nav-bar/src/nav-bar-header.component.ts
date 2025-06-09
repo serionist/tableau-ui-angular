@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, Component, input, model, ModelSignal } from '@
 
 @Component({
     selector: 'tab-nav-bar-header',
-    standalone: true,
+    standalone: false,
     template: '<ng-content />',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })

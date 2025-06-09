@@ -7,8 +7,7 @@ import type { Primitive } from 'tableau-ui-angular/types';
 
 @Component({
     selector: 'tab-option',
-    imports: [CommonModule, IconComponent],
-    standalone: true,
+    standalone: false,
     templateUrl: './option.html',
     styleUrl: './option.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
