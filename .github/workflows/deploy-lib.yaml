@@ -43,7 +43,7 @@ jobs:
 
       - name: Lint Code
         id: lint
-        run: npm run lint
+        run: npm run lint:js && npm run lint:scss
 
   version-and-publish-library:
     runs-on: ubuntu-latest
