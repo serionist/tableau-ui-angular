@@ -60,7 +60,7 @@
                 attribute to the name of the icon you want to use.
             </p>
             <div>
-                <ngx-monaco-editor style="height: 25px; width: 320px; display: inline-block; vertical-align: middle; margin-right: 1em" ngModel='&lt;tab-icon value="home"&gt;&lt;/tab-icon&gt;' [options]="htmlOptions" />
+                <!-- <ngx-monaco-editor style="height: 25px; width: 320px; display: inline-block; vertical-align: middle; margin-right: 1em" ngModel='&lt;tab-icon value="home"&gt;&lt;/tab-icon&gt;' [options]="htmlOptions" /> -->
                 <span>This will render:</span>
                 <tab-icon value="home" style="font-size: 18px; vertical-align: middle" />
             </div>
@@ -131,7 +131,7 @@
                 </li>
             </ul>
             <div>Full configuration example:</div>
-            <ngx-monaco-editor style="height: 55px; width: 620px; display: inline-block; vertical-align: middle; margin-right: 1em" [options]="htmlOptions" [ngModel]="fullConfigExample" />
+            <!-- <ngx-monaco-editor style="height: 55px; width: 620px; display: inline-block; vertical-align: middle; margin-right: 1em" [options]="htmlOptions" [ngModel]="fullConfigExample" /> -->
         </div>
 
         <div class="section">
@@ -139,19 +139,19 @@
             <ol>
                 <li>
                     Install the Icons Package by running:
-                    <ngx-monaco-editor style="height: 25px; width: 270px" ngModel="npm install material-symbols" [options]="terminalOptions" />
+                    <!-- <ngx-monaco-editor style="height: 25px; width: 270px" ngModel="npm install material-symbols" [options]="terminalOptions" /> -->
                 </li>
                 <li>
                     Import the rounded icons by updating your
                     <code>style.scss</code>
                     :
-                    <ngx-monaco-editor style="height: 75px; width: 730px" [options]="scssOptions" [ngModel]="localImportCode" />
+                    <!-- <ngx-monaco-editor style="height: 75px; width: 730px" [options]="scssOptions" [ngModel]="localImportCode" /> -->
                 </li>
                 <li>
                     Add the
                     <code>TableauUiIconModule</code>
                     to your module/component imports:
-                    <ngx-monaco-editor style="height: 280px; width: 520px" [options]="tsOptions" [ngModel]="localModuleCode" />
+                    <!-- <ngx-monaco-editor style="height: 280px; width: 520px" [options]="tsOptions" [ngModel]="localModuleCode" /> -->
                 </li>
                 <li>Use the Icon as it's shown in the Usage section</li>
             </ol>
@@ -181,7 +181,7 @@
             <ol>
                 <li>
                     Install axios as a dev dependency:
-                    <ngx-monaco-editor style="height: 25px; width: 300px" ngModel="npm install --save-dev axios" [options]="terminalOptions" />
+                    <!-- <ngx-monaco-editor style="height: 25px; width: 300px" ngModel="npm install --save-dev axios" [options]="terminalOptions" /> -->
                 </li>
                 <li>
                     Create an
@@ -192,7 +192,7 @@
                     <br />
                     <code>src/icons.ts</code>
                     :
-                    <ngx-monaco-editor style="height: 550px; width: 870px" [options]="tsOptions" [ngModel]="iconsTsCode" />
+                    <!-- <ngx-monaco-editor style="height: 550px; width: 870px" [options]="tsOptions" [ngModel]="iconsTsCode" /> -->
                 </li>
 
                 <li>
@@ -209,7 +209,7 @@
                         <code>package.json</code>
                         , and add the following script:
                     </div>
-                    <ngx-monaco-editor style="height: 150px; width: 870px" [options]="jsonOptions" [ngModel]="iconsDownloadContent" />
+                    <!-- <ngx-monaco-editor style="height: 150px; width: 870px" [options]="jsonOptions" [ngModel]="iconsDownloadContent" /> -->
                 </li>
                 <li>
                     <div>
@@ -228,7 +228,7 @@
                         <code>styles.scss</code>
                         , and add the following line:
                     </div>
-                    <ngx-monaco-editor style="height: 25px; width: 870px" ngModel="@use '../public/icons/material-icons.css';" [options]="scssOptions" />
+                    <!-- <ngx-monaco-editor style="height: 25px; width: 870px" ngModel="@use '../public/icons/material-icons.css';" [options]="scssOptions" /> -->
                     <div>
                         <i>NOTE:</i>
                         You can also import this .css file in any way you want, even from the HTML directly
@@ -245,13 +245,13 @@
                         <code>chokidar</code>
                         , which you need to install as a dev dependency:
                     </div>
-                    <ngx-monaco-editor style="height: 25px; width: 300px" ngModel="npm install --save-dev chokidar-cli" [options]="terminalOptions" />
+                    <!-- <ngx-monaco-editor style="height: 25px; width: 300px" ngModel="npm install --save-dev chokidar-cli" [options]="terminalOptions" /> -->
                     <div>
                         Update your
                         <code>package.json</code>
                         , and add the following script:
                     </div>
-                    <ngx-monaco-editor style="height: 150px; width: 870px" [options]="jsonOptions" [ngModel]="iconsWatchContent" />
+                    <!-- <ngx-monaco-editor style="height: 150px; width: 870px" [options]="jsonOptions" [ngModel]="iconsWatchContent" /> -->
                 </li>
                 <li>
                     <div>Let's modify our build process - we want to download the icons before our build begins.</div>
@@ -265,7 +265,7 @@
                         <code>angular.json</code>
                         file, and add the following configuration:
                     </div>
-                    <ngx-monaco-editor style="height: 150px; width: 870px" [options]="jsonOptions" [ngModel]="npmInstallContent" />
+                    <!-- <ngx-monaco-editor style="height: 150px; width: 870px" [options]="jsonOptions" [ngModel]="npmInstallContent" /> -->
                 </li>
                 <li>
                     <div>
@@ -277,13 +277,13 @@
                         <code>concurrently</code>
                         , which you need to install as a dev dependency:
                     </div>
-                    <ngx-monaco-editor style="height: 25px; width: 300px" ngModel="npm install --save-dev concurrently" [options]="terminalOptions" />
+                    <!-- <ngx-monaco-editor style="height: 25px; width: 300px" ngModel="npm install --save-dev concurrently" [options]="terminalOptions" /> -->
                     <div>
                         Update your
                         <code>package.json</code>
                         , and add the following script:
                     </div>
-                    <ngx-monaco-editor style="height: 150px; width: 870px" [options]="jsonOptions" [ngModel]="ngServeContent" />
+                    <!-- <ngx-monaco-editor style="height: 150px; width: 870px" [options]="jsonOptions" [ngModel]="ngServeContent" /> -->
                 </li>
             </ol>
             <p>

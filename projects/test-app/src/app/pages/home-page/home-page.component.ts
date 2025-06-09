@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { MonacoHelper } from '../../helpers/monaco.helper';
-
+import { Icons } from 'component-library/used-icons';
 @Component({
     selector: 'app-home-page',
     standalone: false,
@@ -9,6 +9,11 @@ import { MonacoHelper } from '../../helpers/monaco.helper';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomePageComponent {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    _testOptions: any = {
+        
+    }
+    
     terminalOptions = MonacoHelper.getOptions('shell');
     tsOptions = MonacoHelper.getOptions('typescript');
     sampleTsCode = `import { Component } from '@angular/core';
