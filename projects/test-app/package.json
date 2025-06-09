@@ -17,7 +17,7 @@
         "tabbable": "^6.2.0",
         "tslib": "^2.3.0",
         "zone.js": "~0.15.0",
-        "tableau-ui-angular": "file:./projects/component-library"
+        "tableau-ui-angular": "file:../component-library"
     },
     "devDependencies": {
         "axios": "^1.7.9",

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, ResourceLoader, ResourceLoaderParams, signal, viewChild } from '@angular/core';
 import { small_data, data } from './table-data-sample';
-import type { DataRequest, DataResponse, HeaderContext } from 'tableau-ui-angular';
+import type { DataRequest, DataResponse, HeaderContext } from 'component-library';
 import { TableComponent } from 'component-library';
 
 @Component({
