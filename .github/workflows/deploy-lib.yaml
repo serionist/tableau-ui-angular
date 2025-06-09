@@ -31,9 +31,7 @@ jobs:
         id: install-deps
         run: npm install
 
-      - name: Lint Code
-        id: lint
-        run: npm run lint
+     
 
       - name: Build Component Library
         id: build-library
@@ -42,6 +40,10 @@ jobs:
       - name: Build Test App
         id: build-test-app
         run: npm run build:github-pages
+
+      - name: Lint Code
+        id: lint
+        run: npm run lint
 
   version-and-publish-library:
     runs-on: ubuntu-latest

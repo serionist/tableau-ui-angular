@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { MonacoHelper } from '../../helpers/monaco.helper';
-import { Icons } from 'component-library/used-icons';
 @Component({
     selector: 'app-home-page',
     standalone: false,

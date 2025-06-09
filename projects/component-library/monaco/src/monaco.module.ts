@@ -6,4 +6,3 @@ import { MonacoEditorComponent } from './monaco-editor.component';
     exports: [MonacoEditorComponent],
 })
 export class MonacoModule {}
-
