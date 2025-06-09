@@ -2,7 +2,6 @@ import type { OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, FormGroupDirective, NgForm, Validators } from '@angular/forms';
 
-
 import { BehaviorSubject, debounceTime, skip, Subject } from 'rxjs';
 import { importLoadingGif, importSeparator } from 'tableau-ui-angular/common/imports';
 import { FB } from 'tableau-ui-angular/form';
@@ -12,7 +11,7 @@ import { importIcons } from 'tableau-ui-angular/icon/imports';
 import { SnackService } from 'tableau-ui-angular/snack';
 import { importSnackProvider } from 'tableau-ui-angular/snack/imports';
 import type { ImportModel } from '../../components/import-details/import-model';
-import { ImportDetailsComponent } from "../../components/import-details/import-details.component";
+import { ImportDetailsComponent } from '../../components/import-details/import-details.component';
 import { AutoCompleteComponent } from 'tableau-ui-angular/autocomplete';
 import { importAutocomplete } from 'tableau-ui-angular/autocomplete/imports';
 
@@ -35,7 +34,7 @@ export class FormFieldsPageComponent implements OnInit {
                 name: 'FormFieldComponent',
                 from: 'tableau-ui-angular/form-field',
                 info: 'Component for creating form fields with labels, errors, hints, and more.',
-            }
+            },
         ],
         optionalComponentImports: [
             {
@@ -67,23 +66,22 @@ export class FormFieldsPageComponent implements OnInit {
                 name: 'ReactiveFormsModule',
                 from: '@angular/forms',
                 info: 'Optional import for using form fields with reactive forms.',
-            }
+            },
         ],
         importFunctions: [
             {
                 name: 'importFormField',
                 from: 'tableau-ui-angular/form-field/imports',
                 info: 'Imports form field component and all its optional imports.',
-            }
+            },
         ],
         optionalImportFunctions: [
-            
             {
                 name: 'importFormPipes',
                 from: 'tableau-ui-angular/form/imports',
                 info: 'Imports form pipes for BetterForms integration, such as `formMeta`, `formControl`, `formControlValue`, etc.',
-            }
-        ]
+            },
+        ],
     };
 
     autocompleteImport: ImportModel = {
@@ -103,8 +101,7 @@ export class FormFieldsPageComponent implements OnInit {
                 name: 'OptionComponent',
                 from: 'tableau-ui-angular/common',
                 info: 'Component for defining individual options in the autocomplete dropdown.',
-                
-            }
+            },
         ],
         optionalComponentImports: [
             {
@@ -136,40 +133,37 @@ export class FormFieldsPageComponent implements OnInit {
                 name: 'ReactiveFormsModule',
                 from: '@angular/forms',
                 info: 'Optional import for using form fields with reactive forms.',
-            }
+            },
         ],
         importFunctions: [
             {
                 name: 'importAutocomplete',
                 from: 'tableau-ui-angular/autocomplete/imports',
                 info: 'Imports autocomplete component and all its optional imports.',
-            }
+            },
         ],
         optionalImportFunctions: [
             {
                 name: 'importFormPipes',
                 from: 'tableau-ui-angular/form/imports',
                 info: 'Imports form pipes for BetterForms integration, such as `formMeta`, `formControl`, `formControlValue`, etc.',
-            }
+            },
         ],
         optionalProviderImports: [
             {
                 name: 'FB',
                 from: 'tableau-ui-angular/form',
                 info: 'Form Builder service for creating reactive forms with BetterForms.',
-            }
+            },
         ],
         optionalProviderImportFunctions: [
             {
                 name: 'importFormBuilderProvider',
                 from: 'tableau-ui-angular/form/imports',
                 info: 'Imports form builder provider for creating reactive forms with BetterForms.',
-            }
-        ]
-        
+            },
+        ],
     };
-
-
 
     private readonly b = inject(FB);
     valueChanged(event: Event, name: string, type: 'error' | 'info' = 'info') {

@@ -1,7 +1,7 @@
 import type { ModelSignal, Signal, TemplateRef, WritableSignal } from '@angular/core';
 import { ChangeDetectionStrategy, Component, contentChild, ElementRef, inject, input, model, signal, viewChild } from '@angular/core';
 import { importDialogProvider } from 'tableau-ui-angular/dialog/imports';
-import type { DialogRef} from 'tableau-ui-angular/dialog';
+import type { DialogRef } from 'tableau-ui-angular/dialog';
 import { DialogService } from 'tableau-ui-angular/dialog';
 import { PrefixComponent, SuffixComponent } from 'tableau-ui-angular/common';
 
@@ -11,8 +11,8 @@ import { PrefixComponent, SuffixComponent } from 'tableau-ui-angular/common';
     templateUrl: './menu.component.html',
     styleUrl: './menu.component.scss',
     providers: [importDialogProvider()],
-    changeDetection: ChangeDetectionStrategy.OnPush
-  })
+    changeDetection: ChangeDetectionStrategy.OnPush,
+})
 export class MenuComponent {
     private readonly dialogService = inject(DialogService);
     private readonly elementRef = inject(ElementRef);

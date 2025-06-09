@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, contentChildren, effect, HostListener, input, model, output } from '@angular/core';
-import type { IOptionLineContext} from 'tableau-ui-angular/common';
+import type { IOptionLineContext } from 'tableau-ui-angular/common';
 import { OptionComponent } from 'tableau-ui-angular/common';
 import { TooltipDirective } from 'tableau-ui-angular/tooltip';
 import type { Primitive } from 'tableau-ui-angular/types';
@@ -16,8 +16,8 @@ import type { Primitive } from 'tableau-ui-angular/types';
         '[class.disabled]': '$disabled()',
         '[attr.disabled]': '$disabled() ? true : null',
         '[tabindex]': '$disabled() ? -1: 0',
-    }
-  })
+    },
+})
 export class ButtonToggleComponent {
     /**
      * Disables the button toggle component.

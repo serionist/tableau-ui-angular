@@ -4,9 +4,9 @@ import { ChangeDetectionStrategy, Component, contentChild, contentChildren, Dire
 import type { Subscription } from 'rxjs';
 import { fromEvent, map, Subject } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
-import type { IOptionGridContext} from 'tableau-ui-angular/common';
-import { OptionComponent, PrefixComponent, SuffixComponent,  } from 'tableau-ui-angular/common';
-import type { DialogRef} from 'tableau-ui-angular/dialog';
+import type { IOptionGridContext } from 'tableau-ui-angular/common';
+import { OptionComponent, PrefixComponent, SuffixComponent } from 'tableau-ui-angular/common';
+import type { DialogRef } from 'tableau-ui-angular/dialog';
 import { DialogService } from 'tableau-ui-angular/dialog';
 import { generateRandomString } from 'tableau-ui-angular/utils';
 import { CommonModule } from '@angular/common';

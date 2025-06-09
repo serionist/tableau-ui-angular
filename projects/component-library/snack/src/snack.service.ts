@@ -7,7 +7,7 @@ import { TAB_SNACK_DATA_REF } from './data.ref';
 
 // Styles for the snack container are in _snack.service.scss in the styles folder
 @Injectable({
-    providedIn: 'any' // new instance for each injection -> also lazy loaded
+    providedIn: 'any', // new instance for each injection -> also lazy loaded
 })
 export class SnackService {
     private readonly injector = inject(Injector);

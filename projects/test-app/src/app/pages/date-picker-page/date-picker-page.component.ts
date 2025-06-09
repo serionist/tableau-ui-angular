@@ -17,8 +17,8 @@ import { ImportDetailsComponent } from '../../components/import-details/import-d
     templateUrl: './date-picker-page.component.html',
     styleUrl: './date-picker-page.component.scss',
     providers: [...importFormBuilderProvider()],
-    changeDetection: ChangeDetectionStrategy.OnPush
-  })
+    changeDetection: ChangeDetectionStrategy.OnPush,
+})
 export class DatePickerPageComponent {
     readonly b = inject(FB);
     readonly simpleControl = this.b.control<Date>(new Date(), [Validators.required, DateValidators.minDate(new Date(2000, 0, 1)), DateValidators.maxDate(new Date(2030, 12, 31))]);
@@ -29,24 +29,24 @@ export class DatePickerPageComponent {
             {
                 name: 'DatePickerComponent',
                 from: 'tableau-ui-angular/date-picker',
-                info: 'Allows the use of <input date-picker> directive. Provide a type="date" or type="datetime-local" to the input element.'
-            }
+                info: 'Allows the use of <input date-picker> directive. Provide a type="date" or type="datetime-local" to the input element.',
+            },
         ],
         importFunctions: [
             {
                 name: 'importDatePicker',
                 from: 'tableau-ui-angular/date-picker/imports',
-                info: 'Imports date picker component and all its optional imports.'
-            }
+                info: 'Imports date picker component and all its optional imports.',
+            },
         ],
         optionalImportFunctions: [
             {
                 name: 'importFormField',
                 from: 'tableau-ui-angular/form-field/imports',
-                info: 'Imports form field component to integrate with form fields, show labels, errors, hints, etc'
-            }
-        ]
-    }
+                info: 'Imports form field component to integrate with form fields, show labels, errors, hints, etc',
+            },
+        ],
+    };
     constructor() {
         this.simpleControl.value$.subscribe((value) => {
             console.log(value);

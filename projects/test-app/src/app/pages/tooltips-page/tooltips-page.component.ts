@@ -3,7 +3,7 @@ import { importSeparator } from 'tableau-ui-angular/common/imports';
 import { TooltipDirective } from 'tableau-ui-angular/tooltip';
 import { importTooltip } from 'tableau-ui-angular/tooltip/imports';
 import type { ImportModel } from '../../components/import-details/import-model';
-import { ImportDetailsComponent } from "../../components/import-details/import-details.component";
+import { ImportDetailsComponent } from '../../components/import-details/import-details.component';
 
 @Component({
     selector: 'app-tooltips-page',

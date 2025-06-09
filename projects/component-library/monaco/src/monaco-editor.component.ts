@@ -5,7 +5,7 @@
 import { Component, ChangeDetectionStrategy, forwardRef, viewChild, ElementRef, AfterViewInit, OnDestroy, inject, input, model, signal, effect } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MonacoLoaderService } from './monaco-loader.service';
-import type {editor} from 'monaco-editor'
+import type { editor } from 'monaco-editor';
 @Component({
     selector: 'tab-monaco-editor',
     standalone: true,

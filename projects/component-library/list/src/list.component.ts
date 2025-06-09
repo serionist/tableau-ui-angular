@@ -2,7 +2,7 @@ import type { WritableSignal } from '@angular/core';
 import { AfterViewInit, ChangeDetectionStrategy, Component, computed, contentChildren, ElementRef, forwardRef, inject, model, OnDestroy, signal } from '@angular/core';
 import type { ControlValueAccessor } from '@angular/forms';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
-import type { IOptionGridContext} from 'tableau-ui-angular/common';
+import type { IOptionGridContext } from 'tableau-ui-angular/common';
 import { OptionComponent } from 'tableau-ui-angular/common';
 import type { Primitive } from 'tableau-ui-angular/types';
 import { IsValueSelectedPipe } from './pipes/is-value-selected.pipe';

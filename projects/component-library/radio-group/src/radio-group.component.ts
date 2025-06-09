@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, Component, contentChild, ContentChild, content
 
 import type { ControlValueAccessor } from '@angular/forms';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
-import type { IOptionGridContext} from 'tableau-ui-angular/common';
+import type { IOptionGridContext } from 'tableau-ui-angular/common';
 import { ErrorComponent, OptionComponent } from 'tableau-ui-angular/common';
 import type { Primitive } from 'tableau-ui-angular/types';
 import { generateRandomString } from 'tableau-ui-angular/utils';

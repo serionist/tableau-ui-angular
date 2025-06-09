@@ -5,7 +5,7 @@ import { importIcons } from 'tableau-ui-angular/icon/imports';
 import { SnackService } from 'tableau-ui-angular/snack';
 import { importSnackProvider } from 'tableau-ui-angular/snack/imports';
 import type { ImportModel } from '../../components/import-details/import-model';
-import { ImportDetailsComponent } from "../../components/import-details/import-details.component";
+import { ImportDetailsComponent } from '../../components/import-details/import-details.component';
 
 @Component({
     selector: 'app-buttons-page',
@@ -14,8 +14,8 @@ import { ImportDetailsComponent } from "../../components/import-details/import-d
     templateUrl: './buttons-page.component.html',
     styleUrl: './buttons-page.component.scss',
     providers: [importSnackProvider()],
-    changeDetection: ChangeDetectionStrategy.OnPush
-  })
+    changeDetection: ChangeDetectionStrategy.OnPush,
+})
 export class ButtonsPageComponent {
     snack = inject(SnackService);
 
@@ -25,15 +25,15 @@ export class ButtonsPageComponent {
             {
                 name: 'ButtonComponent',
                 from: 'tableau-ui-angular/button',
-            }
+            },
         ],
         importFunctions: [
             {
                 name: 'importButton',
                 from: 'tableau-ui-angular/button/imports',
-                info: 'Imports button component and all its dependencies.'
-            }
-        ]
+                info: 'Imports button component and all its dependencies.',
+            },
+        ],
     };
 
     toggleButtonsImport: ImportModel = {
@@ -42,15 +42,15 @@ export class ButtonsPageComponent {
             {
                 name: 'ButtonToggleComponent',
                 from: 'tableau-ui-angular/button',
-            }
+            },
         ],
         importFunctions: [
             {
                 name: 'importButtonToggle',
                 from: 'tableau-ui-angular/button/imports',
-                info: 'Imports button toggle component and all its dependencies.'
-            }
-        ]
+                info: 'Imports button toggle component and all its dependencies.',
+            },
+        ],
     };
     allButtons: ImportModel = {
         name: 'All Buttons',
@@ -62,15 +62,15 @@ export class ButtonsPageComponent {
             {
                 name: 'ButtonToggleComponent',
                 from: 'tableau-ui-angular/button',
-            }
+            },
         ],
         importFunctions: [
             {
                 name: 'importAllButtons',
                 from: 'tableau-ui-angular/button/imports',
-                info: 'Imports all button components and all their dependencies.'
-            }
-        ]
+                info: 'Imports all button components and all their dependencies.',
+            },
+        ],
     };
 
     buttonsLoading = {

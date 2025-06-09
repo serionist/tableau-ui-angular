@@ -59,7 +59,7 @@
                                     <tab-option [text]="result.name" [value]="result.name" />
                                 }
                             }
-    
+
                             <tab-suffix>
                                 <tab-separator />
                                 <tab-hint style="display: block; margin: 0.5rem">{{ (searchResults$ | async)?.length || 0 }} suggestions</tab-hint>
@@ -87,7 +87,7 @@
                             <tab-label>Placeholder textbox</tab-label>
                             <input type="text" placeholder="Enter any text here" formControlName="simple2" />
                         </tab-form-field>
-    
+
                         <tab-form-field>
                             <tab-label>Decorated textbox</tab-label>
                             <input type="text" placeholder="Enter any text here" formControlName="simple3" />
@@ -98,7 +98,7 @@
                             </tab-prefix>
                             <tab-suffix>Suffix</tab-suffix>
                         </tab-form-field>
-    
+
                         <tab-form-field>
                             <tab-label>Disabled textbox</tab-label>
                             <input type="text" placeholder="Enter any text here" formControlName="disabled" />
@@ -109,7 +109,7 @@
                             </tab-prefix>
                             <tab-suffix>Suffix</tab-suffix>
                         </tab-form-field>
-    
+
                         <tab-form-field>
                             <tab-label>Validated textbox</tab-label>
                             <input #errorInput type="text" placeholder="Enter any text here" formControlName="validation" />
@@ -123,7 +123,7 @@
                                 <tab-error>This field is required</tab-error>
                             }
                         </tab-form-field>
-    
+
                         <tab-form-field>
                             <tab-label>Password box</tab-label>
                             <input type="password" placeholder="Enter any text here" formControlName="password" />
@@ -134,7 +134,7 @@
                             </tab-prefix>
                             <tab-suffix>Suffix</tab-suffix>
                         </tab-form-field>
-    
+
                         <tab-form-field>
                             <tab-label>Number box</tab-label>
                             <input type="number" placeholder="Enter any text here" formControlName="number" />
@@ -153,7 +153,7 @@
                                 <tab-error>Value must be a number</tab-error>
                             }
                         </tab-form-field>
-    
+
                         <tab-form-field>
                             <tab-label>Text area</tab-label>
                             <textarea placeholder="Enter any text here" rows="1" formControlName="textarea"></textarea>
@@ -192,7 +192,6 @@
                 </div>
             </div>
         </div>
-       
     </div>
     <div class="content">
         <div class="section">
@@ -228,6 +227,5 @@
                 </tab-form-field>
             </div>
         </div>
-       
     </div>
 </div>

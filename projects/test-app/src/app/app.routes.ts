@@ -24,7 +24,7 @@ import { TablePageComponent } from './pages/table-page/table-page.component';
 export const routes: Routes = [
     {
         path: '',
-        loadComponent: async () => import('./pages/home-page/home-page.component').then(m => m.HomePageComponent),
+        loadComponent: async () => import('./pages/home-page/home-page.component').then((m) => m.HomePageComponent),
         title: 'Home',
         data: {
             page: 'home',
@@ -32,8 +32,8 @@ export const routes: Routes = [
     },
     {
         path: 'local-development',
-        loadComponent: async () => import('./pages/local-development/local-development.component').then(m => m.LocalDevelopmentComponent),
-        
+        loadComponent: async () => import('./pages/local-development/local-development.component').then((m) => m.LocalDevelopmentComponent),
+
         title: 'local-development',
         data: {
             page: 'local-development',
@@ -41,7 +41,7 @@ export const routes: Routes = [
     },
     {
         path: 'checkbox',
-        loadComponent: async () => import('./pages/checkbox-page/checkbox-page.component').then(m => m.CheckboxPageComponent),
+        loadComponent: async () => import('./pages/checkbox-page/checkbox-page.component').then((m) => m.CheckboxPageComponent),
         title: 'Checkboxes',
         data: {
             page: 'checkbox',
@@ -49,7 +49,7 @@ export const routes: Routes = [
     },
     {
         path: 'table',
-        loadComponent: async () => import('./pages/table-page/table-page.component').then(m => m.TablePageComponent),
+        loadComponent: async () => import('./pages/table-page/table-page.component').then((m) => m.TablePageComponent),
         title: 'Tables',
         data: {
             page: 'table',
@@ -57,7 +57,7 @@ export const routes: Routes = [
     },
     {
         path: 'select',
-        loadComponent: async () => import('./pages/select-page/select-page.component').then(m => m.SelectPageComponent),
+        loadComponent: async () => import('./pages/select-page/select-page.component').then((m) => m.SelectPageComponent),
         title: 'Select',
         data: {
             page: 'select',
@@ -65,7 +65,7 @@ export const routes: Routes = [
     },
     {
         path: 'list',
-        loadComponent: async () => import('./pages/list-page/list-page.component').then(m => m.ListPageComponent),
+        loadComponent: async () => import('./pages/list-page/list-page.component').then((m) => m.ListPageComponent),
         title: 'List',
         data: {
             page: 'list',
@@ -73,7 +73,7 @@ export const routes: Routes = [
     },
     {
         path: 'css',
-        loadComponent: async () => import('./pages/css-page/css-page.component').then(m => m.CssPageComponent),
+        loadComponent: async () => import('./pages/css-page/css-page.component').then((m) => m.CssPageComponent),
         title: 'CSS & Fonts',
         data: {
             page: 'css',
@@ -81,7 +81,7 @@ export const routes: Routes = [
     },
     {
         path: 'icons',
-        loadComponent: async () => import('./pages/icons-page/icons-page.component').then(m => m.IconsPageComponent),
+        loadComponent: async () => import('./pages/icons-page/icons-page.component').then((m) => m.IconsPageComponent),
         title: 'Icons',
         data: {
             page: 'icons',
@@ -89,7 +89,7 @@ export const routes: Routes = [
     },
     {
         path: 'buttons',
-        loadComponent: async () => import('./pages/buttons-page/buttons-page.component').then(m => m.ButtonsPageComponent),
+        loadComponent: async () => import('./pages/buttons-page/buttons-page.component').then((m) => m.ButtonsPageComponent),
         title: 'Buttons',
         data: {
             page: 'buttons',
@@ -97,7 +97,7 @@ export const routes: Routes = [
     },
     {
         path: 'dialogs',
-        loadComponent: async () => import('./pages/dialogs-page/dialogs-page.component').then(m => m.DialogsPageComponent),
+        loadComponent: async () => import('./pages/dialogs-page/dialogs-page.component').then((m) => m.DialogsPageComponent),
         title: 'Dialogs',
         data: {
             page: 'dialogs',
@@ -105,7 +105,7 @@ export const routes: Routes = [
     },
     {
         path: 'expansion-panel',
-        loadComponent: async () => import('./pages/expansion-page/expansion-page.component').then(m => m.ExpansionPageComponent),
+        loadComponent: async () => import('./pages/expansion-page/expansion-page.component').then((m) => m.ExpansionPageComponent),
         title: 'Expansion Panels',
         data: {
             page: 'expansion-panel',
@@ -113,7 +113,7 @@ export const routes: Routes = [
     },
     {
         path: 'snackbar',
-        loadComponent: async () => import('./pages/snacks-page/snacks-page.component').then(m => m.SnacksPageComponent),
+        loadComponent: async () => import('./pages/snacks-page/snacks-page.component').then((m) => m.SnacksPageComponent),
         title: 'Snackbar',
         data: {
             page: 'snackbar',
@@ -121,7 +121,7 @@ export const routes: Routes = [
     },
     {
         path: 'tooltips',
-        loadComponent: async () => import('./pages/tooltips-page/tooltips-page.component').then(m => m.TooltipsPageComponent),
+        loadComponent: async () => import('./pages/tooltips-page/tooltips-page.component').then((m) => m.TooltipsPageComponent),
         title: 'Tooltips',
         data: {
             page: 'tooltips',
@@ -129,7 +129,7 @@ export const routes: Routes = [
     },
     {
         path: 'tabcontrol',
-        loadComponent: async () => import('./pages/tabcontrol-page/tabcontrol-page.component').then(m => m.TabcontrolPageComponent),
+        loadComponent: async () => import('./pages/tabcontrol-page/tabcontrol-page.component').then((m) => m.TabcontrolPageComponent),
         title: 'Tabs',
         data: {
             page: 'tabcontrol',
@@ -137,7 +137,7 @@ export const routes: Routes = [
     },
     {
         path: 'navbar',
-         loadComponent: async () => import('./pages/navbar-page/navbar-page.component').then(m => m.NavbarPageComponent),
+        loadComponent: async () => import('./pages/navbar-page/navbar-page.component').then((m) => m.NavbarPageComponent),
         title: 'Nav Bar',
         data: {
             page: 'navbar',
@@ -145,7 +145,7 @@ export const routes: Routes = [
     },
     {
         path: 'menu',
-        loadComponent: async () => import('./pages/menu-page/menu-page.component').then(m => m.MenuPageComponent),
+        loadComponent: async () => import('./pages/menu-page/menu-page.component').then((m) => m.MenuPageComponent),
         title: 'Menu',
         data: {
             page: 'menu',
@@ -153,7 +153,7 @@ export const routes: Routes = [
     },
     {
         path: 'date-picker',
-        loadComponent: async () => import('./pages/date-picker-page/date-picker-page.component').then(m => m.DatePickerPageComponent),
+        loadComponent: async () => import('./pages/date-picker-page/date-picker-page.component').then((m) => m.DatePickerPageComponent),
         title: 'Date Picker',
         data: {
             page: 'date-picker',
@@ -161,7 +161,7 @@ export const routes: Routes = [
     },
     {
         path: 'tree',
-        loadComponent: async () => import('./pages/tree-page/tree-page.component').then(m => m.TreePageComponent),
+        loadComponent: async () => import('./pages/tree-page/tree-page.component').then((m) => m.TreePageComponent),
         title: 'Tree',
         data: {
             page: 'tree',
@@ -169,7 +169,7 @@ export const routes: Routes = [
     },
     {
         path: 'clipboard',
-        loadComponent: async () => import('./pages/clipboard-page/clipboard-page.component').then(m => m.ClipboardPageComponent),
+        loadComponent: async () => import('./pages/clipboard-page/clipboard-page.component').then((m) => m.ClipboardPageComponent),
         title: 'Clipboard',
         data: {
             page: 'clipboard',
@@ -177,7 +177,7 @@ export const routes: Routes = [
     },
     {
         path: 'form-fields',
-        loadComponent: async () => import('./pages/form-fields-page/form-fields-page.component').then(m => m.FormFieldsPageComponent),
+        loadComponent: async () => import('./pages/form-fields-page/form-fields-page.component').then((m) => m.FormFieldsPageComponent),
         title: 'Form Fields',
         data: {
             page: 'form-fields',
@@ -185,7 +185,7 @@ export const routes: Routes = [
     },
     {
         path: 'radios',
-        loadComponent: async () => import('./pages/radio-buttons-page/radio-buttons-page.component').then(m => m.RadioButtonsPageComponent),
+        loadComponent: async () => import('./pages/radio-buttons-page/radio-buttons-page.component').then((m) => m.RadioButtonsPageComponent),
         title: 'Radio Buttons',
         data: {
             page: 'radios',
@@ -193,7 +193,7 @@ export const routes: Routes = [
     },
     {
         path: 'scroller',
-        loadComponent: async () => import('./pages/scroller-page/scroller-page.component').then(m => m.ScrollerPageComponent),
+        loadComponent: async () => import('./pages/scroller-page/scroller-page.component').then((m) => m.ScrollerPageComponent),
         title: 'Arrow Scroller',
         data: {
             page: 'scroller',

@@ -15,14 +15,11 @@ import { importSnackProvider } from 'tableau-ui-angular/snack/imports';
 import { ErrorComponent } from '../../../../../../dist/component-library/common';
 import type { ImportModel } from '../../components/import-details/import-model';
 import { importFormField } from 'tableau-ui-angular/form-field/imports';
-import { ImportDetailsComponent } from "../../components/import-details/import-details.component";
+import { ImportDetailsComponent } from '../../components/import-details/import-details.component';
 
 @Component({
     selector: 'app-select-page',
-    imports: [
-    ...importSeparator(), ...importSelect(), ...importFormField(), ...importFormPipes(), ...importLoadingGif(),
-    ImportDetailsComponent
-],
+    imports: [...importSeparator(), ...importSelect(), ...importFormField(), ...importFormPipes(), ...importLoadingGif(), ImportDetailsComponent],
     standalone: true,
     templateUrl: './select-page.component.html',
     styleUrl: './select-page.component.scss',
@@ -78,7 +75,7 @@ export class SelectPageComponent implements OnInit {
                 from: 'tableau-ui-angular/common',
                 info: 'Optional component for displaying validation errors related to the select.',
             },
-           
+
             {
                 name: 'ReactiveFormsModule',
                 from: '@angular/forms',

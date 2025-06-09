@@ -5,7 +5,7 @@ import { IconComponent } from 'tableau-ui-angular/icon';
 import { importSnackProvider } from 'tableau-ui-angular/snack/imports';
 import type { ImportModel } from '../../components/import-details/import-model';
 import { importArrowScroll } from 'tableau-ui-angular/arrow-scroll/imports';
-import { ImportDetailsComponent } from "../../components/import-details/import-details.component";
+import { ImportDetailsComponent } from '../../components/import-details/import-details.component';
 
 @Component({
     selector: 'app-scroller-page',
@@ -38,6 +38,5 @@ export class ScrollerPageComponent {
                 info: 'Imports scroller component and all its dependencies.',
             },
         ],
-    }
-
+    };
 }

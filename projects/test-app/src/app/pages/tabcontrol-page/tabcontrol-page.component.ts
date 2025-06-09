@@ -3,7 +3,7 @@ import { importSeparator } from 'tableau-ui-angular/common/imports';
 import { TabComponent, TabGroupComponent } from 'tableau-ui-angular/tab-group';
 import { importTabGroup } from 'tableau-ui-angular/tab-group/imports';
 import type { ImportModel } from '../../components/import-details/import-model';
-import { ImportDetailsComponent } from "../../components/import-details/import-details.component";
+import { ImportDetailsComponent } from '../../components/import-details/import-details.component';
 
 @Component({
     selector: 'app-tabcontrol-page',
@@ -14,7 +14,6 @@ import { ImportDetailsComponent } from "../../components/import-details/import-d
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TabcontrolPageComponent {
-
     imports: ImportModel = {
         name: 'TabControl',
         providerImports: [

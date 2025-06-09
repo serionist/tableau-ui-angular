@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, ResourceLoader, ResourceLoaderParams, signal, viewChild } from '@angular/core';
 import { small_data, data } from './table-data-sample';
-import type { DataRequest, DataResponse, HeaderContext} from 'tableau-ui-angular/table';
+import type { DataRequest, DataResponse, HeaderContext } from 'tableau-ui-angular/table';
 import { CellDefDirective, ColumnDefDirective, HeaderDefDirective, TableComponent } from 'tableau-ui-angular/table';
 import { importSeparator } from 'tableau-ui-angular/common/imports';
 import { importCheckbox } from 'tableau-ui-angular/checkbox/imports';
@@ -8,19 +8,17 @@ import { importButton } from 'tableau-ui-angular/button/imports';
 import { CommonModule } from '@angular/common';
 import { importTable } from 'tableau-ui-angular/table/imports';
 import type { ImportModel } from '../../components/import-details/import-model';
-import { ImportDetailsComponent } from "../../components/import-details/import-details.component";
+import { ImportDetailsComponent } from '../../components/import-details/import-details.component';
 
 @Component({
     selector: 'app-table-page',
-    imports: [...importSeparator(), ...importCheckbox(), ...importButton(),
-    CommonModule, TableComponent, HeaderDefDirective, ColumnDefDirective, CellDefDirective, ...importTable(), ImportDetailsComponent],
+    imports: [...importSeparator(), ...importCheckbox(), ...importButton(), CommonModule, TableComponent, HeaderDefDirective, ColumnDefDirective, CellDefDirective, ...importTable(), ImportDetailsComponent],
     standalone: true,
     templateUrl: './table-page.component.html',
     styleUrl: './table-page.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TablePageComponent {
-
     imports: ImportModel = {
         name: 'Table',
         providerImports: [
@@ -52,7 +50,7 @@ export class TablePageComponent {
                 info: 'Imports the Table component and its related directives.',
             },
         ],
-    }
+    };
     readonly $show_first_3_columns = signal(false);
     readonly $striped = signal(false);
     readonly $showData = signal(true);

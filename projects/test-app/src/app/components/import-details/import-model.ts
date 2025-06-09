@@ -8,7 +8,6 @@ export interface ImportModel {
     optionalProviderImports?: ImportName[];
     providerImportFunctions?: ImportName[];
     optionalProviderImportFunctions?: ImportName[];
-   
 }
 
 export interface ImportName {

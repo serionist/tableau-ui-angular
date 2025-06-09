@@ -8,8 +8,7 @@ import type { Primitive } from 'tableau-ui-angular/types';
 import type { ImportModel } from '../../components/import-details/import-model';
 
 import { importCheckbox } from 'tableau-ui-angular/checkbox/imports';
-import { ImportDetailsComponent } from "../../components/import-details/import-details.component";
-
+import { ImportDetailsComponent } from '../../components/import-details/import-details.component';
 
 @Component({
     selector: 'app-checkbox-page',
@@ -23,39 +22,39 @@ import { ImportDetailsComponent } from "../../components/import-details/import-d
 export class CheckboxPageComponent implements OnInit {
     snackService = inject(SnackService);
 
-     import: ImportModel = {
-            name: 'Checkbox',
-            componentImports: [
-                {
-                    name: 'CheckboxComponent',
-                    from: 'tableau-ui-angular/checkbox',
-                }
-            ],
-            optionalComponentImports: [
-                {
-                    name: 'HintComponent',
-                    from: 'tableau-ui-angular/common',
-                    info: 'Optional hint component for displaying additional information inside the checkbox.'
-                },
-                {
-                    name: 'ErrorComponent',
-                    from: 'tableau-ui-angular/common',
-                    info: 'Optional error component for displaying validation errors related to the checkbox.'
-                },
-                {
-                    name: 'ReactiveFormsModule',
-                    from: '@angular/forms',
-                    info: 'Optional import for using checkbox with reactive forms.'
-                }
-            ],
-            importFunctions: [
-                {
-                    name: 'importCheckbox',
-                    from: 'tableau-ui-angular/checkbox/imports',
-                    info: 'Imports checkbox component and all its optional imports.'
-                }
-            ]
-        };
+    import: ImportModel = {
+        name: 'Checkbox',
+        componentImports: [
+            {
+                name: 'CheckboxComponent',
+                from: 'tableau-ui-angular/checkbox',
+            },
+        ],
+        optionalComponentImports: [
+            {
+                name: 'HintComponent',
+                from: 'tableau-ui-angular/common',
+                info: 'Optional hint component for displaying additional information inside the checkbox.',
+            },
+            {
+                name: 'ErrorComponent',
+                from: 'tableau-ui-angular/common',
+                info: 'Optional error component for displaying validation errors related to the checkbox.',
+            },
+            {
+                name: 'ReactiveFormsModule',
+                from: '@angular/forms',
+                info: 'Optional import for using checkbox with reactive forms.',
+            },
+        ],
+        importFunctions: [
+            {
+                name: 'importCheckbox',
+                from: 'tableau-ui-angular/checkbox/imports',
+                info: 'Imports checkbox component and all its optional imports.',
+            },
+        ],
+    };
     simpleValue1 = true;
     simpleValue2 = false;
 

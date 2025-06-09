@@ -79,8 +79,8 @@ import { RouterModule } from '@angular/router';
             background-color: var(--twc-color-border-dark-disabled);
         }
     `,
-    changeDetection: ChangeDetectionStrategy.OnPush
-  })
+    changeDetection: ChangeDetectionStrategy.OnPush,
+})
 export class SnackComponent<TContext> {
     protected readonly data = inject<SnackComponentData<TContext>>(TAB_SNACK_DATA_REF);
     protected readonly snackRef = injectSnackRef<boolean>();

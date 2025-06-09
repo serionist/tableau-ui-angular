@@ -1,4 +1,4 @@
-import { DatePickerDirective } from "tableau-ui-angular/date-picker";
+import { DatePickerDirective } from 'tableau-ui-angular/date-picker';
 
 export function importDatePicker() {
     return [DatePickerDirective];

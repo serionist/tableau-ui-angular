@@ -11,8 +11,8 @@ import type { Primitive } from 'tableau-ui-angular/types';
     standalone: true,
     templateUrl: './option.html',
     styleUrl: './option.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush
-  })
+    changeDetection: ChangeDetectionStrategy.OnPush,
+})
 export class OptionComponent {
     readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
     readonly $value = input.required<Exclude<Primitive, undefined>>({

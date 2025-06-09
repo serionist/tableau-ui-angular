@@ -1,4 +1,3 @@
-
 import type { Primitive } from 'tableau-ui-angular/types';
 import type { RegisterFns } from '../../abstract-control/register/interfaces';
 import type { FC } from '../interfaces';

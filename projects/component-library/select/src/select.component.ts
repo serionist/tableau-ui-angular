@@ -1,27 +1,12 @@
 import type { AfterViewInit, InputSignal, OnDestroy, Signal, TemplateRef, WritableSignal } from '@angular/core';
-import {
-    AfterContentInit,
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    contentChild,
-    contentChildren,
-    effect,
-    ElementRef,
-    forwardRef,
-    inject,
-    input,
-    model,
-    signal,
-    viewChild,
-} from '@angular/core';
+import { AfterContentInit, ChangeDetectionStrategy, Component, computed, contentChild, contentChildren, effect, ElementRef, forwardRef, inject, input, model, signal, viewChild } from '@angular/core';
 import type { ControlValueAccessor } from '@angular/forms';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import type { Subscription } from 'rxjs';
 import { fromEvent, map } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
 import type { Primitive } from 'tableau-ui-angular/types';
-import type { IOptionGridContext, IOptionLineContext} from 'tableau-ui-angular/common';
+import type { IOptionGridContext, IOptionLineContext } from 'tableau-ui-angular/common';
 import { OptionComponent, PrefixComponent, SuffixComponent } from 'tableau-ui-angular/common';
 import { SnackService, SnackRef } from 'tableau-ui-angular/snack';
 import type { DialogRef } from 'tableau-ui-angular/dialog';
@@ -46,8 +31,8 @@ export type SelectValue = Exclude<Primitive, undefined> | Exclude<Primitive, und
             useExisting: forwardRef(() => SelectComponent),
             multi: true,
         },
-        SnackService, 
-        DialogService
+        SnackService,
+        DialogService,
     ],
     changeDetection: ChangeDetectionStrategy.OnPush,
     host: {

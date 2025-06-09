@@ -14,8 +14,8 @@ import { ChangeDetectionStrategy, Component, ElementRef, inject, input, model } 
             color: var(--twc-color-text-gray);
         }
     `,
-    changeDetection: ChangeDetectionStrategy.OnPush
-  })
+    changeDetection: ChangeDetectionStrategy.OnPush,
+})
 export class HintComponent {
     readonly $type = input<'prefix' | 'suffix'>('prefix', {
         alias: 'type',

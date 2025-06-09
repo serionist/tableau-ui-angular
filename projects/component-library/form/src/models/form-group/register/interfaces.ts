@@ -1,4 +1,3 @@
-
 import type { DeepPartial, Primitive } from 'tableau-ui-angular/types';
 import type { FormReferencesOf } from '../../../types/form-references-of';
 import type { RegisterFns } from '../../abstract-control/register/interfaces';

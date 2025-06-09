@@ -6,7 +6,7 @@ import { DialogService } from 'tableau-ui-angular/dialog';
 import type { ImportModel } from '../../components/import-details/import-model';
 import { importSeparator } from 'tableau-ui-angular/common/imports';
 import { importIcons } from 'tableau-ui-angular/icon/imports';
-import { ImportDetailsComponent } from "../../components/import-details/import-details.component";
+import { ImportDetailsComponent } from '../../components/import-details/import-details.component';
 import { importCheckbox } from 'tableau-ui-angular/checkbox/imports';
 
 @Component({
@@ -16,27 +16,27 @@ import { importCheckbox } from 'tableau-ui-angular/checkbox/imports';
     templateUrl: './dialogs-page.component.html',
     styleUrl: './dialogs-page.component.scss',
     providers: [...importDialogProvider()],
-    changeDetection: ChangeDetectionStrategy.OnPush
-  })
+    changeDetection: ChangeDetectionStrategy.OnPush,
+})
 export class DialogsPageComponent {
     dialogService = inject(DialogService);
 
     import: ImportModel = {
         name: 'Dialog',
-       providerImports: [
+        providerImports: [
             {
                 name: 'DialogService',
                 from: 'tableau-ui-angular/dialog',
-                info: 'Service for opening dialogs and confirmation messages.'
-            }
+                info: 'Service for opening dialogs and confirmation messages.',
+            },
         ],
         importFunctions: [
             {
                 name: 'importDialogProvider',
                 from: 'tableau-ui-angular/dialog/imports',
-                info: 'Imports dialog service and all its dependencies.'
-            }
-        ]
+                info: 'Imports dialog service and all its dependencies.',
+            },
+        ],
     };
     openDialog(): void {
         const dialogRef = this.dialogService.openModal<ExampleDialogComponent, string, string>(ExampleDialogComponent, 'This is a dynamic message!', {
