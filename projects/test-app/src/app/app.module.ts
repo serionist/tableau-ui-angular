@@ -2,8 +2,6 @@ import { NgModule, provideZoneChangeDetection } from '@angular/core';
 import { AppComponent } from './app.component';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
-
 import { provideRouter, RouterModule, RouterOutlet, withHashLocation } from '@angular/router';
 import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { CssPageComponent } from './pages/css-page/css-page.component';
@@ -57,8 +55,41 @@ import { TreeNodeContainerComponent } from './pages/tree-page/tree-node-containe
 import { ExpansionPageComponent } from './pages/expansion-page/expansion-page.component';
 import { ScrollerPageComponent } from './pages/scroller-page/scroller-page.component';
 import { TablePageComponent } from './pages/table-page/table-page.component';
+import { MonacoModule } from '../../../../dist/component-library/monaco';
 
 @NgModule({
+    imports: [
+        BrowserModule,
+        CommonModule,
+        FormsModule,
+        NgOptimizedImage,
+        RouterModule,
+        ReactiveFormsModule,
+        TableauUiNavBarModule,
+        TableauUiCommonModule,
+        TableauUiCheckboxModule,
+        TableauUiSnackModule,
+        TableauUiFormFieldModule,
+        TableauUiIconModule,
+        TableauUiRadioGroupModule,
+        TableauUiButtonModule,
+        TableauUiDialogModule,
+        TableauUiTooltipModule,
+        TableauUiTabgroupModule,
+        TableauUiClipboardModule,
+        TableauUiSelectModule,
+        TableauUiListModule,
+        TableauUiTreeModule,
+        TableauUiAutoCompleteModule,
+        TableauUiMenuModule,
+        TableauUiDatePickerModule,
+        TableauUiFormModule,
+        TableauUiExpansionPanelModule,
+        TableauUiArrowScrollModule,
+        TableauUiTableModule,
+        MonacoModule
+        // TableauUiAllModule
+    ],
     declarations: [
         AppComponent,
         CssPageComponent,
@@ -88,39 +119,7 @@ import { TablePageComponent } from './pages/table-page/table-page.component';
         ScrollerPageComponent,
         TablePageComponent,
     ],
-    imports: [
-        BrowserModule,
-        CommonModule,
-        FormsModule,
-        MonacoEditorModule.forRoot(),
-        NgOptimizedImage,
-        RouterModule,
-        ReactiveFormsModule,
-        TableauUiNavBarModule,
-        TableauUiCommonModule,
-        TableauUiCheckboxModule,
-        TableauUiSnackModule,
-        TableauUiFormFieldModule,
-        TableauUiIconModule,
-        TableauUiRadioGroupModule,
-        TableauUiButtonModule,
-        TableauUiDialogModule,
-        TableauUiTooltipModule,
-        TableauUiTabgroupModule,
-        TableauUiClipboardModule,
-        TableauUiSelectModule,
-        TableauUiListModule,
-        TableauUiTreeModule,
-        TableauUiAutoCompleteModule,
-        TableauUiMenuModule,
-        TableauUiDatePickerModule,
-        TableauUiFormModule,
-        TableauUiExpansionPanelModule,
-        TableauUiArrowScrollModule,
-        TableauUiTableModule,
-        // TableauUiAllModule
-    ],
     providers: [provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes, withHashLocation()), ThemeService],
-    bootstrap: [AppComponent],
-})
+    bootstrap: [AppComponent]
+  })
 export class AppModule {}

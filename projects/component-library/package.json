@@ -30,11 +30,12 @@
         "@angular/common": "^20.0.2",
         "@angular/core": "^20.0.2",
         "@angular/forms": "^20.0.2",
-        "@angular/router": "^20.0.2"
+        "@angular/router": "^20.0.2",
+        "monaco-editor": "^0.52.2"
     },
     "dependencies": {
-        "tabbable": "^6.2.0",
-        "monaco-editor": "^0.52.2"
+        "tabbable": "^6.2.0"
+        
     },
     "sideEffects": false,
     "devDependencies": {}

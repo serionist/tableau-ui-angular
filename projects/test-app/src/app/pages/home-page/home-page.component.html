@@ -24,7 +24,9 @@
                 <li>Open your Angular 20 project</li>
                 <li>
                     Install the package by running
-                    <ngx-monaco-editor style="height: 20px; width: 280px; margin-bottom: 5px" ngModel="npm install tableau-ui-angular" [options]="terminalOptions" />
+                    <tab-monaco-editor
+                    [options]="_testOptions"></tab-monaco-editor>
+                    <!-- <ngx-monaco-editor style="height: 20px; width: 280px; margin-bottom: 5px" ngModel="npm install tableau-ui-angular" [options]="terminalOptions" /> -->
                 </li>
                 <li>
                     Follow the
@@ -66,7 +68,7 @@
                     , import
                     <code>TableauUiButtonModule</code>
                     :
-                    <ngx-monaco-editor style="height: 300px; width: 500px; margin-bottom: 5px" [options]="tsOptions" [ngModel]="sampleTsCode" />
+                    <!-- <ngx-monaco-editor style="height: 300px; width: 500px; margin-bottom: 5px" [options]="tsOptions" [ngModel]="sampleTsCode" /> -->
                     <b>Note:</b>
                     <span>
                         You can use the
@@ -78,7 +80,7 @@
                     In
                     <code>app.component.html</code>
                     , add the button:
-                    <ngx-monaco-editor style="height: 70px; width: 650px; margin-bottom: 5px" [options]="htmlOptions" [ngModel]="sampleHtmlCode" />
+                    <!-- <ngx-monaco-editor style="height: 70px; width: 650px; margin-bottom: 5px" [options]="htmlOptions" [ngModel]="sampleHtmlCode" /> -->
                 </li>
             </ol>
         </div>
