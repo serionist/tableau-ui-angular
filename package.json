@@ -8,7 +8,7 @@
     "start": "concurrently \"npx ng build component-library --watch\" \"npx wait-on dist/component-library/fesm2022/tableau-ui-angular.mjs && ng serve --port 4201\" \"npm run test-app:watch-icons\"",
     "test-app:icons:download": "node projects/component-library/used-icons/scripts/update-icons.js projects/test-app/src/icons.ts projects/test-app/public/icons",
     "test-app:watch-icons": "npm run test-app:icons:download && npx chokidar \"projects/test-app/src/icons.ts\" -c \"npm run test-app:icons:download\"",
-    "copy-assets": "cpy README.md LICENSE Add-Benton-Sans.md dist/component-library",
+    "copy-assets": "cpy README.md LICENSE Add-Benton-Sans.md dist/component-library && cpy node_modules/monaco-editor/min",
     "build:component-library": "ng build component-library && npm run copy-assets",
     "build:github-pages": "ng build component-library && npm run test-app:icons:download && ng build test-app --base-href /tableau-ui-angular/",
     "package": "npx ng-packagr -p projects/component-library/ng-package.json && npm run copy-assets",
@@ -25,7 +25,7 @@
   "devDependencies": {
     "@angular/build": "^20.0.1",
     "@angular/cli": "^20.0.1",
-    "@angular/compiler-cli": "^20.0.1",
+    "@angular/compiler-cli": "20.0.2",
     "@types/jasmine": "~5.1.0",
     "angular-eslint": "20.0.0",
     "@angular-eslint/eslint-plugin": "^20.0.0",

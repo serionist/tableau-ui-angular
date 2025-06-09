@@ -27,13 +27,14 @@
     "homepage": "https://serionist.github.io/tableau-ui-angular/",
     "version": "0.1.110",
     "peerDependencies": {
-        "@angular/common": "20.0.1",
-        "@angular/core": "20.0.1",
-        "@angular/forms": "20.0.1",
-        "@angular/router": "20.0.1"
+        "@angular/common": "^20.0.2",
+        "@angular/core": "^20.0.2",
+        "@angular/forms": "^20.0.2",
+        "@angular/router": "^20.0.2"
     },
     "dependencies": {
-        "tabbable": "^6.2.0"
+        "tabbable": "^6.2.0",
+        "monaco-editor": "^0.52.2"
     },
     "sideEffects": false,
     "devDependencies": {}

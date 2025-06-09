@@ -13,8 +13,6 @@
         "@angular/platform-browser-dynamic": "^20.0.1",
         "@angular/router": "^20.0.1",
         "material-symbols": "0.31.2",
-        "monaco-editor": "^0.52.2",
-        "ngx-monaco-editor-v2": "^19.0.2",
         "rxjs": "~7.8.0",
         "tabbable": "^6.2.0",
         "tslib": "^2.3.0",
