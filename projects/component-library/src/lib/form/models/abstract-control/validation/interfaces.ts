@@ -1,19 +1,18 @@
-import type { AbstractControl } from "@angular/forms";
-import type { Observable } from "rxjs";
-import type { AC } from "../interfaces";
-import type { Primitive } from "../../../../common/types/primitive";
+import type { AbstractControl } from '@angular/forms';
+import type { Observable } from 'rxjs';
+import type { AC } from '../interfaces';
+import type { Primitive } from '../../../../common/types/primitive';
 
 export type ValidationErrors = Record<string, Primitive>;
 export type ValidatorFn = (control: AbstractControl) => ValidationErrors | null;
 export type AsyncValidatorFn = (control: AbstractControl) => Promise<ValidationErrors | null> | Observable<ValidationErrors | null>;
 export interface ValidatorFns<TChild = AC> {
-
-     /**
+    /**
      * Returns the function that is used to determine the validity of this control synchronously.
      * If multiple validators have been added, this will be a single composed function.
      * See `Validators.compose()` for additional information.
      */
-     get validator(): ValidatorFn | null;
+    get validator(): ValidatorFn | null;
     /**
      * Sets the function that is used to determine the validity of this control synchronously.
      * It's recommended to use 'setValidators' or 'addValidators' instead, which will compose this function

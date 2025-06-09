@@ -4,7 +4,6 @@ import { FB } from './fb';
 import { combineLatest } from 'rxjs';
 import type { FormReferencesOf } from '../types/form-references-of';
 
-
 interface test {
     a: string;
     b?: number;
@@ -31,8 +30,7 @@ class test3 {}
 // const b: ControlsOf<test>;
 
 const b = new FB();
-const a = b.control<boolean>( true, undefined, undefined );
-
+const a = b.control<boolean>(true, undefined, undefined);
 
 const a2 = b.control<string>('asd');
 export interface ITest {
@@ -68,11 +66,8 @@ const gRefs: FormReferencesOf<ITest> = {
             age: b.control<number>(0),
         }),
     }),
-    
-    
 };
-const g = b.group<ITest>(gRefs
-);
+const g = b.group<ITest>(gRefs);
 const gbuilder = b.group<ITest>({
     name: b.control<string | undefined>('test'),
     age: b.control<number | undefined>(0),

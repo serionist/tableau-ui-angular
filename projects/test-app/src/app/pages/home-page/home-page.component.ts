@@ -10,10 +10,8 @@ import { Icons } from 'component-library/used-icons';
 })
 export class HomePageComponent {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    _testOptions: any = {
-        
-    }
-    
+    _testOptions: any = {};
+
     terminalOptions = MonacoHelper.getOptions('shell');
     tsOptions = MonacoHelper.getOptions('typescript');
     sampleTsCode = `import { Component } from '@angular/core';

@@ -1,13 +1,12 @@
-import type { DeepPartial } from "../../../types/deep-partial";
-import { RegisterFnsImpl } from "../../abstract-control/register/impl";
-import type { FG } from "../../form-group/interfaces";
-import type { FA } from "../interaces";
-import type { FaRegisterFns } from "./interfaces";
-import type { Observable, Subscription} from "rxjs";
-import { combineLatest, filter, map, pairwise, startWith} from "rxjs";
+import type { DeepPartial } from '../../../types/deep-partial';
+import { RegisterFnsImpl } from '../../abstract-control/register/impl';
+import type { FG } from '../../form-group/interfaces';
+import type { FA } from '../interaces';
+import type { FaRegisterFns } from './interfaces';
+import type { Observable, Subscription } from 'rxjs';
+import { combineLatest, filter, map, pairwise, startWith } from 'rxjs';
 
 export class FaRegisterFnsImpl<TItem extends Record<string, unknown>> extends RegisterFnsImpl<FA<TItem>> implements FaRegisterFns<TItem> {
-    
     constructor(
         private readonly fa: FA<TItem>,
         subscriptions: Subscription[] = [],

@@ -8,8 +8,8 @@ import { TableauUiCommonModule } from '../common/tableau-ui-common.module';
 import { FormFieldComponent } from './form-field.component';
 
 @NgModule({
-    declarations: [FormLabelComponent, FormFieldComponent],
     imports: [CommonModule, TableauUiCommonModule, ReactiveFormsModule],
+    declarations: [FormLabelComponent, FormFieldComponent],
     exports: [FormLabelComponent, FormFieldComponent],
 })
 export class TableauUiFormFieldModule {}

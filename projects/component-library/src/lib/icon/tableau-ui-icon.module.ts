@@ -3,8 +3,8 @@ import { IconComponent } from './icon.component';
 import { CommonModule } from '@angular/common';
 
 @NgModule({
-    declarations: [IconComponent],
     imports: [CommonModule],
+    declarations: [IconComponent],
     exports: [IconComponent],
 })
 export class TableauUiIconModule {}

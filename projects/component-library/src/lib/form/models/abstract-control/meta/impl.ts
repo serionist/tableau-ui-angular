@@ -97,7 +97,7 @@ export class MetaImpl implements Meta {
         if (a === b) {
             return true;
         }
-        
+
         if (!a || !b) {
             return false;
         }

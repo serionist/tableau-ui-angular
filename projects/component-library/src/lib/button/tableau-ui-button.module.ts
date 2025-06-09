@@ -5,8 +5,8 @@ import { CommonModule } from '@angular/common';
 import { TableauUiTooltipModule } from '../tooltip/tableau-ui-tooltip.module';
 
 @NgModule({
-    declarations: [ButtonComponent, ButtonToggleComponent],
     imports: [CommonModule, TableauUiTooltipModule],
+    declarations: [ButtonComponent, ButtonToggleComponent],
     exports: [ButtonComponent, ButtonToggleComponent],
 })
 export class TableauUiButtonModule {}

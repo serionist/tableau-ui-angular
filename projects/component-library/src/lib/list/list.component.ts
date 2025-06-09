@@ -11,7 +11,6 @@ export type ListValue = Exclude<Primitive, undefined> | Exclude<Primitive, undef
     standalone: false,
     templateUrl: './list.component.html',
     styleUrl: './list.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
@@ -19,6 +18,7 @@ export type ListValue = Exclude<Primitive, undefined> | Exclude<Primitive, undef
             multi: true,
         },
     ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
     host: {
         class: 'tab-input',
         '[class.silent-focus]': '$focusMode() === "silent"',

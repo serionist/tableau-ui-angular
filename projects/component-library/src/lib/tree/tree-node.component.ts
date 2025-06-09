@@ -33,7 +33,6 @@ import { combineLatest } from 'rxjs';
     standalone: false,
     templateUrl: './tree-node.component.html',
     styleUrl: './tree-node.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
@@ -41,6 +40,7 @@ import { combineLatest } from 'rxjs';
             multi: true,
         },
     ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TabTreeNodeComponent implements OnInit, OnDestroy, TreeNodeInterface {
     readonly headerButtonId = generateRandomString(16);

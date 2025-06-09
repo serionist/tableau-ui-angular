@@ -36,6 +36,4 @@ export interface FA<T extends Record<string, unknown>> extends AC {
     ) => void;
     clear: (destroyControls: boolean, options?: { emitEvent?: boolean }) => void;
     at: (index: number) => FG<T> | undefined;
-
-    
 }

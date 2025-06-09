@@ -6,8 +6,8 @@ import { TableauUiIconModule } from '../icon/tableau-ui-icon.module';
 import { IsValueSelectedPipe } from './pipes/is-value-selected.pipe';
 
 @NgModule({
-    declarations: [ListComponent, IsValueSelectedPipe],
     imports: [CommonModule, TableauUiCommonModule, TableauUiIconModule],
+    declarations: [ListComponent, IsValueSelectedPipe],
     exports: [ListComponent],
 })
 export class TableauUiListModule {}

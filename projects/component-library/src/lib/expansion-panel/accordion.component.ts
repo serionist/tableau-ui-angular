@@ -17,12 +17,12 @@ import type { Subscription } from 'rxjs';
             }
         }
     `,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     host: {
         '[attr.role]': '"tablist"',
         '[attr.aria-multiselectable]': 'false',
         '[attr.aria-orientation]': '"vertical"',
     },
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AccordionComponent {
     readonly registry = new AccordionRegistry();

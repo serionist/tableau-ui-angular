@@ -1,7 +1,7 @@
 import type { PipeTransform } from '@angular/core';
 import { Pipe } from '@angular/core';
 import type { FA } from '../../models/form-array/interaces';
-import type { Observable} from 'rxjs';
+import type { Observable } from 'rxjs';
 import { of } from 'rxjs';
 import { FG } from '../../models/form-group/interfaces';
 import type { DeepPartial } from '../../types/deep-partial';

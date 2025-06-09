@@ -9,8 +9,8 @@ import { IsSelectedValuePipe } from './pipes/is-selected-value.pipe';
 import { MultipleTemplatePipe } from './pipes/multiple-template.pipe';
 
 @NgModule({
-    declarations: [SelectComponent, IsSelectedValuePipe, MultipleTemplatePipe],
     imports: [CommonModule, TableauUiCommonModule, TableauUiIconModule, TableauUiButtonModule, TableauUiDialogModule],
+    declarations: [SelectComponent, IsSelectedValuePipe, MultipleTemplatePipe],
     exports: [SelectComponent],
 })
 export class TableauUiSelectModule {}

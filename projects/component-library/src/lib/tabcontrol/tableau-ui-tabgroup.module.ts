@@ -6,8 +6,8 @@ import { TableauUiArrowScrollModule } from '../arrow-scroll/tableau-ui-arrow-scr
 import { TableauUiIconModule } from '../icon/tableau-ui-icon.module';
 
 @NgModule({
-    declarations: [TabComponent, TabGroupComponent],
     imports: [CommonModule, TableauUiArrowScrollModule, TableauUiIconModule],
+    declarations: [TabComponent, TabGroupComponent],
     exports: [TabComponent, TabGroupComponent],
 })
 export class TableauUiTabgroupModule {}

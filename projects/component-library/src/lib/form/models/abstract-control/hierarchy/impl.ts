@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
- 
+
 import type { AC } from '../interfaces';
 import type { Hierarchy, HierarchyData } from './interfaces';
 import type { Subscription } from 'rxjs';

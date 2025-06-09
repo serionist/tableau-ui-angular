@@ -87,7 +87,7 @@ import { MonacoModule } from '../../../../dist/component-library/monaco';
         TableauUiExpansionPanelModule,
         TableauUiArrowScrollModule,
         TableauUiTableModule,
-        MonacoModule
+        MonacoModule,
         // TableauUiAllModule
     ],
     declarations: [
@@ -120,6 +120,6 @@ import { MonacoModule } from '../../../../dist/component-library/monaco';
         TablePageComponent,
     ],
     providers: [provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes, withHashLocation()), ThemeService],
-    bootstrap: [AppComponent]
-  })
+    bootstrap: [AppComponent],
+})
 export class AppModule {}

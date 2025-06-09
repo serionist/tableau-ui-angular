@@ -1,6 +1,6 @@
 import type { Signal, WritableSignal } from '@angular/core';
 import { signal } from '@angular/core';
-import type { Observable} from 'rxjs';
+import type { Observable } from 'rxjs';
 import { BehaviorSubject, distinctUntilChanged, filter, map, startWith } from 'rxjs';
 import { ACImpl } from '../abstract-control/impl';
 import type { AC } from '../abstract-control/interfaces';
@@ -16,7 +16,6 @@ import type { DeepPartial } from '../../types/deep-partial';
 import { FgRegisterFnsImpl } from './register/impl';
 import { ValidatorFnsImpl } from '../abstract-control/validation/impl';
 import { MetaFnsImpl } from '../abstract-control/meta/impl';
-
 
 export class FGImpl<T extends Record<string, unknown>> extends ACImpl<T> implements FG<T> {
     private readonly _value$: BehaviorSubject<DeepPartial<T>>;
@@ -114,7 +113,7 @@ export class FGImpl<T extends Record<string, unknown>> extends ACImpl<T> impleme
         this.metaFn = new MetaFnsImpl<FG<T>>(this.control, this);
     }
 
-    setValue(value: T, options?: { onlySelf?: boolean; emitEvent?: boolean; emitModelToViewChange?: boolean; emitViewToModelChange?: boolean; }) {
+    setValue(value: T, options?: { onlySelf?: boolean; emitEvent?: boolean; emitModelToViewChange?: boolean; emitViewToModelChange?: boolean }) {
         this.control.setValue(value, {
             onlySelf: options?.onlySelf ?? false,
             emitEvent: options?.emitEvent ?? true,

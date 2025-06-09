@@ -15,7 +15,6 @@ import type { Primitive } from '../common/types/primitive';
     standalone: false,
     templateUrl: './radiogroup.component.html',
     styleUrl: './radiogroup.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
@@ -23,6 +22,7 @@ import type { Primitive } from '../common/types/primitive';
             multi: true,
         },
     ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RadiogroupComponent implements ControlValueAccessor {
     readonly $disabled = signal(false);

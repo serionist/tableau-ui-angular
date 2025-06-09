@@ -39,7 +39,6 @@ export type SelectValue = Exclude<Primitive, undefined> | Exclude<Primitive, und
     standalone: false,
     templateUrl: './select.component.html',
     styleUrl: './select.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
@@ -47,6 +46,7 @@ export type SelectValue = Exclude<Primitive, undefined> | Exclude<Primitive, und
             multi: true,
         },
     ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
     host: {
         class: 'tab-input',
         '[attr.wrapping-mode]': '$selectedValueWrapMode()',
