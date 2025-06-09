@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/require-await */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/consistent-type-imports */
 import { Component, ChangeDetectionStrategy, forwardRef, viewChild, ElementRef, AfterViewInit, OnDestroy, inject, input, model, signal, effect } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
@@ -5,6 +8,7 @@ import { MonacoLoaderService } from './monaco-loader.service';
 
 @Component({
     selector: 'tab-monaco-editor',
+    standalone: false,
     template: `
         <div #editorContainer class="editor-container"></div>
     `,
@@ -19,7 +23,6 @@ import { MonacoLoaderService } from './monaco-loader.service';
             height: 100%;
         }
     `,
-    changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
@@ -27,7 +30,7 @@ import { MonacoLoaderService } from './monaco-loader.service';
             multi: true,
         },
     ],
-    standalone: false,
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MonacoEditorComponent implements AfterViewInit, OnDestroy, ControlValueAccessor {
     private readonly $editorContainer = viewChild.required<ElementRef<HTMLElement>>('editorContainer');
@@ -37,8 +40,7 @@ export class MonacoEditorComponent implements AfterViewInit, OnDestroy, ControlV
     readonly overrideServices = input<any>();
     private readonly value = signal<string>('');
 
-    // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-    private editorInstance?: any;
+    private readonly editorInstance?: any;
 
     private viewInit = false;
     ngAfterViewInit(): void {
@@ -66,8 +68,9 @@ export class MonacoEditorComponent implements AfterViewInit, OnDestroy, ControlV
         // this.editorInstance = monaco.editor.create(this.$editorContainer().nativeElement, options, overrideServices);
     }
 
+    // eslint-disable-next-line @angular-eslint/no-empty-lifecycle-method
     ngOnDestroy(): void {
-        this.editorInstance?.dispose();
+        // this.editorInstance?.dispose();
     }
 
     writeValue(obj: string): void {

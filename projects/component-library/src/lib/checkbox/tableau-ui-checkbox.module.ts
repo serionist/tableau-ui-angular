@@ -4,8 +4,8 @@ import { CheckboxComponent } from './checkbox.component';
 import { CommonModule } from '@angular/common';
 
 @NgModule({
-    declarations: [CheckboxComponent],
     imports: [CommonModule, TableauUiCommonModule],
+    declarations: [CheckboxComponent],
     exports: [CheckboxComponent],
 })
 export class TableauUiCheckboxModule {}

@@ -11,13 +11,6 @@ import { ErrorComponent } from '../common/error';
     standalone: false,
     templateUrl: './checkbox.component.html',
     styleUrl: 'checkbox.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    host: {
-        class: 'checkbox',
-        '[class.disabled]': '$disabled()',
-        '[class.checked]': '$value()',
-        '(click)': 'toggleValue()',
-    },
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
@@ -25,6 +18,13 @@ import { ErrorComponent } from '../common/error';
             multi: true,
         },
     ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    host: {
+        class: 'checkbox',
+        '[class.disabled]': '$disabled()',
+        '[class.checked]': '$value()',
+        '(click)': 'toggleValue()',
+    },
 })
 export class CheckboxComponent implements ControlValueAccessor {
     readonly $disabled = model(false, {

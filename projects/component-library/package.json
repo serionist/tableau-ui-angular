@@ -35,7 +35,6 @@
     },
     "dependencies": {
         "tabbable": "^6.2.0"
-        
     },
     "sideEffects": false,
     "devDependencies": {}

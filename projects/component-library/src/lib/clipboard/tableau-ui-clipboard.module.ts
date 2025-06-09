@@ -2,8 +2,8 @@ import { NgModule } from '@angular/core';
 import { TableauUiSnackModule } from '../snack/tableau-ui-snack.module';
 
 @NgModule({
-    declarations: [],
     imports: [TableauUiSnackModule],
+    declarations: [],
     exports: [],
 })
 export class TableauUiClipboardModule {}

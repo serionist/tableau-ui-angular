@@ -1,9 +1,8 @@
-import type { FormControlStatus, ValidationErrors } from "@angular/forms";
-import type { Primitive } from "../../../../common/types/primitive";
-import type { AC } from "../interfaces";
+import type { FormControlStatus, ValidationErrors } from '@angular/forms';
+import type { Primitive } from '../../../../common/types/primitive';
+import type { AC } from '../interfaces';
 
 export interface Meta {
-
     readonly untouched: boolean;
     readonly touched: boolean;
     readonly validity: FormControlStatus;
@@ -17,8 +16,6 @@ export interface Meta {
 
     hasError: (errorCode?: string, requireTouched?: boolean) => boolean;
     getErrorValue: (errorCode: string, requireTouched?: boolean) => Primitive;
-
-    
 }
 
 export interface MetaFns<TChild = AC> {

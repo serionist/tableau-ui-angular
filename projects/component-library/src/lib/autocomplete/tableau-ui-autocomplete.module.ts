@@ -6,8 +6,8 @@ import { TableauUiDialogModule } from '../dialogservice/tableau-ui-dialog.module
 import { AutoCompleteDirective } from './autocomplete.directive';
 
 @NgModule({
-    declarations: [AutoCompleteComponent, AutoCompleteDirective],
     imports: [TableauUiCommonModule, CommonModule, TableauUiDialogModule],
+    declarations: [AutoCompleteComponent, AutoCompleteDirective],
     exports: [AutoCompleteComponent, AutoCompleteDirective],
 })
 export class TableauUiAutoCompleteModule {}

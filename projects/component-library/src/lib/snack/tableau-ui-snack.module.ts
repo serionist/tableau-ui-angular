@@ -5,8 +5,8 @@ import { SnackComponent } from './snack.component';
 import { RouterModule } from '@angular/router';
 
 @NgModule({
-    declarations: [SnackComponent],
     imports: [CommonModule, TableauUiIconModule, RouterModule],
+    declarations: [SnackComponent],
     exports: [],
 })
 export class TableauUiSnackModule {}

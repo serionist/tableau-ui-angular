@@ -2,7 +2,7 @@ import type { OnInit, WritableSignal } from '@angular/core';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 import type { IOptionLineContext, Primitive, SelectValue } from 'component-library';
-import {  FB, SnackService } from 'component-library';
+import { FB, SnackService } from 'component-library';
 import { BehaviorSubject, debounceTime, startWith, Subject } from 'rxjs';
 
 @Component({

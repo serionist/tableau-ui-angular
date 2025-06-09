@@ -18,6 +18,7 @@ import { ResizerDirective } from './column-widths/resizer.directive';
 import { TableauUiTooltipModule } from '../tooltip/tableau-ui-tooltip.module';
 
 @NgModule({
+    imports: [CommonModule, TableauUiIconModule, TableauUiButtonModule, TableauUiTooltipModule],
     declarations: [
         TableComponent,
         HeaderDefDirective,
@@ -33,7 +34,6 @@ import { TableauUiTooltipModule } from '../tooltip/tableau-ui-tooltip.module';
         CellWidthPipe,
         ResizerDirective,
     ],
-    imports: [CommonModule, TableauUiIconModule, TableauUiButtonModule, TableauUiTooltipModule],
     exports: [TableComponent, HeaderDefDirective, ColumnDefDirective, CellDefDirective],
 })
 export class TableauUiTableModule {}

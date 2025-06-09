@@ -4,9 +4,9 @@ import { TableauUiButtonModule } from '../button/tableau-ui-button.module';
 import { TableauUiCommonModule } from '../common/tableau-ui-common.module';
 
 @NgModule({
-    declarations: [ArrowScrollComponent],
     imports: [TableauUiButtonModule, TableauUiCommonModule],
-    exports: [ArrowScrollComponent],
+    declarations: [ArrowScrollComponent],
     providers: [],
+    exports: [ArrowScrollComponent],
 })
 export class TableauUiArrowScrollModule {}

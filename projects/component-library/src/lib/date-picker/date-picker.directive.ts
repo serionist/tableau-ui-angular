@@ -6,10 +6,6 @@ import { FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
 @Directive({
     selector: 'input[type=date],input[type=datetime-local],input[type=datetime],input[date-picker]',
     standalone: false,
-    host: {
-        class: 'date-picker',
-        '[attr.type]': '$type() === "datetime" ? "datetime-local" : "date"',
-    },
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
@@ -17,6 +13,10 @@ import { FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
             multi: true,
         },
     ],
+    host: {
+        class: 'date-picker',
+        '[attr.type]': '$type() === "datetime" ? "datetime-local" : "date"',
+    },
 })
 export class DatePickerDirective implements ControlValueAccessor {
     private readonly el = inject<ElementRef<HTMLInputElement>>(ElementRef);

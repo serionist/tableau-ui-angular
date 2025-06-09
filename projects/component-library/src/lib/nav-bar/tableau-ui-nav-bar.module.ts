@@ -11,8 +11,8 @@ import { TableauUiButtonModule } from '../button/tableau-ui-button.module';
 import { TableauUiArrowScrollModule } from '../arrow-scroll/tableau-ui-arrow-scroll.module';
 
 @NgModule({
-    declarations: [NavBarHeaderComponent, NavBarFooterComponent, NavBarButtonComponent, NavBarComponent],
     imports: [CommonModule, RouterModule, TableauUiIconModule, TableauUiTooltipModule, TableauUiButtonModule, TableauUiArrowScrollModule],
+    declarations: [NavBarHeaderComponent, NavBarFooterComponent, NavBarButtonComponent, NavBarComponent],
     exports: [NavBarHeaderComponent, NavBarFooterComponent, NavBarButtonComponent, NavBarComponent],
 })
 export class TableauUiNavBarModule {}

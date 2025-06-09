@@ -1,14 +1,14 @@
-import type { AbstractControl } from "@angular/forms";
-import type { AsyncValidatorFn, ValidatorFn, ValidatorFns } from "./interfaces";
+import type { AbstractControl } from '@angular/forms';
+import type { AsyncValidatorFn, ValidatorFn, ValidatorFns } from './interfaces';
 
 export class ValidatorFnsImpl<TChild> implements ValidatorFns<TChild> {
     constructor(private readonly control: AbstractControl) {}
-     /**
+    /**
      * Returns the function that is used to determine the validity of this control synchronously.
      * If multiple validators have been added, this will be a single composed function.
      * See `Validators.compose()` for additional information.
      */
-     get validator(): ValidatorFn | null {
+    get validator(): ValidatorFn | null {
         return this.control.validator;
     }
     /**

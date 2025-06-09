@@ -1,6 +1,6 @@
 import type { Signal, WritableSignal } from '@angular/core';
 import { signal } from '@angular/core';
-import type { Observable} from 'rxjs';
+import type { Observable } from 'rxjs';
 import { BehaviorSubject, distinctUntilChanged, filter, map, startWith } from 'rxjs';
 import type { Primitive } from '../../../common/types/primitive';
 import { ACImpl } from '../abstract-control/impl';
@@ -16,14 +16,13 @@ import { FcRegisterFnsImpl } from './register/impl';
 export class FCImpl<T extends Primitive | Primitive[]> extends ACImpl<T> implements FC<T> {
     private readonly _value$: BehaviorSubject<T>;
     private readonly $_value: WritableSignal<T>;
-   
 
     public override get value$(): Observable<T> {
         return this._value$.asObservable();
     }
     public override get $value(): Signal<T> {
         return this.$_value;
-    };
+    }
     public override readonly submitted$: Observable<T>;
     public override readonly reset$: Observable<T>;
     public override readonly validatorFn: ValidatorFns<FC<T>>;
@@ -95,8 +94,8 @@ export class FCImpl<T extends Primitive | Primitive[]> extends ACImpl<T> impleme
         this.validatorFn = new ValidatorFnsImpl<FC<T>>(this.control);
         this.metaFn = new MetaFnsImpl<FC<T>>(this.control, this);
     }
-    
-    setValue(value: T, options?: { onlySelf?: boolean; emitEvent?: boolean; emitModelToViewChange?: boolean; emitViewToModelChange?: boolean; }) {
+
+    setValue(value: T, options?: { onlySelf?: boolean; emitEvent?: boolean; emitModelToViewChange?: boolean; emitViewToModelChange?: boolean }) {
         this.control.setValue(value, {
             onlySelf: options?.onlySelf ?? false,
             emitEvent: options?.emitEvent ?? true,
