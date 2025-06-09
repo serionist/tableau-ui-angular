@@ -1,4 +1,4 @@
-import { UsedIcons } from 'tableau-ui-angular/used-icons';
+import { UsedIcons } from '../../component-library/used-icons/src/used-icons'; // need to keep it relative for now for script to work. does not need to be like this in prod.
 export class Icons extends UsedIcons {
     override fonts: ('Material Symbols Outlined' | 'Material Symbols Rounded' | 'Material Symbols Sharp')[] = ['Material Symbols Outlined', 'Material Symbols Rounded', 'Material Symbols Sharp'];
     override weights: (100 | 200 | 300 | 400 | 500 | 600 | 700)[] = [100, 700];
