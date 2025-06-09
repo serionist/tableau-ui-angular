@@ -1,5 +1,5 @@
 import type { TemplateRef, OnDestroy, InputSignal } from '@angular/core';
-import { Directive, Input, ElementRef, HostListener, input, inject, ViewContainerRef, effect } from '@angular/core';
+import { Directive, ElementRef, HostListener, input, inject, ViewContainerRef, effect } from '@angular/core';
 
 // Style contained in _tooltips.scss in the styles folder
 @Directive({
@@ -23,7 +23,9 @@ export class TooltipDirective<T> implements OnDestroy {
     });
 
     private readonly tooltipChanged = effect(() => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const tooltip = this.$tooltip();
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const tooltipContext = this.$tooltipContext();
         if (this.tooltipElement) {
             this.destroyTooltip();

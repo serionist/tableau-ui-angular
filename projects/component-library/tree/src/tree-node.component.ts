@@ -1,17 +1,12 @@
 import type { InputSignal, OnDestroy, OnInit, Signal, TemplateRef, WritableSignal } from '@angular/core';
 import {
-    AfterContentInit,
     ChangeDetectionStrategy,
     Component,
     computed,
     contentChild,
-    contentChildren,
-    effect,
-    ElementRef,
     forwardRef,
     inject,
     input,
-    linkedSignal,
     model,
     output,
     signal,
@@ -25,7 +20,6 @@ import { TabTreeComponent } from './tree.component';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import type { TreeNodeInterface } from './tree-node-interface';
 import { toObservable } from '@angular/core/rxjs-interop';
-import { combineLatest } from 'rxjs';
 import { generateRandomString } from 'tableau-ui-angular/utils';
 
 @Component({

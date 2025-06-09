@@ -153,6 +153,9 @@ export class MenuComponent {
 
     open(forceReOpen: boolean = false) {
         const template = this.$template();
+        if (!template) {
+            throw new Error('Template is not set. Please set the template before opening the menu.');
+        }
         const parentControl = this.$parentControl();
         if (!parentControl) {
             throw new Error('Parent control is not set. Please set the parent control before opening the menu.');
@@ -166,7 +169,7 @@ export class MenuComponent {
         }
 
         const ref = this.dialogService.openTemplateDialog(
-            this.$template()!,
+            template,
             {
                 top: (_, actualHeight, parentRect) => {
                     switch (this.$menuLocation()) {

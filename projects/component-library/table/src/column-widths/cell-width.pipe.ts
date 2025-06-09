@@ -2,7 +2,7 @@ import type { PipeTransform } from '@angular/core';
 import { Pipe } from '@angular/core';
 import type { ColRenderedWidthDirective } from './col-rendered-width.directive';
 import type { Observable } from 'rxjs';
-import { debounceTime, map, of } from 'rxjs';
+import { map, of } from 'rxjs';
 
 @Pipe({
     name: 'cellWidth',

@@ -1,7 +1,7 @@
 import type { PipeTransform } from '@angular/core';
 import { Pipe } from '@angular/core';
 import type { Observable } from 'rxjs';
-import { of, switchMap } from 'rxjs';
+import { of } from 'rxjs';
 import type { Meta } from '../../models/abstract-control/meta/interfaces';
 import type { AC } from '../../models/abstract-control/interfaces';
 

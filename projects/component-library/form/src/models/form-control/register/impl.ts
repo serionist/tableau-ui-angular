@@ -37,7 +37,7 @@ export class FcRegisterFnsImpl<T extends Primitive | Primitive[]> extends Regist
             );
         }
         this.subscriptions.push(
-            combineLatest(subs).subscribe(([v, e]) => {
+            combineLatest(subs).subscribe(([v]) => {
                 callback(v[1], v[0], this.fcControl);
             }),
         );

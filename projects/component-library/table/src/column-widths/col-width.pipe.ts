@@ -10,7 +10,6 @@ export class ColWidthPipe implements PipeTransform {
         if (value === undefined) {
             return '';
         }
-        let numberValue: number;
         if (typeof value === 'string') {
             const isNumber = /^(\d*(?:\.\d+)?)$/.exec(value.trim());
             if (!isNumber) {
@@ -21,12 +20,9 @@ export class ColWidthPipe implements PipeTransform {
                     case 'flexGrowOnly':
                         return '';
                 }
-            } else {
-                numberValue = parseFloat(isNumber[1]);
             }
-        } else {
-            numberValue = value;
         }
+
         switch (mode) {
             case 'widthUnitsOnly':
                 return '';

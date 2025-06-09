@@ -1,13 +1,13 @@
 import type { OnInit, WritableSignal } from '@angular/core';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
-import { BehaviorSubject, debounceTime, startWith, Subject } from 'rxjs';
-import { ErrorComponent, HintComponent, LabelComponent, OptionComponent, TableauUiCommonModule, type IOptionGridContext } from 'tableau-ui-angular/common';
+import { BehaviorSubject, debounceTime, Subject } from 'rxjs';
+import { TableauUiCommonModule, type IOptionGridContext } from 'tableau-ui-angular/common';
 import { FB, TableauUiFormModule } from 'tableau-ui-angular/form';
 import { TableauUiFormFieldModule } from 'tableau-ui-angular/form-field';
 import { TableauUiIconModule } from 'tableau-ui-angular/icon';
 
-import { ListComponent, TableauUiListModule, type ListValue } from 'tableau-ui-angular/list';
+import { TableauUiListModule, type ListValue } from 'tableau-ui-angular/list';
 import { SnackService, TableauUiSnackModule } from 'tableau-ui-angular/snack';
 
 @Component({
@@ -108,7 +108,6 @@ export class ListPageComponent implements OnInit {
     ];
 
     randomNames = this.names.map((fullName, index) => {
-        const [firstName, lastName] = fullName.split(' ');
         return {
             id: index + 1,
             name: fullName,

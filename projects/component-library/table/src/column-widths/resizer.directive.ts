@@ -1,4 +1,4 @@
-import { Directive, ElementRef, HostListener, inject, input, OnInit, Renderer2 } from '@angular/core';
+import { Directive, ElementRef, HostListener, inject, input, Renderer2 } from '@angular/core';
 
 @Directive({
     selector: '[resizerFor]',
@@ -37,14 +37,14 @@ export class ResizerDirective {
             if (!this.dragging) {
                 return;
             }
-            const change = e.clientX - this.dragging.startX;
+            const change = x - this.dragging.startX;
             const newWidth = this.dragging.startWidth + change;
 
             this.dragging.columnElement.style.width = `${newWidth}px`;
             this.renderer.setStyle(element, 'flex-grow', 'unset');
         };
         document.addEventListener('mousemove', mouseMoveHandler);
-        const mouseUpHandler = (e: MouseEvent) => {
+        const mouseUpHandler = () => {
             this.renderer.removeClass(this.resizerElement.nativeElement, 'dragging');
             this.dragging = undefined;
 

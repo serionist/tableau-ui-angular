@@ -3,10 +3,9 @@
 import type { AC } from '../interfaces';
 import type { Hierarchy, HierarchyData } from './interfaces';
 import type { Subscription } from 'rxjs';
-import { BehaviorSubject, map, Observable, of, switchMap } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import type { WritableSignal } from '@angular/core';
-import { signal, Signal } from '@angular/core';
-import type { ACImpl } from '../impl';
+import { signal } from '@angular/core';
 import type { FA } from '../../form-array/interaces';
 import type { FG } from '../../form-group/interfaces';
 import type { FC } from '../../form-control/interfaces';
@@ -82,8 +81,8 @@ export class HierarchyImpl implements Hierarchy {
     }
 
     private static _getHierarchyData(control: AC, name = ''): HierarchyData {
-        const ctrl = (control as ACImpl<unknown>).control;
         const ret = {
+            name: name,
             status: control.$meta().validity,
             value: undefined,
             meta: control.$meta(),

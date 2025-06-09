@@ -1,14 +1,12 @@
 import type { AfterViewInit, InputSignal, OnDestroy, Signal, TemplateRef, WritableSignal } from '@angular/core';
-import { AfterContentInit, ChangeDetectionStrategy, Component, computed, contentChild, contentChildren, effect, ElementRef, forwardRef, inject, input, model, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, contentChild, contentChildren, effect, ElementRef, forwardRef, inject, input, model, signal, viewChild } from '@angular/core';
 import type { ControlValueAccessor } from '@angular/forms';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import type { Subscription } from 'rxjs';
 import { fromEvent, map } from 'rxjs';
-import { toObservable } from '@angular/core/rxjs-interop';
 import type { Primitive } from 'tableau-ui-angular/types';
 import type { IOptionGridContext, IOptionLineContext } from 'tableau-ui-angular/common';
 import { OptionComponent, PrefixComponent, SuffixComponent } from 'tableau-ui-angular/common';
-import { SnackService, SnackRef } from 'tableau-ui-angular/snack';
 import type { DialogRef } from 'tableau-ui-angular/dialog';
 import { DialogService } from 'tableau-ui-angular/dialog';
 import { generateRandomString } from 'tableau-ui-angular/utils';
@@ -44,6 +42,7 @@ export class SelectComponent implements ControlValueAccessor, AfterViewInit, OnD
     protected readonly dropdownId: string;
     protected readonly $options = contentChildren<OptionComponent>(OptionComponent);
     private readonly optionsChanged = effect(() => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const options = this.$options();
         this.$highlightedOption.set(undefined);
     });
@@ -273,7 +272,7 @@ export class SelectComponent implements ControlValueAccessor, AfterViewInit, OnD
     });
     // #endregion
     // #region ControlValueAccessor
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    // eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
     onChange = (value: SelectValue) => {};
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     onTouched = () => {};
@@ -531,6 +530,7 @@ export class SelectComponent implements ControlValueAccessor, AfterViewInit, OnD
     unregisterFocusChange() {
         document.removeEventListener('focusout', this.focusChangeFn!);
     }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     checkFocus(event: FocusEvent) {
         setTimeout(() => {
             const dropdownContainer = document.getElementById(this.dropdownId);

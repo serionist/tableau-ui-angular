@@ -1,12 +1,11 @@
 import type { OnDestroy, OnInit, Signal } from '@angular/core';
-import { ChangeDetectionStrategy, Component, contentChild, inject, input, model, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, contentChild, inject, input, model } from '@angular/core';
 import { ExpansionPanelTitleCollapsedContentDirective, ExpansionPanelTitleExpandedContentDirective } from './expansion-panel-title.component';
 import { AccordionComponent } from './accordion.component';
 import type { AccordionRegistry } from './accordion.registry';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { startWith } from 'rxjs';
 import { generateRandomString } from 'tableau-ui-angular/utils';
-import { IconComponent } from 'tableau-ui-angular/icon';
 
 @Component({
     selector: 'tab-expansion-panel',

@@ -1,5 +1,5 @@
 import type { Signal } from '@angular/core';
-import { ChangeDetectionStrategy, Component, inject, Inject, input, Input, model, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { DialogService, injectDialogData, injectDialogRef } from 'tableau-ui-angular/dialog';
 
 @Component({

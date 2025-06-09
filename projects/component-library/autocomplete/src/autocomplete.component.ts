@@ -1,5 +1,5 @@
 import type { Signal, TemplateRef, WritableSignal } from '@angular/core';
-import { ChangeDetectionStrategy, Component, contentChild, contentChildren, Directive, ElementRef, inject, input, model, OnDestroy, OnInit, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, contentChild, contentChildren, ElementRef, inject, model, signal, viewChild } from '@angular/core';
 
 import type { Subscription } from 'rxjs';
 import { fromEvent, map, Subject } from 'rxjs';
@@ -9,7 +9,6 @@ import { OptionComponent, PrefixComponent, SuffixComponent } from 'tableau-ui-an
 import type { DialogRef } from 'tableau-ui-angular/dialog';
 import { DialogService } from 'tableau-ui-angular/dialog';
 import { generateRandomString } from 'tableau-ui-angular/utils';
-import { CommonModule } from '@angular/common';
 
 @Component({
     selector: 'tab-autocomplete',
@@ -81,7 +80,7 @@ export class AutoCompleteComponent {
     constructor() {
         const id = generateRandomString();
         this.dropdownId = `dropdown-${id}`;
-        toObservable(this.$options).subscribe((options) => {
+        toObservable(this.$options).subscribe(() => {
             this.$highlightedOption.set(undefined);
         });
     }

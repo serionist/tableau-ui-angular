@@ -1,8 +1,7 @@
-import { NgIf } from '@angular/common';
 import type { Signal } from '@angular/core';
-import { ChangeDetectionStrategy, Component, ContentChild, contentChild, ElementRef, forwardRef, Input, input, model, output, signal, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, contentChild, forwardRef, model, output } from '@angular/core';
 import type { ControlValueAccessor } from '@angular/forms';
-import { CheckboxControlValueAccessor, FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { ErrorComponent, HintComponent } from 'tableau-ui-angular/common';
 @Component({
     selector: 'tab-checkbox',
@@ -38,7 +37,7 @@ export class CheckboxComponent implements ControlValueAccessor {
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     protected readonly $errorElement: Signal<ErrorComponent | undefined> = contentChild(ErrorComponent);
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    // eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
     onChange = (value: boolean) => {};
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     onTouched = () => {};

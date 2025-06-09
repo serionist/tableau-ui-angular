@@ -1,6 +1,6 @@
-import { effect, EffectRef, inject, Injectable, Injector, Renderer2, signal } from '@angular/core';
+import { Injectable } from '@angular/core';
 import type { ThemeConfig } from './theme.config';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { toSignal } from '@angular/core/rxjs-interop';
 import type { Observable } from 'rxjs';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 

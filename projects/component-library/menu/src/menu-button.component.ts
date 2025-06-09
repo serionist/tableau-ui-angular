@@ -1,5 +1,5 @@
 import type { ElementRef, InputSignal, OnDestroy, TemplateRef, WritableSignal } from '@angular/core';
-import { AfterViewInit, ChangeDetectionStrategy, Component, contentChild, contentChildren, effect, HostListener, inject, input, output, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, contentChildren, effect, input, output, signal, viewChild } from '@angular/core';
 
 import { generateRandomString } from 'tableau-ui-angular/utils';
 

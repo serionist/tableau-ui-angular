@@ -1,8 +1,6 @@
-import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, contentChildren, effect, HostListener, input, model, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, contentChildren, effect, HostListener, input, model } from '@angular/core';
 import type { IOptionLineContext } from 'tableau-ui-angular/common';
 import { OptionComponent } from 'tableau-ui-angular/common';
-import { TooltipDirective } from 'tableau-ui-angular/tooltip';
 import type { Primitive } from 'tableau-ui-angular/types';
 
 @Component({

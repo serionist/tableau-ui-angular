@@ -41,7 +41,7 @@ export class FgRegisterFnsImpl<TSource extends Record<string, unknown>> extends 
             );
         }
         this.subscriptions.push(
-            combineLatest(subs).subscribe(([v, e]) => {
+            combineLatest(subs).subscribe(([v]) => {
                 callback(v[1], v[0], this.fg);
             }),
         );
@@ -78,7 +78,7 @@ export class FgRegisterFnsImpl<TSource extends Record<string, unknown>> extends 
             );
         }
         this.subscriptions.push(
-            combineLatest(subs).subscribe(([v, e]) => {
+            combineLatest(subs).subscribe(([v]) => {
                 callback(this.fg, ctrl, v);
             }),
         );
@@ -109,7 +109,7 @@ export class FgRegisterFnsImpl<TSource extends Record<string, unknown>> extends 
             );
         }
         this.subscriptions.push(
-            combineLatest(subs).subscribe(([v, e]) => {
+            combineLatest(subs).subscribe(([v]) => {
                 callback(this.fg, ctrl, v);
             }),
         );

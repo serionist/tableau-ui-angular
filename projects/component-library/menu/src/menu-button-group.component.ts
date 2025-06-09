@@ -4,25 +4,15 @@ import {
     Component,
     contentChildren,
     effect,
-    EffectCleanupRegisterFn,
     ElementRef,
     HostListener,
     inject,
     input,
-    linkedSignal,
-    OnInit,
     output,
-    Signal,
     signal,
-    TemplateRef,
-    viewChildren,
 } from '@angular/core';
 import { MenuButtonComponent } from './menu-button.component';
-import { Subscription } from 'rxjs';
-import { toObservable } from '@angular/core/rxjs-interop';
-import { EntriesPipe } from './pipes/entries.pipe';
-import { CommonModule } from '@angular/common';
-import { generateRandomString, ResizeWatcherDirective } from 'tableau-ui-angular/utils';
+import { generateRandomString } from 'tableau-ui-angular/utils';
 
 @Component({
     selector: 'tab-menu-button-group',
@@ -156,7 +146,7 @@ export class MenuButtonGroupComponent implements OnDestroy {
             openSubMenuSubscriptions: children
                 .filter((e) => e.$children().length > 0)
                 .map((c) =>
-                    c.openSubMenu.subscribe((e) => {
+                    c.openSubMenu.subscribe(() => {
                         if (this.$menuGroupStack().some((s) => s.parentButton?.id === c.id)) {
                             return;
                         }

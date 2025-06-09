@@ -1,7 +1,5 @@
 import type { AfterViewInit, ElementRef, OnDestroy } from '@angular/core';
 import { ChangeDetectionStrategy, Component, computed, effect, HostListener, input, signal, viewChild } from '@angular/core';
-import { ButtonComponent } from 'tableau-ui-angular/button';
-import { SeparatorComponent } from 'tableau-ui-angular/common';
 
 @Component({
     selector: 'tab-arrow-scroll',

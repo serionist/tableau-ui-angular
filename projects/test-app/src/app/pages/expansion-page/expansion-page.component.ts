@@ -2,11 +2,6 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
 
 import {
-    AccordionComponent,
-    ExpansionPanelComponent,
-    ExpansionPanelTitleCollapsedContentDirective,
-    ExpansionPanelTitleComponent,
-    ExpansionPanelTitleExpandedContentDirective,
     TableauUiExpansionPanelModule,
 } from 'tableau-ui-angular/expansion-panel';
 import { TableauUiIconModule } from 'tableau-ui-angular/icon';

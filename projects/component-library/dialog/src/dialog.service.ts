@@ -1,10 +1,9 @@
 import type { ComponentRef, EmbeddedViewRef, TemplateRef, Type, ViewRef } from '@angular/core';
-import { ApplicationRef, createComponent, EnvironmentInjector, inject, Injectable, Injector, ViewContainerRef } from '@angular/core';
+import { ApplicationRef, createComponent, EnvironmentInjector, inject, Injectable, Injector } from '@angular/core';
 import type { DialogRef, IDialogRef } from './dialog.ref';
 import { TAB_DIALOG_REF, DialogRefInternal } from './dialog.ref';
 import type { IConfirmationDialogArgs, IDialogArgs, IDialogPositionAndSizeArgs, IModalArgs } from './dialog.args';
-import { IDialogHeaderArgs } from './dialog.args';
-import { debounceTime, fromEvent, map, Subscription, zip } from 'rxjs';
+import { fromEvent, map, Subscription } from 'rxjs';
 import type { FocusableElement } from 'tabbable';
 import { tabbable } from 'tabbable';
 import type { IConfirmationDialogData } from './confirmation-dialog.component';
@@ -44,10 +43,11 @@ export class DialogService {
                 display: 'flex',
                 flexDirection: 'column',
             },
-            left(actualWidth, actualHeight) {
+             
+            left(actualWidth) {
                 return `calc(50vw - ${actualWidth / 2}px)`;
             },
-            top(actualWidth, actualHeight) {
+            top(actualHeight) {
                 return `calc(50vh - ${actualHeight / 2}px)`;
             },
             header: args?.header,
@@ -252,7 +252,7 @@ export class DialogService {
             return;
         }
         // get the dialog to set the escape for
-        const { dialogRef, zIndex, args } = this.dialogStack[this.dialogStack.length - 1];
+        const { dialogRef, args } = this.dialogStack[this.dialogStack.length - 1];
         if (args.closeOnEscape === true) {
             this.escapeSubscription = fromEvent(document, 'keydown')
                 .pipe(map((e) => e as KeyboardEvent))

@@ -1,9 +1,6 @@
 import type { AfterContentInit, Signal, ElementRef } from '@angular/core';
-import { Component, ContentChildren, QueryList, contentChildren, signal, computed, ChangeDetectionStrategy, input, viewChildren } from '@angular/core';
+import { Component, contentChildren, signal, computed, ChangeDetectionStrategy, input, viewChildren } from '@angular/core';
 import { TabComponent } from './tab.component';
-import { CommonModule } from '@angular/common';
-import { ArrowScrollComponent } from 'tableau-ui-angular/arrow-scroll';
-import { IconComponent } from 'tableau-ui-angular/icon';
 
 @Component({
     selector: 'tab-group',

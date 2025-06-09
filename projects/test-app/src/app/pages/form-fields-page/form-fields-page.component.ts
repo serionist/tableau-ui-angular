@@ -1,6 +1,6 @@
 import type { OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { AbstractControl, FormControl, FormGroup, FormGroupDirective, NgForm, Validators } from '@angular/forms';
+import { Validators } from '@angular/forms';
 
 import { BehaviorSubject, debounceTime, skip, Subject } from 'rxjs';
 import { TableauUiAutoCompleteModule } from 'tableau-ui-angular/autocomplete';
@@ -131,7 +131,7 @@ export class FormFieldsPageComponent implements OnInit {
         'Riley Rivera',
     ];
 
-    randomNames = this.names.map((fullName, index) => {
+    randomNames = this.names.map((fullName) => {
         return {
             name: fullName,
             search: this.getSearchString(fullName),

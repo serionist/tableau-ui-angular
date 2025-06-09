@@ -1,5 +1,5 @@
 import type { WritableSignal } from '@angular/core';
-import { AfterViewInit, ChangeDetectionStrategy, Component, computed, contentChildren, ElementRef, forwardRef, inject, model, OnDestroy, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, contentChildren, ElementRef, forwardRef, inject, model, signal } from '@angular/core';
 import type { ControlValueAccessor } from '@angular/forms';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import type { IOptionGridContext } from 'tableau-ui-angular/common';
@@ -114,7 +114,7 @@ export class ListComponent implements ControlValueAccessor {
     });
 
     // #region ControlValueAccessor
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    // eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
     onChange = (value: ListValue) => {};
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     onTouched = () => {};

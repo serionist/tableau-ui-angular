@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, Inject, input, Input, model } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { injectSnackData, injectSnackRef } from 'tableau-ui-angular/snack';
 
 @Component({

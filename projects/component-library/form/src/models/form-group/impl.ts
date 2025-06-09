@@ -5,7 +5,6 @@ import { BehaviorSubject, distinctUntilChanged, filter, map, startWith } from 'r
 import { ACImpl } from '../abstract-control/impl';
 import type { AC } from '../abstract-control/interfaces';
 import type { MetaFns } from '../abstract-control/meta/interfaces';
-import { RegisterFns } from '../abstract-control/register/interfaces';
 import type { AsyncValidatorFn, ValidatorFn, ValidatorFns } from '../abstract-control/validation/interfaces';
 import type { FG } from './interfaces';
 import type { FgRegisterFns } from './register/interfaces';
@@ -57,7 +56,7 @@ export class FGImpl<T extends Record<string, unknown>> extends ACImpl<T> impleme
             updateOn: params.updateOn,
         });
 
-        const childList = Object.entries(params.controls).map(([key, child]) => child as AC);
+        const childList = Object.entries(params.controls).map(([, child]) => child as AC);
         super('group', control, childList);
 
         this.controls = params.controls;
@@ -78,14 +77,15 @@ export class FGImpl<T extends Record<string, unknown>> extends ACImpl<T> impleme
                         if (!a || !b) {
                             return false;
                         }
-                        if (typeof a === 'object' && typeof b === 'object') {
-                            try {
-                                return JSON.stringify(a) === JSON.stringify(b);
-                            } catch (e) {
-                                return false;
-                            }
-                        }
-                        return a === b;
+                        // if (typeof a === 'object' && typeof b === 'object') {
+                        //     try {
+                        //         return JSON.stringify(a) === JSON.stringify(b);
+                        //     } catch (e) {
+                        //         return false;
+                        //     }
+                        // }
+                        // return a === b;
+                        return true;
                     }),
                 )
                 .subscribe((v) => {

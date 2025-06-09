@@ -1,6 +1,5 @@
-import { CommonModule } from '@angular/common';
 import type { Signal } from '@angular/core';
-import { ChangeDetectionStrategy, Component, contentChild, ContentChild, contentChildren, ContentChildren, forwardRef, model, OnInit, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, contentChild, contentChildren, forwardRef, model, output, signal } from '@angular/core';
 
 import type { ControlValueAccessor } from '@angular/forms';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
@@ -34,7 +33,7 @@ export class RadioGroupComponent implements ControlValueAccessor {
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     readonly $errorElement: Signal<ErrorComponent | undefined> = contentChild(ErrorComponent);
 
-    // eslint-disable-next-line  @typescript-eslint/no-empty-function
+    // eslint-disable-next-line  @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
     onChange = (value: Primitive) => {};
     // eslint-disable-next-line  @typescript-eslint/no-empty-function
     onTouched = () => {};

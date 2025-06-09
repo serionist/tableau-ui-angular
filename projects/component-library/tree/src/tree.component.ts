@@ -1,8 +1,7 @@
 import type { AfterContentInit, InputSignal, OnDestroy, TemplateRef } from '@angular/core';
-import { ChangeDetectionStrategy, Component, computed, contentChild, contentChildren, DoCheck, effect, ElementRef, inject, input, OnInit, viewChild, viewChildren } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, ElementRef, inject, input } from '@angular/core';
 import type { TabTreeNodeComponent, TreeNodeTemplate } from './tree-node.component';
 import { TreeNodeRegistry } from './tree-node-registry';
-import { CommonModule } from '@angular/common';
 @Component({
     selector: 'tab-tree',
     standalone: false,

@@ -1,5 +1,4 @@
 import type { DeepPartial } from 'tableau-ui-angular/types';
-import type { Meta } from '../../abstract-control/meta/interfaces';
 import type { RegisterFns } from '../../abstract-control/register/interfaces';
 import type { FG } from '../../form-group/interfaces';
 import type { FA } from '../interaces';

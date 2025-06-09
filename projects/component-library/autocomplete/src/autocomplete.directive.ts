@@ -1,5 +1,5 @@
 import type { OnDestroy } from '@angular/core';
-import { Directive, effect, ElementRef, Host, HostListener, inject, input, OnInit } from '@angular/core';
+import { Directive, effect, ElementRef, HostListener, inject, input } from '@angular/core';
 import type { Subscription } from 'rxjs';
 import type { AutoCompleteComponent } from './autocomplete.component';
 @Directive({
@@ -35,8 +35,8 @@ export class AutoCompleteDirective implements OnDestroy {
         this.$tabAutoComplete().closeDropdown();
     }
 
-    @HostListener('input', ['$event'])
-    onInput(event: Event) {
+    @HostListener('input')
+    onInput() {
         this.$tabAutoComplete().openDropdown(this.ref.nativeElement);
     }
 

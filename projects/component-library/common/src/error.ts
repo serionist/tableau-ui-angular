@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ElementRef, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 @Component({
     selector: 'tab-error',
     standalone: false,

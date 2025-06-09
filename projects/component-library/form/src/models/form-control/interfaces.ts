@@ -1,6 +1,5 @@
 import type { Signal } from '@angular/core';
 import type { MetaFns } from '../abstract-control/meta/interfaces';
-import type { RegisterFns } from '../abstract-control/register/interfaces';
 import type { ValidatorFns } from '../abstract-control/validation/interfaces';
 import type { AC } from '../abstract-control/interfaces';
 import type { Observable } from 'rxjs';

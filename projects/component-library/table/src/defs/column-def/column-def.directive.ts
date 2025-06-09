@@ -1,5 +1,5 @@
 import type { TemplateRef } from '@angular/core';
-import { contentChild, Directive, input, signal } from '@angular/core';
+import { contentChild, Directive, input } from '@angular/core';
 import { CellDefDirective } from '../cell-def/cell-def.directive';
 import { HeaderDefDirective } from '../header-def/header-def.directive';
 import type { HeaderContext } from '../header-def/header-context';

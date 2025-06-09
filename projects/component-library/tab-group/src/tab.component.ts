@@ -1,5 +1,5 @@
 import type { TemplateRef } from '@angular/core';
-import { AfterContentInit, ChangeDetectionStrategy, Component, ContentChild, input, viewChild, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, viewChild } from '@angular/core';
 
 @Component({
     // eslint-disable-next-line @angular-eslint/component-selector

@@ -1,8 +1,7 @@
 import type { AfterContentInit, AfterViewInit, TemplateRef } from '@angular/core';
-import { ChangeDetectionStrategy, Component, ElementRef, inject, input, model, ModelSignal, ViewChild, viewChild } from '@angular/core';
-import { injectDialogRef, TAB_DIALOG_REF } from './dialog.ref';
+import { ChangeDetectionStrategy, Component, inject, viewChild } from '@angular/core';
+import { injectDialogRef } from './dialog.ref';
 import { injectDialogData, TAB_DATA_REF } from './data.ref';
-import { CommonModule } from '@angular/common';
 import type { ButtonComponent } from 'tableau-ui-angular/button';
 @Component({
     selector: 'tab-confirmation-dialog',
@@ -52,7 +51,6 @@ export class ConfirmationDialogComponent implements AfterViewInit, AfterContentI
 
     ngAfterContentInit() {
         if (this.data.autofocus === 'accept') {
-            const acc = this.$accept();
             this.$accept().$nativeElement.nativeElement.focus();
         } else if (this.data.autofocus === 'cancel') {
             this.$cancel().$nativeElement.nativeElement.focus();
@@ -60,7 +58,6 @@ export class ConfirmationDialogComponent implements AfterViewInit, AfterContentI
     }
     ngAfterViewInit() {
         if (this.data.autofocus === 'accept') {
-            const acc = this.$accept().$nativeElement;
             this.$accept().$nativeElement.nativeElement.focus();
         } else if (this.data.autofocus === 'cancel') {
             this.$cancel().$nativeElement.nativeElement.focus();

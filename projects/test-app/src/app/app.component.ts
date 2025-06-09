@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit, TemplateRef, viewChild, ViewContainerRef } from '@angular/core';
-import { ActivatedRoute, NavigationEnd, Router, RouterModule, RouterOutlet, RouterState } from '@angular/router';
+import { ChangeDetectionStrategy, Component, computed, inject, viewChild } from '@angular/core';
+import { ActivatedRoute, NavigationEnd, Router, RouterModule } from '@angular/router';
 import type { Observable } from 'rxjs';
-import { filter, map, switchMap } from 'rxjs';
+import { filter, map } from 'rxjs';
 import { version as LibVersion } from '../../../component-library/package.json';
 import { ThemeService } from 'tableau-ui-angular/theme';
 import { TableauUiMenuModule, type MenuComponent } from 'tableau-ui-angular/menu';

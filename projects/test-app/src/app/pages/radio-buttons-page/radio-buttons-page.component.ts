@@ -1,6 +1,6 @@
 import type { OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Validators } from '@angular/forms';
 import { skip } from 'rxjs';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
 import { FB, TableauUiFormModule } from 'tableau-ui-angular/form';

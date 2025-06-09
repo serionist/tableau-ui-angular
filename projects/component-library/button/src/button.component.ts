@@ -1,5 +1,4 @@
-import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, ElementRef, HostListener, inject, input, output, signal, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, HostListener, inject, input } from '@angular/core';
 
 @Component({
     // eslint-disable-next-line @angular-eslint/component-selector

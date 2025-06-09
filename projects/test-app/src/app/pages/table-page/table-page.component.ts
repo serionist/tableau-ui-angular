@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, Component, ResourceLoader, ResourceLoaderParams, signal, viewChild } from '@angular/core';
-import { small_data, data } from './table-data-sample';
+import { ChangeDetectionStrategy, Component, signal, viewChild } from '@angular/core';
+import { data } from './table-data-sample';
 import type { DataRequest, DataResponse, HeaderContext } from 'tableau-ui-angular/table';
-import { CellDefDirective, ColumnDefDirective, HeaderDefDirective, TableauUiTableModule, TableComponent } from 'tableau-ui-angular/table';
+import { TableauUiTableModule, TableComponent } from 'tableau-ui-angular/table';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
 import { TableauUiCheckboxModule } from 'tableau-ui-angular/checkbox';
 import { CommonModule } from '@angular/common';

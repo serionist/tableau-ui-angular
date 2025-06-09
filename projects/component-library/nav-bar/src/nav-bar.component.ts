@@ -1,6 +1,5 @@
-import { CommonModule } from '@angular/common';
 import type { AfterContentInit, Signal } from '@angular/core';
-import { ChangeDetectionStrategy, Component, contentChild, contentChildren, input, model, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, Component, contentChild, contentChildren, model } from '@angular/core';
 import { NavBarHeaderComponent } from './nav-bar-header.component';
 import { NavBarFooterComponent } from './nav-bar-footer.component';
 import { NavBarButtonComponent } from './nav-bar-button/nav-bar-button.component';

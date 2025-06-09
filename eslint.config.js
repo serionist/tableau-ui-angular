@@ -200,7 +200,7 @@ module.exports = tseslint.config(
             //Disallow unused expressions
             '@typescript-eslint/no-unused-expressions': 'error',
             //Disallow unused variables
-            '@typescript-eslint/no-unused-vars': 'off',
+            '@typescript-eslint/no-unused-vars': 'error',
             //Disallow the use of variables before they are defined
             '@typescript-eslint/no-use-before-define': 'off',
             //Disallow unnecessary constructors

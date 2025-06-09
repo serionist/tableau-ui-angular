@@ -1,14 +1,14 @@
 import type { OnInit, WritableSignal } from '@angular/core';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { BehaviorSubject, debounceTime, startWith, Subject } from 'rxjs';
-import { HintComponent, LabelComponent, OptionComponent, PrefixComponent, SuffixComponent, TableauUiCommonModule, type IOptionLineContext } from 'tableau-ui-angular/common';
+import { FormControl, Validators } from '@angular/forms';
+import { BehaviorSubject, debounceTime, Subject } from 'rxjs';
+import { TableauUiCommonModule, type IOptionLineContext } from 'tableau-ui-angular/common';
 
 import { FB, TableauUiFormModule } from 'tableau-ui-angular/form';
-import { FormFieldComponent, TableauUiFormFieldModule } from 'tableau-ui-angular/form-field';
+import { TableauUiFormFieldModule } from 'tableau-ui-angular/form-field';
 
-import { IconComponent, TableauUiIconModule } from 'tableau-ui-angular/icon';
-import { SelectComponent, TableauUiSelectModule, type SelectValue } from 'tableau-ui-angular/select';
+import { TableauUiIconModule } from 'tableau-ui-angular/icon';
+import { TableauUiSelectModule, type SelectValue } from 'tableau-ui-angular/select';
 import { SnackService, TableauUiSnackModule } from 'tableau-ui-angular/snack';
 @Component({
     selector: 'app-select-page',
@@ -107,7 +107,6 @@ export class SelectPageComponent implements OnInit {
     ];
 
     randomNames = this.names.map((fullName, index) => {
-        const [firstName, lastName] = fullName.split(' ');
         return {
             id: index + 1,
             name: fullName,

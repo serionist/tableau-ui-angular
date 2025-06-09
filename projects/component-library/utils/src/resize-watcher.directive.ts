@@ -1,5 +1,5 @@
 import type { OnDestroy } from '@angular/core';
-import { Directive, ElementRef, inject, OnInit, output } from '@angular/core';
+import { Directive, ElementRef, inject, output } from '@angular/core';
 
 @Directive({
     selector: '[resizeWatcher]',

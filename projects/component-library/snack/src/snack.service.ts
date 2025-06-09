@@ -52,7 +52,7 @@ export class SnackService {
             location,
         );
     }
-    openSnackFromTemplate<TContext, TResult>(
+    openSnackFromTemplate<TContext>(
         template: TemplateRef<TContext>,
         templateContext?: TContext,
         duration: number | undefined = 5000,

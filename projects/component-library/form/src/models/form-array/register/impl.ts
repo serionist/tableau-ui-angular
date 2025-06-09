@@ -49,7 +49,7 @@ export class FaRegisterFnsImpl<TItem extends Record<string, unknown>> extends Re
             );
         }
         this.subscriptions.push(
-            combineLatest(subs).subscribe(([v, e]) => {
+            combineLatest(subs).subscribe(([v]) => {
                 callback(v[1], v[0], this.fa.$controls(), this.fa);
             }),
         );

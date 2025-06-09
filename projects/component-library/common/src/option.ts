@@ -1,8 +1,5 @@
-import { CommonModule } from '@angular/common';
 import type { InputSignal, Signal, TemplateRef } from '@angular/core';
-import { ChangeDetectionStrategy, Component, computed, ContentChild, ElementRef, inject, input, signal, viewChild, ViewChild, ViewContainerRef } from '@angular/core';
-import { IconComponent } from 'tableau-ui-angular/icon';
-import { TooltipDirective } from 'tableau-ui-angular/tooltip';
+import { ChangeDetectionStrategy, Component, computed, ElementRef, inject, input, viewChild } from '@angular/core';
 import type { Primitive } from 'tableau-ui-angular/types';
 
 @Component({
