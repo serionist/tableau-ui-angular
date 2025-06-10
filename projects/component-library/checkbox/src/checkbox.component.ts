@@ -1,5 +1,5 @@
 import type { Signal } from '@angular/core';
-import { ChangeDetectionStrategy, Component, contentChild, forwardRef, model, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, contentChild, forwardRef, input, model } from '@angular/core';
 import type { ControlValueAccessor } from '@angular/forms';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { ErrorComponent, HintComponent } from 'tableau-ui-angular/common';
@@ -19,7 +19,9 @@ import { ErrorComponent, HintComponent } from 'tableau-ui-angular/common';
     host: {
         class: 'checkbox',
         '[class.disabled]': '$disabled()',
-        '[class.checked]': '$value()',
+        '[class.checked]': '$value() === true',
+        '[class.partial]': '$value() === "partial"',
+        '[class.loading]': '$loading()',
         '(click)': 'toggleValue()',
     },
 })
@@ -27,10 +29,12 @@ export class CheckboxComponent implements ControlValueAccessor {
     readonly $disabled = model(false, {
         alias: 'disabled',
     });
-    readonly $value = model(false, {
+    readonly $value = model<boolean | 'partial'>(false, {
         alias: 'value',
     });
-    readonly valueChanges = output<boolean>();
+    readonly $loading = input(false, {
+        alias: 'loading',
+    });
 
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     protected readonly $hintElement: Signal<HintComponent | undefined> = contentChild(HintComponent);
@@ -54,11 +58,15 @@ export class CheckboxComponent implements ControlValueAccessor {
         this.$disabled.set(isDisabled);
     }
     toggleValue() {
-        if (!this.$disabled()) {
-            const newVal = !this.$value();
-            this.$value.set(newVal);
-            this.onChange(this.$value());
-            this.valueChanges.emit(newVal);
+        if (!this.$disabled() && !this.$loading()) {
+            let val = this.$value();
+            if (val === 'partial') {
+                val = false;
+            } else {
+                val = !val;
+            }
+            this.$value.set(val);
+            this.onChange(val);
             this.onTouched();
         }
     }
