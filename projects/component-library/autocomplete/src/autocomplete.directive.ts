@@ -2,13 +2,14 @@ import type { OnDestroy } from '@angular/core';
 import { Directive, effect, ElementRef, HostListener, inject, input } from '@angular/core';
 import type { Subscription } from 'rxjs';
 import type { AutoCompleteComponent } from './autocomplete.component';
+import type { Primitive } from 'tableau-ui-angular/types';
 @Directive({
     selector: 'input[tabAutoComplete]',
     standalone: false,
 })
-export class AutoCompleteDirective implements OnDestroy {
+export class AutoCompleteDirective<T extends Primitive> implements OnDestroy {
     private readonly ref = inject<ElementRef<HTMLInputElement>>(ElementRef);
-    readonly $tabAutoComplete = input.required<AutoCompleteComponent>({
+    readonly $tabAutoComplete = input.required<AutoCompleteComponent<T>>({
         alias: 'tabAutoComplete',
     });
     private autoCompleteSelectedSub: Subscription | undefined = undefined;

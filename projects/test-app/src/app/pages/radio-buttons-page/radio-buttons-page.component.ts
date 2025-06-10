@@ -8,7 +8,6 @@ import { TableauUiFormFieldModule } from 'tableau-ui-angular/form-field';
 import { TableauUiIconModule } from 'tableau-ui-angular/icon';
 import { TableauUiRadioGroupModule } from 'tableau-ui-angular/radio-group';
 import { SnackService, TableauUiSnackModule } from 'tableau-ui-angular/snack';
-import type { Primitive } from 'tableau-ui-angular/types';
 
 @Component({
     selector: 'app-radio-buttons-page',
@@ -26,7 +25,7 @@ export class RadioButtonsPageComponent implements OnInit {
 
     formControl = this.b.control<number | null>(null, [Validators.required, Validators.min(2), Validators.max(3)]);
 
-    valueChanged(value: Primitive, name: string, type: 'error' | 'info' = 'info') {
+    valueChanged(value: number | null, name: string, type: 'error' | 'info' = 'info') {
         console.log(`Value changed for ${name}:`, value);
         this.snackService.openSnack(`${name} set to: ${value}`, 3000, type);
     }

@@ -1,14 +1,14 @@
 import type { PipeTransform } from '@angular/core';
 import { Pipe } from '@angular/core';
-import type { SelectValue } from '../select.component';
 import type { OptionComponent } from 'tableau-ui-angular/common';
+import type { Primitive } from 'tableau-ui-angular/types';
 
 @Pipe({
     name: 'isSelectedValue',
     standalone: false,
 })
-export class IsSelectedValuePipe implements PipeTransform {
-    transform(option: OptionComponent, allowMultiple: boolean, value: SelectValue): boolean {
+export class IsSelectedValuePipe<T extends Primitive> implements PipeTransform {
+    transform(option: OptionComponent<T>, allowMultiple: boolean, value: T | T[] | undefined): boolean {
         if (allowMultiple) {
             return value instanceof Array && value.includes(option.$value());
         }

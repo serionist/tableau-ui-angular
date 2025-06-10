@@ -16,6 +16,7 @@ import { generateRandomString } from 'tableau-ui-angular/utils';
     },
 })
 export class FormFieldComponent implements AfterContentInit, AfterViewInit, OnDestroy {
+    private readonly inputContainerSelector = 'input,textarea,tab-single-select,tab-multi-select,tab-list-single-select,tab-list-multi-select';
     protected readonly id = generateRandomString(16);
     readonly $style = input<string>(undefined, {
         alias: 'style',
@@ -46,7 +47,7 @@ export class FormFieldComponent implements AfterContentInit, AfterViewInit, OnDe
     ngAfterContentInit(): void {
         this.updatePrefixSuffixWidths();
 
-        const inputElement: HTMLElement | null = this.$inputContainer().nativeElement.querySelector('input,textarea,tab-select,tab-list');
+        const inputElement: HTMLElement | null = this.$inputContainer().nativeElement.querySelector(this.inputContainerSelector);
 
         if (inputElement) {
             inputElement.id = this.id;
@@ -123,7 +124,7 @@ export class FormFieldComponent implements AfterContentInit, AfterViewInit, OnDe
         if (prefixElement) {
             const prefixWidth = prefixElement.elementRef.nativeElement.offsetWidth;
             this.renderer.setStyle(
-                this.$inputContainer().nativeElement.querySelector('input,textarea,tab-select,tab-list'),
+                this.$inputContainer().nativeElement.querySelector(this.inputContainerSelector),
                 'padding-left',
                 `${prefixWidth + 12}px`, // Adds a small margin for spacing
             );
@@ -132,7 +133,7 @@ export class FormFieldComponent implements AfterContentInit, AfterViewInit, OnDe
         if (suffixElement) {
             const suffixWidth = suffixElement.elementRef.nativeElement.offsetWidth;
             this.renderer.setStyle(
-                this.$inputContainer().nativeElement.querySelector('input,textarea,tab-select,tab-list'),
+                this.$inputContainer().nativeElement.querySelector(this.inputContainerSelector),
                 'padding-right',
                 `${suffixWidth + 8}px`, // Adds a small margin for spacing
             );

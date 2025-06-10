@@ -1,5 +1,5 @@
 import type { Signal } from '@angular/core';
-import { ChangeDetectionStrategy, Component, contentChild, contentChildren, forwardRef, model, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, contentChild, contentChildren, forwardRef, model, signal } from '@angular/core';
 
 import type { ControlValueAccessor } from '@angular/forms';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
@@ -22,27 +22,26 @@ import { generateRandomString } from 'tableau-ui-angular/utils';
     ],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class RadioGroupComponent implements ControlValueAccessor {
+export class RadioGroupComponent<T extends Primitive> implements ControlValueAccessor {
     readonly $disabled = signal(false);
-    readonly $value = model<Primitive>(undefined, {
+    readonly $value = model<T | undefined>(undefined, {
         alias: 'value',
     });
-    readonly valueChanges = output<Primitive>();
     readonly name = this.generateRandomGroupName();
-    readonly $options = contentChildren(OptionComponent);
+    readonly $options = contentChildren<OptionComponent<T>>(OptionComponent<T>);
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     readonly $errorElement: Signal<ErrorComponent | undefined> = contentChild(ErrorComponent);
 
     // eslint-disable-next-line  @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
-    onChange = (value: Primitive) => {};
+    onChange = (value: T | undefined) => {};
     // eslint-disable-next-line  @typescript-eslint/no-empty-function
     onTouched = () => {};
 
-    writeValue(value: Primitive): void {
+    writeValue(value: T | undefined): void {
         this.$value.set(value);
     }
 
-    registerOnChange(fn: (value: Primitive) => void): void {
+    registerOnChange(fn: (value: T | undefined) => void): void {
         this.onChange = fn;
     }
 
@@ -54,18 +53,17 @@ export class RadioGroupComponent implements ControlValueAccessor {
         this.$disabled.set(isDisabled);
     }
 
-    selectValue(option: OptionComponent) {
+    selectValue(option: OptionComponent<T>) {
         if (!this.$disabled() && !option.$disabled()) {
             if (this.$value() !== option.$value()) {
                 this.$value.set(option.$value());
                 this.onChange(this.$value());
-                this.valueChanges.emit(this.$value());
             }
             this.onTouched();
         }
     }
 
-    onKeyDown(e: KeyboardEvent, option: OptionComponent) {
+    onKeyDown(e: KeyboardEvent, option: OptionComponent<T>) {
         if (e.key === 'Enter' || e.key === ' ') {
             this.selectValue(option);
             e.preventDefault();

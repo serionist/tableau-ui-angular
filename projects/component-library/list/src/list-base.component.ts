@@ -1,38 +1,31 @@
 import type { WritableSignal } from '@angular/core';
-import { ChangeDetectionStrategy, Component, computed, contentChildren, ElementRef, forwardRef, inject, model, signal } from '@angular/core';
+import { computed, contentChildren, Directive, ElementRef, inject, model, signal } from '@angular/core';
 import type { ControlValueAccessor } from '@angular/forms';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import type { IOptionGridContext } from 'tableau-ui-angular/common';
 import { OptionComponent } from 'tableau-ui-angular/common';
 import type { Primitive } from 'tableau-ui-angular/types';
-export type ListValue = Exclude<Primitive, undefined> | Exclude<Primitive, undefined>[] | undefined;
-@Component({
-    selector: 'tab-list',
-    standalone: false,
-    templateUrl: './list.component.html',
-    styleUrl: './list.component.scss',
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => ListComponent),
-            multi: true,
-        },
-    ],
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    host: {
-        class: 'tab-input',
-        '[class.silent-focus]': '$focusMode() === "silent"',
-        '[tabindex]': '$disabled() || $focusMode() === "none" ? -1 : 0',
-        '(keydown)': 'onKeyDown($event)',
-        '(blur)': 'onBlur()',
-        '(focus)': 'onFocus()',
-        '(mouseleave)': 'onMouseOut()',
-    },
-})
-export class ListComponent implements ControlValueAccessor {
-    protected readonly $options = contentChildren<OptionComponent>(OptionComponent);
+import type { ListMultiSelectComponent } from './list-multi-select.component';
+
+export const LIST_COMPONENT_HOST = {
+    class: 'tab-input',
+    '[class.silent-focus]': '$focusMode() === "silent"',
+    '[tabindex]': '$disabled() || $focusMode() === "none" ? -1 : 0',
+    '(keydown)': 'onKeyDown($event)',
+    '(blur)': 'onBlur()',
+    '(focus)': 'onFocus()',
+    '(mouseleave)': 'onMouseOut()',
+};
+
+
+@Directive()
+export abstract class ListBaseComponent<TOption extends Primitive, TValue extends TOption | TOption[]> implements ControlValueAccessor {
+    protected readonly $options = contentChildren<OptionComponent<TOption>>(OptionComponent<TOption>);
     private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
     // #region Inputs
+
+     protected $isMultiSelect():  this is ListMultiSelectComponent<TOption> {
+            return false;
+          }
 
     /**
      * Sets the focusability of the list
@@ -62,7 +55,7 @@ export class ListComponent implements ControlValueAccessor {
      * If allowMultiple is true, this should be an array of values.
      * If allowMultiple is false, this should be a single value.
      */
-    readonly $value = model<ListValue>(undefined, {
+    readonly $value = model<TValue | undefined>(undefined, {
         alias: 'value',
     });
     /**
@@ -83,9 +76,7 @@ export class ListComponent implements ControlValueAccessor {
      * Whether multiple values can be selected
      * @default false
      */
-    readonly $allowMultiple = model<boolean>(false, {
-        alias: 'allowMultiple',
-    });
+    
     /**
      * The template context to use for the dropdown options
      * @remarks
@@ -115,13 +106,13 @@ export class ListComponent implements ControlValueAccessor {
 
     // #region ControlValueAccessor
     // eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
-    onChange = (value: ListValue) => {};
+    onChange = (value: TValue | undefined) => {};
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     onTouched = () => {};
-    writeValue(value: ListValue): void {
+    writeValue(value: TValue | undefined): void {
         this.$value.set(value);
     }
-    registerOnChange(fn: (value: ListValue) => void): void {
+    registerOnChange(fn: (value: TValue | undefined) => void): void {
         this.onChange = fn;
     }
     registerOnTouched(fn: () => void): void {
@@ -133,26 +124,15 @@ export class ListComponent implements ControlValueAccessor {
     // #endregion
     // #region Value selection
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    protected readonly $highlightedOption: WritableSignal<OptionComponent | undefined> = signal<OptionComponent | undefined>(undefined);
-    optionMouseDown(event: MouseEvent) {
+    protected readonly $highlightedOption: WritableSignal<OptionComponent<TOption> | undefined> = signal<OptionComponent<TOption> | undefined>(undefined);
+   
+    selectValue(option: OptionComponent<TOption>, event: MouseEvent) {
         event.preventDefault();
         event.stopPropagation();
-    }
-    selectValue(option: OptionComponent) {
         if (!this.$disabled() && !option.$disabled()) {
             const value = this.$value();
             const optionValue = option.$value();
-            if (this.$allowMultiple()) {
-                if (value === undefined || !Array.isArray(value)) {
-                    this.$value.set([optionValue]);
-                } else if (!value.includes(optionValue)) {
-                    this.$value.set([...value, optionValue]);
-                } else {
-                    this.$value.set(value.filter((e) => e !== optionValue));
-                }
-            } else if (this.$value() !== option.$value()) {
-                this.$value.set(option.$value());
-            }
+            this.selectValueInternal(value, optionValue);
             this.onChange(this.$value());
             this.onTouched();
             if (this.elementRef.nativeElement.tabIndex !== -1) {
@@ -160,20 +140,18 @@ export class ListComponent implements ControlValueAccessor {
             }
         }
     }
+    protected readonly abstract selectValueInternal: (currentValue: TValue | undefined, selectedValue: TOption) => void;
     clearValue(e: Event) {
         e.preventDefault();
         e.stopPropagation();
         if (this.$disabled()) {
             return;
         }
-        if (this.$allowMultiple()) {
-            this.$value.set([]);
-        } else {
-            this.$value.set(undefined);
-        }
+        this.clearValueInternal();
         this.onChange(this.$value());
         this.onTouched();
     }
+    protected readonly abstract clearValueInternal: () => void;
     // #region Focus management
     protected readonly $focused = signal(false);
     onFocus() {
@@ -198,7 +176,7 @@ export class ListComponent implements ControlValueAccessor {
     onKeyDown(e: KeyboardEvent) {
         if (e.key === 'Enter' || e.key === ' ') {
             if (this.$highlightedOption()) {
-                this.selectValue(this.$highlightedOption()!);
+                this.selectValue(this.$highlightedOption()!, new MouseEvent('click'));
             }
             e.preventDefault();
             e.stopPropagation();
@@ -219,7 +197,7 @@ export class ListComponent implements ControlValueAccessor {
 
                 if (e.key === 'ArrowDown') {
                     // find the last selected option
-                    if (this.$allowMultiple()) {
+                    if (this.$isMultiSelect()) {
                         if (value != null && Array.isArray(value) && value.length > 0) {
                             val = value[value.length - 1];
                         }
@@ -230,7 +208,7 @@ export class ListComponent implements ControlValueAccessor {
                     }
                 } else {
                     // find the first selected option
-                    if (this.$allowMultiple()) {
+                    if (this.$isMultiSelect()) {
                         if (value != null && Array.isArray(value) && value.length > 0) {
                             val = value[0];
                         }

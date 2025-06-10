@@ -3,7 +3,7 @@
         <span class="placeholder">{{ $placeholder() }}</span>
     } @else {
         <span class="value">
-            @if ($selectedValueTemplates().length > $multipleSelectionMaxItemsListed()) {
+            @if ($isMultiSelect() && $selectedValueTemplates().length > $multipleSelectionMaxItemsListed()) {
                 <ng-container>{{ $multipleSelectionNumberSelectedTemplate() | multipleTemplate: $selectedValueTemplates().length }}</ng-container>
             } @else {
                 @for (v of $selectedValueTemplates(); track v.value; let last = $last) {
@@ -39,13 +39,13 @@
                     class="option-wrapper"
                     [class.disabled]="option.$disabled()"
                     [class.highlight]="!!$highlightedOption() && $highlightedOption()!.$value() === option.$value()"
-                    [class.selected]="(option | isSelectedValue: $allowMultiple() : $value()) && $selectedItemHighlight()"
+                    [class.selected]="(option | isSelectedValue: $isMultiSelect : $value()) && $selectedItemHighlight()"
                     (click)="selectValue(option)"
                     (mousedown)="optionMouseDown($event)"
                     (mouseenter)="$highlightedOption.set(option)"
                 >
                     <div class="check" [ngClass]="$selectedCheckIconLocation()">
-                        @if (option | isSelectedValue: $allowMultiple() : $value()) {
+                        @if (option | isSelectedValue: $isMultiSelect : $value()) {
                             <tab-icon value="check" />
                         }
                     </div>

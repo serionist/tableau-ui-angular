@@ -15,7 +15,7 @@ import type { Primitive } from 'tableau-ui-angular/types';
         '[tabindex]': '$disabled() ? -1: 0',
     },
 })
-export class ButtonToggleComponent {
+export class ButtonToggleComponent<T extends Primitive> {
     /**
      * Disables the button toggle component.
      * This will prevent any interaction with the component
@@ -30,11 +30,12 @@ export class ButtonToggleComponent {
      * If no value is selected, it will be undefined.
      * @default undefined
      */
-    readonly $selectedValue = model<Primitive>(undefined, {
+    readonly $selectedValue = model<T | undefined>(undefined, {
         alias: 'selectedValue',
     });
 
-    protected readonly $options = contentChildren(OptionComponent);
+    protected readonly $options = contentChildren(OptionComponent<T>);
+   
 
     readonly selectedValueChange = effect(() => {
         const val = this.$selectedValue();
@@ -52,7 +53,7 @@ export class ButtonToggleComponent {
         };
     });
 
-    optionClicked(option: OptionComponent): void {
+    optionClicked(option: OptionComponent<T>): void {
         if (this.$disabled() || option.$disabled()) {
             return;
         }

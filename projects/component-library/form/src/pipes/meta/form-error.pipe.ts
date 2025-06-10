@@ -14,6 +14,6 @@ export class FormErrorPipe implements PipeTransform {
         if (log) {
             console.log('getFormError', meta, specificError, requireTouched, ret);
         }
-        return ret;
+        return ret === undefined ? null : ret;
     }
 }

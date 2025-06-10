@@ -56,7 +56,7 @@ export class MetaImpl implements Meta {
     }
     private static _getErrorValue(meta: MetaImpl, errorCode: string, requireTouched = true): Primitive {
         if (meta === undefined) {
-            return undefined;
+            return null;
         }
         if ((!requireTouched || meta.touched) && meta.validity === 'INVALID' && meta.errors && errorCode in meta.errors) {
             return meta.errors[errorCode];
@@ -69,7 +69,7 @@ export class MetaImpl implements Meta {
                 }
             }
         }
-        return undefined;
+        return null;
     }
 
     public static compare(a: Meta, b: Meta): boolean {

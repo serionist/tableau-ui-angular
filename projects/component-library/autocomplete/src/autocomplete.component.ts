@@ -9,6 +9,7 @@ import { OptionComponent, PrefixComponent, SuffixComponent } from 'tableau-ui-an
 import type { DialogRef } from 'tableau-ui-angular/dialog';
 import { DialogService } from 'tableau-ui-angular/dialog';
 import { generateRandomString } from 'tableau-ui-angular/utils';
+import type { Primitive } from 'tableau-ui-angular/types';
 
 @Component({
     selector: 'tab-autocomplete',
@@ -17,13 +18,13 @@ import { generateRandomString } from 'tableau-ui-angular/utils';
     styleUrl: './autocomplete.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AutoCompleteComponent {
+export class AutoCompleteComponent<T extends Primitive> {
     private readonly dialogService = inject(DialogService);
     private readonly elementRef = inject(ElementRef);
 
     protected readonly dropdownId: string;
 
-    public readonly selectValue$ = new Subject<OptionComponent>();
+    public readonly selectValue$ = new Subject<OptionComponent<T>>();
     /**
      * The CSS text to apply to the dropdown container
      * @remarks
@@ -69,7 +70,7 @@ export class AutoCompleteComponent {
         },
     );
 
-    protected readonly $options = contentChildren<OptionComponent>(OptionComponent);
+    protected readonly $options = contentChildren<OptionComponent<T>>(OptionComponent);
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     protected readonly $dropdownPrefix: Signal<PrefixComponent | undefined> = contentChild<PrefixComponent>(PrefixComponent);
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
@@ -137,7 +138,7 @@ export class AutoCompleteComponent {
     }
 
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    protected readonly $highlightedOption: WritableSignal<OptionComponent | undefined> = signal<OptionComponent | undefined>(undefined);
+    protected readonly $highlightedOption: WritableSignal<OptionComponent<T> | undefined> = signal<OptionComponent<T> | undefined>(undefined);
 
     protected optionMouseDown(event: MouseEvent) {
         event.preventDefault();

@@ -4,13 +4,12 @@
         class="option-wrapper"
         [class.disabled]="option.$disabled() || $disabled()"
         [class.highlight]="!!$highlightedOption() && $highlightedOption()!.$value() === option.$value()"
-        [class.selected]="($value() | isValueSelected: option.$value() : $allowMultiple()) && $selectedItemHighlight()"
-        (click)="selectValue(option)"
-        (mousedown)="optionMouseDown($event)"
+        [class.selected]="($value() | isValueSelected: option.$value() : $isMultiSelect()) && $selectedItemHighlight()"
+        (click)="selectValue(option, $event)"
         (mouseenter)="$highlightedOption.set(option)"
     >
         <div class="check" [ngClass]="$selectedCheckIconLocation()">
-            @if ($value() | isValueSelected: option.$value() : $allowMultiple()) {
+            @if ($value() | isValueSelected: option.$value() : $isMultiSelect()) {
                 <tab-icon value="check" />
             }
         </div>

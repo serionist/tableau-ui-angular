@@ -29,7 +29,7 @@
             <div class="two spacer">
                 <tab-form-field>
                     <tab-label>Single value, icons shown, no check, select highlight:</tab-label>
-                    <tab-list placeholder="Select any value" [value]="$singleSelectValue()" [allowMultiple]="false" (valueChange)="singleSelectValueChanged($event)">
+                    <tab-list-single-select placeholder="Select any value" [value]="$singleSelectValue()" (valueChange)="singleSelectValueChanged($event)">
                         <tab-option text="This is a looooooooooooooooong option is provided as a set of values" icon="home" hint="There are 2 ways to create tab-options; by values and by templates" [value]="1" />
                         <tab-option text="Disabled value" hint="with random hint" [value]="2" [disabled]="true" />
                         <ng-template #iconRef>
@@ -51,17 +51,16 @@
                         <tab-option icon="home" hint="with a hint" [value]="4" [text]="combinationRef">
                             <tab-hint>with a hint</tab-hint>
                         </tab-option>
-                    </tab-list>
+                    </tab-list-single-select>
                     <tab-hint>Focusable and keyboard navigation works. Focus indicator shown</tab-hint>
                 </tab-form-field>
                 <tab-form-field>
                     <tab-label>Single value, only text, check right, no select highlight, no focus:</tab-label>
-                    <tab-list
+                    <tab-list-single-select
                         placeholder="Select any value"
                         focusMode="none"
                         selectedCheckIconLocation="right"
                         [value]="$singleSelectValue()"
-                        [allowMultiple]="false"
                         [selectedItemHighlight]="false"
                         [itemTemplateContext]="onlyTextSelectedValue"
                         (valueChange)="singleSelectValueChanged($event)"
@@ -87,13 +86,13 @@
                         <tab-option icon="home" hint="with a hint" [value]="4" [text]="combinationRef">
                             <tab-hint>with a hint</tab-hint>
                         </tab-option>
-                    </tab-list>
+                    </tab-list-single-select>
                     <tab-hint>Not focusable at all. No key events work.</tab-hint>
                 </tab-form-field>
 
                 <tab-form-field>
                     <tab-label>Disabled</tab-label>
-                    <tab-list placeholder="Select any value" selectedCheckIconLocation="right" [value]="$singleSelectValue()" [disabled]="true" [allowMultiple]="false" (valueChange)="singleSelectValueChanged($event)">
+                    <tab-list-single-select placeholder="Select any value" selectedCheckIconLocation="right" [value]="$singleSelectValue()" [disabled]="true" (valueChange)="singleSelectValueChanged($event)">
                         <tab-option text="This is a looooooooooooooooong option is provided as a set of values" icon="home" hint="There are 2 ways to create tab-options; by values and by templates" [value]="1" />
                         <tab-option text="Disabled value" hint="with random hint" [value]="2" [disabled]="true" />
                         <ng-template #iconRef>
@@ -115,12 +114,12 @@
                         <tab-option icon="home" hint="with a hint" [value]="4" [text]="combinationRef">
                             <tab-hint>with a hint</tab-hint>
                         </tab-option>
-                    </tab-list>
+                    </tab-list-single-select>
                     <tab-hint>Set as focusable (not focusable because its disabled tho)</tab-hint>
                 </tab-form-field>
                 <tab-form-field>
                     <tab-label>Single value, only text, check left, no select highlight, silent focus:</tab-label>
-                    <tab-list selectedCheckIconLocation="left" focusMode="silent" [value]="$singleSelectValue()" [allowMultiple]="false" [selectedItemHighlight]="false" (valueChange)="singleSelectValueChanged($event)">
+                    <tab-list-single-select selectedCheckIconLocation="left" focusMode="silent" [value]="$singleSelectValue()" [selectedItemHighlight]="false" (valueChange)="singleSelectValueChanged($event)">
                         <tab-option text="This is a looooooooooooooooong option is provided as a set of values" icon="home" hint="There are 2 ways to create tab-options; by values and by templates" [value]="1" />
                         <tab-option text="Disabled value" hint="with random hint" [value]="2" [disabled]="true" />
                         <ng-template #iconRef>
@@ -142,13 +141,13 @@
                         <tab-option icon="home" hint="with a hint" [value]="4" [text]="combinationRef">
                             <tab-hint>with a hint</tab-hint>
                         </tab-option>
-                    </tab-list>
+                    </tab-list-single-select>
                     <tab-hint>Focus is possible, but not highlighted. keyboard navigation works</tab-hint>
                 </tab-form-field>
                 <div style="height: 150px">
                     <tab-form-field style="height: 100%">
                         <tab-label>Fixed height, Single value, icons shown, no check, select highlight:</tab-label>
-                        <tab-list placeholder="Select any value" [value]="$singleSelectValue()" [allowMultiple]="false" (valueChange)="singleSelectValueChanged($event)">
+                        <tab-list-single-select placeholder="Select any value" [value]="$singleSelectValue()" (valueChange)="singleSelectValueChanged($event)">
                             <tab-option text="This is a looooooooooooooooong option is provided as a set of values" icon="home" hint="There are 2 ways to create tab-options; by values and by templates" [value]="1" />
                             <tab-option text="Disabled value" hint="with random hint" [value]="2" [disabled]="true" />
                             <ng-template #iconRef>
@@ -170,14 +169,14 @@
                             <tab-option icon="home" hint="with a hint" [value]="4" [text]="combinationRef">
                                 <tab-hint>with a hint</tab-hint>
                             </tab-option>
-                        </tab-list>
+                        </tab-list-single-select>
                         <tab-hint>Focusable and keyboard navigation works. Focus indicator shown</tab-hint>
                     </tab-form-field>
                 </div>
                 <div style="height: 350px">
                     <tab-form-field style="display: block; height: 100%">
                         <tab-label>Fixed height, Single value, icons shown, no check, select highlight:</tab-label>
-                        <tab-list placeholder="Select any value" [value]="$singleSelectValue()" [allowMultiple]="false" (valueChange)="singleSelectValueChanged($event)">
+                        <tab-list-single-select placeholder="Select any value" [value]="$singleSelectValue()" (valueChange)="singleSelectValueChanged($event)">
                             <tab-option text="This is a looooooooooooooooong option is provided as a set of values" icon="home" hint="There are 2 ways to create tab-options; by values and by templates" [value]="1" />
                             <tab-option text="Disabled value" hint="with random hint" [value]="2" [disabled]="true" />
                             <ng-template #iconRef>
@@ -199,7 +198,7 @@
                             <tab-option icon="home" hint="with a hint" [value]="4" [text]="combinationRef">
                                 <tab-hint>with a hint</tab-hint>
                             </tab-option>
-                        </tab-list>
+                        </tab-list-single-select>
                         <tab-hint>Focusable and keyboard navigation works. Focus indicator shown</tab-hint>
                     </tab-form-field>
                 </div>
@@ -211,7 +210,7 @@
             <div class="two spacer">
                 <tab-form-field>
                     <tab-label>Single value, icons shown, no check, selected item highlight:</tab-label>
-                    <tab-list [formControl]="singleFormControl | formControl" [allowMultiple]="false">
+                    <tab-list-single-select [formControl]="singleFormControl | formControl" >
                         <tab-option text="This is a looooooooooooooooong option is provided as a set of values" icon="home" hint="There are 2 ways to create tab-options; by values and by templates" [value]="1" />
                         <tab-option text="Disabled value" hint="with random hint" [value]="2" [disabled]="true" />
                         <ng-template #iconRef>
@@ -233,7 +232,7 @@
                         <tab-option icon="home" hint="with a hint" [value]="4" [text]="combinationRef">
                             <tab-hint>with a hint</tab-hint>
                         </tab-option>
-                    </tab-list>
+                    </tab-list-single-select>
                     <tab-hint>This is the default setup</tab-hint>
                     @if (singleFormControl | formMeta | async | formHasError: 'required') {
                         <tab-error>Required</tab-error>
@@ -247,11 +246,10 @@
                 </tab-form-field>
                 <tab-form-field>
                     <tab-label>Single value, only text, check right, no select highlight, no focus:</tab-label>
-                    <tab-list
+                    <tab-list-single-select
                         focusMode="none"
                         selectedCheckIconLocation="right"
                         [formControl]="singleFormControl2 | formControl"
-                        [allowMultiple]="false"
                         [selectedItemHighlight]="false"
                         [itemTemplateContext]="onlyTextSelectedValue"
                     >
@@ -276,7 +274,7 @@
                         <tab-option icon="home" hint="with a hint" [value]="4" [text]="combinationRef">
                             <tab-hint>with a hint</tab-hint>
                         </tab-option>
-                    </tab-list>
+                    </tab-list-single-select>
                     <tab-hint>Not focusable at all. No key events work.</tab-hint>
                     @if (singleFormControl2 | formMeta | async | formHasError: 'required') {
                         <tab-error>Required</tab-error>
@@ -291,7 +289,7 @@
 
                 <tab-form-field>
                     <tab-label>Disabled</tab-label>
-                    <tab-list selectedCheckIconLocation="right" [formControl]="disabledSingleFormControl | formControl" [disabled]="true">
+                    <tab-list-single-select selectedCheckIconLocation="right" [formControl]="disabledSingleFormControl | formControl" >
                         <tab-option text="This is a looooooooooooooooong option is provided as a set of values" icon="home" hint="There are 2 ways to create tab-options; by values and by templates" [value]="1" />
                         <tab-option text="Disabled value" hint="with random hint" [value]="2" [disabled]="true" />
                         <ng-template #iconRef>
@@ -313,7 +311,7 @@
                         <tab-option icon="home" hint="with a hint" [value]="4" [text]="combinationRef">
                             <tab-hint>with a hint</tab-hint>
                         </tab-option>
-                    </tab-list>
+                    </tab-list-single-select>
                     <tab-hint>This is disabled lol</tab-hint>
                     @if (disabledSingleFormControl | formMeta | async | formHasError: 'required') {
                         <tab-error>Required</tab-error>
@@ -327,7 +325,7 @@
                 </tab-form-field>
                 <tab-form-field>
                     <tab-label>Single value, only text, check left, no select highlight, silent focus:</tab-label>
-                    <tab-list selectedCheckIconLocation="none" focusMode="silent" [formControl]="singleFormControl3 | formControl" [allowMultiple]="false" [selectedItemHighlight]="true">
+                    <tab-list-single-select selectedCheckIconLocation="none" focusMode="silent" [formControl]="singleFormControl3 | formControl" [selectedItemHighlight]="true">
                         <tab-option text="This is a looooooooooooooooong option is provided as a set of values" icon="home" hint="There are 2 ways to create tab-options; by values and by templates" [value]="1" />
                         <tab-option text="Disabled value" hint="with random hint" [value]="2" [disabled]="true" />
                         <ng-template #iconRef>
@@ -349,7 +347,7 @@
                         <tab-option icon="home" hint="with a hint" [value]="4" [text]="combinationRef">
                             <tab-hint>with a hint</tab-hint>
                         </tab-option>
-                    </tab-list>
+                    </tab-list-single-select>
                     <tab-prefix>
                         <tab-icon value="search" />
                     </tab-prefix>
@@ -368,7 +366,7 @@
 
                 <tab-form-field>
                     <tab-label>Multi value, wrap, icons shown, check left, max 2 items displayed:</tab-label>
-                    <tab-list placeholder="Select multiple values" selectedCheckIconLocation="left" [formControl]="multiFormControl | formControl" [allowMultiple]="true" [selectedItemHighlight]="false">
+                    <tab-list-multi-select placeholder="Select multiple values" selectedCheckIconLocation="left" [formControl]="multiFormControl | formControl" [selectedItemHighlight]="false">
                         <tab-option text="This is a looooooooooooooooong option is provided as a set of values" icon="home" hint="There are 2 ways to create tab-options; by values and by templates" [value]="1" />
                         <tab-option text="Disabled value" hint="with random hint" [value]="2" [disabled]="true" />
                         <ng-template #iconRef>
@@ -390,7 +388,7 @@
                         <tab-option icon="home" hint="with a hint" [value]="4" [text]="combinationRef">
                             <tab-hint>with a hint</tab-hint>
                         </tab-option>
-                    </tab-list>
+                    </tab-list-multi-select>
                     <tab-hint>Selected value will truncate. Only text is shown in selected value. Selected arrow to the right. No chevron</tab-hint>
                     @if (multiFormControl | formMeta | async | formHasError: 'required') {
                         <tab-error>Required</tab-error>
@@ -399,7 +397,7 @@
 
                 <tab-form-field>
                     <tab-label>Multi value, truncate, icons shown, no check, max 2 items displayed, fix dropdown height:</tab-label>
-                    <tab-list placeholder="Select multiple values" [formControl]="multiFormControl | formControl" [allowMultiple]="true">
+                    <tab-list-multi-select placeholder="Select multiple values" [formControl]="multiFormControl | formControl" >
                         <tab-option
                             text="This is a looooooooooooooooooooooooooooooooooooooooooooooong option is provided as a set of values"
                             icon="home"
@@ -426,7 +424,7 @@
                         <tab-option icon="home" hint="with a hint" [value]="4" [text]="combinationRef">
                             <tab-hint>with a hint</tab-hint>
                         </tab-option>
-                    </tab-list>
+                    </tab-list-multi-select>
                     <tab-hint>Selected value will truncate. Only text is shown in selected value. Selected arrow to the right. No chevron</tab-hint>
                     @if (multiFormControl | formMeta | async | formHasError: 'required') {
                         <tab-error>Required</tab-error>

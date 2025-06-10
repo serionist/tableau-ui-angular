@@ -21,7 +21,7 @@
     }
 
     &:not([disabled], [disabled='false']) {
-        border-color: var(--twc-color-border-dark);
+        border-color: var(--twc-color-border);
         color: var(--twc-color-text);
     }
 

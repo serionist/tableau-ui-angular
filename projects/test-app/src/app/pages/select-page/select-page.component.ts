@@ -8,7 +8,7 @@ import { FB, TableauUiFormModule } from 'tableau-ui-angular/form';
 import { TableauUiFormFieldModule } from 'tableau-ui-angular/form-field';
 
 import { TableauUiIconModule } from 'tableau-ui-angular/icon';
-import { TableauUiSelectModule, type SelectValue } from 'tableau-ui-angular/select';
+import { TableauUiSelectModule } from 'tableau-ui-angular/select';
 import { SnackService, TableauUiSnackModule } from 'tableau-ui-angular/snack';
 @Component({
     selector: 'app-select-page',
@@ -24,18 +24,18 @@ export class SelectPageComponent implements OnInit {
 
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     readonly $singleSelectValue: WritableSignal<number | undefined> = signal<number | undefined>(undefined);
-    singleSelectValueChanged(val: SelectValue) {
-        this.$singleSelectValue.set(val as number);
+    singleSelectValueChanged(val: number | undefined) {
+        this.$singleSelectValue.set(val);
         console.log('single select value changed', val);
         this.snack.openSnack('Single select value changed to: ' + val?.toString());
     }
 
-    singleFormControl = this.b.control<number | undefined>(4, [Validators.required, Validators.min(1), Validators.max(3)]);
-    singleFormControl2 = this.b.control<number | undefined>(4, [Validators.required, Validators.min(1), Validators.max(3)]);
-    singleFormControl3 = this.b.control<number | undefined>(4, [Validators.required, Validators.min(1), Validators.max(3)]);
-    disabledSingleFormControl = this.b.control<number | undefined>(2, undefined, undefined, true);
+    singleFormControl = this.b.control<number | null>(4, [Validators.required, Validators.min(1), Validators.max(3)]);
+    singleFormControl2 = this.b.control<number | null>(4, [Validators.required, Validators.min(1), Validators.max(3)]);
+    singleFormControl3 = this.b.control<number | null>(4, [Validators.required, Validators.min(1), Validators.max(3)]);
+    disabledSingleFormControl = this.b.control<number | null>(2, undefined, undefined, true);
 
-    multiFormControl = this.b.control<number[] | undefined>([1, 3], [Validators.required]);
+    multiFormControl = this.b.control<number[] | null>([1, 3], [Validators.required]);
 
     ngOnInit(): void {
         this.multiFormControl.value$.subscribe((val) => {

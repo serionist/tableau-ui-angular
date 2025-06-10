@@ -31,7 +31,7 @@ export class ButtonsPageComponent {
         this.snack.openSnack(`Button ${color} clicked`, 2000, color === 'error' ? 'error' : 'info');
     }
 
-    readonly buttonToggleValue = model<string | undefined>('center');
+    readonly buttonToggleValue = model<string>('left');
     private initialButtonToggleValueChange = true;
     readonly buttonToggleChange = effect(() => {
         const val = this.buttonToggleValue();

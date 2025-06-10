@@ -25,7 +25,7 @@ textarea,
 
     &:focus-visible {
         border-color: var(--twc-color-focused-input);
-        border-width: 2px;
+        border-width: 1px;
     }
 
     &:not(textarea, [type='image' i], [type='range' i], [type='checkbox' i], [type='radio' i], .tab-input) {

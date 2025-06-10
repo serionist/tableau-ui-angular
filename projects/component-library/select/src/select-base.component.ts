@@ -1,7 +1,6 @@
-import type { AfterViewInit, InputSignal, OnDestroy, Signal, TemplateRef, WritableSignal } from '@angular/core';
-import { ChangeDetectionStrategy, Component, computed, contentChild, contentChildren, effect, ElementRef, forwardRef, inject, input, model, signal, viewChild } from '@angular/core';
+import type { AfterViewInit, InputSignal, OnDestroy, Signal, TemplateRef, WritableSignal} from '@angular/core';
+import { computed, contentChild, contentChildren, Directive, effect, ElementRef, inject, input, model, signal, viewChild } from '@angular/core';
 import type { ControlValueAccessor } from '@angular/forms';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import type { Subscription } from 'rxjs';
 import { fromEvent, map } from 'rxjs';
 import type { Primitive } from 'tableau-ui-angular/types';
@@ -10,40 +9,38 @@ import { OptionComponent, PrefixComponent, SuffixComponent } from 'tableau-ui-an
 import type { DialogRef } from 'tableau-ui-angular/dialog';
 import { DialogService } from 'tableau-ui-angular/dialog';
 import { generateRandomString } from 'tableau-ui-angular/utils';
+import type { MultiSelectComponent } from './multi-select.component';
 
-export type SelectValue = Exclude<Primitive, undefined> | Exclude<Primitive, undefined>[] | undefined;
-@Component({
-    selector: 'tab-select',
-    standalone: false,
-    templateUrl: './select.component.html',
-    styleUrl: './select.component.scss',
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => SelectComponent),
-            multi: true,
-        },
-    ],
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    host: {
-        class: 'tab-input',
-        '[attr.wrapping-mode]': '$selectedValueWrapMode()',
-        '[tabindex]': '$disabled() ? -1 : 0',
-        '(click)': 'openDropdown()',
-        '(keydown)': 'onKeyDown($event)',
-        '[attr.disabled]': '$disabled() ? true : null',
-        '[aria-disabled]': '$disabled() ? true : null',
-        '[aria-hidden]': '$disabled() ? true : null',
-        '[id]': 'selectId',
-    },
-})
-export class SelectComponent implements ControlValueAccessor, AfterViewInit, OnDestroy {
+export const SELECT_COMPONENT_HOST = {
+    class: 'tab-input',
+    '[attr.wrapping-mode]': '$selectedValueWrapMode()',
+    '[tabindex]': '$disabled() ? -1 : 0',
+    '(click)': 'openDropdown()',
+    '(keydown)': 'onKeyDown($event)',
+    '[attr.disabled]': '$disabled() ? true : null',
+    '[aria-disabled]': '$disabled() ? true : null',
+    '[aria-hidden]': '$disabled() ? true : null',
+    '[id]': 'selectId',
+}
+@Directive()
+export abstract class SelectBaseComponent<TOption extends Primitive, TValue extends TOption | TOption[]> implements ControlValueAccessor, AfterViewInit, OnDestroy {
     protected readonly selectId: string;
     protected readonly dropdownId: string;
-    protected readonly $options = contentChildren<OptionComponent>(OptionComponent);
+    protected readonly $options = contentChildren<OptionComponent<TOption>>(OptionComponent<TOption>);
+
+
+    protected $isMultiSelect(): this is MultiSelectComponent<TOption> {
+        return false;
+      }
+
     private readonly optionsChanged = effect(() => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const options = this.$options();
+        // for (const op of options) {
+        //     if (typeof op.$value() != typeof this.$selectedValue()) {
+        //         console.warn(`ButtonToggleComponent: The type of an option '${typeof op.$value()}' (value: ${op.$value()}) does not match the expected type: '${typeof this.$selectedValue()}'. This may lead to unexpected behavior.`);
+        //     }
+        // }
         this.$highlightedOption.set(undefined);
     });
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
@@ -82,7 +79,7 @@ export class SelectComponent implements ControlValueAccessor, AfterViewInit, OnD
      * If allowMultiple is true, this should be an array of values.
      * If allowMultiple is false, this should be a single value.
      */
-    readonly $value = model<SelectValue>(undefined, {
+    readonly $value = model<TValue | undefined>(undefined, {
         alias: 'value',
     });
 
@@ -137,13 +134,6 @@ export class SelectComponent implements ControlValueAccessor, AfterViewInit, OnD
         alias: 'selectedItemHighlight',
     });
     /**
-     * Whether multiple values can be selected
-     * @default false
-     */
-    readonly $allowMultiple = input<boolean>(false, {
-        alias: 'allowMultiple',
-    });
-    /**
      * Whether the clear button should be displayed
      * @remarks
      * It is only displayed if there are any values selected even if this is true
@@ -191,21 +181,8 @@ export class SelectComponent implements ControlValueAccessor, AfterViewInit, OnD
             alias: 'dropdownValueTemplateContext',
         },
     );
-    /**
-     * The maximum number of items to display in the selected value field when multiple items are selected
-     * @default 2
-     */
-    readonly $multipleSelectionMaxItemsListed = input<number>(2, {
-        alias: 'multipleSelectionMaxItemsListed',
-    });
-    /**
-     * The display template to use when more than the maximum number of items selected
-     * @remarks
-     * Use {number} as a placeholder for the number of items selected
-     */
-    readonly $multipleSelectionNumberSelectedTemplate = input<string>('{number} items selected', {
-        alias: 'multipleSelectionNumberSelectedTemplate',
-    });
+
+   
 
     // #endregion
     // #region Constructor + Init + Destroy
@@ -223,20 +200,9 @@ export class SelectComponent implements ControlValueAccessor, AfterViewInit, OnD
     }
     // #endregion
     // #region Computed
-    readonly $hasValue = computed(() => {
-        const value = this.$value();
-        if (value === undefined) {
-            return false;
-        }
-        if (this.$allowMultiple()) {
-            if (!Array.isArray(value)) {
-                return false;
-            }
-            return value.length > 0;
-        } else {
-            return true;
-        }
-    });
+    readonly abstract $hasValue: Signal<boolean>; 
+
+
     protected readonly $selectedValueTemplates = computed(() => {
         if (!this.$hasValue()) {
             return [];
@@ -273,13 +239,14 @@ export class SelectComponent implements ControlValueAccessor, AfterViewInit, OnD
     // #endregion
     // #region ControlValueAccessor
     // eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
-    onChange = (value: SelectValue) => {};
+    onChange = (value: TValue | undefined) => {};
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     onTouched = () => {};
-    writeValue(value: SelectValue): void {
+
+    writeValue(value: TValue | undefined): void {
         this.$value.set(value);
     }
-    registerOnChange(fn: (value: SelectValue) => void) {
+    registerOnChange(fn: (value: TValue | undefined) => void) {
         this.onChange = fn;
     }
     registerOnTouched(fn: () => void): void {
@@ -291,59 +258,58 @@ export class SelectComponent implements ControlValueAccessor, AfterViewInit, OnD
     // #endregion
     // #region Value selection
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    protected readonly $highlightedOption: WritableSignal<OptionComponent | undefined> = signal<OptionComponent | undefined>(undefined);
+    protected readonly $highlightedOption: WritableSignal<OptionComponent<TOption> | undefined> = signal<OptionComponent<TOption> | undefined>(undefined);
     optionMouseDown(event: MouseEvent) {
         event.preventDefault();
         event.stopPropagation();
     }
-    selectValue(option: OptionComponent) {
+    selectValue(option: OptionComponent<TOption>) {
         if (!this.$disabled() && !option.$disabled()) {
             const value = this.$value();
             const optionValue = option.$value();
-            if (this.$allowMultiple()) {
-                if (value === undefined || !Array.isArray(value)) {
-                    this.$value.set([optionValue]);
-                } else if (!value.includes(optionValue)) {
-                    this.$value.set([...value, optionValue]);
-                } else {
-                    this.$value.set(value.filter((e) => e !== optionValue));
-                }
-            } else if (this.$value() !== option.$value()) {
-                this.$value.set(option.$value());
-            }
+           
+
+            this.selectValueInternal(value, optionValue);
+
             this.onChange(this.$value());
             this.onTouched();
-            if (!this.$allowMultiple()) {
+            if (!this.$isMultiSelect()) {
                 this.$dropdownReference()?.close();
             }
         }
     }
+    protected readonly abstract selectValueInternal: (currentValue: TValue | undefined, selectedValue: TOption) => void;
+
+
     clearValue(e: Event) {
         e.preventDefault();
         e.stopPropagation();
         if (this.$disabled()) {
             return;
         }
-        if (this.$allowMultiple()) {
-            this.$value.set([]);
-        } else {
-            this.$value.set(undefined);
-        }
+        // if (this.isMultiSelect) {
+        //     this.$value.set([]);
+        // } else {
+        //     this.$value.set(undefined);
+        // }
+        this.clearValueInternal();
         this.onChange(this.$value());
         this.onTouched();
     }
-    isValueSelected(option: OptionComponent) {
-        const value = this.$value();
-        const optionValue = option.$value();
-        if (this.$allowMultiple()) {
-            if (!Array.isArray(value)) {
-                return false;
-            }
-            return value.includes(optionValue);
-        } else {
-            return value === optionValue;
-        }
-    }
+
+    protected readonly abstract clearValueInternal: () => void;
+    // isValueSelected(option: OptionComponent<TOption>) {
+    //     const value = this.$value();
+    //     const optionValue = option.$value();
+    //     if (this.$allowMultiple()) {
+    //         if (!Array.isArray(value)) {
+    //             return false;
+    //         }
+    //         return value.includes(optionValue);
+    //     } else {
+    //         return value === optionValue;
+    //     }
+    // }
     // #endregion
     // #region Dropdown
 
@@ -423,7 +389,7 @@ export class SelectComponent implements ControlValueAccessor, AfterViewInit, OnD
             // - if this is a single select, find the next item to select
             // - if no item is selected, highlight the first/last item
             const open = this.$dropdownOpen();
-            if (this.$allowMultiple() && !open) {
+            if (this.$isMultiSelect() && !open) {
                 return;
             }
 
