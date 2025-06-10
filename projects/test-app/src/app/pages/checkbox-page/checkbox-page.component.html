@@ -46,9 +46,16 @@
                 <div class="partial-container">
                     <tab-checkbox [(value)]="partialValue" (valueChange)="valueChanged($event, 'Partial checkbox', 'info')">
                         This is a checkbox that has a default partial value
-                        <tab-hint>Partial value can only be triggered from code</tab-hint>
+                        <tab-hint>Partial value can only be triggered from code. Sets to false after partial</tab-hint>
                     </tab-checkbox>
                     <button (click)="partialValue = 'partial'">Reset to partial value</button>
+                </div>
+                <div class="partial-container">
+                    <tab-checkbox [valueAfterPartial]="true" [(value)]="partialValue2" (valueChange)="valueChanged($event, 'Partial checkbox 2', 'info')">
+                        This is a checkbox that has a default partial value
+                        <tab-hint>Partial value can only be triggered from code. Sets to true after partial</tab-hint>
+                    </tab-checkbox>
+                    <button (click)="partialValue2 = 'partial'">Reset to partial value</button>
                 </div>
             </div>
         </div>

@@ -36,6 +36,9 @@ export class CheckboxComponent implements ControlValueAccessor {
         alias: 'loading',
     });
 
+    readonly $valueAfterPartial = input<boolean>(false, {
+        alias: 'valueAfterPartial'
+    })
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     protected readonly $hintElement: Signal<HintComponent | undefined> = contentChild(HintComponent);
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
@@ -61,7 +64,7 @@ export class CheckboxComponent implements ControlValueAccessor {
         if (!this.$disabled() && !this.$loading()) {
             let val = this.$value();
             if (val === 'partial') {
-                val = false;
+                val = this.$valueAfterPartial();
             } else {
                 val = !val;
             }
