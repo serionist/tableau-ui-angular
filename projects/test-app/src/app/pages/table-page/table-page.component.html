@@ -30,7 +30,51 @@
                 <button color="primary" (click)="reset(false, false)">Reset and show no data</button>
                 <button color="primary" (click)="reset(true, true)">Reset and throw error on any block load after 20 offset</button>
                 <tab-checkbox [(value)]="$customNoDataTemplate">CustomNoDataTemplate</tab-checkbox>
+                <tab-checkbox [(value)]="$pinColumns">Pin Columns</tab-checkbox>
             </div>
+            <tab-expansion-panel>
+                <tab-expansion-panel-title>Selection options</tab-expansion-panel-title>
+                <div class="selection-options">
+                    <tab-button-toggle [(selectedValue)]="$selectionMode">
+                        <tab-option text="Selection Turned Off" value="none" />
+                        <tab-option text="Single Selection" value="single" />
+                        <tab-option text="Multi Selection" value="multi" />
+                    </tab-button-toggle>
+
+                    @if ($selectionMode() !== 'none') {
+                        <tab-label>Selection Mode</tab-label>
+                        <tab-button-toggle [(selectedValue)]="$selectionType">
+                            <tab-option value="row-selection" text="Row Selection" hint="Entire row is selected, no checkbox is shown" />
+                            <tab-option value="checkbox-selection" text="Checkbox Selection" hint="Checkbox is shown in the first column. Selection is only done via checkbox" />
+                            <tab-option value="both" text="Both" hint="Checkbox is shown in the first column, but entire row is selected on click" />
+                        </tab-button-toggle>
+                    }
+
+                    @if ($selectionMode() === 'multi') {
+                        <tab-label>Header Checkbox</tab-label>
+                        <tab-button-toggle [(selectedValue)]="$multiSelectHeaderCheckboxMode">
+                            <tab-option value="none" text="No header checkbox" hint="Rows can be selected/unselected with checkboxes individually, but no mass selection is possible" />
+                            <tab-option value="selectNone" text="Select none checkbox" hint="A mass unselect checkbox is available in the header. Can not select all rows." />
+                            <tab-option
+                                value="selectAll"
+                                text="Full header checkbox"
+                                hint="All rows can be selected/unselected with the header checkbox. Requires a function to get all IDs async, may be slow and non-performant."
+                            />
+                        </tab-button-toggle>
+                    }
+                    @if ($selectionMode() !== 'none') {
+                        <tab-label>Reset Options</tab-label>
+                        <tab-checkbox [(value)]="$clearSelectionOnManualReset">
+                            Reset Selection on manual reset
+                            <tab-hint>when reset() function is called on the table manually</tab-hint>
+                        </tab-checkbox>
+                        <tab-checkbox [(value)]="$clearSelectionOnAnyReset">
+                            Reset Selection on any reset
+                            <tab-hint>This includes manual resets and automatic resets (e.g., when size/sort/displayed cols, etc changes).</tab-hint>
+                        </tab-checkbox>
+                    }
+                </div>
+            </tab-expansion-panel>
             <ng-template #customnodatatemplate>Custom No Data Template</ng-template>
             <tab-table
                 #table
@@ -40,6 +84,10 @@
                 [displayedColumns]="$show_first_3_columns() ? ['id', 'name', 'age'] : undefined"
                 [striped]="$striped()"
                 [noDataTemplate]="$customNoDataTemplate() ? customnodatatemplate : 'default'"
+                [pinnedLeftColumn]="$pinnedLeftColumn()"
+                [pinnedRightColumn]="$pinnedRightColumn()"
+                [selectionOptions]="$selectionOptions()"
+                [selectedKeys]="$selectedKeys()"
             >
                 <ng-container tabColumnDef="id" headerClass="custom-static-class">
                     <ng-template let-data tabHeaderDef>ID</ng-template>

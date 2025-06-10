@@ -5,7 +5,7 @@ import { DataBlock } from './data-block';
 import type { DataRequest } from './data-request';
 import type { DataResponse } from './data-response';
 
-export class DataManager {
+export class DataManager<TData> {
     constructor(private readonly cdr: ChangeDetectorRef) {}
     private readonly $dataRowHeightPx = signal<number>(0);
     private readonly $dataWindowHeightPx = signal<number>(0);
@@ -23,18 +23,18 @@ export class DataManager {
     public get $totalRowCount(): Signal<number> {
         return this.$_totalRowCount;
     }
-    private getDataBlock: (req: DataRequest) => Promise<DataResponse> = undefined!;
+    private getDataBlock: (req: DataRequest) => Promise<DataResponse<TData>> = undefined!;
 
-    private readonly $_blocks = signal<BlocksInfo>({
+    private readonly $_blocks = signal<BlocksInfo<TData>>({
         prePixels: 0,
         blocks: [],
         postPixels: 0,
     });
-    get $blocks(): Signal<BlocksInfo> {
+    get $blocks(): Signal<BlocksInfo<TData>> {
         return this.$_blocks;
     }
 
-    public async reset(dataWindowHeightPx: number, dataRowHeightPx: number, sort: DataSort[], displayedColumns: string[], dataBlockWindow: number, getDataBlock: (req: DataRequest) => Promise<DataResponse>) {
+    public async reset(dataWindowHeightPx: number, dataRowHeightPx: number, sort: DataSort[], displayedColumns: string[], dataBlockWindow: number, getDataBlock: (req: DataRequest) => Promise<DataResponse<TData>>) {
         this.getDataBlock = getDataBlock;
         this.$dataRowHeightPx.set(dataRowHeightPx);
         this.$dataWindowHeightPx.set(dataWindowHeightPx);
@@ -104,7 +104,7 @@ export class DataManager {
         }
 
         this.$_blocks.update((existing) => {
-            const blocks: DataBlock[] = [];
+            const blocks: DataBlock<TData>[] = [];
             for (const existingBlock of existing.blocks) {
                 if (blockIdsToLoad.includes(existingBlock.id)) {
                     blocks.push(existingBlock);
@@ -135,8 +135,8 @@ export class DataManager {
     }
 }
 
-export interface BlocksInfo {
+export interface BlocksInfo<TData> {
     prePixels: number;
-    blocks: DataBlock[];
+    blocks: DataBlock<TData>[];
     postPixels: number;
 }

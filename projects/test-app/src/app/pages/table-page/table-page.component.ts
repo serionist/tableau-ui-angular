@@ -1,14 +1,18 @@
-import { ChangeDetectionStrategy, Component, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, signal, viewChild } from '@angular/core';
 import { data } from './table-data-sample';
 import type { DataRequest, DataResponse, HeaderContext } from 'tableau-ui-angular/table';
-import { TableauUiTableModule, TableComponent } from 'tableau-ui-angular/table';
+import { MultiSelectionOptions, SelectAllOptions, SingleSelectionOptions, TableauUiTableModule, TableComponent } from 'tableau-ui-angular/table';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
 import { TableauUiCheckboxModule } from 'tableau-ui-angular/checkbox';
 import { CommonModule } from '@angular/common';
+import { TableauUiButtonModule } from 'tableau-ui-angular/button';
+import { TableauUiExpansionPanelModule } from '../../../../../component-library/expansion-panel/src/tableau-ui-expansion-panel.module';
+import { TableauUiTabgroupModule } from '../../../../../component-library/tab-group/src/tableau-ui-tab-group.module';
+import { TableauUiRadioGroupModule } from '../../../../../component-library/radio-group/src/tableau-ui-radio-group.module';
 
 @Component({
     selector: 'app-table-page',
-    imports: [TableauUiCommonModule, TableauUiCheckboxModule, TableauUiTableModule, CommonModule],
+    imports: [TableauUiCommonModule, TableauUiCheckboxModule, TableauUiExpansionPanelModule, TableauUiTableModule, CommonModule, TableauUiButtonModule, TableauUiTabgroupModule, TableauUiRadioGroupModule],
     standalone: true,
     templateUrl: './table-page.component.html',
     styleUrl: './table-page.component.scss',
@@ -20,6 +24,65 @@ export class TablePageComponent {
     readonly $showData = signal(true);
     readonly $errorOnData = signal(false);
     readonly $customNoDataTemplate = signal(false);
+
+    readonly $pinColumns = signal(false);
+
+    readonly $pinnedLeftColumn = computed(() => {
+        if (this.$pinColumns()) {
+            return 'id';
+        }
+        return undefined;
+    });
+    readonly $pinnedRightColumn = computed(() => {
+        if (this.$pinColumns()) {
+            return 'age';
+        }
+        return undefined;
+    });
+
+    readonly $selectionMode = signal<'single' | 'multi' | 'none'>('none');
+    readonly $clearSelectionOnManualReset = signal(true);
+    readonly $clearSelectionOnAnyReset = signal(false);
+
+    readonly $selectionType = signal<'row-selection' | 'checkbox-selection' | 'both'>('row-selection');
+
+    readonly $multiSelectHeaderCheckboxMode = signal<'none' | 'selectNone' | 'selectAll'>('none');
+
+    private readonly selectionGetKey = (row: DataType): number => row.id;
+    private readonly selectionGetAllKeys = async (abort: AbortSignal) => {
+        await new Promise((r) => setTimeout(r, 5000)); // Simulate async operation
+        if (abort.aborted) {
+            throw new Error('Selection get all keys aborted');
+        }
+        throw new Error('Simulated error in selection get all keys'); // Simulate an error
+        return data.map((row) => row.id);
+    };
+    readonly $selectionOptions = computed(() => {
+        switch (this.$selectionMode()) {
+            case 'none':
+                return undefined;
+            case 'single':
+                return new SingleSelectionOptions<DataType, number>(this.selectionGetKey, this.$selectionType(), this.$clearSelectionOnManualReset(), this.$clearSelectionOnAnyReset());
+            case 'multi': {
+                let headerCheckboxMode: 'none' | 'selectNone' | SelectAllOptions<number> = 'none';
+                switch (this.$multiSelectHeaderCheckboxMode()) {
+                    case 'none':
+                        headerCheckboxMode = 'none';
+                        break;
+                    case 'selectNone':
+                        headerCheckboxMode = 'selectNone';
+                        break;
+                    case 'selectAll':
+                        headerCheckboxMode = new SelectAllOptions(this.selectionGetAllKeys);
+                        break;
+                }
+                return new MultiSelectionOptions<DataType, number>(this.selectionGetKey, this.$selectionType(), headerCheckboxMode, this.$clearSelectionOnManualReset(), this.$clearSelectionOnAnyReset());
+            }
+        }
+        return undefined;
+    });
+
+    readonly $selectedKeys = signal<number[]>([]);
 
     loadBlock: (req: DataRequest) => Promise<DataResponse<DataType>> = async (req: DataRequest) => {
         console.log('Loading data block with request:', req);
@@ -60,6 +123,7 @@ export class TablePageComponent {
         console.log('Loaded data block:', ret);
         return ret;
     };
+
     private readonly tabTable = viewChild.required<TableComponent>(TableComponent);
     reset(showData: boolean, errorOnData: boolean) {
         this.$showData.set(showData);

@@ -429,7 +429,7 @@ module.exports = tseslint.config(
             '@angular-eslint/template/cyclomatic-complexity': [
                 'error',
                 {
-                    maxComplexity: 25,
+                    maxComplexity: 30,
                 },
             ],
             // [Accessibility] Ensures that the heading, anchor and button elements have content in it

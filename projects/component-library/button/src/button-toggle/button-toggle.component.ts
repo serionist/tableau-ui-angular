@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, contentChildren, effect, HostListener, input, model } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, contentChildren, effect, HostListener, input, model, untracked } from '@angular/core';
 import type { IOptionLineContext } from 'tableau-ui-angular/common';
 import { OptionComponent } from 'tableau-ui-angular/common';
 import type { Primitive } from 'tableau-ui-angular/types';
@@ -38,7 +38,7 @@ export class ButtonToggleComponent<T extends Primitive> {
 
     readonly selectedValueChange = effect(() => {
         const val = this.$selectedValue();
-        const option = this.$options().find((opt) => opt.$value() === val);
+        const option = untracked(() => this.$options()).find((opt) => opt.$value() === val);
         if (!option || this.$disabled() || option.$disabled()) {
             this.$selectedValue.set(undefined);
         }
@@ -47,7 +47,7 @@ export class ButtonToggleComponent<T extends Primitive> {
     protected readonly $optionRenderContext = computed<IOptionLineContext>(() => {
         return {
             renderIcon: true,
-            renderText: false,
+            renderText: true,
             renderAsDisabled: this.$disabled(),
         };
     });

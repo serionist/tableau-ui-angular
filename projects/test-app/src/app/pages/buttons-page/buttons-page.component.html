@@ -165,7 +165,7 @@
                     <tab-option value="justify" icon="format_align_justify" />
                 </tab-button-toggle>
                 <p>Icon + text</p>
-                <tab-button-toggle [(selectedValue)]="buttonToggleValue">
+                <tab-button-toggle [style.width]="'100%'" [(selectedValue)]="buttonToggleValue">
                     <tab-option value="left" icon="format_align_left" text="Left" [disabled]="true" />
                     <tab-option value="center" icon="format_align_center" text="Center" />
                     <tab-option value="right" icon="format_align_right" text="Right" />

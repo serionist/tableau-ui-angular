@@ -4,13 +4,13 @@ import type { DataSort } from '../sorting/data-sort';
 import type { DataRequest } from './data-request';
 import type { DataResponse } from './data-response';
 
-export class DataBlock {
+export class DataBlock<TData> {
     private readonly $_status = signal<'canceled' | 'error' | 'idle' | 'loading' | 'success'>('idle');
     public get $status(): Signal<'canceled' | 'error' | 'idle' | 'loading' | 'success'> {
         return this.$_status;
     }
-    private readonly $_response = signal<DataResponse | undefined>(undefined);
-    public get $response(): Signal<DataResponse | undefined> {
+    private readonly $_response = signal<DataResponse<TData> | undefined>(undefined);
+    public get $response(): Signal<DataResponse<TData> | undefined> {
         return this.$_response;
     }
     public readonly $data = computed(() => {
@@ -23,7 +23,7 @@ export class DataBlock {
             this.displayedColumns.forEach((col) => {
                 row[col] = undefined;
             });
-            return Array.from({ length: Number.isFinite(this.count) ? this.count : 0 }, () => row);
+            return Array.from({ length: Number.isFinite(this.count) ? this.count : 0 }, () => row as TData);
         }
     });
 
@@ -34,7 +34,7 @@ export class DataBlock {
         public readonly count: number,
         public readonly sort: readonly DataSort[],
         public readonly abort: AbortController,
-        private readonly request: (req: DataRequest) => Promise<DataResponse>,
+        private readonly request: (req: DataRequest) => Promise<DataResponse<TData>>,
     ) {}
 
     public async load() {

@@ -5,3 +5,14 @@
     margin-bottom: 1rem;
     flex-wrap: wrap;
 }
+
+.selection-options {
+    padding: 0 1rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    tab-button-toggle {
+        width: 100%;
+    }
+}

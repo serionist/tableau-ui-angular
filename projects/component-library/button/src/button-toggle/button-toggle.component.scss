@@ -33,6 +33,9 @@
 
     .option {
         padding: 0.5em;
+        flex: 1 1 2rem;
+        display: flex;
+        justify-content: center;
 
         &.selected {
             background-color: var(--twc-color-primary);

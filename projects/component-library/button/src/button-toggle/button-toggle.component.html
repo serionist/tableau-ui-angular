@@ -3,10 +3,19 @@
     <div
         class="option"
         [class.disabled]="$disabled() || option.$disabled()"
-        [tooltip]="option.$text() ? option.$text() : undefined"
+        [tooltip]="option.$hint() ? tooltipTemplate : undefined"
+        [tooltipContext]="{
+            hint: option.$hint() ? option.$hint() : undefined,
+        }"
         [class.selected]="$selectedValue() === option.$value()"
         (click)="optionClicked(option)"
     >
         <ng-container [ngTemplateOutlet]="option.$template()" [ngTemplateOutletContext]="$optionRenderContext()" />
     </div>
+
+    <ng-template #tooltipTemplate let-hint="hint">
+        @if (hint) {
+            <tab-hint class="hint">{{ hint }}</tab-hint>
+        }
+    </ng-template>
 }

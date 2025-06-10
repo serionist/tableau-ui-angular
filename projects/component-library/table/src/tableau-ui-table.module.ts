@@ -16,9 +16,13 @@ import { ResizerDirective } from './column-widths/resizer.directive';
 import { TableauUiIconModule } from 'tableau-ui-angular/icon';
 import { TableauUiButtonModule } from 'tableau-ui-angular/button';
 import { TableauUiTooltipModule } from 'tableau-ui-angular/tooltip';
+import { SingleSelectionOptionsPipe } from './selection/single-selection-options.pipe';
+import { MultiSelectionOptionsPipe } from './selection/multi-selection-options.pipe';
+import { RowSelectedPipe } from './selection/row-selected.pipe';
+import { TableauUiCheckboxModule } from 'tableau-ui-angular/checkbox';
 
 @NgModule({
-    imports: [CommonModule, TableauUiIconModule, TableauUiButtonModule, TableauUiTooltipModule],
+    imports: [CommonModule, TableauUiIconModule, TableauUiButtonModule, TableauUiTooltipModule, TableauUiCheckboxModule],
     declarations: [
         TableComponent,
         HeaderDefDirective,
@@ -33,6 +37,9 @@ import { TableauUiTooltipModule } from 'tableau-ui-angular/tooltip';
         ColRenderedWidthDirective,
         CellWidthPipe,
         ResizerDirective,
+        SingleSelectionOptionsPipe,
+        MultiSelectionOptionsPipe,
+        RowSelectedPipe,
     ],
     exports: [TableComponent, HeaderDefDirective, ColumnDefDirective, CellDefDirective],
 })

@@ -5,7 +5,6 @@ import { filter, map } from 'rxjs';
 import { version as LibVersion } from '../../../component-library/package.json';
 import { ThemeService } from 'tableau-ui-angular/theme';
 import { TableauUiMenuModule, type MenuComponent } from 'tableau-ui-angular/menu';
-import type { Primitive } from 'tableau-ui-angular/types';
 import { CommonModule } from '@angular/common';
 import { TableauUiNavBarModule } from 'tableau-ui-angular/nav-bar';
 import { TableauUiIconModule } from 'tableau-ui-angular/icon';
@@ -49,8 +48,8 @@ export class AppComponent {
 
     readonly $paletteMenu = viewChild.required<MenuComponent>('paletteMenu');
     readonly $paletteTheme = computed(() => this.themeService.$theme().mode);
-    paletteThemeChange = (val: Primitive) => {
-        this.themeService.setColorMode(val as 'auto' | 'dark' | 'light');
+    paletteThemeChange = (val: 'auto' | 'dark' | 'light') => {
+        this.themeService.setColorMode(val);
     };
     readonly $paletteFontSize = computed(() => +this.themeService.$theme().fontSize.replace('px', ''));
     setPaletteFontSize = (event: Event) => {

@@ -39,6 +39,7 @@ export class CheckboxComponent implements ControlValueAccessor {
     readonly $valueAfterPartial = input<boolean>(false, {
         alias: 'valueAfterPartial',
     });
+
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     protected readonly $hintElement: Signal<HintComponent | undefined> = contentChild(HintComponent);
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
@@ -70,6 +71,7 @@ export class CheckboxComponent implements ControlValueAccessor {
             }
             this.$value.set(val);
             this.onChange(val);
+
             this.onTouched();
         }
     }

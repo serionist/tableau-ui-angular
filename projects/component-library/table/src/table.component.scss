@@ -1,3 +1,4 @@
+/* stylelint-disable no-descending-specificity */
 :host {
     display: block;
     overflow: auto;
@@ -40,7 +41,7 @@
                     .header-button {
                         .content {
                             display: grid;
-                            gap: 0.5rem;
+                            gap: 0.5em;
                             grid-template-columns: 1fr auto;
 
                             .text {
@@ -85,7 +86,7 @@
                 &.pinned-left {
                     box-shadow:
                         inset 0 -1px 0 var(--twc-color-border),
-                        inset -1px 0 0 var(--twc-color-border);
+                        inset -1px 0 0 var(--twc-color-border-light);
                     left: 0;
                     background: var(--twc-color-base);
                     position: sticky;
@@ -95,7 +96,7 @@
                 &.pinned-right {
                     box-shadow:
                         inset 0 -1px 0 var(--twc-color-border),
-                        inset 1px 0 0 var(--twc-color-border);
+                        inset 1px 0 0 var(--twc-color-border-light);
                     // stylelint-disable-next-line declaration-property-unit-disallowed-list
                     right: 0;
                     background: var(--twc-color-base);
@@ -154,7 +155,7 @@
 
             .no-data {
                 color: var(--twc-color-text-gray);
-                margin-top: 0.5rem;
+                margin-top: 0.5em;
                 font-size: var(--twc-font-size-subtitle);
             }
 
@@ -227,7 +228,7 @@
         }
 
         .data-rows.striped {
-            .row:not(.even) {
+            .row:not(.even, .selected) {
                 background-color: var(--twc-color-mouse-highlight);
 
                 .pinned-left,
@@ -236,13 +237,48 @@
                 }
             }
         }
+
+        &.has-row-selection {
+            .data-rows .row:not(.selected):hover {
+                background-color: var(--twc-color-highlight);
+
+                .pinned-left,
+                .pinned-right {
+                    background-color: var(--twc-color-highlight);
+                }
+            }
+
+            .data-rows .row:hover {
+                cursor: pointer;
+
+                .pinned-left,
+                .pinned-right {
+                    cursor: pointer;
+                }
+            }
+        }
+
+        .data-rows .row.selected {
+            background-color: var(--twc-color-primary-light);
+
+            .pinned-left,
+            .pinned-right {
+                background-color: var(--twc-color-primary-light);
+            }
+        }
+
+        .check-select {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
     }
 }
 
 .default-header-tooltip {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.5em;
 
     .column-name {
         font-weight: bold;
@@ -251,7 +287,7 @@
     .sort {
         display: flex;
         flex-direction: column;
-        gap: 0.25rem;
+        gap: 0.25em;
         font-size: 0.8em;
         color: var(--twc-color-text-gray);
     }

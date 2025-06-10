@@ -77,7 +77,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoadingGifComponent {
-    readonly $color = input<string>('#355c80', {
+    readonly $color = input<string>('var(--twc-color-text)', {
         alias: 'color',
     });
     readonly $width = input<string>('24px', {

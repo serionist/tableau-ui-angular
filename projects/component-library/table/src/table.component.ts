@@ -1,5 +1,22 @@
 import type { AfterViewInit, OnDestroy, TemplateRef } from '@angular/core';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, contentChildren, effect, ElementRef, HostListener, inject, input, model, signal, untracked, viewChild, viewChildren } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    computed,
+    contentChildren,
+    effect,
+    ElementRef,
+    HostListener,
+    inject,
+    input,
+    model,
+    resource,
+    signal,
+    untracked,
+    viewChild,
+    viewChildren,
+} from '@angular/core';
 import type { SortOrderPair } from './defs/column-def/column-def.directive';
 import { ColumnDefDirective } from './defs/column-def/column-def.directive';
 import type { DataSort } from './sorting/data-sort';
@@ -7,6 +24,8 @@ import { ColRenderedWidthDirective } from './column-widths/col-rendered-width.di
 import { DataManager } from './data/data-manager';
 import type { DataRequest } from './data/data-request';
 import type { DataResponse } from './data/data-response';
+import type { Primitive } from 'tableau-ui-angular/types';
+import { MultiSelectionOptions, SelectAllOptions, SingleSelectionOptions } from './selection/selection-options';
 
 @Component({
     selector: 'tab-table',
@@ -16,7 +35,8 @@ import type { DataResponse } from './data/data-response';
     changeDetection: ChangeDetectionStrategy.OnPush,
     host: {},
 })
-export class TableComponent implements AfterViewInit, OnDestroy {
+export class TableComponent<TData = unknown, TKey extends Primitive = null> implements AfterViewInit, OnDestroy {
+    protected readonly checkboxColWidth = '2.5em';
     /**
      * The column IDs to display in the table. The order of the IDs determines the order of the columns.
      * If undefined, all columns will be displayed in the order they are defined in the table.
@@ -30,7 +50,7 @@ export class TableComponent implements AfterViewInit, OnDestroy {
      * The function to get a data block. Provides an offset, count, sort and an abortsignal
      * Handling abort is recommended, as many block requests may be fired that are canceled when the user scrolls fast
      */
-    readonly $getDataBlock = input.required<(req: DataRequest) => Promise<DataResponse>>({
+    readonly $getDataBlock = input.required<(req: DataRequest) => Promise<DataResponse<TData>>>({
         alias: 'getDataBlock',
     });
 
@@ -49,25 +69,25 @@ export class TableComponent implements AfterViewInit, OnDestroy {
      * This must be a valid CSS value.
      * Fixed height is required for virtual scrolling to work properly.
      * If the height is not fixed, the table will not be able to calculate the row heights and will not be able to scroll properly.
-     * @default '2.5rem'
+     * @default '2.5em'
      */
-    readonly $dataRowHeight = input<string>('2.5rem', {
+    readonly $dataRowHeight = input<string>('2.5em', {
         alias: 'dataRowHeight',
     });
 
     /**
      * The margin for all header cells
-     * @default '0.5rem'
+     * @default '0.5em'
      */
-    readonly $headerPadding = input<string>('0.5rem', {
+    readonly $headerPadding = input<string>('0.5em', {
         alias: 'headerPadding',
     });
 
     /**
      * The margin for all data cells
-     * @default '0 0.5rem'
+     * @default '0 0.5em'
      */
-    readonly $dataPadding = input<string>('0 0.5rem', {
+    readonly $dataPadding = input<string>('0 0.5em', {
         alias: 'dataPadding',
     });
 
@@ -134,6 +154,22 @@ export class TableComponent implements AfterViewInit, OnDestroy {
     readonly $resetOnSizeChange = input(false, {
         alias: 'resetOnSizeChange',
     });
+
+    /**
+     * The options for the selection mode.
+     * If undefined, no selection will be enabled.
+     * If a SingleSelectionOptions is provided, single selection will be enabled.
+     * If a MultiSelectionOptions is provided, multi selection will be enabled.
+     * @default undefined
+     */
+    readonly $selectionOptions = input<SingleSelectionOptions<TData, TKey> | MultiSelectionOptions<TData, TKey>>(undefined, {
+        alias: 'selectionOptions',
+    });
+
+    readonly $selectedKeys = model<TKey[]>([], {
+        alias: 'selectedKeys',
+    });
+
     public readonly $columnDefs = contentChildren(ColumnDefDirective);
     protected readonly $displayedColumnDefs = computed(
         () => {
@@ -219,7 +255,7 @@ export class TableComponent implements AfterViewInit, OnDestroy {
         equal: (a, b) => a === b,
     });
     private dataRowHeightObserver: ResizeObserver | undefined;
-    protected readonly dataManager = new DataManager(this.cdr);
+    protected readonly dataManager = new DataManager<TData>(this.cdr);
     ngAfterViewInit(): void {
         const host = this.hostElement.nativeElement;
 
@@ -257,12 +293,10 @@ export class TableComponent implements AfterViewInit, OnDestroy {
         const getDataBlock = this.$getDataBlock();
         const dataBlockWindow = this.$dataBlockWindow();
         const displayedColumns = this.$displayedColumnDefs();
-
-        // this.hostElement.nativeElement.scrollTo({
-        //     top: 0,
-        //     left: 0,
-        //     behavior: 'auto',
-        // });
+        const selectionOptions = untracked(() => this.$selectionOptions());
+        if (selectionOptions?.clearSelectedKeysOnAnyReset === true) {
+            this.$selectedKeys.set([]);
+        }
         untracked(() => this.resetInternal(dataWindowHeight, dataRowHeight, sort, getDataBlock, dataBlockWindow, displayedColumns));
     });
 
@@ -285,7 +319,6 @@ export class TableComponent implements AfterViewInit, OnDestroy {
         if (!def.$sortable()) {
             return;
         }
-        console.log('Column header clicked', def.$id());
         e.preventDefault();
         e.stopPropagation();
         (e.target as HTMLElement).blur();
@@ -310,7 +343,7 @@ export class TableComponent implements AfterViewInit, OnDestroy {
                 if (s.property === propertyName) {
                     // toggle sort mode
                     if (s.direction === def.$sortOrder()[1]) {
-                        // remove sort
+                        // emove sort
                         this.$sort.set(sort.filter((f) => f.property !== propertyName));
                         return;
                     } else {
@@ -336,7 +369,7 @@ export class TableComponent implements AfterViewInit, OnDestroy {
         dataWindowHeight: number | undefined,
         dataRowHeight: number | undefined,
         sort: DataSort[] | undefined,
-        getDataBlock: ((req: DataRequest) => Promise<DataResponse>) | undefined,
+        getDataBlock: ((req: DataRequest) => Promise<DataResponse<TData>>) | undefined,
         dataBlockWindow: number,
         displayedColumns:
             | {
@@ -352,6 +385,7 @@ export class TableComponent implements AfterViewInit, OnDestroy {
             console.warn('Table reset called with undefined parameters, ignoring');
             return false;
         }
+
         void this.dataManager.reset(
             dataWindowHeight,
             dataRowHeight,
@@ -372,8 +406,121 @@ export class TableComponent implements AfterViewInit, OnDestroy {
         const getDataBlock = this.$getDataBlock();
         const dataBlockWindow = this.$dataBlockWindow();
         const displayedColumns = this.$displayedColumnDefs();
-        if (this.resetInternal(dataWindowHeight, dataRowHeight, sort, getDataBlock, dataBlockWindow, displayedColumns)) {
-            console.log('Table reset successfully');
+        const selectionOptions = this.$selectionOptions();
+        this.allMultiSelectionKeys.reload();
+        if (selectionOptions?.clearSelectedKeysOnManualReset === true) {
+            this.$selectedKeys.set([]);
+        }
+        this.resetInternal(dataWindowHeight, dataRowHeight, sort, getDataBlock, dataBlockWindow, displayedColumns);
+    }
+    // #region Selection
+
+    // #region MultiSelect Header Checkbox
+    protected readonly allMultiSelectionKeys = resource({
+        defaultValue: [],
+        params: this.$selectionOptions,
+        loader: async (opts) => {
+            const p = opts.params;
+            if (p === undefined || !(p instanceof MultiSelectionOptions) || !(p.headerCheckboxMode instanceof SelectAllOptions)) {
+                throw new Error('Cannot load all multi selection keys, selection options are not set or not a MultiSelectionOptions with SelectAllOptions');
+            }
+            const allKeys = p.headerCheckboxMode.getAllRowKeys;
+            return allKeys(opts.abortSignal) ?? Promise.resolve([]);
+        },
+    });
+    protected readonly $selectionMultiHeaderCheckboxSelected = model<boolean | 'partial'>(this.$selectedKeys().length > 0 ? 'partial' : false);
+    selectionMultiHeaderCheckboxSelectNoneChanged() {
+        this.$selectedKeys.set([]);
+    }
+    selectionMultiHeaderCheckboxSelectAllChanged(val: boolean | 'partial') {
+        if (val === true) {
+            if (this.allMultiSelectionKeys.status() !== 'resolved') {
+                throw new Error('Cannot select all rows, allMultiSelectionKeys is not resolved');
+            }
+            const allKeys = this.allMultiSelectionKeys.value();
+            this.$selectedKeys.set(allKeys);
+        } else {
+            this.$selectedKeys.set([]);
         }
     }
+    private readonly updateSelectionMultiHeaderCheckboxSelected = effect(() => {
+        let value: boolean | 'partial' = false;
+        const selectedKeys = this.$selectedKeys();
+        if (selectedKeys.length === 0) {
+            value = false;
+        } else if (this.allMultiSelectionKeys.status() === 'resolved' && this.allMultiSelectionKeys.value().length === selectedKeys.length) {
+            value = true;
+        } else {
+            value = 'partial';
+        }
+        this.$selectionMultiHeaderCheckboxSelected.set(value);
+    });
+    // #endregion
+
+    protected rowClicked(row: TData, e: MouseEvent) {
+        const selectionOptions = this.$selectionOptions();
+        if (!selectionOptions) {
+            return;
+        }
+        if (selectionOptions.selectionMode !== 'row-selection' && selectionOptions.selectionMode !== 'both') {
+            return;
+        }
+        e.stopPropagation();
+        e.preventDefault();
+
+        const key = selectionOptions.getRowKey(row);
+        const selectedKeys = this.$selectedKeys();
+        const isSelected = selectedKeys.includes(key);
+
+        if (selectionOptions instanceof SingleSelectionOptions) {
+            if (isSelected) {
+                this.$selectedKeys.set([]);
+            } else {
+                this.$selectedKeys.set([key]);
+            }
+        }
+        if (selectionOptions instanceof MultiSelectionOptions) {
+            if (e.shiftKey || e.ctrlKey || e.metaKey) {
+                this.checkboxSelectChange(row, !isSelected);
+            } else {
+                this.$selectedKeys.set([key]);
+            }
+        }
+
+        // select the row
+    }
+    protected checkboxClicked(e: MouseEvent) {
+        e.stopPropagation();
+        e.preventDefault();
+    }
+    protected checkboxSelectChange(row: TData, checked: boolean | 'partial') {
+        const selectionOptions = this.$selectionOptions();
+        if (!selectionOptions) {
+            return;
+        }
+        if (selectionOptions instanceof SingleSelectionOptions) {
+            if (selectionOptions.selectionMode !== 'checkbox-selection' && selectionOptions.selectionMode !== 'both') {
+                return;
+            }
+            const key = selectionOptions.getRowKey(row);
+            if (checked === true) {
+                this.$selectedKeys.set([key]);
+            } else {
+                this.$selectedKeys.set([]);
+            }
+        }
+        if (selectionOptions instanceof MultiSelectionOptions) {
+            const key = selectionOptions.getRowKey(row);
+            const selectedKeys = this.$selectedKeys();
+            if (checked === true) {
+                if (!selectedKeys.includes(key)) {
+                    this.$selectedKeys.set([...selectedKeys, key]);
+                }
+            } else {
+                this.$selectedKeys.set(selectedKeys.filter((k) => k !== key));
+            }
+        }
+    }
+
+    // #endregion
 }
