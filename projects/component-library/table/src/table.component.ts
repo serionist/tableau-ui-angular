@@ -1,21 +1,5 @@
 import type { AfterViewInit, OnDestroy, TemplateRef } from '@angular/core';
-import {
-    ChangeDetectionStrategy,
-    ChangeDetectorRef,
-    Component,
-    computed,
-    contentChildren,
-    effect,
-    ElementRef,
-    HostListener,
-    inject,
-    input,
-    model,
-    signal,
-    untracked,
-    viewChild,
-    viewChildren,
-} from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, contentChildren, effect, ElementRef, HostListener, inject, input, model, signal, untracked, viewChild, viewChildren } from '@angular/core';
 import type { SortOrderPair } from './defs/column-def/column-def.directive';
 import { ColumnDefDirective } from './defs/column-def/column-def.directive';
 import type { DataSort } from './sorting/data-sort';

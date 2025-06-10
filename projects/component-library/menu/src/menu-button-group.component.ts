@@ -1,16 +1,5 @@
 import type { InputSignal, OnDestroy, OutputRefSubscription, WritableSignal } from '@angular/core';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    contentChildren,
-    effect,
-    ElementRef,
-    HostListener,
-    inject,
-    input,
-    output,
-    signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, contentChildren, effect, ElementRef, HostListener, inject, input, output, signal } from '@angular/core';
 import { MenuButtonComponent } from './menu-button.component';
 import { generateRandomString } from 'tableau-ui-angular/utils';
 

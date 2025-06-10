@@ -16,16 +16,15 @@ export const LIST_COMPONENT_HOST = {
     '(mouseleave)': 'onMouseOut()',
 };
 
-
 @Directive()
 export abstract class ListBaseComponent<TOption extends Primitive, TValue extends TOption | TOption[]> implements ControlValueAccessor {
     protected readonly $options = contentChildren<OptionComponent<TOption>>(OptionComponent<TOption>);
     private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
     // #region Inputs
 
-     protected $isMultiSelect():  this is ListMultiSelectComponent<TOption> {
-            return false;
-          }
+    protected $isMultiSelect(): this is ListMultiSelectComponent<TOption> {
+        return false;
+    }
 
     /**
      * Sets the focusability of the list
@@ -76,7 +75,7 @@ export abstract class ListBaseComponent<TOption extends Primitive, TValue extend
      * Whether multiple values can be selected
      * @default false
      */
-    
+
     /**
      * The template context to use for the dropdown options
      * @remarks
@@ -125,7 +124,7 @@ export abstract class ListBaseComponent<TOption extends Primitive, TValue extend
     // #region Value selection
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     protected readonly $highlightedOption: WritableSignal<OptionComponent<TOption> | undefined> = signal<OptionComponent<TOption> | undefined>(undefined);
-   
+
     selectValue(option: OptionComponent<TOption>, event: MouseEvent) {
         event.preventDefault();
         event.stopPropagation();
@@ -140,7 +139,7 @@ export abstract class ListBaseComponent<TOption extends Primitive, TValue extend
             }
         }
     }
-    protected readonly abstract selectValueInternal: (currentValue: TValue | undefined, selectedValue: TOption) => void;
+    protected abstract readonly selectValueInternal: (currentValue: TValue | undefined, selectedValue: TOption) => void;
     clearValue(e: Event) {
         e.preventDefault();
         e.stopPropagation();
@@ -151,7 +150,7 @@ export abstract class ListBaseComponent<TOption extends Primitive, TValue extend
         this.onChange(this.$value());
         this.onTouched();
     }
-    protected readonly abstract clearValueInternal: () => void;
+    protected abstract readonly clearValueInternal: () => void;
     // #region Focus management
     protected readonly $focused = signal(false);
     onFocus() {

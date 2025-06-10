@@ -52,13 +52,7 @@ export class SnackService {
             location,
         );
     }
-    openSnackFromTemplate<TContext>(
-        template: TemplateRef<TContext>,
-        templateContext?: TContext,
-        duration: number | undefined = 5000,
-        type: 'error' | 'info' | 'success' = 'info',
-        location: 'bottom' | 'top' = 'top',
-    ) {
+    openSnackFromTemplate<TContext>(template: TemplateRef<TContext>, templateContext?: TContext, duration: number | undefined = 5000, type: 'error' | 'info' | 'success' = 'info', location: 'bottom' | 'top' = 'top') {
         return this.openSnackComponent<SnackComponent<TContext>, SnackComponentData<TContext>, boolean>(
             SnackComponent,
             {

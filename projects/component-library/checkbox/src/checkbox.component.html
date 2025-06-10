@@ -1,14 +1,13 @@
 <input name="" type="checkbox" [value]="$value()" [checked]="$value()" [tabindex]="$disabled() ? -1 : 0" (change)="toggleValue()" (keydown)="onKeyDown($event)" />
 
 @if ($loading()) {
-    <tab-loading-gif width="1.2rem" height="1.2rem"/>
+    <tab-loading-gif width="1.2rem" height="1.2rem" />
 } @else {
     <div class="box">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12"><path fill="currentColor" transform="translate(-2, -2)" d="M7.2 12.3c-.2 0-.4-.1-.5-.2l-3-3L4.8 8l2.3 2.3 4-6.7 1.3.8L7.9 12c-.2.2-.4.3-.7.3z" /></svg>
         <div class="partial"></div>
     </div>
 }
-
 
 <div class="label">
     <ng-content />

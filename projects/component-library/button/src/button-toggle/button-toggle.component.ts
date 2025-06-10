@@ -35,7 +35,6 @@ export class ButtonToggleComponent<T extends Primitive> {
     });
 
     protected readonly $options = contentChildren(OptionComponent<T>);
-   
 
     readonly selectedValueChange = effect(() => {
         const val = this.$selectedValue();

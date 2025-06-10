@@ -1,17 +1,5 @@
 import type { InputSignal, OnDestroy, OnInit, Signal, TemplateRef, WritableSignal } from '@angular/core';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    contentChild,
-    forwardRef,
-    inject,
-    input,
-    model,
-    output,
-    signal,
-    viewChild,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, contentChild, forwardRef, inject, input, model, output, signal, viewChild } from '@angular/core';
 import { CollapsedContentDirective } from './collapsed-content.directive';
 import { ExpandedContentDirective } from './expanded-content.directive';
 import type { TreeNodeRegistry } from './tree-node-registry';

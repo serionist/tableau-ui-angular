@@ -19,9 +19,9 @@ import { NG_VALUE_ACCESSOR } from '@angular/forms';
     host: LIST_COMPONENT_HOST,
 })
 export class ListMultiSelectComponent<T extends Primitive> extends ListBaseComponent<T, T[]> {
-    protected override $isMultiSelect():  this is ListMultiSelectComponent<T> {
+    protected override $isMultiSelect(): this is ListMultiSelectComponent<T> {
         return true;
-      }
+    }
 
     protected override selectValueInternal: (currentValue: T[] | undefined, selectedValue: T) => void = (currentValue, selectedValue) => {
         if (currentValue === undefined || !Array.isArray(currentValue)) {

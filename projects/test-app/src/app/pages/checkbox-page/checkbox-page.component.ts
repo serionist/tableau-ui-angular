@@ -21,8 +21,8 @@ export class CheckboxPageComponent implements OnInit {
     simpleValue2 = false;
     loadingValue = false;
     readonly $loading = signal(false);
-    partialValue : boolean | 'partial' = 'partial';
-    partialValue2 : boolean | 'partial' = 'partial';
+    partialValue: boolean | 'partial' = 'partial';
+    partialValue2: boolean | 'partial' = 'partial';
 
     valueChanged(value: boolean | 'partial', name: string, type: 'error' | 'info' = 'info', triggerLoading: boolean = false) {
         console.log(`Value changed for ${name}:`, value);

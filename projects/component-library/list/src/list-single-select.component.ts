@@ -16,7 +16,7 @@ import { NG_VALUE_ACCESSOR } from '@angular/forms';
         },
     ],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    host: LIST_COMPONENT_HOST
+    host: LIST_COMPONENT_HOST,
 })
 export class ListSingleSelectComponent<T extends Primitive> extends ListBaseComponent<T, T> {
     protected override selectValueInternal: (currentValue: T | undefined, selectedValue: T) => void = (currentValue, selectedValue) => {
@@ -24,5 +24,5 @@ export class ListSingleSelectComponent<T extends Primitive> extends ListBaseComp
     };
     protected override clearValueInternal: () => void = () => {
         this.$value.set(undefined);
-    }
+    };
 }

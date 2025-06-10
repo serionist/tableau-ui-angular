@@ -1,4 +1,4 @@
-import type { AfterViewInit, InputSignal, OnDestroy, Signal, TemplateRef, WritableSignal} from '@angular/core';
+import type { AfterViewInit, InputSignal, OnDestroy, Signal, TemplateRef, WritableSignal } from '@angular/core';
 import { computed, contentChild, contentChildren, Directive, effect, ElementRef, inject, input, model, signal, viewChild } from '@angular/core';
 import type { ControlValueAccessor } from '@angular/forms';
 import type { Subscription } from 'rxjs';
@@ -21,17 +21,16 @@ export const SELECT_COMPONENT_HOST = {
     '[aria-disabled]': '$disabled() ? true : null',
     '[aria-hidden]': '$disabled() ? true : null',
     '[id]': 'selectId',
-}
+};
 @Directive()
 export abstract class SelectBaseComponent<TOption extends Primitive, TValue extends TOption | TOption[]> implements ControlValueAccessor, AfterViewInit, OnDestroy {
     protected readonly selectId: string;
     protected readonly dropdownId: string;
     protected readonly $options = contentChildren<OptionComponent<TOption>>(OptionComponent<TOption>);
 
-
     protected $isMultiSelect(): this is MultiSelectComponent<TOption> {
         return false;
-      }
+    }
 
     private readonly optionsChanged = effect(() => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -182,8 +181,6 @@ export abstract class SelectBaseComponent<TOption extends Primitive, TValue exte
         },
     );
 
-   
-
     // #endregion
     // #region Constructor + Init + Destroy
     constructor() {
@@ -200,8 +197,7 @@ export abstract class SelectBaseComponent<TOption extends Primitive, TValue exte
     }
     // #endregion
     // #region Computed
-    readonly abstract $hasValue: Signal<boolean>; 
-
+    abstract readonly $hasValue: Signal<boolean>;
 
     protected readonly $selectedValueTemplates = computed(() => {
         if (!this.$hasValue()) {
@@ -267,7 +263,6 @@ export abstract class SelectBaseComponent<TOption extends Primitive, TValue exte
         if (!this.$disabled() && !option.$disabled()) {
             const value = this.$value();
             const optionValue = option.$value();
-           
 
             this.selectValueInternal(value, optionValue);
 
@@ -278,8 +273,7 @@ export abstract class SelectBaseComponent<TOption extends Primitive, TValue exte
             }
         }
     }
-    protected readonly abstract selectValueInternal: (currentValue: TValue | undefined, selectedValue: TOption) => void;
-
+    protected abstract readonly selectValueInternal: (currentValue: TValue | undefined, selectedValue: TOption) => void;
 
     clearValue(e: Event) {
         e.preventDefault();
@@ -297,7 +291,7 @@ export abstract class SelectBaseComponent<TOption extends Primitive, TValue exte
         this.onTouched();
     }
 
-    protected readonly abstract clearValueInternal: () => void;
+    protected abstract readonly clearValueInternal: () => void;
     // isValueSelected(option: OptionComponent<TOption>) {
     //     const value = this.$value();
     //     const optionValue = option.$value();

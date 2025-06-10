@@ -1,9 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
 
-import {
-    TableauUiExpansionPanelModule,
-} from 'tableau-ui-angular/expansion-panel';
+import { TableauUiExpansionPanelModule } from 'tableau-ui-angular/expansion-panel';
 import { TableauUiIconModule } from 'tableau-ui-angular/icon';
 import { SnackService, TableauUiSnackModule } from 'tableau-ui-angular/snack';
 

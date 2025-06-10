@@ -183,12 +183,7 @@
             <div class="two spacer">
                 <tab-form-field>
                     <tab-label>Single value, wrap, icons shown, no check, selected item highlight:</tab-label>
-                    <tab-single-select
-                        placeholder="Select any value"
-                        multipleSelectionNumberSelectedTemplate="{number} items selected"
-                        [formControl]="singleFormControl | formControl"
-                        [allowClear]="true"
-                    >
+                    <tab-single-select placeholder="Select any value" multipleSelectionNumberSelectedTemplate="{number} items selected" [formControl]="singleFormControl | formControl" [allowClear]="true">
                         <tab-option text="This is a looooooooooooooooong option is provided as a set of values" icon="home" hint="There are 2 ways to create tab-options; by values and by templates" [value]="1" />
                         <tab-option text="Disabled value" hint="with random hint" [value]="2" [disabled]="true" />
                         <ng-template #iconRef>

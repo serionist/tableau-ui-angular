@@ -20,7 +20,6 @@ import { SELECT_COMPONENT_HOST, SelectBaseComponent } from './select-base.compon
     host: SELECT_COMPONENT_HOST,
 })
 export class MultiSelectComponent<T extends Primitive> extends SelectBaseComponent<T, T[]> {
-
     protected override $isMultiSelect(): this is MultiSelectComponent<T> {
         return true;
     }

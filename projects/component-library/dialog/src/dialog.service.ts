@@ -43,7 +43,7 @@ export class DialogService {
                 display: 'flex',
                 flexDirection: 'column',
             },
-             
+
             left(actualWidth) {
                 return `calc(50vw - ${actualWidth / 2}px)`;
             },

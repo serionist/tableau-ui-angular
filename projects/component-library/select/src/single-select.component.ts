@@ -20,19 +20,16 @@ import { NG_VALUE_ACCESSOR } from '@angular/forms';
     host: SELECT_COMPONENT_HOST,
 })
 export class SingleSelectComponent<T extends Primitive> extends SelectBaseComponent<T, T> {
-  
-
     protected readonly $multipleSelectionMaxItemsListed: InputSignal<number> = input(2);
 
     override readonly $hasValue: Signal<boolean> = computed(() => {
         const value = this.$value();
         return value !== undefined;
-        
     });
     protected override selectValueInternal: (currentValue: T | undefined, selectedValue: T) => void = (currentValue, selectedValue) => {
         this.$value.set(selectedValue);
     };
     protected override clearValueInternal: () => void = () => {
         this.$value.set(undefined);
-    }
+    };
 }
