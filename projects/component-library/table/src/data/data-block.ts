@@ -23,7 +23,7 @@ export class DataBlock {
             this.displayedColumns.forEach((col) => {
                 row[col] = undefined;
             });
-            return Array.from({ length: this.count }, () => row);
+            return Array.from({ length: Number.isFinite(this.count) ? this.count : 0 }, () => row);
         }
     });
 
@@ -38,7 +38,7 @@ export class DataBlock {
     ) {}
 
     public async load() {
-        if (this.$status() === 'loading' || this.$status() === 'success') {
+        if (this.$status() === 'loading' || this.$status() === 'success' || !Number.isFinite(this.count)) {
             return;
         }
         try {

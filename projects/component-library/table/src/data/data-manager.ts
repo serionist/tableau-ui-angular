@@ -42,6 +42,16 @@ export class DataManager {
         this.$dataBlockWindow.set(dataBlockWindow);
         this.$sort.set(sort);
         this.$_totalRowCount.set(0);
+
+        const rowCount = this.$blockRowCount();
+        if (!Number.isFinite(rowCount) || rowCount <= 0) {
+            this.$_blocks.set({
+                prePixels: 0,
+                blocks: [],
+                postPixels: 0,
+            });
+            return;
+        }
         // load initial block
         const initialBlock = new DataBlock(0, displayedColumns, 0, this.$blockRowCount(), sort, new AbortController(), this.getDataBlock);
         this.$_blocks.update((blocks) => {
