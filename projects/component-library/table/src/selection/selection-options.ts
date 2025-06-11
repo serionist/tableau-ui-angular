@@ -3,7 +3,7 @@ import type { Primitive } from 'tableau-ui-angular/types';
 class CommonSelectionOptions<T, TKey extends Primitive> {
     constructor(
         public readonly getRowKey: (row: T) => TKey,
-        public readonly selectionMode: 'row-selection' | 'checkbox-selection' | 'both' = 'both',
+        public readonly selectionMode: 'checkbox' | 'row-and-checkbox' = 'row-and-checkbox',
         public readonly clearSelectedKeysOnManualReset: boolean = true,
         public readonly clearSelectedKeysOnAnyReset = false,
     ) {}
@@ -18,12 +18,11 @@ export class SingleSelectionOptions<T, TKey extends Primitive> extends CommonSel
 
         /**
          * Selection mode for the table.
-         * - 'row-selection': Only row selection is allowed. No checkboxes are shown
-         * - 'checkbox-selection': Only checkbox selection is allowed. No row highlighting is shown.
-         * - 'both': Both row and checkbox selection are allowed.
+         * - 'checkbox': Only checkbox selection is allowed.
+         * - 'row-and-checkbox': Both row and checkbox selection are allowed.
          *
          */
-        selectionMode: 'row-selection' | 'checkbox-selection' | 'both' = 'both',
+        selectionMode: 'checkbox' | 'row-and-checkbox' = 'row-and-checkbox',
         /**
          * Clear the selected keys when a manual reset is triggered.
          */
@@ -47,12 +46,11 @@ export class MultiSelectionOptions<T, TKey extends Primitive> extends CommonSele
 
         /**
          * Selection mode for the table.
-         * - 'row-selection': Only row selection is allowed. No checkboxes are shown
-         * - 'checkbox-selection': Only checkbox selection is allowed. No row highlighting is shown.
-         * - 'both': Both row and checkbox selection are allowed.
+         * - 'checkbox': Only checkbox selection is allowed.
+         * - 'row-and-checkbox': Both row and checkbox selection are allowed.
          *
          */
-        selectionMode: 'row-selection' | 'checkbox-selection' | 'both' = 'both',
+        selectionMode: 'checkbox' | 'row-and-checkbox' = 'row-and-checkbox',
 
         /**
          * Configuration for the header checkbox mode.

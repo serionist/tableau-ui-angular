@@ -1,39 +1,36 @@
 <!-- eslint-disable @angular-eslint/template/no-call-expression -->
-@let rowSelectionMode = $selectionOptions()?.selectionMode === 'row-selection' || $selectionOptions()?.selectionMode === 'both';
-@let hasCheckboxColumn = $selectionOptions()?.selectionMode === 'checkbox-selection' || $selectionOptions()?.selectionMode === 'both';
+@let rowSelectionMode = $selectionOptions()?.selectionMode === 'row-and-checkbox';
+@let hasCheckboxColumn = $selectionOptions();
 <div class="table" role="table" [class.has-row-selection]="rowSelectionMode">
     <!--Data Row Sizer. This is a position fixed, 0px wide row with the given row height px. used to calculate the actual height of data rows prior to virtualizing-->
     <div #dataSizer class="data-sizer" [style.height]="$dataRowHeight()"></div>
     <!-- Column Row -->
     <div #headerRow class="column-row" [style.minWidth]="`calc(100% - 10px)`">
         @if (hasCheckboxColumn) {
-            @if (dmBlocks.blocks.length > 0) {
-                <div class="column-header pinned-left" role="columnheader" [style.width]="checkboxColWidth" [style.minWidth]="checkboxColWidth">
-                    <div class="content check-select">
-                        @switch (($selectionOptions() | multiSelectionOptions)?.headerCheckboxMode) {
-                            @case ('none') {}
-                            @case (undefined) {}
-                            @case ('selectNone') {
-                                <tab-checkbox
-                                    [disabled]="$selectionMultiHeaderCheckboxSelected() !== 'partial'"
-                                    [value]="$selectionMultiHeaderCheckboxSelected()"
-                                    [valueAfterPartial]="false"
-                                    (valueChange)="selectionMultiHeaderCheckboxSelectNoneChanged()"
-                                />
-                            }
-                            @default {
-                                <tab-checkbox
-                                    [loading]="$selectionMultiHeaderCheckboxSelected() === false && allMultiSelectionKeys.status() === 'loading'"
-                                    [disabled]="$selectionMultiHeaderCheckboxSelected() === false && allMultiSelectionKeys.status() !== 'resolved'"
-                                    [value]="$selectionMultiHeaderCheckboxSelected()"
-                                    [valueAfterPartial]="false"
-                                    (valueChange)="selectionMultiHeaderCheckboxSelectAllChanged($event)"
-                                />
-                            }
+            <div class="column-header pinned-left" role="columnheader" [style.width]="checkboxColWidth" [style.minWidth]="checkboxColWidth">
+                <div class="content check-select">
+                    @switch ($selectionOptions() | headerCheckboxMode) {
+                        @case ('none') {}
+                        @case ('selectNone') {
+                            <tab-checkbox
+                                [disabled]="$selectionMultiHeaderCheckboxSelected() !== 'partial'"
+                                [value]="$selectionMultiHeaderCheckboxSelected()"
+                                [valueAfterPartial]="false"
+                                (valueChange)="selectionMultiHeaderCheckboxSelectNoneChanged()"
+                            />
                         }
-                    </div>
+                        @case ('selectAll') {
+                            <tab-checkbox
+                                [loading]="$selectionMultiHeaderCheckboxSelected() === false && allMultiSelectionKeys.status() === 'loading'"
+                                [disabled]="$selectionMultiHeaderCheckboxSelected() === false && allMultiSelectionKeys.status() !== 'resolved'"
+                                [value]="$selectionMultiHeaderCheckboxSelected()"
+                                [valueAfterPartial]="false"
+                                (valueChange)="selectionMultiHeaderCheckboxSelectAllChanged($event)"
+                            />
+                        }
+                    }
                 </div>
-            }
+            </div>
         }
         <!-- prettier-ignore -->
         @for (def of $displayedColumnDefs(); let index = $index; let count = $count; let first = $first; let last = $last; let even = $even; let odd = $odd; track def.id) {

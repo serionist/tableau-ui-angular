@@ -43,11 +43,12 @@
 
                     @if ($selectionMode() !== 'none') {
                         <tab-label>Selection Mode</tab-label>
-                        <tab-button-toggle [(selectedValue)]="$selectionType">
-                            <tab-option value="row-selection" text="Row Selection" hint="Entire row is selected, no checkbox is shown" />
-                            <tab-option value="checkbox-selection" text="Checkbox Selection" hint="Checkbox is shown in the first column. Selection is only done via checkbox" />
-                            <tab-option value="both" text="Both" hint="Checkbox is shown in the first column, but entire row is selected on click" />
-                        </tab-button-toggle>
+                        <tab-checkbox [(value)]="$allowRowSelection">
+                            Allow the selection of rows directly instead as well
+                            @if ($selectionMode() === 'multi') {
+                                <tab-hint>Hold CTRL/SHIFT/ALT/CMD to select multiple rows</tab-hint>
+                            }
+                        </tab-checkbox>
                     }
 
                     @if ($selectionMode() === 'multi') {

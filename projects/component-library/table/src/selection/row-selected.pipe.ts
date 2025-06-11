@@ -10,10 +10,10 @@ import { SingleSelectionOptions } from './selection-options';
 })
 export class RowSelectedPipe<TData, TKey extends Primitive> implements PipeTransform {
     transform(row: TData, selectedKeys: TKey[], selectionOptions: SingleSelectionOptions<TData, TKey> | MultiSelectionOptions<TData, TKey>): boolean {
-        if (selectionOptions instanceof SingleSelectionOptions) {
+        if (selectionOptions instanceof MultiSelectionOptions) {
             const key = selectionOptions.getRowKey(row);
             return selectedKeys.includes(key);
-        } else if (selectionOptions instanceof MultiSelectionOptions) {
+        } else if (selectionOptions instanceof SingleSelectionOptions) {
             const key = selectionOptions.getRowKey(row);
             return selectedKeys.includes(key);
         }

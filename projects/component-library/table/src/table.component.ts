@@ -462,7 +462,7 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> impl
         if (!selectionOptions) {
             return;
         }
-        if (selectionOptions.selectionMode !== 'row-selection' && selectionOptions.selectionMode !== 'both') {
+        if (selectionOptions.selectionMode !== 'row-and-checkbox') {
             return;
         }
         e.stopPropagation();
@@ -472,16 +472,15 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> impl
         const selectedKeys = this.$selectedKeys();
         const isSelected = selectedKeys.includes(key);
 
-        if (selectionOptions instanceof SingleSelectionOptions) {
-            if (isSelected) {
-                this.$selectedKeys.set([]);
-            } else {
-                this.$selectedKeys.set([key]);
-            }
-        }
         if (selectionOptions instanceof MultiSelectionOptions) {
             if (e.shiftKey || e.ctrlKey || e.metaKey) {
                 this.checkboxSelectChange(row, !isSelected);
+            } else {
+                this.$selectedKeys.set([key]);
+            }
+        } else if (selectionOptions instanceof SingleSelectionOptions) {
+            if (isSelected) {
+                this.$selectedKeys.set([]);
             } else {
                 this.$selectedKeys.set([key]);
             }
@@ -498,17 +497,6 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> impl
         if (!selectionOptions) {
             return;
         }
-        if (selectionOptions instanceof SingleSelectionOptions) {
-            if (selectionOptions.selectionMode !== 'checkbox-selection' && selectionOptions.selectionMode !== 'both') {
-                return;
-            }
-            const key = selectionOptions.getRowKey(row);
-            if (checked === true) {
-                this.$selectedKeys.set([key]);
-            } else {
-                this.$selectedKeys.set([]);
-            }
-        }
         if (selectionOptions instanceof MultiSelectionOptions) {
             const key = selectionOptions.getRowKey(row);
             const selectedKeys = this.$selectedKeys();
@@ -518,6 +506,13 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> impl
                 }
             } else {
                 this.$selectedKeys.set(selectedKeys.filter((k) => k !== key));
+            }
+        } else if (selectionOptions instanceof SingleSelectionOptions) {
+            const key = selectionOptions.getRowKey(row);
+            if (checked === true) {
+                this.$selectedKeys.set([key]);
+            } else {
+                this.$selectedKeys.set([]);
             }
         }
     }

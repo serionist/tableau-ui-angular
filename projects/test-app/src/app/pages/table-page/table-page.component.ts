@@ -44,7 +44,7 @@ export class TablePageComponent {
     readonly $clearSelectionOnManualReset = signal(true);
     readonly $clearSelectionOnAnyReset = signal(false);
 
-    readonly $selectionType = signal<'row-selection' | 'checkbox-selection' | 'both'>('row-selection');
+    readonly $allowRowSelection = signal(false);
 
     readonly $multiSelectHeaderCheckboxMode = signal<'none' | 'selectNone' | 'selectAll'>('none');
 
@@ -54,7 +54,7 @@ export class TablePageComponent {
         if (abort.aborted) {
             throw new Error('Selection get all keys aborted');
         }
-        throw new Error('Simulated error in selection get all keys'); // Simulate an error
+        // throw new Error('Simulated error in selection get all keys'); // Simulate an error
         return data.map((row) => row.id);
     };
     readonly $selectionOptions = computed(() => {
@@ -62,7 +62,12 @@ export class TablePageComponent {
             case 'none':
                 return undefined;
             case 'single':
-                return new SingleSelectionOptions<DataType, number>(this.selectionGetKey, this.$selectionType(), this.$clearSelectionOnManualReset(), this.$clearSelectionOnAnyReset());
+                return new SingleSelectionOptions<DataType, number>(
+                    this.selectionGetKey,
+                    this.$allowRowSelection() ? 'row-and-checkbox' : 'checkbox',
+                    this.$clearSelectionOnManualReset(),
+                    this.$clearSelectionOnAnyReset(),
+                );
             case 'multi': {
                 let headerCheckboxMode: 'none' | 'selectNone' | SelectAllOptions<number> = 'none';
                 switch (this.$multiSelectHeaderCheckboxMode()) {
@@ -76,7 +81,13 @@ export class TablePageComponent {
                         headerCheckboxMode = new SelectAllOptions(this.selectionGetAllKeys);
                         break;
                 }
-                return new MultiSelectionOptions<DataType, number>(this.selectionGetKey, this.$selectionType(), headerCheckboxMode, this.$clearSelectionOnManualReset(), this.$clearSelectionOnAnyReset());
+                return new MultiSelectionOptions<DataType, number>(
+                    this.selectionGetKey,
+                    this.$allowRowSelection() ? 'row-and-checkbox' : 'checkbox',
+                    headerCheckboxMode,
+                    this.$clearSelectionOnManualReset(),
+                    this.$clearSelectionOnAnyReset(),
+                );
             }
         }
         return undefined;
