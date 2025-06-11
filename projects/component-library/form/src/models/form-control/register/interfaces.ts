@@ -1,8 +1,8 @@
-import type { Primitive } from 'tableau-ui-angular/types';
 import type { RegisterFns } from '../../abstract-control/register/interfaces';
 import type { FC } from '../interfaces';
+import type { PrimitiveWithUndefined } from '../types';
 
-export interface FcRegisterFns<T extends Primitive | Primitive[]> extends RegisterFns<FC<T>> {
+export interface FcRegisterFns<T extends PrimitiveWithUndefined | PrimitiveWithUndefined[]> extends RegisterFns<FC<T>> {
     /**
      * Registers a callback to be called when the value of the control changes.
      * The callback is always called initially.

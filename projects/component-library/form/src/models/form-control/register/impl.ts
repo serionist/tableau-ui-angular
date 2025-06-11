@@ -4,9 +4,9 @@ import { RegisterFnsImpl } from '../../abstract-control/register/impl';
 import type { FC } from '../interfaces';
 import type { FcRegisterFns } from './interfaces';
 import type { FCImpl } from '../impl';
-import type { Primitive } from 'tableau-ui-angular/types';
+import type { PrimitiveWithUndefined } from '../types';
 
-export class FcRegisterFnsImpl<T extends Primitive | Primitive[]> extends RegisterFnsImpl<FC<T>> implements FcRegisterFns<T> {
+export class FcRegisterFnsImpl<T extends PrimitiveWithUndefined | PrimitiveWithUndefined[]> extends RegisterFnsImpl<FC<T>> implements FcRegisterFns<T> {
     constructor(
         private readonly fcControl: FCImpl<T>,
         subscriptions: Subscription[] = [],

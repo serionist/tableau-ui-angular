@@ -35,6 +35,9 @@ const a = b.control<boolean>(true, undefined, undefined);
 const a2 = b.control<string>('asd');
 export interface ITest {
     name?: string;
+    names?: string[];
+    names2: (string | undefined)[];
+    names3?: (string | undefined)[];
     age: number | undefined;
     aaa: Date;
     address: IAddress;
@@ -55,6 +58,10 @@ const c4: NonNullable<string | undefined> = 'a';
 const gRefs: FormReferencesOf<ITest> = {
     name: b.control<string | undefined>('test'),
     age: b.control<number | undefined>(0),
+    names: b.control<string[] | undefined>(['test']),
+    names2: b.control<(string | undefined)[]>(['test']),
+    names3: b.control<(string | undefined)[] | undefined>(['test']),
+
     aaa: b.control<Date>(new Date()),
     address: b.group<IAddress>({
         street: b.control<string>('test'),
@@ -72,6 +79,9 @@ const gbuilder = b.group<ITest>({
     name: b.control<string | undefined>('test'),
     age: b.control<number | undefined>(0),
     aaa: b.control<Date>(new Date()),
+    names: b.control<string[] | undefined>(['test']),
+    names2: b.control<(string | undefined)[]>(['test']),
+    names3: b.control<(string | undefined)[] | undefined>(['test']),
     address: b.group<IAddress>({
         street: b.control<string>('test'),
         city: b.control<string>('test'),

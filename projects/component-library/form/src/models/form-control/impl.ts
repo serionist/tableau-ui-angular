@@ -11,9 +11,10 @@ import { FormControl, FormResetEvent } from '@angular/forms';
 import { ValidatorFnsImpl as ValidatorFnsImpl } from '../abstract-control/validation/impl';
 import { MetaFnsImpl as MetaFnsImpl } from '../abstract-control/meta/impl';
 import { FcRegisterFnsImpl } from './register/impl';
-import type { Primitive } from 'tableau-ui-angular/types';
+import type { PrimitiveWithUndefined } from './types';
 
-export class FCImpl<T extends Primitive | Primitive[]> extends ACImpl<T> implements FC<T> {
+
+export class FCImpl<T extends PrimitiveWithUndefined | PrimitiveWithUndefined[]> extends ACImpl<T> implements FC<T> {
     private readonly _value$: BehaviorSubject<T>;
     private readonly $_value: WritableSignal<T>;
 

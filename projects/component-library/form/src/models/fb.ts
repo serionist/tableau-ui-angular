@@ -8,13 +8,13 @@ import type { FG } from './form-group/interfaces';
 import { FGImpl } from './form-group/impl';
 import type { FA } from './form-array/interaces';
 import { FAImpl } from './form-array/impl';
-import type { Primitive } from 'tableau-ui-angular/types';
+import type { PrimitiveWithUndefined } from './form-control/types';
 
 @Injectable({
     providedIn: 'any',
 })
 export class FB {
-    control<T extends Primitive | Primitive[]>(
+    control<T extends PrimitiveWithUndefined | PrimitiveWithUndefined[]>(
         value: T,
         validators?: ValidatorFn | ValidatorFn[],
         asyncValidators?: AsyncValidatorFn | AsyncValidatorFn[],

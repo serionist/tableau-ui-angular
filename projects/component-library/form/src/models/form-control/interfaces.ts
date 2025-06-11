@@ -4,9 +4,10 @@ import type { ValidatorFns } from '../abstract-control/validation/interfaces';
 import type { AC } from '../abstract-control/interfaces';
 import type { Observable } from 'rxjs';
 import type { FcRegisterFns } from './register/interfaces';
-import type { Primitive } from 'tableau-ui-angular/types';
+import type { PrimitiveWithUndefined } from './types';
 
-export interface FC<T extends Primitive | Primitive[]> extends AC {
+
+export interface FC<T extends PrimitiveWithUndefined | PrimitiveWithUndefined[]> extends AC {
     value$: Observable<T>;
     $value: Signal<T>;
     submitted$: Observable<T>;
