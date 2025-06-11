@@ -23,10 +23,9 @@
     </div>
 </tab-arrow-scroll>
 <div class="tab-headers-underline"></div>
-<div class="tab-content">
-    @if ($selectedTab()) {
-        <ng-container>
-            <ng-container *ngTemplateOutlet="$selectedTab()!.$contentTemplate()" />
-        </ng-container>
-    }
-</div>
+@for (tab of $tabs(); let i = $index; track i) {
+    <div class="tab-content" [style.display]="$selectedIndex() === i ? 'block' : 'none'">
+        <ng-container *ngTemplateOutlet="tab.$contentTemplate()" />
+    </div>
+}
+

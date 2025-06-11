@@ -10,4 +10,9 @@ import { TableauUiTabgroupModule } from 'tableau-ui-angular/tab-group';
     styleUrl: './tabcontrol-page.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TabcontrolPageComponent {}
+export class TabcontrolPageComponent {
+
+    tabInit(id: string): void {
+        console.log(`${id} activated`);
+    }
+}

@@ -1,3 +1,4 @@
+import type { AfterViewInit} from '@angular/core';
 import { ChangeDetectionStrategy, Component, computed, signal, viewChild } from '@angular/core';
 import { data } from './table-data-sample';
 import type { DataRequest, DataResponse, HeaderContext } from 'tableau-ui-angular/table';
@@ -18,7 +19,8 @@ import { TableauUiRadioGroupModule } from '../../../../../component-library/radi
     styleUrl: './table-page.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TablePageComponent {
+export class TablePageComponent implements AfterViewInit{
+    
     readonly $show_first_3_columns = signal(false);
     readonly $striped = signal(false);
     readonly $showData = signal(true);
@@ -139,10 +141,14 @@ export class TablePageComponent {
     reset(showData: boolean, errorOnData: boolean) {
         this.$showData.set(showData);
         this.$errorOnData.set(errorOnData);
-        this.tabTable().reset();
+        void this.tabTable().reset();
     }
     customCalculatedClass(ctx: HeaderContext): string | undefined {
         return `custom-dynamic-class-${ctx.index % 3}`;
+    }
+
+    ngAfterViewInit(): void {
+        void this.tabTable().load();
     }
 }
 export interface DataType {

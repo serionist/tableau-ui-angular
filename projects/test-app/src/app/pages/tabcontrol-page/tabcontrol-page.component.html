@@ -31,7 +31,7 @@
                         <p>This is the first tab. It is disabled.</p>
                     </div>
                 </tab>
-                <tab>
+                <tab (afterActivate)="tabInit('Second tab')">
                     <div tab-header>Second tab</div>
                     <div>
                         <p>This is the second tab.</p>
@@ -44,7 +44,7 @@
                     </div>
                 </tab>
 
-                <tab>
+                <tab (afterActivate)="tabInit('Fourth tab')">
                     <div tab-header>Fourth tab</div>
                     <div>
                         <p>This is the fourth tab.</p>

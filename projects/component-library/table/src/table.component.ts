@@ -1,22 +1,5 @@
-import type { AfterViewInit, OnDestroy, TemplateRef } from '@angular/core';
-import {
-    ChangeDetectionStrategy,
-    ChangeDetectorRef,
-    Component,
-    computed,
-    contentChildren,
-    effect,
-    ElementRef,
-    HostListener,
-    inject,
-    input,
-    model,
-    resource,
-    signal,
-    untracked,
-    viewChild,
-    viewChildren,
-} from '@angular/core';
+import type { TemplateRef } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, contentChildren, effect, ElementRef, HostListener, inject, input, model, resource, untracked, viewChild, viewChildren } from '@angular/core';
 import type { SortOrderPair } from './defs/column-def/column-def.directive';
 import { ColumnDefDirective } from './defs/column-def/column-def.directive';
 import type { DataSort } from './sorting/data-sort';
@@ -35,8 +18,10 @@ import { MultiSelectionOptions, SelectAllOptions, SingleSelectionOptions } from 
     changeDetection: ChangeDetectionStrategy.OnPush,
     host: {},
 })
-export class TableComponent<TData = unknown, TKey extends Primitive = null> implements AfterViewInit, OnDestroy {
+export class TableComponent<TData = unknown, TKey extends Primitive = null> {
     protected readonly checkboxColWidth = '2.5em';
+    
+    // #region Inputs & Outputs
     /**
      * The column IDs to display in the table. The order of the IDs determines the order of the columns.
      * If undefined, all columns will be displayed in the order they are defined in the table.
@@ -165,11 +150,21 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> impl
     readonly $selectionOptions = input<SingleSelectionOptions<TData, TKey> | MultiSelectionOptions<TData, TKey>>(undefined, {
         alias: 'selectionOptions',
     });
-
+    /**
+     * The keys of the selected rows.
+     * This is used to determine which rows are selected in the table.
+     * If the selection options are set to single selection, this will only contain a maximum of one key.
+     * If the selection options are set to multi selection, this can contain multiple keys.
+     * This is updated when the selection changes.
+     * @default []
+     * @see {@link $selectionOptions}
+     */
     readonly $selectedKeys = model<TKey[]>([], {
         alias: 'selectedKeys',
     });
 
+    // #endregion
+    // #region Columns
     public readonly $columnDefs = contentChildren(ColumnDefDirective);
     protected readonly $displayedColumnDefs = computed(
         () => {
@@ -240,55 +235,45 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> impl
             },
         },
     );
-
+    // #endregion
+    // #region View Children
     protected readonly $columnWidthDirectives = viewChildren(ColRenderedWidthDirective);
     private readonly hostElement = inject<ElementRef<HTMLElement>>(ElementRef);
     private readonly cdr = inject<ChangeDetectorRef>(ChangeDetectorRef);
     private readonly $headerRow = viewChild.required<ElementRef<HTMLElement>>('headerRow');
     private readonly $dataRowSizer = viewChild.required<ElementRef<HTMLElement>>('dataSizer');
-
-    private readonly $dataWindowHeightPx = signal<number | undefined>(undefined, {
-        equal: (a, b) => a === b,
-    });
-    private dataWindowHeightObserver: ResizeObserver | undefined;
-    private readonly $dataRowHeightPx = signal<number | undefined>(undefined, {
-        equal: (a, b) => a === b,
-    });
-    private dataRowHeightObserver: ResizeObserver | undefined;
+    // #endregion
     protected readonly dataManager = new DataManager<TData>(this.cdr);
-    ngAfterViewInit(): void {
+    // #region Load & Reset
+    private loaded = false;
+    private dataWindowHeightPx: number = 0;
+    private dataRowHeightPx: number = 0;
+
+    /**
+     * Loads the table data.
+     * This will calculate the available window and row height and reset the table.
+     * Use this to load the table initially, or after it's container or row size changes.
+     */
+    async load() {
+        this.loaded = false;
         const host = this.hostElement.nativeElement;
+        // calculate data window height
+        this.dataWindowHeightPx = host.clientHeight - this.$headerRow().nativeElement.clientHeight;
+        console.log('calculated data window height:', this.dataWindowHeightPx, host.clientHeight, this.$headerRow().nativeElement.clientHeight);
 
-        if (this.$resetOnSizeChange()) {
-            // data window height observer tends to flicker when the table is resized, so we cache the last 2 values
-            // if it jumps back and forth, we ignore the resize event
-            const last2DataWindowHeights: number[] = [0, 0];
-            this.dataWindowHeightObserver = new ResizeObserver(() => {
-                const dataWindowHeight = host.offsetHeight - this.$headerRow().nativeElement.offsetHeight - 15;
-                if (last2DataWindowHeights.includes(dataWindowHeight)) {
-                    // we are flickering the resize observer, so we ignore this call
-                    return;
-                }
-                last2DataWindowHeights.shift();
-                last2DataWindowHeights.push(dataWindowHeight);
+        this.dataRowHeightPx = this.$dataRowSizer().nativeElement.clientHeight;
+        console.log('calculated data row height:', this.dataRowHeightPx);
 
-                this.$dataWindowHeightPx.set(dataWindowHeight);
-            });
-            this.dataWindowHeightObserver.observe(host);
-        } else {
-            const dataWindowHeight = host.offsetHeight - this.$headerRow().nativeElement.offsetHeight;
-            this.$dataWindowHeightPx.set(dataWindowHeight);
+        const initialLoad = await this.resetInternal(this.$sort(), this.$getDataBlock(), this.$dataBlockWindow(), this.$displayedColumnDefs());
+        if (initialLoad) {
+            this.loaded = true;
         }
-
-        this.dataRowHeightObserver = new ResizeObserver(() => {
-            this.$dataRowHeightPx.set(this.$dataRowSizer().nativeElement.offsetHeight);
-        });
-        this.dataRowHeightObserver.observe(this.$dataRowSizer().nativeElement);
+        return initialLoad;
     }
-
     private readonly dataManagerReset = effect(() => {
-        const dataWindowHeight = this.$dataWindowHeightPx();
-        const dataRowHeight = this.$dataRowHeightPx();
+        if (!this.loaded) {
+            return;
+        }
         const sort = this.$sort();
         const getDataBlock = this.$getDataBlock();
         const dataBlockWindow = this.$dataBlockWindow();
@@ -297,24 +282,71 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> impl
         if (selectionOptions?.clearSelectedKeysOnAnyReset === true) {
             this.$selectedKeys.set([]);
         }
-        untracked(() => this.resetInternal(dataWindowHeight, dataRowHeight, sort, getDataBlock, dataBlockWindow, displayedColumns));
+
+        untracked(() => void this.resetInternal(sort, getDataBlock, dataBlockWindow, displayedColumns));
     });
-
-    @HostListener('scroll', ['$event.target'])
-    private onScroll(element: HTMLElement) {
-        this.dataManager.setScrollPosition(element.scrollTop);
-    }
-    ngOnDestroy(): void {
-        if (this.dataWindowHeightObserver) {
-            this.dataWindowHeightObserver.disconnect();
-            this.dataWindowHeightObserver = undefined;
+    private async resetInternal(
+        sort: DataSort[] | undefined,
+        getDataBlock: ((req: DataRequest) => Promise<DataResponse<TData>>) | undefined,
+        dataBlockWindow: number,
+        displayedColumns:
+            | {
+                  id: string;
+                  col: ColumnDefDirective;
+                  pinnedLeft: boolean;
+                  pinnedRight: boolean;
+                  sortOrder: SortOrderPair;
+              }[]
+            | undefined,
+    ): Promise<boolean> {
+        if (this.dataRowHeightPx === 0 || this.dataWindowHeightPx === 0 || !sort || !getDataBlock || !displayedColumns) {
+            console.warn('Table reset called with undefined parameters, ignoring');
+            return false;
         }
-        if (this.dataRowHeightObserver) {
-            this.dataRowHeightObserver.disconnect();
-            this.dataRowHeightObserver = undefined;
-        }
+        console.log('resetting data manager with:', {
+            dataWindowHeightPx: this.dataWindowHeightPx,
+            dataRowHeightPx: this.dataRowHeightPx,
+            sort,
+            getDataBlock,
+            dataBlockWindow,
+            displayedColumns,
+        });
+        await this.dataManager.reset(
+            this.dataWindowHeightPx,
+            this.dataRowHeightPx,
+            sort,
+            displayedColumns.map((e) => e.id),
+            dataBlockWindow,
+            getDataBlock,
+        );
+        return true;
     }
 
+    /**
+     * Resets the table to its initial state.
+     * This will reset the scroll position, data, and selection.
+     * If resetSort is true, the sort will also be reset to the initial state.
+     * @param resetSort Whether to reset the sort to the initial state
+     * @returns A promise that resolves to true if the reset was successful, false otherwise.
+     */
+    async reset(resetSort: boolean = false): Promise<boolean> {
+        if (resetSort) {
+            this.$sort.set([]);
+        }
+        const sort = this.$sort();
+        const getDataBlock = this.$getDataBlock();
+        const dataBlockWindow = this.$dataBlockWindow();
+        const displayedColumns = this.$displayedColumnDefs();
+        const selectionOptions = this.$selectionOptions();
+        this.allMultiSelectionKeys.reload();
+        if (selectionOptions?.clearSelectedKeysOnManualReset === true) {
+            this.$selectedKeys.set([]);
+        }
+        return this.resetInternal(sort, getDataBlock, dataBlockWindow, displayedColumns);
+    }
+    // #endregion
+
+    // #region Sort
     protected onColumnHeaderClick(e: MouseEvent, def: ColumnDefDirective) {
         if (!def.$sortable()) {
             return;
@@ -364,55 +396,14 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> impl
             ]);
         }
     }
-
-    private resetInternal(
-        dataWindowHeight: number | undefined,
-        dataRowHeight: number | undefined,
-        sort: DataSort[] | undefined,
-        getDataBlock: ((req: DataRequest) => Promise<DataResponse<TData>>) | undefined,
-        dataBlockWindow: number,
-        displayedColumns:
-            | {
-                  id: string;
-                  col: ColumnDefDirective;
-                  pinnedLeft: boolean;
-                  pinnedRight: boolean;
-                  sortOrder: SortOrderPair;
-              }[]
-            | undefined,
-    ): boolean {
-        if (dataRowHeight === undefined || dataWindowHeight === undefined || !sort || !getDataBlock || !displayedColumns) {
-            console.warn('Table reset called with undefined parameters, ignoring');
-            return false;
-        }
-
-        void this.dataManager.reset(
-            dataWindowHeight,
-            dataRowHeight,
-            sort,
-            displayedColumns.map((e) => e.id),
-            dataBlockWindow,
-            getDataBlock,
-        );
-        return true;
+    // #endregion
+    // #region Scrolling & Virtualization
+    @HostListener('scroll', ['$event.target'])
+    private onScroll(element: HTMLElement) {
+        this.dataManager.setScrollPosition(element.scrollTop);
     }
-    reset(resetSort: boolean = false) {
-        if (resetSort) {
-            this.$sort.set([]);
-        }
-        const dataWindowHeight = this.$dataWindowHeightPx();
-        const dataRowHeight = this.$dataRowHeightPx();
-        const sort = this.$sort();
-        const getDataBlock = this.$getDataBlock();
-        const dataBlockWindow = this.$dataBlockWindow();
-        const displayedColumns = this.$displayedColumnDefs();
-        const selectionOptions = this.$selectionOptions();
-        this.allMultiSelectionKeys.reload();
-        if (selectionOptions?.clearSelectedKeysOnManualReset === true) {
-            this.$selectedKeys.set([]);
-        }
-        this.resetInternal(dataWindowHeight, dataRowHeight, sort, getDataBlock, dataBlockWindow, displayedColumns);
-    }
+    // #endregion
+
     // #region Selection
 
     // #region MultiSelect Header Checkbox

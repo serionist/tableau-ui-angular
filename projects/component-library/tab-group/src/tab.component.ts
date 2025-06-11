@@ -1,5 +1,5 @@
 import type { TemplateRef } from '@angular/core';
-import { ChangeDetectionStrategy, Component, input, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output, viewChild } from '@angular/core';
 
 @Component({
     // eslint-disable-next-line @angular-eslint/component-selector
@@ -22,4 +22,7 @@ export class TabComponent {
     readonly $disabled = input<boolean>(false, {
         alias: 'disabled',
     });
+
+    readonly afterActivate = output();
+
 }

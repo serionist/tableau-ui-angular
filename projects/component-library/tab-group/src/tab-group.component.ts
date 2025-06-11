@@ -1,4 +1,4 @@
-import type { AfterContentInit, Signal, ElementRef } from '@angular/core';
+import type { Signal, ElementRef, AfterViewInit } from '@angular/core';
 import { Component, contentChildren, signal, computed, ChangeDetectionStrategy, input, viewChildren } from '@angular/core';
 import { TabComponent } from './tab.component';
 
@@ -10,7 +10,7 @@ import { TabComponent } from './tab.component';
     changeDetection: ChangeDetectionStrategy.OnPush,
     host: {},
 })
-export class TabGroupComponent implements AfterContentInit {
+export class TabGroupComponent implements AfterViewInit {
     /**
      * Padding for the tab header, can be adjusted to fit design requirements.
      * @default '0.25rem 1.5rem'
@@ -48,13 +48,14 @@ export class TabGroupComponent implements AfterContentInit {
         this.$_selectedIndex.set(index);
         const tabElement = this.$tabElements()[index];
         tabElement.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        tab.afterActivate.emit();
     }
 
-    ngAfterContentInit() {
+    ngAfterViewInit() {
         // Ensure the first tab is selected by default if available
         const firstNonDisabledTabIndex = this.$tabs().findIndex((tab) => !tab.$disabled());
         if (firstNonDisabledTabIndex !== -1) {
-            this.$_selectedIndex.set(firstNonDisabledTabIndex);
+            this.selectTab(firstNonDisabledTabIndex);
         }
     }
 
