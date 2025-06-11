@@ -18,6 +18,8 @@ export class FormGroupPipe implements PipeTransform {
             throw new Error(`formGroup: Expected a FormGroup at path "${path}", but got "${ret.type}"`);
         }
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        console.log((ret as FGImpl<any>).control as FormGroup);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return (ret as FGImpl<any>).control as FormGroup;
     }
 }
