@@ -20,7 +20,7 @@ import { MultiSelectionOptions, SelectAllOptions, SingleSelectionOptions } from 
 })
 export class TableComponent<TData = unknown, TKey extends Primitive = null> {
     protected readonly checkboxColWidth = '2.5em';
-    
+
     // #region Inputs & Outputs
     /**
      * The column IDs to display in the table. The order of the IDs determines the order of the columns.

@@ -6,7 +6,6 @@ import type { Observable } from 'rxjs';
 import type { FcRegisterFns } from './register/interfaces';
 import type { PrimitiveWithUndefined } from './types';
 
-
 export interface FC<T extends PrimitiveWithUndefined | PrimitiveWithUndefined[]> extends AC {
     value$: Observable<T>;
     $value: Signal<T>;

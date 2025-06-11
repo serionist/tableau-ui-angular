@@ -11,7 +11,6 @@ import { TableauUiTabgroupModule } from 'tableau-ui-angular/tab-group';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TabcontrolPageComponent {
-
     tabInit(id: string): void {
         console.log(`${id} activated`);
     }

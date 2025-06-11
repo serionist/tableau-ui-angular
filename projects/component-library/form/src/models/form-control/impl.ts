@@ -13,7 +13,6 @@ import { MetaFnsImpl as MetaFnsImpl } from '../abstract-control/meta/impl';
 import { FcRegisterFnsImpl } from './register/impl';
 import type { PrimitiveWithUndefined } from './types';
 
-
 export class FCImpl<T extends PrimitiveWithUndefined | PrimitiveWithUndefined[]> extends ACImpl<T> implements FC<T> {
     private readonly _value$: BehaviorSubject<T>;
     private readonly $_value: WritableSignal<T>;

@@ -1,4 +1,4 @@
-import type { AfterViewInit} from '@angular/core';
+import type { AfterViewInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, computed, signal, viewChild } from '@angular/core';
 import { data } from './table-data-sample';
 import type { DataRequest, DataResponse, HeaderContext } from 'tableau-ui-angular/table';
@@ -19,8 +19,7 @@ import { TableauUiRadioGroupModule } from '../../../../../component-library/radi
     styleUrl: './table-page.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TablePageComponent implements AfterViewInit{
-    
+export class TablePageComponent implements AfterViewInit {
     readonly $show_first_3_columns = signal(false);
     readonly $striped = signal(false);
     readonly $showData = signal(true);

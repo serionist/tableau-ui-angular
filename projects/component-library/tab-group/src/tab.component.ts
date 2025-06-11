@@ -24,5 +24,4 @@ export class TabComponent {
     });
 
     readonly afterActivate = output();
-
 }
