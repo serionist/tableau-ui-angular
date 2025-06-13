@@ -1,5 +1,3 @@
-
-
 class CommonSelectionOptions {
     constructor(
         public readonly selectionMode: 'checkbox' | 'row-and-checkbox' = 'row-and-checkbox',
@@ -9,8 +7,6 @@ class CommonSelectionOptions {
 }
 export class SingleSelectionOptions extends CommonSelectionOptions {
     constructor(
-
-
         /**
          * Selection mode for the table.
          * - 'checkbox': Only checkbox selection is allowed.
@@ -33,8 +29,6 @@ export class SingleSelectionOptions extends CommonSelectionOptions {
 }
 export class MultiSelectionOptions extends CommonSelectionOptions {
     constructor(
-
-
         /**
          * Configuration for the header checkbox mode.
          * This determines how the header checkbox behaves.

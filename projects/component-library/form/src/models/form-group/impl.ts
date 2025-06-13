@@ -65,13 +65,9 @@ export class FGImpl<T extends Record<string, unknown>> extends ACImpl<T> impleme
         this._rawValue$ = new BehaviorSubject<T>(control.getRawValue() as T);
         this.$_rawValue = signal<T>(this._rawValue$.value);
         this.subscriptions.push(
-            control.valueChanges
-                .pipe(
-                    startWith(control.value as DeepPartial<T>),
-                )
-                .subscribe((v) => {
-                    this._value$.next(v);
-                }),
+            control.valueChanges.pipe(startWith(control.value as DeepPartial<T>)).subscribe((v) => {
+                this._value$.next(v);
+            }),
         );
         this.subscriptions.push(
             this._value$.subscribe((v) => {

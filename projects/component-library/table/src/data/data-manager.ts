@@ -66,7 +66,7 @@ export class DataManager<TData, TKey extends Primitive> {
             initialBlock = this.getBlock(0);
         } else if (this.dataOptions instanceof FullDataOptions) {
             const allDataAbort = new AbortController();
-            let allDataPromise: Promise<{key: TKey, data: TData}[]>;
+            let allDataPromise: Promise<{ key: TKey; data: TData }[]>;
 
             if (!Number.isFinite(this.blockRowCount)) {
                 allDataPromise = Promise.resolve([]);
@@ -78,7 +78,7 @@ export class DataManager<TData, TKey extends Primitive> {
                     })
                     .then((response) => {
                         this._totalRowCount = response.data.length;
-                        return response.data.map(row => ({
+                        return response.data.map((row) => ({
                             key: this.dataOptions!.getRowKey(row),
                             data: row,
                         }));
@@ -105,7 +105,6 @@ export class DataManager<TData, TKey extends Primitive> {
         });
         this.cdr.markForCheck();
 
-        
         try {
             await initialBlock.dataPromise;
             this.cdr.markForCheck();
@@ -115,14 +114,13 @@ export class DataManager<TData, TKey extends Primitive> {
             console.error('Error loading initial data block:', error);
             this.cdr.markForCheck();
             this.resetting = false;
-        } 
+        }
         // const initialBlockStatus = initialBlock.$status();
         // if (initialBlockStatus !== 'success') {
         //     console.error('Initial data block failed to load:', initialBlockStatus);
         //     this.cdr.markForCheck();
         //     return;
         // }
-      
     }
 
     private getBlock(blockId: number): DataBlock<TData, TKey> {
@@ -135,7 +133,7 @@ export class DataManager<TData, TKey extends Primitive> {
         } else {
             // we are using incremental data
             const blockAbort = new AbortController();
-            let blockPromise: Promise<{key: TKey, data: TData}[]>;
+            let blockPromise: Promise<{ key: TKey; data: TData }[]>;
             if (!Number.isFinite(this.blockRowCount)) {
                 blockPromise = Promise.resolve([]);
             } else {
@@ -148,7 +146,7 @@ export class DataManager<TData, TKey extends Primitive> {
                     })
                     .then((response) => {
                         this._totalRowCount = response.total;
-                        return response.data.map(row => ({
+                        return response.data.map((row) => ({
                             key: this.dataOptions!.getRowKey(row),
                             data: row,
                         }));
@@ -239,12 +237,12 @@ export class AllDataInfo<TData, TKey extends Primitive = Primitive> {
         return this.$_status;
     }
     constructor(
-        public readonly promise: Promise<{key: TKey, data: TData}[]>,
+        public readonly promise: Promise<{ key: TKey; data: TData }[]>,
         public readonly abort: AbortController,
     ) {
         promise
-            .then(data => {
-                this.$_allKeys.set(new Set(data.map(item => item.key)));
+            .then((data) => {
+                this.$_allKeys.set(new Set(data.map((item) => item.key)));
                 this.$_status.set('success');
             })
             .catch((error: unknown) => {

@@ -72,21 +72,24 @@ export class TablePageComponent implements AfterViewInit {
                     },
                 );
             case 'full':
-                return new FullDataOptions<DataType, number>((d) => d.id, async (req: FullDataRequest) => {
-                    console.log('Loading full data with request:', req);
-                    const dataReq = await this.baseDataRequest(req.abort, req.sort);
-                    if (this.$errorOnData()) {
-                        console.error('Simulated error on data load');
-                        throw new Error('Simulated error on data load');
-                    }
-                    // Return a mock response
-                    const ret = {
-                        total: dataReq.length,
-                        data: dataReq,
-                    };
-                    console.log('Loaded full data:', ret);
-                    return ret;
-                });
+                return new FullDataOptions<DataType, number>(
+                    (d) => d.id,
+                    async (req: FullDataRequest) => {
+                        console.log('Loading full data with request:', req);
+                        const dataReq = await this.baseDataRequest(req.abort, req.sort);
+                        if (this.$errorOnData()) {
+                            console.error('Simulated error on data load');
+                            throw new Error('Simulated error on data load');
+                        }
+                        // Return a mock response
+                        const ret = {
+                            total: dataReq.length,
+                            data: dataReq,
+                        };
+                        console.log('Loaded full data:', ret);
+                        return ret;
+                    },
+                );
         }
         throw new Error('Invalid data mode');
     });
@@ -124,28 +127,17 @@ export class TablePageComponent implements AfterViewInit {
             case 'none':
                 return undefined;
             case 'single':
-                return new SingleSelectionOptions(
-                    this.$allowRowSelection() ? 'row-and-checkbox' : 'checkbox',
-                    this.$clearSelectionOnManualReset(),
-                    this.$clearSelectionOnAnyReset(),
-                );
+                return new SingleSelectionOptions(this.$allowRowSelection() ? 'row-and-checkbox' : 'checkbox', this.$clearSelectionOnManualReset(), this.$clearSelectionOnAnyReset());
             case 'multi': {
-                const headerCheckboxMode: 'none' | 'selectNone' | 'selectAll' = this.$multiSelectHeaderCheckboxMode()
-                
-                return new MultiSelectionOptions(
-                    headerCheckboxMode,
-                    this.$allowRowSelection() ? 'row-and-checkbox' : 'checkbox',
-                    this.$clearSelectionOnManualReset(),
-                    this.$clearSelectionOnAnyReset(),
-                );
+                const headerCheckboxMode: 'none' | 'selectNone' | 'selectAll' = this.$multiSelectHeaderCheckboxMode();
+
+                return new MultiSelectionOptions(headerCheckboxMode, this.$allowRowSelection() ? 'row-and-checkbox' : 'checkbox', this.$clearSelectionOnManualReset(), this.$clearSelectionOnAnyReset());
             }
         }
         return undefined;
     });
 
     readonly $selectedRows = signal<Map<number, DataType>>(new Map<number, DataType>());
-
-   
 
     private readonly tabTable = viewChild.required<TableComponent>(TableComponent);
     reset(showData: boolean, errorOnData: boolean) {

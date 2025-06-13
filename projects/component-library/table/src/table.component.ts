@@ -415,9 +415,8 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> {
             }
             const allData = await this.dataManager.allDataInfo.promise;
             this.$selectedRows.set(new Map<TKey, TData>(allData.map((e) => [e.key, e.data])));
-
         } else {
-            this.$selectedRows.set(new Map<TKey, TData>()); 
+            this.$selectedRows.set(new Map<TKey, TData>());
         }
     }
     private readonly updateSelectionMultiHeaderCheckboxSelected = effect(() => {
@@ -425,7 +424,7 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> {
         const selectedRows = this.$selectedRows();
         if (selectedRows.size === 0) {
             value = false;
-        } else if (this.dataManager.allDataInfo?.$status() === 'success' && [... this.dataManager.allDataInfo.$allKeys().keys()].every(key => selectedRows.has(key))) {
+        } else if (this.dataManager.allDataInfo?.$status() === 'success' && [...this.dataManager.allDataInfo.$allKeys().keys()].every((key) => selectedRows.has(key))) {
             value = true;
         } else {
             value = 'partial';
