@@ -103,8 +103,8 @@
 
     &.secondary {
         &:not([disabled], [disabled='false']) {
-            background-color: transparent;
-            border-color: var(--twc-color-border-dark);
+            background-color: var(--twc-color-base);
+            border-color: var(--twc-color-border);
             color: var(--twc-color-text);
 
             &:hover {
@@ -137,7 +137,7 @@
 
     &.plain {
         &:not([disabled], [disabled='false']) {
-            background-color: transparent;
+            background-color: var(--twc-color-base);
             color: var(--twc-color-text);
 
             &:hover {

@@ -1,7 +1,7 @@
 import type { Signal, WritableSignal } from '@angular/core';
 import { signal } from '@angular/core';
 import type { Observable } from 'rxjs';
-import { BehaviorSubject, distinctUntilChanged, filter, map, startWith } from 'rxjs';
+import { BehaviorSubject, filter, map, startWith } from 'rxjs';
 import { ACImpl } from '../abstract-control/impl';
 import type { AC } from '../abstract-control/interfaces';
 import type { MetaFns } from '../abstract-control/meta/interfaces';
@@ -68,25 +68,6 @@ export class FGImpl<T extends Record<string, unknown>> extends ACImpl<T> impleme
             control.valueChanges
                 .pipe(
                     startWith(control.value as DeepPartial<T>),
-                    distinctUntilChanged((a, b) => {
-                        // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-                        if (!a && !b) {
-                            return true;
-                        }
-                        // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-                        if (!a || !b) {
-                            return false;
-                        }
-                        // if (typeof a === 'object' && typeof b === 'object') {
-                        //     try {
-                        //         return JSON.stringify(a) === JSON.stringify(b);
-                        //     } catch (e) {
-                        //         return false;
-                        //     }
-                        // }
-                        // return a === b;
-                        return true;
-                    }),
                 )
                 .subscribe((v) => {
                     this._value$.next(v);

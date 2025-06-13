@@ -250,11 +250,23 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> {
     private dataRowHeightPx: number = 0;
 
     /**
-     * Loads the table data.
-     * This will calculate the available window and row height and reset the table.
-     * Use this to load the table initially, or after it's container or row size changes.
+     * Loads the table data. Only callable once. If the table is already loaded, this will do nothing.
+     * This will calculate the available window and row height and reset() the table.
+     * Use this to load the table initially
+     * Use reload() to reload the table data if the table size or row size changes
      */
     async load() {
+        if (this.loaded) {
+            return false;
+        }
+        return this.reload();
+    }
+    /**
+     * Reloads the table data.
+     * This will re-calculate the available window and row height and reset() the table.
+     * Use this to reload the table data if the table size or row size changes
+     */
+    async reload() {
         this.loaded = false;
         const host = this.hostElement.nativeElement;
         // calculate data window height
@@ -324,7 +336,7 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> {
 
     /**
      * Resets the table to its initial state.
-     * This will reset the scroll position, data, and selection.
+     * This will reset the scroll position, data, and optionally selection.
      * If resetSort is true, the sort will also be reset to the initial state.
      * @param resetSort Whether to reset the sort to the initial state
      * @returns A promise that resolves to true if the reset was successful, false otherwise.

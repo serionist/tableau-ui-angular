@@ -1,7 +1,7 @@
 import type { Signal, WritableSignal } from '@angular/core';
 import { signal } from '@angular/core';
 import type { Observable } from 'rxjs';
-import { BehaviorSubject, distinctUntilChanged, filter, map, startWith } from 'rxjs';
+import { BehaviorSubject, filter, map, startWith } from 'rxjs';
 import { ACImpl } from '../abstract-control/impl';
 import type { MetaFns } from '../abstract-control/meta/interfaces';
 import type { AsyncValidatorFn, ValidatorFn, ValidatorFns } from '../abstract-control/validation/interfaces';
@@ -73,32 +73,7 @@ export class FAImpl<T extends Record<string, unknown>> extends ACImpl<T> impleme
         this.subscriptions.push(
             control.valueChanges
                 .pipe(
-                    startWith(control.value),
-                    distinctUntilChanged((a, b) => {
-                        const aArr = a as T[];
-                        const bArr = b as T[];
-                        if (aArr.length !== bArr.length) {
-                            return false;
-                        }
-                        for (let i = 0; i < a.length; i++) {
-                            // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
-                            const ai = a[i] as any;
-                            // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
-                            const bi = b[i] as any;
-                            // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions, @typescript-eslint/no-unsafe-member-access
-                            if (ai?.ref?.id && bi?.ref?.id) {
-                                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                                if (ai.ref.id !== bi.ref.id) {
-                                    return false;
-                                }
-                            } else {
-                                if (ai !== bi) {
-                                    return false;
-                                }
-                            }
-                        }
-                        return true;
-                    }),
+                    startWith(control.value)
                 )
                 .subscribe((v) => {
                     this._value$.next(v);
