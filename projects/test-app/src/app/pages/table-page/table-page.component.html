@@ -23,18 +23,44 @@
         </div>
         <div class="section">
             <h3>Example</h3>
-            <div class="options">
-                <tab-checkbox [(value)]="$show_first_3_columns">Only show first 3 columns</tab-checkbox>
-                <tab-checkbox [(value)]="$striped">Striped</tab-checkbox>
-                <button color="primary" (click)="reset(true, false)">Reset and show data</button>
-                <button color="primary" (click)="reset(false, false)">Reset and show no data</button>
-                <button color="primary" (click)="reset(true, true)">Reset and throw error on any block load after 20 offset</button>
-                <tab-checkbox [(value)]="$customNoDataTemplate">CustomNoDataTemplate</tab-checkbox>
-                <tab-checkbox [(value)]="$pinColumns">Pin Columns</tab-checkbox>
-            </div>
+            <tab-expansion-panel>
+                <tab-expansion-panel-title>Data Load options</tab-expansion-panel-title>
+                <div class="options-container">
+                    <tab-button-toggle [(selectedValue)]="$dataMode">
+                        <tab-option text="Incremental Data Mode" value="incremental" hint="Data is loaded on-demand as the user scrolls. HTML rendering is virtualized." />
+                        <tab-option text="Full Data Mode" value="full" hint="Data is loaded entirely in the background. HTML rendering is still virtualized. Required when SelectAll option is needed for MultiSelect." />
+                    </tab-button-toggle>
+                    <div class="options">
+                        <button color="primary" (click)="reset(true, false)">Reset and show data</button>
+                        <button color="primary" (click)="reset(false, false)">Reset and show no data</button>
+                        <button color="primary" (click)="reset(true, true)">Reset and throw error 
+                            @if ($dataMode() === 'incremental') {
+                                on any block load after 20 offset
+                            } @else {
+                                on data load
+                            }
+                        </button>
+                    </div>
+                </div>
+            </tab-expansion-panel>
+            <tab-expansion-panel>
+                <tab-expansion-panel-title>Column options</tab-expansion-panel-title>
+                <div class="options-container">
+                    <div class="options">
+                        <tab-checkbox [(value)]="$show_first_3_columns">Only show first 3 columns</tab-checkbox>
+                        <tab-checkbox [(value)]="$striped">Striped</tab-checkbox>
+                       
+                        <tab-checkbox [(value)]="$customNoDataTemplate">CustomNoDataTemplate</tab-checkbox>
+                        <tab-checkbox [(value)]="$pinColumns">Pin Columns</tab-checkbox>
+                    </div>
+                </div>
+            </tab-expansion-panel>
+               
+            
+           
             <tab-expansion-panel>
                 <tab-expansion-panel-title>Selection options</tab-expansion-panel-title>
-                <div class="selection-options">
+                <div class="options-container">
                     <tab-button-toggle [(selectedValue)]="$selectionMode">
                         <tab-option text="Selection Turned Off" value="none" />
                         <tab-option text="Single Selection" value="single" />
@@ -81,14 +107,14 @@
                 #table
                 style="max-height: 300px"
                 sortMode="multi"
-                [getDataBlock]="loadBlock"
+                [dataOptions]="$dataOptions()"
                 [displayedColumns]="$show_first_3_columns() ? ['id', 'name', 'age'] : undefined"
                 [striped]="$striped()"
                 [noDataTemplate]="$customNoDataTemplate() ? customnodatatemplate : 'default'"
                 [pinnedLeftColumn]="$pinnedLeftColumn()"
                 [pinnedRightColumn]="$pinnedRightColumn()"
                 [selectionOptions]="$selectionOptions()"
-                [selectedKeys]="$selectedKeys()"
+                [selectedRows]="$selectedRows()"
             >
                 <ng-container tabColumnDef="id" headerClass="custom-static-class">
                     <ng-template let-data tabHeaderDef>ID</ng-template>

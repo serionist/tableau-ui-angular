@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, contentChild, forwardRef, input, mo
 import type { ControlValueAccessor } from '@angular/forms';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { ErrorComponent, HintComponent } from 'tableau-ui-angular/common';
+import { generateRandomString } from 'tableau-ui-angular/utils';
 @Component({
     selector: 'tab-checkbox',
     standalone: false,
@@ -26,18 +27,55 @@ import { ErrorComponent, HintComponent } from 'tableau-ui-angular/common';
     },
 })
 export class CheckboxComponent implements ControlValueAccessor {
+    /**
+     * The disabled state of the checkbox.
+     * For forms, disable the form field instead of using this property.
+     */
     readonly $disabled = model(false, {
         alias: 'disabled',
     });
+    /**
+     * The value of the checkbox.
+     * - `true`: Checkbox is checked
+     * - `false`: Checkbox is unchecked
+     * - `'partial'`: Checkbox is in a partial state (e.g., indeterminate)
+     */
     readonly $value = model<boolean | 'partial'>(false, {
         alias: 'value',
     });
+    /**
+     * The loading state of the checkbox.
+     * This can be used to indicate that the checkbox is in a loading state, e.g., when data is being fetched.
+     */
     readonly $loading = input(false, {
         alias: 'loading',
     });
 
+    /**
+     * The value to set when the checkbox is in a partial state and is clicked.
+     */
     readonly $valueAfterPartial = input<boolean>(false, {
         alias: 'valueAfterPartial',
+    });
+
+    /**
+     * The id of the checkbox form field for autocomplete
+     */
+    readonly $id = input<string | undefined>(generateRandomString(), {
+        alias: 'id',
+    });
+    /**
+     * The name of the checkbox form field for autocomplete
+     */
+    readonly $name = input<string | undefined>('', {
+        alias: 'name',
+    });
+    /**
+     * The autocomplete attribute of the checkbox form field
+     *  * @default 'off'
+     */
+    readonly $autocomplete = input<AutoFill>('off', {
+        alias: 'autocomplete',
     });
 
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability

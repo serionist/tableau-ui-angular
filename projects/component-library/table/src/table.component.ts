@@ -1,14 +1,14 @@
 import type { TemplateRef } from '@angular/core';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, contentChildren, effect, ElementRef, HostListener, inject, input, model, resource, untracked, viewChild, viewChildren } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, contentChildren, effect, ElementRef, HostListener, inject, input, model, untracked, viewChild, viewChildren } from '@angular/core';
 import type { SortOrderPair } from './defs/column-def/column-def.directive';
 import { ColumnDefDirective } from './defs/column-def/column-def.directive';
 import type { DataSort } from './sorting/data-sort';
 import { ColRenderedWidthDirective } from './column-widths/col-rendered-width.directive';
 import { DataManager } from './data/data-manager';
-import type { DataRequest } from './data/data-request';
-import type { DataResponse } from './data/data-response';
 import type { Primitive } from 'tableau-ui-angular/types';
-import { MultiSelectionOptions, SelectAllOptions, SingleSelectionOptions } from './selection/selection-options';
+import type { SelectionOptions } from './selection/selection-options';
+import { MultiSelectionOptions, SingleSelectionOptions } from './selection/selection-options';
+import type { DataOptions } from './data/data-options';
 
 @Component({
     selector: 'tab-table',
@@ -31,12 +31,8 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> {
         alias: 'displayedColumns',
     });
 
-    /**
-     * The function to get a data block. Provides an offset, count, sort and an abortsignal
-     * Handling abort is recommended, as many block requests may be fired that are canceled when the user scrolls fast
-     */
-    readonly $getDataBlock = input.required<(req: DataRequest) => Promise<DataResponse<TData>>>({
-        alias: 'getDataBlock',
+    readonly $dataOptions = input.required<DataOptions<TData, TKey>>({
+        alias: 'dataOptions',
     });
 
     /**
@@ -147,20 +143,20 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> {
      * If a MultiSelectionOptions is provided, multi selection will be enabled.
      * @default undefined
      */
-    readonly $selectionOptions = input<SingleSelectionOptions<TData, TKey> | MultiSelectionOptions<TData, TKey>>(undefined, {
+    readonly $selectionOptions = input<SelectionOptions>(undefined, {
         alias: 'selectionOptions',
     });
     /**
-     * The keys of the selected rows.
+     * The selected rows.
      * This is used to determine which rows are selected in the table.
-     * If the selection options are set to single selection, this will only contain a maximum of one key.
-     * If the selection options are set to multi selection, this can contain multiple keys.
+     * If the selection options are set to single selection, this will only contain a maximum of one row.
+     * If the selection options are set to multi selection, this can contain multiple rows.
      * This is updated when the selection changes.
      * @default []
      * @see {@link $selectionOptions}
      */
-    readonly $selectedKeys = model<TKey[]>([], {
-        alias: 'selectedKeys',
+    readonly $selectedRows = model<Map<TKey, TData>>(new Map<TKey, TData>(), {
+        alias: 'selectedRows',
     });
 
     // #endregion
@@ -243,7 +239,7 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> {
     private readonly $headerRow = viewChild.required<ElementRef<HTMLElement>>('headerRow');
     private readonly $dataRowSizer = viewChild.required<ElementRef<HTMLElement>>('dataSizer');
     // #endregion
-    protected readonly dataManager = new DataManager<TData>(this.cdr);
+    protected readonly dataManager = new DataManager<TData, TKey>(this.cdr);
     // #region Load & Reset
     private loaded = false;
     private dataWindowHeightPx: number = 0;
@@ -271,35 +267,33 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> {
         const host = this.hostElement.nativeElement;
         // calculate data window height
         this.dataWindowHeightPx = host.clientHeight - this.$headerRow().nativeElement.clientHeight;
-        console.log('calculated data window height:', this.dataWindowHeightPx, host.clientHeight, this.$headerRow().nativeElement.clientHeight);
 
         this.dataRowHeightPx = this.$dataRowSizer().nativeElement.clientHeight;
-        console.log('calculated data row height:', this.dataRowHeightPx);
 
-        const initialLoad = await this.resetInternal(this.$sort(), this.$getDataBlock(), this.$dataBlockWindow(), this.$displayedColumnDefs());
+        const initialLoad = await this.resetInternal(this.$sort(), this.$dataOptions(), this.$dataBlockWindow(), this.$displayedColumnDefs());
         if (initialLoad) {
             this.loaded = true;
         }
         return initialLoad;
     }
     private readonly dataManagerReset = effect(() => {
+        const sort = this.$sort();
+        const dataOptions = this.$dataOptions();
+        const dataBlockWindow = this.$dataBlockWindow();
+        const displayedColumns = this.$displayedColumnDefs();
+        const selectionOptions = this.$selectionOptions();
         if (!this.loaded) {
             return;
         }
-        const sort = this.$sort();
-        const getDataBlock = this.$getDataBlock();
-        const dataBlockWindow = this.$dataBlockWindow();
-        const displayedColumns = this.$displayedColumnDefs();
-        const selectionOptions = untracked(() => this.$selectionOptions());
         if (selectionOptions?.clearSelectedKeysOnAnyReset === true) {
-            this.$selectedKeys.set([]);
+            this.$selectedRows.set(new Map<TKey, TData>());
         }
 
-        untracked(() => void this.resetInternal(sort, getDataBlock, dataBlockWindow, displayedColumns));
+        untracked(() => void this.resetInternal(sort, dataOptions, dataBlockWindow, displayedColumns));
     });
     private async resetInternal(
         sort: DataSort[] | undefined,
-        getDataBlock: ((req: DataRequest) => Promise<DataResponse<TData>>) | undefined,
+        dataOptions: DataOptions<TData, TKey> | undefined,
         dataBlockWindow: number,
         displayedColumns:
             | {
@@ -311,25 +305,17 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> {
               }[]
             | undefined,
     ): Promise<boolean> {
-        if (this.dataRowHeightPx === 0 || this.dataWindowHeightPx === 0 || !sort || !getDataBlock || !displayedColumns) {
+        if (this.dataRowHeightPx === 0 || this.dataWindowHeightPx === 0 || !sort || !dataOptions || !displayedColumns) {
             console.warn('Table reset called with undefined parameters, ignoring');
             return false;
         }
-        console.log('resetting data manager with:', {
-            dataWindowHeightPx: this.dataWindowHeightPx,
-            dataRowHeightPx: this.dataRowHeightPx,
-            sort,
-            getDataBlock,
-            dataBlockWindow,
-            displayedColumns,
-        });
         await this.dataManager.reset(
             this.dataWindowHeightPx,
             this.dataRowHeightPx,
             sort,
             displayedColumns.map((e) => e.id),
             dataBlockWindow,
-            getDataBlock,
+            dataOptions,
         );
         return true;
     }
@@ -346,15 +332,14 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> {
             this.$sort.set([]);
         }
         const sort = this.$sort();
-        const getDataBlock = this.$getDataBlock();
+        const dataOptions = this.$dataOptions();
         const dataBlockWindow = this.$dataBlockWindow();
         const displayedColumns = this.$displayedColumnDefs();
         const selectionOptions = this.$selectionOptions();
-        this.allMultiSelectionKeys.reload();
         if (selectionOptions?.clearSelectedKeysOnManualReset === true) {
-            this.$selectedKeys.set([]);
+            this.$selectedRows.set(new Map<TKey, TData>());
         }
-        return this.resetInternal(sort, getDataBlock, dataBlockWindow, displayedColumns);
+        return this.resetInternal(sort, dataOptions, dataBlockWindow, displayedColumns);
     }
     // #endregion
 
@@ -419,39 +404,28 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> {
     // #region Selection
 
     // #region MultiSelect Header Checkbox
-    protected readonly allMultiSelectionKeys = resource({
-        defaultValue: [],
-        params: this.$selectionOptions,
-        loader: async (opts) => {
-            const p = opts.params;
-            if (p === undefined || !(p instanceof MultiSelectionOptions) || !(p.headerCheckboxMode instanceof SelectAllOptions)) {
-                throw new Error('Cannot load all multi selection keys, selection options are not set or not a MultiSelectionOptions with SelectAllOptions');
-            }
-            const allKeys = p.headerCheckboxMode.getAllRowKeys;
-            return allKeys(opts.abortSignal) ?? Promise.resolve([]);
-        },
-    });
-    protected readonly $selectionMultiHeaderCheckboxSelected = model<boolean | 'partial'>(this.$selectedKeys().length > 0 ? 'partial' : false);
+    protected readonly $selectionMultiHeaderCheckboxSelected = model<boolean | 'partial'>(this.$selectedRows().size > 0 ? 'partial' : false);
     selectionMultiHeaderCheckboxSelectNoneChanged() {
-        this.$selectedKeys.set([]);
+        this.$selectedRows.set(new Map<TKey, TData>());
     }
-    selectionMultiHeaderCheckboxSelectAllChanged(val: boolean | 'partial') {
+    async selectionMultiHeaderCheckboxSelectAllChanged(val: boolean | 'partial') {
         if (val === true) {
-            if (this.allMultiSelectionKeys.status() !== 'resolved') {
-                throw new Error('Cannot select all rows, allMultiSelectionKeys is not resolved');
+            if (this.dataManager.allDataInfo?.$status() !== 'success') {
+                return;
             }
-            const allKeys = this.allMultiSelectionKeys.value();
-            this.$selectedKeys.set(allKeys);
+            const allData = await this.dataManager.allDataInfo.promise;
+            this.$selectedRows.set(new Map<TKey, TData>(allData.map((e) => [e.key, e.data])));
+
         } else {
-            this.$selectedKeys.set([]);
+            this.$selectedRows.set(new Map<TKey, TData>()); 
         }
     }
     private readonly updateSelectionMultiHeaderCheckboxSelected = effect(() => {
         let value: boolean | 'partial' = false;
-        const selectedKeys = this.$selectedKeys();
-        if (selectedKeys.length === 0) {
+        const selectedRows = this.$selectedRows();
+        if (selectedRows.size === 0) {
             value = false;
-        } else if (this.allMultiSelectionKeys.status() === 'resolved' && this.allMultiSelectionKeys.value().length === selectedKeys.length) {
+        } else if (this.dataManager.allDataInfo?.$status() === 'success' && [... this.dataManager.allDataInfo.$allKeys().keys()].every(key => selectedRows.has(key))) {
             value = true;
         } else {
             value = 'partial';
@@ -470,22 +444,22 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> {
         }
         e.stopPropagation();
         e.preventDefault();
-
-        const key = selectionOptions.getRowKey(row);
-        const selectedKeys = this.$selectedKeys();
-        const isSelected = selectedKeys.includes(key);
+        const dataOptions = this.$dataOptions();
+        const key = dataOptions.getRowKey(row);
+        const selectedRows = this.$selectedRows();
+        const isSelected = selectedRows.has(key);
 
         if (selectionOptions instanceof MultiSelectionOptions) {
             if (e.shiftKey || e.ctrlKey || e.metaKey) {
                 this.checkboxSelectChange(row, !isSelected);
             } else {
-                this.$selectedKeys.set([key]);
+                this.$selectedRows.set(new Map<TKey, TData>([[key, row]]));
             }
         } else if (selectionOptions instanceof SingleSelectionOptions) {
             if (isSelected) {
-                this.$selectedKeys.set([]);
+                this.$selectedRows.set(new Map<TKey, TData>());
             } else {
-                this.$selectedKeys.set([key]);
+                this.$selectedRows.set(new Map<TKey, TData>([[key, row]]));
             }
         }
 
@@ -500,22 +474,22 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> {
         if (!selectionOptions) {
             return;
         }
+        const dataOptions = this.$dataOptions();
         if (selectionOptions instanceof MultiSelectionOptions) {
-            const key = selectionOptions.getRowKey(row);
-            const selectedKeys = this.$selectedKeys();
+            const key = dataOptions.getRowKey(row);
+            const selectedRows = this.$selectedRows();
             if (checked === true) {
-                if (!selectedKeys.includes(key)) {
-                    this.$selectedKeys.set([...selectedKeys, key]);
-                }
+                selectedRows.set(key, row);
             } else {
-                this.$selectedKeys.set(selectedKeys.filter((k) => k !== key));
+                selectedRows.delete(key);
             }
+            this.$selectedRows.set(new Map<TKey, TData>(selectedRows));
         } else if (selectionOptions instanceof SingleSelectionOptions) {
-            const key = selectionOptions.getRowKey(row);
+            const key = dataOptions.getRowKey(row);
             if (checked === true) {
-                this.$selectedKeys.set([key]);
+                this.$selectedRows.set(new Map<TKey, TData>([[key, row]]));
             } else {
-                this.$selectedKeys.set([]);
+                this.$selectedRows.set(new Map<TKey, TData>());
             }
         }
     }

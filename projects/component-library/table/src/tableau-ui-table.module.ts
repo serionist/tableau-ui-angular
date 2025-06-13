@@ -37,7 +37,7 @@ import { HeaderCheckboxModePipe } from './selection/header-checkbox-mode.pipe';
         CellWidthPipe,
         ResizerDirective,
         HeaderCheckboxModePipe,
-        RowSelectedPipe,
+        RowSelectedPipe
     ],
     exports: [TableComponent, HeaderDefDirective, ColumnDefDirective, CellDefDirective],
 })

@@ -21,8 +21,8 @@
                         }
                         @case ('selectAll') {
                             <tab-checkbox
-                                [loading]="$selectionMultiHeaderCheckboxSelected() === false && allMultiSelectionKeys.status() === 'loading'"
-                                [disabled]="$selectionMultiHeaderCheckboxSelected() === false && allMultiSelectionKeys.status() !== 'resolved'"
+                                [loading]="dataManager.allDataInfo?.$status() === 'loading'"
+                                [disabled]="$selectionMultiHeaderCheckboxSelected() === false && dataManager.allDataInfo?.$status() !== 'success'"
                                 [value]="$selectionMultiHeaderCheckboxSelected()"
                                 [valueAfterPartial]="false"
                                 (valueChange)="selectionMultiHeaderCheckboxSelectAllChanged($event)"
@@ -193,7 +193,7 @@
             <!-- prettier-ignore-start -->
             @for (block of dmBlocks.blocks; track block.id) {
                 <!-- prettier-ignore -->
-                @for (row of block.$data(); let index = $index; let count = $count; let first = $first; let last = $last; let even = $even; let odd = $odd; track index) {
+                @for (r of block.$data(); let index = $index; let count = $count; let first = $first; let last = $last; let even = $even; let odd = $odd; track r.key) {
                     <!-- prettier-ignore-end -->
                     <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
                     <div
@@ -201,15 +201,15 @@
                         role="row"
                         [style.height]="$dataRowHeight()"
                         [class.even]="(block.offset + index) % 2 === 0"
-                        [class.selected]="row | rowSelected: $selectedKeys() : $selectionOptions()"
-                        (click)="rowClicked(row, $event)"
+                        [class.selected]="r.data | rowSelected: $selectedRows() : $dataOptions()"
+                        (click)="rowClicked(r.data, $event)"
                     >
                         @if (hasCheckboxColumn) {
                             <div class="cell check-select pinned-left" role="cell" [style.width]="checkboxColWidth" [style.minWidth]="checkboxColWidth">
                                 @if (block.$status() === 'success') {
                                     <tab-checkbox
-                                    [value]="row | rowSelected: $selectedKeys() : $selectionOptions()"
-                                    (valueChange)="checkboxSelectChange(row, $event)"
+                                    [value]="r.data | rowSelected: $selectedRows() : $dataOptions()"
+                                    (valueChange)="checkboxSelectChange(r.data, $event)"
                                     (click)="checkboxClicked($event)" />
                                 }
                             </div>
@@ -218,15 +218,15 @@
                         @for (def of $displayedColumnDefs(); let colindex = $index; let colcount = $count; let colfirst = $first; let collast = $last; let coleven = $even; let colodd = $odd; track def.id) {
                             <!-- prettier-ignore-end -->
                             @let cellContext =
-                                row
+                            r.data
                                     | cellContext
                                         : def.col
                                         : block.offset + index
                                         : block.offset === 0 && first
-                                        : block.offset + index === dataManager.$totalRowCount()
+                                        : block.offset + index === dataManager.totalRowCount
                                         : (block.offset + index) % 2 === 0
                                         : (block.offset + index) % 2 === 1
-                                        : dataManager.$totalRowCount()
+                                        : dataManager.totalRowCount
                                         : colindex
                                         : colfirst
                                         : collast
@@ -238,7 +238,7 @@
                                 role="cell"
                                 [attr.data-column-id]="def.id"
                                 [attr.data-column-index]="block.offset + index"
-                                [attr.data-column-count]="dataManager.$totalRowCount()"
+                                [attr.data-column-count]="colcount"
                                 [attr.data-column-first]="colfirst"
                                 [attr.data-column-last]="collast"
                                 [attr.data-column-even]="coleven"
