@@ -145,8 +145,8 @@ export class TablePageComponent implements AfterViewInit {
         this.$errorOnData.set(errorOnData);
         void this.tabTable().reset();
     }
-    customCalculatedClass(ctx: HeaderContext): string | undefined {
-        return `custom-dynamic-class-${ctx.index % 3}`;
+    customCalculatedClass(ctx: HeaderContext<DataType>): string | undefined {
+        return `custom-dynamic-class-${ctx.meta.index % 3}`;
     }
 
     ngAfterViewInit(): void {

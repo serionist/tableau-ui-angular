@@ -115,93 +115,94 @@
                 [selectionOptions]="$selectionOptions()"
                 [selectedRows]="$selectedRows()"
             >
-                <ng-container tabColumnDef="id" headerClass="custom-static-class">
-                    <ng-template let-data tabHeaderDef>ID</ng-template>
-                    <ng-template let-data tabCellDef>{{ data.id }}</ng-template>
+                <ng-container tabColumnDef="id" headerClass="custom-static-class" [showAutoHeaderTooltip]="false">
+                    <ng-template let-ctx [tabHeaderDef]="table">{{ ctx.columnDef.$id() }}</ng-template>
+                    <ng-template let-ctx [tabCellDef]="table">{{ `${ctx.row.id} ${ctx.meta.odd ? 'odd': 'even'}` }}</ng-template>
                 </ng-container>
-                <ng-container tabColumnDef="name" minWidth="100px" maxWidth="200px" [headerClass]="customCalculatedClass" [headerTooltip]="customNameHeaderTooltip" [cellTooltip]="customNameCellTooltip">
-                    <ng-template let-data tabHeaderDef>Name</ng-template>
-                    <ng-template let-data tabCellDef>{{ data.name }}</ng-template>
+                <ng-container tabColumnDef="name" minWidth="100px" maxWidth="200px" [headerClass]="customCalculatedClass">
+                    <ng-template let-ctx [tabHeaderDef]="table">Name</ng-template>
+                    <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.name }}</ng-template>
+                    <ng-template let-ctx [tabHeaderTooltipDef]="table">
+                        <div>Custom tooltip for: {{ ctx.columnDef.$id() }}</div>
+                        <tab-hint>Default column template:</tab-hint>
+                        <ng-container *ngTemplateOutlet="ctx.headerTemplate; context: { $implicit: ctx }" />
+                    </ng-template>
+                    <ng-template let-ctx [tabCellTooltipDef]="table">
+                        <div>Custom tooltip row. Raw data: {{ ctx.row.name }}</div>
+                        <ng-container *ngTemplateOutlet="ctx.cellTemplate; context: { $implicit: ctx }" />
+                    </ng-template>
                 </ng-container>
-                <ng-template #customNameHeaderTooltip let-template="template" let-ctx="ctx" let-sortMode="sortMode" let-sortable="sortable" let-sortOrder="sortOrder" let-currentSort="currentSort" let-allSorts="allSorts">
-                    <div>Custom tooltip for:</div>
-                    <ng-container [ngTemplateOutlet]="template" [ngTemplateOutletContext]="ctx" />
-                </ng-template>
-                <ng-template #customNameCellTooltip let-template="template" let-ctx="ctx">
-                    <div>Custom tooltip data:</div>
-                    <ng-container [ngTemplateOutlet]="template" [ngTemplateOutletContext]="ctx" />
-                </ng-template>
                 <ng-container tabColumnDef="age" [resizable]="false">
-                    <ng-template let-data tabHeaderDef>Age</ng-template>
-                    <ng-template let-data tabCellDef>{{ data.age }}</ng-template>
+                    <ng-template let-ctx [tabHeaderDef]="table">Age</ng-template>
+                    <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.age }}</ng-template>
                 </ng-container>
                 <ng-container tabColumnDef="gender" [sortable]="false">
-                    <ng-template let-data tabHeaderDef>Gender</ng-template>
-                    <ng-template let-data tabCellDef>{{ data.gender }}</ng-template>
+                    <ng-template let-ctx [tabHeaderDef]="table">Gender</ng-template>
+                    <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.gender }}</ng-template>
                 </ng-container>
                 <ng-container tabColumnDef="Country" propertyName="country">
-                    <ng-template let-data tabHeaderDef>Country</ng-template>
-                    <ng-template let-data tabCellDef>{{ data.country }}</ng-template>
+                    <ng-template let-ctx [tabHeaderDef]="table">Country</ng-template>
+                    <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.country }}</ng-template>
                 </ng-container>
                 <ng-container tabColumnDef="City" propertyName="city">
-                    <ng-template let-data tabHeaderDef>City</ng-template>
-                    <ng-template let-data tabCellDef>{{ data.city }}</ng-template>
+                    <ng-template let-ctx [tabHeaderDef]="table">City</ng-template>
+                    <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.city }}</ng-template>
                 </ng-container>
                 <ng-container tabColumnDef="email">
-                    <ng-template let-data tabHeaderDef>Email</ng-template>
-                    <ng-template let-data tabCellDef>{{ data.email }}</ng-template>
+                    <ng-template let-ctx [tabHeaderDef]="table">Email</ng-template>
+                    <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.email }}</ng-template>
                 </ng-container>
                 <ng-container tabColumnDef="phone">
-                    <ng-template let-data tabHeaderDef>Phone</ng-template>
-                    <ng-template let-data tabCellDef>{{ data.phone }}</ng-template>
+                    <ng-template let-ctx [tabHeaderDef]="table">Phone</ng-template>
+                    <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.phone }}</ng-template>
                 </ng-container>
                 <ng-container tabColumnDef="address">
-                    <ng-template let-data tabHeaderDef>Address</ng-template>
-                    <ng-template let-data tabCellDef>{{ data.address }}</ng-template>
+                    <ng-template let-ctx [tabHeaderDef]="table">Address</ng-template>
+                    <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.address }}</ng-template>
                 </ng-container>
                 <ng-container tabColumnDef="zipCode">
-                    <ng-template let-data tabHeaderDef>zipCode</ng-template>
-                    <ng-template let-data tabCellDef>{{ data.zipCode }}</ng-template>
+                    <ng-template let-ctx [tabHeaderDef]="table">zipCode</ng-template>
+                    <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.zipCode }}</ng-template>
                 </ng-container>
                 <ng-container tabColumnDef="username">
-                    <ng-template let-data tabHeaderDef>username</ng-template>
-                    <ng-template let-data tabCellDef>{{ data.username }}</ng-template>
+                    <ng-template let-ctx [tabHeaderDef]="table">username</ng-template>
+                    <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.username }}</ng-template>
                 </ng-container>
                 <ng-container tabColumnDef="birthdate">
-                    <ng-template let-data tabHeaderDef>birthdate</ng-template>
-                    <ng-template let-data tabCellDef>{{ data.birthdate }}</ng-template>
+                    <ng-template let-ctx [tabHeaderDef]="table">birthdate</ng-template>
+                    <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.birthdate }}</ng-template>
                 </ng-container>
                 <ng-container tabColumnDef="joinDate">
-                    <ng-template let-data tabHeaderDef>joinDate</ng-template>
-                    <ng-template let-data tabCellDef>{{ data.joinDate }}</ng-template>
+                    <ng-template let-ctx [tabHeaderDef]="table">joinDate</ng-template>
+                    <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.joinDate }}</ng-template>
                 </ng-container>
                 <ng-container tabColumnDef="isActive">
-                    <ng-template let-data tabHeaderDef>isActive</ng-template>
-                    <ng-template let-data tabCellDef>{{ data.isActive }}</ng-template>
+                    <ng-template let-ctx [tabHeaderDef]="table">isActive</ng-template>
+                    <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.isActive }}</ng-template>
                 </ng-container>
                 <ng-container tabColumnDef="score">
-                    <ng-template let-data tabHeaderDef>score</ng-template>
-                    <ng-template let-data tabCellDef>{{ data.score }}</ng-template>
+                    <ng-template let-ctx [tabHeaderDef]="table">score</ng-template>
+                    <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.score }}</ng-template>
                 </ng-container>
                 <ng-container tabColumnDef="role">
-                    <ng-template let-data tabHeaderDef>role</ng-template>
-                    <ng-template let-data tabCellDef>{{ data.role }}</ng-template>
+                    <ng-template let-ctx [tabHeaderDef]="table">role</ng-template>
+                    <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.role }}</ng-template>
                 </ng-container>
                 <ng-container tabColumnDef="department">
-                    <ng-template let-data tabHeaderDef>department</ng-template>
-                    <ng-template let-data tabCellDef>{{ data.department }}</ng-template>
+                    <ng-template let-ctx [tabHeaderDef]="table">department</ng-template>
+                    <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.department }}</ng-template>
                 </ng-container>
                 <ng-container tabColumnDef="employeeId">
-                    <ng-template let-data tabHeaderDef>employeeId</ng-template>
-                    <ng-template let-data tabCellDef>{{ data.employeeId }}</ng-template>
+                    <ng-template let-ctx [tabHeaderDef]="table">employeeId</ng-template>
+                    <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.employeeId }}</ng-template>
                 </ng-container>
                 <ng-container tabColumnDef="language">
-                    <ng-template let-data tabHeaderDef>language</ng-template>
-                    <ng-template let-data tabCellDef>{{ data.language }}</ng-template>
+                    <ng-template let-ctx [tabHeaderDef]="table">language</ng-template>
+                    <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.language }}</ng-template>
                 </ng-container>
                 <ng-container tabColumnDef="notes">
-                    <ng-template let-data tabHeaderDef>notes</ng-template>
-                    <ng-template let-data tabCellDef>{{ data.notes }}</ng-template>
+                    <ng-template let-ctx [tabHeaderDef]="table">notes</ng-template>
+                    <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.notes }}</ng-template>
                 </ng-container>
             </tab-table>
         </div>

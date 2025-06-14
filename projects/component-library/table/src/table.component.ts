@@ -21,6 +21,7 @@ import type { DataOptions } from './data/data-options';
 export class TableComponent<TData = unknown, TKey extends Primitive = null> {
     protected readonly checkboxColWidth = '2.5em';
 
+    readonly self = this;
     // #region Inputs & Outputs
     /**
      * The column IDs to display in the table. The order of the IDs determines the order of the columns.
@@ -161,7 +162,7 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> {
 
     // #endregion
     // #region Columns
-    public readonly $columnDefs = contentChildren(ColumnDefDirective);
+    public readonly $columnDefs = contentChildren<ColumnDefDirective<TData>>(ColumnDefDirective);
     protected readonly $displayedColumnDefs = computed(
         () => {
             let columnDefs = this.$columnDefs();
@@ -183,7 +184,7 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> {
 
             const ret: {
                 id: string;
-                col: ColumnDefDirective;
+                col: ColumnDefDirective<TData>;
                 pinnedLeft: boolean;
                 pinnedRight: boolean;
                 sortOrder: SortOrderPair;
@@ -298,7 +299,7 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> {
         displayedColumns:
             | {
                   id: string;
-                  col: ColumnDefDirective;
+                  col: ColumnDefDirective<TData>;
                   pinnedLeft: boolean;
                   pinnedRight: boolean;
                   sortOrder: SortOrderPair;
@@ -344,7 +345,7 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> {
     // #endregion
 
     // #region Sort
-    protected onColumnHeaderClick(e: MouseEvent, def: ColumnDefDirective) {
+    protected onColumnHeaderClick(e: MouseEvent, def: ColumnDefDirective<TData>) {
         if (!def.$sortable()) {
             return;
         }

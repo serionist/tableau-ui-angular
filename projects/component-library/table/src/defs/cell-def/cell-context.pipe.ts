@@ -8,9 +8,9 @@ import type { CellContext } from './cell-context';
     standalone: false,
 })
 export class CellContextPipe implements PipeTransform {
-    transform<T>(
-        value: T,
-        def: ColumnDefDirective,
+    transform<TData>(
+        value: TData,
+        def: ColumnDefDirective<TData>,
         index: number,
         first: boolean,
         last: boolean,
@@ -23,22 +23,26 @@ export class CellContextPipe implements PipeTransform {
         columnEven: boolean,
         columnOdd: boolean,
         columnCount: number,
-    ): CellContext<T> {
+    ): { $implicit: CellContext<TData> } {
         return {
-            $implicit: value,
-            columnDef: def,
-            index: index,
-            first: first,
-            last: last,
-            even: even,
-            odd: odd,
-            count: count,
-            columnIndex: columnIndex,
-            columnFirst: columnFirst,
-            columnLast: columnLast,
-            columnEven: columnEven,
-            columnOdd: columnOdd,
-            columnCount: columnCount,
+            $implicit: {
+                row: value,
+                meta: {
+                    columnDef: def,
+                    index: index,
+                    first: first,
+                    last: last,
+                    even: even,
+                    odd: odd,
+                    count: count,
+                    columnIndex: columnIndex,
+                    columnFirst: columnFirst,
+                    columnLast: columnLast,
+                    columnEven: columnEven,
+                    columnOdd: columnOdd,
+                    columnCount: columnCount,
+                },
+            },
         };
     }
 }

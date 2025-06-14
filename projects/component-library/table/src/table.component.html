@@ -1,4 +1,3 @@
- 
 @let rowSelectionMode = $selectionOptions()?.selectionMode === 'row-and-checkbox';
 @let hasCheckboxColumn = $selectionOptions();
 <div class="table" role="table" [class.has-row-selection]="rowSelectionMode">
@@ -55,7 +54,7 @@
                 [class.pinned-left]="def.pinnedLeft"
                 [style.left]="!def.pinnedLeft ? 'initial': hasCheckboxColumn ? checkboxColWidth: '0'"
                 [class.pinned-right]="def.pinnedRight"
-                [ngClass]="headerContext | headerClass"
+                [ngClass]="headerContext.$implicit| headerClass"
                 [colRenderedWidth]="def.id"
             >
                 <div class="content" [style.padding]="$headerPadding()">
@@ -65,16 +64,12 @@
                         layout="small-icon"
                         [class.not-sortable]="!def.col.$sortable()"
                         [tabindex]="def.col.$sortable() ? '0' : '-1'"
-                        [tooltip]="def.col.$headerTooltip() === 'default' ? defaultHeaderTemplate : def.col.$headerTooltip()"
-                        [tooltipContext]="{
-                            ctx: headerContext,
-                            template: def.col.$header()!.templateRef,
-                            sortMode: $sortMode(),
-                            sortable: def.col.$sortable(),
-                            sortOrder: def.col.$sortOrder(),
-                            currentSort: ($sort() | sortInfoPipe: def.id : def.col.$propertyName()),
-                            allSorts: $sort(),
-                        }"
+                        [tooltip]="def.col.$headerTooltip()?.templateRef ?? (def.col.$showAutoHeaderTooltip() ? defaultHeaderTooltipTemplate: undefined)"
+                        [tooltipContext]="headerContext.$implicit | 
+                            headerTooltipContext:def.col.$header()!.templateRef:
+                            $sortMode():def.col.$sortable():def.col.$sortOrder():
+                            ($sort() | sortInfoPipe: def.id : def.col.$propertyName()):
+                            $sort()"
                         (click)="onColumnHeaderClick($event, def.col)"
                     >
                         <div class="content">
@@ -112,24 +107,23 @@
                 </div>
             </div>
 
-            <ng-template #defaultHeaderTemplate let-template="template" let-ctx="ctx" let-sortMode="sortMode" let-sortable="sortable" let-sortOrder="sortOrder" let-currentSort="currentSort" let-allSorts="allSorts">
+            <ng-template #defaultHeaderTooltipTemplate let-ctx [tabHeaderTooltipDef]="self">
                 <div class="default-header-tooltip">
                     <div class="column-name">
-                        <ng-container [ngTemplateOutlet]="template" [ngTemplateOutletContext]="ctx" />
+                        <ng-container [ngTemplateOutlet]="ctx.headerTemplate" [ngTemplateOutletContext]="{ $implicit: ctx }" />
                     </div>
 
-                    @if (sortable) {
-                        <!-- @let currentSort = $sort() | sortInfoPipe:def.id; -->
+                    @if (ctx.sortable) {
                         <div class="sort">
-                            @if (currentSort) {
+                            @if (ctx.currentSort) {
                                 <div class="current">
                                     Currently sorted in
-                                    <b>{{ currentSort.info.direction === 'asc' ? 'Ascending' : 'Descending' }} order.</b>
+                                    <b>{{ ctx.currentSort.info.direction === 'asc' ? 'Ascending' : 'Descending' }} order.</b>
                                 </div>
                             }
-                            @let nextSort = !currentSort ? sortOrder[0] : currentSort.info.direction === sortOrder[1] ? undefined : currentSort.info.direction === 'asc' ? 'desc' : 'asc';
-                            @let isSubSort = currentSort?.index > 0;
-                            @let addMultiSort = sortMode === 'multi' && !currentSort && allSorts.length > 0;
+                            @let nextSort = !ctx.currentSort ? ctx.sortOrder[0] : ctx.currentSort.info.direction === ctx.sortOrder[1] ? undefined : ctx.currentSort.info.direction === 'asc' ? 'desc' : 'asc';
+                            @let isSubSort = ctx.currentSort && ctx.currentSort.index > 0;
+                            @let addMultiSort = ctx.sortMode === 'multi' && !ctx.currentSort && ctx.allSorts.length > 0;
                             @if (addMultiSort) {
                                 <div class="multi-sort">
                                     <b>Shift + Click</b>
@@ -248,12 +242,9 @@
                                 [class.pinned-right]="def.pinnedRight"
                                 [style.padding]="$dataPadding()"
                                 [style.width]="$columnWidthDirectives() | cellWidth: def.id : $dataPadding() | async"
-                                [ngClass]="cellContext | cellClass"
-                                [tooltip]="block.$status() === 'success' ? def.col.$cellTooltip() : undefined"
-                                [tooltipContext]="{
-                                    ctx: cellContext,
-                                    template: def.col.$cell().templateRef,
-                                }"
+                                [ngClass]="cellContext.$implicit | cellClass"
+                                [tooltip]="block.$status() === 'success' ? def.col.$cellTooltip()?.templateRef : undefined"
+                                [tooltipContext]="cellContext.$implicit | cellTooltipContext: def.col.$cell().templateRef"
                             >
                                 @switch (block.$status()) {
                                     @case ('loading') {

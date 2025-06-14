@@ -5,12 +5,14 @@ import { HeaderDefDirective } from '../header-def/header-def.directive';
 import type { HeaderContext } from '../header-def/header-context';
 import type { CellContext } from '../cell-def/cell-context';
 import type { DataSort } from '../../sorting/data-sort';
+import { HeaderToolipDefDirective } from '../header-def/header-toolip-def.directive';
+import { CellToolipDefDirective } from '../cell-def/cell-toolip-def.directive';
 
 @Directive({
     selector: '[tabColumnDef]',
     standalone: false,
 })
-export class ColumnDefDirective {
+export class ColumnDefDirective<TData> {
     /**
      * The unique identifier for the column.
      */
@@ -86,7 +88,7 @@ export class ColumnDefDirective {
      * If undefined, no class will be applied.
      * @default undefined
      */
-    readonly $headerClass = input<string | ((ctx: HeaderContext) => string | undefined) | undefined>(undefined, {
+    readonly $headerClass = input<string | ((ctx: HeaderContext<TData>) => string | undefined) | undefined>(undefined, {
         alias: 'headerClass',
     });
 
@@ -96,47 +98,34 @@ export class ColumnDefDirective {
      * If undefined, no class will be applied.
      * @default undefined
      */
-    readonly $cellClass = input<string | ((ctx: CellContext) => string | undefined) | undefined>(undefined, {
+    readonly $cellClass = input<string | ((ctx: CellContext<TData>) => string | undefined) | undefined>(undefined, {
         alias: 'cellClass',
     });
 
     /**
-     * The tooltip for the column header.
-     * It can be a string, a TemplateRef, or 'default' to use the default tooltip.
-     * If 'default', it will show the column name and sort information.
-     * If a TemplateRef is provided, it will be used to render the tooltip with HeaderTooltipArgs as a context.
-     * If undefined, no tooltip will be shown.
-     * @default 'default'
+     * Show automatic header tooltip when no tabHeaderTooltipDef is provided on the column.
+     * @default true
      */
-    readonly $headerTooltip = input<TemplateRef<HeaderTooltipArgs> | string | 'default' | undefined>('default', {
-        alias: 'headerTooltip',
-    });
-
-    /**
-     * The tooltip for the column cells.
-     * It can be a string or a TemplateRef.
-     * If a TemplateRef is provided, it will be used to render the tooltip with CellContext as a context.
-     * If undefined, no tooltip will be shown.
-     * @default undefined
-     */
-    readonly $cellTooltip = input<TemplateRef<CellTooltipArgs> | undefined>(undefined, {
-        alias: 'cellTooltip',
+    readonly $showAutoHeaderTooltip = input<boolean>(true, {
+        alias: 'showAutoHeaderTooltip',
     });
 
     readonly $cell = contentChild.required(CellDefDirective);
     readonly $header = contentChild(HeaderDefDirective);
+    readonly $headerTooltip = contentChild(HeaderToolipDefDirective);
+    readonly $cellTooltip = contentChild(CellToolipDefDirective);
 }
 export type SortOrderPair = ['asc', 'desc'] | ['desc', 'asc'];
-export interface HeaderTooltipArgs {
-    ctx: HeaderContext;
-    template: TemplateRef<HeaderContext>;
+export interface HeaderTooltipArgs<TData> {
+    ctx: HeaderContext<TData>;
+    template: TemplateRef<HeaderContext<TData>>;
     sortMode: 'multi' | 'single';
     sortable: boolean;
     sortOrder: SortOrderPair;
     currentSort: { info: DataSort; index: number } | undefined;
     allSorts: DataSort[];
 }
-export interface CellTooltipArgs {
-    ctx: CellContext;
-    template: TemplateRef<CellContext>;
+export interface CellTooltipArgs<TData> {
+    ctx: CellContext<TData>;
+    template: TemplateRef<CellContext<TData>>;
 }

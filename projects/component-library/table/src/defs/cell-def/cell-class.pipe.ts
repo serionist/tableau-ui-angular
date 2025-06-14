@@ -7,12 +7,12 @@ import type { CellContext } from './cell-context';
     standalone: false,
 })
 export class CellClassPipe implements PipeTransform {
-    transform<T>(ctx: CellContext<T>): string | undefined {
-        if (typeof ctx.columnDef.$cellClass() === 'string') {
-            return ctx.columnDef.$cellClass() as string;
+    transform<TData>(ctx: CellContext<TData>): string | undefined {
+        if (typeof ctx.meta.columnDef.$cellClass() === 'string') {
+            return ctx.meta.columnDef.$cellClass() as string;
         }
-        if (typeof ctx.columnDef.$cellClass() === 'function') {
-            return (ctx.columnDef.$cellClass() as (ctx: CellContext<T>) => string | undefined)(ctx);
+        if (typeof ctx.meta.columnDef.$cellClass() === 'function') {
+            return (ctx.meta.columnDef.$cellClass() as (ctx: CellContext<TData>) => string | undefined)(ctx);
         }
         return undefined;
     }

@@ -19,18 +19,26 @@ import { TableauUiTooltipModule } from 'tableau-ui-angular/tooltip';
 import { RowSelectedPipe } from './selection/row-selected.pipe';
 import { TableauUiCheckboxModule } from 'tableau-ui-angular/checkbox';
 import { HeaderCheckboxModePipe } from './selection/header-checkbox-mode.pipe';
+import { HeaderToolipDefDirective } from './defs/header-def/header-toolip-def.directive';
+import { HeaderTooltipContextPipe } from './defs/header-def/header-tooltip-context.pipe';
+import { CellToolipDefDirective } from './defs/cell-def/cell-toolip-def.directive';
+import { CellTooltipContextPipe } from './defs/cell-def/cell-tooltip-context.pipe';
 
 @NgModule({
     imports: [CommonModule, TableauUiIconModule, TableauUiButtonModule, TableauUiTooltipModule, TableauUiCheckboxModule],
     declarations: [
         TableComponent,
         HeaderDefDirective,
+        HeaderToolipDefDirective,
         HeaderContextPipe,
+        HeaderTooltipContextPipe,
         HeaderClassPipe,
         ColumnDefDirective,
         CellDefDirective,
         CellContextPipe,
         CellClassPipe,
+        CellToolipDefDirective,
+        CellTooltipContextPipe,
         SortInfoPipe,
         ColWidthPipe,
         ColRenderedWidthDirective,
@@ -39,6 +47,6 @@ import { HeaderCheckboxModePipe } from './selection/header-checkbox-mode.pipe';
         HeaderCheckboxModePipe,
         RowSelectedPipe,
     ],
-    exports: [TableComponent, HeaderDefDirective, ColumnDefDirective, CellDefDirective],
+    exports: [TableComponent, HeaderDefDirective, HeaderToolipDefDirective, ColumnDefDirective, CellDefDirective, CellToolipDefDirective],
 })
 export class TableauUiTableModule {}
