@@ -25,6 +25,9 @@
         <tab-nav-bar-button text="Local Development" link="/local-development" [isActive]="(page$ | async) === 'local-development'">
             <tab-icon value="developer_guide" />
         </tab-nav-bar-button>
+        <tab-nav-bar-button text="Monaco Editor" link="/monaco" [isActive]="(page$ | async) === 'monaco'">
+            <tab-icon value="code" />
+        </tab-nav-bar-button>
 
         <tab-separator />
 

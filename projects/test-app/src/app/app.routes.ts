@@ -26,6 +26,14 @@ export const routes: Routes = [
         },
     },
     {
+        path: 'monaco',
+        loadComponent: async () => import('./pages/monaco-page/monaco-page.component').then((m) => m.MonacoPageComponent),
+        title: 'Monaco Editor',
+        data: {
+            page: 'monaco',
+        },
+    },
+    {
         path: 'table',
         loadComponent: async () => import('./pages/table-page/table-page.component').then((m) => m.TablePageComponent),
         title: 'Tables',

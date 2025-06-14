@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import type { ThemeConfig } from './theme.config';
 import { toSignal } from '@angular/core/rxjs-interop';
 import type { Observable } from 'rxjs';
-import { BehaviorSubject, combineLatest } from 'rxjs';
+import { BehaviorSubject, combineLatest, map } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
@@ -23,6 +23,16 @@ export class ThemeService {
         initialValue: this._theme$.value,
     });
 
+    readonly appliedThemeMode$ = combineLatest([this._theme$, this.autoColor$]).pipe(
+        map(([theme, autoColor]) => {
+            return this.getAppliedThemeMode(theme, autoColor);
+        }),
+    );
+    readonly $appliedThemeMode = toSignal(this.appliedThemeMode$, { initialValue: this.getAppliedThemeMode(this._theme$.value, this.autoColor$.value) });
+
+    private getAppliedThemeMode(theme: ThemeConfig, autoColor: 'dark' | 'light'): 'dark' | 'light' {
+        return theme.mode === 'auto' ? autoColor : theme.mode;
+    }
     initialize() {
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
             if (e.matches) {

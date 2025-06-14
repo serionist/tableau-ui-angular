@@ -1,0 +1,87 @@
+<div class="page">
+    <div class="title">
+        <h1>Monaco Editor</h1>
+        <div class="text-light text-large">
+            <p>This page explains how to use built-in Monaco Editor</p>
+        </div>
+    </div>
+    <tab-separator />
+    <div class="content">
+        <div class="section">
+            <h3>Using Monaco Editor</h3>
+            <ol>
+                <li>
+                    Update your projects
+                    <code>angular.json</code>
+                    to include the Monaco Editor assets: :
+                    <div class="monaco-container">
+                        <tab-monaco-editor uri="file://monaco-page/angularjson" language="json" [value]="angularjson" [style.height]="'290px'" [style.width]="'800px'" [options]="options" />
+                    </div>
+                </li>
+                <li>
+                    Import the
+                    <code>TableauUiMonacoModule</code>
+                    in your component/module
+                </li>
+                <li>
+                    Use the
+                    <code>tab-monaco-editor</code>
+                    component.
+                </li>
+            </ol>
+        </div>
+        <div class="section">
+            <h3>Parameters</h3>
+            <div>
+                The
+                <code>tab-monaco-editor</code>
+                component accepts the following parameters:
+                <ul>
+                    <li>
+                        <code>options</code>
+                        : Configures monaco. Adds line numbering, scrollbars, etc
+                    </li>
+                    <li>
+                        <code>uri</code>
+                        : The URI of the file to be edited. Used to uniquely identify the file
+                    </li>
+                    <li>
+                        <code>language</code>
+                        : The language of the file to be edited. Used to set the syntax highlighting
+                    </li>
+                    <li>
+                        <code>value</code>
+                        : The value of the file to be edited. This supports two-way binding
+                    </li>
+                    <li>
+                        <code>theme</code>
+                        : The theme of Monaco Editor. Keep it on
+                        <code>auto</code>
+                        to swap between light/dark configuration of
+                        <code>ThemeService</code>
+                    </li>
+                    <li>
+                        <code>onMonacoLoad</code>
+                        : You can define a function here that gets called when Monaco Editor loads. You can use it to set JsonOptions, etc.
+                    </li>
+                    <li>
+                        <code>disposeModelOnDestroy</code>
+                        : true by default. Destroys the document model when the component is destroyed. Set it to false if you want to load the document later from another editor. Models are kept globally by Monaco
+                        Editor using their URIs
+                    </li>
+                    <li>
+                        <code>editorLoaded</code>
+                        : output function that gets called after the Editor is online
+                    </li>
+                </ul>
+                You can also use the
+                <code>monaco-editor</code>
+                with Reactive Forms (
+                <code>[formControl]</code>
+                or
+                <code>formControlName</code>
+                )
+            </div>
+        </div>
+    </div>
+</div>

@@ -12,7 +12,9 @@
             <code>styles.scss</code>
             file in your project:
         </div>
-        <!-- <ngx-monaco-editor style="height: 20px; width: 500px" [options]="scssOptions" [ngModel]="code" /> -->
+        <div class="monaco-container">
+            <tab-monaco-editor uri="file://css-page/setup" language="scss" [value]="code" [style.height]="'20px'" [style.width]="'450px'" [options]="options" />
+        </div>
 
         <h3>Importing Fonts</h3>
         <div>Tableau UI supports the following fonts in this priority order:</div>
@@ -56,13 +58,25 @@
                     <code>public/fonts</code>
                     <br />
                     Alternatively, you can download these fonts from a Tableau Server that you own, by running:
-                    <!-- <ngx-monaco-editor style="height: 35px" ngModel="node node_modules/tableau-ui-angular/styles/fonts/downloadFonts.js https://your-tableau-server.com public/fonts" [options]="terminalOptions" /> -->
+                    <div class="monaco-container">
+                        <tab-monaco-editor
+                            uri="file://css-page/download"
+                            language="shell"
+                            value="node node_modules/tableau-ui-angular/styles/fonts/downloadFonts.js https://your-tableau-server.com public/fonts"
+                            [style.height]="'20px'"
+                            [style.width]="'860px'"
+                            [options]="options"
+                        />
+                    </div>
                 </li>
                 <li>
                     Import the fonts into your app by adding this line to your
                     <code>styles.scss</code>
                     file (in addition to the Tableau UI CSS import above):
-                    <!-- <ngx-monaco-editor style="height: 20px; width: 300px" ngModel="@include libStyles.font-import('/fonts');" [options]="scssOptions" /> -->
+                    <div class="monaco-container">
+                        <tab-monaco-editor uri="file://css-page/import" language="scss" value="@include libStyles.font-import('/fonts');" [style.height]="'20px'" [style.width]="'320px'" [options]="options" />
+                    </div>
+
                     (Replace
                     <code>/fonts</code>
                     with the path to your font files)
@@ -74,11 +88,16 @@
                 <code>styles.scss</code>
                 file:
             </div>
-            <!-- <ngx-monaco-editor
-                style="height: 35px"
-                ngModel="@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');"
-                [options]="scssOptions"
-            /> -->
+            <div class="monaco-container">
+                <tab-monaco-editor
+                    uri="file://css-page/roboto"
+                    language="scss"
+                    value="@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');"
+                    [style.height]="'20px'"
+                    [style.width]="'1230px'"
+                    [options]="options"
+                />
+            </div>
             <h4>To use Arial</h4>
             <div>Arial is a free font that is already included in your browser. You do not need to import it.</div>
         </div>

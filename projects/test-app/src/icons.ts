@@ -40,5 +40,6 @@ export class Icons extends UsedIcons {
         'dark_mode',
         'night_sight_auto',
         'table',
+        'code',
     ];
 }

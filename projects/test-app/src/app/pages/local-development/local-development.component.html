@@ -25,15 +25,19 @@
                     Run the following command from the root of
                     <b>this library</b>
                     :
-                    <!-- <ngx-monaco-editor style="height: 30px; width: 150px; margin-bottom: 5px" ngModel="npm run dev:link" [options]="terminalOptions" /> -->
+                    <div class="monaco-container">
+                        <tab-monaco-editor uri="file://dev-page/link" language="shell" value="npm run dev:link" [style.height]="'20px'" [style.width]="'140px'" [options]="options" />
+                    </div>
                 </li>
                 <li>
                     Update the
                     <code>angular.json</code>
                     file of the
                     <b>consuming project</b>
-                    to preserve symlinks:
-                    <!-- <ngx-monaco-editor style="height: 220px; width: 430px; margin-bottom: 5px" [options]="jsonOptions" [ngModel]="angularJsonContent" /> -->
+                    to preserve symlinks and skip pre-bundle caching of vite:
+                    <div class="monaco-container">
+                        <tab-monaco-editor uri="file://dev-page/angularjson" language="json" [value]="angularJsonContent" [style.height]="'380px'" [style.width]="'440px'" [options]="options" />
+                    </div>
                 </li>
                 <li>
                     Update the
@@ -43,7 +47,9 @@
                     to add paths for this library. This is required for
                     <code>ng serve</code>
                     to detect code live changes and recompile:
-                    <!-- <ngx-monaco-editor style="height: 120px; width: 430px; margin-bottom: 5px" [options]="jsonOptions" [ngModel]="tsconfigJsonContent" /> -->
+                    <div class="monaco-container">
+                        <tab-monaco-editor uri="file://dev-page/tsconfig" language="json" [value]="tsconfigJsonContent" [style.height]="'135px'" [style.width]="'400px'" [options]="options" />
+                    </div>
                 </li>
                 <li>
                     Run the following command from the root of the
@@ -53,13 +59,24 @@
                     . We use this instead if
                     <code>npm link</code>
                     since its much safer:
-                    <!-- <ngx-monaco-editor style="height: 25px; width: 550px; margin-bottom: 5px" ngModel="npm install --save-dev link" [options]="terminalOptions" /> -->
+                    <div class="monaco-container">
+                        <tab-monaco-editor uri="file://dev-page/savelink" language="shell" value="npm install --save-dev link" [style.height]="'20px'" [style.width]="'210px'" [options]="options" />
+                    </div>
                 </li>
                 <li>
                     Run the following command from the root of the
                     <b>consuming project</b>
                     to link the library:
-                    <!-- <ngx-monaco-editor style="height: 25px; width: 550px; margin-bottom: 5px" ngModel="npx link [path-to-this-library]/dist/component-library" [options]="terminalOptions" /> -->
+                    <div class="monaco-container">
+                        <tab-monaco-editor
+                            uri="file://dev-page/dolink"
+                            language="shell"
+                            value="npx link [path-to-this-library]/dist/component-library"
+                            [style.height]="'20px'"
+                            [style.width]="'420px'"
+                            [options]="options"
+                        />
+                    </div>
                 </li>
             </ol>
         </div>
@@ -72,7 +89,9 @@
                 <code>unlink</code>
                 this library by running:
             </div>
-            <!-- <ngx-monaco-editor style="height: 30px; width: 500px; margin-bottom: 5px" ngModel="npm install" [options]="terminalOptions" /> -->
+            <div class="monaco-container">
+                <tab-monaco-editor uri="file://dev-page/reset" language="shell" value="npm install" [style.height]="'20px'" [style.width]="'90px'" [options]="options" />
+            </div>
         </div>
     </div>
 </div>

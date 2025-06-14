@@ -85,6 +85,9 @@
             "tableau-ui-angular/used-icons": [
                 "./projects/component-library/used-icons/src/public_api.ts"
             ],
+            "tableau-ui-angular/monaco": [
+                "./projects/component-library/monaco/src/public_api.ts"
+            ],
         },
         "outDir": "./dist/out-tsc",
         "strict": true,

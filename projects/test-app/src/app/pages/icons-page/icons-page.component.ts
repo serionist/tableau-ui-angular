@@ -2,21 +2,18 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { MonacoHelper } from '../../helpers/monaco.helper';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
 import { TableauUiIconModule } from 'tableau-ui-angular/icon';
+import { TableauUiMonacoModule } from 'tableau-ui-angular/monaco';
 
 @Component({
     selector: 'app-icons-page',
-    imports: [TableauUiCommonModule, TableauUiIconModule],
+    imports: [TableauUiCommonModule, TableauUiIconModule, TableauUiMonacoModule],
     standalone: true,
     templateUrl: './icons-page.component.html',
     styleUrl: './icons-page.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IconsPageComponent {
-    htmlOptions = MonacoHelper.getOptions('html');
-    tsOptions = MonacoHelper.getOptions('typescript');
-    scssOptions = MonacoHelper.getOptions('scss');
-    terminalOptions = MonacoHelper.getOptions('shell');
-    jsonOptions = MonacoHelper.getOptions('json');
+    options = MonacoHelper.options();
 
     localModuleCode = `import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
@@ -30,8 +27,7 @@ templateUrl: './app.component.html',
 styleUrl: './app.component.scss'
 })
 export class AppComponent {
-}
-`;
+}`;
 
     fullConfigExample = `<tab-icon value="home" color="primary" type="Material Symbols Outlined"
 [fill]="true" [weight]="100" [grade]="200" [opticalSizePx]="48"></tab-icon>`;

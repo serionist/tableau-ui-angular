@@ -60,7 +60,10 @@
                 attribute to the name of the icon you want to use.
             </p>
             <div>
-                <!-- <ngx-monaco-editor style="height: 25px; width: 320px; display: inline-block; vertical-align: middle; margin-right: 1em" ngModel='&lt;tab-icon value="home"&gt;&lt;/tab-icon&gt;' [options]="htmlOptions" /> -->
+                <div class="monaco-container">
+                    <tab-monaco-editor uri="file://icons-page/sample" language="html" value='&lt;tab-icon value="home"&gt;&lt;/tab-icon&gt;' [style.height]="'20px'" [style.width]="'280px'" [options]="options" />
+                </div>
+
                 <span>This will render:</span>
                 <tab-icon value="home" style="font-size: 18px; vertical-align: middle" />
             </div>
@@ -131,7 +134,9 @@
                 </li>
             </ul>
             <div>Full configuration example:</div>
-            <!-- <ngx-monaco-editor style="height: 55px; width: 620px; display: inline-block; vertical-align: middle; margin-right: 1em" [options]="htmlOptions" [ngModel]="fullConfigExample" /> -->
+            <div class="monaco-container">
+                <tab-monaco-editor uri="file://icons-page/samplefull" language="html" [value]="fullConfigExample" [style.height]="'45px'" [style.width]="'590px'" [options]="options" />
+            </div>
         </div>
 
         <div class="section">
@@ -139,19 +144,25 @@
             <ol>
                 <li>
                     Install the Icons Package by running:
-                    <!-- <ngx-monaco-editor style="height: 25px; width: 270px" ngModel="npm install material-symbols" [options]="terminalOptions" /> -->
+                    <div class="monaco-container">
+                        <tab-monaco-editor uri="file://icons-page/install" language="shell" value="npm install material-symbols" [style.height]="'20px'" [style.width]="'230px'" [options]="options" />
+                    </div>
                 </li>
                 <li>
                     Import the rounded icons by updating your
                     <code>style.scss</code>
                     :
-                    <!-- <ngx-monaco-editor style="height: 75px; width: 730px" [options]="scssOptions" [ngModel]="localImportCode" /> -->
+                    <div class="monaco-container">
+                        <tab-monaco-editor uri="file://icons-page/localimport" language="scss" [value]="localImportCode" [style.height]="'65px'" [style.width]="'720px'" [options]="options" />
+                    </div>
                 </li>
                 <li>
                     Add the
                     <code>TableauUiIconModule</code>
                     to your module/component imports:
-                    <!-- <ngx-monaco-editor style="height: 280px; width: 520px" [options]="tsOptions" [ngModel]="localModuleCode" /> -->
+                    <div class="monaco-container">
+                        <tab-monaco-editor uri="file://icons-page/localmodule" language="typescript" [value]="localModuleCode" [style.height]="'250px'" [style.width]="'450px'" [options]="options" />
+                    </div>
                 </li>
                 <li>Use the Icon as it's shown in the Usage section</li>
             </ol>
@@ -181,7 +192,9 @@
             <ol>
                 <li>
                     Install axios as a dev dependency:
-                    <!-- <ngx-monaco-editor style="height: 25px; width: 300px" ngModel="npm install --save-dev axios" [options]="terminalOptions" /> -->
+                    <div class="monaco-container">
+                        <tab-monaco-editor uri="file://icons-page/axios" language="shell" value="npm install --save-dev axios" [style.height]="'20px'" [style.width]="'220px'" [options]="options" />
+                    </div>
                 </li>
                 <li>
                     Create an
@@ -192,7 +205,9 @@
                     <br />
                     <code>src/icons.ts</code>
                     :
-                    <!-- <ngx-monaco-editor style="height: 550px; width: 870px" [options]="tsOptions" [ngModel]="iconsTsCode" /> -->
+                    <div class="monaco-container">
+                        <tab-monaco-editor uri="file://icons-page/localts" language="typescript" [value]="iconsTsCode" [style.height]="'535px'" [style.width]="'870px'" [options]="options" />
+                    </div>
                 </li>
 
                 <li>
@@ -209,7 +224,9 @@
                         <code>package.json</code>
                         , and add the following script:
                     </div>
-                    <!-- <ngx-monaco-editor style="height: 150px; width: 870px" [options]="jsonOptions" [ngModel]="iconsDownloadContent" /> -->
+                    <div class="monaco-container">
+                        <tab-monaco-editor uri="file://icons-page/local-download" language="json" [value]="iconsDownloadContent" [style.height]="'140px'" [style.width]="'935px'" [options]="options" />
+                    </div>
                 </li>
                 <li>
                     <div>
@@ -228,7 +245,9 @@
                         <code>styles.scss</code>
                         , and add the following line:
                     </div>
-                    <!-- <ngx-monaco-editor style="height: 25px; width: 870px" ngModel="@use '../public/icons/material-icons.css';" [options]="scssOptions" /> -->
+                    <div class="monaco-container">
+                        <tab-monaco-editor uri="file://icons-page/local-scss" language="scss" value="@use '../public/icons/material-icons.css';" [style.height]="'20px'" [style.width]="'330px'" [options]="options" />
+                    </div>
                     <div>
                         <i>NOTE:</i>
                         You can also import this .css file in any way you want, even from the HTML directly
@@ -245,13 +264,18 @@
                         <code>chokidar</code>
                         , which you need to install as a dev dependency:
                     </div>
-                    <!-- <ngx-monaco-editor style="height: 25px; width: 300px" ngModel="npm install --save-dev chokidar-cli" [options]="terminalOptions" /> -->
+                    <div class="monaco-container">
+                        <tab-monaco-editor uri="file://icons-page/chokidar" language="shell" value="npm install --save-dev chokidar-cli" [style.height]="'20px'" [style.width]="'280px'" [options]="options" />
+                    </div>
+
                     <div>
                         Update your
                         <code>package.json</code>
                         , and add the following script:
                     </div>
-                    <!-- <ngx-monaco-editor style="height: 150px; width: 870px" [options]="jsonOptions" [ngModel]="iconsWatchContent" /> -->
+                    <div class="monaco-container">
+                        <tab-monaco-editor uri="file://icons-page/local-watch" language="json" [value]="iconsWatchContent" [style.height]="'140px'" [style.width]="'870px'" [options]="options" />
+                    </div>
                 </li>
                 <li>
                     <div>Let's modify our build process - we want to download the icons before our build begins.</div>
@@ -265,7 +289,9 @@
                         <code>angular.json</code>
                         file, and add the following configuration:
                     </div>
-                    <!-- <ngx-monaco-editor style="height: 150px; width: 870px" [options]="jsonOptions" [ngModel]="npmInstallContent" /> -->
+                    <div class="monaco-container">
+                        <tab-monaco-editor uri="file://icons-page/local-install" language="json" [value]="npmInstallContent" [style.height]="'140px'" [style.width]="'870px'" [options]="options" />
+                    </div>
                 </li>
                 <li>
                     <div>
@@ -277,13 +303,18 @@
                         <code>concurrently</code>
                         , which you need to install as a dev dependency:
                     </div>
-                    <!-- <ngx-monaco-editor style="height: 25px; width: 300px" ngModel="npm install --save-dev concurrently" [options]="terminalOptions" /> -->
+                    <div class="monaco-container">
+                        <tab-monaco-editor uri="file://icons-page/concurrently" language="shell" value="npm install --save-dev concurrently" [style.height]="'20px'" [style.width]="'280px'" [options]="options" />
+                    </div>
+
                     <div>
                         Update your
                         <code>package.json</code>
                         , and add the following script:
                     </div>
-                    <!-- <ngx-monaco-editor style="height: 150px; width: 870px" [options]="jsonOptions" [ngModel]="ngServeContent" /> -->
+                    <div class="monaco-container">
+                        <tab-monaco-editor uri="file://icons-page/local-serve" language="json" [value]="ngServeContent" [style.height]="'140px'" [style.width]="'510px'" [options]="options" />
+                    </div>
                 </li>
             </ol>
             <p>
