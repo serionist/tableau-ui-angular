@@ -306,6 +306,9 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> {
               }[]
             | undefined,
     ): Promise<boolean> {
+        if (!this.loaded) {
+            return false;
+        }
         if (this.dataRowHeightPx === 0 || this.dataWindowHeightPx === 0 || !sort || !dataOptions || !displayedColumns) {
             console.warn('Table reset called with undefined parameters, ignoring');
             return false;
