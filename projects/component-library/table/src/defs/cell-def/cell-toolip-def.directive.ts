@@ -16,8 +16,6 @@ export class CellToolipDefDirective<TData, TKey extends Primitive> {
         alias: 'showTooltip',
     });
 
-    
-    
     readonly templateRef = inject(TemplateRef<{ $implicit: CellTooltipContext<TData> }>);
 
     static ngTemplateContextGuard<TData, TKey extends Primitive>(dir: CellToolipDefDirective<TData, TKey>, ctx: unknown): ctx is { $implicit: CellTooltipContext<TData> } {

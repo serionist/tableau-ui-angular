@@ -13,8 +13,8 @@ export class HeaderToolipDefDirective<TData, TKey extends Primitive> {
     });
 
     readonly $showTooltip = input<boolean | ((ctx: HeaderContext<TData>) => boolean)>(true, {
-            alias: 'showTooltip',
-        });
+        alias: 'showTooltip',
+    });
 
     public templateRef = inject(TemplateRef<{ $implicit: HeaderTooltipContext<TData> }>);
 
