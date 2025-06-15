@@ -34,6 +34,14 @@ export const routes: Routes = [
         },
     },
     {
+        path: 'drawer',
+        loadComponent: async () => import('./pages/drawer-page/drawer-page.component').then((m) => m.DrawerPageComponent),
+        title: 'Drawer',
+        data: {
+            page: 'drawer',
+        },
+    },
+    {
         path: 'table',
         loadComponent: async () => import('./pages/table-page/table-page.component').then((m) => m.TablePageComponent),
         title: 'Tables',

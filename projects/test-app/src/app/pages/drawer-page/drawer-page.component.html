@@ -1,0 +1,90 @@
+<div class="page">
+    <div class="title">
+        <h1>Clipboard</h1>
+        <div class="text-light text-large">The clipboard component is used to copy text to the clipboard.</div>
+    </div>
+    <tab-separator />
+    <div class="content">
+        <div class="section">
+            <h3>Module</h3>
+            <p>To use the component, import one of the following modules into your module/component:</p>
+
+            <ul>
+                <li>
+                    <code>TableauUiDrawerModule</code>
+                    - for granular import
+                </li>
+                <li>
+                    <code>TableauUiAllModule</code>
+                    - to import all components from this library
+                </li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h3>Example</h3>
+
+            <tab-checkbox [(value)]="$leftDrawerOpen">Left Drawer open</tab-checkbox>
+            <tab-checkbox [(value)]="$rightDrawerOpen">Right Drawer open</tab-checkbox>
+            <tab-drawer-container [style.height]="'200px'">
+                <tab-drawer width="20rem" [isOpen]="$leftDrawerOpen()">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed pharetra dui id diam feugiat, in bibendum nisi tincidunt. Sed egestas egestas lacus. Phasellus nulla arcu, vulputate vel arcu elementum,
+                    consequat semper ex. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Morbi vitae nisi interdum, lobortis augue non, efficitur sem. Etiam consectetur orci in
+                    velit sollicitudin vestibulum. Integer lacinia felis non dui posuere, at ultrices nisl blandit. Praesent congue fringilla dictum. Nullam feugiat justo non placerat elementum. Aenean pharetra volutpat
+                    ligula commodo consequat. Quisque pulvinar est vitae elit volutpat vestibulum. Cras nec luctus nibh. Aenean congue lacus vitae lacus tincidunt dictum. Cras pellentesque, dolor sed condimentum rhoncus,
+                    libero dui dignissim eros, quis sollicitudin felis lectus sed ipsum. Nulla ac enim efficitur, lobortis est quis, blandit dolor. Donec aliquet convallis ligula, nec semper dolor tincidunt a. Vestibulum
+                    mollis lacus lectus, ac feugiat libero condimentum vel. Integer viverra ligula arcu, sed lobortis turpis congue eget. Quisque vel orci at tellus placerat consectetur eu vel augue. Fusce efficitur nisi
+                    sit amet fermentum hendrerit. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Sed quam ligula, elementum sed condimentum id, tincidunt ac leo. Curabitur lacinia
+                    in nisl at cursus. In mattis arcu lectus, eu dictum turpis varius sit amet. Sed fermentum sagittis quam non vulputate. Sed porttitor nisi et venenatis suscipit. Nulla facilisi. Suspendisse mollis nunc
+                    et feugiat finibus. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Proin viverra pulvinar metus, sit amet semper ligula maximus eget. Nulla facilisi. Vivamus
+                    dignissim diam in neque ultricies accumsan. Nullam auctor semper mauris, non commodo quam consequat vel. Quisque scelerisque tortor sed felis tincidunt, egestas convallis sem pellentesque. Etiam a
+                    dignissim ligula. Nunc et semper est. Suspendisse nec laoreet nisl. Quisque in consequat orci, et congue libero. Nunc quis neque dictum, pharetra risus eu, vehicula tellus. Vestibulum congue lorem eu
+                    lacus condimentum tincidunt. Etiam dictum odio non sapien mollis, ac varius sem malesuada. Sed consequat erat ut quam feugiat, eu fringilla dui auctor. Sed vel fermentum dui. Proin neque sapien,
+                    egestas vel quam ac, euismod pretium risus. Praesent commodo pretium metus, id congue neque feugiat ut. Nullam lacinia consectetur ante eu auctor. Donec elementum, magna et sodales tempus, est sem
+                    pretium eros, ut vehicula turpis elit in lacus. Sed eleifend sapien erat, at mattis quam pellentesque id. Nulla gravida consequat iaculis. Suspendisse potenti. In nec finibus felis. Curabitur
+                    ullamcorper, urna in interdum dapibus, lacus turpis ultrices tellus, in pulvinar ligula nisi eu sem. Morbi velit metus, interdum quis nulla et, fermentum pretium diam. Sed ac massa nisi. Nullam cursus
+                    tellus eu ipsum vestibulum feugiat. Nulla pellentesque urna orci, eu pellentesque nunc commodo ac. Donec vitae nulla sit amet sem suscipit ornare. Sed dictum neque ornare nisi pretium cursus. Nunc in
+                    vehicula metus, non feugiat nisi. Duis dignissim lectus at eros pretium ullamcorper. Maecenas vel varius augue, ac vulputate erat. Vestibulum pulvinar nulla non ante blandit, eget ornare lorem rutrum.
+                    Morbi nunc lectus, tempor nec risus et, finibus molestie nisl. Suspendisse finibus nunc id quam vestibulum finibus.
+                </tab-drawer>
+                <tab-drawer position="right" width="20rem" [isOpen]="$rightDrawerOpen()">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed pharetra dui id diam feugiat, in bibendum nisi tincidunt. Sed egestas egestas lacus. Phasellus nulla arcu, vulputate vel arcu elementum,
+                    consequat semper ex. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Morbi vitae nisi interdum, lobortis augue non, efficitur sem. Etiam consectetur orci in
+                    velit sollicitudin vestibulum. Integer lacinia felis non dui posuere, at ultrices nisl blandit. Praesent congue fringilla dictum. Nullam feugiat justo non placerat elementum. Aenean pharetra volutpat
+                    ligula commodo consequat. Quisque pulvinar est vitae elit volutpat vestibulum. Cras nec luctus nibh. Aenean congue lacus vitae lacus tincidunt dictum. Cras pellentesque, dolor sed condimentum rhoncus,
+                    libero dui dignissim eros, quis sollicitudin felis lectus sed ipsum. Nulla ac enim efficitur, lobortis est quis, blandit dolor. Donec aliquet convallis ligula, nec semper dolor tincidunt a. Vestibulum
+                    mollis lacus lectus, ac feugiat libero condimentum vel. Integer viverra ligula arcu, sed lobortis turpis congue eget. Quisque vel orci at tellus placerat consectetur eu vel augue. Fusce efficitur nisi
+                    sit amet fermentum hendrerit. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Sed quam ligula, elementum sed condimentum id, tincidunt ac leo. Curabitur lacinia
+                    in nisl at cursus. In mattis arcu lectus, eu dictum turpis varius sit amet. Sed fermentum sagittis quam non vulputate. Sed porttitor nisi et venenatis suscipit. Nulla facilisi. Suspendisse mollis nunc
+                    et feugiat finibus. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Proin viverra pulvinar metus, sit amet semper ligula maximus eget. Nulla facilisi. Vivamus
+                    dignissim diam in neque ultricies accumsan. Nullam auctor semper mauris, non commodo quam consequat vel. Quisque scelerisque tortor sed felis tincidunt, egestas convallis sem pellentesque. Etiam a
+                    dignissim ligula. Nunc et semper est. Suspendisse nec laoreet nisl. Quisque in consequat orci, et congue libero. Nunc quis neque dictum, pharetra risus eu, vehicula tellus. Vestibulum congue lorem eu
+                    lacus condimentum tincidunt. Etiam dictum odio non sapien mollis, ac varius sem malesuada. Sed consequat erat ut quam feugiat, eu fringilla dui auctor. Sed vel fermentum dui. Proin neque sapien,
+                    egestas vel quam ac, euismod pretium risus. Praesent commodo pretium metus, id congue neque feugiat ut. Nullam lacinia consectetur ante eu auctor. Donec elementum, magna et sodales tempus, est sem
+                    pretium eros, ut vehicula turpis elit in lacus. Sed eleifend sapien erat, at mattis quam pellentesque id. Nulla gravida consequat iaculis. Suspendisse potenti. In nec finibus felis. Curabitur
+                    ullamcorper, urna in interdum dapibus, lacus turpis ultrices tellus, in pulvinar ligula nisi eu sem. Morbi velit metus, interdum quis nulla et, fermentum pretium diam. Sed ac massa nisi. Nullam cursus
+                    tellus eu ipsum vestibulum feugiat. Nulla pellentesque urna orci, eu pellentesque nunc commodo ac. Donec vitae nulla sit amet sem suscipit ornare. Sed dictum neque ornare nisi pretium cursus. Nunc in
+                    vehicula metus, non feugiat nisi. Duis dignissim lectus at eros pretium ullamcorper. Maecenas vel varius augue, ac vulputate erat. Vestibulum pulvinar nulla non ante blandit, eget ornare lorem rutrum.
+                </tab-drawer>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed pharetra dui id diam feugiat, in bibendum nisi tincidunt. Sed egestas egestas lacus. Phasellus nulla arcu, vulputate vel arcu elementum,
+                consequat semper ex. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Morbi vitae nisi interdum, lobortis augue non, efficitur sem. Etiam consectetur orci in
+                velit sollicitudin vestibulum. Integer lacinia felis non dui posuere, at ultrices nisl blandit. Praesent congue fringilla dictum. Nullam feugiat justo non placerat elementum. Aenean pharetra volutpat
+                ligula commodo consequat. Quisque pulvinar est vitae elit volutpat vestibulum. Cras nec luctus nibh. Aenean congue lacus vitae lacus tincidunt dictum. Cras pellentesque, dolor sed condimentum rhoncus,
+                libero dui dignissim eros, quis sollicitudin felis lectus sed ipsum. Nulla ac enim efficitur, lobortis est quis, blandit dolor. Donec aliquet convallis ligula, nec semper dolor tincidunt a. Vestibulum
+                mollis lacus lectus, ac feugiat libero condimentum vel. Integer viverra ligula arcu, sed lobortis turpis congue eget. Quisque vel orci at tellus placerat consectetur eu vel augue. Fusce efficitur nisi sit
+                amet fermentum hendrerit. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Sed quam ligula, elementum sed condimentum id, tincidunt ac leo. Curabitur lacinia in nisl
+                at cursus. In mattis arcu lectus, eu dictum turpis varius sit amet. Sed fermentum sagittis quam non vulputate. Sed porttitor nisi et venenatis suscipit. Nulla facilisi. Suspendisse mollis nunc et feugiat
+                finibus. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Proin viverra pulvinar metus, sit amet semper ligula maximus eget. Nulla facilisi. Vivamus dignissim diam in
+                neque ultricies accumsan. Nullam auctor semper mauris, non commodo quam consequat vel. Quisque scelerisque tortor sed felis tincidunt, egestas convallis sem pellentesque. Etiam a dignissim ligula. Nunc et
+                semper est. Suspendisse nec laoreet nisl. Quisque in consequat orci, et congue libero. Nunc quis neque dictum, pharetra risus eu, vehicula tellus. Vestibulum congue lorem eu lacus condimentum tincidunt.
+                Etiam dictum odio non sapien mollis, ac varius sem malesuada. Sed consequat erat ut quam feugiat, eu fringilla dui auctor. Sed vel fermentum dui. Proin neque sapien, egestas vel quam ac, euismod pretium
+                risus. Praesent commodo pretium metus, id congue neque feugiat ut. Nullam lacinia consectetur ante eu auctor. Donec elementum, magna et sodales tempus, est sem pretium eros, ut vehicula turpis elit in
+                lacus. Sed eleifend sapien erat, at mattis quam pellentesque id. Nulla gravida consequat iaculis. Suspendisse potenti. In nec finibus felis. Curabitur ullamcorper, urna in interdum dapibus, lacus turpis
+                ultrices tellus, in pulvinar ligula nisi eu sem. Morbi velit metus, interdum quis nulla et, fermentum pretium diam. Sed ac massa nisi. Nullam cursus tellus eu ipsum vestibulum feugiat. Nulla pellentesque
+                urna orci, eu pellentesque nunc commodo ac. Donec vitae nulla sit amet sem suscipit ornare. Sed dictum neque ornare nisi pretium cursus. Nunc in vehicula metus, non feugiat nisi. Duis dignissim lectus at
+                eros pretium ullamcorper. Maecenas vel varius augue, ac vulputate erat. Vestibulum pulvinar nulla non ante blandit, eget ornare lorem rutrum. Morbi nunc lectus, tempor nec risus et, finibus molestie nisl.
+                Suspendisse finibus nunc id quam vestibulum finibus.
+            </tab-drawer-container>
+        </div>
+    </div>
+</div>

@@ -88,6 +88,9 @@
             "tableau-ui-angular/monaco": [
                 "./projects/component-library/monaco/src/public_api.ts"
             ],
+            "tableau-ui-angular/drawer": [
+                "./projects/component-library/drawer/src/public_api.ts"
+            ],
         },
         "outDir": "./dist/out-tsc",
         "strict": true,

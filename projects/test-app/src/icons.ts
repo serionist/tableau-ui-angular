@@ -41,5 +41,6 @@ export class Icons extends UsedIcons {
         'night_sight_auto',
         'table',
         'code',
+        'side_navigation',
     ];
 }
