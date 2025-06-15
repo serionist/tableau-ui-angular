@@ -26,6 +26,14 @@ export const routes: Routes = [
         },
     },
     {
+        path: 'stepper',
+        loadComponent: async () => import('./pages/stepper-page/stepper-page.component').then((m) => m.StepperPageComponent),
+        title: 'Stepper',
+        data: {
+            page: 'stepper',
+        },
+    },
+    {
         path: 'monaco',
         loadComponent: async () => import('./pages/monaco-page/monaco-page.component').then((m) => m.MonacoPageComponent),
         title: 'Monaco Editor',

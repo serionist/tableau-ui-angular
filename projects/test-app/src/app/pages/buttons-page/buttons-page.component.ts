@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, effect, inject, model } from '@angular/core';
+import type { WritableSignal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, model, signal } from '@angular/core';
 
 import { SnackService } from 'tableau-ui-angular/snack';
 
@@ -17,16 +18,31 @@ import { TableauUiIconModule } from 'tableau-ui-angular/icon';
 export class ButtonsPageComponent {
     snack = inject(SnackService);
 
-    buttonsLoading = {
-        primary: false,
-        secondary: false,
-        error: false,
-        plain: false,
-    };
+    readonly $primaryLoading = signal(false);
+    readonly $secondaryLoading = signal(false);
+    readonly $errorLoading = signal(false);
+    readonly $plainLoading = signal(false);
     async buttonClick(color: 'error' | 'plain' | 'primary' | 'secondary') {
-        this.buttonsLoading[color] = true;
+        let s: WritableSignal<boolean>;
+        switch (color) {
+            case 'error':
+                s = this.$errorLoading;
+                break;
+            case 'plain':
+                s = this.$plainLoading;
+                break;
+            case 'primary':
+                s = this.$primaryLoading;
+                break;
+            case 'secondary':
+                s = this.$secondaryLoading;
+                break;
+            default:
+                throw new Error('Unknown color');
+        }
+        s.set(true);
         await new Promise((resolve) => setTimeout(resolve, 2000));
-        this.buttonsLoading[color] = false;
+        s.set(false);
         console.log('Button clicked', color);
         this.snack.openSnack(`Button ${color} clicked`, 2000, color === 'error' ? 'error' : 'info');
     }

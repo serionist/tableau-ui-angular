@@ -85,71 +85,139 @@
         visibility: visible !important;
     }
 
-    &.primary {
-        &:not([disabled], [disabled='false']) {
-            background-color: var(--twc-color-primary);
-            color: var(--twc-color-on-primary);
-
-            &:hover {
-                background-color: var(--twc-color-primary-dark);
+    &.stroked {
+        background-color: var(--twc-color-base);
+        &.primary {
+            &:not([disabled], [disabled='false']) {
+                color: var(--twc-color-primary);
+                border-color: var(--twc-color-primary);
+                &:hover {
+                    background-color: var(--twc-color-mouse-highlight);
+                }
+            }
+    
+            &[disabled]:not([disabled='false']) {
+                color: var(--twc-color-disabled);
+                border-color: var(--twc-color-disabled);
             }
         }
-
-        &[disabled]:not([disabled='false']) {
-            background-color: var(--twc-color-border-dark-disabled) !important;
-            color: var(--twc-color-text-light) !important;
+    
+        &.secondary {
+            &:not([disabled], [disabled='false']) {
+                border-color: var(--twc-color-border);
+                color: var(--twc-color-text);
+    
+                &:hover {
+                    background-color: var(--twc-color-mouse-highlight);
+                }
+            }
+    
+            &[disabled]:not([disabled='false']) {
+                background-color: transparent !important;
+                border-color: var(--twc-color-border-light) !important;
+                color: var(--twc-color-disabled) !important;
+            }
+        }
+    
+        &.error {
+            &:not([disabled], [disabled='false']) {
+                color: var(--twc-color-error);
+                border-color: var(--twc-color-error);
+    
+                &:hover {
+                    background-color: var(--twc-color-mouse-highlight);
+                }
+            }
+    
+            &[disabled]:not([disabled='false']) {
+                color: var(--twc-color-disabled);
+                border-color: var(--twc-color-disabled);
+            }
+        }
+    
+        &.plain {
+            &:not([disabled], [disabled='false']) {
+                color: var(--twc-color-text);
+    
+                &:hover {
+                    background-color: var(--twc-color-mouse-highlight);
+                }
+            }
+    
+            &[disabled]:not([disabled='false']) {
+                color: var(--twc-color-disabled) !important;
+            }
         }
     }
 
-    &.secondary {
-        &:not([disabled], [disabled='false']) {
-            background-color: var(--twc-color-base);
-            border-color: var(--twc-color-border);
-            color: var(--twc-color-text);
-
-            &:hover {
+    &.raised {
+        &.primary {
+            &:not([disabled], [disabled='false']) {
+                background-color: var(--twc-color-primary);
+                color: var(--twc-color-on-primary);
+    
+                &:hover {
+                    background-color: var(--twc-color-primary-dark);
+                }
+            }
+    
+            &[disabled]:not([disabled='false']) {
+                background-color: var(--twc-color-border-dark-disabled) !important;
+                color: var(--twc-color-text-light) !important;
+            }
+        }
+    
+        &.secondary {
+            &:not([disabled], [disabled='false']) {
                 background-color: var(--twc-color-highlight);
+                border-color: var(--twc-color-border-dark);
+                color: var(--twc-color-text);
+    
+                &:hover {
+                    background-color: var(--twc-color-mouse-highlight);
+                }
+            }
+    
+            &[disabled]:not([disabled='false']) {
+                background-color: transparent !important;
+                border-color: var(--twc-color-border-light) !important;
+                color: var(--twc-color-disabled) !important;
             }
         }
-
-        &[disabled]:not([disabled='false']) {
-            background-color: transparent !important;
-            border-color: var(--twc-color-border-light) !important;
-            color: var(--twc-color-disabled) !important;
-        }
-    }
-
-    &.error {
-        &:not([disabled], [disabled='false']) {
-            background-color: var(--twc-color-error);
-            color: var(--twc-color-on-primary);
-
-            &:hover {
-                background-color: var(--twc-color-error-dark);
+    
+        &.error {
+            &:not([disabled], [disabled='false']) {
+                background-color: var(--twc-color-error);
+                color: var(--twc-color-on-primary);
+    
+                &:hover {
+                    background-color: var(--twc-color-error-dark);
+                }
+            }
+    
+            &[disabled]:not([disabled='false']) {
+                background-color: var(--twc-color-border-dark-disabled) !important;
+                color: var(--twc-color-text-light) !important;
             }
         }
-
-        &[disabled]:not([disabled='false']) {
-            background-color: var(--twc-color-border-dark-disabled) !important;
-            color: var(--twc-color-text-light) !important;
-        }
-    }
-
-    &.plain {
-        &:not([disabled], [disabled='false']) {
-            background-color: var(--twc-color-base);
-            color: var(--twc-color-text);
-
-            &:hover {
+    
+        &.plain {
+            &:not([disabled], [disabled='false']) {
                 background-color: var(--twc-color-highlight);
+                color: var(--twc-color-text);
+    
+                &:hover {
+                    background-color: var(--twc-color-mouse-highlight);
+                }
+            }
+    
+            &[disabled]:not([disabled='false']) {
+                background-color: transparent !important;
+                color: var(--twc-color-disabled) !important;
             }
         }
-
-        &[disabled]:not([disabled='false']) {
-            background-color: transparent !important;
-            color: var(--twc-color-disabled) !important;
-        }
     }
+    
 
     &[disabled]:not([disabled='false']) {
         cursor: default;

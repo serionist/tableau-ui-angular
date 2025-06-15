@@ -9,7 +9,7 @@ import { ChangeDetectionStrategy, Component, ElementRef, HostListener, inject, i
     changeDetection: ChangeDetectionStrategy.OnPush,
     host: {
         '[attr.type]': '$type()',
-        '[class]': '$color()',
+        '[class]': '`${$color()} ${$kind()}`',
         '[attr.disabled]': '$disabled() || $loading() ? true : null',
         '[class.loading]': '$loading()',
         '[attr.tabindex]': '$disabled() ? "-1": $tabindex()',
@@ -31,6 +31,10 @@ export class ButtonComponent {
     });
     readonly $type = input<'button' | 'submit'>('button', {
         alias: 'type',
+    });
+
+    readonly $kind = input<'stroked' | 'raised'>('stroked', {
+        alias: 'kind',
     });
     readonly $color = input<'error' | 'plain' | 'primary' | 'secondary'>('secondary', {
         alias: 'color',

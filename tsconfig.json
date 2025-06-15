@@ -4,9 +4,6 @@
     "compileOnSave": false,
     "compilerOptions": {
         "paths": {
-            "component-library": [
-                "./dist/component-library"
-            ],
             "tableau-ui-angular/types": [
                 "./projects/component-library/types/src/public_api.ts"
             ],
@@ -90,6 +87,9 @@
             ],
             "tableau-ui-angular/drawer": [
                 "./projects/component-library/drawer/src/public_api.ts"
+            ],
+            "tableau-ui-angular/stepper": [
+                "./projects/component-library/stepper/src/public_api.ts"
             ],
         },
         "outDir": "./dist/out-tsc",
