@@ -112,8 +112,10 @@ export class ColumnDefDirective<TData> {
 
     readonly $cell = contentChild.required(CellDefDirective);
     readonly $header = contentChild(HeaderDefDirective);
-    readonly $headerTooltip = contentChild(HeaderToolipDefDirective);
-    readonly $cellTooltip = contentChild(CellToolipDefDirective);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    readonly $headerTooltip = contentChild<HeaderToolipDefDirective<TData, any>>(HeaderToolipDefDirective);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    readonly $cellTooltip = contentChild<CellToolipDefDirective<TData, any>>(CellToolipDefDirective);
 }
 export type SortOrderPair = ['asc', 'desc'] | ['desc', 'asc'];
 export interface HeaderTooltipArgs<TData> {

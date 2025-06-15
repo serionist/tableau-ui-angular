@@ -23,6 +23,8 @@ import { HeaderToolipDefDirective } from './defs/header-def/header-toolip-def.di
 import { HeaderTooltipContextPipe } from './defs/header-def/header-tooltip-context.pipe';
 import { CellToolipDefDirective } from './defs/cell-def/cell-toolip-def.directive';
 import { CellTooltipContextPipe } from './defs/cell-def/cell-tooltip-context.pipe';
+import { ShowCellTooltipPipe } from './defs/cell-def/show-cell-tooltip.pipe';
+import { ShowHeaderTooltipPipe } from './defs/header-def/show-header-tooltip.pipe';
 
 @NgModule({
     imports: [CommonModule, TableauUiIconModule, TableauUiButtonModule, TableauUiTooltipModule, TableauUiCheckboxModule],
@@ -32,6 +34,7 @@ import { CellTooltipContextPipe } from './defs/cell-def/cell-tooltip-context.pip
         HeaderToolipDefDirective,
         HeaderContextPipe,
         HeaderTooltipContextPipe,
+        ShowHeaderTooltipPipe,
         HeaderClassPipe,
         ColumnDefDirective,
         CellDefDirective,
@@ -39,6 +42,7 @@ import { CellTooltipContextPipe } from './defs/cell-def/cell-tooltip-context.pip
         CellClassPipe,
         CellToolipDefDirective,
         CellTooltipContextPipe,
+        ShowCellTooltipPipe,
         SortInfoPipe,
         ColWidthPipe,
         ColRenderedWidthDirective,

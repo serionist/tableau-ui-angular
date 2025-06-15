@@ -1,6 +1,6 @@
 import { Directive, inject, input, TemplateRef } from '@angular/core';
 import type { TableComponent } from '../../table.component';
-import type { HeaderTooltipContext } from './header-context';
+import type { HeaderContext, HeaderTooltipContext } from './header-context';
 import type { Primitive } from 'tableau-ui-angular/types';
 
 @Directive({
@@ -11,6 +11,10 @@ export class HeaderToolipDefDirective<TData, TKey extends Primitive> {
     readonly table = input.required<TableComponent<TData, TKey>>({
         alias: 'tabHeaderTooltipDef',
     });
+
+    readonly $showTooltip = input<boolean | ((ctx: HeaderContext<TData>) => boolean)>(true, {
+            alias: 'showTooltip',
+        });
 
     public templateRef = inject(TemplateRef<{ $implicit: HeaderTooltipContext<TData> }>);
 

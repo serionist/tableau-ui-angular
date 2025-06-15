@@ -127,7 +127,7 @@
                         <tab-hint>Default column template:</tab-hint>
                         <ng-container *ngTemplateOutlet="ctx.headerTemplate; context: { $implicit: ctx }" />
                     </ng-template>
-                    <ng-template let-ctx [tabCellTooltipDef]="table">
+                    <ng-template let-ctx [tabCellTooltipDef]="table" [showTooltip]="$showCellTooltip">
                         <div>Custom tooltip row. Raw data: {{ ctx.row.name }}</div>
                         <ng-container *ngTemplateOutlet="ctx.cellTemplate; context: { $implicit: ctx }" />
                     </ng-template>
@@ -136,7 +136,7 @@
                     <ng-template let-ctx [tabHeaderDef]="table">Age</ng-template>
                     <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.age }}</ng-template>
                 </ng-container>
-                <ng-container tabColumnDef="gender" [sortable]="false">
+                <ng-container tabColumnDef="gender" [sortable]="false" [showAutoHeaderTooltip]="false">
                     <ng-template let-ctx [tabHeaderDef]="table">Gender</ng-template>
                     <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.gender }}</ng-template>
                 </ng-container>

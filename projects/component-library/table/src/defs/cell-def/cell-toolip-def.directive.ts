@@ -1,7 +1,7 @@
 import { Directive, inject, input, TemplateRef } from '@angular/core';
 import type { TableComponent } from '../../table.component';
 import type { Primitive } from 'tableau-ui-angular/types';
-import type { CellTooltipContext } from './cell-context';
+import type { CellContext, CellTooltipContext } from './cell-context';
 
 @Directive({
     selector: '[tabCellTooltipDef]',
@@ -12,7 +12,13 @@ export class CellToolipDefDirective<TData, TKey extends Primitive> {
         alias: 'tabCellTooltipDef',
     });
 
-    public templateRef = inject(TemplateRef<{ $implicit: CellTooltipContext<TData> }>);
+    readonly $showTooltip = input<boolean | ((ctx: CellContext<TData>) => boolean)>(true, {
+        alias: 'showTooltip',
+    });
+
+    
+    
+    readonly templateRef = inject(TemplateRef<{ $implicit: CellTooltipContext<TData> }>);
 
     static ngTemplateContextGuard<TData, TKey extends Primitive>(dir: CellToolipDefDirective<TData, TKey>, ctx: unknown): ctx is { $implicit: CellTooltipContext<TData> } {
         return true;

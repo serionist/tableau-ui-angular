@@ -1,7 +1,7 @@
 import type { AfterViewInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, computed, signal, viewChild } from '@angular/core';
 import { data } from './table-data-sample';
-import type { DataSort, FullDataRequest, HeaderContext, IncrementalDataRequest } from 'tableau-ui-angular/table';
+import type { CellContext, DataSort, FullDataRequest, HeaderContext, IncrementalDataRequest } from 'tableau-ui-angular/table';
 import { FullDataOptions, IncrementalDataOptions, MultiSelectionOptions, SingleSelectionOptions, TableauUiTableModule, TableComponent } from 'tableau-ui-angular/table';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
 import { TableauUiCheckboxModule } from 'tableau-ui-angular/checkbox';
@@ -151,6 +151,10 @@ export class TablePageComponent implements AfterViewInit {
 
     ngAfterViewInit(): void {
         void this.tabTable().load();
+    }
+
+    $showCellTooltip(cellContext: CellContext<DataType>) {
+        return cellContext.meta.odd;
     }
 }
 export interface DataType {

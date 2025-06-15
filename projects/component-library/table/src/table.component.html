@@ -34,6 +34,7 @@
         <!-- prettier-ignore -->
         @for (def of $displayedColumnDefs(); let index = $index; let count = $count; let first = $first; let last = $last; let even = $even; let odd = $odd; track def.id) {
             @let headerContext = def.col | headerContext: index : first : last : even : odd : count;
+            @let headerTooltip = def.col.$headerTooltip();
             <div
                 #header
                 class="column-header"
@@ -64,7 +65,7 @@
                         layout="small-icon"
                         [class.not-sortable]="!def.col.$sortable()"
                         [tabindex]="def.col.$sortable() ? '0' : '-1'"
-                        [tooltip]="def.col.$headerTooltip()?.templateRef ?? (def.col.$showAutoHeaderTooltip() ? defaultHeaderTooltipTemplate: undefined)"
+                        [tooltip]="headerTooltip && (headerTooltip.$showTooltip() | showHeaderTooltip:headerContext.$implicit) ? headerTooltip.templateRef : (def.col.$showAutoHeaderTooltip() ? defaultHeaderTooltipTemplate: undefined)"
                         [tooltipContext]="headerContext.$implicit | 
                             headerTooltipContext:def.col.$header()!.templateRef:
                             $sortMode():def.col.$sortable():def.col.$sortOrder():
@@ -227,6 +228,7 @@
                                         : coleven
                                         : colodd
                                         : colcount;
+                            @let cellTooltip = def.col.$cellTooltip();
                             <div
                                 class="cell"
                                 role="cell"
@@ -243,7 +245,7 @@
                                 [style.padding]="$dataPadding()"
                                 [style.width]="$columnWidthDirectives() | cellWidth: def.id : $dataPadding() | async"
                                 [ngClass]="cellContext.$implicit | cellClass"
-                                [tooltip]="block.$status() === 'success' ? def.col.$cellTooltip()?.templateRef : undefined"
+                                [tooltip]="block.$status() === 'success' && cellTooltip && (cellTooltip.$showTooltip() | showCellTooltip:cellContext.$implicit) ? cellTooltip.templateRef : undefined"
                                 [tooltipContext]="cellContext.$implicit | cellTooltipContext: def.col.$cell().templateRef"
                             >
                                 @switch (block.$status()) {
