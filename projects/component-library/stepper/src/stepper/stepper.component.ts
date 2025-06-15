@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input, model, output } from '@angular/core';
-import type { StepComponent } from 'tableau-ui-angular/stepper';
+import type { StepComponent } from '../step/step.component';
 
 @Component({
     selector: 'tab-stepper',
@@ -34,7 +34,7 @@ export class StepperComponent {
      * @default -1 (no step selected)
      */
     readonly $selectedIndex = model<number>(-1, {
-      alias: 'selectedIndex',
+        alias: 'selectedIndex',
     });
 
     /**
@@ -58,5 +58,4 @@ export class StepperComponent {
      * Event emitted when the selected step changes.
      */
     readonly selectedStepChanged = output<StepComponent>();
-    
 }

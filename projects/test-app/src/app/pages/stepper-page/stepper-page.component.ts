@@ -10,5 +10,4 @@ import { TableauUiStepperModule } from 'tableau-ui-angular/stepper';
     styleUrl: './stepper-page.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class StepperPageComponent {
-}
+export class StepperPageComponent {}
