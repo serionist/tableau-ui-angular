@@ -14,6 +14,7 @@ import { FcRegisterFnsImpl } from './register/impl';
 import type { PrimitiveWithUndefined } from './types';
 
 export class FCImpl<T extends PrimitiveWithUndefined | PrimitiveWithUndefined[]> extends ACImpl<T> implements FC<T> {
+   
     private readonly _value$: BehaviorSubject<T>;
     private readonly $_value: WritableSignal<T>;
 
@@ -29,6 +30,8 @@ export class FCImpl<T extends PrimitiveWithUndefined | PrimitiveWithUndefined[]>
     public override readonly metaFn: MetaFns<FC<T>>;
     public override readonly registerFn: FcRegisterFns<T>;
 
+    private readonly _control: FormControl<T>;
+    private readonly _defaultValue: T;
     constructor(params: { defaultValue: T; initialDisabled?: boolean; validators?: ValidatorFn | ValidatorFn[]; asyncValidators?: AsyncValidatorFn | AsyncValidatorFn[]; updateOn?: 'blur' | 'change' | 'submit' }) {
         const control = new FormControl<T>(
             {
@@ -43,7 +46,8 @@ export class FCImpl<T extends PrimitiveWithUndefined | PrimitiveWithUndefined[]>
             },
         );
         super('control', control, []);
-
+        this._control = control;
+        this._defaultValue = params.defaultValue;
         this._value$ = new BehaviorSubject<T>(params.defaultValue);
         this.$_value = signal<T>(this._value$.value);
         this.subscriptions.push(
@@ -102,5 +106,12 @@ export class FCImpl<T extends PrimitiveWithUndefined | PrimitiveWithUndefined[]>
             emitModelToViewChange: options?.emitModelToViewChange ?? true,
             emitViewToModelChange: options?.emitViewToModelChange ?? true,
         });
+    }
+
+    resetWithDefaultValue(updateParentsValue: boolean = true, emitEvent: boolean = true) {
+        this._control.reset(this._defaultValue, { onlySelf: !updateParentsValue, emitEvent: emitEvent });
+    }
+    reset(value: T, updateParentsValue: boolean = true, emitEvent: boolean = true) {
+        this._control.reset(value, { onlySelf: !updateParentsValue, emitEvent: emitEvent });
     }
 }

@@ -17,12 +17,12 @@ import { TableauUiFormFieldModule } from 'tableau-ui-angular/form-field';
 })
 export class DatePickerPageComponent {
     readonly b = inject(FB);
-    readonly simpleControl = this.b.control<Date>(new Date(), [Validators.required, DateValidators.minDate(new Date(2000, 0, 1)), DateValidators.maxDate(new Date(2030, 12, 31))]);
+    readonly simpleControl = this.b.control<Date | undefined>(undefined, [Validators.required, DateValidators.minDate(new Date(2000, 0, 1)), DateValidators.maxDate(new Date(2030, 12, 31))]);
 
     constructor() {
         this.simpleControl.value$.subscribe((value) => {
-            console.log(value);
-            console.log('simpleControl valueChange', value.toISOString());
+            console.log(value, this.simpleControl.$value());
+            console.log('simpleControl valueChange', value?.toISOString());
         });
     }
     valueChange(value: Date | undefined) {

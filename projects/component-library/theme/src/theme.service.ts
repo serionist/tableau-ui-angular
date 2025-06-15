@@ -55,6 +55,7 @@ export class ThemeService {
                         if (!document.body.classList.contains('dark-mode')) {
                             document.body.classList.add('dark-mode');
                         }
+                        document.body.style.colorScheme = 'dark';
                     }
                     break;
                 case 'light':
@@ -62,6 +63,7 @@ export class ThemeService {
                         if (document.body.classList.contains('dark-mode')) {
                             document.body.classList.remove('dark-mode');
                         }
+                        document.body.style.colorScheme = 'light';
                     }
                     break;
             }

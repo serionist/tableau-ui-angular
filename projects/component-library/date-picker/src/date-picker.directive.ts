@@ -2,6 +2,7 @@ import type { ModelSignal } from '@angular/core';
 import { Directive, effect, ElementRef, forwardRef, HostListener, inject, input, model, output } from '@angular/core';
 import type { ControlValueAccessor } from '@angular/forms';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import { ThemeService } from 'tableau-ui-angular/theme';
 
 @Directive({
     selector: 'input[type=date],input[type=datetime-local],input[type=datetime],input[date-picker]',
@@ -20,7 +21,9 @@ import { NG_VALUE_ACCESSOR } from '@angular/forms';
 })
 export class DatePickerDirective implements ControlValueAccessor {
     private readonly el = inject<ElementRef<HTMLInputElement>>(ElementRef);
+    private readonly themeService = inject(ThemeService);
 
+    
     // type can only be set once. Cannot change between date and datetime
     readonly $type = input.required<'date' | 'datetime'>({
         alias: 'type',

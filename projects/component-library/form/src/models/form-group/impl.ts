@@ -42,6 +42,8 @@ export class FGImpl<T extends Record<string, unknown>> extends ACImpl<T> impleme
     public override readonly metaFn: MetaFns<FG<T>>;
     public override readonly registerFn: FgRegisterFns<T>;
 
+    private readonly _control: FormGroup<ControlsOf<T>>;
+    private readonly _defaultValue: T;
     constructor(params: { controls: FormReferencesOf<T>; validators?: ValidatorFn | ValidatorFn[]; asyncValidators?: AsyncValidatorFn | AsyncValidatorFn[]; updateOn?: 'blur' | 'change' | 'submit' }) {
         const controls = Object.entries(params.controls).reduce<Partial<ControlsOf<T>>>((acc, [key, child]) => {
             const c = (child as ACImpl<unknown>).control;
@@ -58,11 +60,13 @@ export class FGImpl<T extends Record<string, unknown>> extends ACImpl<T> impleme
 
         const childList = Object.entries(params.controls).map(([, child]) => child as AC);
         super('group', control, childList);
+        this._control = control;
+        this._defaultValue = control.getRawValue() as T;
 
         this.controls = params.controls;
         this._value$ = new BehaviorSubject<DeepPartial<T>>(control.value);
         this.$_value = signal<DeepPartial<T>>(this._value$.value);
-        this._rawValue$ = new BehaviorSubject<T>(control.getRawValue() as T);
+        this._rawValue$ = new BehaviorSubject<T>(this._defaultValue);
         this.$_rawValue = signal<T>(this._rawValue$.value);
         this.subscriptions.push(
             control.valueChanges.pipe(startWith(control.value as DeepPartial<T>)).subscribe((v) => {
@@ -97,5 +101,14 @@ export class FGImpl<T extends Record<string, unknown>> extends ACImpl<T> impleme
             emitModelToViewChange: options?.emitModelToViewChange ?? true,
             emitViewToModelChange: options?.emitViewToModelChange ?? true,
         });
+    }
+
+    resetWithDefaultValue(updateParentsValue: boolean = true, emitEvent: boolean = true) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
+        this._control.reset(this._defaultValue as any, { onlySelf: !updateParentsValue, emitEvent: emitEvent });
+    }
+    reset(value: T, updateParentsValue: boolean = true, emitEvent: boolean = true) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
+        this._control.reset(value as any, { onlySelf: !updateParentsValue, emitEvent: emitEvent });
     }
 }

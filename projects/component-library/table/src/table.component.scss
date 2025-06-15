@@ -4,7 +4,7 @@
     overflow: auto;
     // stylelint-disable-next-line declaration-property-unit-disallowed-list
     min-height: 300px;
-
+    scrollbar-gutter: stable;
     .table {
         min-height: 100%;
         display: grid;
@@ -27,6 +27,7 @@
             background: var(--twc-color-base);
             background-clip: padding-box;
             z-index: 2;
+            min-width: 100%;
 
             .column-header {
                 display: grid;
@@ -117,6 +118,11 @@
                     margin-left: -4px;
                     // stylelint-disable-next-line declaration-property-unit-disallowed-list
                     margin-right: -4px;
+
+                    &.last {
+                        // stylelint-disable-next-line declaration-property-unit-disallowed-list
+                        margin-right: -8px;
+                    }
                 }
 
                 &:hover .resizer .line {

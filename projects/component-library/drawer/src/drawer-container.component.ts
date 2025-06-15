@@ -44,6 +44,7 @@ import { DrawerComponent } from './drawer.component';
             width: 100%;
             height: 100%;
             grid-template-rows: 1fr;
+            overflow: auto;
         }
         :host > * {
             overflow: auto;

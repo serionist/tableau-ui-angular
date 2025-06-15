@@ -1,6 +1,7 @@
 const path = require('path');
-const distPath = path.resolve(__dirname, '..', 'dist', 'component-library');
+const distPath = `"${path.resolve(__dirname, '..', 'dist', 'component-library')}"`;
 
+const modulePath = name =>  `"${path.resolve(__dirname, '..', 'node_modules', name)}"`;
 console.log(`\n\n#### Library linking is now started
     
 To consume this libray in your project, you need to:
@@ -41,7 +42,7 @@ To consume this libray in your project, you need to:
     npm install --save-dev link
 
 4. Run the following command in your consuming project root:
-    npx link ${distPath}
+    npx link ${modulePath("@angular/common")} ${modulePath("@angular/core")} ${modulePath("@angular/forms")} ${modulePath("@angular/router")} ${modulePath("monaco-editor")} ${distPath}
 
 ### To Unlink the library once you've finished development (or commit the consuming project), run:
      npm install

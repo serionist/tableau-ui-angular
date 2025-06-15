@@ -128,16 +128,6 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> {
     });
 
     /**
-     * Whether to reset the table when the size of the table changes.
-     * This is useful when the table is resized and you want to reset the scroll position and data.
-     * This can only be set once.
-     * @default false
-     */
-    readonly $resetOnSizeChange = input(false, {
-        alias: 'resetOnSizeChange',
-    });
-
-    /**
      * The options for the selection mode.
      * If undefined, no selection will be enabled.
      * If a SingleSelectionOptions is provided, single selection will be enabled.
@@ -289,7 +279,10 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> {
         if (selectionOptions?.clearSelectedKeysOnAnyReset === true) {
             this.$selectedRows.set(new Map<TKey, TData>());
         }
-
+        if (!this.loaded) {
+            return;
+        }
+        // console.log('auto resetting table with sort', sort, 'dataOptions', dataOptions, 'dataBlockWindow', dataBlockWindow, 'displayedColumns', displayedColumns);
         untracked(() => void this.resetInternal(sort, dataOptions, dataBlockWindow, displayedColumns));
     });
     private async resetInternal(
@@ -306,9 +299,7 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> {
               }[]
             | undefined,
     ): Promise<boolean> {
-        if (!this.loaded) {
-            return false;
-        }
+       
         if (this.dataRowHeightPx === 0 || this.dataWindowHeightPx === 0 || !sort || !dataOptions || !displayedColumns) {
             console.warn('Table reset called with undefined parameters, ignoring');
             return false;
@@ -332,6 +323,9 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> {
      * @returns A promise that resolves to true if the reset was successful, false otherwise.
      */
     async reset(resetSort: boolean = false): Promise<boolean> {
+        if (!this.loaded) {
+            return false;
+        }
         if (resetSort) {
             this.$sort.set([]);
         }

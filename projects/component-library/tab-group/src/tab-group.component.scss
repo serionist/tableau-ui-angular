@@ -1,7 +1,7 @@
 :host {
     display: grid;
     grid-template-rows: auto auto 1fr;
-
+    overflow: auto;
     tab-arrow-scroll {
         width: 100%;
     }
@@ -50,7 +50,9 @@
             }
         }
     }
-
+    .tab-content {
+        overflow: auto;
+    }
     .tab-headers-underline {
         margin-top: -3px; // stylelint-disable-line declaration-property-unit-disallowed-list
         border-bottom: solid 3px var(--twc-tab-color-inactive-underline);

@@ -16,7 +16,7 @@ import { MetaFnsImpl } from '../abstract-control/meta/impl';
 import type { FGImpl } from '../form-group/impl';
 import type { DeepPartial, ReadonlyBehaviorSubject } from 'tableau-ui-angular/types';
 
-export class FAImpl<T extends Record<string, unknown>> extends ACImpl<T> implements FA<T> {
+export class FAImpl<T extends Record<string, unknown>> extends ACImpl<T[]> implements FA<T> {
     protected readonly $_value: WritableSignal<DeepPartial<T>[]>;
     protected readonly _value$: BehaviorSubject<DeepPartial<T>[]>;
     private readonly _rawValue$: BehaviorSubject<T[]>;
@@ -50,6 +50,8 @@ export class FAImpl<T extends Record<string, unknown>> extends ACImpl<T> impleme
     public override metaFn: MetaFns<FA<T>>;
     public override registerFn: FaRegisterFnsImpl<T>;
 
+    private readonly _control: FormArray<FormGroup<ControlsOf<T>>>;
+    private readonly _defaultValue: T[];
     constructor(params: { controls: FG<T>[]; validators?: ValidatorFn | ValidatorFn[]; asyncValidators?: AsyncValidatorFn | AsyncValidatorFn[]; updateOn?: 'blur' | 'change' | 'submit' }) {
         const controlsArray = params.controls.map((child) => {
             const c = (child as unknown as ACImpl<unknown>).control;
@@ -63,12 +65,14 @@ export class FAImpl<T extends Record<string, unknown>> extends ACImpl<T> impleme
         });
 
         super('array', control, params.controls);
+        this._control = control;
+        this._defaultValue = control.getRawValue() as T[];
 
         this.$_controls = signal(this._controls$.value);
 
         this._value$ = new BehaviorSubject<DeepPartial<T>[]>(control.value);
         this.$_value = signal(control.value);
-        this._rawValue$ = new BehaviorSubject<T[]>(control.getRawValue() as T[]);
+        this._rawValue$ = new BehaviorSubject<T[]>(this._defaultValue);
         this.$_rawValue = signal<T[]>(this._rawValue$.value);
         this.subscriptions.push(
             control.valueChanges.pipe(startWith(control.value)).subscribe((v) => {
@@ -100,7 +104,7 @@ export class FAImpl<T extends Record<string, unknown>> extends ACImpl<T> impleme
         this.validatorFn = new ValidatorFnsImpl<FA<T>>(this.control);
         this.metaFn = new MetaFnsImpl<FA<T>>(this.control, this);
     }
-
+   
     private get formArray() {
         return this.control as FormArray<FormGroup<ControlsOf<T>>>;
     }
@@ -152,5 +156,14 @@ export class FAImpl<T extends Record<string, unknown>> extends ACImpl<T> impleme
     }
     at(index: number): FG<T> | undefined {
         return this._controls$.value[index];
+    }
+
+    resetWithDefaultValue(updateParentsValue: boolean = true, emitEvent: boolean = true) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
+        this._control.reset(this._defaultValue as any, { onlySelf: !updateParentsValue, emitEvent: emitEvent });
+    }
+    reset(value: T[], updateParentsValue: boolean = true, emitEvent: boolean = true) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
+        this._control.reset(value as any, { onlySelf: !updateParentsValue, emitEvent: emitEvent });
     }
 }
