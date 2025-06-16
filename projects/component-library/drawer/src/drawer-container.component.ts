@@ -1,67 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, contentChildren, effect } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, contentChildren, effect, viewChild } from '@angular/core';
 import { DrawerComponent } from './drawer.component';
 
 @Component({
     selector: 'tab-drawer-container',
     standalone: false,
-    template: `
-        @let leftDrawer = $leftDrawer();
-        @if (leftDrawer) {
-            <div
-                class="drawer left"
-                [style.overflow]="!leftDrawer.$isOpen() ? 'hidden' : undefined"
-                [style.height]="!leftDrawer.$isOpen() ? '0px' : undefined"
-                [style.width]="!leftDrawer.$isOpen() ? '0' : leftDrawer?.$width()"
-                [style.borderRight]="leftDrawer.$border()"
-                [style.marginRight]="leftDrawer.$padding()"
-                [style.paddingRight]="leftDrawer.$padding()"
-            >
-                <ng-container [ngTemplateOutlet]="leftDrawer.$template()" />
-            </div>
-        }
-        <div class="drawer-content">
-            <ng-content />
-        </div>
-        @let rightDrawer = $rightDrawer();
-        @if (rightDrawer) {
-            <div
-                class="drawer right"
-                [style.overflow]="!rightDrawer.$isOpen() ? 'hidden' : undefined"
-                [style.height]="!rightDrawer.$isOpen() ? '0px' : undefined"
-                [style.width]="!rightDrawer || !rightDrawer.$isOpen() ? '0' : rightDrawer?.$width()"
-                [style.borderLeft]="rightDrawer.$border()"
-                [style.marginLeft]="rightDrawer.$padding()"
-                [style.paddingLeft]="rightDrawer.$padding()"
-            >
-                <ng-container [ngTemplateOutlet]="rightDrawer.$template()" />
-            </div>
-        }
-    `,
-    styles: `
-        :host {
-            display: grid;
-            grid-template-columns: auto 1fr auto;
-            width: 100%;
-            height: 100%;
-            grid-template-rows: 1fr;
-            overflow: auto;
-        }
-        :host > * {
-            overflow: auto;
-        }
-        .drawer {
-            transition: width 0.2s ease-in-out;
-        }
-        .left {
-            grid-column: 1;
-        }
-        .drawer-content {
-            grid-column: 2;
-        }
-        .right {
-            grid-column: 3;
-        }
-    `,
+    templateUrl: './drawer-container.component.html',
+    styleUrl: './drawer-container.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DrawerContainerComponent {
@@ -81,4 +25,49 @@ export class DrawerContainerComponent {
     });
     readonly $leftDrawer = computed(() => this.$drawers().find((e) => e.$position() === 'left'));
     readonly $rightDrawer = computed(() => this.$drawers().find((e) => e.$position() === 'right'));
+
+    readonly $rightDrawerPositionExpression = computed(() => {
+        const rightDrawer = this.$rightDrawer();
+        if (!rightDrawer) {
+            return '0px';
+        }
+        const width = rightDrawer.$width();
+        let padding = rightDrawer.$padding();
+        // if padding is just a number, add px
+        if (/^\d+$/.test(padding)) {
+            padding += 'px';
+        }
+        const borderWidth = this.getBorderWidth(rightDrawer.$border()) ?? '0px';
+        const ret = `${width} + (${padding} * 2) + ${borderWidth}`;
+        return ret;
+       
+    });
+    readonly $leftDrawerPositionExpression = computed(() => {
+        const leftDrawer = this.$leftDrawer();
+        if (!leftDrawer) {
+            return '0px';
+        }
+        const width = leftDrawer.$width();
+        let padding = leftDrawer.$padding();
+        // if padding is just a number, add px
+        if (/^\d+$/.test(padding)) {
+            padding += 'px';
+        }
+        const borderWidth = this.getBorderWidth(leftDrawer.$border()) ?? '0px';
+        const ret = `${width} + (${padding} * 2) + ${borderWidth}`;
+        return ret;
+    });
+
+
+    private getBorderWidth(border: string): string | null {
+        const parts = border.trim().split(/\s+/);
+        const widthRegex = /^(\d+(\.\d+)?)(px|em|rem|%)$/;
+        for (const part of parts) {
+            if (widthRegex.test(part)) {
+                return part;
+            }
+        }
+        return null;
+    }
+    
 }
