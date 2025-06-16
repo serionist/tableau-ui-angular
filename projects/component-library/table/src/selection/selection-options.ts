@@ -16,15 +16,17 @@ export class SingleSelectionOptions extends CommonSelectionOptions {
         selectionMode: 'checkbox' | 'row-and-checkbox' = 'row-and-checkbox',
         /**
          * Clear the selected keys when a manual reset is triggered.
+         * @default true
          */
-        clearSelectedKeysOnManualReset: boolean = true,
+        clearSelectedRowsOnManualReset: boolean = true,
         /**
          * Clear the selected keys when any reset is triggered.
          * This includes manual resets and automatic resets (e.g., when size/sort/displayed cols, etc changes).
+         * @default false
          */
-        clearSelectedKeysOnAnyReset = false,
+        clearSelectedRowsOnAnyReset = false,
     ) {
-        super(selectionMode, clearSelectedKeysOnManualReset, clearSelectedKeysOnAnyReset);
+        super(selectionMode, clearSelectedRowsOnManualReset, clearSelectedRowsOnAnyReset);
     }
 }
 export class MultiSelectionOptions extends CommonSelectionOptions {
@@ -48,11 +50,13 @@ export class MultiSelectionOptions extends CommonSelectionOptions {
 
         /**
          * Clear the selected keys when a manual reset is triggered.
+         * @default true
          */
         clearSelectedKeysOnManualReset: boolean = true,
         /**
          * Clear the selected keys when any reset is triggered.
          * This includes manual resets and automatic resets (e.g., when size/sort/displayed cols, etc changes).
+         * @default false
          */
         clearSelectedKeysOnAnyReset: boolean = false,
     ) {

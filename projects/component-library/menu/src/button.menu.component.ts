@@ -24,11 +24,13 @@ export class ButtonMenuComponent extends MenuComponent implements OnDestroy {
     override readonly $closeOnBackdropClick: InputSignal<boolean> = model(true, {
         alias: 'closeOnBackdropClick',
     });
-    override readonly $width: ModelSignal<string | 'fit-content' | 'parentWidth'> = model('fit-content');
+    override readonly $width: ModelSignal<string | 'fit-content' | 'parentWidth'> = model('fit-content', {
+        alias: 'width'
+    });
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     readonly menuGroup: Signal<MenuButtonGroupComponent | undefined> = contentChild(MenuButtonGroupComponent);
 
-    readonly subs: OutputRefSubscription[] = [];
+    private readonly subs: OutputRefSubscription[] = [];
     override open(forceReOpen: boolean = false) {
         const ref = super.open(forceReOpen);
         if (ref && this.menuGroup()) {

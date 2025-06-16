@@ -116,6 +116,52 @@ export class ColumnDefDirective<TData> {
     readonly $headerTooltip = contentChild<HeaderToolipDefDirective<TData, any>>(HeaderToolipDefDirective);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     readonly $cellTooltip = contentChild<CellToolipDefDirective<TData, any>>(CellToolipDefDirective);
+
+    buildHeaderContext(index: number, first: boolean, last: boolean, even: boolean, odd: boolean, count: number): HeaderContext<TData> {
+        return {
+            columnDef: this,
+            meta: {
+                index,
+                first,
+                last,
+                even,
+                odd,
+                count,
+            },
+        };
+    }
+    buildCellContext(value: TData,
+        index: number,
+        first: boolean,
+        last: boolean,
+        even: boolean,
+        odd: boolean,
+        count: number,
+        columnIndex: number,
+        columnFirst: boolean,
+        columnLast: boolean,
+        columnEven: boolean,
+        columnOdd: boolean,
+        columnCount: number,): CellContext<TData> {
+        return {
+            row: value,
+            meta: {
+                columnDef: this,
+                index: index,
+                first: first,
+                last: last,
+                even: even,
+                odd: odd,
+                count: count,
+                columnIndex: columnIndex,
+                columnFirst: columnFirst,
+                columnLast: columnLast,
+                columnEven: columnEven,
+                columnOdd: columnOdd,
+                columnCount: columnCount,
+            },
+        };
+    }
 }
 export type SortOrderPair = ['asc', 'desc'] | ['desc', 'asc'];
 export interface HeaderTooltipArgs<TData> {

@@ -37,7 +37,7 @@ import { generateRandomString } from 'tableau-ui-angular/utils';
         `
             .menu-group {
                 background: var(--twc-color-base);
-                border-color: var(--twc-color-border);
+                border-color: var(--twc-color-border-light);
                 border-radius: var(--twc-menu-border-radius);
                 border-style: solid;
                 border-width: 1px;

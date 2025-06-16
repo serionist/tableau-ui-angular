@@ -25,24 +25,7 @@ export class CellContextPipe implements PipeTransform {
         columnCount: number,
     ): { $implicit: CellContext<TData> } {
         return {
-            $implicit: {
-                row: value,
-                meta: {
-                    columnDef: def,
-                    index: index,
-                    first: first,
-                    last: last,
-                    even: even,
-                    odd: odd,
-                    count: count,
-                    columnIndex: columnIndex,
-                    columnFirst: columnFirst,
-                    columnLast: columnLast,
-                    columnEven: columnEven,
-                    columnOdd: columnOdd,
-                    columnCount: columnCount,
-                },
-            },
+            $implicit: def.buildCellContext(value, index, first, last, even, odd, count, columnIndex, columnFirst, columnLast, columnEven, columnOdd, columnCount)
         };
     }
 }

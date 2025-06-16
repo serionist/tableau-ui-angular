@@ -10,17 +10,7 @@ import type { HeaderContext } from './header-context';
 export class HeaderContextPipe implements PipeTransform {
     transform<TData>(value: ColumnDefDirective<TData>, index: number, first: boolean, last: boolean, even: boolean, odd: boolean, count: number): { $implicit: HeaderContext<TData> } {
         return {
-            $implicit: {
-                columnDef: value,
-                meta: {
-                    index: index,
-                    first: first,
-                    last: last,
-                    even: even,
-                    odd: odd,
-                    count: count,
-                },
-            },
+            $implicit: value.buildHeaderContext(index, first, last, even, odd, count),
         };
     }
 }

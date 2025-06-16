@@ -78,7 +78,7 @@ export class MenuComponent {
      * The max width of the container
      * @remarks
      * Keep it undefined for default behavior
-     * Use any CSS width value (1rem, 12px, etc) to explicitly set minimum width
+     * Use any CSS width value (1rem, 12px, etc) to explicitly set maximum width
      * @default 'undefined'
      */
     readonly $maxWidth = input<string | undefined>(undefined, {

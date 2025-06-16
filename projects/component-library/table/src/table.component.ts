@@ -334,7 +334,7 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> {
         const dataBlockWindow = this.$dataBlockWindow();
         const displayedColumns = this.$displayedColumnDefs();
         const selectionOptions = this.$selectionOptions();
-        if (selectionOptions?.clearSelectedKeysOnManualReset === true) {
+        if (selectionOptions?.clearSelectedKeysOnManualReset !== false) {
             this.$selectedRows.set(new Map<TKey, TData>());
         }
         return this.resetInternal(sort, dataOptions, dataBlockWindow, displayedColumns);
