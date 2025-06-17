@@ -10,10 +10,11 @@ import { TableauUiButtonModule } from 'tableau-ui-angular/button';
 import { TableauUiExpansionPanelModule } from '../../../../../component-library/expansion-panel/src/tableau-ui-expansion-panel.module';
 import { TableauUiTabgroupModule } from '../../../../../component-library/tab-group/src/tableau-ui-tab-group.module';
 import { TableauUiRadioGroupModule } from '../../../../../component-library/radio-group/src/tableau-ui-radio-group.module';
+import { TableauUiButtonToggleModule } from 'tableau-ui-angular/button-toggle';
 
 @Component({
     selector: 'app-table-page',
-    imports: [TableauUiCommonModule, TableauUiCheckboxModule, TableauUiExpansionPanelModule, TableauUiTableModule, CommonModule, TableauUiButtonModule, TableauUiTabgroupModule, TableauUiRadioGroupModule],
+    imports: [TableauUiCommonModule, TableauUiCheckboxModule, TableauUiExpansionPanelModule, TableauUiTableModule, CommonModule, TableauUiButtonModule, TableauUiTabgroupModule, TableauUiRadioGroupModule, TableauUiButtonToggleModule],
     standalone: true,
     templateUrl: './table-page.component.html',
     styleUrl: './table-page.component.scss',

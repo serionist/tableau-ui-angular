@@ -1,5 +1,9 @@
 import type { TemplateRef, OnDestroy, ModelSignal } from '@angular/core';
-import { Directive, ElementRef, HostListener, input, inject, ViewContainerRef, effect, model } from '@angular/core';
+import { Directive, ElementRef, HostListener, input, inject, effect, model } from '@angular/core';
+import type { DialogRef} from 'tableau-ui-angular/dialog';
+import { DialogService } from 'tableau-ui-angular/dialog';
+import type { TooltipComponentArgs } from './tooltip.component';
+import { TooltipComponent } from './tooltip.component';
 
 // Style contained in _tooltips.scss in the styles folder
 @Directive({
@@ -7,7 +11,7 @@ import { Directive, ElementRef, HostListener, input, inject, ViewContainerRef, e
     standalone: false,
 })
 export class TooltipDirective<T> implements OnDestroy {
-    private readonly viewContainerRef = inject(ViewContainerRef);
+    private readonly dialogService = inject(DialogService);
 
     /**
      * Tooltip directive to show a tooltip on hover.
@@ -49,6 +53,26 @@ export class TooltipDirective<T> implements OnDestroy {
     });
 
     /**
+     * Padding inside the tooltip.
+     * This is used to add space inside the tooltip around the content.
+     * It can be a string representing a CSS value (e.g., '0.5rem', '1rem').
+     * @default '0.5rem'
+     */
+    readonly $tooltipPadding = model<string>('0.5rem', {
+        alias: 'tooltipPadding',
+    });
+
+    /**
+     * Mode for the tooltip arguments.
+     * If 'full', the tooltip will use the full arguments provided in `$tooltipFullArgs`.
+     * If 'individual', the tooltip will use the individual properties provided in `$tooltip`, `$
+     * tooltipContext`, `$tooltipPosition`, and `$tooltipMargin`.
+     * @default 'individual'
+     */
+    readonly $tooltipArgsMode = input<'full' | 'individual'>('individual', {
+        alias: 'tooltipArgsMode',
+    });
+    /**
      * Full arguments for the tooltip.
      * This is used to pass all the arguments to the tooltip.
      * If this is provided, it will override the individual tooltip properties.
@@ -59,7 +83,11 @@ export class TooltipDirective<T> implements OnDestroy {
     });
 
     private readonly tooltipFullArgsChanged = effect(() => {
+        const mode = this.$tooltipArgsMode();
         const args = this.$tooltipFullArgs();
+        if (mode == 'individual') {
+            return; // Individual mode, no need to update tooltip args
+        }
         this.$tooltip.set(args?.template);
         this.$tooltipContext.set(args?.context);
         this.$tooltipPosition.set(args?.position ?? 'top');
@@ -71,7 +99,7 @@ export class TooltipDirective<T> implements OnDestroy {
         const tooltip = this.$tooltip();
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const tooltipContext = this.$tooltipContext();
-        if (this.tooltipElement) {
+        if (this.tooltipDialogRef) {
             this.destroyTooltip();
             this.openTooltip();
         }
@@ -82,7 +110,7 @@ export class TooltipDirective<T> implements OnDestroy {
             this.createTooltip();
         }
     }
-    private tooltipElement: HTMLElement | null = null;
+    private tooltipDialogRef: DialogRef | undefined = undefined;
 
     private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
 
@@ -90,6 +118,7 @@ export class TooltipDirective<T> implements OnDestroy {
         if (e.buttons !== 0) {
             return;
         }
+        console.log('Tooltip mouse enter', this.$tooltip(), this.$tooltipContext());
         this.openTooltip();
     }
 
@@ -101,54 +130,125 @@ export class TooltipDirective<T> implements OnDestroy {
     }
 
     private createTooltip() {
-        this.tooltipElement = document.createElement('div');
-        this.tooltipElement.className = `tab-tooltip ${this.$tooltipPosition()}`;
-        if (typeof this.$tooltip() === 'string') {
-            this.tooltipElement.innerText = this.$tooltip() as string;
-        } else {
-            const viewRef = (this.$tooltip() as TemplateRef<T | undefined>).createEmbeddedView(this.$tooltipContext());
-            this.viewContainerRef.insert(viewRef); // attach to view
-            viewRef.detectChanges(); // trigger bindings
-            viewRef.rootNodes.forEach((node) => {
-                this.tooltipElement!.appendChild(node);
-            });
+        if (this.tooltipDialogRef) {
+            return;
         }
-        document.body.appendChild(this.tooltipElement);
+        const calculateTop = (pos: 'bottom' | 'left' | 'right' | 'top', actualWidth: number, actualHeight: number, insertAfterElementRect: DOMRect, recalculateCounter = 0) => {
+            switch (pos) {
+                case 'left':
+                case 'right': {
+                    // find the mid point of the element
+                    const elementMidPoint = insertAfterElementRect.top + insertAfterElementRect.height / 2;
+                    // calculate the top position based on the mid point and the height of the tooltip
+                    const tooltipTop = elementMidPoint - actualHeight / 2;
+                    return `${tooltipTop}px`;
+                }
+                case 'top': {
+                    // find the top of the element and subtract the height of the tooltip
+                    const tooltipTop = insertAfterElementRect.top - actualHeight;
+                    // if we hit the top of the screen, make the tooltip appear below the element
+                    if (tooltipTop < 0 && recalculateCounter < 2) {
+                        return calculateTop('bottom', actualWidth, actualHeight, insertAfterElementRect, recalculateCounter + 1);
+                    }
+                    // subtract the margin from the top position
+                    // ensure the tooltip does not go above the top of the screen
+                    return `max(0px, calc(${tooltipTop}px - ${this.$tooltipMargin() || 0}))`;
+                }
+                case 'bottom': {
+                    // find the bottom of the element and add the height of the tooltip
+                    const tooltipTop = insertAfterElementRect.bottom;
+                    // if we hit the bottom of the screen, make the tooltip appear above the element
+                    if (tooltipTop + actualHeight > window.innerHeight && recalculateCounter < 2) {
+                        return calculateTop('top', actualWidth, actualHeight, insertAfterElementRect, recalculateCounter + 1);
+                    }
+                    // add the margin to the top position
+                    // ensure the tooltip does not go below the bottom of the screen
+                    return `min(${window.innerHeight - actualHeight}px, calc(${tooltipTop}px + ${this.$tooltipMargin() || 0}))`;
+                }
+                default:
+                    return '0'; // Fallback case, should not happen
+            }
+        };
+        const calculateLeft = (pos: 'bottom' | 'left' | 'right' | 'top', actualWidth: number, actualHeight: number, insertAfterElementRect: DOMRect, recalculateCounter = 0) => {
+            switch (pos) {
+                case 'top':
+                case 'bottom': {
+                    // find the mid point of the element
+                    const elementMidPoint = insertAfterElementRect.left + insertAfterElementRect.width / 2;
+                    // calculate the left position based on the mid point and the width of the tooltip
+                    const tooltipLeft = elementMidPoint - actualWidth / 2;
+                    return `${tooltipLeft}px`;
+                }
+                case 'left': {
+                    // find the left of the element and subtract the width of the tooltip
+                    const tooltipLeft = insertAfterElementRect.left - actualWidth;
+                    // if we hit the left side of the screen, make the tooltip appear on the right side of the element
+                    if (tooltipLeft < 0 && recalculateCounter < 2) {
+                        return calculateLeft('right', actualWidth, actualHeight, insertAfterElementRect, recalculateCounter + 1);
+                    }
+                    // ensure the tooltip does not go off the left side of the screen
+                    return `max(0px, calc(${tooltipLeft}px - ${this.$tooltipMargin() || 0}))`;
+                }
+                case 'right': {
+                    // find the right of the element and add the width of the tooltip
+                    const tooltipLeft = insertAfterElementRect.right;
+                    // if we hit the right side of the screen, make the tooltip appear on the left side of the element
+                    if (tooltipLeft + actualWidth > window.innerWidth && recalculateCounter < 2) {
+                        return calculateLeft('left', actualWidth, actualHeight, insertAfterElementRect, recalculateCounter + 1);
+                    }
+                    // ensure the tooltip does not go off the right side of the screen
+                    return `min(${window.innerWidth - actualWidth}px, calc(${tooltipLeft}px + ${this.$tooltipMargin() || 0}))`;
+                }
+                default:
+                    return '0'; // Fallback case, should not happen
+            }
+        };
 
-        const hostPos = this.elementRef.nativeElement.getBoundingClientRect();
-        const tooltipPos = this.tooltipElement.getBoundingClientRect();
-
-        const scrollX = window.scrollX || document.documentElement.scrollLeft;
-        const scrollY = window.scrollY || document.documentElement.scrollTop;
-
-        let top: string, left: string;
-        switch (this.$tooltipPosition()) {
-            case 'top':
-                top = `calc(${hostPos.top + scrollY}px - ${tooltipPos.height}px - ${this.$tooltipMargin() || 0})`;
-                left = `calc(${hostPos.left + scrollX}px + ${(hostPos.width - tooltipPos.width) / 2}px)`;
-                break;
-            case 'bottom':
-                top = `calc(${hostPos.bottom + scrollY}px + ${this.$tooltipMargin() || 0})`;
-                left = `calc(${hostPos.left + scrollX}px + ${(hostPos.width - tooltipPos.width) / 2}px)`;
-                break;
-            case 'left':
-                top = `calc(${hostPos.top + scrollY}px + ${(hostPos.height - tooltipPos.height) / 2}px)`;
-                left = `calc(${hostPos.left + scrollX}px - ${tooltipPos.width}px - ${this.$tooltipMargin() || 0})`;
-                break;
-            case 'right':
-                top = `calc(${hostPos.top + scrollY}px + ${(hostPos.height - tooltipPos.height) / 2}px)`;
-                left = `calc(${hostPos.right + scrollX}px + ${this.$tooltipMargin() || 0})`;
-                break;
-        }
-        // Apply calculated positions
-        this.tooltipElement.style.top = top;
-        this.tooltipElement.style.left = left;
+        this.tooltipDialogRef = this.dialogService.openDialog(
+            TooltipComponent,
+            {
+                tooltip: this.$tooltip(),
+                tooltipContext: this.$tooltipContext(),
+                padding: this.$tooltipPadding(),
+            } as TooltipComponentArgs<T>,
+            {
+                backdropCss: undefined,
+                skipCreatingBackdrop: true,
+                closeOnBackdropClick: false,
+                closeOnEscape: false,
+                trapFocus: false,
+                containerCss: {
+                    pointerEvents: 'none',
+                    backgroundColor: 'var(--twc-color-base)',
+                    border: '1px solid var(--twc-color-border-light)',
+                    borderRadius: '1px',
+                    boxShadow: 'var(--twc-dialog-box-shadow)',
+                    boxSizing: 'border-box',
+                    display: 'block',
+                    fontSize: '1rem',
+                    lineHeight: '1.2',
+                    padding: this.$tooltipPadding(),
+                    tabindex: '-1'
+                },
+                header: undefined,
+                height: undefined,
+                width: undefined,
+                top: (actualWidth, actualHeight, insertAfterElementRect) => {
+                    return calculateTop(this.$tooltipPosition(), actualWidth, actualHeight, insertAfterElementRect!, 0);
+                },
+                left: (actualWidth, actualHeight, insertAfterElementRect) => {
+                    return calculateLeft(this.$tooltipPosition(), actualWidth, actualHeight, insertAfterElementRect!, 0);
+                },
+            },
+            this.elementRef.nativeElement,
+        );
+       
     }
 
     private destroyTooltip() {
-        if (this.tooltipElement) {
-            document.body.removeChild(this.tooltipElement);
-            this.tooltipElement = null;
+        if (this.tooltipDialogRef) {
+            this.tooltipDialogRef.close();
+            this.tooltipDialogRef = undefined;
         }
     }
 }

@@ -6,10 +6,11 @@ import { SnackService } from 'tableau-ui-angular/snack';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
 import { TableauUiButtonModule } from 'tableau-ui-angular/button';
 import { TableauUiIconModule } from 'tableau-ui-angular/icon';
+import { TableauUiButtonToggleModule } from 'tableau-ui-angular/button-toggle';
 
 @Component({
     selector: 'app-buttons-page',
-    imports: [TableauUiCommonModule, TableauUiButtonModule, TableauUiIconModule],
+    imports: [TableauUiCommonModule, TableauUiButtonModule, TableauUiIconModule, TableauUiButtonToggleModule],
     standalone: true,
     templateUrl: './buttons-page.component.html',
     styleUrl: './buttons-page.component.scss',

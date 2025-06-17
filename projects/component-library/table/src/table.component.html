@@ -64,6 +64,7 @@
                         color="plain"
                         layout="small-icon"
                         tooltip
+                        tooltipArgsMode="full"
                         [class.not-sortable]="!def.col.$sortable()"
                         [tabindex]="def.col.$sortable() ? '0' : '-1'"
                         [tooltipFullArgs]="headerTooltip | headerTooltip:headerContext.$implicit:def.col.$showAutoHeaderTooltip():defaultHeaderTooltipTemplate:{
@@ -244,6 +245,7 @@
                                 class="cell"
                                 role="cell"
                                 tooltip
+                                tooltipArgsMode="full"
                                 [attr.data-column-id]="def.id"
                                 [attr.data-column-index]="block.offset + index"
                                 [attr.data-column-count]="colcount"

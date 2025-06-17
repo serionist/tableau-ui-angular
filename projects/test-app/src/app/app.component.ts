@@ -11,9 +11,10 @@ import { TableauUiIconModule } from 'tableau-ui-angular/icon';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
 import { TableauUiButtonModule } from 'tableau-ui-angular/button';
 import { TableauUiFormFieldModule } from 'tableau-ui-angular/form-field';
+import { TableauUiButtonToggleModule } from 'tableau-ui-angular/button-toggle';
 @Component({
     selector: 'app-root',
-    imports: [CommonModule, RouterModule, TableauUiNavBarModule, TableauUiIconModule, TableauUiCommonModule, TableauUiMenuModule, TableauUiButtonModule, TableauUiFormFieldModule],
+    imports: [CommonModule, RouterModule, TableauUiNavBarModule, TableauUiIconModule, TableauUiCommonModule, TableauUiMenuModule, TableauUiButtonToggleModule, TableauUiFormFieldModule],
     standalone: true,
     templateUrl: './app.component.html',
     styleUrl: './app.component.scss',

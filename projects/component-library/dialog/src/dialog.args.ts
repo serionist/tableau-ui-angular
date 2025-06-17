@@ -1,4 +1,5 @@
 export interface IDialogArgs extends IModalArgs, IDialogPositionAndSizeArgs {
+    skipCreatingBackdrop?: boolean;
     backdropCss?: Record<string, string>;
     containerCss?: Record<string, string>;
     trapFocus?: boolean;

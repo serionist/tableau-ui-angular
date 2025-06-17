@@ -188,7 +188,14 @@ export class DialogService {
         dialogRef.dialogElement = dialogElement;
 
         // always insert element after the backdrop
-        backdrop.insertAdjacentElement('afterend', dialogElement);
+        if (backdrop) {
+            backdrop?.insertAdjacentElement('afterend', dialogElement);
+        } else if (insertAfterElement) {
+            insertAfterElement.insertAdjacentElement('afterend', dialogElement);
+        } else {
+            document.body.appendChild(dialogElement);
+        }
+        
         // Handle container position and window resize event
         dialogRef.reposition = (getArgs: (originalArgs: IDialogPositionAndSizeArgs) => void) => {
             getArgs(args);
@@ -208,7 +215,7 @@ export class DialogService {
             const dialogIndex = this.dialogStack.findIndex((d) => d.zIndex === zIndex);
             this.dialogStack.splice(dialogIndex, 1);
             // clear backdrop
-            backdrop.remove();
+            backdrop?.remove();
             // set escape handler
             this.setEscapeHandler();
             // restore focus to the elements that were trapped
@@ -220,7 +227,10 @@ export class DialogService {
         return dialogRef;
     }
 
-    private createBackdrop(args: IDialogArgs, dialogRef: IDialogRef, dialogZIndex: number, insertAfterElement?: HTMLElement): HTMLDivElement {
+    private createBackdrop(args: IDialogArgs, dialogRef: IDialogRef, dialogZIndex: number, insertAfterElement?: HTMLElement): HTMLDivElement | undefined {
+        if (args.skipCreatingBackdrop === true) {
+            return undefined;
+        }
         const backdrop = document.createElement('div');
         backdrop.classList.add('dialog-backdrop');
         backdrop.style.zIndex = (dialogZIndex - 1).toString();

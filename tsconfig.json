@@ -22,6 +22,9 @@
             "tableau-ui-angular/button": [
                 "./projects/component-library/button/src/public_api.ts"
             ],
+            "tableau-ui-angular/button-toggle": [
+                "./projects/component-library/button-toggle/src/public_api.ts"
+            ],
             "tableau-ui-angular/arrow-scroll": [
                 "./projects/component-library/arrow-scroll/src/public_api.ts"
             ],

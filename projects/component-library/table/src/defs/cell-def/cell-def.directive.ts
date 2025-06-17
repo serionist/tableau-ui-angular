@@ -18,9 +18,9 @@ export class CellDefDirective<TData, TKey extends Primitive> {
      * This will clamp to the maximum number of lines that can fit in the cell, respecting the height and padding of the cell.
      * It will also show a default tooltip with the full value of the cell uinless its turned off.
      * Only works if the cell template ONLY contains text, no HTML elements.
-     * @default false
+     * @default true
      */
-    readonly $textClamping = input<boolean>(false, {
+    readonly $textClamping = input<boolean>(true, {
         alias: 'textClamping',
     });
 
