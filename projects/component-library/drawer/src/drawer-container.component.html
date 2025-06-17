@@ -1,7 +1,8 @@
 @let leftDrawer = $leftDrawer();
 @let rightDrawer = $rightDrawer();
 @if (leftDrawer) {
-    <div #leftDrawerWrapper
+    <div
+        #leftDrawerWrapper
         class="drawer left"
         [style.left]="leftDrawer.$isOpen() ? '0' : `calc(-1 * (${$leftDrawerPositionExpression()}))`"
         [style.width]="leftDrawer.$width()"
@@ -10,20 +11,12 @@
         <ng-container [ngTemplateOutlet]="leftDrawer.$template()" />
     </div>
 }
-<div class="drawer-content"
-    [style.right]="rightDrawer?.$isOpen() ? `calc(${$rightDrawerPositionExpression()})` : '0'"
-    [style.left]="leftDrawer?.$isOpen() ? `calc(${$leftDrawerPositionExpression()})` : '0'"
-    >
+<div class="drawer-content" [style.right]="rightDrawer?.$isOpen() ? `calc(${$rightDrawerPositionExpression()})` : '0'" [style.left]="leftDrawer?.$isOpen() ? `calc(${$leftDrawerPositionExpression()})` : '0'">
     <ng-content />
 </div>
 
 @if (rightDrawer) {
-    <div
-        class="drawer right"
-        [style.right]=" rightDrawer.$isOpen() ? '0' :`calc(-1 * (${$rightDrawerPositionExpression()}))`"
-        [style.width]="rightDrawer.$width()"
-        [style.borderLeft]="rightDrawer.$border()"
-    >
+    <div class="drawer right" [style.right]=" rightDrawer.$isOpen() ? '0' :`calc(-1 * (${$rightDrawerPositionExpression()}))`" [style.width]="rightDrawer.$width()" [style.borderLeft]="rightDrawer.$border()">
         <ng-container [ngTemplateOutlet]="rightDrawer.$template()" />
     </div>
 }

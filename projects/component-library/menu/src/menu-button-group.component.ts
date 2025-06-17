@@ -150,7 +150,7 @@ export class MenuButtonGroupComponent implements OnDestroy {
                 c.click.subscribe((e) => {
                     const stack = this.$menuGroupStack();
                     if (stack.length > 0) {
-                        const firstGroup =  stack[0];
+                        const firstGroup = stack[0];
                         this.destroyGroupsUntil(firstGroup.id);
                     }
                     this.buttonClicked.emit({

@@ -25,7 +25,7 @@ export class ButtonMenuComponent extends MenuComponent implements OnDestroy {
         alias: 'closeOnBackdropClick',
     });
     override readonly $width: ModelSignal<string | 'fit-content' | 'parentWidth'> = model('fit-content', {
-        alias: 'width'
+        alias: 'width',
     });
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     readonly menuGroup: Signal<MenuButtonGroupComponent | undefined> = contentChild(MenuButtonGroupComponent);

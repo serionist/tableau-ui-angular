@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, contentChildren, effect, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, contentChildren, effect } from '@angular/core';
 import { DrawerComponent } from './drawer.component';
 
 @Component({
@@ -40,7 +40,6 @@ export class DrawerContainerComponent {
         const borderWidth = this.getBorderWidth(rightDrawer.$border()) ?? '0px';
         const ret = `${width} + (${padding} * 2) + ${borderWidth}`;
         return ret;
-       
     });
     readonly $leftDrawerPositionExpression = computed(() => {
         const leftDrawer = this.$leftDrawer();
@@ -58,7 +57,6 @@ export class DrawerContainerComponent {
         return ret;
     });
 
-
     private getBorderWidth(border: string): string | null {
         const parts = border.trim().split(/\s+/);
         const widthRegex = /^(\d+(\.\d+)?)(px|em|rem|%)$/;
@@ -69,5 +67,4 @@ export class DrawerContainerComponent {
         }
         return null;
     }
-    
 }

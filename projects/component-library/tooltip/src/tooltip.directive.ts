@@ -8,7 +8,7 @@ import { Directive, ElementRef, HostListener, input, inject, ViewContainerRef, e
 })
 export class TooltipDirective<T> implements OnDestroy {
     private readonly viewContainerRef = inject(ViewContainerRef);
-    
+
     /**
      * Tooltip directive to show a tooltip on hover.
      * The tooltip can be a string or a TemplateRef.
@@ -52,7 +52,7 @@ export class TooltipDirective<T> implements OnDestroy {
      * Full arguments for the tooltip.
      * This is used to pass all the arguments to the tooltip.
      * If this is provided, it will override the individual tooltip properties.
-     * This is used to set only. 
+     * This is used to set only.
      */
     readonly $tooltipFullArgs = input<TooltipArgs<T> | undefined>(undefined, {
         alias: 'tooltipFullArgs',

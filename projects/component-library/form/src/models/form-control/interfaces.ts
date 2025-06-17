@@ -48,7 +48,6 @@ export interface FC<T extends PrimitiveWithUndefined | PrimitiveWithUndefined[]>
         },
     ) => void;
 
-
     /**
      * Resets the control, marking it `pristine` and `untouched`, and resetting
      * the value to its initial value
@@ -58,14 +57,13 @@ export interface FC<T extends PrimitiveWithUndefined | PrimitiveWithUndefined[]>
      */
     resetWithDefaultValue: (updateParentsValue?: boolean, emitEvent?: boolean) => void;
 
-
     /**
-      * Resets the form control, marking it `pristine` and `untouched`, and resetting
-      * the value to the provided value
-      * @param value 
-      * @param updateParentsValue If true, updates the value of parent controls.
-      * @param emitEvent If true, emits the `valueChanges` event after resetting.
-      * @returns 
-       */
+     * Resets the form control, marking it `pristine` and `untouched`, and resetting
+     * the value to the provided value
+     * @param value
+     * @param updateParentsValue If true, updates the value of parent controls.
+     * @param emitEvent If true, emits the `valueChanges` event after resetting.
+     * @returns
+     */
     reset: (value: T, updateParentsValue?: boolean, emitEvent?: boolean) => void;
 }

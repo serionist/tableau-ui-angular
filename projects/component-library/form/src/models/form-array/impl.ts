@@ -104,7 +104,7 @@ export class FAImpl<T extends Record<string, unknown>> extends ACImpl<T[]> imple
         this.validatorFn = new ValidatorFnsImpl<FA<T>>(this.control);
         this.metaFn = new MetaFnsImpl<FA<T>>(this.control, this);
     }
-   
+
     private get formArray() {
         return this.control as FormArray<FormGroup<ControlsOf<T>>>;
     }

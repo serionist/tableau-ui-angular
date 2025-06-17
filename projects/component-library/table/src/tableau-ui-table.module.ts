@@ -50,8 +50,6 @@ import { CellTooltipPipe } from './defs/cell-def/cell-tooltip.pipe';
         HeaderCheckboxModePipe,
         RowSelectedPipe,
         TextClampDirective,
-        
-        
     ],
     exports: [TableComponent, HeaderDefDirective, HeaderToolipDefDirective, ColumnDefDirective, CellDefDirective, CellToolipDefDirective],
 })

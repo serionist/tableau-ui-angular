@@ -7,7 +7,7 @@ import type { TooltipArgs } from 'tableau-ui-angular/tooltip';
 
 @Pipe({
     name: 'cellTooltip',
-    standalone: false
+    standalone: false,
 })
 export class CellTooltipPipe implements PipeTransform {
     transform<TData, TKey extends Primitive>(
@@ -16,7 +16,7 @@ export class CellTooltipPipe implements PipeTransform {
         cellContext: CellContext<TData>,
         showAutoCellTooltip: boolean,
         cellTemplate: TemplateRef<{ $implicit: CellContext<TData> }>,
-        isClamped: boolean
+        isClamped: boolean,
     ): TooltipArgs<{ $implicit: CellTooltipContext<TData> }> {
         const tooltipArgs: TooltipArgs<{ $implicit: CellTooltipContext<TData> }> = {
             template: undefined,
@@ -58,10 +58,8 @@ export class CellTooltipPipe implements PipeTransform {
         // it means we are not showing a custom tooltip
         // check if we have auto tooltip enabled and we have clamped the cell context
         if (tooltipArgs.template === undefined && showAutoCellTooltip && isClamped) {
-          tooltipArgs.template = cellTemplate as TemplateRef<{ $implicit: CellTooltipContext<TData> }>;
+            tooltipArgs.template = cellTemplate as TemplateRef<{ $implicit: CellTooltipContext<TData> }>;
         }
-
-
 
         return tooltipArgs;
     }

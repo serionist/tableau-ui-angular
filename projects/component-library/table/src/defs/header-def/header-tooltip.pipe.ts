@@ -4,12 +4,13 @@ import type { TooltipArgs } from 'tableau-ui-angular/tooltip';
 import type { HeaderToolipDefDirective } from './header-toolip-def.directive';
 
 import type { HeaderContext, HeaderTooltipContext } from './header-context';
-import type { SortOrderPair, DataSort } from 'tableau-ui-angular/table';
 import type { Primitive } from 'tableau-ui-angular/types';
+import type { SortOrderPair } from '../column-def/column-def.directive';
+import type { DataSort } from '../../sorting/data-sort';
 
 @Pipe({
     name: 'headerTooltip',
-    standalone: false
+    standalone: false,
 })
 export class HeaderTooltipPipe implements PipeTransform {
     transform<TData, TKey extends Primitive>(

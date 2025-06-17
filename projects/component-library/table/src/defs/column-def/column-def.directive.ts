@@ -110,14 +110,14 @@ export class ColumnDefDirective<TData> {
         alias: 'showAutoHeaderTooltip',
     });
 
-     /**
+    /**
      * Show automatic cell tooltip when no tabCellTooltipDef is provided on the column.
      * The auto cell tooltip displays the column value when it's clipped. Only works for tabCellDefs with $textClipping() enabled.
      * If the cell value is not clipped, no automatic tooltip will be shown.
      * When a tabCellTooltipDef overrides the automatic tooltip, this setting has no effect.
      * @default true
      */
-     readonly $showAutoCellTooltip = input<boolean>(true, {
+    readonly $showAutoCellTooltip = input<boolean>(true, {
         alias: 'showAutoCellTooltip',
     });
 
@@ -141,7 +141,8 @@ export class ColumnDefDirective<TData> {
             },
         };
     }
-    buildCellContext(value: TData,
+    buildCellContext(
+        value: TData,
         index: number,
         first: boolean,
         last: boolean,
@@ -153,7 +154,8 @@ export class ColumnDefDirective<TData> {
         columnLast: boolean,
         columnEven: boolean,
         columnOdd: boolean,
-        columnCount: number,): CellContext<TData> {
+        columnCount: number,
+    ): CellContext<TData> {
         return {
             row: value,
             meta: {

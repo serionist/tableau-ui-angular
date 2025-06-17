@@ -19,7 +19,6 @@ import type { DataOptions } from './data/data-options';
     host: {},
 })
 export class TableComponent<TData = unknown, TKey extends Primitive = null> implements AfterViewInit {
-    
     protected readonly checkboxColWidth = '2.5em';
 
     readonly self = this;
@@ -233,7 +232,6 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> impl
     // #endregion
     protected readonly dataManager = new DataManager<TData, TKey>(this.cdr);
 
-
     // #region Load & Reset
     private loaded = false;
     private dataWindowHeightPx: number = 0;
@@ -302,7 +300,6 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> impl
               }[]
             | undefined,
     ): Promise<boolean> {
-       
         if (this.dataRowHeightPx === 0 || this.dataWindowHeightPx === 0 || !sort || !dataOptions || !displayedColumns) {
             console.warn('Table reset called with undefined parameters, ignoring');
             return false;
@@ -495,7 +492,6 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> impl
     }
 
     // #endregion
-    
 
     // #region Line clamping
 
@@ -504,22 +500,19 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> impl
     private initializeLineClamp() {
         const rowSizer = this.$dataRowSizer().nativeElement;
         try {
-            
             const cellStyle = getComputedStyle(rowSizer);
             const cellLineHeightString = cellStyle.lineHeight;
             const cellLineHeightPx = cellLineHeightString.endsWith('px') ? parseFloat(cellLineHeightString) : parseFloat(cellLineHeightString) * parseFloat(cellStyle.fontSize);
             const cellPaddingTop = parseFloat(cellStyle.paddingTop);
             const cellPaddingBottom = parseFloat(cellStyle.paddingBottom);
             const rowHeight = rowSizer.clientHeight - cellPaddingTop - cellPaddingBottom;
-    
+
             const rows = Math.max(Math.floor(rowHeight / cellLineHeightPx), 1);
             this.$lineClampRows.set(rows);
             this.$lineClampElementHeightPx.set(cellLineHeightPx * rows);
-        } catch (error:unknown) {
+        } catch (error: unknown) {
             console.warn('Failed to initialize line clamp:', error);
         }
-        
-        
     }
 
     // #endregion

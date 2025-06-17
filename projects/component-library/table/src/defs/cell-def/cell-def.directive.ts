@@ -24,7 +24,6 @@ export class CellDefDirective<TData, TKey extends Primitive> {
         alias: 'textClamping',
     });
 
-
     public templateRef = inject(TemplateRef<{ $implicit: CellContext<TData> }>);
 
     static ngTemplateContextGuard<TData, TKey extends Primitive>(dir: CellDefDirective<TData, TKey>, ctx: unknown): ctx is { $implicit: CellContext<TData> } {

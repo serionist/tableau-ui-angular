@@ -23,7 +23,6 @@ export class DatePickerDirective implements ControlValueAccessor {
     private readonly el = inject<ElementRef<HTMLInputElement>>(ElementRef);
     private readonly themeService = inject(ThemeService);
 
-    
     // type can only be set once. Cannot change between date and datetime
     readonly $type = input.required<'date' | 'datetime'>({
         alias: 'type',
