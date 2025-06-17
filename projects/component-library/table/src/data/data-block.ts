@@ -15,9 +15,6 @@ export class DataBlock<TData, TKey extends Primitive> {
             return response;
         } else {
             const row: Record<string, unknown> = {};
-            this.displayedColumns.forEach((col) => {
-                row[col] = undefined;
-            });
             return Array.from({ length: Number.isFinite(this.blockRowCount) ? this.blockRowCount : 0 }, (_, a) => ({
                 key: a,
                 data: row as TData,
@@ -29,7 +26,6 @@ export class DataBlock<TData, TKey extends Primitive> {
     }
     constructor(
         public readonly id: number,
-        private readonly displayedColumns: string[],
         public readonly abort: AbortController | undefined,
         private readonly blockRowCount: number,
         private readonly getKey: (data: TData) => TKey,

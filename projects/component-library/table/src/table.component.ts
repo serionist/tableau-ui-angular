@@ -262,7 +262,7 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> impl
 
         this.dataRowHeightPx = this.$dataRowSizer().nativeElement.clientHeight;
 
-        const initialLoad = await this.resetInternal(this.$sort(), this.$dataOptions(), this.$dataBlockWindow(), this.$displayedColumnDefs());
+        const initialLoad = await this.resetInternal(this.$sort(), this.$dataOptions(), this.$dataBlockWindow());
         if (initialLoad) {
             this.loaded = true;
         }
@@ -272,7 +272,6 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> impl
         const sort = this.$sort();
         const dataOptions = this.$dataOptions();
         const dataBlockWindow = this.$dataBlockWindow();
-        const displayedColumns = this.$displayedColumnDefs();
         const selectionOptions = this.$selectionOptions();
         if (!this.loaded) {
             return;
@@ -283,24 +282,15 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> impl
         if (!this.loaded) {
             return;
         }
-        // console.log('auto resetting table with sort', sort, 'dataOptions', dataOptions, 'dataBlockWindow', dataBlockWindow, 'displayedColumns', displayedColumns);
-        untracked(() => void this.resetInternal(sort, dataOptions, dataBlockWindow, displayedColumns));
+       
+        untracked(() => void this.resetInternal(sort, dataOptions, dataBlockWindow));
     });
     private async resetInternal(
         sort: DataSort[] | undefined,
         dataOptions: DataOptions<TData, TKey> | undefined,
         dataBlockWindow: number,
-        displayedColumns:
-            | {
-                  id: string;
-                  col: ColumnDefDirective<TData>;
-                  pinnedLeft: boolean;
-                  pinnedRight: boolean;
-                  sortOrder: SortOrderPair;
-              }[]
-            | undefined,
     ): Promise<boolean> {
-        if (this.dataRowHeightPx === 0 || this.dataWindowHeightPx === 0 || !sort || !dataOptions || !displayedColumns) {
+        if (this.dataRowHeightPx === 0 || this.dataWindowHeightPx === 0 || !sort || !dataOptions) {
             console.warn('Table reset called with undefined parameters, ignoring');
             return false;
         }
@@ -308,7 +298,6 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> impl
             this.dataWindowHeightPx,
             this.dataRowHeightPx,
             sort,
-            displayedColumns.map((e) => e.id),
             dataBlockWindow,
             dataOptions,
         );
@@ -332,12 +321,11 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> impl
         const sort = this.$sort();
         const dataOptions = this.$dataOptions();
         const dataBlockWindow = this.$dataBlockWindow();
-        const displayedColumns = this.$displayedColumnDefs();
         const selectionOptions = this.$selectionOptions();
         if (selectionOptions?.clearSelectedKeysOnManualReset !== false) {
             this.$selectedRows.set(new Map<TKey, TData>());
         }
-        return this.resetInternal(sort, dataOptions, dataBlockWindow, displayedColumns);
+        return this.resetInternal(sort, dataOptions, dataBlockWindow);
     }
     // #endregion
 

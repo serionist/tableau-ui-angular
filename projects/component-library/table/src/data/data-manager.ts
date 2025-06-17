@@ -10,7 +10,6 @@ export class DataManager<TData, TKey extends Primitive> {
     constructor(private readonly cdr: ChangeDetectorRef) {}
     private dataRowHeightPx: number = 0;
     private dataWindowHeightPx: number = 0;
-    private displayedColumns: string[] = [];
     private sort: DataSort[] = [];
     private dataBlockWindow: number = 0;
     private dataBlockHeightPx: number = 0;
@@ -34,12 +33,11 @@ export class DataManager<TData, TKey extends Primitive> {
         return this._allDataInfo;
     }
     private resetting = false;
-    public async reset(dataWindowHeightPx: number, dataRowHeightPx: number, sort: DataSort[], displayedColumns: string[], dataBlockWindow: number, dataOptions: DataOptions<TData, TKey>) {
+    public async reset(dataWindowHeightPx: number, dataRowHeightPx: number, sort: DataSort[], dataBlockWindow: number, dataOptions: DataOptions<TData, TKey>) {
         this.resetting = true;
         this.dataOptions = dataOptions;
         this.dataRowHeightPx = dataRowHeightPx;
         this.dataWindowHeightPx = dataWindowHeightPx;
-        this.displayedColumns = displayedColumns;
         this.sort = sort;
         this.dataBlockWindow = dataBlockWindow;
         this.blockRowCount = Math.floor(dataWindowHeightPx / dataRowHeightPx);
@@ -129,7 +127,7 @@ export class DataManager<TData, TKey extends Primitive> {
             const blockPromise = this.allDataInfo.promise.then((data) => {
                 return data.slice(blockId * this.blockRowCount, (blockId + 1) * this.blockRowCount);
             });
-            return new DataBlock<TData, TKey>(blockId, this.displayedColumns, undefined, this.blockRowCount, this.dataOptions!.getRowKey, blockPromise);
+            return new DataBlock<TData, TKey>(blockId, undefined, this.blockRowCount, this.dataOptions!.getRowKey, blockPromise);
         } else {
             // we are using incremental data
             const blockAbort = new AbortController();
@@ -159,7 +157,7 @@ export class DataManager<TData, TKey extends Primitive> {
                         return data;
                     });
             }
-            return new DataBlock<TData, TKey>(blockId, this.displayedColumns, blockAbort, this.blockRowCount, this.dataOptions!.getRowKey, blockPromise);
+            return new DataBlock<TData, TKey>(blockId, blockAbort, this.blockRowCount, this.dataOptions!.getRowKey, blockPromise);
         }
     }
 
