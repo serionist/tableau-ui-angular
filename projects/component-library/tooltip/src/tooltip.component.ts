@@ -1,5 +1,5 @@
 import type { TemplateRef } from '@angular/core';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { injectDialogData } from 'tableau-ui-angular/dialog';
 
 @Component({

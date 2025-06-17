@@ -1,5 +1,5 @@
 import type { TemplateRef, OnDestroy, ModelSignal } from '@angular/core';
-import { Directive, ElementRef, HostListener, input, inject, effect, model } from '@angular/core';
+import { Directive, ElementRef, HostListener, input, inject, effect, model, computed } from '@angular/core';
 import type { DialogRef} from 'tableau-ui-angular/dialog';
 import { DialogService, GlobalStackOptions } from 'tableau-ui-angular/dialog';
 import type { TooltipComponentArgs } from './tooltip.component';
@@ -56,6 +56,7 @@ export class TooltipDirective<T> implements OnDestroy {
      * Padding inside the tooltip.
      * This is used to add space inside the tooltip around the content.
      * It can be a string representing a CSS value (e.g., '0.5rem', '1rem').
+     * It can also be any set of padding values like '0.5rem 1rem' for top/bottom and left/right padding.
      * @default '0.5rem'
      */
     readonly $tooltipPadding = model<string>('0.5rem', {
@@ -105,6 +106,13 @@ export class TooltipDirective<T> implements OnDestroy {
         }
     });
 
+
+    private readonly $tooltipMarginWithUnit = computed(() => {
+        const margin = this.$tooltipMargin();
+        // if margin is just a number, add 'px' to it
+        return /^\d+$/.test(margin) ? `${margin}px` : margin;
+    });
+
     openTooltip() {
         if (this.$tooltip() != null) {
             this.createTooltip();
@@ -141,7 +149,7 @@ export class TooltipDirective<T> implements OnDestroy {
                     const elementMidPoint = insertAfterElementRect.top + insertAfterElementRect.height / 2;
                     // calculate the top position based on the mid point and the height of the tooltip
                     const tooltipTop = elementMidPoint - actualHeight / 2;
-                    return `${tooltipTop}px`;
+                    return `max(${this.$tooltipMarginWithUnit()}, ${tooltipTop}px)`;
                 }
                 case 'top': {
                     // find the top of the element and subtract the height of the tooltip
@@ -152,7 +160,7 @@ export class TooltipDirective<T> implements OnDestroy {
                     }
                     // subtract the margin from the top position
                     // ensure the tooltip does not go above the top of the screen
-                    return `max(0px, calc(${tooltipTop}px - ${this.$tooltipMargin() || 0}))`;
+                    return `max(0px, calc(${tooltipTop}px - ${this.$tooltipMarginWithUnit()}))`;
                 }
                 case 'bottom': {
                     // find the bottom of the element and add the height of the tooltip
@@ -163,13 +171,14 @@ export class TooltipDirective<T> implements OnDestroy {
                     }
                     // add the margin to the top position
                     // ensure the tooltip does not go below the bottom of the screen
-                    return `min(${window.innerHeight - actualHeight}px, calc(${tooltipTop}px + ${this.$tooltipMargin() || 0}))`;
+                    return `min(${window.innerHeight - actualHeight}px, calc(${tooltipTop}px + ${this.$tooltipMarginWithUnit()}))`;
                 }
                 default:
                     return '0'; // Fallback case, should not happen
             }
         };
         const calculateLeft = (pos: 'bottom' | 'left' | 'right' | 'top', actualWidth: number, actualHeight: number, insertAfterElementRect: DOMRect, recalculateCounter = 0) => {
+            console.log(actualWidth, window.innerWidth)
             switch (pos) {
                 case 'top':
                 case 'bottom': {
@@ -177,9 +186,11 @@ export class TooltipDirective<T> implements OnDestroy {
                     const elementMidPoint = insertAfterElementRect.left + insertAfterElementRect.width / 2;
                     // calculate the left position based on the mid point and the width of the tooltip
                     const tooltipLeft = elementMidPoint - actualWidth / 2;
-                    return `${tooltipLeft}px`;
+                    // what is the smallest left coordinate that is acceptable
+                    return `min(${tooltipLeft}px, calc(${window.innerWidth - actualWidth}px - ${this.$tooltipMarginWithUnit()}))`;
                 }
                 case 'left': {
+                  
                     // find the left of the element and subtract the width of the tooltip
                     const tooltipLeft = insertAfterElementRect.left - actualWidth;
                     // if we hit the left side of the screen, make the tooltip appear on the right side of the element
@@ -187,7 +198,7 @@ export class TooltipDirective<T> implements OnDestroy {
                         return calculateLeft('right', actualWidth, actualHeight, insertAfterElementRect, recalculateCounter + 1);
                     }
                     // ensure the tooltip does not go off the left side of the screen
-                    return `max(0px, calc(${tooltipLeft}px - ${this.$tooltipMargin() || 0}))`;
+                    return `max(0px, calc(${tooltipLeft}px - ${this.$tooltipMarginWithUnit()}))`;
                 }
                 case 'right': {
                     // find the right of the element and add the width of the tooltip
@@ -197,7 +208,7 @@ export class TooltipDirective<T> implements OnDestroy {
                         return calculateLeft('left', actualWidth, actualHeight, insertAfterElementRect, recalculateCounter + 1);
                     }
                     // ensure the tooltip does not go off the right side of the screen
-                    return `min(${window.innerWidth - actualWidth}px, calc(${tooltipLeft}px + ${this.$tooltipMargin() || 0}))`;
+                    return `min(${window.innerWidth - actualWidth}px, calc(${tooltipLeft}px + ${this.$tooltipMarginWithUnit()}))`;
                 }
                 default:
                     return '0'; // Fallback case, should not happen
