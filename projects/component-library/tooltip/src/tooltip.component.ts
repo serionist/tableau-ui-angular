@@ -27,7 +27,6 @@ export class TooltipComponent<T> {
     readonly stringTooltip: string | undefined;
     readonly templateTooltip: TemplateRef<T> | undefined;
     constructor() {
-        console.log('TooltipComponent initialized with data:', this.dialogData);
         if (typeof this.dialogData.tooltip === 'string') {
             this.stringTooltip = this.dialogData.tooltip;
             this.templateTooltip = undefined;

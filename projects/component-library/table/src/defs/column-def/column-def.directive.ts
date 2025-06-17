@@ -128,7 +128,7 @@ export class ColumnDefDirective<TData> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     readonly $cellTooltip = contentChild<CellToolipDefDirective<TData, any>>(CellToolipDefDirective);
 
-    buildHeaderContext(index: number, first: boolean, last: boolean, even: boolean, odd: boolean, count: number): HeaderContext<TData> {
+    public buildHeaderContext(index: number, first: boolean, last: boolean, even: boolean, odd: boolean, count: number): HeaderContext<TData> {
         return {
             columnDef: this,
             meta: {
@@ -141,7 +141,7 @@ export class ColumnDefDirective<TData> {
             },
         };
     }
-    buildCellContext(
+    public buildCellContext(
         value: TData,
         maxRowCount: number,
         index: number,

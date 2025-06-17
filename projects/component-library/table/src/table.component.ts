@@ -28,7 +28,7 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> impl
      * If undefined, all columns will be displayed in the order they are defined in the table.
      * @default undefined
      */
-    readonly $displayedColumns = input<string[] | undefined>(undefined, {
+    readonly $displayedColumns = model<string[] | undefined>(undefined, {
         alias: 'displayedColumns',
     });
 
@@ -113,7 +113,7 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> impl
      * This will alternate the background color of the rows.
      * @default false
      */
-    readonly $striped = input<boolean>(false, {
+    readonly $striped = model<boolean>(false, {
         alias: 'striped',
     });
 

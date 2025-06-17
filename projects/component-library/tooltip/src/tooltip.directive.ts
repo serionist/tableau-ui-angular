@@ -126,7 +126,6 @@ export class TooltipDirective<T> implements OnDestroy {
         if (e.buttons !== 0) {
             return;
         }
-        console.log('Tooltip mouse enter', this.$tooltip(), this.$tooltipContext());
         this.openTooltip();
     }
 
@@ -178,7 +177,6 @@ export class TooltipDirective<T> implements OnDestroy {
             }
         };
         const calculateLeft = (pos: 'bottom' | 'left' | 'right' | 'top', actualWidth: number, actualHeight: number, insertAfterElementRect: DOMRect, recalculateCounter = 0) => {
-            console.log(actualWidth, window.innerWidth)
             switch (pos) {
                 case 'top':
                 case 'bottom': {

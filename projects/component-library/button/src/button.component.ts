@@ -57,7 +57,6 @@ export class ButtonComponent {
         const el = this.$nativeElement.nativeElement;
         this.clickFromKeyboard = true; // set flag to indicate click from keyboard
         if (el instanceof HTMLLinkElement && event.code === 'Enter' || event.code === 'Space') {
-            console.log('Keydown event:', event.code, 'on element:', el);
             event.preventDefault(); // stop scroll or native behavior
             
             el.click(); // trigger click manually
@@ -84,10 +83,8 @@ export class ButtonComponent {
             this.clickFromKeyboard = false; // reset flag after click
             return;
         }
-        console.log('Button clicked:', this.$nativeElement.nativeElement, this.$noFocusOnClick(), this.$color());
         if (this.$noFocusOnClick()) {
             // Prevent focus on click if $noFocusOnClick is true
-            console.log('Button clicked, but no focus will be set.');
             setTimeout(() => {
                 this.$nativeElement.nativeElement.blur();
             });
