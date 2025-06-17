@@ -7,7 +7,7 @@ import type { Primitive } from 'tableau-ui-angular/types';
 import type { IOptionGridContext, IOptionLineContext } from 'tableau-ui-angular/common';
 import { OptionComponent, PrefixComponent, SuffixComponent } from 'tableau-ui-angular/common';
 import type { DialogRef } from 'tableau-ui-angular/dialog';
-import { DialogService } from 'tableau-ui-angular/dialog';
+import { DialogService, LocalStackOptions } from 'tableau-ui-angular/dialog';
 import { generateRandomString } from 'tableau-ui-angular/utils';
 import type { MultiSelectComponent } from './multi-select.component';
 
@@ -332,7 +332,7 @@ export abstract class SelectBaseComponent<TOption extends Primitive, TValue exte
                 closeOnBackdropClick: true,
             },
             null,
-            this.elementRef.nativeElement,
+            new LocalStackOptions(this.elementRef.nativeElement)
         );
 
         this.registerOptionKeyNavigation();

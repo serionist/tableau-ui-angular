@@ -1,7 +1,7 @@
 import type { ModelSignal, Signal, TemplateRef, WritableSignal } from '@angular/core';
 import { ChangeDetectionStrategy, Component, contentChild, ElementRef, inject, input, model, signal, viewChild } from '@angular/core';
 import type { DialogRef } from 'tableau-ui-angular/dialog';
-import { DialogService } from 'tableau-ui-angular/dialog';
+import { DialogService, LocalStackOptions } from 'tableau-ui-angular/dialog';
 import { PrefixComponent, SuffixComponent } from 'tableau-ui-angular/common';
 
 @Component({
@@ -237,7 +237,7 @@ export class MenuComponent {
                 },
 
                 width: (parentRect) => {
-                    return this.$width() === 'parentWidth' ? `${parentRect!.width}px` : this.$width();
+                    return this.$width() === 'parentWidth' ? `${parentRect.width}px` : this.$width();
                 },
                 closeOnBackdropClick: this.$closeOnBackdropClick(),
                 closeOnEscape: this.$closeOnEscape(),
@@ -252,7 +252,7 @@ export class MenuComponent {
                 backdropCss: this.$backdropCss(),
             },
             null,
-            parentControl.nativeElement,
+            new LocalStackOptions(parentControl.nativeElement),
         );
         ref.closed$.subscribe(() => {
             if (this.$openDialog() === ref) {

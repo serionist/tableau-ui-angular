@@ -7,7 +7,7 @@ import { toObservable } from '@angular/core/rxjs-interop';
 import type { IOptionGridContext } from 'tableau-ui-angular/common';
 import { OptionComponent, PrefixComponent, SuffixComponent } from 'tableau-ui-angular/common';
 import type { DialogRef } from 'tableau-ui-angular/dialog';
-import { DialogService } from 'tableau-ui-angular/dialog';
+import { DialogService, LocalStackOptions } from 'tableau-ui-angular/dialog';
 import { generateRandomString } from 'tableau-ui-angular/utils';
 import type { Primitive } from 'tableau-ui-angular/types';
 
@@ -120,7 +120,7 @@ export class AutoCompleteComponent<T extends Primitive> {
                 },
             },
             null,
-            parentControl,
+            new LocalStackOptions(parentControl),
         );
 
         this.registerKeyNavigation();

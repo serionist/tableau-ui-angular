@@ -19,12 +19,12 @@ export interface IDialogHeaderArgs {
 }
 
 export interface IDialogSizeArgs {
-    width?: string | ((insertAfterElementRect?: DOMRect) => string);
-    height?: string | ((insertAfterElementRect?: DOMRect) => string);
+    width?: string | ((referenceElementRect: DOMRect) => string);
+    height?: string | ((referenceElementRect: DOMRect) => string);
     maxWidth?: string;
     maxHeight?: string;
 }
 export interface IDialogPositionAndSizeArgs extends IDialogSizeArgs {
-    top?: string | ((actualWidth: number, actualHeight: number, insertAfterElementRect?: DOMRect) => string);
-    left?: string | ((actualWidth: number, actualHeight: number, insertAfterElementRect?: DOMRect) => string);
+    top?: string | ((actualWidth: number, actualHeight: number, referenceElementRect?: DOMRect) => string);
+    left?: string | ((actualWidth: number, actualHeight: number, referenceElementRect?: DOMRect) => string);
 }

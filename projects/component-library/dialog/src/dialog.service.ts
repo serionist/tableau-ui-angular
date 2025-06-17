@@ -11,6 +11,8 @@ import { ConfirmationDialogComponent } from './confirmation-dialog.component';
 import { TemplateDialogComponent } from './template-dialog.component';
 import { TAB_DATA_REF } from './data.ref';
 import { IconComponent } from 'tableau-ui-angular/icon';
+import type { StackOptions } from './stack-options';
+import { GlobalStackOptions, LocalStackOptions } from './stack-options';
 
 // Styles for the dialog container are in _dialog.service.scss in the styles folder
 @Injectable({
@@ -134,14 +136,14 @@ export class DialogService {
         args: IDialogArgs;
     }[] = [];
 
-    openTemplateDialog<TContext, TResult>(contentTemplate: TemplateRef<TContext>, args: IDialogArgs, contentTemplateContext?: TContext, insertAfterElement?: HTMLElement) {
+    openTemplateDialog<TContext, TResult>(contentTemplate: TemplateRef<TContext>, args: IDialogArgs, contentTemplateContext?: TContext, stackOptions: StackOptions = new GlobalStackOptions()) {
         return this.openDialog<
             TemplateDialogComponent<{ contentTemplate: TemplateRef<TContext | undefined>; contentTemplateContext: TContext | undefined }>,
             { contentTemplate: TemplateRef<TContext>; contentTemplateContext?: TContext },
             TResult
-        >(TemplateDialogComponent, { contentTemplate, contentTemplateContext }, args, insertAfterElement);
+        >(TemplateDialogComponent, { contentTemplate, contentTemplateContext }, args, stackOptions);
     }
-    openDialog<TComponent, TData, TResult>(component: Type<TComponent>, data: TData, args: IDialogArgs = {}, insertAfterElement?: HTMLElement): DialogRef<TResult> {
+    openDialog<TComponent, TData, TResult>(component: Type<TComponent>, data: TData, args: IDialogArgs = {}, stackOptions: StackOptions = new GlobalStackOptions()): DialogRef<TResult> {
         let trappedFocus:
             | {
                   elements: {
@@ -166,7 +168,7 @@ export class DialogService {
         this.dialogStack.push({ dialogRef, zIndex, args });
 
         // Set the backdrop
-        const backdrop = this.createBackdrop(args, dialogRef, zIndex - 1, insertAfterElement);
+        const backdrop = this.createBackdrop(args, dialogRef, zIndex - 1, stackOptions);
         this.setEscapeHandler();
 
         // Create an injector that provides the DialogRef
@@ -190,8 +192,8 @@ export class DialogService {
         // always insert element after the backdrop
         if (backdrop) {
             backdrop?.insertAdjacentElement('afterend', dialogElement);
-        } else if (insertAfterElement) {
-            insertAfterElement.insertAdjacentElement('afterend', dialogElement);
+        } else if (stackOptions instanceof LocalStackOptions) {
+            stackOptions.insertAfterElement.insertAdjacentElement('afterend', dialogElement);
         } else {
             document.body.appendChild(dialogElement);
         }
@@ -199,9 +201,9 @@ export class DialogService {
         // Handle container position and window resize event
         dialogRef.reposition = (getArgs: (originalArgs: IDialogPositionAndSizeArgs) => void) => {
             getArgs(args);
-            DialogService.calculateAndSetPosition(dialogElement, args, insertAfterElement);
+            DialogService.calculateAndSetPosition(dialogElement, args, stackOptions);
         };
-        const resizeSubscription = this.manageDialogPosition(dialogElement, args, insertAfterElement);
+        const resizeSubscription = DialogService.manageDialogPosition(dialogElement, args, stackOptions);
 
         // Handle dialog close
         dialogRef.closed$.subscribe(() => {
@@ -227,7 +229,7 @@ export class DialogService {
         return dialogRef;
     }
 
-    private createBackdrop(args: IDialogArgs, dialogRef: IDialogRef, dialogZIndex: number, insertAfterElement?: HTMLElement): HTMLDivElement | undefined {
+    private createBackdrop(args: IDialogArgs, dialogRef: IDialogRef, dialogZIndex: number, stackOptions: StackOptions): HTMLDivElement | undefined {
         if (args.skipCreatingBackdrop === true) {
             return undefined;
         }
@@ -239,9 +241,9 @@ export class DialogService {
                 (backdrop.style as unknown as Record<string, string>)[key] = args.backdropCss![key];
             });
         }
-        if (insertAfterElement) {
-            insertAfterElement.insertAdjacentElement('afterend', backdrop);
-        } else {
+        if (stackOptions instanceof LocalStackOptions) {
+            stackOptions.insertAfterElement.insertAdjacentElement('afterend', backdrop);
+        }else {
             document.body.appendChild(backdrop);
         }
         if (args.closeOnBackdropClick === true) {
@@ -329,25 +331,25 @@ export class DialogService {
         return dialogElement;
     }
 
-    private manageDialogPosition(dialogElement: HTMLElement, args: IDialogPositionAndSizeArgs, insertAfterElement?: HTMLElement): Subscription | null {
+    private static manageDialogPosition(dialogElement: HTMLElement, args: IDialogPositionAndSizeArgs, stackOptions: StackOptions): Subscription | null {
         // Temporarily position the dialog offscreen to get its dimensions
         dialogElement.style.top = '-9999px';
         dialogElement.style.left = '-9999px';
 
         setTimeout(() => {
-            DialogService.calculateAndSetPosition(dialogElement, args, insertAfterElement);
+            DialogService.calculateAndSetPosition(dialogElement, args, stackOptions);
         }, 10);
 
         let resizeSubscription: Subscription | null = null;
 
         // Handle window resize event
         resizeSubscription = fromEvent(window, 'resize').subscribe(() => {
-            DialogService.calculateAndSetPosition(dialogElement, args, insertAfterElement);
+            DialogService.calculateAndSetPosition(dialogElement, args, stackOptions);
         });
 
         // Monitor changes to the size of the dialog
         const resizeObserver = new ResizeObserver(() => {
-            DialogService.calculateAndSetPosition(dialogElement, args, insertAfterElement);
+            DialogService.calculateAndSetPosition(dialogElement, args, stackOptions);
         });
 
         // Start observing the dialog element
@@ -355,11 +357,12 @@ export class DialogService {
 
         // Monitor changes to the size of the insertAfterElement
         const insertAfterResizeObserver = new ResizeObserver(() => {
-            DialogService.calculateAndSetPosition(dialogElement, args, insertAfterElement);
+            DialogService.calculateAndSetPosition(dialogElement, args, stackOptions);
         });
-        // Start observing the insertAfterElement if it exists
-        if (insertAfterElement) {
-            insertAfterResizeObserver.observe(insertAfterElement);
+        // Start observing the referenceElement if it exists
+        const referenceElement = this.getReferenceElement(stackOptions);
+        if (referenceElement) {
+            insertAfterResizeObserver.observe(referenceElement);
         }
         // Return a subscription-like object that also disconnects the observer
         return new Subscription(() => {
@@ -368,8 +371,15 @@ export class DialogService {
             insertAfterResizeObserver.disconnect();
         });
     }
-
-    private static calculateAndSetPosition(dialogElement: HTMLElement, args: IDialogPositionAndSizeArgs, insertAfterElement?: HTMLElement) {
+    private static getReferenceElement(stackOptions: StackOptions): HTMLElement | undefined {
+        if (stackOptions instanceof LocalStackOptions) {
+            return stackOptions.referenceElement ?? stackOptions.insertAfterElement;
+        } else if (stackOptions instanceof GlobalStackOptions) {
+            return stackOptions.referenceElement;
+        }
+        return undefined;
+    }
+    private static calculateAndSetPosition(dialogElement: HTMLElement, args: IDialogPositionAndSizeArgs, stackOptions: StackOptions) {
         if (args.maxWidth !== undefined) {
             dialogElement.style.maxWidth = args.maxWidth;
         }
@@ -379,26 +389,27 @@ export class DialogService {
         dialogElement.style.overflowX = 'hidden';
         dialogElement.style.overflowY = 'hidden';
 
-        const insertAfterElementRect = insertAfterElement?.getBoundingClientRect();
+        const referenceElement = this.getReferenceElement(stackOptions);
+        const referenceElementRect = referenceElement?.getBoundingClientRect();
         let widthCss: string;
         let heightCss: string;
         if (args.width === undefined) {
             widthCss = 'fit-content';
         } else if (typeof args.width === 'function') {
-            if (!insertAfterElementRect) {
+            if (!referenceElementRect) {
                 throw new Error('When using a function for width, insertAfterElement must be provided.');
             }
-            widthCss = args.width(insertAfterElementRect);
+            widthCss = args.width(referenceElementRect);
         } else {
             widthCss = args.width;
         }
         if (args.height === undefined) {
             heightCss = 'fit-content';
         } else if (typeof args.height === 'function') {
-            if (!insertAfterElementRect) {
+            if (!referenceElementRect) {
                 throw new Error('When using a function for height, insertAfterElement must be provided.');
             }
-            heightCss = args.height(insertAfterElementRect);
+            heightCss = args.height(referenceElementRect);
         } else {
             heightCss = args.height;
         }
@@ -408,13 +419,13 @@ export class DialogService {
         const actualHeight = dialogElement.offsetHeight;
 
         if (typeof args.top === 'function') {
-            dialogElement.style.top = args.top(actualWidth, actualHeight, insertAfterElementRect);
+            dialogElement.style.top = args.top(actualWidth, actualHeight, referenceElementRect);
         } else if (typeof args.top === 'string') {
             dialogElement.style.top = args.top;
         }
 
         if (typeof args.left === 'function') {
-            dialogElement.style.left = args.left(actualWidth, actualHeight, insertAfterElementRect);
+            dialogElement.style.left = args.left(actualWidth, actualHeight, referenceElementRect);
         } else if (typeof args.left === 'string') {
             dialogElement.style.left = args.left;
         }

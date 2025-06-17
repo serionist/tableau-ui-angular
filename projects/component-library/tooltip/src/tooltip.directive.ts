@@ -1,7 +1,7 @@
 import type { TemplateRef, OnDestroy, ModelSignal } from '@angular/core';
 import { Directive, ElementRef, HostListener, input, inject, effect, model } from '@angular/core';
 import type { DialogRef} from 'tableau-ui-angular/dialog';
-import { DialogService } from 'tableau-ui-angular/dialog';
+import { DialogService, GlobalStackOptions } from 'tableau-ui-angular/dialog';
 import type { TooltipComponentArgs } from './tooltip.component';
 import { TooltipComponent } from './tooltip.component';
 
@@ -240,7 +240,7 @@ export class TooltipDirective<T> implements OnDestroy {
                     return calculateLeft(this.$tooltipPosition(), actualWidth, actualHeight, insertAfterElementRect!, 0);
                 },
             },
-            this.elementRef.nativeElement,
+            new GlobalStackOptions(this.elementRef.nativeElement),
         );
        
     }
