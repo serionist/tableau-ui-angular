@@ -95,7 +95,7 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> impl
      * If undefined, no column will be pinned to the left.
      * @default undefined
      */
-    readonly $pinnedLeftColumn = input<string | undefined>(undefined, {
+    readonly $pinnedLeftColumn = model<string | undefined>(undefined, {
         alias: 'pinnedLeftColumn',
     });
 
@@ -104,7 +104,7 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> impl
      * If undefined, no column will be pinned to the right.
      * @default undefined
      */
-    readonly $pinnedRightColumn = input<string | undefined>(undefined, {
+    readonly $pinnedRightColumn = model<string | undefined>(undefined, {
         alias: 'pinnedRightColumn',
     });
 

@@ -16,6 +16,7 @@ import { ChangeDetectionStrategy, Component, ElementRef, HostListener, inject, i
         role: 'button',
         '[attr.layout]': '$layout()',
         '[attr.inline]': '$inline()',
+        '(click)': 'mouseClickHandler()',
     },
 })
 export class ButtonComponent {
@@ -46,13 +47,50 @@ export class ButtonComponent {
         alias: 'inline',
     });
 
+    readonly $noFocusOnClick = input(true, {
+        alias: 'noFocusOnClick',
+    });
+
+    private clickFromKeyboard = false;
     @HostListener('keydown', ['$event'])
     handleKeydown(event: KeyboardEvent) {
         const el = this.$nativeElement.nativeElement;
-
-        if (event.code === 'Enter' || event.code === 'Space') {
+        this.clickFromKeyboard = true; // set flag to indicate click from keyboard
+        if (el instanceof HTMLLinkElement && event.code === 'Enter' || event.code === 'Space') {
+            console.log('Keydown event:', event.code, 'on element:', el);
             event.preventDefault(); // stop scroll or native behavior
+            
             el.click(); // trigger click manually
+        }
+    }
+
+    @HostListener('mousedown')
+    handleMouseDown() {
+        this.clickFromKeyboard = false; // reset flag on mouse down
+    }
+
+    @HostListener('pointerdown')
+    handlePointerDown() {
+        this.clickFromKeyboard = false; // reset flag on pointer down
+    }
+
+    @HostListener('touchstart')
+    handleTouchStart() {
+        this.clickFromKeyboard = false; // reset flag on touch start
+    }
+
+    mouseClickHandler() {
+        if (this.clickFromKeyboard) {
+            this.clickFromKeyboard = false; // reset flag after click
+            return;
+        }
+        console.log('Button clicked:', this.$nativeElement.nativeElement, this.$noFocusOnClick(), this.$color());
+        if (this.$noFocusOnClick()) {
+            // Prevent focus on click if $noFocusOnClick is true
+            console.log('Button clicked, but no focus will be set.');
+            setTimeout(() => {
+                this.$nativeElement.nativeElement.blur();
+            });
         }
     }
 }
