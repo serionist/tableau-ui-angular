@@ -19,7 +19,7 @@ export class HeaderToolipDefDirective<TData, TKey extends Primitive> {
     readonly $tooltipPosition = input<'bottom' | 'left' | 'right' | 'top'>('top', {
         alias: 'tooltipPosition',
     });
-    readonly $tooltipMargin = input<string>('5px', {
+    readonly $tooltipMargin = input<string>('0px', {
         alias: 'tooltipMargin',
     });
 

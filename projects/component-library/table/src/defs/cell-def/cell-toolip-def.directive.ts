@@ -16,10 +16,10 @@ export class CellToolipDefDirective<TData, TKey extends Primitive> {
         alias: 'showTooltip',
     });
 
-    readonly $tooltipPosition = input<'bottom' | 'left' | 'right' | 'top'>('top', {
+    readonly $tooltipPosition = input<'bottom' | 'left' | 'right' | 'top'>('bottom', {
         alias: 'tooltipPosition',
     });
-    readonly $tooltipMargin = input<string>('5px', {
+    readonly $tooltipMargin = input<string>('0px', {
         alias: 'tooltipMargin',
     });
 
