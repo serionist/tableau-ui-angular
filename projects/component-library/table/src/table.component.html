@@ -224,6 +224,7 @@
                             @let cellContext =
                             r.data
                                     | cellContext
+                                        : $lineClampRows()
                                         : def.col
                                         : block.offset + index
                                         : block.offset === 0 && first

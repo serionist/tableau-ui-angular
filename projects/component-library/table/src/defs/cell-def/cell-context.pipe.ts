@@ -10,6 +10,7 @@ import type { CellContext } from './cell-context';
 export class CellContextPipe implements PipeTransform {
     transform<TData>(
         value: TData,
+        maxRowCount: number,
         def: ColumnDefDirective<TData>,
         index: number,
         first: boolean,
@@ -25,7 +26,7 @@ export class CellContextPipe implements PipeTransform {
         columnCount: number,
     ): { $implicit: CellContext<TData> } {
         return {
-            $implicit: def.buildCellContext(value, index, first, last, even, odd, count, columnIndex, columnFirst, columnLast, columnEven, columnOdd, columnCount),
+            $implicit: def.buildCellContext(value, maxRowCount, index, first, last, even, odd, count, columnIndex, columnFirst, columnLast, columnEven, columnOdd, columnCount),
         };
     }
 }

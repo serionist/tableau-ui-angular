@@ -143,6 +143,7 @@ export class ColumnDefDirective<TData> {
     }
     buildCellContext(
         value: TData,
+        maxRowCount: number,
         index: number,
         first: boolean,
         last: boolean,
@@ -173,6 +174,7 @@ export class ColumnDefDirective<TData> {
                 columnOdd: columnOdd,
                 columnCount: columnCount,
             },
+            maxRowCount,
             $isClamped: signal(false), // This will be set later by the table component if text clamping is enabled
         };
     }

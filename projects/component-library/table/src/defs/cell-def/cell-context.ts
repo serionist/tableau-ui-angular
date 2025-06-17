@@ -4,6 +4,7 @@ export interface CellContext<TData> {
     row: TData;
     meta: CellMetaContext<TData>;
     $isClamped: WritableSignal<boolean>;
+    maxRowCount: number;
 }
 export interface CellMetaContext<TData> {
     columnDef: ColumnDefDirective<TData>;
