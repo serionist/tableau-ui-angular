@@ -16,6 +16,13 @@ export class CellToolipDefDirective<TData, TKey extends Primitive> {
         alias: 'showTooltip',
     });
 
+    readonly $tooltipPosition = input<'bottom' | 'left' | 'right' | 'top'>('top', {
+        alias: 'tooltipPosition',
+    });
+    readonly $tooltipMargin = input<string>('5px', {
+        alias: 'tooltipMargin',
+    });
+
     readonly templateRef = inject(TemplateRef<{ $implicit: CellTooltipContext<TData> }>);
 
     static ngTemplateContextGuard<TData, TKey extends Primitive>(dir: CellToolipDefDirective<TData, TKey>, ctx: unknown): ctx is { $implicit: CellTooltipContext<TData> } {

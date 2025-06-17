@@ -117,11 +117,11 @@
             >
                 <ng-container tabColumnDef="id" headerClass="custom-static-class" [showAutoHeaderTooltip]="false">
                     <ng-template let-ctx [tabHeaderDef]="table">{{ ctx.columnDef.$id() }}</ng-template>
-                    <ng-template let-ctx [tabCellDef]="table">{{ `${ctx.row.id} ${ctx.meta.odd ? 'odd': 'even'}` }}</ng-template>
+                    <ng-template let-ctx [tabCellDef]="table" [textClamping]="true">{{ `${ctx.row.id} ${ctx.meta.odd ? 'odd': 'even'}` }}</ng-template>
                 </ng-container>
                 <ng-container tabColumnDef="name" minWidth="100px" maxWidth="200px" [headerClass]="customCalculatedClass">
                     <ng-template let-ctx [tabHeaderDef]="table">Name</ng-template>
-                    <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.name }}</ng-template>
+                    <ng-template let-ctx [tabCellDef]="table" [textClamping]="true">{{ ctx.row.name }}</ng-template>
                     <ng-template let-ctx [tabHeaderTooltipDef]="table">
                         <div>Custom tooltip for: {{ ctx.columnDef.$id() }}</div>
                         <tab-hint>Default column template:</tab-hint>
@@ -134,27 +134,29 @@
                 </ng-container>
                 <ng-container tabColumnDef="age" [resizable]="false">
                     <ng-template let-ctx [tabHeaderDef]="table">Age</ng-template>
-                    <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.age }}</ng-template>
+                    <ng-template let-ctx [tabCellDef]="table" [textClamping]="true">{{ ctx.row.age }}</ng-template>
                 </ng-container>
                 <ng-container tabColumnDef="gender" [sortable]="false" [showAutoHeaderTooltip]="false">
                     <ng-template let-ctx [tabHeaderDef]="table">Gender</ng-template>
-                    <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.gender }}</ng-template>
+                    <ng-template let-ctx [tabCellDef]="table" [textClamping]="true">{{ ctx.row.gender }}</ng-template>
                 </ng-container>
                 <ng-container tabColumnDef="Country" propertyName="country">
                     <ng-template let-ctx [tabHeaderDef]="table">Country</ng-template>
-                    <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.country }}</ng-template>
+                    <ng-template let-ctx [tabCellDef]="table" [textClamping]="true">
+                        <a target="_blank" [href]="`https://${ctx.row.country}.com`">{{ ctx.row.country }}</a>
+                    </ng-template>
                 </ng-container>
                 <ng-container tabColumnDef="City" propertyName="city">
                     <ng-template let-ctx [tabHeaderDef]="table">City</ng-template>
-                    <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.city }}</ng-template>
+                    <ng-template let-ctx [tabCellDef]="table" [textClamping]="true">{{ ctx.row.city }}</ng-template>
                 </ng-container>
                 <ng-container tabColumnDef="email">
                     <ng-template let-ctx [tabHeaderDef]="table">Email</ng-template>
-                    <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.email }}</ng-template>
+                    <ng-template let-ctx [tabCellDef]="table" [textClamping]="true">{{ ctx.row.email }}</ng-template>
                 </ng-container>
                 <ng-container tabColumnDef="phone">
                     <ng-template let-ctx [tabHeaderDef]="table">Phone</ng-template>
-                    <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.phone }}</ng-template>
+                    <ng-template let-ctx [tabCellDef]="table" [textClamping]="true">{{ ctx.row.phone }}</ng-template>
                 </ng-container>
                 <ng-container tabColumnDef="address">
                     <ng-template let-ctx [tabHeaderDef]="table">Address</ng-template>

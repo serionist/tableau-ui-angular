@@ -1,5 +1,5 @@
-import type { TemplateRef, OnDestroy, InputSignal } from '@angular/core';
-import { Directive, ElementRef, HostListener, input, inject, ViewContainerRef, effect } from '@angular/core';
+import type { TemplateRef, OnDestroy, ModelSignal } from '@angular/core';
+import { Directive, ElementRef, HostListener, input, inject, ViewContainerRef, effect, model } from '@angular/core';
 
 // Style contained in _tooltips.scss in the styles folder
 @Directive({
@@ -8,18 +8,62 @@ import { Directive, ElementRef, HostListener, input, inject, ViewContainerRef, e
 })
 export class TooltipDirective<T> implements OnDestroy {
     private readonly viewContainerRef = inject(ViewContainerRef);
-    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    readonly $tooltip: InputSignal<TemplateRef<T | undefined> | string | null | undefined> = input.required<TemplateRef<T | undefined> | string | null | undefined>({
+    
+    /**
+     * Tooltip directive to show a tooltip on hover.
+     * The tooltip can be a string or a TemplateRef.
+     * The tooltip will be positioned relative to the element it is applied to.
+     * The tooltip will be destroyed when the element is destroyed.
+     * The tooltip will be opened on mouse enter and closed on mouse leave.
+     * @default undefined
+     */
+    readonly $tooltip: ModelSignal<TemplateRef<T | undefined> | string | null | undefined> = model.required<TemplateRef<T | undefined> | string | null | undefined>({
         alias: 'tooltip',
     });
-    readonly $tooltipContext = input<T>(undefined, {
+    /**
+     * Context for the tooltip template.
+     * This is used to pass data to the tooltip template.
+     * If the tooltip is a string, this will be ignored.
+     * If the tooltip is a TemplateRef, this will be used as the context for the template.
+     * @default undefined
+     */
+    readonly $tooltipContext = model<T | undefined>(undefined, {
         alias: 'tooltipContext',
     });
-    readonly $tooltipPosition = input<'bottom' | 'left' | 'right' | 'top'>('top', {
+    /**
+     * Position of the tooltip relative to the element.
+     * Can be 'top', 'bottom', 'left', or 'right'.
+     * @default 'top'
+     */
+    readonly $tooltipPosition = model<'bottom' | 'left' | 'right' | 'top'>('top', {
         alias: 'tooltipPosition',
     });
-    readonly $tooltipMargin = input<string>('5px', {
+    /**
+     * Margin around the tooltip.
+     * This is used to position the tooltip away from the element.
+     * It can be a string representing a CSS value (e.g., '5px', '1rem', '10%').
+     * @default '5px'
+     */
+    readonly $tooltipMargin = model<string>('5px', {
         alias: 'tooltipMargin',
+    });
+
+    /**
+     * Full arguments for the tooltip.
+     * This is used to pass all the arguments to the tooltip.
+     * If this is provided, it will override the individual tooltip properties.
+     * This is used to set only. 
+     */
+    readonly $tooltipFullArgs = input<TooltipArgs<T> | undefined>(undefined, {
+        alias: 'tooltipFullArgs',
+    });
+
+    private readonly tooltipFullArgsChanged = effect(() => {
+        const args = this.$tooltipFullArgs();
+        this.$tooltip.set(args?.template);
+        this.$tooltipContext.set(args?.context);
+        this.$tooltipPosition.set(args?.position ?? 'top');
+        this.$tooltipMargin.set(args?.margin ?? '5px');
     });
 
     private readonly tooltipChanged = effect(() => {
@@ -107,4 +151,10 @@ export class TooltipDirective<T> implements OnDestroy {
             this.tooltipElement = null;
         }
     }
+}
+export interface TooltipArgs<T> {
+    template: TemplateRef<T | undefined> | string | null | undefined;
+    context: T | undefined;
+    position: 'bottom' | 'left' | 'right' | 'top';
+    margin: string;
 }

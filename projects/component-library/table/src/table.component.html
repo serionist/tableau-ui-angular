@@ -4,7 +4,7 @@
     <!--Data Row Sizer. This is a position fixed, 0px wide row with the given row height px. used to calculate the actual height of data rows prior to virtualizing-->
     <div #dataSizer class="data-sizer" [style.height]="$dataRowHeight()"></div>
     <!-- Column Row -->
-    <div #headerRow class="column-row" >
+    <div #headerRow class="column-row">
         @if (hasCheckboxColumn) {
             <div class="column-header pinned-left" role="columnheader" [style.width]="checkboxColWidth" [style.minWidth]="checkboxColWidth">
                 <div class="content check-select">
@@ -63,14 +63,17 @@
                         class="header-button"
                         color="plain"
                         layout="small-icon"
+                        tooltip
                         [class.not-sortable]="!def.col.$sortable()"
                         [tabindex]="def.col.$sortable() ? '0' : '-1'"
-                        [tooltip]="headerTooltip && (headerTooltip.$showTooltip() | showHeaderTooltip:headerContext.$implicit) ? headerTooltip.templateRef : (def.col.$showAutoHeaderTooltip() ? defaultHeaderTooltipTemplate: undefined)"
-                        [tooltipContext]="headerContext.$implicit | 
-                            headerTooltipContext:def.col.$header()!.templateRef:
-                            $sortMode():def.col.$sortable():def.col.$sortOrder():
-                            ($sort() | sortInfoPipe: def.id : def.col.$propertyName()):
-                            $sort()"
+                        [tooltipFullArgs]="headerTooltip | headerTooltip:headerContext.$implicit:def.col.$showAutoHeaderTooltip():defaultHeaderTooltipTemplate:{
+                            headerTemplate: def.col.$header()!.templateRef,
+                            sortMode: $sortMode(),
+                            sortable: def.col.$sortable(),
+                            sortOrder: def.col.$sortOrder(),
+                            currentSort: $sort() | sortInfoPipe: def.id : def.col.$propertyName(),
+                            allSorts: $sort()
+                        }"
                         (click)="onColumnHeaderClick($event, def.col)"
                     >
                         <div class="content">
@@ -234,10 +237,12 @@
                                         : coleven
                                         : colodd
                                         : colcount;
-                            @let cellTooltip = def.col.$cellTooltip();
+
+                                        @let cellDef = def.col.$cell();
                             <div
                                 class="cell"
                                 role="cell"
+                                tooltip
                                 [attr.data-column-id]="def.id"
                                 [attr.data-column-index]="block.offset + index"
                                 [attr.data-column-count]="colcount"
@@ -251,8 +256,7 @@
                                 [style.padding]="$dataPadding()"
                                 [style.width]="$columnWidthDirectives() | cellWidth: def.id : $dataPadding() | async"
                                 [ngClass]="cellContext.$implicit | cellClass"
-                                [tooltip]="block.$status() === 'success' && cellTooltip && (cellTooltip.$showTooltip() | showCellTooltip:cellContext.$implicit) ? cellTooltip.templateRef : undefined"
-                                [tooltipContext]="cellContext.$implicit | cellTooltipContext: def.col.$cell().templateRef"
+                                [tooltipFullArgs]="def.col.$cellTooltip() | cellTooltip:block.$status():cellContext.$implicit:def.col.$showAutoCellTooltip():cellDef.templateRef:cellContext.$implicit.$isClamped()"
                             >
                                 @switch (block.$status()) {
                                     @case ('loading') {
@@ -262,7 +266,19 @@
                                         <div class="status error"></div>
                                     }
                                     @case ('success') {
-                                        <ng-container [ngTemplateOutlet]="def.col.$cell().templateRef" [ngTemplateOutletContext]="cellContext" />
+                                        
+                                        @if (cellDef.$textClamping()) {
+                                            <div class="line-clamp"
+                                                textClamp
+                                                [style.height]="$lineClampElementHeightPx()"
+                                                [style.-webkit-line-clamp]="$lineClampRows()"
+                                                (isClampedUpdated)="cellContext.$implicit.$isClamped.set($event)"                                         >
+                                                <ng-container [ngTemplateOutlet]="cellDef.templateRef" [ngTemplateOutletContext]="cellContext" />
+                                            </div>
+                                        } @else {
+                                            <ng-container [ngTemplateOutlet]="cellDef.templateRef" [ngTemplateOutletContext]="cellContext" />
+                                        }
+                                        
                                     }
                                 }
                             </div>

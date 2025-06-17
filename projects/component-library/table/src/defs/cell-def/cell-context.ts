@@ -1,8 +1,9 @@
-import type { TemplateRef } from '@angular/core';
+import type { TemplateRef, WritableSignal } from '@angular/core';
 import type { ColumnDefDirective } from '../column-def/column-def.directive';
 export interface CellContext<TData> {
     row: TData;
     meta: CellMetaContext<TData>;
+    $isClamped: WritableSignal<boolean>;
 }
 export interface CellMetaContext<TData> {
     columnDef: ColumnDefDirective<TData>;

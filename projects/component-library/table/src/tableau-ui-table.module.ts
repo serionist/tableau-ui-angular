@@ -20,11 +20,12 @@ import { RowSelectedPipe } from './selection/row-selected.pipe';
 import { TableauUiCheckboxModule } from 'tableau-ui-angular/checkbox';
 import { HeaderCheckboxModePipe } from './selection/header-checkbox-mode.pipe';
 import { HeaderToolipDefDirective } from './defs/header-def/header-toolip-def.directive';
-import { HeaderTooltipContextPipe } from './defs/header-def/header-tooltip-context.pipe';
+
 import { CellToolipDefDirective } from './defs/cell-def/cell-toolip-def.directive';
-import { CellTooltipContextPipe } from './defs/cell-def/cell-tooltip-context.pipe';
-import { ShowCellTooltipPipe } from './defs/cell-def/show-cell-tooltip.pipe';
-import { ShowHeaderTooltipPipe } from './defs/header-def/show-header-tooltip.pipe';
+
+import { TextClampDirective } from './defs/cell-def/text-clamp.directive';
+import { HeaderTooltipPipe } from './defs/header-def/header-tooltip.pipe';
+import { CellTooltipPipe } from './defs/cell-def/cell-tooltip.pipe';
 
 @NgModule({
     imports: [CommonModule, TableauUiIconModule, TableauUiButtonModule, TableauUiTooltipModule, TableauUiCheckboxModule],
@@ -32,17 +33,15 @@ import { ShowHeaderTooltipPipe } from './defs/header-def/show-header-tooltip.pip
         TableComponent,
         HeaderDefDirective,
         HeaderToolipDefDirective,
+        HeaderTooltipPipe,
         HeaderContextPipe,
-        HeaderTooltipContextPipe,
-        ShowHeaderTooltipPipe,
         HeaderClassPipe,
         ColumnDefDirective,
         CellDefDirective,
         CellContextPipe,
         CellClassPipe,
         CellToolipDefDirective,
-        CellTooltipContextPipe,
-        ShowCellTooltipPipe,
+        CellTooltipPipe,
         SortInfoPipe,
         ColWidthPipe,
         ColRenderedWidthDirective,
@@ -50,6 +49,9 @@ import { ShowHeaderTooltipPipe } from './defs/header-def/show-header-tooltip.pip
         ResizerDirective,
         HeaderCheckboxModePipe,
         RowSelectedPipe,
+        TextClampDirective,
+        
+        
     ],
     exports: [TableComponent, HeaderDefDirective, HeaderToolipDefDirective, ColumnDefDirective, CellDefDirective, CellToolipDefDirective],
 })

@@ -175,11 +175,12 @@
                 .cell {
                     display: flex;
                     align-items: center;
-
-                    &::content {
+                    overflow: hidden;
+                    .line-clamp {
                         overflow: hidden;
-                        text-overflow: ellipsis;
-                        white-space: nowrap;
+                        display: -webkit-box;
+                        -webkit-box-orient: vertical;
+                        word-break: break-word;
                     }
 
                     &.pinned-left {

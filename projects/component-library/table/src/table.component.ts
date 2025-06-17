@@ -1,5 +1,5 @@
-import type { TemplateRef } from '@angular/core';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, contentChildren, effect, ElementRef, HostListener, inject, input, model, untracked, viewChild, viewChildren } from '@angular/core';
+import type { AfterViewInit, TemplateRef } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, contentChildren, effect, ElementRef, HostListener, inject, input, model, signal, untracked, viewChild, viewChildren } from '@angular/core';
 import type { SortOrderPair } from './defs/column-def/column-def.directive';
 import { ColumnDefDirective } from './defs/column-def/column-def.directive';
 import type { DataSort } from './sorting/data-sort';
@@ -18,7 +18,8 @@ import type { DataOptions } from './data/data-options';
     changeDetection: ChangeDetectionStrategy.OnPush,
     host: {},
 })
-export class TableComponent<TData = unknown, TKey extends Primitive = null> {
+export class TableComponent<TData = unknown, TKey extends Primitive = null> implements AfterViewInit {
+    
     protected readonly checkboxColWidth = '2.5em';
 
     readonly self = this;
@@ -231,6 +232,8 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> {
     private readonly $dataRowSizer = viewChild.required<ElementRef<HTMLElement>>('dataSizer');
     // #endregion
     protected readonly dataManager = new DataManager<TData, TKey>(this.cdr);
+
+
     // #region Load & Reset
     private loaded = false;
     private dataWindowHeightPx: number = 0;
@@ -492,4 +495,35 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> {
     }
 
     // #endregion
+    
+
+    // #region Line clamping
+
+    protected readonly $lineClampRows = signal<number>(1);
+    protected readonly $lineClampElementHeightPx = signal<number>(0);
+    private initializeLineClamp() {
+        const rowSizer = this.$dataRowSizer().nativeElement;
+        try {
+            
+            const cellStyle = getComputedStyle(rowSizer);
+            const cellLineHeightString = cellStyle.lineHeight;
+            const cellLineHeightPx = cellLineHeightString.endsWith('px') ? parseFloat(cellLineHeightString) : parseFloat(cellLineHeightString) * parseFloat(cellStyle.fontSize);
+            const cellPaddingTop = parseFloat(cellStyle.paddingTop);
+            const cellPaddingBottom = parseFloat(cellStyle.paddingBottom);
+            const rowHeight = rowSizer.clientHeight - cellPaddingTop - cellPaddingBottom;
+    
+            const rows = Math.max(Math.floor(rowHeight / cellLineHeightPx), 1);
+            this.$lineClampRows.set(rows);
+            this.$lineClampElementHeightPx.set(cellLineHeightPx * rows);
+        } catch (error:unknown) {
+            console.warn('Failed to initialize line clamp:', error);
+        }
+        
+        
+    }
+
+    // #endregion
+    ngAfterViewInit(): void {
+        this.initializeLineClamp();
+    }
 }

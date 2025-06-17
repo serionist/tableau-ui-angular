@@ -16,6 +16,13 @@ export class HeaderToolipDefDirective<TData, TKey extends Primitive> {
         alias: 'showTooltip',
     });
 
+    readonly $tooltipPosition = input<'bottom' | 'left' | 'right' | 'top'>('top', {
+        alias: 'tooltipPosition',
+    });
+    readonly $tooltipMargin = input<string>('5px', {
+        alias: 'tooltipMargin',
+    });
+
     public templateRef = inject(TemplateRef<{ $implicit: HeaderTooltipContext<TData> }>);
 
     static ngTemplateContextGuard<TData, TKey extends Primitive>(dir: HeaderToolipDefDirective<TData, TKey>, ctx: unknown): ctx is { $implicit: HeaderTooltipContext<TData> } {

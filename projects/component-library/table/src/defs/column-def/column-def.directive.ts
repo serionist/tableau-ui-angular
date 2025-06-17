@@ -1,5 +1,5 @@
 import type { TemplateRef } from '@angular/core';
-import { contentChild, Directive, input } from '@angular/core';
+import { contentChild, Directive, input, signal } from '@angular/core';
 import { CellDefDirective } from '../cell-def/cell-def.directive';
 import { HeaderDefDirective } from '../header-def/header-def.directive';
 import type { HeaderContext } from '../header-def/header-context';
@@ -110,6 +110,17 @@ export class ColumnDefDirective<TData> {
         alias: 'showAutoHeaderTooltip',
     });
 
+     /**
+     * Show automatic cell tooltip when no tabCellTooltipDef is provided on the column.
+     * The auto cell tooltip displays the column value when it's clipped. Only works for tabCellDefs with $textClipping() enabled.
+     * If the cell value is not clipped, no automatic tooltip will be shown.
+     * When a tabCellTooltipDef overrides the automatic tooltip, this setting has no effect.
+     * @default true
+     */
+     readonly $showAutoCellTooltip = input<boolean>(true, {
+        alias: 'showAutoCellTooltip',
+    });
+
     readonly $cell = contentChild.required(CellDefDirective);
     readonly $header = contentChild(HeaderDefDirective);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -160,6 +171,7 @@ export class ColumnDefDirective<TData> {
                 columnOdd: columnOdd,
                 columnCount: columnCount,
             },
+            $isClamped: signal(false), // This will be set later by the table component if text clamping is enabled
         };
     }
 }
