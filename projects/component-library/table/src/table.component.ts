@@ -152,7 +152,7 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> impl
 
     // #endregion
     // #region Columns
-    public readonly $columnDefs = contentChildren<ColumnDefDirective<TData>>(ColumnDefDirective);
+    public readonly $columnDefs = contentChildren<ColumnDefDirective<TData, TKey>>(ColumnDefDirective);
     protected readonly $displayedColumnDefs = computed(
         () => {
             let columnDefs = this.$columnDefs();
@@ -174,7 +174,7 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> impl
 
             const ret: {
                 id: string;
-                col: ColumnDefDirective<TData>;
+                col: ColumnDefDirective<TData, TKey>;
                 pinnedLeft: boolean;
                 pinnedRight: boolean;
                 sortOrder: SortOrderPair;
@@ -282,25 +282,15 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> impl
         if (!this.loaded) {
             return;
         }
-       
+
         untracked(() => void this.resetInternal(sort, dataOptions, dataBlockWindow));
     });
-    private async resetInternal(
-        sort: DataSort[] | undefined,
-        dataOptions: DataOptions<TData, TKey> | undefined,
-        dataBlockWindow: number,
-    ): Promise<boolean> {
+    private async resetInternal(sort: DataSort[] | undefined, dataOptions: DataOptions<TData, TKey> | undefined, dataBlockWindow: number): Promise<boolean> {
         if (this.dataRowHeightPx === 0 || this.dataWindowHeightPx === 0 || !sort || !dataOptions) {
             console.warn('Table reset called with undefined parameters, ignoring');
             return false;
         }
-        await this.dataManager.reset(
-            this.dataWindowHeightPx,
-            this.dataRowHeightPx,
-            sort,
-            dataBlockWindow,
-            dataOptions,
-        );
+        await this.dataManager.reset(this.dataWindowHeightPx, this.dataRowHeightPx, sort, dataBlockWindow, dataOptions);
         return true;
     }
 
@@ -330,7 +320,7 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> impl
     // #endregion
 
     // #region Sort
-    protected onColumnHeaderClick(e: MouseEvent, def: ColumnDefDirective<TData>) {
+    protected onColumnHeaderClick(e: MouseEvent, def: ColumnDefDirective<TData, TKey>) {
         if (!def.$sortable()) {
             return;
         }

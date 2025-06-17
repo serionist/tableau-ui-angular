@@ -23,7 +23,6 @@ import { HeaderToolipDefDirective } from './defs/header-def/header-toolip-def.di
 
 import { CellToolipDefDirective } from './defs/cell-def/cell-toolip-def.directive';
 
-import { TextClampDirective } from './defs/cell-def/text-clamp.directive';
 import { HeaderTooltipPipe } from './defs/header-def/header-tooltip.pipe';
 import { CellTooltipPipe } from './defs/cell-def/cell-tooltip.pipe';
 
@@ -49,7 +48,6 @@ import { CellTooltipPipe } from './defs/cell-def/cell-tooltip.pipe';
         ResizerDirective,
         HeaderCheckboxModePipe,
         RowSelectedPipe,
-        TextClampDirective,
     ],
     exports: [TableComponent, HeaderDefDirective, HeaderToolipDefDirective, ColumnDefDirective, CellDefDirective, CellToolipDefDirective],
 })

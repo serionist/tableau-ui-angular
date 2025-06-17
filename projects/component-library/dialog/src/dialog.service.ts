@@ -197,7 +197,7 @@ export class DialogService {
         } else {
             document.body.appendChild(dialogElement);
         }
-        
+
         // Handle container position and window resize event
         dialogRef.reposition = (getArgs: (originalArgs: IDialogPositionAndSizeArgs) => void) => {
             getArgs(args);
@@ -243,7 +243,7 @@ export class DialogService {
         }
         if (stackOptions instanceof LocalStackOptions) {
             stackOptions.insertAfterElement.insertAdjacentElement('afterend', backdrop);
-        }else {
+        } else {
             document.body.appendChild(backdrop);
         }
         if (args.closeOnBackdropClick === true) {

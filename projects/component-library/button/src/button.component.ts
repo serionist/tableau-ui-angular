@@ -56,9 +56,9 @@ export class ButtonComponent {
     handleKeydown(event: KeyboardEvent) {
         const el = this.$nativeElement.nativeElement;
         this.clickFromKeyboard = true; // set flag to indicate click from keyboard
-        if (el instanceof HTMLLinkElement && event.code === 'Enter' || event.code === 'Space') {
+        if ((el instanceof HTMLLinkElement && event.code === 'Enter') || event.code === 'Space') {
             event.preventDefault(); // stop scroll or native behavior
-            
+
             el.click(); // trigger click manually
         }
     }

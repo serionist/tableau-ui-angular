@@ -12,7 +12,7 @@ export class CellToolipDefDirective<TData, TKey extends Primitive> {
         alias: 'tabCellTooltipDef',
     });
 
-    readonly $showTooltip = input<boolean | ((ctx: CellContext<TData>) => boolean)>(true, {
+    readonly $showTooltip = input<boolean | ((ctx: CellContext<TData, TKey>) => boolean)>(true, {
         alias: 'showTooltip',
     });
 
@@ -23,9 +23,9 @@ export class CellToolipDefDirective<TData, TKey extends Primitive> {
         alias: 'tooltipMargin',
     });
 
-    readonly templateRef = inject(TemplateRef<{ $implicit: CellTooltipContext<TData> }>);
+    readonly templateRef = inject(TemplateRef<{ $implicit: CellTooltipContext<TData, TKey> }>);
 
-    static ngTemplateContextGuard<TData, TKey extends Primitive>(dir: CellToolipDefDirective<TData, TKey>, ctx: unknown): ctx is { $implicit: CellTooltipContext<TData> } {
+    static ngTemplateContextGuard<TData, TKey extends Primitive>(dir: CellToolipDefDirective<TData, TKey>, ctx: unknown): ctx is { $implicit: CellTooltipContext<TData, TKey> } {
         return true;
     }
 }

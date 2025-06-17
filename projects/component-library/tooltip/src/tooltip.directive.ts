@@ -1,6 +1,6 @@
 import type { TemplateRef, OnDestroy, ModelSignal } from '@angular/core';
-import { Directive, ElementRef, HostListener, input, inject, effect, model, computed } from '@angular/core';
-import type { DialogRef} from 'tableau-ui-angular/dialog';
+import { Directive, ElementRef, HostListener, input, inject, effect, model } from '@angular/core';
+import type { DialogRef } from 'tableau-ui-angular/dialog';
 import { DialogService, GlobalStackOptions } from 'tableau-ui-angular/dialog';
 import type { TooltipComponentArgs } from './tooltip.component';
 import { TooltipComponent } from './tooltip.component';
@@ -48,7 +48,7 @@ export class TooltipDirective<T> implements OnDestroy {
      * It can be a string representing a CSS value (e.g., '5px', '1rem', '10%').
      * @default '5px'
      */
-    readonly $tooltipMargin = model<string>('5px', {
+    readonly $tooltipMargin = model<string>('0.5rem', {
         alias: 'tooltipMargin',
     });
 
@@ -65,12 +65,13 @@ export class TooltipDirective<T> implements OnDestroy {
 
     /**
      * Mode for the tooltip arguments.
-     * If 'full', the tooltip will use the full arguments provided in `$tooltipFullArgs`.
-     * If 'individual', the tooltip will use the individual properties provided in `$tooltip`, `$
+     * If 'individual', the tooltip will use the individual properties provided ([tooltip], `[tooltipContext]`, `[tooltipPosition]`, and `[tooltipMargin]`).
+     * If 'full', the tooltip will use the full arguments provided in `[tooltipFullArgs]`.
+     * If 'lazy', the tooltip will use lazy evaluation of arguments by calling the provided in `[tooltipLazyArgs]` function.
      * tooltipContext`, `$tooltipPosition`, and `$tooltipMargin`.
      * @default 'individual'
      */
-    readonly $tooltipArgsMode = input<'full' | 'individual'>('individual', {
+    readonly $tooltipArgsMode = input<'full' | 'individual' | 'lazy'>('individual', {
         alias: 'tooltipArgsMode',
     });
     /**
@@ -83,52 +84,41 @@ export class TooltipDirective<T> implements OnDestroy {
         alias: 'tooltipFullArgs',
     });
 
-    private readonly tooltipFullArgsChanged = effect(() => {
-        const mode = this.$tooltipArgsMode();
-        const args = this.$tooltipFullArgs();
-        if (mode == 'individual') {
-            return; // Individual mode, no need to update tooltip args
-        }
-        this.$tooltip.set(args?.template);
-        this.$tooltipContext.set(args?.context);
-        this.$tooltipPosition.set(args?.position ?? 'top');
-        this.$tooltipMargin.set(args?.margin ?? '5px');
+    /**
+     * Lazy arguments for the tooltip.
+     * The passed function is called to determine if a tooltip is needed when the element is hovered.
+     * Only works if the `tooltipArgsMode` is set to 'lazy'.
+     * This is used to pass a function that returns the tooltip arguments.
+     * This is useful for cases where the tooltip arguments are not known at the time of directive initialization.
+     * If this is provided, it will override the individual tooltip properties.
+     * This is used to set only.
+     */
+    readonly $tooltipLazyArgs = input<() => TooltipArgs<T> | undefined>(undefined, {
+        alias: 'tooltipLazyArgs',
     });
 
-    private readonly tooltipChanged = effect(() => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const tooltip = this.$tooltip();
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const tooltipContext = this.$tooltipContext();
+    // re-create the tooltip when any of the tooltip arguments change and tooltip is open
+    private readonly tooltipArgsChanged = effect(() => {
+        this.$tooltip();
+        this.$tooltipContext();
+        this.$tooltipFullArgs();
+        this.$tooltipLazyArgs();
+        this.$tooltipArgsMode();
         if (this.tooltipDialogRef) {
             this.destroyTooltip();
-            this.openTooltip();
-        }
-    });
-
-
-    private readonly $tooltipMarginWithUnit = computed(() => {
-        const margin = this.$tooltipMargin();
-        // if margin is just a number, add 'px' to it
-        return /^\d+$/.test(margin) ? `${margin}px` : margin;
-    });
-
-    openTooltip() {
-        if (this.$tooltip() != null) {
             this.createTooltip();
         }
-    }
-    private tooltipDialogRef: DialogRef | undefined = undefined;
+    });
 
+    private tooltipDialogRef: DialogRef | undefined = undefined;
     private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
 
     @HostListener('mouseenter', ['$event']) onMouseEnter(e: MouseEvent) {
         if (e.buttons !== 0) {
             return;
         }
-        this.openTooltip();
+        this.createTooltip();
     }
-
     @HostListener('mouseleave') onMouseLeave() {
         this.destroyTooltip();
     }
@@ -137,9 +127,37 @@ export class TooltipDirective<T> implements OnDestroy {
     }
 
     private createTooltip() {
-        if (this.tooltipDialogRef) {
+        // determine the tooltip arguments based on the mode
+        let args: TooltipArgs<T> | undefined = undefined;
+        switch (this.$tooltipArgsMode()) {
+            case 'full':
+                args = this.$tooltipFullArgs();
+                break;
+            case 'lazy':
+                {
+                    const lazyArgs = this.$tooltipLazyArgs();
+                    if (lazyArgs === undefined) {
+                        args = undefined;
+                    } else {
+                        args = lazyArgs();
+                    }
+                }
+                break;
+            case 'individual':
+                args = {
+                    template: this.$tooltip(),
+                    context: this.$tooltipContext(),
+                    position: this.$tooltipPosition(),
+                    margin: this.$tooltipMargin(),
+                };
+                break;
+            default:
+                throw new Error(`Unknown tooltip args mode: ${this.$tooltipArgsMode()}`);
+        }
+        if (this.tooltipDialogRef || args?.template === undefined || args?.template === null) {
             return;
         }
+        const marginWithUnit = /^\d+$/.test(args.margin ?? '0.5rem') ? `${args.margin}px` : args.margin;
         const calculateTop = (pos: 'bottom' | 'left' | 'right' | 'top', actualWidth: number, actualHeight: number, insertAfterElementRect: DOMRect, recalculateCounter = 0) => {
             switch (pos) {
                 case 'left':
@@ -148,7 +166,7 @@ export class TooltipDirective<T> implements OnDestroy {
                     const elementMidPoint = insertAfterElementRect.top + insertAfterElementRect.height / 2;
                     // calculate the top position based on the mid point and the height of the tooltip
                     const tooltipTop = elementMidPoint - actualHeight / 2;
-                    return `max(${this.$tooltipMarginWithUnit()}, ${tooltipTop}px)`;
+                    return `max(${marginWithUnit}, ${tooltipTop}px)`;
                 }
                 case 'top': {
                     // find the top of the element and subtract the height of the tooltip
@@ -159,7 +177,7 @@ export class TooltipDirective<T> implements OnDestroy {
                     }
                     // subtract the margin from the top position
                     // ensure the tooltip does not go above the top of the screen
-                    return `max(0px, calc(${tooltipTop}px - ${this.$tooltipMarginWithUnit()}))`;
+                    return `max(0px, calc(${tooltipTop}px - ${marginWithUnit}))`;
                 }
                 case 'bottom': {
                     // find the bottom of the element and add the height of the tooltip
@@ -170,7 +188,7 @@ export class TooltipDirective<T> implements OnDestroy {
                     }
                     // add the margin to the top position
                     // ensure the tooltip does not go below the bottom of the screen
-                    return `min(${window.innerHeight - actualHeight}px, calc(${tooltipTop}px + ${this.$tooltipMarginWithUnit()}))`;
+                    return `min(${window.innerHeight - actualHeight}px, calc(${tooltipTop}px + ${marginWithUnit}))`;
                 }
                 default:
                     return '0'; // Fallback case, should not happen
@@ -185,10 +203,9 @@ export class TooltipDirective<T> implements OnDestroy {
                     // calculate the left position based on the mid point and the width of the tooltip
                     const tooltipLeft = elementMidPoint - actualWidth / 2;
                     // what is the smallest left coordinate that is acceptable
-                    return `min(${tooltipLeft}px, calc(${window.innerWidth - actualWidth}px - ${this.$tooltipMarginWithUnit()}))`;
+                    return `min(${tooltipLeft}px, calc(${window.innerWidth - actualWidth}px - ${marginWithUnit}))`;
                 }
                 case 'left': {
-                  
                     // find the left of the element and subtract the width of the tooltip
                     const tooltipLeft = insertAfterElementRect.left - actualWidth;
                     // if we hit the left side of the screen, make the tooltip appear on the right side of the element
@@ -196,7 +213,7 @@ export class TooltipDirective<T> implements OnDestroy {
                         return calculateLeft('right', actualWidth, actualHeight, insertAfterElementRect, recalculateCounter + 1);
                     }
                     // ensure the tooltip does not go off the left side of the screen
-                    return `max(0px, calc(${tooltipLeft}px - ${this.$tooltipMarginWithUnit()}))`;
+                    return `max(0px, calc(${tooltipLeft}px - ${marginWithUnit}))`;
                 }
                 case 'right': {
                     // find the right of the element and add the width of the tooltip
@@ -206,7 +223,7 @@ export class TooltipDirective<T> implements OnDestroy {
                         return calculateLeft('left', actualWidth, actualHeight, insertAfterElementRect, recalculateCounter + 1);
                     }
                     // ensure the tooltip does not go off the right side of the screen
-                    return `min(${window.innerWidth - actualWidth}px, calc(${tooltipLeft}px + ${this.$tooltipMarginWithUnit()}))`;
+                    return `min(${window.innerWidth - actualWidth}px, calc(${tooltipLeft}px + ${marginWithUnit}))`;
                 }
                 default:
                     return '0'; // Fallback case, should not happen
@@ -216,9 +233,9 @@ export class TooltipDirective<T> implements OnDestroy {
         this.tooltipDialogRef = this.dialogService.openDialog(
             TooltipComponent,
             {
-                tooltip: this.$tooltip(),
-                tooltipContext: this.$tooltipContext(),
-                padding: this.$tooltipPadding(),
+                tooltip: args.template,
+                tooltipContext: args.context,
+                padding: args.padding,
             } as TooltipComponentArgs<T>,
             {
                 backdropCss: undefined,
@@ -236,22 +253,21 @@ export class TooltipDirective<T> implements OnDestroy {
                     display: 'block',
                     fontSize: '1rem',
                     lineHeight: '1.2',
-                    padding: this.$tooltipPadding(),
-                    tabindex: '-1'
+                    padding: args.padding ?? '0.5rem',
+                    tabindex: '-1',
                 },
                 header: undefined,
                 height: undefined,
                 width: undefined,
                 top: (actualWidth, actualHeight, insertAfterElementRect) => {
-                    return calculateTop(this.$tooltipPosition(), actualWidth, actualHeight, insertAfterElementRect!, 0);
+                    return calculateTop(args.position ?? 'top', actualWidth, actualHeight, insertAfterElementRect!, 0);
                 },
                 left: (actualWidth, actualHeight, insertAfterElementRect) => {
-                    return calculateLeft(this.$tooltipPosition(), actualWidth, actualHeight, insertAfterElementRect!, 0);
+                    return calculateLeft(args.position ?? 'top', actualWidth, actualHeight, insertAfterElementRect!, 0);
                 },
             },
             new GlobalStackOptions(this.elementRef.nativeElement),
         );
-       
     }
 
     private destroyTooltip() {
@@ -264,6 +280,7 @@ export class TooltipDirective<T> implements OnDestroy {
 export interface TooltipArgs<T> {
     template: TemplateRef<T | undefined> | string | null | undefined;
     context: T | undefined;
-    position: 'bottom' | 'left' | 'right' | 'top';
-    margin: string;
+    position?: 'bottom' | 'left' | 'right' | 'top';
+    margin?: string;
+    padding?: string;
 }

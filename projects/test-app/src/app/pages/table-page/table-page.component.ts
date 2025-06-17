@@ -14,7 +14,17 @@ import { TableauUiButtonToggleModule } from 'tableau-ui-angular/button-toggle';
 
 @Component({
     selector: 'app-table-page',
-    imports: [TableauUiCommonModule, TableauUiCheckboxModule, TableauUiExpansionPanelModule, TableauUiTableModule, CommonModule, TableauUiButtonModule, TableauUiTabgroupModule, TableauUiRadioGroupModule, TableauUiButtonToggleModule],
+    imports: [
+        TableauUiCommonModule,
+        TableauUiCheckboxModule,
+        TableauUiExpansionPanelModule,
+        TableauUiTableModule,
+        CommonModule,
+        TableauUiButtonModule,
+        TableauUiTabgroupModule,
+        TableauUiRadioGroupModule,
+        TableauUiButtonToggleModule,
+    ],
     standalone: true,
     templateUrl: './table-page.component.html',
     styleUrl: './table-page.component.scss',
@@ -146,7 +156,7 @@ export class TablePageComponent implements AfterViewInit {
         this.$errorOnData.set(errorOnData);
         void this.tabTable().reset();
     }
-    customCalculatedClass(ctx: HeaderContext<DataType>): string | undefined {
+    customCalculatedClass(ctx: HeaderContext<DataType, number>): string | undefined {
         return `custom-dynamic-class-${ctx.meta.index % 3}`;
     }
 
@@ -154,7 +164,7 @@ export class TablePageComponent implements AfterViewInit {
         void this.tabTable().load();
     }
 
-    $showCellTooltip(cellContext: CellContext<DataType>) {
+    $showCellTooltip(cellContext: CellContext<DataType, number>) {
         return cellContext.meta.odd;
     }
 }

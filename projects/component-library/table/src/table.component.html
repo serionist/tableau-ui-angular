@@ -34,7 +34,7 @@
         <!-- prettier-ignore -->
         @for (def of $displayedColumnDefs(); let index = $index; let count = $count; let first = $first; let last = $last; let even = $even; let odd = $odd; track def.id) {
             @let headerContext = def.col | headerContext: index : first : last : even : odd : count;
-            @let headerTooltip = def.col.$headerTooltip();
+            <!-- @let headerTooltip = def.col.$headerTooltip(); -->
             <div
                 #header
                 class="column-header"
@@ -58,17 +58,17 @@
                 [ngClass]="headerContext.$implicit| headerClass"
                 [colRenderedWidth]="def.id"
             >
+            <!-- [tooltipFullArgs]="headerTooltip | headerTooltip:headerContext.$implicit:def.col.$showAutoHeaderTooltip():defaultHeaderTooltipTemplate:" -->
                 <div class="content" [style.padding]="$headerPadding()">
                     <button
                         class="header-button"
                         color="plain"
                         layout="small-icon"
                         tooltip
-                        tooltipArgsMode="full"
+                        tooltipArgsMode="lazy"
                         [class.not-sortable]="!def.col.$sortable()"
                         [tabindex]="def.col.$sortable() ? '0' : '-1'"
-                        [tooltipFullArgs]="headerTooltip | headerTooltip:headerContext.$implicit:def.col.$showAutoHeaderTooltip():defaultHeaderTooltipTemplate:{
-                            headerTemplate: def.col.$header()!.templateRef,
+                        [tooltipLazyArgs]="def.col | headerTooltip:self:headerContext.$implicit:defaultHeaderTooltipTemplate:{
                             sortMode: $sortMode(),
                             sortable: def.col.$sortable(),
                             sortOrder: def.col.$sortOrder(),
@@ -240,12 +240,13 @@
                                         : colodd
                                         : colcount;
 
-                                        @let cellDef = def.col.$cell();
+                            
                             <div
+                                #cell
                                 class="cell"
                                 role="cell"
                                 tooltip
-                                tooltipArgsMode="full"
+                                tooltipArgsMode="lazy"
                                 [attr.data-column-id]="def.id"
                                 [attr.data-column-index]="block.offset + index"
                                 [attr.data-column-count]="colcount"
@@ -259,7 +260,7 @@
                                 [style.padding]="$dataPadding()"
                                 [style.width]="$columnWidthDirectives() | cellWidth: def.id : $dataPadding() | async"
                                 [ngClass]="cellContext.$implicit | cellClass"
-                                [tooltipFullArgs]="def.col.$cellTooltip() | cellTooltip:block.$status():cellContext.$implicit:def.col.$showAutoCellTooltip():cellDef.templateRef:cellContext.$implicit.$isClamped()"
+                                [tooltipLazyArgs]="cell | cellTooltip: def.col: cellContext.$implicit: block"
                             >
                                 @switch (block.$status()) {
                                     @case ('loading') {
@@ -269,13 +270,11 @@
                                         <div class="status error"></div>
                                     }
                                     @case ('success') {
-                                        
+                                        @let cellDef = def.col.$cell();
                                         @if (cellDef.$textClamping()) {
                                             <div class="line-clamp"
-                                                textClamp
                                                 [style.height]="$lineClampElementHeightPx()"
-                                                [style.-webkit-line-clamp]="$lineClampRows()"
-                                                (isClampedUpdated)="cellContext.$implicit.$isClamped.set($event)"                                         >
+                                                [style.-webkit-line-clamp]="$lineClampRows()"                                       >
                                                 <ng-container [ngTemplateOutlet]="cellDef.templateRef" [ngTemplateOutletContext]="cellContext" />
                                             </div>
                                         } @else {

@@ -7,6 +7,10 @@ import type { DataSort } from './data-sort';
 })
 export class SortInfoPipe implements PipeTransform {
     transform(sorts: DataSort[], colId: string, propertyName: string | undefined): { info: DataSort; index: number } | undefined {
+        return SortInfoPipe.getSortInfo(sorts, colId, propertyName);
+    }
+
+    static getSortInfo(sorts: DataSort[], colId: string, propertyName: string | undefined): { info: DataSort; index: number } | undefined {
         const p = propertyName ?? colId;
         const index = sorts.findIndex((e) => e.property === p);
         if (index === -1) {

@@ -12,7 +12,7 @@ export class HeaderToolipDefDirective<TData, TKey extends Primitive> {
         alias: 'tabHeaderTooltipDef',
     });
 
-    readonly $showTooltip = input<boolean | ((ctx: HeaderContext<TData>) => boolean)>(true, {
+    readonly $showTooltip = input<boolean | ((ctx: HeaderContext<TData, TKey>) => boolean)>(true, {
         alias: 'showTooltip',
     });
 
@@ -23,9 +23,9 @@ export class HeaderToolipDefDirective<TData, TKey extends Primitive> {
         alias: 'tooltipMargin',
     });
 
-    public templateRef = inject(TemplateRef<{ $implicit: HeaderTooltipContext<TData> }>);
+    public templateRef = inject(TemplateRef<{ $implicit: HeaderTooltipContext<TData, TKey> }>);
 
-    static ngTemplateContextGuard<TData, TKey extends Primitive>(dir: HeaderToolipDefDirective<TData, TKey>, ctx: unknown): ctx is { $implicit: HeaderTooltipContext<TData> } {
+    static ngTemplateContextGuard<TData, TKey extends Primitive>(dir: HeaderToolipDefDirective<TData, TKey>, ctx: unknown): ctx is { $implicit: HeaderTooltipContext<TData, TKey> } {
         return true;
     }
 }

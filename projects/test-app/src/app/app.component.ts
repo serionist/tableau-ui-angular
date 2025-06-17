@@ -9,7 +9,6 @@ import { CommonModule } from '@angular/common';
 import { TableauUiNavBarModule } from 'tableau-ui-angular/nav-bar';
 import { TableauUiIconModule } from 'tableau-ui-angular/icon';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
-import { TableauUiButtonModule } from 'tableau-ui-angular/button';
 import { TableauUiFormFieldModule } from 'tableau-ui-angular/form-field';
 import { TableauUiButtonToggleModule } from 'tableau-ui-angular/button-toggle';
 @Component({

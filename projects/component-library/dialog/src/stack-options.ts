@@ -8,9 +8,8 @@ export class GlobalStackOptions {
          * The reference element thats' DOMRect is passed to the left() and height() function of the dialog args.
          * Optional.
          */
-        public readonly referenceElement?: HTMLElement) {
-
-    }
+        public readonly referenceElement?: HTMLElement,
+    ) {}
 }
 
 /**
@@ -30,7 +29,7 @@ export class LocalStackOptions {
          * The reference element that's DOMRect is passed to the left() and height() function of the dialog args.
          * If not provided, the `insertAfterElement` will be used as the reference element.
          */
-        public readonly referenceElement?: HTMLElement
+        public readonly referenceElement?: HTMLElement,
     ) {}
 }
 

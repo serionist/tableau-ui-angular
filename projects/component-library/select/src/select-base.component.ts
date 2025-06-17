@@ -332,7 +332,7 @@ export abstract class SelectBaseComponent<TOption extends Primitive, TValue exte
                 closeOnBackdropClick: true,
             },
             null,
-            new LocalStackOptions(this.elementRef.nativeElement)
+            new LocalStackOptions(this.elementRef.nativeElement),
         );
 
         this.registerOptionKeyNavigation();

@@ -1,13 +1,13 @@
-import type { TemplateRef, WritableSignal } from '@angular/core';
+import type { TemplateRef } from '@angular/core';
 import type { ColumnDefDirective } from '../column-def/column-def.directive';
-export interface CellContext<TData> {
+import type { Primitive } from 'tableau-ui-angular/types';
+export interface CellContext<TData, TKey extends Primitive> {
     row: TData;
-    meta: CellMetaContext<TData>;
-    $isClamped: WritableSignal<boolean>;
+    meta: CellMetaContext<TData, TKey>;
     maxRowCount: number;
 }
-export interface CellMetaContext<TData> {
-    columnDef: ColumnDefDirective<TData>;
+export interface CellMetaContext<TData, TKey extends Primitive> {
+    columnDef: ColumnDefDirective<TData, TKey>;
     index: number;
     first: boolean;
     last: boolean;
@@ -22,6 +22,7 @@ export interface CellMetaContext<TData> {
     columnCount: number;
 }
 
-export interface CellTooltipContext<TData> extends CellContext<TData> {
-    cellTemplate: TemplateRef<{ $implicit: CellContext<TData> }>;
+export interface CellTooltipContext<TData, TKey extends Primitive> extends CellContext<TData, TKey> {
+    cellTemplate: TemplateRef<{ $implicit: CellContext<TData, TKey> }>;
+    isRowCellClamped: boolean;
 }

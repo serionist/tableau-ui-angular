@@ -1,9 +1,10 @@
 import type { PipeTransform, TemplateRef } from '@angular/core';
 import { Pipe } from '@angular/core';
 import type { Primitive } from 'tableau-ui-angular/types';
-import type { CellToolipDefDirective } from './cell-toolip-def.directive';
 import type { CellContext, CellTooltipContext } from './cell-context';
 import type { TooltipArgs } from 'tableau-ui-angular/tooltip';
+import type { DataBlock } from '../../data/data-block';
+import type { ColumnDefDirective } from '../column-def/column-def.directive';
 
 @Pipe({
     name: 'cellTooltip',
@@ -11,56 +12,72 @@ import type { TooltipArgs } from 'tableau-ui-angular/tooltip';
 })
 export class CellTooltipPipe implements PipeTransform {
     transform<TData, TKey extends Primitive>(
-        customTooltipDef: CellToolipDefDirective<TData, TKey> | undefined,
-        blockStatus: 'canceled' | 'error' | 'loading' | 'success',
-        cellContext: CellContext<TData>,
-        showAutoCellTooltip: boolean,
-        cellTemplate: TemplateRef<{ $implicit: CellContext<TData> }>,
-        isClamped: boolean,
-    ): TooltipArgs<{ $implicit: CellTooltipContext<TData> }> {
-        const tooltipArgs: TooltipArgs<{ $implicit: CellTooltipContext<TData> }> = {
-            template: undefined,
-            position: 'top',
-            margin: '0.5rem',
-            context: {
-                $implicit: {
-                    ...cellContext,
-                    cellTemplate,
+        cellElement: HTMLDivElement,
+        columnDef: ColumnDefDirective<TData, TKey>,
+        cellContext: CellContext<TData, TKey>,
+        block: DataBlock<TData, TKey>,
+    ): () => TooltipArgs<{ $implicit: CellTooltipContext<TData, TKey> }> {
+        return () => {
+            const tooltipArgs: TooltipArgs<{ $implicit: CellTooltipContext<TData, TKey> }> = {
+                template: undefined,
+                position: 'bottom',
+                margin: '0px',
+                context: {
+                    $implicit: {
+                        ...cellContext,
+                        cellTemplate: columnDef.$cell().templateRef,
+                        isRowCellClamped: false,
+                    },
                 },
-            },
-        };
-        // if the cell's block is not loaded yet, we don't show the tooltip
-        if (blockStatus !== 'success') {
+            };
+            // if the cell's block is not loaded yet, we don't show the tooltip
+            if (block.$status() !== 'success') {
+                return tooltipArgs;
+            }
+            // if we have a custom [tabCellTooltipDef] directive in our column definition
+            const tooltipDef = columnDef.$cellTooltip();
+            if (tooltipDef !== undefined) {
+                // check if user has provided a value to show the custom tooltip
+                // this can be a boolean or a function that returns a boolean
+                const showCustomParam = tooltipDef.$showTooltip();
+                let showCustomTooltip: boolean;
+                // if its a function, call it with the header context to see if we need to show the custom tooltip
+                if (typeof showCustomParam === 'function') {
+                    showCustomTooltip = showCustomParam(cellContext);
+                } else {
+                    // if its a boolean, use it directly
+                    showCustomTooltip = showCustomParam;
+                }
+                // if we show custom tooltip, use the custom template
+                if (showCustomTooltip) {
+                    tooltipArgs.context!.$implicit.isRowCellClamped = this.isClamped(cellElement);
+                    tooltipArgs.template = tooltipDef.templateRef;
+                    tooltipArgs.position = tooltipDef.$tooltipPosition();
+                    tooltipArgs.margin = tooltipDef.$tooltipMargin();
+                }
+            }
+
+            // if we have not set tooltipArgs.template yet,
+            // it means we are not showing a custom tooltip
+            // check if we have auto tooltip enabled and we have clamped the cell context
+            if (tooltipArgs.template === undefined && columnDef.$showAutoCellTooltip()) {
+                // check if the cell is clamped
+                const clampElement = cellElement.querySelector('.line-clamp');
+                const isClamped = clampElement !== null && clampElement.scrollHeight > clampElement.clientHeight;
+                // if the cell is clamped, we show the auto tooltip
+                if (isClamped) {
+                    // use the cell template as the tooltip template
+                    const cellTemplate = columnDef.$cell().templateRef;
+                    tooltipArgs.template = cellTemplate as TemplateRef<{ $implicit: CellTooltipContext<TData, TKey> }>;
+                }
+            }
+
             return tooltipArgs;
-        }
-        // if we have a custom [tabCellTooltipDef] directive in our column definition
-        if (customTooltipDef) {
-            // check if user has provided a value to show the custom tooltip
-            // this can be a boolean or a function that returns a boolean
-            const showCustomParam = customTooltipDef.$showTooltip();
-            let showCustomTooltip: boolean;
-            // if its a function, call it with the header context to see if we need to show the custom tooltip
-            if (typeof showCustomParam === 'function') {
-                showCustomTooltip = showCustomParam(cellContext);
-            } else {
-                // if its a boolean, use it directly
-                showCustomTooltip = showCustomParam;
-            }
-            // if we show custom tooltip, use the custom template
-            if (showCustomTooltip) {
-                tooltipArgs.template = customTooltipDef.templateRef;
-                tooltipArgs.position = customTooltipDef.$tooltipPosition();
-                tooltipArgs.margin = customTooltipDef.$tooltipMargin();
-            }
-        }
+        };
+    }
 
-        // if we have not set tooltipArgs.template yet,
-        // it means we are not showing a custom tooltip
-        // check if we have auto tooltip enabled and we have clamped the cell context
-        if (tooltipArgs.template === undefined && showAutoCellTooltip && isClamped) {
-            tooltipArgs.template = cellTemplate as TemplateRef<{ $implicit: CellTooltipContext<TData> }>;
-        }
-
-        return tooltipArgs;
+    isClamped(cellElement: HTMLDivElement): boolean {
+        const clampElement = cellElement.querySelector('.line-clamp');
+        return clampElement !== null && clampElement.scrollHeight > clampElement.clientHeight;
     }
 }

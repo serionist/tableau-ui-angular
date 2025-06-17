@@ -12,9 +12,9 @@ export class HeaderDefDirective<TData, TKey extends Primitive> {
         alias: 'tabHeaderDef',
     });
 
-    public templateRef = inject(TemplateRef<{ $implicit: HeaderContext<TData> }>);
+    public templateRef = inject<TemplateRef<{ $implicit: HeaderContext<TData, TKey> }>>(TemplateRef<{ $implicit: HeaderContext<TData, TKey> }>);
 
-    static ngTemplateContextGuard<TData, TKey extends Primitive>(dir: HeaderDefDirective<TData, TKey>, ctx: unknown): ctx is { $implicit: HeaderContext<TData> } {
+    static ngTemplateContextGuard<TData, TKey extends Primitive>(dir: HeaderDefDirective<TData, TKey>, ctx: unknown): ctx is { $implicit: HeaderContext<TData, TKey> } {
         return true;
     }
 }
