@@ -49,6 +49,6 @@ import { CellTooltipPipe } from './defs/cell-def/cell-tooltip.pipe';
         HeaderCheckboxModePipe,
         RowSelectedPipe,
     ],
-    exports: [TableComponent, HeaderDefDirective, HeaderToolipDefDirective, ColumnDefDirective, CellDefDirective, CellToolipDefDirective],
+    exports: [TableComponent, HeaderDefDirective, HeaderToolipDefDirective, ColumnDefDirective, CellDefDirective, CellToolipDefDirective, SortInfoPipe],
 })
 export class TableauUiTableModule {}

@@ -1,6 +1,5 @@
-<tab-arrow-scroll scrollType="arrow" scrollDirection="horizontal" buttonsCssColor="var(--twc-color-text-light)">
-    <tab-icon back-button value="keyboard_arrow_left" [style.fontSize]="$scrollArrowsIconSize()" />
-    <tab-icon forward-button value="keyboard_arrow_right" [style.fontSize]="$scrollArrowsIconSize()" />
+<tab-arrow-scroll scrollType="arrow" scrollDirection="horizontal" buttonsCssColor="var(--twc-color-text-light)"
+    [iconParams]="{ fontSize: $scrollArrowsIconSize() }">
     <div class="tab-headers-container">
         <div class="tab-headers">
             @for (tab of $tabs(); let i = $index; track i) {
@@ -11,7 +10,7 @@
                     [class.disabled]="tab.$disabled()"
                     [tabindex]="tab.$disabled() ? -1 : 0"
                     [style.padding]="$headerPadding()"
-                    (click)="selectTab(i)"
+                    (click)="selectTabByIndex(i)"
                     (keydown)="onkeydown(i, $event)"
                 >
                     <div class="tab-header">

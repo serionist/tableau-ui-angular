@@ -1,12 +1,9 @@
 <ng-template #templateRef let-renderIcon="renderIcon" let-renderText="renderText" let-renderHint="renderHint" let-renderAsDisabled="renderAsDisabled">
     <div class="tab-option grid" [class.disabled]="$disabled() || renderAsDisabled">
-        @if (renderIcon && $iconType() !== 'none') {
+        @let icon = $icon();
+        @if (renderIcon && icon !== undefined) {
         <div class="icon" [style.marginRight]="renderText ? '0.25rem' : '0'">
-            @if ($iconType() === 'string') {
-            <tab-icon [value]="$iconString()" />
-            } @else if ($iconType() === 'template') {
-            <ng-container *ngTemplateOutlet="$iconTemplate()" />
-            }
+            <tab-icon [value]="icon" [params]="$iconParams()" />
         </div>
         } @if (renderText && $textType() !== 'none') {
         <div class="content">
@@ -25,13 +22,10 @@
 </ng-template>
 <ng-template #lineTemplateRef let-renderIcon="renderIcon" let-renderText="renderText" let-renderAsDisabled="renderAsDisabled">
     <span class="tab-option line" [class.disabled]="$disabled() || renderAsDisabled">
-        @if (renderIcon && $iconType() !== 'none') {
+        @let icon = $icon();
+        @if (renderIcon && icon !== undefined) {
         <span class="icon" [style.marginRight]="renderText ? '0.25rem' : '0'">
-            @if ($iconType() === 'string') {
-            <tab-icon [value]="$iconString()" />
-            } @else if ($iconType() === 'template') {
-            <ng-container *ngTemplateOutlet="$iconTemplate()" />
-            }
+            <tab-icon [value]="icon" [params]="$iconParams()" />
         </span>
         } @if (renderText && $textType() !== 'none') {
         <span class="content">

@@ -1,6 +1,7 @@
 import type { Signal, ElementRef, AfterViewInit } from '@angular/core';
-import { Component, contentChildren, signal, computed, ChangeDetectionStrategy, input, viewChildren } from '@angular/core';
+import { Component, contentChildren, signal, computed, ChangeDetectionStrategy, input, viewChildren, output } from '@angular/core';
 import { TabComponent } from './tab.component';
+import type { Primitive } from 'tableau-ui-angular/types';
 
 @Component({
     selector: 'tab-group',
@@ -10,7 +11,7 @@ import { TabComponent } from './tab.component';
     changeDetection: ChangeDetectionStrategy.OnPush,
     host: {},
 })
-export class TabGroupComponent implements AfterViewInit {
+export class TabGroupComponent<TKey extends Primitive> implements AfterViewInit {
     /**
      * Padding for the tab header, can be adjusted to fit design requirements.
      * @default '0.25rem 1.5rem'
@@ -26,19 +27,27 @@ export class TabGroupComponent implements AfterViewInit {
     readonly $scrollArrowsIconSize = input<string>('1.5rem', {
         alias: 'scrollArrowsIconSize',
     });
+    /**
+     * Whether to automatically select the first non-disabled tab when the component is initialized.
+     * @default true
+     */
+    readonly $autoSelectFirstTab = input<boolean>(true, {
+        alias: 'autoSelectFirstTab',
+    });
 
-    protected readonly $tabs = contentChildren(TabComponent);
+    protected readonly $tabs = contentChildren<TabComponent<TKey>>(TabComponent);
     protected readonly $tabElements = viewChildren<ElementRef<HTMLDivElement>>('tab');
     // Signals to manage the selected index
-    private readonly $_selectedIndex = signal(0);
+    private readonly $_selectedIndex = signal(-1);
 
     get $selectedIndex(): Signal<number> {
         return this.$_selectedIndex;
     }
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    readonly $selectedTab: Signal<TabComponent | null> = computed(() => this.$tabs()[this.$selectedIndex()] ?? null);
+    readonly $selectedTab: Signal<TabComponent<TKey> | null> = computed(() => this.$tabs()[this.$selectedIndex()] ?? null);
 
-    selectTab(index: number) {
+    readonly tabSelected = output<{ index: number; key: TKey | undefined; tab: TabComponent<TKey> }>();
+    selectTabByIndex(index: number) {
         const tabs = this.$tabs();
 
         const tab = tabs[index];
@@ -48,14 +57,24 @@ export class TabGroupComponent implements AfterViewInit {
         this.$_selectedIndex.set(index);
         const tabElement = this.$tabElements()[index];
         tabElement.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        tab.afterActivate.emit();
+        this.tabSelected.emit({ index, key: tab.$key(), tab });
+        window.requestAnimationFrame(() => { tab.afterActivate.emit(); })
+    }
+    selectTabByKey(key: TKey) {
+        const tabs = this.$tabs();
+        const index = tabs.findIndex((tab) => tab.$key() === key);
+        if (index !== -1) {
+            this.selectTabByIndex(index);
+        }
     }
 
     ngAfterViewInit() {
         // Ensure the first tab is selected by default if available
-        const firstNonDisabledTabIndex = this.$tabs().findIndex((tab) => !tab.$disabled());
-        if (firstNonDisabledTabIndex !== -1) {
-            this.selectTab(firstNonDisabledTabIndex);
+        if (this.$autoSelectFirstTab()) {
+            const firstNonDisabledTabIndex = this.$tabs().findIndex((tab) => !tab.$disabled());
+            if (firstNonDisabledTabIndex !== -1) {
+                this.selectTabByIndex(firstNonDisabledTabIndex);
+            }
         }
     }
 
@@ -63,7 +82,7 @@ export class TabGroupComponent implements AfterViewInit {
         switch (e.key) {
             case 'Enter':
             case ' ':
-                this.selectTab(index);
+                this.selectTabByIndex(index);
                 e.preventDefault();
                 break;
             default:

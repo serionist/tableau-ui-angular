@@ -72,7 +72,7 @@
                             sortMode: $sortMode(),
                             sortable: def.col.$sortable(),
                             sortOrder: def.col.$sortOrder(),
-                            currentSort: $sort() | sortInfoPipe: def.id : def.col.$propertyName(),
+                            currentSort: $sort() | sortInfo: def.id : def.col.$propertyName(),
                             allSorts: $sort()
                         }"
                         (click)="onColumnHeaderClick($event, def.col)"
@@ -85,7 +85,7 @@
                             </div>
                             @if (def.col.$sortable()) {
                                 <div class="sort-indicator">
-                                    @let currentSort = $sort() | sortInfoPipe: def.id : def.col.$propertyName();
+                                    @let currentSort = $sort() | sortInfo: def.id : def.col.$propertyName();
                                     @switch (currentSort?.info?.direction) {
                                         @case ('asc') {
                                             <tab-icon value="arrow_upward" />

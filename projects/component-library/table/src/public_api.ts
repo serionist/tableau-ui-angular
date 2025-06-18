@@ -9,6 +9,8 @@ export type * from './defs/cell-def/cell-context';
 export type * from './data/data-request';
 export * from './data/data-options';
 
+export * from './sorting/sort-info-pipe';
+
 export type * from './data/data-response';
 export * from './selection/selection-options';
 export * from './tableau-ui-table.module';

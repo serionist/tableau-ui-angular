@@ -1,5 +1,6 @@
 import type { InputSignal, Signal, TemplateRef } from '@angular/core';
 import { ChangeDetectionStrategy, Component, computed, ElementRef, inject, input, viewChild } from '@angular/core';
+import type { IconParams } from 'tableau-ui-angular/icon';
 import type { Primitive } from 'tableau-ui-angular/types';
 
 @Component({
@@ -26,28 +27,15 @@ export class OptionComponent<T extends Primitive> {
         alias: 'hint',
     });
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    readonly $icon: InputSignal<TemplateRef<unknown> | string | undefined> = input<TemplateRef<unknown> | string>(undefined, {
+    readonly $icon: InputSignal<string | undefined> = input<string>(undefined, {
         alias: 'icon',
+    });
+    readonly $iconParams: InputSignal<Partial<IconParams> | undefined> = input<Partial<IconParams>>(undefined, {
+        alias: 'iconParams',
     });
     readonly $template = viewChild.required<TemplateRef<IOptionGridContext>>('templateRef');
     readonly $lineTemplate = viewChild.required<TemplateRef<IOptionLineContext>>('lineTemplateRef');
 
-    protected readonly $iconType = computed(() => {
-        if (this.$icon() === undefined) {
-            return 'none';
-        } else if (typeof this.$icon() === 'string') {
-            return 'string';
-        } else {
-            return 'template';
-        }
-    });
-    protected readonly $iconString = computed(() => {
-        return this.$iconType() === 'string' ? (this.$icon() as string) : '';
-    });
-    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    protected readonly $iconTemplate: Signal<TemplateRef<unknown> | null> = computed(() => {
-        return this.$iconType() === 'template' ? (this.$icon() as TemplateRef<unknown>) : null;
-    });
     protected readonly $textType = computed(() => {
         if (this.$text() === undefined) {
             return 'none';

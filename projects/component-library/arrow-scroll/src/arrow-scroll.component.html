@@ -1,7 +1,7 @@
 @if ($scrollArrowsVisible()) {
     <div class="scroll-arrow" [style.margin-bottom]="$scrollDirection() === 'vertical' ? $buttonsGap() : '0'" [style.margin-right]="$scrollDirection() === 'horizontal' ? $buttonsGap() : '0'">
         <button class="back" layout="small-icon" [color]="$buttonsColor()" [disabled]="!$canScroll().back" [style.color]="$buttonsCssColor()" (click)="scroll('back')">
-            <ng-content select="tab-icon[back-button]" />
+            <tab-icon [value]="$actualBackIcon()" [params]="$iconParams()" />
         </button>
         @if ($showScrollButtonSeparator()) {
             <tab-separator [direction]="$scrollDirection() === 'vertical' ? 'horizontal' : 'vertical'" />
@@ -19,7 +19,7 @@
             <tab-separator [direction]="$scrollDirection() === 'vertical' ? 'horizontal' : 'vertical'" />
         }
         <button class="forward" layout="small-icon" [color]="$buttonsColor()" [disabled]="!$canScroll().forward" [style.color]="$buttonsCssColor()" (click)="scroll('forward')">
-            <ng-content select="tab-icon[forward-button]" />
+            <tab-icon [value]="$actualForwardIcon()" [params]="$iconParams()" />
         </button>
     </div>
 }

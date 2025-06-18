@@ -1,5 +1,6 @@
 import type { AfterViewInit, ElementRef, OnDestroy } from '@angular/core';
 import { ChangeDetectionStrategy, Component, computed, effect, HostListener, input, signal, viewChild } from '@angular/core';
+import type { IconParams } from 'tableau-ui-angular/icon';
 
 @Component({
     selector: 'tab-arrow-scroll',
@@ -30,7 +31,31 @@ export class ArrowScrollComponent implements AfterViewInit, OnDestroy {
     readonly $scrollDirection = input.required<'horizontal' | 'vertical'>({
         alias: 'scrollDirection',
     });
+    /**
+     * The icon to use for the back scroll button.
+     * This should be a valid Material Symbols icon name.
+     * If not provided, 'keyboard_arrow_up' will be used for vertical, 'keyboard_arrow_left' for horizontal scrolling.
+     */
+    readonly $backIcon = input<string>(undefined, {
+        alias: 'backIcon',
+    });
+    /**
+     * The icon to use for the forward scroll button.
+     * This should be a valid Material Symbols icon name.
+     * If not provided, 'keyboard_arrow_down' will be used for vertical, 'keyboard_arrow_right' for horizontal scrolling.
+     */
+    readonly $forwardIcon = input<string>(undefined,{
+        alias: 'forwardIcon',
+    });
 
+    /**
+     * Parameters for the icons used in the scroll buttons.
+     * This allows customization of the icon appearance, such as size and color.
+     * @default undefined
+     */
+    readonly $iconParams = input<Partial<IconParams>>(undefined, {
+        alias: 'iconParams',
+    });
     /**
      * Gap between the scroll buttons the scroll container, can be adjusted to fit design requirements.
      * @default '0.25rem'
@@ -69,6 +94,12 @@ export class ArrowScrollComponent implements AfterViewInit, OnDestroy {
     });
     private readonly $scrollContainer = viewChild.required<ElementRef<HTMLDivElement>>('scrollContainer');
 
+    protected readonly $actualBackIcon = computed(() => {
+        return this.$backIcon() ?? (this.$scrollDirection() === 'horizontal' ? 'keyboard_arrow_left' : 'keyboard_arrow_up');
+    });
+    protected readonly $actualForwardIcon = computed(() => {
+        return this.$forwardIcon() ?? (this.$scrollDirection() === 'horizontal' ? 'keyboard_arrow_right' : 'keyboard_arrow_down');
+    });
     private readonly $scrollContainerDimensions = signal<{
         scrollHeight: number;
         clientHeight: number;
