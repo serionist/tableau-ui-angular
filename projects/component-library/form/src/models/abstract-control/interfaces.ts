@@ -20,6 +20,8 @@ export interface AC {
     readonly value$: Observable<unknown>;
     readonly $value: Signal<unknown>;
 
+    readonly defaultValue: unknown;
+
     readonly submitted$: Observable<unknown>;
     readonly reset$: Observable<unknown>;
 

@@ -13,7 +13,6 @@ export class DrawerContainerComponent {
 
     private readonly drawersChanged = effect(() => {
         const drawers = this.$drawers();
-        console.log('Drawers changed:', drawers);
         const leftDrawers = drawers.filter((e) => e.$position() === 'left');
         const rightDrawers = drawers.filter((e) => e.$position() === 'right');
         if (leftDrawers.length > 1) {

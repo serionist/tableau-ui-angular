@@ -10,6 +10,7 @@ export interface Meta {
     readonly dirty: boolean;
     readonly enabled: boolean;
     readonly disabled: boolean;
+    readonly valueIsDefault: boolean;
     readonly updateOn: 'blur' | 'change' | 'submit';
     readonly errors: ValidationErrors | null;
     readonly childControls: readonly Meta[] | undefined;

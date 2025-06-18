@@ -17,6 +17,7 @@ import type { FGImpl } from '../form-group/impl';
 import type { DeepPartial, ReadonlyBehaviorSubject } from 'tableau-ui-angular/types';
 
 export class FAImpl<T extends Record<string, unknown>> extends ACImpl<T[]> implements FA<T> {
+   
     protected readonly $_value: WritableSignal<DeepPartial<T>[]>;
     protected readonly _value$: BehaviorSubject<DeepPartial<T>[]>;
     private readonly _rawValue$: BehaviorSubject<T[]>;
@@ -52,6 +53,9 @@ export class FAImpl<T extends Record<string, unknown>> extends ACImpl<T[]> imple
 
     private readonly _control: FormArray<FormGroup<ControlsOf<T>>>;
     private readonly _defaultValue: T[];
+    public override get defaultValue(): T[] {
+        return this._defaultValue;
+    }
     constructor(params: { controls: FG<T>[]; validators?: ValidatorFn | ValidatorFn[]; asyncValidators?: AsyncValidatorFn | AsyncValidatorFn[]; updateOn?: 'blur' | 'change' | 'submit' }) {
         const controlsArray = params.controls.map((child) => {
             const c = (child as unknown as ACImpl<unknown>).control;

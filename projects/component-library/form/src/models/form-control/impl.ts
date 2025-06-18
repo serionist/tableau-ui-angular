@@ -28,9 +28,11 @@ export class FCImpl<T extends PrimitiveWithUndefined | PrimitiveWithUndefined[]>
     public override readonly validatorFn: ValidatorFns<FC<T>>;
     public override readonly metaFn: MetaFns<FC<T>>;
     public override readonly registerFn: FcRegisterFns<T>;
-
-    private readonly _control: FormControl<T>;
     private readonly _defaultValue: T;
+    public override get defaultValue(): T {
+        return this._defaultValue;
+    };
+    private readonly _control: FormControl<T>;
     constructor(params: { defaultValue: T; initialDisabled?: boolean; validators?: ValidatorFn | ValidatorFn[]; asyncValidators?: AsyncValidatorFn | AsyncValidatorFn[]; updateOn?: 'blur' | 'change' | 'submit' }) {
         const control = new FormControl<T>(
             {
@@ -108,7 +110,7 @@ export class FCImpl<T extends PrimitiveWithUndefined | PrimitiveWithUndefined[]>
     }
 
     resetWithDefaultValue(updateParentsValue: boolean = true, emitEvent: boolean = true) {
-        this._control.reset(this._defaultValue, { onlySelf: !updateParentsValue, emitEvent: emitEvent });
+        this._control.reset(this.defaultValue, { onlySelf: !updateParentsValue, emitEvent: emitEvent });
     }
     reset(value: T, updateParentsValue: boolean = true, emitEvent: boolean = true) {
         this._control.reset(value, { onlySelf: !updateParentsValue, emitEvent: emitEvent });
