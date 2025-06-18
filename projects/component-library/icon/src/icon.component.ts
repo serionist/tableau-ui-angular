@@ -26,7 +26,7 @@ export class IconComponent {
      * This should be a valid Material Symbols icon name.
      * For example, 'home', 'settings', 'favorite', etc.
      */
-    readonly $value = input.required<string>({
+    readonly $value = input<string>(undefined, {
         alias: 'value',
     });
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability

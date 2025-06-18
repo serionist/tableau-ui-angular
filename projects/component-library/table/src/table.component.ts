@@ -1,4 +1,4 @@
-import type { AfterViewInit, TemplateRef } from '@angular/core';
+import type { TemplateRef } from '@angular/core';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, contentChildren, effect, ElementRef, HostListener, inject, input, model, signal, untracked, viewChild, viewChildren } from '@angular/core';
 import type { SortOrderPair } from './defs/column-def/column-def.directive';
 import { ColumnDefDirective } from './defs/column-def/column-def.directive';
@@ -18,7 +18,7 @@ import type { DataOptions } from './data/data-options';
     changeDetection: ChangeDetectionStrategy.OnPush,
     host: {},
 })
-export class TableComponent<TData = unknown, TKey extends Primitive = null> implements AfterViewInit {
+export class TableComponent<TData = unknown, TKey extends Primitive = null>  {
     protected readonly checkboxColWidth = '2.5em';
 
     readonly self = this;
@@ -123,7 +123,7 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> impl
      * If a TemplateRef is provided, it will be used as the no data template.
      * @default 'default'
      */
-    readonly $noDataTemplate = input<TemplateRef<unknown> | 'default'>('default', {
+    readonly $noDataTemplate = input<TemplateRef<unknown> | string | 'default'>('default', {
         alias: 'noDataTemplate',
     });
 
@@ -256,6 +256,7 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> impl
      */
     async reload() {
         this.loaded = false;
+        this.initializeLineClamp();
         const host = this.hostElement.nativeElement;
         // calculate data window height
         this.dataWindowHeightPx = host.clientHeight - this.$headerRow().nativeElement.clientHeight;
@@ -493,8 +494,4 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null> impl
         }
     }
 
-    // #endregion
-    ngAfterViewInit(): void {
-        this.initializeLineClamp();
-    }
 }
