@@ -1,4 +1,4 @@
-import type { InputSignal, TemplateRef } from '@angular/core';
+import type { InputSignal, ModelSignal, TemplateRef } from '@angular/core';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, contentChildren, effect, ElementRef, HostListener, inject, input, model, signal, untracked, viewChild, viewChildren } from '@angular/core';
 import type { SortOrderPair } from './defs/column-def/column-def.directive';
 import { ColumnDefDirective } from './defs/column-def/column-def.directive';
@@ -23,16 +23,17 @@ export class TableComponent<TData = number>  {
 
     readonly self = this;
     // #region Inputs & Outputs
+     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     /**
      * The column IDs to display in the table. The order of the IDs determines the order of the columns.
      * If undefined, all columns will be displayed in the order they are defined in the table.
      * @default undefined
      */
-    readonly $displayedColumns = model<string[] | undefined>(undefined, {
+    readonly $displayedColumns: ModelSignal<string[] | undefined> = model<string[] | undefined>(undefined, {
         alias: 'displayedColumns',
     });
 
-    readonly $dataOptions: InputSignal<DataOptions<TData>> = input.required<DataOptions<TData>>({
+    readonly $dataOptions = input.required<DataOptions<TData>>({
         alias: 'dataOptions',
     });
 
@@ -90,21 +91,23 @@ export class TableComponent<TData = number>  {
         alias: 'sort',
     });
 
+     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     /**
      * The column ID to pin to the left side of the table.
      * If undefined, no column will be pinned to the left.
      * @default undefined
      */
-    readonly $pinnedLeftColumn = model<string | undefined>(undefined, {
+    readonly $pinnedLeftColumn: ModelSignal<string | undefined> = model<string | undefined>(undefined, {
         alias: 'pinnedLeftColumn',
     });
 
+     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     /**
      * The column ID to pin to the right side of the table.
      * If undefined, no column will be pinned to the right.
      * @default undefined
      */
-    readonly $pinnedRightColumn = model<string | undefined>(undefined, {
+    readonly $pinnedRightColumn: ModelSignal<string | undefined> = model<string | undefined>(undefined, {
         alias: 'pinnedRightColumn',
     });
 
@@ -127,6 +130,7 @@ export class TableComponent<TData = number>  {
         alias: 'noDataTemplate',
     });
 
+     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     /**
      * The options for the selection mode.
      * If undefined, no selection will be enabled.
@@ -134,7 +138,7 @@ export class TableComponent<TData = number>  {
      * If a MultiSelectionOptions is provided, multi selection will be enabled.
      * @default undefined
      */
-    readonly $selectionOptions = input<SelectionOptions>(undefined, {
+    readonly $selectionOptions: InputSignal<SelectionOptions | undefined> = input<SelectionOptions>(undefined, {
         alias: 'selectionOptions',
     });
     /**

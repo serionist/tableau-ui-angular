@@ -1,4 +1,4 @@
-import type { TemplateRef } from '@angular/core';
+import type { InputSignal, TemplateRef } from '@angular/core';
 import { contentChild, Directive, input } from '@angular/core';
 import { CellDefDirective } from '../cell-def/cell-def.directive';
 import { HeaderDefDirective } from '../header-def/header-def.directive';
@@ -20,12 +20,13 @@ export class ColumnDefDirective<TData> {
         alias: 'tabColumnDef',
     });
 
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     /**
      * The property name of the column, used for sorting purposes.
      * If not provided, it will default to the column ID.
      * @default undefined
      */
-    readonly $propertyName = input<string | undefined>(undefined, {
+    readonly $propertyName: InputSignal<string | undefined> = input<string | undefined>(undefined, {
         alias: 'propertyName',
     });
 
@@ -47,13 +48,14 @@ export class ColumnDefDirective<TData> {
         alias: 'minWidth',
     });
 
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     /**
      * The CSS maximum width of the column.
      * Can be a string representing a CSS value (e.g., '100px', '20%', '1rem'). If no unit is provided, it will be treated as pixels.
      * If undefined, there is no maximum width.
      * @default undefined
      */
-    readonly $maxWidth = input<string | undefined>(undefined, {
+    readonly $maxWidth: InputSignal<string | undefined> = input<string | undefined>(undefined, {
         alias: 'maxWidth',
     });
 
@@ -82,23 +84,25 @@ export class ColumnDefDirective<TData> {
         alias: 'sortOrder',
     });
 
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     /**
      * The CSS class to apply to the column header.
      * Can be a string or a function that returns a string based on the header context.
      * If undefined, no class will be applied.
      * @default undefined
      */
-    readonly $headerClass = input<string | ((ctx: HeaderContext<TData>) => string | undefined) | undefined>(undefined, {
+    readonly $headerClass: InputSignal<string | ((ctx: HeaderContext<TData>) => string | undefined) | undefined> = input<string | ((ctx: HeaderContext<TData>) => string | undefined) | undefined>(undefined, {
         alias: 'headerClass',
     });
 
+     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     /**
      * The CSS class to apply to the column cells.
      * Can be a string or a function that returns a string based on the cell context.
      * If undefined, no class will be applied.
      * @default undefined
      */
-    readonly $cellClass = input<string | ((ctx: CellContext<TData>) => string | undefined) | undefined>(undefined, {
+    readonly $cellClass: InputSignal<string | ((ctx: CellContext<TData>) => string | undefined) | undefined> = input<string | ((ctx: CellContext<TData>) => string | undefined) | undefined>(undefined, {
         alias: 'cellClass',
     });
 
