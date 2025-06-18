@@ -1,4 +1,4 @@
-import type { TemplateRef } from '@angular/core';
+import type { InputSignal, TemplateRef } from '@angular/core';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, contentChildren, effect, ElementRef, HostListener, inject, input, model, signal, untracked, viewChild, viewChildren } from '@angular/core';
 import type { SortOrderPair } from './defs/column-def/column-def.directive';
 import { ColumnDefDirective } from './defs/column-def/column-def.directive';
@@ -18,7 +18,7 @@ import type { DataOptions } from './data/data-options';
     changeDetection: ChangeDetectionStrategy.OnPush,
     host: {},
 })
-export class TableComponent<TData = unknown, TKey extends Primitive = null>  {
+export class TableComponent<TData = number, TKey extends Primitive = string>  {
     protected readonly checkboxColWidth = '2.5em';
 
     readonly self = this;
@@ -32,7 +32,7 @@ export class TableComponent<TData = unknown, TKey extends Primitive = null>  {
         alias: 'displayedColumns',
     });
 
-    readonly $dataOptions = input.required<DataOptions<TData, TKey>>({
+    readonly $dataOptions: InputSignal<DataOptions<TData, TKey>> = input.required<DataOptions<TData, TKey>>({
         alias: 'dataOptions',
     });
 

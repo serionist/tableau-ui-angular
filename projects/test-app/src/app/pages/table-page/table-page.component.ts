@@ -150,7 +150,7 @@ export class TablePageComponent implements AfterViewInit {
 
     readonly $selectedRows = signal<Map<number, DataType>>(new Map<number, DataType>());
 
-    private readonly tabTable = viewChild.required<TableComponent>(TableComponent);
+    private readonly tabTable = viewChild.required<TableComponent<DataType, number>>(TableComponent);
     reset(showData: boolean, errorOnData: boolean) {
         this.$showData.set(showData);
         this.$errorOnData.set(errorOnData);
