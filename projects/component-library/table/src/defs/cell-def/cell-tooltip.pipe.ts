@@ -1,6 +1,5 @@
 import type { PipeTransform, TemplateRef } from '@angular/core';
 import { Pipe } from '@angular/core';
-import type { Primitive } from 'tableau-ui-angular/types';
 import type { CellContext, CellTooltipContext } from './cell-context';
 import type { TooltipArgs } from 'tableau-ui-angular/tooltip';
 import type { DataBlock } from '../../data/data-block';
@@ -11,14 +10,14 @@ import type { ColumnDefDirective } from '../column-def/column-def.directive';
     standalone: false,
 })
 export class CellTooltipPipe implements PipeTransform {
-    transform<TData, TKey extends Primitive>(
+    transform<TData>(
         cellElement: HTMLDivElement,
-        columnDef: ColumnDefDirective<TData, TKey>,
-        cellContext: CellContext<TData, TKey>,
-        block: DataBlock<TData, TKey>,
-    ): () => TooltipArgs<{ $implicit: CellTooltipContext<TData, TKey> }> {
+        columnDef: ColumnDefDirective<TData>,
+        cellContext: CellContext<TData>,
+        block: DataBlock<TData>,
+    ): () => TooltipArgs<{ $implicit: CellTooltipContext<TData> }> {
         return () => {
-            const tooltipArgs: TooltipArgs<{ $implicit: CellTooltipContext<TData, TKey> }> = {
+            const tooltipArgs: TooltipArgs<{ $implicit: CellTooltipContext<TData> }> = {
                 template: undefined,
                 position: 'bottom',
                 margin: '0px',
@@ -68,7 +67,7 @@ export class CellTooltipPipe implements PipeTransform {
                 if (isClamped) {
                     // use the cell template as the tooltip template
                     const cellTemplate = columnDef.$cell().templateRef;
-                    tooltipArgs.template = cellTemplate as TemplateRef<{ $implicit: CellTooltipContext<TData, TKey> }>;
+                    tooltipArgs.template = cellTemplate as TemplateRef<{ $implicit: CellTooltipContext<TData> }>;
                 }
             }
 

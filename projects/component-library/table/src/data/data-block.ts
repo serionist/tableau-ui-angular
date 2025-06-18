@@ -2,12 +2,12 @@ import type { Signal } from '@angular/core';
 import { computed, signal } from '@angular/core';
 import type { Primitive } from 'tableau-ui-angular/types';
 
-export class DataBlock<TData, TKey extends Primitive> {
+export class DataBlock<TData> {
     private readonly $_status = signal<'canceled' | 'error' | 'loading' | 'success'>('loading');
     public get $status(): Signal<'canceled' | 'error' | 'loading' | 'success'> {
         return this.$_status;
     }
-    private readonly $response = signal<{ key: TKey; data: TData }[]>([]);
+    private readonly $response = signal<{ key: Primitive; data: TData }[]>([]);
     public readonly $data = computed(() => {
         const status = this.$status();
         const response = this.$response();
@@ -28,8 +28,8 @@ export class DataBlock<TData, TKey extends Primitive> {
         public readonly id: number,
         public readonly abort: AbortController | undefined,
         private readonly blockRowCount: number,
-        private readonly getKey: (data: TData) => TKey,
-        public readonly dataPromise: Promise<{ key: TKey; data: TData }[]>,
+        private readonly getKey: (data: TData) => Primitive,
+        public readonly dataPromise: Promise<{ key: Primitive; data: TData }[]>,
     ) {
         this.dataPromise
             .then((data) => {

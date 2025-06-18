@@ -3,7 +3,6 @@ import { Pipe } from '@angular/core';
 import type { TooltipArgs } from 'tableau-ui-angular/tooltip';
 
 import type { HeaderContext, HeaderTooltipContext } from './header-context';
-import type { Primitive } from 'tableau-ui-angular/types';
 import type { ColumnDefDirective, SortOrderPair } from '../column-def/column-def.directive';
 import type { TableComponent } from '../../table.component';
 import type { DataSort } from '../../sorting/data-sort';
@@ -13,11 +12,11 @@ import type { DataSort } from '../../sorting/data-sort';
     standalone: false,
 })
 export class HeaderTooltipPipe implements PipeTransform {
-    transform<TData, TKey extends Primitive>(
-        columnDef: ColumnDefDirective<TData, TKey>,
-        table: TableComponent<TData, TKey>,
-        headerContext: HeaderContext<TData, TKey>,
-        autoHeaderTooltipTemplate: TemplateRef<{ $implicit: HeaderTooltipContext<TData, TKey> }>,
+    transform<TData>(
+        columnDef: ColumnDefDirective<TData>,
+        table: TableComponent<TData>,
+        headerContext: HeaderContext<TData>,
+        autoHeaderTooltipTemplate: TemplateRef<{ $implicit: HeaderTooltipContext<TData> }>,
         contextParams: {
             sortMode: 'multi' | 'single';
             sortable: boolean;
@@ -25,9 +24,9 @@ export class HeaderTooltipPipe implements PipeTransform {
             currentSort: { info: DataSort; index: number } | undefined;
             allSorts: DataSort[];
         },
-    ): () => TooltipArgs<{ $implicit: HeaderTooltipContext<TData, TKey> }> {
+    ): () => TooltipArgs<{ $implicit: HeaderTooltipContext<TData> }> {
         return () => {
-            const tooltipArgs: TooltipArgs<{ $implicit: HeaderTooltipContext<TData, TKey> }> = {
+            const tooltipArgs: TooltipArgs<{ $implicit: HeaderTooltipContext<TData> }> = {
                 template: undefined,
                 position: 'top',
                 margin: '1rem',

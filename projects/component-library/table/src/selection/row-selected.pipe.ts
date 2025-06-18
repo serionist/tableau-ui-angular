@@ -7,8 +7,8 @@ import type { DataOptions } from '../data/data-options';
     name: 'rowSelected',
     standalone: false,
 })
-export class RowSelectedPipe<TData, TKey extends Primitive> implements PipeTransform {
-    transform(row: TData, selectedRows: Map<TKey, TData>, dataOptions: DataOptions<TData, TKey>): boolean {
+export class RowSelectedPipe<TData> implements PipeTransform {
+    transform(row: TData, selectedRows: Map<Primitive, TData>, dataOptions: DataOptions<TData>): boolean {
         const key = dataOptions.getRowKey(row);
         return selectedRows.has(key);
     }

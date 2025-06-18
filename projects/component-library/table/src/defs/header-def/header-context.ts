@@ -1,10 +1,9 @@
 import type { TemplateRef } from '@angular/core';
 import type { DataSort } from '../../sorting/data-sort';
 import type { ColumnDefDirective, SortOrderPair } from '../column-def/column-def.directive';
-import type { Primitive } from 'tableau-ui-angular/types';
 
-export interface HeaderContext<TData, TKey extends Primitive> {
-    columnDef: ColumnDefDirective<TData, TKey>;
+export interface HeaderContext<TData> {
+    columnDef: ColumnDefDirective<TData>;
     meta: HeaderContextMeta;
 }
 
@@ -17,8 +16,8 @@ export interface HeaderContextMeta {
     count: number;
 }
 
-export interface HeaderTooltipContext<TData, TKey extends Primitive> extends HeaderContext<TData, TKey> {
-    headerTemplate?: TemplateRef<{ $implicit: HeaderContext<TData, TKey> }>;
+export interface HeaderTooltipContext<TData> extends HeaderContext<TData> {
+    headerTemplate?: TemplateRef<{ $implicit: HeaderContext<TData> }>;
     sortMode: 'multi' | 'single';
     sortable: boolean;
     sortOrder: SortOrderPair;

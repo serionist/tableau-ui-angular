@@ -63,7 +63,7 @@ export class TablePageComponent implements AfterViewInit {
         console.log('Creating data options for mode:', this.$dataMode());
         switch (this.$dataMode()) {
             case 'incremental':
-                return new IncrementalDataOptions<DataType, number>(
+                return new IncrementalDataOptions<DataType>(
                     (d) => d.id,
                     async (req: IncrementalDataRequest) => {
                         console.log('Loading data block with request:', req);
@@ -83,7 +83,7 @@ export class TablePageComponent implements AfterViewInit {
                     },
                 );
             case 'full':
-                return new FullDataOptions<DataType, number>(
+                return new FullDataOptions<DataType>(
                     (d) => d.id,
                     async (req: FullDataRequest) => {
                         console.log('Loading full data with request:', req);
@@ -150,13 +150,13 @@ export class TablePageComponent implements AfterViewInit {
 
     readonly $selectedRows = signal<Map<number, DataType>>(new Map<number, DataType>());
 
-    private readonly tabTable = viewChild.required<TableComponent<DataType, number>>(TableComponent);
+    private readonly tabTable = viewChild.required<TableComponent<DataType>>(TableComponent);
     reset(showData: boolean, errorOnData: boolean) {
         this.$showData.set(showData);
         this.$errorOnData.set(errorOnData);
         void this.tabTable().reset();
     }
-    customCalculatedClass(ctx: HeaderContext<DataType, number>): string | undefined {
+    customCalculatedClass(ctx: HeaderContext<DataType>): string | undefined {
         return `custom-dynamic-class-${ctx.meta.index % 3}`;
     }
 
@@ -164,7 +164,7 @@ export class TablePageComponent implements AfterViewInit {
         void this.tabTable().load();
     }
 
-    $showCellTooltip(cellContext: CellContext<DataType, number>) {
+    $showCellTooltip(cellContext: CellContext<DataType>) {
         return cellContext.meta.odd;
     }
 }

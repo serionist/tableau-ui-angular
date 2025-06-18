@@ -7,13 +7,12 @@ import type { CellContext } from '../cell-def/cell-context';
 import type { DataSort } from '../../sorting/data-sort';
 import { HeaderToolipDefDirective } from '../header-def/header-toolip-def.directive';
 import { CellToolipDefDirective } from '../cell-def/cell-toolip-def.directive';
-import type { Primitive } from 'tableau-ui-angular/types';
 
 @Directive({
     selector: '[tabColumnDef]',
     standalone: false,
 })
-export class ColumnDefDirective<TData, TKey extends Primitive> {
+export class ColumnDefDirective<TData> {
     /**
      * The unique identifier for the column.
      */
@@ -89,7 +88,7 @@ export class ColumnDefDirective<TData, TKey extends Primitive> {
      * If undefined, no class will be applied.
      * @default undefined
      */
-    readonly $headerClass = input<string | ((ctx: HeaderContext<TData, TKey>) => string | undefined) | undefined>(undefined, {
+    readonly $headerClass = input<string | ((ctx: HeaderContext<TData>) => string | undefined) | undefined>(undefined, {
         alias: 'headerClass',
     });
 
@@ -99,7 +98,7 @@ export class ColumnDefDirective<TData, TKey extends Primitive> {
      * If undefined, no class will be applied.
      * @default undefined
      */
-    readonly $cellClass = input<string | ((ctx: CellContext<TData, TKey>) => string | undefined) | undefined>(undefined, {
+    readonly $cellClass = input<string | ((ctx: CellContext<TData>) => string | undefined) | undefined>(undefined, {
         alias: 'cellClass',
     });
 
@@ -122,14 +121,14 @@ export class ColumnDefDirective<TData, TKey extends Primitive> {
         alias: 'showAutoCellTooltip',
     });
 
-    readonly $cell = contentChild.required<CellDefDirective<TData, TKey>>(CellDefDirective);
-    readonly $header = contentChild<HeaderDefDirective<TData, TKey>>(HeaderDefDirective);
+    readonly $cell = contentChild.required<CellDefDirective<TData>>(CellDefDirective);
+    readonly $header = contentChild<HeaderDefDirective<TData>>(HeaderDefDirective);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    readonly $headerTooltip = contentChild<HeaderToolipDefDirective<TData, any>>(HeaderToolipDefDirective);
+    readonly $headerTooltip = contentChild<HeaderToolipDefDirective<TData>>(HeaderToolipDefDirective);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    readonly $cellTooltip = contentChild<CellToolipDefDirective<TData, any>>(CellToolipDefDirective);
+    readonly $cellTooltip = contentChild<CellToolipDefDirective<TData>>(CellToolipDefDirective);
 
-    public buildHeaderContext(index: number, first: boolean, last: boolean, even: boolean, odd: boolean, count: number): HeaderContext<TData, TKey> {
+    public buildHeaderContext(index: number, first: boolean, last: boolean, even: boolean, odd: boolean, count: number): HeaderContext<TData> {
         return {
             columnDef: this,
             meta: {
@@ -157,7 +156,7 @@ export class ColumnDefDirective<TData, TKey extends Primitive> {
         columnEven: boolean,
         columnOdd: boolean,
         columnCount: number,
-    ): CellContext<TData, TKey> {
+    ): CellContext<TData> {
         return {
             row: value,
             meta: {
@@ -180,16 +179,16 @@ export class ColumnDefDirective<TData, TKey extends Primitive> {
     }
 }
 export type SortOrderPair = ['asc', 'desc'] | ['desc', 'asc'];
-export interface HeaderTooltipArgs<TData, TKey extends Primitive> {
-    ctx: HeaderContext<TData, TKey>;
-    template: TemplateRef<HeaderContext<TData, TKey>>;
+export interface HeaderTooltipArgs<TData> {
+    ctx: HeaderContext<TData>;
+    template: TemplateRef<HeaderContext<TData>>;
     sortMode: 'multi' | 'single';
     sortable: boolean;
     sortOrder: SortOrderPair;
     currentSort: { info: DataSort; index: number } | undefined;
     allSorts: DataSort[];
 }
-export interface CellTooltipArgs<TData, TKey extends Primitive> {
-    ctx: CellContext<TData, TKey>;
-    template: TemplateRef<CellContext<TData, TKey>>;
+export interface CellTooltipArgs<TData> {
+    ctx: CellContext<TData>;
+    template: TemplateRef<CellContext<TData>>;
 }

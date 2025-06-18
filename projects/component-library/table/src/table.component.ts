@@ -5,10 +5,10 @@ import { ColumnDefDirective } from './defs/column-def/column-def.directive';
 import type { DataSort } from './sorting/data-sort';
 import { ColRenderedWidthDirective } from './column-widths/col-rendered-width.directive';
 import { DataManager } from './data/data-manager';
-import type { Primitive } from 'tableau-ui-angular/types';
 import type { SelectionOptions } from './selection/selection-options';
 import { MultiSelectionOptions, SingleSelectionOptions } from './selection/selection-options';
 import type { DataOptions } from './data/data-options';
+import type { Primitive } from 'tableau-ui-angular/types';
 
 @Component({
     selector: 'tab-table',
@@ -18,7 +18,7 @@ import type { DataOptions } from './data/data-options';
     changeDetection: ChangeDetectionStrategy.OnPush,
     host: {},
 })
-export class TableComponent<TData = number, TKey extends Primitive = string>  {
+export class TableComponent<TData = number>  {
     protected readonly checkboxColWidth = '2.5em';
 
     readonly self = this;
@@ -32,7 +32,7 @@ export class TableComponent<TData = number, TKey extends Primitive = string>  {
         alias: 'displayedColumns',
     });
 
-    readonly $dataOptions: InputSignal<DataOptions<TData, TKey>> = input.required<DataOptions<TData, TKey>>({
+    readonly $dataOptions: InputSignal<DataOptions<TData>> = input.required<DataOptions<TData>>({
         alias: 'dataOptions',
     });
 
@@ -146,13 +146,13 @@ export class TableComponent<TData = number, TKey extends Primitive = string>  {
      * @default []
      * @see {@link $selectionOptions}
      */
-    readonly $selectedRows = model<Map<TKey, TData>>(new Map<TKey, TData>(), {
+    readonly $selectedRows = model<Map<Primitive, TData>>(new Map<Primitive, TData>(), {
         alias: 'selectedRows',
     });
 
     // #endregion
     // #region Columns
-    public readonly $columnDefs = contentChildren<ColumnDefDirective<TData, TKey>>(ColumnDefDirective);
+    public readonly $columnDefs = contentChildren<ColumnDefDirective<TData>>(ColumnDefDirective);
     protected readonly $displayedColumnDefs = computed(
         () => {
             let columnDefs = this.$columnDefs();
@@ -174,7 +174,7 @@ export class TableComponent<TData = number, TKey extends Primitive = string>  {
 
             const ret: {
                 id: string;
-                col: ColumnDefDirective<TData, TKey>;
+                col: ColumnDefDirective<TData>;
                 pinnedLeft: boolean;
                 pinnedRight: boolean;
                 sortOrder: SortOrderPair;
@@ -230,7 +230,7 @@ export class TableComponent<TData = number, TKey extends Primitive = string>  {
     private readonly $headerRow = viewChild.required<ElementRef<HTMLElement>>('headerRow');
     private readonly $dataRowSizer = viewChild.required<ElementRef<HTMLElement>>('dataSizer');
     // #endregion
-    protected readonly dataManager = new DataManager<TData, TKey>(this.cdr);
+    protected readonly dataManager = new DataManager<TData>(this.cdr);
 
     // #region Load & Reset
     private loaded = false;
@@ -278,7 +278,7 @@ export class TableComponent<TData = number, TKey extends Primitive = string>  {
             return;
         }
         if (selectionOptions?.clearSelectedKeysOnAnyReset === true) {
-            this.$selectedRows.set(new Map<TKey, TData>());
+            this.$selectedRows.set(new Map<Primitive, TData>());
         }
         if (!this.loaded) {
             return;
@@ -286,7 +286,7 @@ export class TableComponent<TData = number, TKey extends Primitive = string>  {
 
         untracked(() => void this.resetInternal(sort, dataOptions, dataBlockWindow));
     });
-    private async resetInternal(sort: DataSort[] | undefined, dataOptions: DataOptions<TData, TKey> | undefined, dataBlockWindow: number): Promise<boolean> {
+    private async resetInternal(sort: DataSort[] | undefined, dataOptions: DataOptions<TData> | undefined, dataBlockWindow: number): Promise<boolean> {
         if (this.dataRowHeightPx === 0 || this.dataWindowHeightPx === 0 || !sort || !dataOptions) {
             console.warn('Table reset called with undefined parameters, ignoring');
             return false;
@@ -314,14 +314,14 @@ export class TableComponent<TData = number, TKey extends Primitive = string>  {
         const dataBlockWindow = this.$dataBlockWindow();
         const selectionOptions = this.$selectionOptions();
         if (selectionOptions?.clearSelectedKeysOnManualReset !== false) {
-            this.$selectedRows.set(new Map<TKey, TData>());
+            this.$selectedRows.set(new Map<Primitive, TData>());
         }
         return this.resetInternal(sort, dataOptions, dataBlockWindow);
     }
     // #endregion
 
     // #region Sort
-    protected onColumnHeaderClick(e: MouseEvent, def: ColumnDefDirective<TData, TKey>) {
+    protected onColumnHeaderClick(e: MouseEvent, def: ColumnDefDirective<TData>) {
         if (!def.$sortable()) {
             return;
         }
@@ -383,7 +383,7 @@ export class TableComponent<TData = number, TKey extends Primitive = string>  {
     // #region MultiSelect Header Checkbox
     protected readonly $selectionMultiHeaderCheckboxSelected = model<boolean | 'partial'>(this.$selectedRows().size > 0 ? 'partial' : false);
     selectionMultiHeaderCheckboxSelectNoneChanged() {
-        this.$selectedRows.set(new Map<TKey, TData>());
+        this.$selectedRows.set(new Map<Primitive, TData>());
     }
     async selectionMultiHeaderCheckboxSelectAllChanged(val: boolean | 'partial') {
         if (val === true) {
@@ -391,9 +391,9 @@ export class TableComponent<TData = number, TKey extends Primitive = string>  {
                 return;
             }
             const allData = await this.dataManager.allDataInfo.promise;
-            this.$selectedRows.set(new Map<TKey, TData>(allData.map((e) => [e.key, e.data])));
+            this.$selectedRows.set(new Map<Primitive, TData>(allData.map((e) => [e.key, e.data])));
         } else {
-            this.$selectedRows.set(new Map<TKey, TData>());
+            this.$selectedRows.set(new Map<Primitive, TData>());
         }
     }
     private readonly updateSelectionMultiHeaderCheckboxSelected = effect(() => {
@@ -429,13 +429,13 @@ export class TableComponent<TData = number, TKey extends Primitive = string>  {
             if (e.shiftKey || e.ctrlKey || e.metaKey) {
                 this.checkboxSelectChange(row, !isSelected);
             } else {
-                this.$selectedRows.set(new Map<TKey, TData>([[key, row]]));
+                this.$selectedRows.set(new Map<Primitive, TData>([[key, row]]));
             }
         } else if (selectionOptions instanceof SingleSelectionOptions) {
             if (isSelected) {
-                this.$selectedRows.set(new Map<TKey, TData>());
+                this.$selectedRows.set(new Map<Primitive, TData>());
             } else {
-                this.$selectedRows.set(new Map<TKey, TData>([[key, row]]));
+                this.$selectedRows.set(new Map<Primitive, TData>([[key, row]]));
             }
         }
 
@@ -459,13 +459,13 @@ export class TableComponent<TData = number, TKey extends Primitive = string>  {
             } else {
                 selectedRows.delete(key);
             }
-            this.$selectedRows.set(new Map<TKey, TData>(selectedRows));
+            this.$selectedRows.set(new Map<Primitive, TData>(selectedRows));
         } else if (selectionOptions instanceof SingleSelectionOptions) {
             const key = dataOptions.getRowKey(row);
             if (checked === true) {
-                this.$selectedRows.set(new Map<TKey, TData>([[key, row]]));
+                this.$selectedRows.set(new Map<Primitive, TData>([[key, row]]));
             } else {
-                this.$selectedRows.set(new Map<TKey, TData>());
+                this.$selectedRows.set(new Map<Primitive, TData>());
             }
         }
     }

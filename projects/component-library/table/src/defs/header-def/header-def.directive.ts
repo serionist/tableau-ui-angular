@@ -1,20 +1,19 @@
 import { Directive, inject, input, TemplateRef } from '@angular/core';
 import type { HeaderContext } from './header-context';
-import type { Primitive } from 'tableau-ui-angular/types';
 import type { TableComponent } from '../../table.component';
 
 @Directive({
     selector: '[tabHeaderDef]',
     standalone: false,
 })
-export class HeaderDefDirective<TData, TKey extends Primitive> {
-    readonly table = input.required<TableComponent<TData, TKey>>({
+export class HeaderDefDirective<TData> {
+    readonly table = input.required<TableComponent<TData>>({
         alias: 'tabHeaderDef',
     });
 
-    public templateRef = inject<TemplateRef<{ $implicit: HeaderContext<TData, TKey> }>>(TemplateRef<{ $implicit: HeaderContext<TData, TKey> }>);
+    public templateRef = inject<TemplateRef<{ $implicit: HeaderContext<TData> }>>(TemplateRef<{ $implicit: HeaderContext<TData> }>);
 
-    static ngTemplateContextGuard<TData, TKey extends Primitive>(dir: HeaderDefDirective<TData, TKey>, ctx: unknown): ctx is { $implicit: HeaderContext<TData, TKey> } {
+    static ngTemplateContextGuard<TData>(dir: HeaderDefDirective<TData>, ctx: unknown): ctx is { $implicit: HeaderContext<TData> } {
         return true;
     }
 }

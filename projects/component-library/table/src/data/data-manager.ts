@@ -6,7 +6,7 @@ import type { Primitive } from 'tableau-ui-angular/types';
 import type { DataOptions } from './data-options';
 import { FullDataOptions, IncrementalDataOptions } from './data-options';
 
-export class DataManager<TData, TKey extends Primitive> {
+export class DataManager<TData> {
     constructor(private readonly cdr: ChangeDetectorRef) {}
     private dataRowHeightPx: number = 0;
     private dataWindowHeightPx: number = 0;
@@ -18,22 +18,22 @@ export class DataManager<TData, TKey extends Primitive> {
     public get totalRowCount() {
         return this._totalRowCount;
     }
-    private dataOptions: DataOptions<TData, TKey> | undefined = undefined;
-    private readonly $_blocks = signal<BlocksInfo<TData, TKey>>({
+    private dataOptions: DataOptions<TData> | undefined = undefined;
+    private readonly $_blocks = signal<BlocksInfo<TData>>({
         prePixels: 0,
         blocks: [],
         postPixels: 0,
     });
-    get $blocks(): Signal<BlocksInfo<TData, TKey>> {
+    get $blocks(): Signal<BlocksInfo<TData>> {
         return this.$_blocks;
     }
 
-    private _allDataInfo: AllDataInfo<TData, TKey> | undefined = undefined;
-    get allDataInfo(): AllDataInfo<TData, TKey> | undefined {
+    private _allDataInfo: AllDataInfo<TData> | undefined = undefined;
+    get allDataInfo(): AllDataInfo<TData> | undefined {
         return this._allDataInfo;
     }
     private resetting = false;
-    public async reset(dataWindowHeightPx: number, dataRowHeightPx: number, sort: DataSort[], dataBlockWindow: number, dataOptions: DataOptions<TData, TKey>) {
+    public async reset(dataWindowHeightPx: number, dataRowHeightPx: number, sort: DataSort[], dataBlockWindow: number, dataOptions: DataOptions<TData>) {
         this.resetting = true;
         this.dataOptions = dataOptions;
         this.dataRowHeightPx = dataRowHeightPx;
@@ -59,12 +59,12 @@ export class DataManager<TData, TKey extends Primitive> {
             return;
         }
 
-        let initialBlock: DataBlock<TData, TKey> | undefined = undefined;
+        let initialBlock: DataBlock<TData> | undefined = undefined;
         if (this.dataOptions instanceof IncrementalDataOptions) {
             initialBlock = this.getBlock(0);
         } else if (this.dataOptions instanceof FullDataOptions) {
             const allDataAbort = new AbortController();
-            let allDataPromise: Promise<{ key: TKey; data: TData }[]>;
+            let allDataPromise: Promise<{ key: Primitive; data: TData }[]>;
 
             if (!Number.isFinite(this.blockRowCount)) {
                 allDataPromise = Promise.resolve([]);
@@ -82,7 +82,7 @@ export class DataManager<TData, TKey extends Primitive> {
                         }));
                     });
             }
-            this._allDataInfo = new AllDataInfo<TData, TKey>(allDataPromise, allDataAbort);
+            this._allDataInfo = new AllDataInfo<TData>(allDataPromise, allDataAbort);
             initialBlock = this.getBlock(0);
         } else {
             this.resetting = false;
@@ -121,21 +121,21 @@ export class DataManager<TData, TKey extends Primitive> {
         // }
     }
 
-    private getBlock(blockId: number): DataBlock<TData, TKey> {
+    private getBlock(blockId: number): DataBlock<TData> {
         if (this.allDataInfo) {
             // we are using full data
             const blockPromise = this.allDataInfo.promise.then((data) => {
                 return data.slice(blockId * this.blockRowCount, (blockId + 1) * this.blockRowCount);
             });
-            return new DataBlock<TData, TKey>(blockId, undefined, this.blockRowCount, this.dataOptions!.getRowKey, blockPromise);
+            return new DataBlock<TData>(blockId, undefined, this.blockRowCount, this.dataOptions!.getRowKey, blockPromise);
         } else {
             // we are using incremental data
             const blockAbort = new AbortController();
-            let blockPromise: Promise<{ key: TKey; data: TData }[]>;
+            let blockPromise: Promise<{ key: Primitive; data: TData }[]>;
             if (!Number.isFinite(this.blockRowCount)) {
                 blockPromise = Promise.resolve([]);
             } else {
-                blockPromise = (this.dataOptions as IncrementalDataOptions<TData, TKey>)
+                blockPromise = (this.dataOptions as IncrementalDataOptions<TData>)
                     .getDataBlock({
                         offset: blockId * this.blockRowCount,
                         count: this.blockRowCount,
@@ -157,7 +157,7 @@ export class DataManager<TData, TKey extends Primitive> {
                         return data;
                     });
             }
-            return new DataBlock<TData, TKey>(blockId, blockAbort, this.blockRowCount, this.dataOptions!.getRowKey, blockPromise);
+            return new DataBlock<TData>(blockId, blockAbort, this.blockRowCount, this.dataOptions!.getRowKey, blockPromise);
         }
     }
 
@@ -190,7 +190,7 @@ export class DataManager<TData, TKey extends Primitive> {
         }
 
         this.$_blocks.update((existing) => {
-            const blocks: DataBlock<TData, TKey>[] = [];
+            const blocks: DataBlock<TData>[] = [];
             for (const existingBlock of existing.blocks) {
                 if (blockIdsToLoad.includes(existingBlock.id)) {
                     blocks.push(existingBlock);
@@ -219,15 +219,15 @@ export class DataManager<TData, TKey extends Primitive> {
     }
 }
 
-export interface BlocksInfo<TData, TKey extends Primitive> {
+export interface BlocksInfo<TData> {
     prePixels: number;
-    blocks: DataBlock<TData, TKey>[];
+    blocks: DataBlock<TData>[];
     postPixels: number;
 }
 
-export class AllDataInfo<TData, TKey extends Primitive = Primitive> {
-    private readonly $_allKeys = signal<Set<TKey>>(new Set<TKey>());
-    get $allKeys(): Signal<Set<TKey>> {
+export class AllDataInfo<TData> {
+    private readonly $_allKeys = signal<Set<Primitive>>(new Set<Primitive>());
+    get $allKeys(): Signal<Set<Primitive>> {
         return this.$_allKeys;
     }
     private readonly $_status = signal<'canceled' | 'error' | 'loading' | 'success'>('loading');
@@ -235,7 +235,7 @@ export class AllDataInfo<TData, TKey extends Primitive = Primitive> {
         return this.$_status;
     }
     constructor(
-        public readonly promise: Promise<{ key: TKey; data: TData }[]>,
+        public readonly promise: Promise<{ key: Primitive; data: TData }[]>,
         public readonly abort: AbortController,
     ) {
         promise

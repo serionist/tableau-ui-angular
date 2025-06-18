@@ -1,13 +1,12 @@
 import type { TemplateRef } from '@angular/core';
 import type { ColumnDefDirective } from '../column-def/column-def.directive';
-import type { Primitive } from 'tableau-ui-angular/types';
-export interface CellContext<TData, TKey extends Primitive> {
+export interface CellContext<TData> {
     row: TData;
-    meta: CellMetaContext<TData, TKey>;
+    meta: CellMetaContext<TData>;
     maxRowCount: number;
 }
-export interface CellMetaContext<TData, TKey extends Primitive> {
-    columnDef: ColumnDefDirective<TData, TKey>;
+export interface CellMetaContext<TData> {
+    columnDef: ColumnDefDirective<TData>;
     index: number;
     first: boolean;
     last: boolean;
@@ -22,7 +21,7 @@ export interface CellMetaContext<TData, TKey extends Primitive> {
     columnCount: number;
 }
 
-export interface CellTooltipContext<TData, TKey extends Primitive> extends CellContext<TData, TKey> {
-    cellTemplate: TemplateRef<{ $implicit: CellContext<TData, TKey> }>;
+export interface CellTooltipContext<TData> extends CellContext<TData> {
+    cellTemplate: TemplateRef<{ $implicit: CellContext<TData> }>;
     isRowCellClamped: boolean;
 }
