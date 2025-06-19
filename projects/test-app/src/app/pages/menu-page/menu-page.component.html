@@ -23,12 +23,12 @@
         <div class="section">
             <h3>Examples</h3>
             <p>The following examples demonstrate the usage of the menu component.</p>
-            <div class="two spacer">
-                <button color="primary" [menu]="simpleMenu">Click me to show a simple menu</button>
+            <div class="spacer">
+                <button color="primary" [attachedMenu]="simpleMenu">Click me to show a simple menu</button>
 
-                <tab-menu #simpleMenu>I have simple content</tab-menu>
-                <button color="secondary" [menu]="menu1" (click)="menu1.open()">Button menu</button>
-                <tab-button-menu #menu1 width="fit-content">
+                <ng-template #simpleMenu="menu" menu>I have simple content</ng-template>
+                <button color="secondary" [attachedMenu]="menu1">Button menu</button>
+                <ng-template #menu1="buttonMenu" buttonMenu>
                     <tab-menu-button-group #group>
                         <tab-menu-button color="secondary" (click)="snack.openSnack('haha clicked', 3000)">haha</tab-menu-button>
                         <tab-menu-button color="primary" tab-menu-button (click)="snack.openSnack('This is a much longer text clicked', 3000)">
@@ -57,7 +57,38 @@
                         <tab-menu-button color="error" tab-menu-button (click)="snack.openSnack('stuff clicked', 3000)">stuff</tab-menu-button>
                         <tab-menu-button color="primary" tab-menu-button [disabled]="true" (click)="snack.openSnack('Disabled primary clicked', 3000)">Disabled primary</tab-menu-button>
                     </tab-menu-button-group>
-                </tab-button-menu>
+                </ng-template>
+                <button color="secondary" [attachedMenu]="menu2">Button menu that initially fits the width of the button</button>
+                <ng-template #menu2="buttonMenu" buttonMenu minWidth="parentWidth">
+                    <tab-menu-button-group #group>
+                        <tab-menu-button color="secondary" (click)="snack.openSnack('haha clicked', 3000)">haha</tab-menu-button>
+                        <tab-menu-button color="primary" tab-menu-button (click)="snack.openSnack('This is a much longer text clicked', 3000)">
+                            This is a much longer text
+                            <tab-menu-button color="secondary" (click)="snack.openSnack('haha clicked', 3000)">haha</tab-menu-button>
+                            <tab-menu-button color="primary" tab-menu-button (click)="snack.openSnack('This is a much longer text clicked', 3000)">This is a much longer text</tab-menu-button>
+                            <tab-menu-button tab-menu-button color="secondary" [disabled]="true" (click)="snack.openSnack('Disabled clicked', 3000)">Disabled</tab-menu-button>
+                            <tab-menu-button color="error" tab-menu-button (click)="snack.openSnack('stuff clicked', 3000)">
+                                stuff
+                                <tab-menu-button color="secondary">haha</tab-menu-button>
+                                <tab-menu-button color="primary" tab-menu-button (click)="snack.openSnack('This is a much longer text clicked', 3000)">This is a much longer text</tab-menu-button>
+                                <tab-menu-button tab-menu-button color="secondary" [disabled]="true" (click)="snack.openSnack('Disabled clicked', 3000)">Disabled</tab-menu-button>
+                                <tab-menu-button color="error" tab-menu-button (click)="snack.openSnack('stuff clicked', 3000)">
+                                    stuff
+                                    <tab-menu-button color="secondary" (click)="snack.openSnack('haha clicked', 3000)">haha</tab-menu-button>
+                                    <tab-menu-button color="primary" tab-menu-button (click)="snack.openSnack('This is a much longer text clicked', 3000)">This is a much longer text</tab-menu-button>
+                                    <tab-menu-button tab-menu-button color="secondary" [disabled]="true" (click)="snack.openSnack('Disabled clicked', 3000)">Disabled</tab-menu-button>
+                                    <tab-menu-button color="error" tab-menu-button (click)="snack.openSnack('stuff clicked', 3000)">stuff</tab-menu-button>
+                                    <tab-menu-button color="primary" tab-menu-button [disabled]="true" (click)="snack.openSnack('Disabled primary clicked', 3000)">Disabled primary</tab-menu-button>
+                                </tab-menu-button>
+                                <tab-menu-button color="primary" tab-menu-button [disabled]="true" (click)="snack.openSnack('Disabled primary clicked', 3000)">Disabled primary</tab-menu-button>
+                            </tab-menu-button>
+                            <tab-menu-button color="primary" tab-menu-button [disabled]="true" (click)="snack.openSnack('Disabled primary clicked', 3000)">Disabled primary</tab-menu-button>
+                        </tab-menu-button>
+                        <tab-menu-button tab-menu-button color="secondary" [disabled]="true" (click)="snack.openSnack('Disabled clicked', 3000)">Disabled</tab-menu-button>
+                        <tab-menu-button color="error" tab-menu-button (click)="snack.openSnack('stuff clicked', 3000)">stuff</tab-menu-button>
+                        <tab-menu-button color="primary" tab-menu-button [disabled]="true" (click)="snack.openSnack('Disabled primary clicked', 3000)">Disabled primary</tab-menu-button>
+                    </tab-menu-button-group>
+                </ng-template>
             </div>
         </div>
     </div>

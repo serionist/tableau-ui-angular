@@ -36,20 +36,22 @@ export class CellTooltipPipe implements PipeTransform {
             // if we have a custom [tabCellTooltipDef] directive in our column definition
             const tooltipDef = columnDef.$cellTooltip();
             if (tooltipDef !== undefined) {
+                const isClamped = this.isClamped(cellElement);
                 // check if user has provided a value to show the custom tooltip
                 // this can be a boolean or a function that returns a boolean
                 const showCustomParam = tooltipDef.$showTooltip();
                 let showCustomTooltip: boolean;
                 // if its a function, call it with the header context to see if we need to show the custom tooltip
                 if (typeof showCustomParam === 'function') {
-                    showCustomTooltip = showCustomParam(cellContext);
+                    
+                    showCustomTooltip = showCustomParam(cellContext, isClamped);
                 } else {
                     // if its a boolean, use it directly
                     showCustomTooltip = showCustomParam;
                 }
                 // if we show custom tooltip, use the custom template
                 if (showCustomTooltip) {
-                    tooltipArgs.context!.$implicit.isRowCellClamped = this.isClamped(cellElement);
+                    tooltipArgs.context!.$implicit.isRowCellClamped = isClamped;
                     tooltipArgs.template = tooltipDef.templateRef;
                     tooltipArgs.position = tooltipDef.$tooltipPosition();
                     tooltipArgs.margin = tooltipDef.$tooltipMargin();
@@ -61,8 +63,7 @@ export class CellTooltipPipe implements PipeTransform {
             // check if we have auto tooltip enabled and we have clamped the cell context
             if (tooltipArgs.template === undefined && columnDef.$showAutoCellTooltip()) {
                 // check if the cell is clamped
-                const clampElement = cellElement.querySelector('.line-clamp');
-                const isClamped = clampElement !== null && clampElement.scrollHeight > clampElement.clientHeight;
+                const isClamped = this.isClamped(cellElement);
                 // if the cell is clamped, we show the auto tooltip
                 if (isClamped) {
                     // use the cell template as the tooltip template

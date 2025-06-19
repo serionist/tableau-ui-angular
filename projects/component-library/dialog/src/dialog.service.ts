@@ -8,7 +8,6 @@ import type { FocusableElement } from 'tabbable';
 import { tabbable } from 'tabbable';
 import type { IConfirmationDialogData } from './confirmation-dialog.component';
 import { ConfirmationDialogComponent } from './confirmation-dialog.component';
-import { TemplateDialogComponent } from './template-dialog.component';
 import { TAB_DATA_REF } from './data.ref';
 import { IconComponent } from 'tableau-ui-angular/icon';
 import type { StackOptions } from './stack-options';
@@ -24,6 +23,22 @@ export class DialogService {
     environmentInjector = inject(EnvironmentInjector);
 
     openModal<TComponent, TData, TResult>(component: Type<TComponent>, data: TData, args?: IModalArgs): DialogRef<TResult> {
+        return this._openModal<TData, TResult>(
+            (injector: Injector) => this.createView(component, injector),
+            data,
+            args,
+        );
+    }
+
+    openTemplateModal<TContext, TResult>(contentTemplate: TemplateRef<TContext>, contentTemplateContext: TContext, args?: IModalArgs): DialogRef<TResult> {
+        return this._openModal<TContext, TResult>(
+            (injector: Injector) => contentTemplate.createEmbeddedView(contentTemplateContext, injector),
+            contentTemplateContext,
+            args,
+        );
+    }
+
+    _openModal<TData, TResult>(getViewRef: (injector: Injector) => ViewRef, data: TData, args?: IModalArgs): DialogRef<TResult> {
         const a = {
             width: args?.width ?? '300px',
             height: args?.height ?? 'fit-content',
@@ -56,12 +71,8 @@ export class DialogService {
             trapFocus: true,
         } as IDialogArgs;
 
-        const ref = this.openDialog<TComponent, TData, TResult>(component, data, a);
+        const ref = this._openDialog<TData, TResult>(getViewRef, data, a);
         return ref;
-    }
-
-    openTemplateModal<TContext, TResult>(contentTemplate: TemplateRef<TContext>, contentTemplateContext?: TContext, args?: IModalArgs): DialogRef<TResult> {
-        return this.openModal(TemplateDialogComponent, { contentTemplate, contentTemplateContext }, args);
     }
 
     async openConfirmationMessageDialog(
@@ -136,14 +147,25 @@ export class DialogService {
         args: IDialogArgs;
     }[] = [];
 
-    openTemplateDialog<TContext, TResult>(contentTemplate: TemplateRef<TContext>, args: IDialogArgs, contentTemplateContext?: TContext, stackOptions: StackOptions = new GlobalStackOptions()) {
-        return this.openDialog<
-            TemplateDialogComponent<{ contentTemplate: TemplateRef<TContext | undefined>; contentTemplateContext: TContext | undefined }>,
-            { contentTemplate: TemplateRef<TContext>; contentTemplateContext?: TContext },
-            TResult
-        >(TemplateDialogComponent, { contentTemplate, contentTemplateContext }, args, stackOptions);
+    openTemplateDialog<TContext, TResult>(contentTemplate: TemplateRef<TContext>, args: IDialogArgs, contentTemplateContext: TContext, stackOptions: StackOptions = new GlobalStackOptions()) {
+        
+        return this._openDialog<TContext, TResult>(
+            (injector: Injector) => contentTemplate.createEmbeddedView(contentTemplateContext, injector), 
+            contentTemplateContext,
+            args, 
+            stackOptions
+        );
     }
+
     openDialog<TComponent, TData, TResult>(component: Type<TComponent>, data: TData, args: IDialogArgs = {}, stackOptions: StackOptions = new GlobalStackOptions()): DialogRef<TResult> {
+        return this._openDialog<TData, TResult>(
+            (injector: Injector) => this.createView(component, injector), 
+            data,
+            args,
+            stackOptions
+        );
+    }
+    private _openDialog<TData, TResult>(getViewRef: (injector: Injector) => ViewRef, data: TData, args: IDialogArgs = {}, stackOptions: StackOptions = new GlobalStackOptions()): DialogRef<TResult> {
         let trappedFocus:
             | {
                   elements: {
@@ -181,7 +203,7 @@ export class DialogService {
         });
 
         // Create the component view
-        const componentView = this.createView(component, injector);
+        const componentView = getViewRef(injector);
         // Attach component to the application
         this.appRef.attachView(componentView);
 
@@ -290,9 +312,15 @@ export class DialogService {
     }
 
     private createDialogElement(viewRef: ViewRef, args: IDialogArgs, injector: Injector, dialogRef: IDialogRef, zIndex: number): HTMLElement {
-        const dialogElement = (viewRef as EmbeddedViewRef<unknown>).rootNodes[0] as HTMLElement;
+        const embeddedViewRef = viewRef as EmbeddedViewRef<unknown>;
+
+        const dialogElement = document.createElement('div');
         dialogElement.classList.add('dialog-container');
         dialogElement.style.zIndex = zIndex.toString();
+        for (const rootNode of embeddedViewRef.rootNodes) {
+            dialogElement.appendChild(rootNode as Node);
+        }
+      
 
         if (args.containerCss) {
             Object.keys(args.containerCss).forEach((key) => {
@@ -380,55 +408,44 @@ export class DialogService {
         return undefined;
     }
     private static calculateAndSetPosition(dialogElement: HTMLElement, args: IDialogPositionAndSizeArgs, stackOptions: StackOptions) {
-        if (args.maxWidth !== undefined) {
-            dialogElement.style.maxWidth = args.maxWidth;
-        }
-        if (args.maxHeight !== undefined) {
-            dialogElement.style.maxHeight = args.maxHeight;
-        }
-        dialogElement.style.overflowX = 'hidden';
-        dialogElement.style.overflowY = 'hidden';
-
         const referenceElement = this.getReferenceElement(stackOptions);
         const referenceElementRect = referenceElement?.getBoundingClientRect();
-        let widthCss: string;
-        let heightCss: string;
-        if (args.width === undefined) {
-            widthCss = 'fit-content';
-        } else if (typeof args.width === 'function') {
-            if (!referenceElementRect) {
-                throw new Error('When using a function for width, insertAfterElement must be provided.');
+        const getWidthHeight = (name: string, defaultValue: string, value: string | ((referenceElementRect: DOMRect) => string | undefined) | undefined) => {
+            if (value === undefined) {
+                return defaultValue;
+            } else if (typeof value === 'function') {
+                if (!referenceElementRect) {
+                    throw new Error(`When using a function for ${name}, insertAfterElement must be provided.`);
+                }
+                return value(referenceElementRect) ?? defaultValue;
+            } else {
+                return value;
             }
-            widthCss = args.width(referenceElementRect);
-        } else {
-            widthCss = args.width;
-        }
-        if (args.height === undefined) {
-            heightCss = 'fit-content';
-        } else if (typeof args.height === 'function') {
-            if (!referenceElementRect) {
-                throw new Error('When using a function for height, insertAfterElement must be provided.');
-            }
-            heightCss = args.height(referenceElementRect);
-        } else {
-            heightCss = args.height;
-        }
-        dialogElement.style.height = heightCss;
-        dialogElement.style.width = widthCss;
+        };
+
+        dialogElement.style.minWidth = getWidthHeight('minWidth', 'auto', args.minWidth);
+        dialogElement.style.minHeight = getWidthHeight('minHeight', '0', args.minHeight);
+        dialogElement.style.width = getWidthHeight('width', 'fit-content', args.width);
+        dialogElement.style.height = getWidthHeight('height', 'fit-content', args.height);
+        dialogElement.style.maxWidth = getWidthHeight('maxWidth', 'none', args.maxWidth);
+        dialogElement.style.maxHeight = getWidthHeight('maxHeight', 'none', args.maxHeight);
+
+        dialogElement.style.overflowX = 'hidden';
+        dialogElement.style.overflowY = 'hidden';
         const actualWidth = dialogElement.offsetWidth;
         const actualHeight = dialogElement.offsetHeight;
 
-        if (typeof args.top === 'function') {
-            dialogElement.style.top = args.top(actualWidth, actualHeight, referenceElementRect);
-        } else if (typeof args.top === 'string') {
-            dialogElement.style.top = args.top;
-        }
-
-        if (typeof args.left === 'function') {
-            dialogElement.style.left = args.left(actualWidth, actualHeight, referenceElementRect);
-        } else if (typeof args.left === 'string') {
-            dialogElement.style.left = args.left;
-        }
+        const getTopLeft = (name: string, value: string | ((actualWidth: number, actualHeight: number, referenceElementRect?: DOMRect) => string | undefined) | undefined) => {
+            if (value === undefined) {
+                return 'auto';
+            } else if (typeof value === 'function') {
+                return value(actualWidth, actualHeight, referenceElementRect) ?? 'auto';
+            } else {
+                return value;
+            }
+        };
+        dialogElement.style.top = getTopLeft('top', args.top);
+        dialogElement.style.left = getTopLeft('left', args.left);
 
         // if dialog is higher than the available page height, set it to scroll
         if (actualHeight + dialogElement.offsetTop > window.innerHeight) {

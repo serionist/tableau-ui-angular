@@ -4,16 +4,18 @@ import type { Observable } from 'rxjs';
 import { filter, map } from 'rxjs';
 import { version as LibVersion } from '../../../component-library/package.json';
 import { ThemeService } from 'tableau-ui-angular/theme';
-import { TableauUiMenuModule, type MenuComponent } from 'tableau-ui-angular/menu';
 import { CommonModule } from '@angular/common';
 import { TableauUiNavBarModule } from 'tableau-ui-angular/nav-bar';
 import { TableauUiIconModule } from 'tableau-ui-angular/icon';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
 import { TableauUiFormFieldModule } from 'tableau-ui-angular/form-field';
 import { TableauUiButtonToggleModule } from 'tableau-ui-angular/button-toggle';
+import { TableauUiButtonModule } from 'tableau-ui-angular/button';
+import type { MenuDirective} from 'tableau-ui-angular/menu';
+import { TableauUiMenuModule } from 'tableau-ui-angular/menu';
 @Component({
     selector: 'app-root',
-    imports: [CommonModule, RouterModule, TableauUiNavBarModule, TableauUiIconModule, TableauUiCommonModule, TableauUiMenuModule, TableauUiButtonToggleModule, TableauUiFormFieldModule],
+    imports: [CommonModule, RouterModule, TableauUiNavBarModule, TableauUiIconModule, TableauUiCommonModule, TableauUiMenuModule, TableauUiButtonModule, TableauUiButtonToggleModule, TableauUiFormFieldModule],
     standalone: true,
     templateUrl: './app.component.html',
     styleUrl: './app.component.scss',
@@ -46,7 +48,7 @@ export class AppComponent {
         return null;
     }
 
-    readonly $paletteMenu = viewChild.required<MenuComponent>('paletteMenu');
+    readonly $paletteMenu = viewChild.required<MenuDirective>('paletteMenu');
     readonly $paletteTheme = computed(() => this.themeService.$theme().mode);
     paletteThemeChange = (val: 'auto' | 'dark' | 'light') => {
         this.themeService.setColorMode(val);

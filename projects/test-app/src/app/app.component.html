@@ -108,10 +108,10 @@
         </tab-nav-bar-button>
     </tab-nav-bar>
     <div>
-        <button class="palette-button" color="plain" layout="icon" [menu]="paletteMenu" (click)="paletteMenu.open()">
+        <button class="palette-button" color="plain" layout="icon" [attachedMenu]="paletteMenu" >
             <tab-icon value="palette" />
         </button>
-        <tab-menu #paletteMenu>
+        <ng-template #paletteMenu="menu" menu>
             <div class="palette-menu">
                 <div>
                     <tab-label>Color Palette</tab-label>
@@ -128,7 +128,7 @@
                     <tab-suffix>px</tab-suffix>
                 </tab-form-field>
             </div>
-        </tab-menu>
+        </ng-template>
         <router-outlet />
     </div>
 </div>

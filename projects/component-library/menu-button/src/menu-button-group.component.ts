@@ -1,7 +1,8 @@
-import type { InputSignal, OnDestroy, OutputRefSubscription, WritableSignal } from '@angular/core';
+import type { AfterViewInit, InputSignal, OnDestroy, OutputRefSubscription, WritableSignal } from '@angular/core';
 import { ChangeDetectionStrategy, Component, contentChildren, effect, ElementRef, HostListener, inject, input, output, signal } from '@angular/core';
 import { MenuButtonComponent } from './menu-button.component';
 import { generateRandomString } from 'tableau-ui-angular/utils';
+import { ButtonMenuDirective } from './button-menu.directive';
 
 @Component({
     selector: 'tab-menu-button-group',
@@ -16,6 +17,7 @@ import { generateRandomString } from 'tableau-ui-angular/utils';
                 [style.position]="entry[1].$position()"
                 [style.top]="entry[1].$top() + 'px'"
                 [style.left]="entry[1].$left() + 'px'"
+                [style.minWidth]="entry[1].$minWidth()"
                 (resized)="entry[1].element = $event.currentElement.nativeElement; updateSizes()"
             >
                 @for (btnEntry of entry[1].buttons | entries; track btnEntry[0]) {
@@ -59,8 +61,10 @@ import { generateRandomString } from 'tableau-ui-angular/utils';
         '[style.minWidth]': '$width() + "px"',
     },
 })
-export class MenuButtonGroupComponent implements OnDestroy {
+export class MenuButtonGroupComponent implements OnDestroy, AfterViewInit {
+    
     readonly nativeElement = inject<ElementRef<HTMLElement>>(ElementRef);
+    readonly menu = inject(ButtonMenuDirective, { optional: true });
 
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     readonly $hoverToOpenSubMenuMs: InputSignal<number | undefined> = input<number | undefined>(500, {
@@ -93,18 +97,39 @@ export class MenuButtonGroupComponent implements OnDestroy {
         }
         this.init();
     });
-    readonly $menuGroupStack = signal<IMenuGroup[]>([]);
+    readonly $menuGroupStack = signal<IMenuGroup[]>([], {
+        equal: () => false
+    });
 
     private readonly $height = signal<number>(0);
     private readonly $width = signal<number>(0);
 
+    private viewInitialized = false;
+    private readonly subs: OutputRefSubscription[] = [];
+    ngAfterViewInit(): void {
+        this.viewInitialized = true;
+        this.init();
+        this.nativeElement.nativeElement.focus();
+        this.subs.push(this.buttonClicked.subscribe(() => {
+            this.menu?.close();
+        }));
+    }
     init() {
+        if (!this.viewInitialized) {
+            return;
+        }
         this.destroyGroupsUntil();
-        this.addMenuGroup();
+        void this.addMenuGroup();
+        if (this.menu) {
+            this.menu.opened.subscribe(() => { this.updateSizes(); });
+        }
     }
 
     ngOnDestroy(): void {
         this.destroyGroupsUntil();
+        this.subs.forEach((sub) => {
+            sub.unsubscribe();
+        });
     }
 
     addMenuGroup(parentButton?: MenuButtonComponent) {
@@ -112,12 +137,14 @@ export class MenuButtonGroupComponent implements OnDestroy {
         if (children.length === 0) {
             return undefined;
         }
+        // if first item
         const group: IMenuGroup = {
             id: generateRandomString(),
             // position is fixed and off screen
             // this is used to calculate actual size of the menu group
             $top: signal(-10000),
             $left: signal(-10000),
+            $minWidth: signal('auto'),
             element: null,
             $position: signal<'absolute' | 'fixed'>('fixed'),
             buttons: children,
@@ -141,9 +168,9 @@ export class MenuButtonGroupComponent implements OnDestroy {
                         }
                         const g = this.addMenuGroup(c);
                         const firstButton = g?.buttons.find((b) => !b.$disabled());
-                        if (firstButton) {
-                            firstButton.$highlight.set(true);
-                        }
+                            if (firstButton) {
+                                firstButton.$highlight.set(true);
+                            }
                     }),
                 ),
             clickSubscriptions: children.map((c) =>
@@ -198,7 +225,8 @@ export class MenuButtonGroupComponent implements OnDestroy {
             const elHeight = rect.height;
             let top: number;
             let left: number;
-
+            let minWidth: string = 'auto';
+            
             if (!group.parentButton) {
                 top = 0;
                 left = 0;
@@ -207,6 +235,16 @@ export class MenuButtonGroupComponent implements OnDestroy {
                 minLeft = Math.min(minLeft, 0);
                 maxTop = Math.max(maxTop, elHeight);
                 maxLeft = Math.max(maxLeft, elWidth);
+
+               
+                if (this.menu?.$minWidth() === 'parentWidth') {
+                    const parent = this.menu?.$parentControl()?.nativeElement;
+                    if (parent) {
+                        minWidth = `calc(${parent.getBoundingClientRect().width}px - 2px)`;
+                    }
+                   
+                }
+                
             } else {
                 const parentRect = group.parentButton.getBoundingClientRect();
                 top = parentRect.top - currentRect.top;
@@ -223,9 +261,11 @@ export class MenuButtonGroupComponent implements OnDestroy {
             }
             group.$top.set(top);
             group.$left.set(left);
+            group.$minWidth.set(minWidth);
         }
         this.$height.set(maxTop - minTop);
         this.$width.set(maxLeft - minLeft);
+        
     }
 
     destroyGroupsUntil(id?: string) {
@@ -357,6 +397,7 @@ interface IMenuGroup {
     $top: WritableSignal<number>;
     $left: WritableSignal<number>;
     $position: WritableSignal<'absolute' | 'fixed'>;
+    $minWidth: WritableSignal<string>;
     parentButton: HTMLElement | null;
     buttons: readonly MenuButtonComponent[];
     element: Element | null;

@@ -11,7 +11,7 @@ export class CellToolipDefDirective<TData> {
         alias: 'tabCellTooltipDef',
     });
 
-    readonly $showTooltip = input<boolean | ((ctx: CellContext<TData>) => boolean)>(true, {
+    readonly $showTooltip = input<boolean | ((ctx: CellContext<TData>, isClamped: boolean) => boolean)>(true, {
         alias: 'showTooltip',
     });
 

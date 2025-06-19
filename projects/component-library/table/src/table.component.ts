@@ -234,8 +234,10 @@ export class TableComponent<TData = number>  {
     private readonly $headerRow = viewChild.required<ElementRef<HTMLElement>>('headerRow');
     private readonly $dataRowSizer = viewChild.required<ElementRef<HTMLElement>>('dataSizer');
     // #endregion
-    protected readonly dataManager = new DataManager<TData>(this.cdr);
-
+    protected readonly _dataManager = new DataManager<TData>(this.cdr);
+    get dataManager() {
+        return this._dataManager;
+    }
     // #region Load & Reset
     private loaded = false;
     private dataWindowHeightPx: number = 0;
@@ -295,7 +297,7 @@ export class TableComponent<TData = number>  {
             console.warn('Table reset called with undefined parameters, ignoring');
             return false;
         }
-        await this.dataManager.reset(this.dataWindowHeightPx, this.dataRowHeightPx, sort, dataBlockWindow, dataOptions);
+        await this._dataManager.reset(this.dataWindowHeightPx, this.dataRowHeightPx, sort, dataBlockWindow, dataOptions);
         return true;
     }
 
@@ -378,7 +380,7 @@ export class TableComponent<TData = number>  {
     // #region Scrolling & Virtualization
     @HostListener('scroll', ['$event.target'])
     private onScroll(element: HTMLElement) {
-        this.dataManager.setScrollPosition(element.scrollTop);
+        this._dataManager.setScrollPosition(element.scrollTop);
     }
     // #endregion
 
@@ -391,10 +393,10 @@ export class TableComponent<TData = number>  {
     }
     async selectionMultiHeaderCheckboxSelectAllChanged(val: boolean | 'partial') {
         if (val === true) {
-            if (this.dataManager.allDataInfo?.$status() !== 'success') {
+            if (this._dataManager.allDataInfo?.$status() !== 'success') {
                 return;
             }
-            const allData = await this.dataManager.allDataInfo.promise;
+            const allData = await this._dataManager.allDataInfo.promise;
             this.$selectedRows.set(new Map<Primitive, TData>(allData.map((e) => [e.key, e.data])));
         } else {
             this.$selectedRows.set(new Map<Primitive, TData>());
@@ -405,7 +407,7 @@ export class TableComponent<TData = number>  {
         const selectedRows = this.$selectedRows();
         if (selectedRows.size === 0) {
             value = false;
-        } else if (this.dataManager.allDataInfo?.$status() === 'success' && [...this.dataManager.allDataInfo.$allKeys().keys()].every((key) => selectedRows.has(key))) {
+        } else if (this._dataManager.allDataInfo?.$status() === 'success' && [...this._dataManager.allDataInfo.$allKeys().keys()].every((key) => selectedRows.has(key))) {
             value = true;
         } else {
             value = 'partial';

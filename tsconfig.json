@@ -61,6 +61,9 @@
             "tableau-ui-angular/menu": [
                 "./projects/component-library/menu/src/public_api.ts"
             ],
+            "tableau-ui-angular/menu-button": [
+                "./projects/component-library/menu-button/src/public_api.ts"
+            ],
             "tableau-ui-angular/nav-bar": [
                 "./projects/component-library/nav-bar/src/public_api.ts"
             ],
