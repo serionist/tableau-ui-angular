@@ -62,7 +62,6 @@ import { ButtonMenuDirective } from './button-menu.directive';
     },
 })
 export class MenuButtonGroupComponent implements OnDestroy, AfterViewInit {
-    
     readonly nativeElement = inject<ElementRef<HTMLElement>>(ElementRef);
     readonly menu = inject(ButtonMenuDirective, { optional: true });
 
@@ -98,7 +97,7 @@ export class MenuButtonGroupComponent implements OnDestroy, AfterViewInit {
         this.init();
     });
     readonly $menuGroupStack = signal<IMenuGroup[]>([], {
-        equal: () => false
+        equal: () => false,
     });
 
     private readonly $height = signal<number>(0);
@@ -110,9 +109,11 @@ export class MenuButtonGroupComponent implements OnDestroy, AfterViewInit {
         this.viewInitialized = true;
         this.init();
         this.nativeElement.nativeElement.focus();
-        this.subs.push(this.buttonClicked.subscribe(() => {
-            this.menu?.close();
-        }));
+        this.subs.push(
+            this.buttonClicked.subscribe(() => {
+                this.menu?.close();
+            }),
+        );
     }
     init() {
         if (!this.viewInitialized) {
@@ -121,7 +122,9 @@ export class MenuButtonGroupComponent implements OnDestroy, AfterViewInit {
         this.destroyGroupsUntil();
         void this.addMenuGroup();
         if (this.menu) {
-            this.menu.opened.subscribe(() => { this.updateSizes(); });
+            this.menu.opened.subscribe(() => {
+                this.updateSizes();
+            });
         }
     }
 
@@ -168,9 +171,9 @@ export class MenuButtonGroupComponent implements OnDestroy, AfterViewInit {
                         }
                         const g = this.addMenuGroup(c);
                         const firstButton = g?.buttons.find((b) => !b.$disabled());
-                            if (firstButton) {
-                                firstButton.$highlight.set(true);
-                            }
+                        if (firstButton) {
+                            firstButton.$highlight.set(true);
+                        }
                     }),
                 ),
             clickSubscriptions: children.map((c) =>
@@ -226,7 +229,7 @@ export class MenuButtonGroupComponent implements OnDestroy, AfterViewInit {
             let top: number;
             let left: number;
             let minWidth: string = 'auto';
-            
+
             if (!group.parentButton) {
                 top = 0;
                 left = 0;
@@ -236,15 +239,12 @@ export class MenuButtonGroupComponent implements OnDestroy, AfterViewInit {
                 maxTop = Math.max(maxTop, elHeight);
                 maxLeft = Math.max(maxLeft, elWidth);
 
-               
                 if (this.menu?.$minWidth() === 'parentWidth') {
                     const parent = this.menu?.$parentControl()?.nativeElement;
                     if (parent) {
                         minWidth = `calc(${parent.getBoundingClientRect().width}px - 2px)`;
                     }
-                   
                 }
-                
             } else {
                 const parentRect = group.parentButton.getBoundingClientRect();
                 top = parentRect.top - currentRect.top;
@@ -265,7 +265,6 @@ export class MenuButtonGroupComponent implements OnDestroy, AfterViewInit {
         }
         this.$height.set(maxTop - minTop);
         this.$width.set(maxLeft - minLeft);
-        
     }
 
     destroyGroupsUntil(id?: string) {

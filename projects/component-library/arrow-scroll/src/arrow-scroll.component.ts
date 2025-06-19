@@ -44,7 +44,7 @@ export class ArrowScrollComponent implements AfterViewInit, OnDestroy {
      * This should be a valid Material Symbols icon name.
      * If not provided, 'keyboard_arrow_down' will be used for vertical, 'keyboard_arrow_right' for horizontal scrolling.
      */
-    readonly $forwardIcon = input<string>(undefined,{
+    readonly $forwardIcon = input<string>(undefined, {
         alias: 'forwardIcon',
     });
 

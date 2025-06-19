@@ -58,7 +58,9 @@ export class TabGroupComponent<TKey extends Primitive> implements AfterViewInit 
         const tabElement = this.$tabElements()[index];
         tabElement.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         this.tabSelected.emit({ index, key: tab.$key(), tab });
-        window.requestAnimationFrame(() => { tab.afterActivate.emit(); })
+        window.requestAnimationFrame(() => {
+            tab.afterActivate.emit();
+        });
     }
     selectTabByKey(key: TKey) {
         const tabs = this.$tabs();

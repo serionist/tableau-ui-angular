@@ -31,7 +31,7 @@ export class FCImpl<T extends PrimitiveWithUndefined | PrimitiveWithUndefined[]>
     private readonly _defaultValue: T;
     public override get defaultValue(): T {
         return this._defaultValue;
-    };
+    }
     private readonly _control: FormControl<T>;
     constructor(params: { defaultValue: T; initialDisabled?: boolean; validators?: ValidatorFn | ValidatorFn[]; asyncValidators?: AsyncValidatorFn | AsyncValidatorFn[]; updateOn?: 'blur' | 'change' | 'submit' }) {
         const control = new FormControl<T>(

@@ -17,7 +17,6 @@ import type { FGImpl } from '../form-group/impl';
 import type { DeepPartial, ReadonlyBehaviorSubject } from 'tableau-ui-angular/types';
 
 export class FAImpl<T extends Record<string, unknown>> extends ACImpl<T[]> implements FA<T> {
-   
     protected readonly $_value: WritableSignal<DeepPartial<T>[]>;
     protected readonly _value$: BehaviorSubject<DeepPartial<T>[]>;
     private readonly _rawValue$: BehaviorSubject<T[]>;

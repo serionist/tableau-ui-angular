@@ -18,12 +18,12 @@ import type { Primitive } from 'tableau-ui-angular/types';
     changeDetection: ChangeDetectionStrategy.OnPush,
     host: {},
 })
-export class TableComponent<TData = number>  {
+export class TableComponent<TData = number> {
     protected readonly checkboxColWidth = '2.5em';
 
     readonly self = this;
     // #region Inputs & Outputs
-     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     /**
      * The column IDs to display in the table. The order of the IDs determines the order of the columns.
      * If undefined, all columns will be displayed in the order they are defined in the table.
@@ -91,7 +91,7 @@ export class TableComponent<TData = number>  {
         alias: 'sort',
     });
 
-     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     /**
      * The column ID to pin to the left side of the table.
      * If undefined, no column will be pinned to the left.
@@ -101,7 +101,7 @@ export class TableComponent<TData = number>  {
         alias: 'pinnedLeftColumn',
     });
 
-     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     /**
      * The column ID to pin to the right side of the table.
      * If undefined, no column will be pinned to the right.
@@ -130,7 +130,7 @@ export class TableComponent<TData = number>  {
         alias: 'noDataTemplate',
     });
 
-     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
     /**
      * The options for the selection mode.
      * If undefined, no selection will be enabled.
@@ -499,5 +499,4 @@ export class TableComponent<TData = number>  {
             console.warn('Failed to initialize line clamp:', error);
         }
     }
-
 }

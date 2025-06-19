@@ -189,14 +189,14 @@
             @if (_noDataTemplate === 'default') {
                 <ng-container [ngTemplateOutlet]="defaultNoData" />
             } @else if (typeof _noDataTemplate === 'string') {
-                <ng-container *ngTemplateOutlet="defaultNoData;context:{$implicit:_noDataTemplate}" />
+                <ng-container *ngTemplateOutlet="defaultNoData; context: { $implicit: _noDataTemplate }" />
             } @else {
                 <ng-container [ngTemplateOutlet]="_noDataTemplate" />
             }
-           
+
             <ng-template #defaultNoData let-message>
                 <div class="no-data" [style.padding]="$dataPadding()">
-                    <span>{{message ?? 'No data available'}}</span>
+                    <span>{{ message ?? 'No data available' }}</span>
                 </div>
             </ng-template>
         } @else {

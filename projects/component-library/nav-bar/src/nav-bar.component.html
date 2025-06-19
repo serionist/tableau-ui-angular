@@ -8,8 +8,14 @@
     <div class="header"><ng-content select="tab-nav-bar-header" /></div>
 }
 
-<tab-arrow-scroll scrollDirection="vertical" buttonsColor="plain" buttonsCssColor="var(--twc-color-text-light)" [scrollType]="$expanded() ? 'default' : 'arrow'" [showScrollButtonSeparator]="true"
-[iconParams]="{ fontSize: '2rem' }">
+<tab-arrow-scroll
+    scrollDirection="vertical"
+    buttonsColor="plain"
+    buttonsCssColor="var(--twc-color-text-light)"
+    [scrollType]="$expanded() ? 'default' : 'arrow'"
+    [showScrollButtonSeparator]="true"
+    [iconParams]="{ fontSize: '2rem' }"
+>
     <ng-content />
 </tab-arrow-scroll>
 

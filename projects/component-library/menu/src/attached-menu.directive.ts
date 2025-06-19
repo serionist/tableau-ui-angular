@@ -22,20 +22,19 @@ export class AttachedMenuDirective {
         this.$menu().$parentControl.set(this.el);
     });
     private readonly autoOpenCloseChanged = effect(() => {
-      const autoOpenClose = this.$autoOpenClose();
-      if (autoOpenClose) {
-        this.el.nativeElement.addEventListener('click', this.clickAction.bind(this));
-      } else {
-        this.el.nativeElement.removeEventListener('click', this.clickAction.bind(this));
-      } 
+        const autoOpenClose = this.$autoOpenClose();
+        if (autoOpenClose) {
+            this.el.nativeElement.addEventListener('click', this.clickAction.bind(this));
+        } else {
+            this.el.nativeElement.removeEventListener('click', this.clickAction.bind(this));
+        }
     });
 
     private clickAction() {
-      if (this.$menu().$openDialog() !== undefined) {
-        this.$menu().close();
-      } else {
-        this.$menu().open();
-      }
-
+        if (this.$menu().$openDialog() !== undefined) {
+            this.$menu().close();
+        } else {
+            this.$menu().open();
+        }
     }
 }

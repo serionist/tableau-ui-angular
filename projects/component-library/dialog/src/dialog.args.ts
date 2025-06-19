@@ -23,8 +23,8 @@ export interface IDialogSizeArgs {
     height?: string | ((referenceElementRect: DOMRect) => string | undefined);
     minWidth?: string | ((referenceElementRect: DOMRect) => string | undefined);
     minHeight?: string | ((referenceElementRect: DOMRect) => string | undefined);
-    maxWidth?:  string | ((referenceElementRect: DOMRect) => string | undefined);
-    maxHeight?:  string | ((referenceElementRect: DOMRect) => string | undefined);
+    maxWidth?: string | ((referenceElementRect: DOMRect) => string | undefined);
+    maxHeight?: string | ((referenceElementRect: DOMRect) => string | undefined);
 }
 export interface IDialogPositionAndSizeArgs extends IDialogSizeArgs {
     top?: string | ((actualWidth: number, actualHeight: number, referenceElementRect?: DOMRect) => string | undefined);

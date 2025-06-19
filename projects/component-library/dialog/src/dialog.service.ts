@@ -23,19 +23,11 @@ export class DialogService {
     environmentInjector = inject(EnvironmentInjector);
 
     openModal<TComponent, TData, TResult>(component: Type<TComponent>, data: TData, args?: IModalArgs): DialogRef<TResult> {
-        return this._openModal<TData, TResult>(
-            (injector: Injector) => this.createView(component, injector),
-            data,
-            args,
-        );
+        return this._openModal<TData, TResult>((injector: Injector) => this.createView(component, injector), data, args);
     }
 
     openTemplateModal<TContext, TResult>(contentTemplate: TemplateRef<TContext>, contentTemplateContext: TContext, args?: IModalArgs): DialogRef<TResult> {
-        return this._openModal<TContext, TResult>(
-            (injector: Injector) => contentTemplate.createEmbeddedView(contentTemplateContext, injector),
-            contentTemplateContext,
-            args,
-        );
+        return this._openModal<TContext, TResult>((injector: Injector) => contentTemplate.createEmbeddedView(contentTemplateContext, injector), contentTemplateContext, args);
     }
 
     _openModal<TData, TResult>(getViewRef: (injector: Injector) => ViewRef, data: TData, args?: IModalArgs): DialogRef<TResult> {
@@ -148,22 +140,11 @@ export class DialogService {
     }[] = [];
 
     openTemplateDialog<TContext, TResult>(contentTemplate: TemplateRef<TContext>, args: IDialogArgs, contentTemplateContext: TContext, stackOptions: StackOptions = new GlobalStackOptions()) {
-        
-        return this._openDialog<TContext, TResult>(
-            (injector: Injector) => contentTemplate.createEmbeddedView(contentTemplateContext, injector), 
-            contentTemplateContext,
-            args, 
-            stackOptions
-        );
+        return this._openDialog<TContext, TResult>((injector: Injector) => contentTemplate.createEmbeddedView(contentTemplateContext, injector), contentTemplateContext, args, stackOptions);
     }
 
     openDialog<TComponent, TData, TResult>(component: Type<TComponent>, data: TData, args: IDialogArgs = {}, stackOptions: StackOptions = new GlobalStackOptions()): DialogRef<TResult> {
-        return this._openDialog<TData, TResult>(
-            (injector: Injector) => this.createView(component, injector), 
-            data,
-            args,
-            stackOptions
-        );
+        return this._openDialog<TData, TResult>((injector: Injector) => this.createView(component, injector), data, args, stackOptions);
     }
     private _openDialog<TData, TResult>(getViewRef: (injector: Injector) => ViewRef, data: TData, args: IDialogArgs = {}, stackOptions: StackOptions = new GlobalStackOptions()): DialogRef<TResult> {
         let trappedFocus:
@@ -320,7 +301,6 @@ export class DialogService {
         for (const rootNode of embeddedViewRef.rootNodes) {
             dialogElement.appendChild(rootNode as Node);
         }
-      
 
         if (args.containerCss) {
             Object.keys(args.containerCss).forEach((key) => {

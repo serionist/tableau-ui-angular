@@ -25,7 +25,7 @@ export class MetaImpl implements Meta {
         const c = control.control;
         // valueIsDefault is true if:
         // - the control is a FC<any> and the value is equal to the default value
-        // - the control is an FG<any> and the value 
+        // - the control is an FG<any> and the value
         return new MetaImpl(
             c.untouched,
             c.touched,
@@ -79,7 +79,8 @@ export class MetaImpl implements Meta {
     }
 
     public static compare(a: Meta, b: Meta): boolean {
-        const baseEqual = a.untouched === b.untouched && 
+        const baseEqual =
+            a.untouched === b.untouched &&
             a.touched === b.touched &&
             a.validity === b.validity &&
             a.pristine === b.pristine &&
@@ -88,7 +89,7 @@ export class MetaImpl implements Meta {
             a.disabled === b.disabled &&
             a.valueIsDefault === b.valueIsDefault &&
             a.updateOn === b.updateOn &&
-        this.validationErrorsEqual(a.errors, b.errors);
+            this.validationErrorsEqual(a.errors, b.errors);
         if (!baseEqual) {
             return false;
         }

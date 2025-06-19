@@ -11,7 +11,7 @@ import { TableauUiCommonModule } from 'tableau-ui-angular/common';
 import { TableauUiFormFieldModule } from 'tableau-ui-angular/form-field';
 import { TableauUiButtonToggleModule } from 'tableau-ui-angular/button-toggle';
 import { TableauUiButtonModule } from 'tableau-ui-angular/button';
-import type { MenuDirective} from 'tableau-ui-angular/menu';
+import type { MenuDirective } from 'tableau-ui-angular/menu';
 import { TableauUiMenuModule } from 'tableau-ui-angular/menu';
 @Component({
     selector: 'app-root',

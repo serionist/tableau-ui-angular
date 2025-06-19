@@ -292,6 +292,6 @@ export class MenuDirective {
     }
 
     close() {
-      this.$_openDialog()?.close();
+        this.$_openDialog()?.close();
     }
 }

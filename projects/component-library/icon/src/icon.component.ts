@@ -112,13 +112,27 @@ export class IconComponent {
         alias: 'params',
     });
 
-    private readonly $actualColor = computed(() => { return this.$params()?.color ?? this.$color() ?? 'none'; });
-    private readonly $actualType = computed(() => { return this.$params()?.type ?? this.$type(); });
-    private readonly $actualFontSize = computed(() => { return this.$params()?.fontSize ?? this.$fontSize(); });
-    private readonly $actualFill = computed(() => { return this.$params()?.fill ?? this.$fill(); });
-    private readonly $actualWeight = computed(() => { return this.$params()?.weight ?? this.$weight(); });
-    private readonly $actualGrade = computed(() => { return this.$params()?.grade ?? this.$grade(); });
-    private readonly $actualOpticalSizePx = computed(() => { return this.$params()?.opticalSizePx ?? this.$opticalSizePx(); });
+    private readonly $actualColor = computed(() => {
+        return this.$params()?.color ?? this.$color() ?? 'none';
+    });
+    private readonly $actualType = computed(() => {
+        return this.$params()?.type ?? this.$type();
+    });
+    private readonly $actualFontSize = computed(() => {
+        return this.$params()?.fontSize ?? this.$fontSize();
+    });
+    private readonly $actualFill = computed(() => {
+        return this.$params()?.fill ?? this.$fill();
+    });
+    private readonly $actualWeight = computed(() => {
+        return this.$params()?.weight ?? this.$weight();
+    });
+    private readonly $actualGrade = computed(() => {
+        return this.$params()?.grade ?? this.$grade();
+    });
+    private readonly $actualOpticalSizePx = computed(() => {
+        return this.$params()?.opticalSizePx ?? this.$opticalSizePx();
+    });
 
     private readonly $fontVariationSettings = computed(() => {
         return `'FILL' ${this.$actualFill() ? 1 : 0}, 'wght' ${this.$actualWeight()}, 'GRAD' ${this.$actualGrade()}, 'opsz' ${this.$actualOpticalSizePx()}`;
@@ -132,5 +146,4 @@ export interface IconParams {
     weight?: 100 | 200 | 300 | 400 | 500 | 600 | 700;
     grade?: -25 | 0 | 200;
     opticalSizePx?: 20 | 24 | 40 | 48;
-  }
-  
+}

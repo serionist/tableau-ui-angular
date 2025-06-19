@@ -17,7 +17,6 @@ import { MetaFnsImpl } from '../abstract-control/meta/impl';
 import type { DeepPartial } from 'tableau-ui-angular/types';
 
 export class FGImpl<T extends Record<string, unknown>> extends ACImpl<T> implements FG<T> {
-    
     private readonly _value$: BehaviorSubject<DeepPartial<T>>;
     private readonly $_value: WritableSignal<DeepPartial<T>>;
     private readonly _rawValue$: BehaviorSubject<T>;
@@ -47,7 +46,7 @@ export class FGImpl<T extends Record<string, unknown>> extends ACImpl<T> impleme
     private readonly _defaultValue: T;
     public override get defaultValue(): T {
         return this._defaultValue;
-    };
+    }
     constructor(params: { controls: FormReferencesOf<T>; validators?: ValidatorFn | ValidatorFn[]; asyncValidators?: AsyncValidatorFn | AsyncValidatorFn[]; updateOn?: 'blur' | 'change' | 'submit' }) {
         const controls = Object.entries(params.controls).reduce<Partial<ControlsOf<T>>>((acc, [key, child]) => {
             const c = (child as ACImpl<unknown>).control;

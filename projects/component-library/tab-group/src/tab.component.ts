@@ -27,7 +27,7 @@ export class TabComponent<TKey extends Primitive> {
     /**
      * Optional key if we want to select this tab with a key instead of index.
      */
-    readonly $key = input<TKey | undefined>(undefined,{
+    readonly $key = input<TKey | undefined>(undefined, {
         alias: 'key',
     });
 

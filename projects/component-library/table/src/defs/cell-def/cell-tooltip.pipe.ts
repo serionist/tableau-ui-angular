@@ -10,12 +10,7 @@ import type { ColumnDefDirective } from '../column-def/column-def.directive';
     standalone: false,
 })
 export class CellTooltipPipe implements PipeTransform {
-    transform<TData>(
-        cellElement: HTMLDivElement,
-        columnDef: ColumnDefDirective<TData>,
-        cellContext: CellContext<TData>,
-        block: DataBlock<TData>,
-    ): () => TooltipArgs<{ $implicit: CellTooltipContext<TData> }> {
+    transform<TData>(cellElement: HTMLDivElement, columnDef: ColumnDefDirective<TData>, cellContext: CellContext<TData>, block: DataBlock<TData>): () => TooltipArgs<{ $implicit: CellTooltipContext<TData> }> {
         return () => {
             const tooltipArgs: TooltipArgs<{ $implicit: CellTooltipContext<TData> }> = {
                 template: undefined,
@@ -43,7 +38,6 @@ export class CellTooltipPipe implements PipeTransform {
                 let showCustomTooltip: boolean;
                 // if its a function, call it with the header context to see if we need to show the custom tooltip
                 if (typeof showCustomParam === 'function') {
-                    
                     showCustomTooltip = showCustomParam(cellContext, isClamped);
                 } else {
                     // if its a boolean, use it directly

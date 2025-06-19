@@ -5,8 +5,8 @@ import { MenuDirective } from 'tableau-ui-angular/menu';
 @Directive({
     selector: 'ng-template[buttonMenu]',
     standalone: false,
-    exportAs: 'buttonMenu'
-  })
+    exportAs: 'buttonMenu',
+})
 export class ButtonMenuDirective extends MenuDirective {
     // #region Inputs
     override readonly $menuContainerCss: ModelSignal<Record<string, string>> = model<Record<string, string>>(
@@ -31,6 +31,4 @@ export class ButtonMenuDirective extends MenuDirective {
     });
 
     // #endregion Inputs
-
-
 }

@@ -20,9 +20,8 @@ export abstract class ACImpl<TValue> implements AC {
 
     public abstract readonly value$: Observable<unknown>;
     public abstract readonly $value: Signal<unknown>;
-    public abstract readonly  defaultValue: unknown;
+    public abstract readonly defaultValue: unknown;
 
-    
     public abstract submitted$: Observable<unknown>;
     public abstract reset$: Observable<unknown>;
     // readonly rawValue$: ReadonlyBehaviorSubject<unknown>;
@@ -59,8 +58,7 @@ export abstract class ACImpl<TValue> implements AC {
                 }),
         );
     }
-    
-   
+
     public getRawValue(): TValue {
         return this.control.getRawValue() as TValue;
     }
