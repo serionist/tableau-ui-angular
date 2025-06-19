@@ -4,29 +4,29 @@ import type { ColumnDefDirective } from '../column-def/column-def.directive';
 import type { CellContext } from './cell-context';
 
 @Pipe({
-    name: 'cellContext',
-    standalone: false,
+  name: 'cellContext',
+  standalone: false,
 })
 export class CellContextPipe implements PipeTransform {
-    transform<TData>(
-        value: TData,
-        maxRowCount: number,
-        def: ColumnDefDirective<TData>,
-        index: number,
-        first: boolean,
-        last: boolean,
-        even: boolean,
-        odd: boolean,
-        count: number,
-        columnIndex: number,
-        columnFirst: boolean,
-        columnLast: boolean,
-        columnEven: boolean,
-        columnOdd: boolean,
-        columnCount: number,
-    ): { $implicit: CellContext<TData> } {
-        return {
-            $implicit: def.buildCellContext(value, maxRowCount, index, first, last, even, odd, count, columnIndex, columnFirst, columnLast, columnEven, columnOdd, columnCount),
-        };
-    }
+  transform<TData>(
+    value: TData,
+    maxRowCount: number,
+    def: ColumnDefDirective<TData>,
+    index: number,
+    first: boolean,
+    last: boolean,
+    even: boolean,
+    odd: boolean,
+    count: number,
+    columnIndex: number,
+    columnFirst: boolean,
+    columnLast: boolean,
+    columnEven: boolean,
+    columnOdd: boolean,
+    columnCount: number,
+  ): { $implicit: CellContext<TData> } {
+    return {
+      $implicit: def.buildCellContext(value, maxRowCount, index, first, last, even, odd, count, columnIndex, columnFirst, columnLast, columnEven, columnOdd, columnCount),
+    };
+  }
 }

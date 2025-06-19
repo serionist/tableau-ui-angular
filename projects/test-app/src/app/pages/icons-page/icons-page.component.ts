@@ -5,17 +5,17 @@ import { TableauUiIconModule } from 'tableau-ui-angular/icon';
 import { TableauUiMonacoModule } from 'tableau-ui-angular/monaco';
 
 @Component({
-    selector: 'app-icons-page',
-    imports: [TableauUiCommonModule, TableauUiIconModule, TableauUiMonacoModule],
-    standalone: true,
-    templateUrl: './icons-page.component.html',
-    styleUrl: './icons-page.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: 'app-icons-page',
+  imports: [TableauUiCommonModule, TableauUiIconModule, TableauUiMonacoModule],
+  standalone: true,
+  templateUrl: './icons-page.component.html',
+  styleUrl: './icons-page.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IconsPageComponent {
-    options = MonacoHelper.options();
+  options = MonacoHelper.options();
 
-    localModuleCode = `import { Component } from '@angular/core';
+  localModuleCode = `import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { TableauUiIconModule } from 'tableau-ui-angular';
 
@@ -29,13 +29,13 @@ styleUrl: './app.component.scss'
 export class AppComponent {
 }`;
 
-    fullConfigExample = `<tab-icon value="home" color="primary" type="Material Symbols Outlined"
+  fullConfigExample = `<tab-icon value="home" color="primary" type="Material Symbols Outlined"
 [fill]="true" [weight]="100" [grade]="200" [opticalSizePx]="48"></tab-icon>`;
-    localImportCode = `@use 'material-symbols/rounded'; // if you used icons with type: Material Symbols Rounded
+  localImportCode = `@use 'material-symbols/rounded'; // if you used icons with type: Material Symbols Rounded
 @use 'material-symbols/outlined'; // if you used icons with type: Material Symbols Outlined
 @use 'material-symbols/sharp'; // if you used icons with type: Material Symbols Sharp`;
 
-    iconsTsCode = `import { UsedIcons } from "tableau-ui-angular/used-icons";
+  iconsTsCode = `import { UsedIcons } from "tableau-ui-angular/used-icons";
 
 export class Icons extends UsedIcons {
     // Only override this, if you also use other fonts than the default 'Material Symbols Rounded'
@@ -64,28 +64,28 @@ export class Icons extends UsedIcons {
 
 }`;
 
-    iconsDownloadContent = `{
+  iconsDownloadContent = `{
   ...
   "scripts": {
     ...
     "icons:download": "node node_modules/tableau-ui-angular/used-icons/scripts/update-icons.js src/icons.ts public/icons"
   }
 }`;
-    iconsWatchContent = `{
+  iconsWatchContent = `{
   ...
   "scripts": {
     ...
     "icons:watch": "npm run icons:download && npx chokidar \\"src/icons.ts\\" -c \\"npm run icons:download\\""
   }
 }`;
-    npmInstallContent = `{
+  npmInstallContent = `{
   ...
   "scripts": {
     ...
     "build": "npm run icons:download && ng build"
   }
 }`;
-    ngServeContent = `{
+  ngServeContent = `{
   ...
   "scripts": {
     ...

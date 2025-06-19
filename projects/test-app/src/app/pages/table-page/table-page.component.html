@@ -1,212 +1,216 @@
 <!-- eslint-disable  @angular-eslint/template/no-inline-styles -->
 <div class="page">
-    <div class="title">
-        <h1>Table</h1>
-        <div class="text-light text-large">Tables are used to display data in a structured format, allowing users to easily read and compare information.</div>
+  <div class="title">
+    <h1>Table</h1>
+    <div class="text-light text-large">Tables are used to display data in a structured format, allowing users to easily read and compare information.</div>
+  </div>
+  <tab-separator />
+  <div class="content">
+    <div class="section">
+      <h3>Module</h3>
+      <p>To use the component, import one of the following modules into your module/component:</p>
+
+      <ul>
+        <li>
+          <code>TableauUiTableModule</code>
+          - for granular import
+        </li>
+        <li>
+          <code>TableauUiAllModule</code>
+          - to import all components from this library
+        </li>
+      </ul>
     </div>
-    <tab-separator />
-    <div class="content">
-        <div class="section">
-            <h3>Module</h3>
-            <p>To use the component, import one of the following modules into your module/component:</p>
-
-            <ul>
-                <li>
-                    <code>TableauUiTableModule</code>
-                    - for granular import
-                </li>
-                <li>
-                    <code>TableauUiAllModule</code>
-                    - to import all components from this library
-                </li>
-            </ul>
+    <div class="section">
+      <h3>Example</h3>
+      <tab-expansion-panel>
+        <tab-expansion-panel-title>Data Load options</tab-expansion-panel-title>
+        <div class="options-container">
+          <tab-button-toggle [(selectedValue)]="$dataMode">
+            <tab-option text="Incremental Data Mode" value="incremental" hint="Data is loaded on-demand as the user scrolls. HTML rendering is virtualized." />
+            <tab-option
+              text="Full Data Mode"
+              value="full"
+              hint="Data is loaded entirely in the background. HTML rendering is still virtualized. Required when SelectAll option is needed for MultiSelect."
+            />
+          </tab-button-toggle>
+          <div class="options">
+            <button color="primary" (click)="reset(true, false)">Reset and show data</button>
+            <button color="primary" (click)="reset(false, false)">Reset and show no data</button>
+            <button color="primary" (click)="reset(true, true)">
+              Reset and throw error
+              @if ($dataMode() === 'incremental') {
+                on any block load after 20 offset
+              } @else {
+                on data load
+              }
+            </button>
+          </div>
         </div>
-        <div class="section">
-            <h3>Example</h3>
-            <tab-expansion-panel>
-                <tab-expansion-panel-title>Data Load options</tab-expansion-panel-title>
-                <div class="options-container">
-                    <tab-button-toggle [(selectedValue)]="$dataMode">
-                        <tab-option text="Incremental Data Mode" value="incremental" hint="Data is loaded on-demand as the user scrolls. HTML rendering is virtualized." />
-                        <tab-option text="Full Data Mode" value="full" hint="Data is loaded entirely in the background. HTML rendering is still virtualized. Required when SelectAll option is needed for MultiSelect." />
-                    </tab-button-toggle>
-                    <div class="options">
-                        <button color="primary" (click)="reset(true, false)">Reset and show data</button>
-                        <button color="primary" (click)="reset(false, false)">Reset and show no data</button>
-                        <button color="primary" (click)="reset(true, true)">
-                            Reset and throw error
-                            @if ($dataMode() === 'incremental') {
-                                on any block load after 20 offset
-                            } @else {
-                                on data load
-                            }
-                        </button>
-                    </div>
-                </div>
-            </tab-expansion-panel>
-            <tab-expansion-panel>
-                <tab-expansion-panel-title>Column options</tab-expansion-panel-title>
-                <div class="options-container">
-                    <div class="options">
-                        <tab-checkbox [(value)]="$show_first_3_columns">Only show first 3 columns</tab-checkbox>
-                        <tab-checkbox [(value)]="$striped">Striped</tab-checkbox>
+      </tab-expansion-panel>
+      <tab-expansion-panel>
+        <tab-expansion-panel-title>Column options</tab-expansion-panel-title>
+        <div class="options-container">
+          <div class="options">
+            <tab-checkbox [(value)]="$show_first_3_columns">Only show first 3 columns</tab-checkbox>
+            <tab-checkbox [(value)]="$striped">Striped</tab-checkbox>
 
-                        <tab-checkbox [(value)]="$customNoDataTemplate">CustomNoDataTemplate</tab-checkbox>
-                        <tab-checkbox [(value)]="$pinColumns">Pin Columns</tab-checkbox>
-                    </div>
-                </div>
-            </tab-expansion-panel>
-
-            <tab-expansion-panel>
-                <tab-expansion-panel-title>Selection options</tab-expansion-panel-title>
-                <div class="options-container">
-                    <tab-button-toggle [(selectedValue)]="$selectionMode">
-                        <tab-option text="Selection Turned Off" value="none" />
-                        <tab-option text="Single Selection" value="single" />
-                        <tab-option text="Multi Selection" value="multi" />
-                    </tab-button-toggle>
-
-                    @if ($selectionMode() !== 'none') {
-                        <tab-label>Selection Mode</tab-label>
-                        <tab-checkbox [(value)]="$allowRowSelection">
-                            Allow the selection of rows directly instead as well
-                            @if ($selectionMode() === 'multi') {
-                                <tab-hint>Hold CTRL/SHIFT/ALT/CMD to select multiple rows</tab-hint>
-                            }
-                        </tab-checkbox>
-                    }
-
-                    @if ($selectionMode() === 'multi') {
-                        <tab-label>Header Checkbox</tab-label>
-                        <tab-button-toggle [(selectedValue)]="$multiSelectHeaderCheckboxMode">
-                            <tab-option value="none" text="No header checkbox" hint="Rows can be selected/unselected with checkboxes individually, but no mass selection is possible" />
-                            <tab-option value="selectNone" text="Select none checkbox" hint="A mass unselect checkbox is available in the header. Can not select all rows." />
-                            <tab-option
-                                value="selectAll"
-                                text="Full header checkbox"
-                                hint="All rows can be selected/unselected with the header checkbox. Requires a function to get all IDs async, may be slow and non-performant."
-                            />
-                        </tab-button-toggle>
-                    }
-                    @if ($selectionMode() !== 'none') {
-                        <tab-label>Reset Options</tab-label>
-                        <tab-checkbox [(value)]="$clearSelectionOnManualReset">
-                            Reset Selection on manual reset
-                            <tab-hint>when reset() function is called on the table manually</tab-hint>
-                        </tab-checkbox>
-                        <tab-checkbox [(value)]="$clearSelectionOnAnyReset">
-                            Reset Selection on any reset
-                            <tab-hint>This includes manual resets and automatic resets (e.g., when size/sort/displayed cols, etc changes).</tab-hint>
-                        </tab-checkbox>
-                    }
-                </div>
-            </tab-expansion-panel>
-            <ng-template #customnodatatemplate>Custom No Data Template</ng-template>
-            <tab-table
-                #table
-                style="max-height: 300px"
-                sortMode="multi"
-                [dataOptions]="$dataOptions()"
-                [displayedColumns]="$show_first_3_columns() ? ['id', 'name', 'age'] : undefined"
-                [striped]="$striped()"
-                [noDataTemplate]="$customNoDataTemplate() ? customnodatatemplate : 'default'"
-                [pinnedLeftColumn]="$pinnedLeftColumn()"
-                [pinnedRightColumn]="$pinnedRightColumn()"
-                [selectionOptions]="$selectionOptions()"
-                [selectedRows]="$selectedRows()"
-            >
-                <ng-container tabColumnDef="id" headerClass="custom-static-class" [showAutoHeaderTooltip]="false">
-                    <ng-template let-ctx [tabHeaderDef]="table">{{ ctx.columnDef.$id() }}</ng-template>
-                    <ng-template let-ctx [tabCellDef]="table" [textClamping]="true">{{ `${ctx.row.id} ${ctx.meta.odd ? 'odd': 'even'}` }}</ng-template>
-                </ng-container>
-                <ng-container tabColumnDef="name" minWidth="100px" maxWidth="200px" [headerClass]="customCalculatedClass">
-                    <ng-template let-ctx [tabHeaderDef]="table">Name</ng-template>
-                    <ng-template let-ctx [tabCellDef]="table" [textClamping]="true">{{ ctx.row.name }}</ng-template>
-                    <ng-template let-ctx [tabHeaderTooltipDef]="table">
-                        <div>Custom tooltip for: {{ ctx.columnDef.$id() }}</div>
-                        <tab-hint>Default column template:</tab-hint>
-                        <ng-container *ngTemplateOutlet="ctx.headerTemplate; context: { $implicit: ctx }" />
-                    </ng-template>
-                    <ng-template let-ctx [tabCellTooltipDef]="table" [showTooltip]="$showCellTooltip">
-                        <div>Custom tooltip row. Raw data: {{ ctx.row.name }}</div>
-                        <ng-container *ngTemplateOutlet="ctx.cellTemplate; context: { $implicit: ctx }" />
-                    </ng-template>
-                </ng-container>
-                <ng-container tabColumnDef="age" [resizable]="false">
-                    <ng-template let-ctx [tabHeaderDef]="table">Age</ng-template>
-                    <ng-template let-ctx [tabCellDef]="table" [textClamping]="true">{{ ctx.row.age }}</ng-template>
-                </ng-container>
-                <ng-container tabColumnDef="gender" [sortable]="false" [showAutoHeaderTooltip]="false">
-                    <ng-template let-ctx [tabHeaderDef]="table">Gender</ng-template>
-                    <ng-template let-ctx [tabCellDef]="table" [textClamping]="true">{{ ctx.row.gender }}</ng-template>
-                </ng-container>
-                <ng-container tabColumnDef="Country" propertyName="country">
-                    <ng-template let-ctx [tabHeaderDef]="table">Country</ng-template>
-                    <ng-template let-ctx [tabCellDef]="table" [textClamping]="true">
-                        <a target="_blank" [href]="`https://${ctx.row.country}.com`">{{ ctx.row.country }}</a>
-                    </ng-template>
-                </ng-container>
-                <ng-container tabColumnDef="City" propertyName="city">
-                    <ng-template let-ctx [tabHeaderDef]="table">City</ng-template>
-                    <ng-template let-ctx [tabCellDef]="table" [textClamping]="true">{{ ctx.row.city }}</ng-template>
-                </ng-container>
-                <ng-container tabColumnDef="email">
-                    <ng-template let-ctx [tabHeaderDef]="table">Email</ng-template>
-                    <ng-template let-ctx [tabCellDef]="table" [textClamping]="true">{{ ctx.row.email }}</ng-template>
-                </ng-container>
-                <ng-container tabColumnDef="phone">
-                    <ng-template let-ctx [tabHeaderDef]="table">Phone</ng-template>
-                    <ng-template let-ctx [tabCellDef]="table" [textClamping]="true">{{ ctx.row.phone }}</ng-template>
-                </ng-container>
-                <ng-container tabColumnDef="address">
-                    <ng-template let-ctx [tabHeaderDef]="table">Address</ng-template>
-                    <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.address }}</ng-template>
-                </ng-container>
-                <ng-container tabColumnDef="zipCode">
-                    <ng-template let-ctx [tabHeaderDef]="table">zipCode</ng-template>
-                    <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.zipCode }}</ng-template>
-                </ng-container>
-                <ng-container tabColumnDef="username">
-                    <ng-template let-ctx [tabHeaderDef]="table">username</ng-template>
-                    <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.username }}</ng-template>
-                </ng-container>
-                <ng-container tabColumnDef="birthdate">
-                    <ng-template let-ctx [tabHeaderDef]="table">birthdate</ng-template>
-                    <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.birthdate }}</ng-template>
-                </ng-container>
-                <ng-container tabColumnDef="joinDate">
-                    <ng-template let-ctx [tabHeaderDef]="table">joinDate</ng-template>
-                    <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.joinDate }}</ng-template>
-                </ng-container>
-                <ng-container tabColumnDef="isActive">
-                    <ng-template let-ctx [tabHeaderDef]="table">isActive</ng-template>
-                    <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.isActive }}</ng-template>
-                </ng-container>
-                <ng-container tabColumnDef="score">
-                    <ng-template let-ctx [tabHeaderDef]="table">score</ng-template>
-                    <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.score }}</ng-template>
-                </ng-container>
-                <ng-container tabColumnDef="role">
-                    <ng-template let-ctx [tabHeaderDef]="table">role</ng-template>
-                    <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.role }}</ng-template>
-                </ng-container>
-                <ng-container tabColumnDef="department">
-                    <ng-template let-ctx [tabHeaderDef]="table">department</ng-template>
-                    <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.department }}</ng-template>
-                </ng-container>
-                <ng-container tabColumnDef="employeeId">
-                    <ng-template let-ctx [tabHeaderDef]="table">employeeId</ng-template>
-                    <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.employeeId }}</ng-template>
-                </ng-container>
-                <ng-container tabColumnDef="language">
-                    <ng-template let-ctx [tabHeaderDef]="table">language</ng-template>
-                    <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.language }}</ng-template>
-                </ng-container>
-                <ng-container tabColumnDef="notes">
-                    <ng-template let-ctx [tabHeaderDef]="table">notes</ng-template>
-                    <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.notes }}</ng-template>
-                </ng-container>
-            </tab-table>
+            <tab-checkbox [(value)]="$customNoDataTemplate">CustomNoDataTemplate</tab-checkbox>
+            <tab-checkbox [(value)]="$pinColumns">Pin Columns</tab-checkbox>
+          </div>
         </div>
+      </tab-expansion-panel>
+
+      <tab-expansion-panel>
+        <tab-expansion-panel-title>Selection options</tab-expansion-panel-title>
+        <div class="options-container">
+          <tab-button-toggle [(selectedValue)]="$selectionMode">
+            <tab-option text="Selection Turned Off" value="none" />
+            <tab-option text="Single Selection" value="single" />
+            <tab-option text="Multi Selection" value="multi" />
+          </tab-button-toggle>
+
+          @if ($selectionMode() !== 'none') {
+            <tab-label>Selection Mode</tab-label>
+            <tab-checkbox [(value)]="$allowRowSelection">
+              Allow the selection of rows directly instead as well
+              @if ($selectionMode() === 'multi') {
+                <tab-hint>Hold CTRL/SHIFT/ALT/CMD to select multiple rows</tab-hint>
+              }
+            </tab-checkbox>
+          }
+
+          @if ($selectionMode() === 'multi') {
+            <tab-label>Header Checkbox</tab-label>
+            <tab-button-toggle [(selectedValue)]="$multiSelectHeaderCheckboxMode">
+              <tab-option value="none" text="No header checkbox" hint="Rows can be selected/unselected with checkboxes individually, but no mass selection is possible" />
+              <tab-option value="selectNone" text="Select none checkbox" hint="A mass unselect checkbox is available in the header. Can not select all rows." />
+              <tab-option
+                value="selectAll"
+                text="Full header checkbox"
+                hint="All rows can be selected/unselected with the header checkbox. Requires a function to get all IDs async, may be slow and non-performant."
+              />
+            </tab-button-toggle>
+          }
+          @if ($selectionMode() !== 'none') {
+            <tab-label>Reset Options</tab-label>
+            <tab-checkbox [(value)]="$clearSelectionOnManualReset">
+              Reset Selection on manual reset
+              <tab-hint>when reset() function is called on the table manually</tab-hint>
+            </tab-checkbox>
+            <tab-checkbox [(value)]="$clearSelectionOnAnyReset">
+              Reset Selection on any reset
+              <tab-hint>This includes manual resets and automatic resets (e.g., when size/sort/displayed cols, etc changes).</tab-hint>
+            </tab-checkbox>
+          }
+        </div>
+      </tab-expansion-panel>
+      <ng-template #customnodatatemplate>Custom No Data Template</ng-template>
+      <tab-table
+        #table
+        style="max-height: 300px"
+        sortMode="multi"
+        [dataOptions]="$dataOptions()"
+        [displayedColumns]="$show_first_3_columns() ? ['id', 'name', 'age'] : undefined"
+        [striped]="$striped()"
+        [noDataTemplate]="$customNoDataTemplate() ? customnodatatemplate : 'default'"
+        [pinnedLeftColumn]="$pinnedLeftColumn()"
+        [pinnedRightColumn]="$pinnedRightColumn()"
+        [selectionOptions]="$selectionOptions()"
+        [selectedRows]="$selectedRows()"
+      >
+        <ng-container tabColumnDef="id" headerClass="custom-static-class" [showAutoHeaderTooltip]="false">
+          <ng-template let-ctx [tabHeaderDef]="table">{{ ctx.columnDef.$id() }}</ng-template>
+          <ng-template let-ctx [tabCellDef]="table" [textClamping]="true">{{ `${ctx.row.id} ${ctx.meta.odd ? 'odd': 'even'}` }}</ng-template>
+        </ng-container>
+        <ng-container tabColumnDef="name" minWidth="100px" maxWidth="200px" [headerClass]="customCalculatedClass">
+          <ng-template let-ctx [tabHeaderDef]="table">Name</ng-template>
+          <ng-template let-ctx [tabCellDef]="table" [textClamping]="true">{{ ctx.row.name }}</ng-template>
+          <ng-template let-ctx [tabHeaderTooltipDef]="table">
+            <div>Custom tooltip for: {{ ctx.columnDef.$id() }}</div>
+            <tab-hint>Default column template:</tab-hint>
+            <ng-container *ngTemplateOutlet="ctx.headerTemplate; context: { $implicit: ctx }" />
+          </ng-template>
+          <ng-template let-ctx [tabCellTooltipDef]="table" [showTooltip]="$showCellTooltip">
+            <div>Custom tooltip row. Raw data: {{ ctx.row.name }}</div>
+            <ng-container *ngTemplateOutlet="ctx.cellTemplate; context: { $implicit: ctx }" />
+          </ng-template>
+        </ng-container>
+        <ng-container tabColumnDef="age" [resizable]="false">
+          <ng-template let-ctx [tabHeaderDef]="table">Age</ng-template>
+          <ng-template let-ctx [tabCellDef]="table" [textClamping]="true">{{ ctx.row.age }}</ng-template>
+        </ng-container>
+        <ng-container tabColumnDef="gender" [sortable]="false" [showAutoHeaderTooltip]="false">
+          <ng-template let-ctx [tabHeaderDef]="table">Gender</ng-template>
+          <ng-template let-ctx [tabCellDef]="table" [textClamping]="true">{{ ctx.row.gender }}</ng-template>
+        </ng-container>
+        <ng-container tabColumnDef="Country" propertyName="country">
+          <ng-template let-ctx [tabHeaderDef]="table">Country</ng-template>
+          <ng-template let-ctx [tabCellDef]="table" [textClamping]="true">
+            <a target="_blank" [href]="`https://${ctx.row.country}.com`">{{ ctx.row.country }}</a>
+          </ng-template>
+        </ng-container>
+        <ng-container tabColumnDef="City" propertyName="city">
+          <ng-template let-ctx [tabHeaderDef]="table">City</ng-template>
+          <ng-template let-ctx [tabCellDef]="table" [textClamping]="true">{{ ctx.row.city }}</ng-template>
+        </ng-container>
+        <ng-container tabColumnDef="email">
+          <ng-template let-ctx [tabHeaderDef]="table">Email</ng-template>
+          <ng-template let-ctx [tabCellDef]="table" [textClamping]="true">{{ ctx.row.email }}</ng-template>
+        </ng-container>
+        <ng-container tabColumnDef="phone">
+          <ng-template let-ctx [tabHeaderDef]="table">Phone</ng-template>
+          <ng-template let-ctx [tabCellDef]="table" [textClamping]="true">{{ ctx.row.phone }}</ng-template>
+        </ng-container>
+        <ng-container tabColumnDef="address">
+          <ng-template let-ctx [tabHeaderDef]="table">Address</ng-template>
+          <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.address }}</ng-template>
+        </ng-container>
+        <ng-container tabColumnDef="zipCode">
+          <ng-template let-ctx [tabHeaderDef]="table">zipCode</ng-template>
+          <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.zipCode }}</ng-template>
+        </ng-container>
+        <ng-container tabColumnDef="username">
+          <ng-template let-ctx [tabHeaderDef]="table">username</ng-template>
+          <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.username }}</ng-template>
+        </ng-container>
+        <ng-container tabColumnDef="birthdate">
+          <ng-template let-ctx [tabHeaderDef]="table">birthdate</ng-template>
+          <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.birthdate }}</ng-template>
+        </ng-container>
+        <ng-container tabColumnDef="joinDate">
+          <ng-template let-ctx [tabHeaderDef]="table">joinDate</ng-template>
+          <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.joinDate }}</ng-template>
+        </ng-container>
+        <ng-container tabColumnDef="isActive">
+          <ng-template let-ctx [tabHeaderDef]="table">isActive</ng-template>
+          <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.isActive }}</ng-template>
+        </ng-container>
+        <ng-container tabColumnDef="score">
+          <ng-template let-ctx [tabHeaderDef]="table">score</ng-template>
+          <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.score }}</ng-template>
+        </ng-container>
+        <ng-container tabColumnDef="role">
+          <ng-template let-ctx [tabHeaderDef]="table">role</ng-template>
+          <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.role }}</ng-template>
+        </ng-container>
+        <ng-container tabColumnDef="department">
+          <ng-template let-ctx [tabHeaderDef]="table">department</ng-template>
+          <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.department }}</ng-template>
+        </ng-container>
+        <ng-container tabColumnDef="employeeId">
+          <ng-template let-ctx [tabHeaderDef]="table">employeeId</ng-template>
+          <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.employeeId }}</ng-template>
+        </ng-container>
+        <ng-container tabColumnDef="language">
+          <ng-template let-ctx [tabHeaderDef]="table">language</ng-template>
+          <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.language }}</ng-template>
+        </ng-container>
+        <ng-container tabColumnDef="notes">
+          <ng-template let-ctx [tabHeaderDef]="table">notes</ng-template>
+          <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.notes }}</ng-template>
+        </ng-container>
+      </tab-table>
     </div>
+  </div>
 </div>

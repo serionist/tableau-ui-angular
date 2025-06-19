@@ -6,9 +6,9 @@ import { TableauUiIconModule } from 'tableau-ui-angular/icon';
 import { SnackService } from './snack.service';
 
 @NgModule({
-    imports: [CommonModule, TableauUiIconModule, RouterModule],
-    declarations: [SnackComponent],
-    providers: [SnackService],
-    exports: [],
+  imports: [CommonModule, TableauUiIconModule, RouterModule],
+  declarations: [SnackComponent],
+  providers: [SnackService],
+  exports: [],
 })
 export class TableauUiSnackModule {}

@@ -1,4 +1,4 @@
 export interface ThemeConfig {
-    fontSize: string;
-    mode: 'auto' | 'dark' | 'light';
+  fontSize: string;
+  mode: 'auto' | 'dark' | 'light';
 }

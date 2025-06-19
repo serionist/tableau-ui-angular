@@ -5,8 +5,8 @@ import { CommonModule } from '@angular/common';
 import { TooltipComponent } from './tooltip.component';
 
 @NgModule({
-    imports: [TableauUiDialogModule, CommonModule],
-    declarations: [TooltipDirective, TooltipComponent],
-    exports: [TooltipDirective],
+  imports: [TableauUiDialogModule, CommonModule],
+  declarations: [TooltipDirective, TooltipComponent],
+  exports: [TooltipDirective],
 })
 export class TableauUiTooltipModule {}

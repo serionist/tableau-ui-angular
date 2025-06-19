@@ -2,14 +2,14 @@ import type { InputSignal } from '@angular/core';
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
 @Component({
-    selector: 'tab-nav-bar-header',
-    standalone: false,
-    template: '<ng-content />',
-    changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: 'tab-nav-bar-header',
+  standalone: false,
+  template: '<ng-content />',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NavBarHeaderComponent {
-    // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    readonly $expanded: InputSignal<boolean | undefined> = input<boolean>(undefined, {
-        alias: 'expanded',
-    });
+  // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+  readonly $expanded: InputSignal<boolean | undefined> = input<boolean>(undefined, {
+    alias: 'expanded',
+  });
 }

@@ -1,119 +1,119 @@
 :host {
-    display: grid;
-    align-items: center;
-    grid-template-columns: 1fr auto auto;
-    user-select: none;
+  display: grid;
+  align-items: center;
+  grid-template-columns: 1fr auto auto;
+  user-select: none;
 
-    &:focus {
-        .dropdown {
-            color: var(--twc-color-primary);
-        }
+  &:focus {
+    .dropdown {
+      color: var(--twc-color-primary);
     }
+  }
 
-    &[disabled] {
-        pointer-events: none;
-    }
+  &[disabled] {
+    pointer-events: none;
+  }
 }
 
 .content-display {
-    padding-top: 0.25em;
-    padding-bottom: 0.25em;
-    line-height: 1;
+  padding-top: 0.25em;
+  padding-bottom: 0.25em;
+  line-height: 1;
 }
 
 :host[wrapping-mode='truncate'] .content-display {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 // stylelint-disable-next-line no-descending-specificity
 .dropdown {
-    font-size: 1.5em;
+  font-size: 1.5em;
 }
 
 .dropdown-container {
-    background: var(--twc-color-base);
-    border-color: var(--twc-color-border-light);
-    border-radius: var(--twc-menu-border-radius);
-    border-style: solid;
-    border-width: 1px;
-    box-shadow: var(--twc-dialog-box-shadow);
+  background: var(--twc-color-base);
+  border-color: var(--twc-color-border-light);
+  border-radius: var(--twc-menu-border-radius);
+  border-style: solid;
+  border-width: 1px;
+  box-shadow: var(--twc-dialog-box-shadow);
 
-    // box-sizing: border-box;
-    outline: none;
-    color: var(--twc-color-text);
-    line-height: normal;
+  // box-sizing: border-box;
+  outline: none;
+  color: var(--twc-color-text);
+  line-height: normal;
+  overflow: hidden auto;
+  user-select: none;
+
+  &.open {
+    display: block;
+  }
+
+  .option-values {
     overflow: hidden auto;
-    user-select: none;
+    padding: 0.5rem;
 
-    &.open {
-        display: block;
-    }
+    .option-wrapper {
+      // background-color: #e5e5e5;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      border-radius: 2px;
+      padding-left: 0.5em;
+      padding-right: 0.5em;
+      border: 1px solid transparent;
+      margin-top: -1px; // stylelint-disable-line declaration-property-unit-disallowed-list
 
-    .option-values {
-        overflow: hidden auto;
-        padding: 0.5rem;
+      .check {
+        font-size: 1.2em;
+        width: 1.2em;
+        line-height: 1;
+        grid-row: 1;
 
-        .option-wrapper {
-            // background-color: #e5e5e5;
-            display: grid;
-            grid-template-columns: auto 1fr auto;
-            align-items: center;
-            border-radius: 2px;
-            padding-left: 0.5em;
-            padding-right: 0.5em;
-            border: 1px solid transparent;
-            margin-top: -1px; // stylelint-disable-line declaration-property-unit-disallowed-list
-
-            .check {
-                font-size: 1.2em;
-                width: 1.2em;
-                line-height: 1;
-                grid-row: 1;
-
-                &.left {
-                    grid-column: 1;
-                    margin-right: 0.25em;
-                }
-
-                &.right {
-                    grid-column: 3;
-                    margin-left: 0.25em;
-                }
-
-                &.none {
-                    display: none;
-                }
-            }
-
-            .option-content {
-                grid-row: 1;
-                grid-column: 2;
-                padding: 0.25em 0;
-            }
-
-            &:not(.disabled).highlight {
-                background-color: var(--twc-color-highlight);
-
-                &:not(.selected) {
-                    outline: var(--twc-menu-highlight-outline);
-                    outline-offset: var(--twc-menu-highlight-outline-offset);
-                }
-
-                cursor: pointer;
-            }
-
-            &.selected {
-                background-color: var(--twc-menu-selected-background-color);
-                outline: var(--twc-menu-selected-outline);
-                outline-offset: var(--twc-menu-selected-outline-offset);
-            }
-
-            // stylelint-disable-next-line selector-pseudo-element-no-unknown
-            ::ng-deep .tab-option {
-                line-height: normal;
-            }
+        &.left {
+          grid-column: 1;
+          margin-right: 0.25em;
         }
+
+        &.right {
+          grid-column: 3;
+          margin-left: 0.25em;
+        }
+
+        &.none {
+          display: none;
+        }
+      }
+
+      .option-content {
+        grid-row: 1;
+        grid-column: 2;
+        padding: 0.25em 0;
+      }
+
+      &:not(.disabled).highlight {
+        background-color: var(--twc-color-highlight);
+
+        &:not(.selected) {
+          outline: var(--twc-menu-highlight-outline);
+          outline-offset: var(--twc-menu-highlight-outline-offset);
+        }
+
+        cursor: pointer;
+      }
+
+      &.selected {
+        background-color: var(--twc-menu-selected-background-color);
+        outline: var(--twc-menu-selected-outline);
+        outline-offset: var(--twc-menu-selected-outline-offset);
+      }
+
+      // stylelint-disable-next-line selector-pseudo-element-no-unknown
+      ::ng-deep .tab-option {
+        line-height: normal;
+      }
     }
+  }
 }

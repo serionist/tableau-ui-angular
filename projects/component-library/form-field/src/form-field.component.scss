@@ -1,93 +1,93 @@
 /* stylelint-disable selector-pseudo-element-no-unknown  */
 :host {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  max-height: 100%;
+  align-self: start;
+
+  .form-label {
+    margin-bottom: 0.1rem;
+    color: var(--twc-color-text);
+    grid-row: 1;
+  }
+
+  .form-input-wrapper {
+    display: flex;
+    align-items: center;
+    position: relative;
+    height: 100%;
+    overflow-y: hidden;
+    grid-row: 2;
+
+    .prefix,
+    .suffix {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      line-height: 0;
+      font-size: 1em;
+    }
+
+    .prefix {
+      left: 0.5rem;
+    }
+
+    .suffix {
+      right: 0.5rem;
+    }
+
+    .input-container {
+      height: 100%;
+      display: grid;
+      width: 100%;
+      grid-template-rows: 1fr;
+      align-items: center;
+    }
+  }
+
+  .form-extra-info {
+    position: relative;
+    margin-top: 0.1rem;
+    font-size: 0.9em;
+    grid-row: 3;
     display: grid;
-    grid-template-rows: auto 1fr auto;
-    max-height: 100%;
-    align-self: start;
+    grid-template-columns: auto 1fr;
+    max-width: 100%;
+    overflow: hidden;
+    column-gap: 0.75rem;
 
-    .form-label {
-        margin-bottom: 0.1rem;
-        color: var(--twc-color-text);
-        grid-row: 1;
+    ::ng-deep tab-hint {
+      grid-row: 1;
     }
 
-    .form-input-wrapper {
-        display: flex;
-        align-items: center;
-        position: relative;
-        height: 100%;
-        overflow-y: hidden;
-        grid-row: 2;
-
-        .prefix,
-        .suffix {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            pointer-events: none;
-            line-height: 0;
-            font-size: 1em;
-        }
-
-        .prefix {
-            left: 0.5rem;
-        }
-
-        .suffix {
-            right: 0.5rem;
-        }
-
-        .input-container {
-            height: 100%;
-            display: grid;
-            width: 100%;
-            grid-template-rows: 1fr;
-            align-items: center;
-        }
+    ::ng-deep tab-hint[type='prefix'] {
+      grid-column: 1;
     }
 
-    .form-extra-info {
-        position: relative;
-        margin-top: 0.1rem;
-        font-size: 0.9em;
-        grid-row: 3;
-        display: grid;
-        grid-template-columns: auto 1fr;
-        max-width: 100%;
-        overflow: hidden;
-        column-gap: 0.75rem;
-
-        ::ng-deep tab-hint {
-            grid-row: 1;
-        }
-
-        ::ng-deep tab-hint[type='prefix'] {
-            grid-column: 1;
-        }
-
-        ::ng-deep tab-hint[type='suffix'] {
-            grid-column: 2;
-            justify-self: end;
-        }
-
-        ::ng-deep tab-error {
-            grid-column: 1;
-        }
+    ::ng-deep tab-hint[type='suffix'] {
+      grid-column: 2;
+      justify-self: end;
     }
 
-    &.disabled .prefix,
-    &.disabled .suffix,
-    &.disabled ::ng-deep .tab-hint,
-    &.disabled ::ng-deep .tab-label {
-        color: var(--twc-color-disabled);
-
-        &::placeholder {
-            color: var(--twc-color-disabled);
-        }
-
-        &::input-placeholder {
-            color: var(--twc-color-disabled);
-        }
+    ::ng-deep tab-error {
+      grid-column: 1;
     }
+  }
+
+  &.disabled .prefix,
+  &.disabled .suffix,
+  &.disabled ::ng-deep .tab-hint,
+  &.disabled ::ng-deep .tab-label {
+    color: var(--twc-color-disabled);
+
+    &::placeholder {
+      color: var(--twc-color-disabled);
+    }
+
+    &::input-placeholder {
+      color: var(--twc-color-disabled);
+    }
+  }
 }
 /* stylelint-enable selector-pseudo-element-no-unknown  */

@@ -1,21 +1,21 @@
 @for (option of $options(); track option.$value()) {
-    <!--eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus-->
-    <div
-        class="option"
-        [class.disabled]="$disabled() || option.$disabled()"
-        [tooltip]="option.$hint() ? tooltipTemplate : undefined"
-        [tooltipContext]="{
-            hint: option.$hint() ? option.$hint() : undefined,
-        }"
-        [class.selected]="$selectedValue() === option.$value()"
-        (click)="optionClicked(option)"
-    >
-        <ng-container [ngTemplateOutlet]="option.$template()" [ngTemplateOutletContext]="$optionRenderContext()" />
-    </div>
+  <!--eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus-->
+  <div
+    class="option"
+    [class.disabled]="$disabled() || option.$disabled()"
+    [tooltip]="option.$hint() ? tooltipTemplate : undefined"
+    [tooltipContext]="{
+      hint: option.$hint() ? option.$hint() : undefined,
+    }"
+    [class.selected]="$selectedValue() === option.$value()"
+    (click)="optionClicked(option)"
+  >
+    <ng-container [ngTemplateOutlet]="option.$template()" [ngTemplateOutletContext]="$optionRenderContext()" />
+  </div>
 
-    <ng-template #tooltipTemplate let-hint="hint">
-        @if (hint) {
-            <tab-hint class="hint">{{ hint }}</tab-hint>
-        }
-    </ng-template>
+  <ng-template #tooltipTemplate let-hint="hint">
+    @if (hint) {
+      <tab-hint class="hint">{{ hint }}</tab-hint>
+    }
+  </ng-template>
 }

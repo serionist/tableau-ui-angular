@@ -7,8 +7,8 @@ import { TableauUiIconModule } from 'tableau-ui-angular/icon';
 import { TableauUiUtilsModule } from 'tableau-ui-angular/utils';
 
 @NgModule({
-    imports: [CommonModule, TableauUiIconModule, TableauUiUtilsModule],
-    declarations: [MenuButtonComponent, MenuButtonGroupComponent, EntriesPipe],
-    exports: [MenuButtonComponent, MenuButtonGroupComponent],
+  imports: [CommonModule, TableauUiIconModule, TableauUiUtilsModule],
+  declarations: [MenuButtonComponent, MenuButtonGroupComponent, EntriesPipe],
+  exports: [MenuButtonComponent, MenuButtonGroupComponent],
 })
 export class TableauUiMenuButtonModule {}

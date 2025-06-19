@@ -1,54 +1,54 @@
 :host {
+  display: flex;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  box-sizing: border-box;
+  pointer-events: all;
+  font-family: inherit;
+  font-size: var(--twc-font-size-body);
+  font-weight: bold;
+  height: fit-content;
+  user-select: none;
+  width: fit-content;
+  padding: 0;
+  align-items: stretch;
+  background-color: transparent;
+  outline: solid 0 var(--twc-color-focused-input);
+
+  &:focus-visible {
+    outline-width: 2px;
+    outline-offset: -2px;
+  }
+
+  &:not([disabled], [disabled='false']) {
+    border-color: var(--twc-color-border);
+    color: var(--twc-color-text);
+  }
+
+  &[disabled]:not([disabled='false']) {
+    background-color: transparent !important;
+    border-color: var(--twc-color-border-light) !important;
+    color: var(--twc-color-disabled) !important;
+  }
+
+  .option {
+    padding: 0.5em;
+    flex: 1 1 2rem;
     display: flex;
-    border: 1px solid transparent;
-    border-radius: 2px;
-    box-sizing: border-box;
-    pointer-events: all;
-    font-family: inherit;
-    font-size: var(--twc-font-size-body);
-    font-weight: bold;
-    height: fit-content;
-    user-select: none;
-    width: fit-content;
-    padding: 0;
-    align-items: stretch;
-    background-color: transparent;
-    outline: solid 0 var(--twc-color-focused-input);
+    justify-content: center;
 
-    &:focus-visible {
-        outline-width: 2px;
-        outline-offset: -2px;
+    &.selected {
+      background-color: var(--twc-color-primary);
+      color: var(--twc-color-on-primary);
     }
 
-    &:not([disabled], [disabled='false']) {
-        border-color: var(--twc-color-border);
-        color: var(--twc-color-text);
+    &:not(.selected, .disabled):hover {
+      cursor: pointer;
+      background-color: var(--twc-color-mouse-highlight);
     }
 
-    &[disabled]:not([disabled='false']) {
-        background-color: transparent !important;
-        border-color: var(--twc-color-border-light) !important;
-        color: var(--twc-color-disabled) !important;
+    &.disabled:hover {
+      cursor: not-allowed;
     }
-
-    .option {
-        padding: 0.5em;
-        flex: 1 1 2rem;
-        display: flex;
-        justify-content: center;
-
-        &.selected {
-            background-color: var(--twc-color-primary);
-            color: var(--twc-color-on-primary);
-        }
-
-        &:not(.selected, .disabled):hover {
-            cursor: pointer;
-            background-color: var(--twc-color-mouse-highlight);
-        }
-
-        &.disabled:hover {
-            cursor: not-allowed;
-        }
-    }
+  }
 }

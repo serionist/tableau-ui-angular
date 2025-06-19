@@ -8,71 +8,71 @@ import { startWith } from 'rxjs';
 import { generateRandomString } from 'tableau-ui-angular/utils';
 
 @Component({
-    selector: 'tab-expansion-panel',
-    standalone: false,
-    templateUrl: './expansion-panel.component.html',
-    styleUrl: './expansion-panel.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    host: {
-        '[attr.expanded]': '$expanded() ? true : null',
-        '[attr.disabled]': '$disabled() ? true : null',
-    },
+  selector: 'tab-expansion-panel',
+  standalone: false,
+  templateUrl: './expansion-panel.component.html',
+  styleUrl: './expansion-panel.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '[attr.expanded]': '$expanded() ? true : null',
+    '[attr.disabled]': '$disabled() ? true : null',
+  },
 })
 export class ExpansionPanelComponent implements OnInit, OnDestroy {
-    readonly id = generateRandomString(16);
-    /**
-     * The expanded state of the panel.
-     * @default false
-     */
-    readonly $expanded = model<boolean>(false, {
-        alias: 'expanded',
-    });
-    readonly expandedChange$ = toObservable(this.$expanded).pipe(startWith(this.$expanded()));
-    /**
-     * The disabled state of the panel.
-     * @default false
-     */
-    readonly $disabled = input<boolean>(false, {
-        alias: 'disabled',
-    });
-    /**
-     * Disables the hover color of the header
-     */
-    readonly $noHeaderHover = input<boolean>(false, {
-        alias: 'noHeaderHover',
-    });
+  readonly id = generateRandomString(16);
+  /**
+   * The expanded state of the panel.
+   * @default false
+   */
+  readonly $expanded = model<boolean>(false, {
+    alias: 'expanded',
+  });
+  readonly expandedChange$ = toObservable(this.$expanded).pipe(startWith(this.$expanded()));
+  /**
+   * The disabled state of the panel.
+   * @default false
+   */
+  readonly $disabled = input<boolean>(false, {
+    alias: 'disabled',
+  });
+  /**
+   * Disables the hover color of the header
+   */
+  readonly $noHeaderHover = input<boolean>(false, {
+    alias: 'noHeaderHover',
+  });
 
-    protected readonly $expandedHeader: Signal<ExpansionPanelTitleExpandedContentDirective | undefined> = contentChild(ExpansionPanelTitleExpandedContentDirective);
-    protected readonly $collapsedHeader: Signal<ExpansionPanelTitleCollapsedContentDirective | undefined> = contentChild(ExpansionPanelTitleCollapsedContentDirective);
+  protected readonly $expandedHeader: Signal<ExpansionPanelTitleExpandedContentDirective | undefined> = contentChild(ExpansionPanelTitleExpandedContentDirective);
+  protected readonly $collapsedHeader: Signal<ExpansionPanelTitleCollapsedContentDirective | undefined> = contentChild(ExpansionPanelTitleCollapsedContentDirective);
 
-    private readonly accordion = inject(AccordionComponent, {
-        skipSelf: true,
-        optional: true,
-    });
+  private readonly accordion = inject(AccordionComponent, {
+    skipSelf: true,
+    optional: true,
+  });
 
-    public readonly $registry = input<AccordionRegistry>(undefined, {
-        alias: 'registry',
-    });
+  public readonly $registry = input<AccordionRegistry>(undefined, {
+    alias: 'registry',
+  });
 
-    ngOnInit(): void {
-        const registry = this.$registry() ?? this.accordion?.registry;
-        registry?.register(this);
+  ngOnInit(): void {
+    const registry = this.$registry() ?? this.accordion?.registry;
+    registry?.register(this);
+  }
+  ngOnDestroy(): void {
+    const registry = this.$registry() ?? this.accordion?.registry;
+    registry?.unregister(this);
+  }
+
+  protected setExpanded(expanded: boolean) {
+    if (this.$disabled()) {
+      return;
     }
-    ngOnDestroy(): void {
-        const registry = this.$registry() ?? this.accordion?.registry;
-        registry?.unregister(this);
+    this.$expanded.set(expanded);
+  }
+  protected onclick() {
+    if (this.$disabled()) {
+      return;
     }
-
-    protected setExpanded(expanded: boolean) {
-        if (this.$disabled()) {
-            return;
-        }
-        this.$expanded.set(expanded);
-    }
-    protected onclick() {
-        if (this.$disabled()) {
-            return;
-        }
-        this.setExpanded(!this.$expanded());
-    }
+    this.setExpanded(!this.$expanded());
+  }
 }

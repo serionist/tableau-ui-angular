@@ -4,14 +4,14 @@ import type { SelectionOptions } from './selection-options';
 import { MultiSelectionOptions } from './selection-options';
 
 @Pipe({
-    name: 'headerCheckboxMode',
-    standalone: false,
+  name: 'headerCheckboxMode',
+  standalone: false,
 })
 export class HeaderCheckboxModePipe implements PipeTransform {
-    transform(selectionOptions: SelectionOptions | undefined): 'none' | 'selectNone' | 'selectAll' | undefined {
-        if (selectionOptions instanceof MultiSelectionOptions) {
-            return selectionOptions.headerCheckboxMode;
-        }
-        return 'none';
+  transform(selectionOptions: SelectionOptions | undefined): 'none' | 'selectNone' | 'selectAll' | undefined {
+    if (selectionOptions instanceof MultiSelectionOptions) {
+      return selectionOptions.headerCheckboxMode;
     }
+    return 'none';
+  }
 }

@@ -1,38 +1,38 @@
 @let rowSelectionMode = $selectionOptions()?.selectionMode === 'row-and-checkbox';
 @let hasCheckboxColumn = $selectionOptions();
 <div class="table" role="table" [class.has-row-selection]="rowSelectionMode">
-    <!--Data Row Sizer. This is a position fixed, 0px wide row with the given row height px. used to calculate the actual height of data rows prior to virtualizing-->
-    <div #dataSizer class="data-sizer" [style.height]="$dataRowHeight()"></div>
-    <!-- Column Row -->
-    <div #headerRow class="column-row">
-        @if (hasCheckboxColumn) {
-            <div class="column-header pinned-left" role="columnheader" [style.width]="checkboxColWidth" [style.minWidth]="checkboxColWidth">
-                <div class="content check-select">
-                    @switch ($selectionOptions() | headerCheckboxMode) {
-                        @case ('none') {}
-                        @case ('selectNone') {
-                            <tab-checkbox
-                                [disabled]="$selectionMultiHeaderCheckboxSelected() !== 'partial'"
-                                [value]="$selectionMultiHeaderCheckboxSelected()"
-                                [valueAfterPartial]="false"
-                                (valueChange)="selectionMultiHeaderCheckboxSelectNoneChanged()"
-                            />
-                        }
-                        @case ('selectAll') {
-                            <tab-checkbox
-                                [loading]="dataManager.allDataInfo?.$status() === 'loading'"
-                                [disabled]="$selectionMultiHeaderCheckboxSelected() === false && dataManager.allDataInfo?.$status() !== 'success'"
-                                [value]="$selectionMultiHeaderCheckboxSelected()"
-                                [valueAfterPartial]="false"
-                                (valueChange)="selectionMultiHeaderCheckboxSelectAllChanged($event)"
-                            />
-                        }
-                    }
-                </div>
-            </div>
-        }
-        <!-- prettier-ignore -->
-        @for (def of $displayedColumnDefs(); let index = $index; let count = $count; let first = $first; let last = $last; let even = $even; let odd = $odd; track def.id) {
+  <!--Data Row Sizer. This is a position fixed, 0px wide row with the given row height px. used to calculate the actual height of data rows prior to virtualizing-->
+  <div #dataSizer class="data-sizer" [style.height]="$dataRowHeight()"></div>
+  <!-- Column Row -->
+  <div #headerRow class="column-row">
+    @if (hasCheckboxColumn) {
+      <div class="column-header pinned-left" role="columnheader" [style.width]="checkboxColWidth" [style.minWidth]="checkboxColWidth">
+        <div class="content check-select">
+          @switch ($selectionOptions() | headerCheckboxMode) {
+            @case ('none') {}
+            @case ('selectNone') {
+              <tab-checkbox
+                [disabled]="$selectionMultiHeaderCheckboxSelected() !== 'partial'"
+                [value]="$selectionMultiHeaderCheckboxSelected()"
+                [valueAfterPartial]="false"
+                (valueChange)="selectionMultiHeaderCheckboxSelectNoneChanged()"
+              />
+            }
+            @case ('selectAll') {
+              <tab-checkbox
+                [loading]="dataManager.allDataInfo?.$status() === 'loading'"
+                [disabled]="$selectionMultiHeaderCheckboxSelected() === false && dataManager.allDataInfo?.$status() !== 'success'"
+                [value]="$selectionMultiHeaderCheckboxSelected()"
+                [valueAfterPartial]="false"
+                (valueChange)="selectionMultiHeaderCheckboxSelectAllChanged($event)"
+              />
+            }
+          }
+        </div>
+      </div>
+    }
+    <!-- prettier-ignore -->
+    @for (def of $displayedColumnDefs(); let index = $index; let count = $count; let first = $first; let last = $last; let even = $even; let odd = $odd; track def.id) {
             @let headerContext = def.col | headerContext: index : first : last : even : odd : count;
             <!-- @let headerTooltip = def.col.$headerTooltip(); -->
             <div
@@ -180,32 +180,32 @@
                 </div>
             </ng-template>
         }
-    </div>
+  </div>
 
-    <div class="data-rows" [class.striped]="$striped()">
-        @let dmBlocks = dataManager.$blocks();
-        @if (dmBlocks.blocks.length === 0) {
-            @let _noDataTemplate = $noDataTemplate();
-            @if (_noDataTemplate === 'default') {
-                <ng-container [ngTemplateOutlet]="defaultNoData" />
-            } @else if (typeof _noDataTemplate === 'string') {
-                <ng-container *ngTemplateOutlet="defaultNoData; context: { $implicit: _noDataTemplate }" />
-            } @else {
-                <ng-container [ngTemplateOutlet]="_noDataTemplate" />
-            }
+  <div class="data-rows" [class.striped]="$striped()">
+    @let dmBlocks = dataManager.$blocks();
+    @if (dmBlocks.blocks.length === 0) {
+      @let _noDataTemplate = $noDataTemplate();
+      @if (_noDataTemplate === 'default') {
+        <ng-container [ngTemplateOutlet]="defaultNoData" />
+      } @else if (typeof _noDataTemplate === 'string') {
+        <ng-container *ngTemplateOutlet="defaultNoData; context: { $implicit: _noDataTemplate }" />
+      } @else {
+        <ng-container [ngTemplateOutlet]="_noDataTemplate" />
+      }
 
-            <ng-template #defaultNoData let-message>
-                <div class="no-data" [style.padding]="$dataPadding()">
-                    <span>{{ message ?? 'No data available' }}</span>
-                </div>
-            </ng-template>
-        } @else {
-            <div class="virtualize pre" [style.height]="`${dmBlocks.prePixels}px`"></div>
+      <ng-template #defaultNoData let-message>
+        <div class="no-data" [style.padding]="$dataPadding()">
+          <span>{{ message ?? 'No data available' }}</span>
+        </div>
+      </ng-template>
+    } @else {
+      <div class="virtualize pre" [style.height]="`${dmBlocks.prePixels}px`"></div>
 
-            <!-- prettier-ignore-start -->
-            @for (block of dmBlocks.blocks; track block.id) {
-                <!-- prettier-ignore -->
-                @for (r of block.$data(); let index = $index; let count = $count; let first = $first; let last = $last; let even = $even; let odd = $odd; track r.key) {
+      <!-- prettier-ignore-start -->
+      @for (block of dmBlocks.blocks; track block.id) {
+        <!-- prettier-ignore -->
+        @for (r of block.$data(); let index = $index; let count = $count; let first = $first; let last = $last; let even = $even; let odd = $odd; track r.key) {
                     <!-- prettier-ignore-end -->
                     <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
                     <div
@@ -294,8 +294,8 @@
                         }
                     </div>
                 }
-            }
-            <div class="virtualize post" [style.height]="`${dmBlocks.postPixels}px`"></div>
-        }
-    </div>
+      }
+      <div class="virtualize post" [style.height]="`${dmBlocks.postPixels}px`"></div>
+    }
+  </div>
 </div>

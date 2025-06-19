@@ -6,8 +6,8 @@ import { StepperComponent } from './stepper/stepper.component';
 import { StepComponent } from './step/step.component';
 
 @NgModule({
-    imports: [CommonModule, TableauUiIconModule, TableauUiUtilsModule],
-    declarations: [StepperComponent, StepComponent],
-    exports: [StepperComponent, StepComponent],
+  imports: [CommonModule, TableauUiIconModule, TableauUiUtilsModule],
+  declarations: [StepperComponent, StepComponent],
+  exports: [StepperComponent, StepComponent],
 })
 export class TableauUiStepperModule {}

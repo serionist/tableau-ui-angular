@@ -3,13 +3,13 @@
  * This is useful for dialogs that need to be displayed above all other content, such as modals or overlays.
  */
 export class GlobalStackOptions {
-    constructor(
-        /**
-         * The reference element thats' DOMRect is passed to the left() and height() function of the dialog args.
-         * Optional.
-         */
-        public readonly referenceElement?: HTMLElement,
-    ) {}
+  constructor(
+    /**
+     * The reference element thats' DOMRect is passed to the left() and height() function of the dialog args.
+     * Optional.
+     */
+    public readonly referenceElement?: HTMLElement,
+  ) {}
 }
 
 /**
@@ -19,18 +19,18 @@ export class GlobalStackOptions {
  * The dialog content will be tabbable right after the `insertAfterElement`.
  */
 export class LocalStackOptions {
-    constructor(
-        /**
-         * The element after which the dialog will be inserted in the DOM.
-         * If 'referenceElement' is not provided, this will be the reference element that's DOMRect is passed to the left() and height() function of the dialog args.
-         */
-        public readonly insertAfterElement: HTMLElement,
-        /**
-         * The reference element that's DOMRect is passed to the left() and height() function of the dialog args.
-         * If not provided, the `insertAfterElement` will be used as the reference element.
-         */
-        public readonly referenceElement?: HTMLElement,
-    ) {}
+  constructor(
+    /**
+     * The element after which the dialog will be inserted in the DOM.
+     * If 'referenceElement' is not provided, this will be the reference element that's DOMRect is passed to the left() and height() function of the dialog args.
+     */
+    public readonly insertAfterElement: HTMLElement,
+    /**
+     * The reference element that's DOMRect is passed to the left() and height() function of the dialog args.
+     * If not provided, the `insertAfterElement` will be used as the reference element.
+     */
+    public readonly referenceElement?: HTMLElement,
+  ) {}
 }
 
 export type StackOptions = GlobalStackOptions | LocalStackOptions;

@@ -10,8 +10,8 @@ import { SingleSelectComponent } from './single-select.component';
 import { MultiSelectComponent } from './multi-select.component';
 
 @NgModule({
-    imports: [CommonModule, TableauUiCommonModule, TableauUiIconModule, TableauUiButtonModule, TableauUiDialogModule],
-    declarations: [IsSelectedValuePipe, MultipleTemplatePipe, SingleSelectComponent, MultiSelectComponent],
-    exports: [SingleSelectComponent, MultiSelectComponent],
+  imports: [CommonModule, TableauUiCommonModule, TableauUiIconModule, TableauUiButtonModule, TableauUiDialogModule],
+  declarations: [IsSelectedValuePipe, MultipleTemplatePipe, SingleSelectComponent, MultiSelectComponent],
+  exports: [SingleSelectComponent, MultiSelectComponent],
 })
 export class TableauUiSelectModule {}

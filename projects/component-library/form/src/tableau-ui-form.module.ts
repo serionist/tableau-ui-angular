@@ -14,9 +14,9 @@ import { FormControlValuePipe } from './pipes/value/form-control-value.pipe';
 import { FormGroupValuePipe } from './pipes/value/form-group-value.pipe';
 import { FormArrayControlsPipe } from './pipes/form-array-controls.pipe';
 @NgModule({
-    imports: [ReactiveFormsModule, CommonModule],
-    declarations: [FormErrorPipe, FormHasErrorPipe, FormMetaPipe, FormArrayPipe, FormControlPipe, FormGroupPipe, FormArrayValuePipe, FormControlValuePipe, FormGroupValuePipe, FormArrayControlsPipe],
-    providers: [FB],
-    exports: [FormErrorPipe, FormHasErrorPipe, FormMetaPipe, FormArrayPipe, FormControlPipe, FormGroupPipe, FormArrayValuePipe, FormControlValuePipe, FormGroupValuePipe, FormArrayControlsPipe],
+  imports: [ReactiveFormsModule, CommonModule],
+  declarations: [FormErrorPipe, FormHasErrorPipe, FormMetaPipe, FormArrayPipe, FormControlPipe, FormGroupPipe, FormArrayValuePipe, FormControlValuePipe, FormGroupValuePipe, FormArrayControlsPipe],
+  providers: [FB],
+  exports: [FormErrorPipe, FormHasErrorPipe, FormMetaPipe, FormArrayPipe, FormControlPipe, FormGroupPipe, FormArrayValuePipe, FormControlValuePipe, FormGroupValuePipe, FormArrayControlsPipe],
 })
 export class TableauUiFormModule {}

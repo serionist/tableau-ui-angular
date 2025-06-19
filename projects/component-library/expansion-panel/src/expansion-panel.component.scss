@@ -1,57 +1,57 @@
 :host {
-    background: var(--twc-color-base);
-    border-color: var(--twc-color-border-light);
-    border-radius: var(--twc-menu-border-radius);
-    border-style: solid;
-    border-width: 1px;
-    color: var(--twc-color-text);
-    line-height: normal;
-    overflow: hidden auto;
-    user-select: none;
+  background: var(--twc-color-base);
+  border-color: var(--twc-color-border-light);
+  border-radius: var(--twc-menu-border-radius);
+  border-style: solid;
+  border-width: 1px;
+  color: var(--twc-color-text);
+  line-height: normal;
+  overflow: hidden auto;
+  user-select: none;
+  display: grid;
+  grid-template-rows: auto;
+  gap: 0.25rem;
+
+  &.expanded {
+    grid-template-rows: auto 1fr;
+  }
+
+  .header {
     display: grid;
-    grid-template-rows: auto;
-    gap: 0.25rem;
+    grid-template-columns: 1fr auto;
+    gap: 0.5rem;
+    outline: none;
+    padding: 0.25rem;
 
-    &.expanded {
-        grid-template-rows: auto 1fr;
+    div {
+      margin-left: 0.25rem;
+      align-self: center;
     }
 
-    .header {
-        display: grid;
-        grid-template-columns: 1fr auto;
-        gap: 0.5rem;
-        outline: none;
-        padding: 0.25rem;
+    button {
+      min-height: 1rem;
+      min-width: 1rem;
 
-        div {
-            margin-left: 0.25rem;
-            align-self: center;
-        }
+      tab-icon {
+        font-size: 1.2rem;
+      }
 
-        button {
-            min-height: 1rem;
-            min-width: 1rem;
-
-            tab-icon {
-                font-size: 1.2rem;
-            }
-
-            align-self: center;
-        }
-
-        &.disabled {
-            color: var(--twc-color-disabled);
-        }
-
-        &:not(.disabled, .no-hover) {
-            &:hover {
-                background: var(--twc-color-highlight);
-                cursor: pointer;
-            }
-        }
+      align-self: center;
     }
 
-    .content {
-        padding: 0.25rem;
+    &.disabled {
+      color: var(--twc-color-disabled);
     }
+
+    &:not(.disabled, .no-hover) {
+      &:hover {
+        background: var(--twc-color-highlight);
+        cursor: pointer;
+      }
+    }
+  }
+
+  .content {
+    padding: 0.25rem;
+  }
 }

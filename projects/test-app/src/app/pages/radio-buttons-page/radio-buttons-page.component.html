@@ -1,115 +1,115 @@
 <div class="page">
-    <div class="title">
-        <h1>Radio Groups</h1>
-        <div class="text-light text-large">
-            The radio groups component is a simple component that allows users to select one option from a list of options.
-            <br />
-            Supports both Reactive Forms and simple value binding.
-        </div>
+  <div class="title">
+    <h1>Radio Groups</h1>
+    <div class="text-light text-large">
+      The radio groups component is a simple component that allows users to select one option from a list of options.
+      <br />
+      Supports both Reactive Forms and simple value binding.
     </div>
-    <tab-separator />
-    <div class="content">
-        <div class="section">
-            <h3>Module</h3>
-            <p>To use the component, import one of the following modules into your module/component:</p>
+  </div>
+  <tab-separator />
+  <div class="content">
+    <div class="section">
+      <h3>Module</h3>
+      <p>To use the component, import one of the following modules into your module/component:</p>
 
-            <ul>
-                <li>
-                    <code>TableauUiRadioGroupModule</code>
-                    - for granular import
-                </li>
-                <li>
-                    <code>TableauUiAllModule</code>
-                    - to import all components from this library
-                </li>
-            </ul>
-        </div>
-        <div class="section">
-            <h3>Basic usage</h3>
-            <p>
-                To use a radio group without Reactive Forms, simply bind to the
-                <code>[value]</code>
-                and
-                <code>(valueChanges)</code>
-                properties.
-                <br />
-                These examples show a snack when changed.
-            </p>
-            <div class="spacer">
-                <tab-radio-group [value]="simpleValue" (valueChange)="valueChanged($event ?? null, 'Simple radio group')">
-                    <tab-option text="This option is provided as a set of values" icon="home" hint="There are 2 ways to create tab-options; by values and by templates" [value]="1" />
-                    <tab-option text="Disabled value" hint="with random hint" [value]="2" [disabled]="true" />
-
-                    <ng-template #textRef>
-                        This option is provided as a
-                        <b>template</b>
-                    </ng-template>
-                    <ng-template #hintRef>
-                        <tab-hint>There are 2 ways to create tab-options; by values and by templates</tab-hint>
-                    </ng-template>
-                    <tab-option icon="home" [value]="3" [iconParams]="{ fill: true, color: 'success' }" [text]="textRef" [hint]="hintRef" />
-                    <ng-template #combinationRef>
-                        This option is provided as a
-                        <b>combination</b>
-                        of text and template
-                    </ng-template>
-                    <tab-option icon="home" hint="with a hint" [value]="4" [text]="combinationRef">
-                        <tab-hint>with a hint</tab-hint>
-                    </tab-option>
-                </tab-radio-group>
-            </div>
-        </div>
-        <div class="section">
-            <h3>Reactive Forms</h3>
-            <p>
-                To use the radio group with Reactive Forms, bind to the
-                <code>formControl</code>
-                or
-                <code>formControlName</code>
-                property.
-            </p>
-            <div class="spacer">
-                <tab-radio-group [formControl]="formControl | formControl">
-                    <tab-option text="This option is provided as a set of values" icon="home" hint="There are 2 ways to create tab-options; by values and by templates" [value]="1" />
-                    <tab-option text="Disabled value" hint="with random hint" [value]="2" [disabled]="true" />
-
-                    <ng-template #textRef>
-                        This option is provided as a
-                        <b>template</b>
-                    </ng-template>
-                    <ng-template #hintRef>
-                        <tab-hint>There are 2 ways to create tab-options; by values and by templates</tab-hint>
-                    </ng-template>
-                    <tab-option icon="home" [value]="3" [iconParams]="{ fill: true, color: 'success' }" [text]="textRef" [hint]="hintRef" />
-                    <ng-template #combinationRef>
-                        This option is provided as a
-                        <b>combination</b>
-                        of text and template
-                    </ng-template>
-                    <tab-option icon="home" hint="with a hint" [value]="4" [text]="combinationRef">
-                        <tab-hint>with a hint</tab-hint>
-                    </tab-option>
-                    @if (formControl | formMeta | async | formHasError: 'required') {
-                        <tab-error>Required</tab-error>
-                    }
-                    @if (formControl | formMeta | async | formHasError: 'min') {
-                        <tab-error>Minimum value is 1 (first item can't be selected)</tab-error>
-                    }
-                    @if (formControl | formMeta | async | formHasError: 'max') {
-                        <tab-error>Maximum value is 3 (fourth item can't be selected)</tab-error>
-                    }
-                </tab-radio-group>
-            </div>
-        </div>
-        <div class="section">
-            <h3>Other</h3>
-            <p>For visual reference, this is how a selected disabled Radio Button looks:</p>
-            <tab-radio-group [value]="2">
-                <tab-option [value]="2" [disabled]="true">
-                    Disabled value
-                    <tab-hint>with random hint</tab-hint>
-                </tab-option>
-            </tab-radio-group>
-        </div>
+      <ul>
+        <li>
+          <code>TableauUiRadioGroupModule</code>
+          - for granular import
+        </li>
+        <li>
+          <code>TableauUiAllModule</code>
+          - to import all components from this library
+        </li>
+      </ul>
     </div>
+    <div class="section">
+      <h3>Basic usage</h3>
+      <p>
+        To use a radio group without Reactive Forms, simply bind to the
+        <code>[value]</code>
+        and
+        <code>(valueChanges)</code>
+        properties.
+        <br />
+        These examples show a snack when changed.
+      </p>
+      <div class="spacer">
+        <tab-radio-group [value]="simpleValue" (valueChange)="valueChanged($event ?? null, 'Simple radio group')">
+          <tab-option text="This option is provided as a set of values" icon="home" hint="There are 2 ways to create tab-options; by values and by templates" [value]="1" />
+          <tab-option text="Disabled value" hint="with random hint" [value]="2" [disabled]="true" />
+
+          <ng-template #textRef>
+            This option is provided as a
+            <b>template</b>
+          </ng-template>
+          <ng-template #hintRef>
+            <tab-hint>There are 2 ways to create tab-options; by values and by templates</tab-hint>
+          </ng-template>
+          <tab-option icon="home" [value]="3" [iconParams]="{ fill: true, color: 'success' }" [text]="textRef" [hint]="hintRef" />
+          <ng-template #combinationRef>
+            This option is provided as a
+            <b>combination</b>
+            of text and template
+          </ng-template>
+          <tab-option icon="home" hint="with a hint" [value]="4" [text]="combinationRef">
+            <tab-hint>with a hint</tab-hint>
+          </tab-option>
+        </tab-radio-group>
+      </div>
+    </div>
+    <div class="section">
+      <h3>Reactive Forms</h3>
+      <p>
+        To use the radio group with Reactive Forms, bind to the
+        <code>formControl</code>
+        or
+        <code>formControlName</code>
+        property.
+      </p>
+      <div class="spacer">
+        <tab-radio-group [formControl]="formControl | formControl">
+          <tab-option text="This option is provided as a set of values" icon="home" hint="There are 2 ways to create tab-options; by values and by templates" [value]="1" />
+          <tab-option text="Disabled value" hint="with random hint" [value]="2" [disabled]="true" />
+
+          <ng-template #textRef>
+            This option is provided as a
+            <b>template</b>
+          </ng-template>
+          <ng-template #hintRef>
+            <tab-hint>There are 2 ways to create tab-options; by values and by templates</tab-hint>
+          </ng-template>
+          <tab-option icon="home" [value]="3" [iconParams]="{ fill: true, color: 'success' }" [text]="textRef" [hint]="hintRef" />
+          <ng-template #combinationRef>
+            This option is provided as a
+            <b>combination</b>
+            of text and template
+          </ng-template>
+          <tab-option icon="home" hint="with a hint" [value]="4" [text]="combinationRef">
+            <tab-hint>with a hint</tab-hint>
+          </tab-option>
+          @if (formControl | formMeta | async | formHasError: 'required') {
+            <tab-error>Required</tab-error>
+          }
+          @if (formControl | formMeta | async | formHasError: 'min') {
+            <tab-error>Minimum value is 1 (first item can't be selected)</tab-error>
+          }
+          @if (formControl | formMeta | async | formHasError: 'max') {
+            <tab-error>Maximum value is 3 (fourth item can't be selected)</tab-error>
+          }
+        </tab-radio-group>
+      </div>
+    </div>
+    <div class="section">
+      <h3>Other</h3>
+      <p>For visual reference, this is how a selected disabled Radio Button looks:</p>
+      <tab-radio-group [value]="2">
+        <tab-option [value]="2" [disabled]="true">
+          Disabled value
+          <tab-hint>with random hint</tab-hint>
+        </tab-option>
+      </tab-radio-group>
+    </div>
+  </div>
 </div>

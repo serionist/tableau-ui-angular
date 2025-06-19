@@ -1,41 +1,41 @@
 {
-    "name": "tableau-ui-angular",
-    "description": "Tableau UI Angular Component Library",
-    "author": {
-        "email": "osvaysoma@gmail.com",
-        "name": "Osvay Soma"
-    },
-    "license": "AGPL-3.0-only",
-    "keywords": [
-        "tableau",
-        "angular",
-        "component",
-        "library"
-    ],
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/serionist/tableau-ui-angular"
-    },
-    "bugs": {
-        "url": "https://github.com/serionist/tableau-ui-angular/issues",
-        "email": "osvaysoma@gmail.com"
-    },
-    "engines": {
-        "node": ">=22.16.0",
-        "npm": ">=10.9.2"
-    },
-    "homepage": "https://serionist.github.io/tableau-ui-angular/",
-    "version": "0.1.126",
-    "peerDependencies": {
-        "@angular/common": "^20.0.3",
-        "@angular/core": "^20.0.3",
-        "@angular/forms": "^20.0.3",
-        "@angular/router": "^20.0.3",
-        "monaco-editor": "^0.52.2"
-    },
-    "dependencies": {
-        "tabbable": "^6.2.0"
-    },
-    "sideEffects": false,
-    "devDependencies": {}
+  "name": "tableau-ui-angular",
+  "description": "Tableau UI Angular Component Library",
+  "author": {
+    "email": "osvaysoma@gmail.com",
+    "name": "Osvay Soma"
+  },
+  "license": "AGPL-3.0-only",
+  "keywords": [
+    "tableau",
+    "angular",
+    "component",
+    "library"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/serionist/tableau-ui-angular"
+  },
+  "bugs": {
+    "url": "https://github.com/serionist/tableau-ui-angular/issues",
+    "email": "osvaysoma@gmail.com"
+  },
+  "engines": {
+    "node": ">=22.16.0",
+    "npm": ">=10.9.2"
+  },
+  "homepage": "https://serionist.github.io/tableau-ui-angular/",
+  "version": "0.1.126",
+  "peerDependencies": {
+    "@angular/common": "^20.0.3",
+    "@angular/core": "^20.0.3",
+    "@angular/forms": "^20.0.3",
+    "@angular/router": "^20.0.3",
+    "monaco-editor": "^0.52.2"
+  },
+  "dependencies": {
+    "tabbable": "^6.2.0"
+  },
+  "sideEffects": false,
+  "devDependencies": {}
 }

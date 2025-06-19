@@ -5,21 +5,21 @@ import type { FormGroup } from '@angular/forms';
 import type { FGImpl } from '../../models/form-group/impl';
 
 @Pipe({
-    name: 'formGroup',
-    standalone: false,
+  name: 'formGroup',
+  standalone: false,
 })
 export class FormGroupPipe implements PipeTransform {
-    transform(form: AC, path?: string): FormGroup {
-        const ret = form.hierarchy.getChild(path);
-        if (!ret) {
-            throw new Error(`formGroup: No child found at path "${path}"`);
-        }
-        if (ret.type !== 'group') {
-            throw new Error(`formGroup: Expected a FormGroup at path "${path}", but got "${ret.type}"`);
-        }
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        console.log((ret as FGImpl<any>).control as FormGroup);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return (ret as FGImpl<any>).control as FormGroup;
+  transform(form: AC, path?: string): FormGroup {
+    const ret = form.hierarchy.getChild(path);
+    if (!ret) {
+      throw new Error(`formGroup: No child found at path "${path}"`);
     }
+    if (ret.type !== 'group') {
+      throw new Error(`formGroup: Expected a FormGroup at path "${path}", but got "${ret.type}"`);
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    console.log((ret as FGImpl<any>).control as FormGroup);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (ret as FGImpl<any>).control as FormGroup;
+  }
 }

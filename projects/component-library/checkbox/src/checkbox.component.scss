@@ -1,126 +1,126 @@
 :host {
+  box-sizing: border-box;
+  width: fit-content;
+
+  // line-height: 1em;
+  user-select: none;
+
+  // align-items: center;
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-template-rows: auto auto;
+  column-gap: 0.5em;
+
+  tab-loading-gif,
+  .box {
+    width: 1.2em;
+    height: 1.2em;
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .box {
+    background-color: var(--twc-color-base);
+    border: 1px solid var(--twc-color-border-dark);
+    border-radius: 1px;
     box-sizing: border-box;
-    width: fit-content;
-
-    // line-height: 1em;
-    user-select: none;
-
-    // align-items: center;
     display: grid;
-    grid-template-columns: auto auto;
-    grid-template-rows: auto auto;
-    column-gap: 0.5em;
+    justify-items: center;
 
-    tab-loading-gif,
-    .box {
-        width: 1.2em;
-        height: 1.2em;
-        grid-column: 1;
-        grid-row: 1;
+    svg {
+      display: none;
+      width: 1em;
+      height: 1em;
     }
 
-    .box {
-        background-color: var(--twc-color-base);
-        border: 1px solid var(--twc-color-border-dark);
-        border-radius: 1px;
-        box-sizing: border-box;
-        display: grid;
-        justify-items: center;
-
-        svg {
-            display: none;
-            width: 1em;
-            height: 1em;
-        }
-
-        .partial {
-            display: none;
-            height: 0.2rem;
-            width: 60%;
-            align-self: center;
-            background-color: var(--twc-color-text);
-        }
+    .partial {
+      display: none;
+      height: 0.2rem;
+      width: 60%;
+      align-self: center;
+      background-color: var(--twc-color-text);
     }
+  }
 
-    &.checked .box svg {
-        display: block;
+  &.checked .box svg {
+    display: block;
+  }
+
+  &.partial .box .partial {
+    display: block;
+  }
+
+  input {
+    grid-column: 1;
+    grid-row: 1;
+    box-sizing: border-box;
+    margin: 0;
+    opacity: 0;
+    padding: 0;
+    pointer-events: none;
+    width: 1.2em;
+    height: 1.2em;
+    font-size: var(--twc-font-size-body);
+    min-height: 0;
+
+    &:focus-visible + .box {
+      outline: 2px solid var(--twc-color-primary);
+      outline-offset: 2px;
     }
-
-    &.partial .box .partial {
-        display: block;
-    }
-
+  }
+  // stylelint-disable declaration-property-unit-disallowed-list
+  @supports (width: round(1em, 1px)) {
     input {
-        grid-column: 1;
-        grid-row: 1;
-        box-sizing: border-box;
-        margin: 0;
-        opacity: 0;
-        padding: 0;
-        pointer-events: none;
-        width: 1.2em;
-        height: 1.2em;
-        font-size: var(--twc-font-size-body);
-        min-height: 0;
-
-        &:focus-visible + .box {
-            outline: 2px solid var(--twc-color-primary);
-            outline-offset: 2px;
-        }
+      width: round(1.2em, 1px);
+      height: round(1.2em, 1px);
     }
-    // stylelint-disable declaration-property-unit-disallowed-list
-    @supports (width: round(1em, 1px)) {
-        input {
-            width: round(1.2em, 1px);
-            height: round(1.2em, 1px);
-        }
+  }
+  // stylelint-enable declaration-property-unit-disallowed-list
+
+  &:hover:not(.disabled) .box {
+    background-color: var(--twc-color-mouse-highlight);
+    border-color: var(--twc-color-border-dark);
+  }
+
+  &:active:not(.disabled) .box {
+    background-color: var(--twc-color-disabled);
+    border-color: var(--twc-color-border-dark);
+  }
+
+  &:not(.disabled) {
+    cursor: pointer;
+  }
+
+  &.disabled {
+    color: var(--twc-color-disabled);
+
+    // stylelint-disable-next-line no-descending-specificity
+    .box {
+      border-color: var(--twc-color-disabled);
     }
-    // stylelint-enable declaration-property-unit-disallowed-list
-
-    &:hover:not(.disabled) .box {
-        background-color: var(--twc-color-mouse-highlight);
-        border-color: var(--twc-color-border-dark);
+    // stylelint-disable-next-line selector-pseudo-element-no-unknown
+    ::ng-deep .tab-hint {
+      color: var(--twc-color-disabled);
     }
+  }
 
-    &:active:not(.disabled) .box {
-        background-color: var(--twc-color-disabled);
-        border-color: var(--twc-color-border-dark);
-    }
+  .label {
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    user-select: none;
+    grid-column: 2;
+    grid-row: 1;
+  }
 
-    &:not(.disabled) {
-        cursor: pointer;
-    }
+  .extra-info {
+    grid-column: 2;
+    grid-row: 2;
+    font-size: 0.9em;
 
-    &.disabled {
-        color: var(--twc-color-disabled);
-
-        // stylelint-disable-next-line no-descending-specificity
-        .box {
-            border-color: var(--twc-color-disabled);
-        }
-        // stylelint-disable-next-line selector-pseudo-element-no-unknown
-        ::ng-deep .tab-hint {
-            color: var(--twc-color-disabled);
-        }
-    }
-
-    .label {
-        line-height: 1.2;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        user-select: none;
-        grid-column: 2;
-        grid-row: 1;
-    }
-
-    .extra-info {
-        grid-column: 2;
-        grid-row: 2;
-        font-size: 0.9em;
-
-        // margin-top: -0.1em;
-        // .error {
-        //     color: var(--twc-color-error);
-        // }
-    }
+    // margin-top: -0.1em;
+    // .error {
+    //     color: var(--twc-color-error);
+    // }
+  }
 }

@@ -1,28 +1,28 @@
 <tab-arrow-scroll scrollType="arrow" scrollDirection="horizontal" buttonsCssColor="var(--twc-color-text-light)" [iconParams]="{ fontSize: $scrollArrowsIconSize() }">
-    <div class="tab-headers-container">
-        <div class="tab-headers">
-            @for (tab of $tabs(); let i = $index; track i) {
-                <div
-                    #tab
-                    class="tab"
-                    [class.active]="$selectedIndex() === i"
-                    [class.disabled]="tab.$disabled()"
-                    [tabindex]="tab.$disabled() ? -1 : 0"
-                    [style.padding]="$headerPadding()"
-                    (click)="selectTabByIndex(i)"
-                    (keydown)="onkeydown(i, $event)"
-                >
-                    <div class="tab-header">
-                        <ng-container *ngTemplateOutlet="tab.$headerTemplate()" />
-                    </div>
-                </div>
-            }
+  <div class="tab-headers-container">
+    <div class="tab-headers">
+      @for (tab of $tabs(); let i = $index; track i) {
+        <div
+          #tab
+          class="tab"
+          [class.active]="$selectedIndex() === i"
+          [class.disabled]="tab.$disabled()"
+          [tabindex]="tab.$disabled() ? -1 : 0"
+          [style.padding]="$headerPadding()"
+          (click)="selectTabByIndex(i)"
+          (keydown)="onkeydown(i, $event)"
+        >
+          <div class="tab-header">
+            <ng-container *ngTemplateOutlet="tab.$headerTemplate()" />
+          </div>
         </div>
+      }
     </div>
+  </div>
 </tab-arrow-scroll>
 <div class="tab-headers-underline"></div>
 @for (tab of $tabs(); let i = $index; track i) {
-    <div class="tab-content" [style.display]="$selectedIndex() === i ? 'block' : 'none'">
-        <ng-container *ngTemplateOutlet="tab.$contentTemplate()" />
-    </div>
+  <div class="tab-content" [style.display]="$selectedIndex() === i ? 'block' : 'none'">
+    <ng-container *ngTemplateOutlet="tab.$contentTemplate()" />
+  </div>
 }

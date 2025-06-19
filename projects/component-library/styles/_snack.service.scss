@@ -1,81 +1,81 @@
 .tab-snacks {
+  display: flex;
+  justify-content: center;
+  left: 0;
+  position: fixed;
+  right: 0;
+  visibility: hidden;
+  z-index: 2000;
+
+  &.top {
+    top: 0;
+    margin-top: 1.25rem;
+  }
+
+  &.bottom {
+    bottom: 0;
+    margin-bottom: 0.25rem;
+  }
+
+  .snack-container {
     display: flex;
-    justify-content: center;
-    left: 0;
-    position: fixed;
-    right: 0;
-    visibility: hidden;
-    z-index: 2000;
+    flex-direction: column;
+    align-items: center;
+    max-width: 800px; // stylelint-disable-line declaration-property-unit-disallowed-list
+    transition: transform 200ms ease-in-out;
 
-    &.top {
-        top: 0;
-        margin-top: 1.25rem;
-    }
+    .snack-wrapper {
+      align-items: flex-start;
+      border: 1px solid transparent;
+      border-left-width: 8px;
+      border-radius: 4px;
+      box-shadow: var(--twc-dialog-box-shadow);
+      box-sizing: border-box;
+      color: var(--twc-color-text);
+      display: flex;
+      flex-direction: column;
+      font-size: var(--twc-font-size-body);
+      justify-content: flex-start;
+      margin-bottom: 0.25rem;
+      position: relative;
+      visibility: visible;
+      height: auto;
+      transition: opacity 200ms;
+      opacity: 0;
 
-    &.bottom {
-        bottom: 0;
-        margin-bottom: 0.25rem;
-    }
+      .timer {
+        height: 2px; // stylelint-disable-line declaration-property-unit-disallowed-list
+        width: 100%;
+        margin-top: -2px; // stylelint-disable-line declaration-property-unit-disallowed-list
+        transition: width 1000ms linear;
+      }
 
-    .snack-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        max-width: 800px; // stylelint-disable-line declaration-property-unit-disallowed-list
-        transition: transform 200ms ease-in-out;
+      &.info {
+        background-color: var(--twc-color-primary-light);
+        border-color: var(--twc-color-primary);
 
-        .snack-wrapper {
-            align-items: flex-start;
-            border: 1px solid transparent;
-            border-left-width: 8px;
-            border-radius: 4px;
-            box-shadow: var(--twc-dialog-box-shadow);
-            box-sizing: border-box;
-            color: var(--twc-color-text);
-            display: flex;
-            flex-direction: column;
-            font-size: var(--twc-font-size-body);
-            justify-content: flex-start;
-            margin-bottom: 0.25rem;
-            position: relative;
-            visibility: visible;
-            height: auto;
-            transition: opacity 200ms;
-            opacity: 0;
-
-            .timer {
-                height: 2px; // stylelint-disable-line declaration-property-unit-disallowed-list
-                width: 100%;
-                margin-top: -2px; // stylelint-disable-line declaration-property-unit-disallowed-list
-                transition: width 1000ms linear;
-            }
-
-            &.info {
-                background-color: var(--twc-color-primary-light);
-                border-color: var(--twc-color-primary);
-
-                .timer {
-                    background-color: var(--twc-color-primary);
-                }
-            }
-
-            &.error {
-                border-color: var(--twc-color-error);
-                background-color: var(--twc-color-error-light);
-
-                .timer {
-                    background-color: var(--twc-color-error);
-                }
-            }
-
-            &.success {
-                border-color: var(--twc-color-success);
-                background-color: var(--twc-color-success-light);
-
-                .timer {
-                    background-color: var(--twc-color-success);
-                }
-            }
+        .timer {
+          background-color: var(--twc-color-primary);
         }
+      }
+
+      &.error {
+        border-color: var(--twc-color-error);
+        background-color: var(--twc-color-error-light);
+
+        .timer {
+          background-color: var(--twc-color-error);
+        }
+      }
+
+      &.success {
+        border-color: var(--twc-color-success);
+        background-color: var(--twc-color-success-light);
+
+        .timer {
+          background-color: var(--twc-color-success);
+        }
+      }
     }
+  }
 }

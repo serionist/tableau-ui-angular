@@ -4,8 +4,8 @@ import { TableauUiCommonModule } from 'tableau-ui-angular/common';
 import { RadioGroupComponent } from './radio-group.component';
 
 @NgModule({
-    imports: [CommonModule, TableauUiCommonModule],
-    declarations: [RadioGroupComponent],
-    exports: [RadioGroupComponent],
+  imports: [CommonModule, TableauUiCommonModule],
+  declarations: [RadioGroupComponent],
+  exports: [RadioGroupComponent],
 })
 export class TableauUiRadioGroupModule {}

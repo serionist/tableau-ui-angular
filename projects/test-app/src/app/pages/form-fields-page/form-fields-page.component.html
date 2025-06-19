@@ -1,182 +1,182 @@
 <!-- eslint-disable  @angular-eslint/template/no-inline-styles -->
 <div class="page">
-    <div class="title">
-        <h1>Form Fields</h1>
-        <div class="text-light text-large">
-            The form-field component is used to wrap inputs to extend the capability with Labels, Hints, Errors, Prefixes and Suffixes
-            <br />
-            Supports both Reactive Forms and simple value binding.
-        </div>
+  <div class="title">
+    <h1>Form Fields</h1>
+    <div class="text-light text-large">
+      The form-field component is used to wrap inputs to extend the capability with Labels, Hints, Errors, Prefixes and Suffixes
+      <br />
+      Supports both Reactive Forms and simple value binding.
     </div>
-    <tab-separator />
-    <div class="content">
-        <div class="section">
-            <h3>Module</h3>
-            <p>To use the component, import one of the following modules into your module/component:</p>
+  </div>
+  <tab-separator />
+  <div class="content">
+    <div class="section">
+      <h3>Module</h3>
+      <p>To use the component, import one of the following modules into your module/component:</p>
 
-            <ul>
-                <li>
-                    <code>TableauUiFormFieldModule</code>
-                    - for granular import
-                </li>
-                <li>
-                    <code>TableauUiAllModule</code>
-                    - to import all components from this library
-                </li>
-            </ul>
-        </div>
-        <div class="section">
-            <h3>Basic usage</h3>
-            <p>
-                To use a form field without Reactive Forms, simply bind to the
-                <code>[value]</code>
-                ,
-                <code>(change)</code>
-                or
-                <code>(input)</code>
-                properties. These examples show a snack when changed.
-            </p>
-            <div class="spacer two" style="max-width: 800px">
-                <tab-form-field>
-                    <tab-label>Simple textbox</tab-label>
-                    <input type="text" value="" (change)="valueChanged($event, 'Simple TextBox')" (input)="valueInput($event, 'Simple TextBox')" />
-                </tab-form-field>
-                <tab-form-field>
-                    <tab-label>Disabled textbox</tab-label>
-                    <input type="text" placeholder="Enter any text here" disabled value="" (change)="valueChanged($event, 'Disabled TextBox')" (input)="valueInput($event, 'Disabled TextBox')" />
-                    <tab-hint>Hint on the left side</tab-hint>
-                    <tab-hint type="suffix">Hint on the right side</tab-hint>
-                    <tab-prefix>
-                        <tab-icon value="search" />
-                    </tab-prefix>
-                    <tab-suffix>Suffix</tab-suffix>
-                </tab-form-field>
-                <tab-form-field>
-                    <tab-label>Simple textbox with autocomplete</tab-label>
-                    <input #autocompleteInput type="text" [value]="searchValue$ | async" [tabAutoComplete]="autocomplete" (input)="searchValueChanged($event)" />
-                    <tab-autocomplete #autocomplete>
-                        <tab-prefix>
-                            <div style="margin: 0.5rem; display: flex; align-items: center">
-                                <tab-icon value="search" />
-                                Suggestions
-                            </div>
-                            <tab-separator />
-                        </tab-prefix>
-                        @if ($searching()) {
-                            <tab-prefix>
-                                <tab-loading-gif />
-                            </tab-prefix>
-                        } @else {
-                            @for (result of searchResults$ | async; track result.name) {
-                                <tab-option [text]="result.name" [value]="result.name" />
-                            }
-                        }
+      <ul>
+        <li>
+          <code>TableauUiFormFieldModule</code>
+          - for granular import
+        </li>
+        <li>
+          <code>TableauUiAllModule</code>
+          - to import all components from this library
+        </li>
+      </ul>
+    </div>
+    <div class="section">
+      <h3>Basic usage</h3>
+      <p>
+        To use a form field without Reactive Forms, simply bind to the
+        <code>[value]</code>
+        ,
+        <code>(change)</code>
+        or
+        <code>(input)</code>
+        properties. These examples show a snack when changed.
+      </p>
+      <div class="spacer two" style="max-width: 800px">
+        <tab-form-field>
+          <tab-label>Simple textbox</tab-label>
+          <input type="text" value="" (change)="valueChanged($event, 'Simple TextBox')" (input)="valueInput($event, 'Simple TextBox')" />
+        </tab-form-field>
+        <tab-form-field>
+          <tab-label>Disabled textbox</tab-label>
+          <input type="text" placeholder="Enter any text here" disabled value="" (change)="valueChanged($event, 'Disabled TextBox')" (input)="valueInput($event, 'Disabled TextBox')" />
+          <tab-hint>Hint on the left side</tab-hint>
+          <tab-hint type="suffix">Hint on the right side</tab-hint>
+          <tab-prefix>
+            <tab-icon value="search" />
+          </tab-prefix>
+          <tab-suffix>Suffix</tab-suffix>
+        </tab-form-field>
+        <tab-form-field>
+          <tab-label>Simple textbox with autocomplete</tab-label>
+          <input #autocompleteInput type="text" [value]="searchValue$ | async" [tabAutoComplete]="autocomplete" (input)="searchValueChanged($event)" />
+          <tab-autocomplete #autocomplete>
+            <tab-prefix>
+              <div style="margin: 0.5rem; display: flex; align-items: center">
+                <tab-icon value="search" />
+                Suggestions
+              </div>
+              <tab-separator />
+            </tab-prefix>
+            @if ($searching()) {
+              <tab-prefix>
+                <tab-loading-gif />
+              </tab-prefix>
+            } @else {
+              @for (result of searchResults$ | async; track result.name) {
+                <tab-option [text]="result.name" [value]="result.name" />
+              }
+            }
 
-                        <tab-suffix>
-                            <tab-separator />
-                            <tab-hint style="display: block; margin: 0.5rem">{{ (searchResults$ | async)?.length || 0 }} suggestions</tab-hint>
-                        </tab-suffix>
-                    </tab-autocomplete>
-                </tab-form-field>
-            </div>
-        </div>
-        <div class="section">
-            <h3>Reactive Forms</h3>
-            <p>
-                To use the form field with Reactive Forms, bind to the
-                <code>formControl</code>
-                or
-                <code>formControlName</code>
-                property.
-            </p>
-            <div class="spacer">
-                <form class="spacer two" style="max-width: 800px" [formGroup]="form | formGroup">
-                    <tab-form-field>
-                        <tab-label>Simple textbox</tab-label>
-                        <input type="text" formControlName="simple" />
-                    </tab-form-field>
-                    <tab-form-field>
-                        <tab-label>Placeholder textbox</tab-label>
-                        <input type="text" placeholder="Enter any text here" formControlName="simple2" />
-                    </tab-form-field>
+            <tab-suffix>
+              <tab-separator />
+              <tab-hint style="display: block; margin: 0.5rem">{{ (searchResults$ | async)?.length || 0 }} suggestions</tab-hint>
+            </tab-suffix>
+          </tab-autocomplete>
+        </tab-form-field>
+      </div>
+    </div>
+    <div class="section">
+      <h3>Reactive Forms</h3>
+      <p>
+        To use the form field with Reactive Forms, bind to the
+        <code>formControl</code>
+        or
+        <code>formControlName</code>
+        property.
+      </p>
+      <div class="spacer">
+        <form class="spacer two" style="max-width: 800px" [formGroup]="form | formGroup">
+          <tab-form-field>
+            <tab-label>Simple textbox</tab-label>
+            <input type="text" formControlName="simple" />
+          </tab-form-field>
+          <tab-form-field>
+            <tab-label>Placeholder textbox</tab-label>
+            <input type="text" placeholder="Enter any text here" formControlName="simple2" />
+          </tab-form-field>
 
-                    <tab-form-field>
-                        <tab-label>Decorated textbox</tab-label>
-                        <input type="text" placeholder="Enter any text here" formControlName="simple3" />
-                        <tab-hint>Hint on the left side</tab-hint>
-                        <tab-hint type="suffix">Hint on the right side</tab-hint>
-                        <tab-prefix>
-                            <tab-icon value="search" />
-                        </tab-prefix>
-                        <tab-suffix>Suffix</tab-suffix>
-                    </tab-form-field>
+          <tab-form-field>
+            <tab-label>Decorated textbox</tab-label>
+            <input type="text" placeholder="Enter any text here" formControlName="simple3" />
+            <tab-hint>Hint on the left side</tab-hint>
+            <tab-hint type="suffix">Hint on the right side</tab-hint>
+            <tab-prefix>
+              <tab-icon value="search" />
+            </tab-prefix>
+            <tab-suffix>Suffix</tab-suffix>
+          </tab-form-field>
 
-                    <tab-form-field>
-                        <tab-label>Disabled textbox</tab-label>
-                        <input type="text" placeholder="Enter any text here" formControlName="disabled" />
-                        <tab-hint>Hint on the left side</tab-hint>
-                        <tab-hint type="suffix">Hint on the right side</tab-hint>
-                        <tab-prefix>
-                            <tab-icon value="search" />
-                        </tab-prefix>
-                        <tab-suffix>Suffix</tab-suffix>
-                    </tab-form-field>
+          <tab-form-field>
+            <tab-label>Disabled textbox</tab-label>
+            <input type="text" placeholder="Enter any text here" formControlName="disabled" />
+            <tab-hint>Hint on the left side</tab-hint>
+            <tab-hint type="suffix">Hint on the right side</tab-hint>
+            <tab-prefix>
+              <tab-icon value="search" />
+            </tab-prefix>
+            <tab-suffix>Suffix</tab-suffix>
+          </tab-form-field>
 
-                    <tab-form-field>
-                        <tab-label>Validated textbox</tab-label>
-                        <input #errorInput type="text" placeholder="Enter any text here" formControlName="validation" />
-                        <tab-hint>Hint on the left side</tab-hint>
-                        <tab-hint type="suffix">Hint on the right side</tab-hint>
-                        <tab-prefix>
-                            <tab-icon value="search" />
-                        </tab-prefix>
-                        <tab-suffix>Suffix</tab-suffix>
-                        @if (form | formMeta: 'validation' | async | formHasError) {
-                            <tab-error>This field is required</tab-error>
-                        }
-                    </tab-form-field>
+          <tab-form-field>
+            <tab-label>Validated textbox</tab-label>
+            <input #errorInput type="text" placeholder="Enter any text here" formControlName="validation" />
+            <tab-hint>Hint on the left side</tab-hint>
+            <tab-hint type="suffix">Hint on the right side</tab-hint>
+            <tab-prefix>
+              <tab-icon value="search" />
+            </tab-prefix>
+            <tab-suffix>Suffix</tab-suffix>
+            @if (form | formMeta: 'validation' | async | formHasError) {
+              <tab-error>This field is required</tab-error>
+            }
+          </tab-form-field>
 
-                    <tab-form-field>
-                        <tab-label>Password box</tab-label>
-                        <input type="password" placeholder="Enter any text here" formControlName="password" />
-                        <tab-hint>Hint on the left side</tab-hint>
-                        <tab-hint type="suffix">Hint on the right side</tab-hint>
-                        <tab-prefix>
-                            <tab-icon value="search" />
-                        </tab-prefix>
-                        <tab-suffix>Suffix</tab-suffix>
-                    </tab-form-field>
+          <tab-form-field>
+            <tab-label>Password box</tab-label>
+            <input type="password" placeholder="Enter any text here" formControlName="password" />
+            <tab-hint>Hint on the left side</tab-hint>
+            <tab-hint type="suffix">Hint on the right side</tab-hint>
+            <tab-prefix>
+              <tab-icon value="search" />
+            </tab-prefix>
+            <tab-suffix>Suffix</tab-suffix>
+          </tab-form-field>
 
-                    <tab-form-field>
-                        <tab-label>Number box</tab-label>
-                        <input type="number" placeholder="Enter any text here" formControlName="number" />
-                        <tab-hint>Enter -1 for multiple errors</tab-hint>
-                        <tab-prefix>
-                            <tab-icon value="search" />
-                        </tab-prefix>
-                        <tab-suffix>Suffix</tab-suffix>
-                        @if (form | formMeta: 'number' | async | formHasError: 'required') {
-                            <tab-error>This field is required</tab-error>
-                        }
-                        @if (form | formMeta: 'number' | async | formHasError: 'min') {
-                            <tab-error>Value must be greater than 0</tab-error>
-                        }
-                        @if (form | formMeta: 'number' | async | formHasError: 'pattern') {
-                            <tab-error>Value must be a number</tab-error>
-                        }
-                    </tab-form-field>
+          <tab-form-field>
+            <tab-label>Number box</tab-label>
+            <input type="number" placeholder="Enter any text here" formControlName="number" />
+            <tab-hint>Enter -1 for multiple errors</tab-hint>
+            <tab-prefix>
+              <tab-icon value="search" />
+            </tab-prefix>
+            <tab-suffix>Suffix</tab-suffix>
+            @if (form | formMeta: 'number' | async | formHasError: 'required') {
+              <tab-error>This field is required</tab-error>
+            }
+            @if (form | formMeta: 'number' | async | formHasError: 'min') {
+              <tab-error>Value must be greater than 0</tab-error>
+            }
+            @if (form | formMeta: 'number' | async | formHasError: 'pattern') {
+              <tab-error>Value must be a number</tab-error>
+            }
+          </tab-form-field>
 
-                    <tab-form-field>
-                        <tab-label>Text area</tab-label>
-                        <textarea placeholder="Enter any text here" rows="1" formControlName="textarea"></textarea>
-                        <tab-hint>
-                            Edit the
-                            <b>rows</b>
-                            property to make it larger by default
-                        </tab-hint>
-                        <tab-hint type="suffix">Hint on the right side</tab-hint>
-                    </tab-form-field>
-                    <!-- 
+          <tab-form-field>
+            <tab-label>Text area</tab-label>
+            <textarea placeholder="Enter any text here" rows="1" formControlName="textarea"></textarea>
+            <tab-hint>
+              Edit the
+              <b>rows</b>
+              property to make it larger by default
+            </tab-hint>
+            <tab-hint type="suffix">Hint on the right side</tab-hint>
+          </tab-form-field>
+          <!-- 
                     <tab-form-field>
                         <tab-label>AdancedValidation</tab-label>
                         <input
@@ -200,8 +200,8 @@
                             needs to be valid</tab-hint
                         >
                     </tab-form-field> -->
-                </form>
-            </div>
-        </div>
+        </form>
+      </div>
     </div>
+  </div>
 </div>

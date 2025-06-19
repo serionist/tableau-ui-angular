@@ -1,22 +1,22 @@
 {
-    "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
-    "dest": "../../dist/component-library",
-    "lib": {
-        "entryFile": "public-api.ts",
-        "styleIncludePaths": ["./styles"]
+  "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
+  "dest": "../../dist/component-library",
+  "lib": {
+    "entryFile": "public-api.ts",
+    "styleIncludePaths": ["./styles"]
+  },
+  "allowedNonPeerDependencies": ["tabbable"],
+  "assets": [
+    {
+      "glob": "**/*",
+      "input": "./styles",
+      "output": "./styles",
+      "ignore": ["**/BentonSans-*"]
     },
-    "allowedNonPeerDependencies": ["tabbable"],
-    "assets": [
-        {
-            "glob": "**/*",
-            "input": "./styles",
-            "output": "./styles",
-            "ignore": ["**/BentonSans-*"]
-        },
-        {
-            "glob": "**/*",
-            "input": "./used-icons/scripts",
-            "output": "./used-icons/scripts"
-        }
-    ]
+    {
+      "glob": "**/*",
+      "input": "./used-icons/scripts",
+      "output": "./used-icons/scripts"
+    }
+  ]
 }

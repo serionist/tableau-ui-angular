@@ -4,17 +4,17 @@ import { TableauUiCommonModule } from 'tableau-ui-angular/common';
 import { TableauUiMonacoModule } from 'tableau-ui-angular/monaco';
 
 @Component({
-    selector: 'app-local-development',
-    imports: [TableauUiCommonModule, TableauUiMonacoModule],
-    standalone: true,
-    templateUrl: './local-development.component.html',
-    styleUrl: './local-development.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: 'app-local-development',
+  imports: [TableauUiCommonModule, TableauUiMonacoModule],
+  standalone: true,
+  templateUrl: './local-development.component.html',
+  styleUrl: './local-development.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LocalDevelopmentComponent {
-    options = MonacoHelper.options();
+  options = MonacoHelper.options();
 
-    angularJsonContent = `"projects": {
+  angularJsonContent = `"projects": {
          "[your-app]": {
               "architect": {
                 "build": {
@@ -34,7 +34,7 @@ export class LocalDevelopmentComponent {
               }
          }
 }`;
-    tsconfigJsonContent = `  "compilerOptions": {
+  tsconfigJsonContent = `  "compilerOptions": {
         "paths": {
           "tableau-ui-angular": [
           "./node_modules/tableau-ui-angular"

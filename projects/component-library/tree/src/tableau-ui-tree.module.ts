@@ -9,8 +9,8 @@ import { TabTreeNodeComponent } from './tree-node.component';
 import { TabTreeComponent } from './tree.component';
 
 @NgModule({
-    imports: [CommonModule, TableauUiButtonModule, TableauUiIconModule, TableauUiTooltipModule],
-    declarations: [TabTreeComponent, TabTreeNodeComponent, ExpandedContentDirective, CollapsedContentDirective],
-    exports: [TabTreeComponent, TabTreeNodeComponent, ExpandedContentDirective, CollapsedContentDirective],
+  imports: [CommonModule, TableauUiButtonModule, TableauUiIconModule, TableauUiTooltipModule],
+  declarations: [TabTreeComponent, TabTreeNodeComponent, ExpandedContentDirective, CollapsedContentDirective],
+  exports: [TabTreeComponent, TabTreeNodeComponent, ExpandedContentDirective, CollapsedContentDirective],
 })
 export class TableauUiTreeModule {}

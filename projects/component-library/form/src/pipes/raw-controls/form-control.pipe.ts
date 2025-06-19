@@ -5,19 +5,19 @@ import type { FCImpl } from '../../models/form-control/impl';
 import type { FormControl } from '@angular/forms';
 
 @Pipe({
-    name: 'formControl',
-    standalone: false,
+  name: 'formControl',
+  standalone: false,
 })
 export class FormControlPipe implements PipeTransform {
-    transform(form: AC, path?: string): FormControl {
-        const ret = form.hierarchy.getChild(path);
-        if (!ret) {
-            throw new Error(`formControl: No child found at path "${path}"`);
-        }
-        if (ret.type !== 'control') {
-            throw new Error(`formControl: Expected a FormControl at path "${path}", but got "${ret.type}"`);
-        }
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return (ret as FCImpl<any>).control as FormControl;
+  transform(form: AC, path?: string): FormControl {
+    const ret = form.hierarchy.getChild(path);
+    if (!ret) {
+      throw new Error(`formControl: No child found at path "${path}"`);
     }
+    if (ret.type !== 'control') {
+      throw new Error(`formControl: Expected a FormControl at path "${path}", but got "${ret.type}"`);
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (ret as FCImpl<any>).control as FormControl;
+  }
 }

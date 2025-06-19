@@ -9,74 +9,74 @@ input[type='date'],
 input[type='datetime-local'],
 textarea,
 .tab-input {
-    width: 100%;
-    min-height: 2em;
-    appearance: none;
-    background-color: transparent;
-    border: var(--twc-input-border);
-    border-radius: var(--twc-input-border-radius);
-    box-sizing: border-box;
-    color: var(--twc-color-text);
-    font-family: var(--twc-font-family);
-    font-size: var(--twc-font-size-body);
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-    outline: none;
+  width: 100%;
+  min-height: 2em;
+  appearance: none;
+  background-color: transparent;
+  border: var(--twc-input-border);
+  border-radius: var(--twc-input-border-radius);
+  box-sizing: border-box;
+  color: var(--twc-color-text);
+  font-family: var(--twc-font-family);
+  font-size: var(--twc-font-size-body);
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  outline: none;
 
-    &:focus-visible {
-        border-color: var(--twc-color-focused-input);
-        border-width: 1px;
-    }
+  &:focus-visible {
+    border-color: var(--twc-color-focused-input);
+    border-width: 1px;
+  }
 
-    &:not(textarea, [type='image' i], [type='range' i], [type='checkbox' i], [type='radio' i], .tab-input) {
-        overflow-clip-margin: 0 !important;
-        overflow: clip !important;
-    }
+  &:not(textarea, [type='image' i], [type='range' i], [type='checkbox' i], [type='radio' i], .tab-input) {
+    overflow-clip-margin: 0 !important;
+    overflow: clip !important;
+  }
 
-    &.ng-invalid.ng-touched,
-    &.ng-touched.tab-error {
-        border-color: var(--twc-color-error);
-        border-width: 2px;
+  &.ng-invalid.ng-touched,
+  &.ng-touched.tab-error {
+    border-color: var(--twc-color-error);
+    border-width: 2px;
 
-        // // outline-offset: -1px;
-        // &:focus-visible {
-        //     border: none;
-        // }
-    }
-
-    // &:focus {
-    //     outline-width: 2px !important;
-    //     outline-offset: -2px !important;
+    // // outline-offset: -1px;
+    // &:focus-visible {
+    //     border: none;
     // }
+  }
 
-    &:hover:enabled:not(:focus) {
-        background-color: var(--twc-color-mouse-highlight);
+  // &:focus {
+  //     outline-width: 2px !important;
+  //     outline-offset: -2px !important;
+  // }
+
+  &:hover:enabled:not(:focus) {
+    background-color: var(--twc-color-mouse-highlight);
+  }
+
+  // stylelint-disable-next-line no-descending-specificity
+  .placeholder,
+  &::placeholder,
+  &.placeholder {
+    color: var(--twc-color-text-light);
+  }
+
+  &[disabled] {
+    background-color: transparent;
+    border-color: var(--twc-color-disabled);
+    color: var(--twc-color-disabled);
+
+    &::placeholder {
+      color: var(--twc-color-disabled);
     }
-
-    // stylelint-disable-next-line no-descending-specificity
-    .placeholder,
-    &::placeholder,
-    &.placeholder {
-        color: var(--twc-color-text-light);
+    // stylelint-disable-next-line selector-pseudo-element-no-unknown
+    &::input-placeholder {
+      color: var(--twc-color-disabled);
     }
-
-    &[disabled] {
-        background-color: transparent;
-        border-color: var(--twc-color-disabled);
-        color: var(--twc-color-disabled);
-
-        &::placeholder {
-            color: var(--twc-color-disabled);
-        }
-        // stylelint-disable-next-line selector-pseudo-element-no-unknown
-        &::input-placeholder {
-            color: var(--twc-color-disabled);
-        }
-    }
+  }
 }
 // stylelint-disable-next-line no-descending-specificity
 textarea {
-    resize: vertical;
-    padding-top: 0.4rem;
-    padding-bottom: 0.4rem;
+  resize: vertical;
+  padding-top: 0.4rem;
+  padding-bottom: 0.4rem;
 }

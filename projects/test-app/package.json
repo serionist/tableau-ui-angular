@@ -1,27 +1,27 @@
 {
-    "name": "test-app",
-    "version": "0.0.0",
-    "private": true,
-    "dependencies": {
-        "@angular/animations": "^20.0.3",
-        "@angular/common": "^20.0.3",
-        "@angular/compiler": "^20.0.3",
-        "@angular/core": "^20.0.3",
-        "@angular/elements": "^20.0.3",
-        "@angular/forms": "^20.0.3",
-        "@angular/platform-browser": "^20.0.3",
-        "@angular/platform-browser-dynamic": "^20.0.3",
-        "@angular/router": "^20.0.3",
-        "material-symbols": "0.31.2",
-        "rxjs": "~7.8.0",
-        "tabbable": "^6.2.0",
-        "tslib": "^2.3.0",
-        "zone.js": "~0.15.0",
-        "tableau-ui-angular": "file:../component-library"
-    },
-    "devDependencies": {
-        "axios": "^1.7.9",
-        "chokidar-cli": "^3.0.0",
-        "concurrently": "^9.1.2"
-    }
+  "name": "test-app",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@angular/animations": "^20.0.3",
+    "@angular/common": "^20.0.3",
+    "@angular/compiler": "^20.0.3",
+    "@angular/core": "^20.0.3",
+    "@angular/elements": "^20.0.3",
+    "@angular/forms": "^20.0.3",
+    "@angular/platform-browser": "^20.0.3",
+    "@angular/platform-browser-dynamic": "^20.0.3",
+    "@angular/router": "^20.0.3",
+    "material-symbols": "0.31.2",
+    "rxjs": "~7.8.0",
+    "tabbable": "^6.2.0",
+    "tslib": "^2.3.0",
+    "zone.js": "~0.15.0",
+    "tableau-ui-angular": "file:../component-library"
+  },
+  "devDependencies": {
+    "axios": "^1.7.9",
+    "chokidar-cli": "^3.0.0",
+    "concurrently": "^9.1.2"
+  }
 }

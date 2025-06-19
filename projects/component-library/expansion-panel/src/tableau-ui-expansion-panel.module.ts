@@ -7,8 +7,8 @@ import { TableauUiButtonModule } from 'tableau-ui-angular/button';
 import { TableauUiIconModule } from 'tableau-ui-angular/icon';
 
 @NgModule({
-    imports: [CommonModule, TableauUiButtonModule, TableauUiIconModule],
-    declarations: [ExpansionPanelComponent, ExpansionPanelTitleCollapsedContentDirective, ExpansionPanelTitleComponent, ExpansionPanelTitleExpandedContentDirective, AccordionComponent],
-    exports: [ExpansionPanelComponent, ExpansionPanelTitleCollapsedContentDirective, ExpansionPanelTitleComponent, ExpansionPanelTitleExpandedContentDirective, AccordionComponent],
+  imports: [CommonModule, TableauUiButtonModule, TableauUiIconModule],
+  declarations: [ExpansionPanelComponent, ExpansionPanelTitleCollapsedContentDirective, ExpansionPanelTitleComponent, ExpansionPanelTitleExpandedContentDirective, AccordionComponent],
+  exports: [ExpansionPanelComponent, ExpansionPanelTitleCollapsedContentDirective, ExpansionPanelTitleComponent, ExpansionPanelTitleExpandedContentDirective, AccordionComponent],
 })
 export class TableauUiExpansionPanelModule {}

@@ -1,4 +1,4 @@
 export interface DataSort {
-    property: string;
-    direction: 'asc' | 'desc';
+  property: string;
+  direction: 'asc' | 'desc';
 }

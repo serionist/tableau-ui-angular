@@ -12,8 +12,8 @@ import { TableauUiUtilsModule } from 'tableau-ui-angular/utils';
 import { LabelComponent } from './label';
 
 @NgModule({
-    imports: [CommonModule, TableauUiIconModule, TableauUiUtilsModule],
-    declarations: [ErrorComponent, HintComponent, OptionComponent, PrefixComponent, SuffixComponent, SeparatorComponent, LoadingGifComponent, LabelComponent],
-    exports: [ErrorComponent, HintComponent, OptionComponent, SeparatorComponent, LoadingGifComponent, PrefixComponent, SuffixComponent, LabelComponent],
+  imports: [CommonModule, TableauUiIconModule, TableauUiUtilsModule],
+  declarations: [ErrorComponent, HintComponent, OptionComponent, PrefixComponent, SuffixComponent, SeparatorComponent, LoadingGifComponent, LabelComponent],
+  exports: [ErrorComponent, HintComponent, OptionComponent, SeparatorComponent, LoadingGifComponent, PrefixComponent, SuffixComponent, LabelComponent],
 })
 export class TableauUiCommonModule {}

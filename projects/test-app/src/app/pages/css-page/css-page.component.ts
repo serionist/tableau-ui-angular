@@ -4,14 +4,14 @@ import { TableauUiCommonModule } from 'tableau-ui-angular/common';
 import { TableauUiMonacoModule } from 'tableau-ui-angular/monaco';
 
 @Component({
-    selector: 'app-css-page',
-    imports: [TableauUiCommonModule, TableauUiMonacoModule],
-    standalone: true,
-    templateUrl: './css-page.component.html',
-    styleUrl: './css-page.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: 'app-css-page',
+  imports: [TableauUiCommonModule, TableauUiMonacoModule],
+  standalone: true,
+  templateUrl: './css-page.component.html',
+  styleUrl: './css-page.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CssPageComponent {
-    options = MonacoHelper.options();
-    code: string = '@use "tableau-ui-angular/styles/lib-styles" as libStyles;';
+  options = MonacoHelper.options();
+  code: string = '@use "tableau-ui-angular/styles/lib-styles" as libStyles;';
 }

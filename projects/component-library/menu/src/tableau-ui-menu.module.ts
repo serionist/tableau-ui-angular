@@ -5,8 +5,8 @@ import { AttachedMenuDirective } from './attached-menu.directive';
 import { ButtonMenuDirective } from './button-menu.directive';
 
 @NgModule({
-    imports: [TableauUiDialogModule],
-    declarations: [MenuDirective, AttachedMenuDirective, ButtonMenuDirective],
-    exports: [MenuDirective, AttachedMenuDirective, ButtonMenuDirective],
+  imports: [TableauUiDialogModule],
+  declarations: [MenuDirective, AttachedMenuDirective, ButtonMenuDirective],
+  exports: [MenuDirective, AttachedMenuDirective, ButtonMenuDirective],
 })
 export class TableauUiMenuModule {}

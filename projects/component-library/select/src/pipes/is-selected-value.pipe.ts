@@ -4,14 +4,14 @@ import type { OptionComponent } from 'tableau-ui-angular/common';
 import type { Primitive } from 'tableau-ui-angular/types';
 
 @Pipe({
-    name: 'isSelectedValue',
-    standalone: false,
+  name: 'isSelectedValue',
+  standalone: false,
 })
 export class IsSelectedValuePipe<T extends Primitive> implements PipeTransform {
-    transform(option: OptionComponent<T>, allowMultiple: boolean, value: T | T[] | undefined): boolean {
-        if (allowMultiple) {
-            return value instanceof Array && value.includes(option.$value());
-        }
-        return option.$value() === value;
+  transform(option: OptionComponent<T>, allowMultiple: boolean, value: T | T[] | undefined): boolean {
+    if (allowMultiple) {
+      return value instanceof Array && value.includes(option.$value());
     }
+    return option.$value() === value;
+  }
 }

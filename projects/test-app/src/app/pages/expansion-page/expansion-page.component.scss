@@ -1,11 +1,11 @@
 .header {
-    &.special {
-        display: grid;
-        width: 100%;
-        grid-template-columns: auto 1fr auto;
+  &.special {
+    display: grid;
+    width: 100%;
+    grid-template-columns: auto 1fr auto;
 
-        p {
-            grid-column: 1/4;
-        }
+    p {
+      grid-column: 1/4;
     }
+  }
 }

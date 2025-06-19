@@ -6,13 +6,13 @@ import { TableauUiMenuButtonModule } from 'tableau-ui-angular/menu-button';
 import { SnackService, TableauUiSnackModule } from 'tableau-ui-angular/snack';
 
 @Component({
-    selector: 'app-menu-page',
-    imports: [TableauUiSnackModule, TableauUiCommonModule, TableauUiMenuModule, TableauUiButtonModule, TableauUiMenuButtonModule],
-    standalone: true,
-    templateUrl: './menu-page.component.html',
-    styleUrl: './menu-page.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: 'app-menu-page',
+  imports: [TableauUiSnackModule, TableauUiCommonModule, TableauUiMenuModule, TableauUiButtonModule, TableauUiMenuButtonModule],
+  standalone: true,
+  templateUrl: './menu-page.component.html',
+  styleUrl: './menu-page.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MenuPageComponent {
-    snack = inject(SnackService);
+  snack = inject(SnackService);
 }

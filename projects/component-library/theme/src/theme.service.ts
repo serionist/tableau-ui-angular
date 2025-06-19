@@ -5,96 +5,96 @@ import type { Observable } from 'rxjs';
 import { BehaviorSubject, combineLatest, map } from 'rxjs';
 
 @Injectable({
-    providedIn: 'root',
+  providedIn: 'root',
 })
 export class ThemeService {
-    private readonly themeKey = 'theme-config';
-    private readonly defaultTheme: ThemeConfig = {
-        fontSize: '12px',
-        mode: 'auto',
-    };
+  private readonly themeKey = 'theme-config';
+  private readonly defaultTheme: ThemeConfig = {
+    fontSize: '12px',
+    mode: 'auto',
+  };
 
-    private readonly _theme$ = new BehaviorSubject<ThemeConfig>(this.getInitialTheme());
-    public get theme$(): Observable<ThemeConfig> {
-        return this._theme$;
-    }
-    private readonly autoColor$ = new BehaviorSubject<'dark' | 'light'>(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    readonly $theme = toSignal(this._theme$, {
-        initialValue: this._theme$.value,
+  private readonly _theme$ = new BehaviorSubject<ThemeConfig>(this.getInitialTheme());
+  public get theme$(): Observable<ThemeConfig> {
+    return this._theme$;
+  }
+  private readonly autoColor$ = new BehaviorSubject<'dark' | 'light'>(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  readonly $theme = toSignal(this._theme$, {
+    initialValue: this._theme$.value,
+  });
+
+  readonly appliedThemeMode$ = combineLatest([this._theme$, this.autoColor$]).pipe(
+    map(([theme, autoColor]) => {
+      return this.getAppliedThemeMode(theme, autoColor);
+    }),
+  );
+  readonly $appliedThemeMode = toSignal(this.appliedThemeMode$, { initialValue: this.getAppliedThemeMode(this._theme$.value, this.autoColor$.value) });
+
+  private getAppliedThemeMode(theme: ThemeConfig, autoColor: 'dark' | 'light'): 'dark' | 'light' {
+    return theme.mode === 'auto' ? autoColor : theme.mode;
+  }
+  initialize() {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+      if (e.matches) {
+        this.autoColor$.next('dark');
+      } else {
+        this.autoColor$.next('light');
+      }
     });
 
-    readonly appliedThemeMode$ = combineLatest([this._theme$, this.autoColor$]).pipe(
-        map(([theme, autoColor]) => {
-            return this.getAppliedThemeMode(theme, autoColor);
-        }),
-    );
-    readonly $appliedThemeMode = toSignal(this.appliedThemeMode$, { initialValue: this.getAppliedThemeMode(this._theme$.value, this.autoColor$.value) });
+    this._theme$.subscribe(theme => {
+      localStorage.setItem(this.themeKey, JSON.stringify(theme));
+      document.documentElement.style.setProperty('--twc-font-size', theme.fontSize);
+    });
 
-    private getAppliedThemeMode(theme: ThemeConfig, autoColor: 'dark' | 'light'): 'dark' | 'light' {
-        return theme.mode === 'auto' ? autoColor : theme.mode;
-    }
-    initialize() {
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-            if (e.matches) {
-                this.autoColor$.next('dark');
-            } else {
-                this.autoColor$.next('light');
+    combineLatest([this._theme$, this.autoColor$]).subscribe(([theme, autoColor]) => {
+      const color = theme.mode === 'auto' ? autoColor : theme.mode;
+      switch (color) {
+        case 'dark':
+          {
+            if (!document.body.classList.contains('dark-mode')) {
+              document.body.classList.add('dark-mode');
             }
-        });
-
-        this._theme$.subscribe((theme) => {
-            localStorage.setItem(this.themeKey, JSON.stringify(theme));
-            document.documentElement.style.setProperty('--twc-font-size', theme.fontSize);
-        });
-
-        combineLatest([this._theme$, this.autoColor$]).subscribe(([theme, autoColor]) => {
-            const color = theme.mode === 'auto' ? autoColor : theme.mode;
-            switch (color) {
-                case 'dark':
-                    {
-                        if (!document.body.classList.contains('dark-mode')) {
-                            document.body.classList.add('dark-mode');
-                        }
-                        document.body.style.colorScheme = 'dark';
-                    }
-                    break;
-                case 'light':
-                    {
-                        if (document.body.classList.contains('dark-mode')) {
-                            document.body.classList.remove('dark-mode');
-                        }
-                        document.body.style.colorScheme = 'light';
-                    }
-                    break;
+            document.body.style.colorScheme = 'dark';
+          }
+          break;
+        case 'light':
+          {
+            if (document.body.classList.contains('dark-mode')) {
+              document.body.classList.remove('dark-mode');
             }
-            const { fontSize } = theme;
-            document.documentElement.style.setProperty('--twc-font-size-body', fontSize);
-        });
-    }
+            document.body.style.colorScheme = 'light';
+          }
+          break;
+      }
+      const { fontSize } = theme;
+      document.documentElement.style.setProperty('--twc-font-size-body', fontSize);
+    });
+  }
 
-    setColorMode(mode: 'auto' | 'dark' | 'light') {
-        const theme = this._theme$.value;
-        theme.mode = mode;
-        this._theme$.next(theme);
-    }
-    setFontSize(fontSize: string) {
-        const theme = this._theme$.value;
-        theme.fontSize = fontSize;
-        this._theme$.next(theme);
-    }
-    reset() {
-        this._theme$.next(this.defaultTheme);
-    }
+  setColorMode(mode: 'auto' | 'dark' | 'light') {
+    const theme = this._theme$.value;
+    theme.mode = mode;
+    this._theme$.next(theme);
+  }
+  setFontSize(fontSize: string) {
+    const theme = this._theme$.value;
+    theme.fontSize = fontSize;
+    this._theme$.next(theme);
+  }
+  reset() {
+    this._theme$.next(this.defaultTheme);
+  }
 
-    private getInitialTheme(): ThemeConfig {
-        const storedTheme = localStorage.getItem(this.themeKey);
-        if (storedTheme !== null) {
-            const t = JSON.parse(storedTheme) as Partial<ThemeConfig>;
-            t.fontSize = t.fontSize ?? '12px';
-            t.mode = t.mode ?? 'auto';
-            return t as ThemeConfig;
-        } else {
-            return this.defaultTheme;
-        }
+  private getInitialTheme(): ThemeConfig {
+    const storedTheme = localStorage.getItem(this.themeKey);
+    if (storedTheme !== null) {
+      const t = JSON.parse(storedTheme) as Partial<ThemeConfig>;
+      t.fontSize = t.fontSize ?? '12px';
+      t.mode = t.mode ?? 'auto';
+      return t as ThemeConfig;
+    } else {
+      return this.defaultTheme;
     }
+  }
 }

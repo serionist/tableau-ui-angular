@@ -1,66 +1,66 @@
 :host {
-    user-select: none;
-    background-repeat: no-repeat;
-    fill: currentcolor;
+  user-select: none;
+  background-repeat: no-repeat;
+  fill: currentcolor;
 
-    // height: 24px;
-    // width: 24px;
-    overflow: hidden;
+  // height: 24px;
+  // width: 24px;
+  overflow: hidden;
 
-    //  font-family: "Material Symbols Rounded";
-    font-weight: normal;
-    font-style: normal;
-    font-size: 1.2em;
-    line-height: 1;
-    letter-spacing: normal;
-    text-transform: none;
-    display: inline-block;
-    white-space: nowrap;
-    word-wrap: normal;
-    direction: ltr;
-    min-width: 1em;
-    min-height: 1em;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizelegibility;
-    font-feature-settings: 'liga';
+  //  font-family: "Material Symbols Rounded";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 1.2em;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  min-width: 1em;
+  min-height: 1em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizelegibility;
+  font-feature-settings: 'liga';
 
-    &.fill {
-        font-variation-settings: 'FILL' 1;
+  &.fill {
+    font-variation-settings: 'FILL' 1;
+  }
+
+  &.primary {
+    color: var(--twc-color-primary);
+  }
+
+  &.error {
+    color: var(--twc-color-error);
+  }
+
+  &.success {
+    color: var(--twc-color-success);
+  }
+
+  &.icon-button {
+    background-color: transparent;
+
+    &:not([disabled]) {
+      cursor: pointer;
+
+      &:hover {
+        background-color: var(--twc-color-border-dark-disabled);
+      }
     }
 
-    &.primary {
-        color: var(--twc-color-primary);
+    &[disabled] {
+      color: var(--twc-color-border-dark) !important;
     }
-
-    &.error {
-        color: var(--twc-color-error);
-    }
-
-    &.success {
-        color: var(--twc-color-success);
-    }
-
-    &.icon-button {
-        background-color: transparent;
-
-        &:not([disabled]) {
-            cursor: pointer;
-
-            &:hover {
-                background-color: var(--twc-color-border-dark-disabled);
-            }
-        }
-
-        &[disabled] {
-            color: var(--twc-color-border-dark) !important;
-        }
-    }
+  }
 }
 // stylelint-disable declaration-property-unit-disallowed-list
 @supports (width: round(1em, 1px)) {
-    :host {
-        font-size: round(1.2em, 1px);
-    }
+  :host {
+    font-size: round(1.2em, 1px);
+  }
 }
 // stylelint-enable declaration-property-unit-disallowed-list

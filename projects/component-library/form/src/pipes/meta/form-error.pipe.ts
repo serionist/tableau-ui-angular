@@ -4,16 +4,16 @@ import type { Meta } from '../../models/abstract-control/meta/interfaces';
 import type { Primitive } from 'tableau-ui-angular/types';
 
 @Pipe({
-    name: 'formError',
-    standalone: false,
-    pure: true,
+  name: 'formError',
+  standalone: false,
+  pure: true,
 })
 export class FormErrorPipe implements PipeTransform {
-    transform(meta: Meta | null | undefined, specificError: string, requireTouched: boolean = true, log = false): Primitive {
-        const ret = meta?.getErrorValue(specificError, requireTouched);
-        if (log) {
-            console.log('getFormError', meta, specificError, requireTouched, ret);
-        }
-        return ret === undefined ? null : ret;
+  transform(meta: Meta | null | undefined, specificError: string, requireTouched: boolean = true, log = false): Primitive {
+    const ret = meta?.getErrorValue(specificError, requireTouched);
+    if (log) {
+      console.log('getFormError', meta, specificError, requireTouched, ret);
     }
+    return ret === undefined ? null : ret;
+  }
 }

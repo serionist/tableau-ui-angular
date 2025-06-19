@@ -7,8 +7,8 @@ import { ListSingleSelectComponent } from './list-single-select.component';
 import { ListMultiSelectComponent } from './list-multi-select.component';
 
 @NgModule({
-    imports: [CommonModule, TableauUiCommonModule, TableauUiIconModule],
-    declarations: [IsValueSelectedPipe, ListSingleSelectComponent, ListMultiSelectComponent],
-    exports: [ListSingleSelectComponent, ListMultiSelectComponent],
+  imports: [CommonModule, TableauUiCommonModule, TableauUiIconModule],
+  declarations: [IsValueSelectedPipe, ListSingleSelectComponent, ListMultiSelectComponent],
+  exports: [ListSingleSelectComponent, ListMultiSelectComponent],
 })
 export class TableauUiListModule {}

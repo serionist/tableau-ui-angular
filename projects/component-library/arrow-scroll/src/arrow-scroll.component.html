@@ -1,25 +1,31 @@
 @if ($scrollArrowsVisible()) {
-    <div class="scroll-arrow" [style.margin-bottom]="$scrollDirection() === 'vertical' ? $buttonsGap() : '0'" [style.margin-right]="$scrollDirection() === 'horizontal' ? $buttonsGap() : '0'">
-        <button class="back" layout="small-icon" [color]="$buttonsColor()" [disabled]="!$canScroll().back" [style.color]="$buttonsCssColor()" (click)="scroll('back')">
-            <tab-icon [value]="$actualBackIcon()" [params]="$iconParams()" />
-        </button>
-        @if ($showScrollButtonSeparator()) {
-            <tab-separator [direction]="$scrollDirection() === 'vertical' ? 'horizontal' : 'vertical'" />
-        }
-    </div>
+  <div class="scroll-arrow" [style.margin-bottom]="$scrollDirection() === 'vertical' ? $buttonsGap() : '0'" [style.margin-right]="$scrollDirection() === 'horizontal' ? $buttonsGap() : '0'">
+    <button class="back" layout="small-icon" [color]="$buttonsColor()" [disabled]="!$canScroll().back" [style.color]="$buttonsCssColor()" (click)="scroll('back')">
+      <tab-icon [value]="$actualBackIcon()" [params]="$iconParams()" />
+    </button>
+    @if ($showScrollButtonSeparator()) {
+      <tab-separator [direction]="$scrollDirection() === 'vertical' ? 'horizontal' : 'vertical'" />
+    }
+  </div>
 }
 
-<div #scrollContainer class="scroll-container" [class.arrow-scroll]="$scrollType() === 'arrow'" [class.vertical]="$scrollDirection() === 'vertical'" [class.horizontal]="$scrollDirection() === 'horizontal'">
-    <ng-content />
+<div
+  #scrollContainer
+  class="scroll-container"
+  [class.arrow-scroll]="$scrollType() === 'arrow'"
+  [class.vertical]="$scrollDirection() === 'vertical'"
+  [class.horizontal]="$scrollDirection() === 'horizontal'"
+>
+  <ng-content />
 </div>
 
 @if ($scrollArrowsVisible()) {
-    <div class="scroll-arrow" [style.margin-top]="$scrollDirection() === 'vertical' ? $buttonsGap() : '0'" [style.margin-left]="$scrollDirection() === 'horizontal' ? $buttonsGap() : '0'">
-        @if ($showScrollButtonSeparator()) {
-            <tab-separator [direction]="$scrollDirection() === 'vertical' ? 'horizontal' : 'vertical'" />
-        }
-        <button class="forward" layout="small-icon" [color]="$buttonsColor()" [disabled]="!$canScroll().forward" [style.color]="$buttonsCssColor()" (click)="scroll('forward')">
-            <tab-icon [value]="$actualForwardIcon()" [params]="$iconParams()" />
-        </button>
-    </div>
+  <div class="scroll-arrow" [style.margin-top]="$scrollDirection() === 'vertical' ? $buttonsGap() : '0'" [style.margin-left]="$scrollDirection() === 'horizontal' ? $buttonsGap() : '0'">
+    @if ($showScrollButtonSeparator()) {
+      <tab-separator [direction]="$scrollDirection() === 'vertical' ? 'horizontal' : 'vertical'" />
+    }
+    <button class="forward" layout="small-icon" [color]="$buttonsColor()" [disabled]="!$canScroll().forward" [style.color]="$buttonsCssColor()" (click)="scroll('forward')">
+      <tab-icon [value]="$actualForwardIcon()" [params]="$iconParams()" />
+    </button>
+  </div>
 }
