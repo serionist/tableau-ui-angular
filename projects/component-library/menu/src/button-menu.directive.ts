@@ -1,6 +1,6 @@
 import type { InputSignal, ModelSignal } from '@angular/core';
 import { Directive, model } from '@angular/core';
-import { MenuDirective } from 'tableau-ui-angular/menu';
+import { MenuDirective } from './menu.directive';
 
 @Directive({
     selector: 'ng-template[buttonMenu]',

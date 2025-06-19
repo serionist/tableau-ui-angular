@@ -2,7 +2,7 @@ import type { AfterViewInit, InputSignal, OnDestroy, OutputRefSubscription, Writ
 import { ChangeDetectionStrategy, Component, contentChildren, effect, ElementRef, HostListener, inject, input, output, signal } from '@angular/core';
 import { MenuButtonComponent } from './menu-button.component';
 import { generateRandomString } from 'tableau-ui-angular/utils';
-import { ButtonMenuDirective } from './button-menu.directive';
+import { ButtonMenuDirective } from 'tableau-ui-angular/menu';
 
 @Component({
     selector: 'tab-menu-button-group',

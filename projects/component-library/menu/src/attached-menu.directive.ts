@@ -31,10 +31,6 @@ export class AttachedMenuDirective {
     });
 
     private clickAction() {
-        if (this.$menu().$openDialog() !== undefined) {
-            this.$menu().close();
-        } else {
-            this.$menu().open();
-        }
+        this.$menu().open();
     }
 }

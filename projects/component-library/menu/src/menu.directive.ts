@@ -186,7 +186,6 @@ export class MenuDirective {
         if (this.$_openDialog()) {
             return this.$_openDialog();
         }
-
         const ref = this.dialogService.openTemplateDialog(
             this.template,
             {
