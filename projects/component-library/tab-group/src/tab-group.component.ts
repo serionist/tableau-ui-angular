@@ -1,7 +1,6 @@
 import type { Signal, ElementRef, AfterViewInit } from '@angular/core';
 import { Component, contentChildren, signal, computed, ChangeDetectionStrategy, input, viewChildren, output } from '@angular/core';
 import { TabComponent } from './tab.component';
-import type { Primitive } from 'tableau-ui-angular/types';
 
 @Component({
     selector: 'tab-group',
@@ -11,7 +10,7 @@ import type { Primitive } from 'tableau-ui-angular/types';
     changeDetection: ChangeDetectionStrategy.OnPush,
     host: {},
 })
-export class TabGroupComponent<TKey extends Primitive> implements AfterViewInit {
+export class TabGroupComponent implements AfterViewInit {
     /**
      * Padding for the tab header, can be adjusted to fit design requirements.
      * @default '0.25rem 1.5rem'
@@ -35,7 +34,7 @@ export class TabGroupComponent<TKey extends Primitive> implements AfterViewInit 
         alias: 'autoSelectFirstTab',
     });
 
-    protected readonly $tabs = contentChildren<TabComponent<TKey>>(TabComponent);
+    protected readonly $tabs = contentChildren<TabComponent>(TabComponent);
     protected readonly $tabElements = viewChildren<ElementRef<HTMLDivElement>>('tab');
     // Signals to manage the selected index
     private readonly $_selectedIndex = signal(-1);
@@ -44,9 +43,9 @@ export class TabGroupComponent<TKey extends Primitive> implements AfterViewInit 
         return this.$_selectedIndex;
     }
     // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-    readonly $selectedTab: Signal<TabComponent<TKey> | null> = computed(() => this.$tabs()[this.$selectedIndex()] ?? null);
+    readonly $selectedTab: Signal<TabComponent | null> = computed(() => this.$tabs()[this.$selectedIndex()] ?? null);
 
-    readonly tabSelected = output<{ index: number; key: TKey | undefined; tab: TabComponent<TKey> }>();
+    readonly tabSelected = output<{ index: number; key: string |undefined; tab: TabComponent }>();
     selectTabByIndex(index: number) {
         const tabs = this.$tabs();
 
@@ -62,7 +61,7 @@ export class TabGroupComponent<TKey extends Primitive> implements AfterViewInit 
             tab.afterActivate.emit();
         });
     }
-    selectTabByKey(key: TKey) {
+    selectTabByKey(key: string) {
         const tabs = this.$tabs();
         const index = tabs.findIndex((tab) => tab.$key() === key);
         if (index !== -1) {
