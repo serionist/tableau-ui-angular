@@ -1,5 +1,5 @@
 import type { AfterViewInit } from '@angular/core';
-import { ChangeDetectionStrategy, Component, computed, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, signal, viewChild } from '@angular/core';
 import { TableauUiButtonToggleModule } from 'tableau-ui-angular/button-toggle';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
 import type { DataSort, FullDataRequest, IncrementalDataRequest} from 'tableau-ui-angular/virtualize';
@@ -9,10 +9,11 @@ import { data } from '../table-page/table-data-sample';
 import { TableauUiExpansionPanelModule } from 'tableau-ui-angular/expansion-panel';
 import { TableauUiCheckboxModule } from 'tableau-ui-angular/checkbox';
 import { TableauUiButtonModule } from 'tableau-ui-angular/button';
+import { TableauUiRadioGroupModule } from 'tableau-ui-angular/radio-group';
 
 @Component({
   selector: 'app-virtualize-page',
-  imports: [TableauUiVirtualizeModule, TableauUiCommonModule, TableauUiButtonToggleModule, TableauUiExpansionPanelModule, TableauUiCheckboxModule, TableauUiButtonModule],
+  imports: [TableauUiVirtualizeModule, TableauUiCommonModule, TableauUiRadioGroupModule, TableauUiButtonToggleModule, TableauUiExpansionPanelModule, TableauUiCheckboxModule, TableauUiButtonModule],
   standalone: true,
   templateUrl: './virtualize-page.component.html',
   styleUrl: './virtualize-page.component.scss',
@@ -26,6 +27,14 @@ export class VirtualizePageComponent implements AfterViewInit {
   readonly $errorOnData = signal(false);
   readonly $customNoDataTemplate = signal(false);
 
+  readonly $mode = signal<'fixed' | 'expand'>('fixed');
+
+  readonly modeChanged = effect(() => {
+    this.$mode();
+    window.requestAnimationFrame(() => {
+      void this.$virtualizeContainer().reload();
+    })
+  })
   readonly $showTop2Data = signal(false);
   private readonly baseDataRequest: (abort: AbortSignal, dataSort: readonly DataSort[]) => Promise<DataType[]> = async (abort: AbortSignal, dataSort: readonly DataSort[]) => {
     // Simulate a data load with a delay

@@ -11,4 +11,5 @@ export * from './tableau-ui-virtualize.module';
 export * from './templates/item-template.directive';
 export * from './templates/loading-template.directive';
 export * from './templates/error-template.directive';
+export * from './templates/custom-loader.directive';
 export type * from './templates/item-context';

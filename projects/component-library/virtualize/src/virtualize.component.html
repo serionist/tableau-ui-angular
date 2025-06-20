@@ -15,6 +15,8 @@
         <span>{{ message ?? 'No data available' }}</span>
       </div>
     </ng-template>
+  } @else if ($loading() && $customLoaderTemplate()) {
+    <ng-container *ngTemplateOutlet="$customLoaderTemplate()?.templateRef" />
   } @else {
     <div class="virtualize pre" [style.height]="`${dmBlocks.prePixels}px`"></div>
     @for (block of dmBlocks.blocks; track block.id) {

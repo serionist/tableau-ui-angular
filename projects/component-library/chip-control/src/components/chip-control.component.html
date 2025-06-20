@@ -1,6 +1,6 @@
 @for (chip of $values(); track chip.key) {
   <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
-  <div class="chip" (mousedown)="chipClicked(chip.key, $event)">
+  <div class="chip" (mousedown)="chipClicked(chip.key)">
     <ng-container
       *ngTemplateOutlet="
         $chipTemplate().templateRef;
@@ -19,4 +19,6 @@
   <tab-loading-gif width="1.2rem" height="1.2rem" />
 }
 
-<input #inputControl tabindex="0" name="chip-search" autocomplete="none" type="chip-search" class="search" (focus)="$focused.set(true)" (blur)="$focused.set(false)" (keydown)="inputKeydown($event)" />
+<input #inputControl tabindex="0" name="chip-search" autocomplete="none" type="chip-search" class="search" (focus)="$focused.set(true)" (blur)="$focused.set(false)" (keydown)="inputKeydown($event)" (click)="$searchClicked.emit($event)" />
+
+

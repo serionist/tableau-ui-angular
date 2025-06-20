@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, contentChild, effect, ElementRef, input, model, output, signal, untracked, viewChild } from '@angular/core';
+import type { ElementRef} from '@angular/core';
+import { ChangeDetectionStrategy, Component, contentChild, effect, input, model, output, signal, untracked, viewChild } from '@angular/core';
 import { ChipTemplateDirective } from '../directives/chip-template.directive';
-import { ChipData } from 'tableau-ui-angular/chip-control';
+import type { ChipData } from '../models/chip-data';
 
 @Component({
   selector: 'tab-chip-control',
@@ -65,6 +66,12 @@ export class ChipControlComponent<TKey, TValue> {
   readonly $searchKeydown = output<KeyboardEvent>();
 
   /**
+   * Called when the search input is clicked.
+   * This is useful for handling click events on the search input, such as focusing the input or performing actions based on the click.
+   */
+  readonly $searchClicked = output<MouseEvent>();
+
+  /**
    * Called when a chip is added to the chip control.
    */
   readonly $chipAdded = output<ChipData<TKey, TValue>>();
@@ -75,12 +82,7 @@ export class ChipControlComponent<TKey, TValue> {
    */
   readonly $chipRemoved = output<TKey>();
 
-  /**
-   * A signal that indicates whether the values are currently being loaded.
-   * This is called when the keys are manually changed.
-   * Shows a loading indicator on the UI.
-   */
-  readonly $isLoadingValues = signal<boolean>(false);
+ 
 
   // #endregion Inputs and Outputs
   // #region Public Methods
@@ -99,7 +101,7 @@ export class ChipControlComponent<TKey, TValue> {
   public add(key: TKey, value: TValue, clearInput: boolean): void {
     this.$values.update(values => {
       values.push({ key, value });
-      return values;
+      return [...values];
     });
     if (clearInput) {
       this.clearInput();
@@ -121,12 +123,23 @@ export class ChipControlComponent<TKey, TValue> {
     });
   }
 
+  public focus() {
+    this.$inputControl().nativeElement.focus();
+  }
+
   // #endregion Public Methods
 
   private readonly $inputControl = viewChild.required<ElementRef<HTMLInputElement>>('inputControl');
   readonly $chipTemplate = contentChild.required<ChipTemplateDirective<TKey, TValue>>(ChipTemplateDirective);
 
   // #region keys/values change events
+
+   /**
+   * A signal that indicates whether the values are currently being loaded.
+   * This is called when the keys are manually changed.
+   * Shows a loading indicator on the UI.
+   */
+   protected readonly $isLoadingValues = signal<boolean>(false);
   private loadChain = Promise.resolve();
   private loadingKeys: TKey[] = [];
   private readonly keysChanged = effect(() => {
@@ -262,7 +275,7 @@ export class ChipControlComponent<TKey, TValue> {
 
   protected readonly $highlightedChip = signal<TKey | undefined>(undefined);
 
-  protected chipClicked(key: TKey, event: MouseEvent) {
+  protected chipClicked(key: TKey) {
     // Prevent the click event from propagating to the host element
     this.$highlightedChip.set(key);
     // event.stopPropagation();

@@ -1,5 +1,5 @@
 import type { TemplateRef } from '@angular/core';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, contentChild, effect, ElementRef, HostListener, inject, input, model, untracked, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, contentChild, effect, ElementRef, HostListener, inject, input, model, signal, untracked } from '@angular/core';
 import type { DataRowCss } from './base/virutalize-base.component';
 import { VirtualizeBaseComponent } from './base/virutalize-base.component';
 import type { DataOptions } from './data/data-options';
@@ -7,7 +7,7 @@ import type { DataSort } from './data/data-sort';
 import { ItemTemplateDirective } from './templates/item-template.directive';
 import { LoadingTemplateDirective } from './templates/loading-template.directive';
 import { ErrorTemplateDirective } from './templates/error-template.directive';
-
+import { CustomLoaderDirective } from './templates/custom-loader.directive';
 @Component({
   selector: 'tab-virtualize',
   standalone: false,
@@ -20,6 +20,8 @@ export class VirtualizeComponent<TData> extends VirtualizeBaseComponent<TData> {
   constructor() {
     super(inject(ChangeDetectorRef));
   }
+
+
   // #region Inputs
   /**
    * The data options for the table
@@ -46,6 +48,14 @@ export class VirtualizeComponent<TData> extends VirtualizeBaseComponent<TData> {
     },
   );
 
+  /**
+   * The height of the data window in pixels.
+   * When undefined, the height will be calculated based on the container size.
+   * If set, this will override the automatic height calculation.
+   */
+  readonly $dataWindowHeightPx = input<number | undefined>(undefined, {
+    alias: 'dataWindowHeightPx'
+  });
   /**
    * The sort models.
    * @default []
@@ -79,6 +89,7 @@ export class VirtualizeComponent<TData> extends VirtualizeBaseComponent<TData> {
   readonly $itemTemplate = contentChild.required<ItemTemplateDirective<TData>>(ItemTemplateDirective);
   readonly $loadingTemplate = contentChild<LoadingTemplateDirective>(LoadingTemplateDirective);
   readonly $errorTemplate = contentChild(ErrorTemplateDirective);
+  readonly $customLoaderTemplate = contentChild(CustomLoaderDirective);
   // #endregion Templates
   
   protected readonly $dataRowHorizontalPaddingPx = computed(() => {
@@ -99,8 +110,9 @@ export class VirtualizeComponent<TData> extends VirtualizeBaseComponent<TData> {
     );
   });
   
+  protected readonly $loading = signal(false);
   private loaded = false;
-  private dataWindowHeightPx: number = 0;
+  private autoDataWindowHeightPx: number = 0; // This will be set to the host element's clientHeight when load() is called
   /**
    * Loads the container data. Only callable once. If the container is already loaded, this will do nothing.
    * This will calculate the available window height and reset() the container.
@@ -121,9 +133,8 @@ export class VirtualizeComponent<TData> extends VirtualizeBaseComponent<TData> {
    */
   async reload() {
     this.loaded = false;
-    console.log(this.host.nativeElement);
     const host = this.host.nativeElement;
-    this.dataWindowHeightPx = host.clientHeight;
+    this.autoDataWindowHeightPx = host.clientHeight;
     const initialLoad = await this.resetInternal(this.$dataSort(), this.$dataOptions(), this.$dataBlockWindow());
     if (initialLoad) {
       this.loaded = true;
@@ -164,14 +175,16 @@ export class VirtualizeComponent<TData> extends VirtualizeBaseComponent<TData> {
   });
 
   private async resetInternal(sort: DataSort[] | undefined, dataOptions: DataOptions<TData> | undefined, dataBlockWindow: number): Promise<boolean> {
-    if (this.dataWindowHeightPx === 0 || !sort || !dataOptions) {
+    const dataWindowHeightPx = this.$dataWindowHeightPx() ?? this.autoDataWindowHeightPx;
+    if (dataWindowHeightPx === 0 || !sort || !dataOptions) {
       console.warn('Container reset called with undefined parameters, ignoring');
       return false;
     }
     
     const dataRowHeightPx = this.$dataRowHeightPx();
-    console.log('asd', this.dataWindowHeightPx, dataRowHeightPx, this.$dataRowCss().height);
-    await this.dataManager.reset(this.dataWindowHeightPx, dataRowHeightPx, sort, dataBlockWindow, dataOptions);
+    this.$loading.set(true);
+    await this.dataManager.reset(dataWindowHeightPx, dataRowHeightPx, sort, dataBlockWindow, dataOptions);
+    this.$loading.set(false);
     return true;
   }
 

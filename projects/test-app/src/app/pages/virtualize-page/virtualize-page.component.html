@@ -54,9 +54,19 @@
           </div>
         </tab-expansion-panel>
         <tab-checkbox [(value)]="$customNoDataTemplate">CustomNoDataTemplate</tab-checkbox>
+        <tab-radio-group [(value)]="$mode">
+          <tab-option value="fixed" text="Fixed mode" hint="The virtualize container will is of fixed height. The data window height (pixels) is calculated automatically" />
+          <tab-option value="expand" text="Dynamic mode" hint="The virtualize container has a height of 0, maxHeight of 300px. The data window height is provided manually. When loading, the height is 0" />
+        </tab-radio-group>
         <ng-template #customnodatatemplate>Custom No Data Template</ng-template>
-        <tab-virtualize #virtualize [dataOptions]="$dataOptions()" [dataSort]="[{ property: 'id', direction: 'asc' }]" [noDataTemplate]="$customNoDataTemplate() ? customnodatatemplate : 'default'">
-          <ng-template let-ctx [tabItemTemplate]="virtualize">
+        <tab-virtualize #virtualize [dataOptions]="$dataOptions()" [dataSort]="[{ property: 'id', direction: 'asc' }]" [noDataTemplate]="$customNoDataTemplate() ? customnodatatemplate : 'default'"
+        [style.height]="$mode() === 'fixed' ? '300px' : 'auto'" [style.maxHeight]="'300px'">
+          @if ($mode() === 'expand') {
+            <ng-template tabCustomLoader>
+              <tab-loading-gif />
+            </ng-template>  
+          }
+        <ng-template let-ctx [tabItemTemplate]="virtualize">
             {{ ctx.item.name }}
           </ng-template>
         </tab-virtualize>
