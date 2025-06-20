@@ -34,6 +34,32 @@
         </tab-chip>
       </div>
     </div>
+    <div class="section">
+      <h3>Chip Control</h3>
+      <p>To use the component, import <code>TableauUiChipControlModule</code></p>
+      <h3>Examples</h3>
+      <div>Different chip control examples below</div>
+
+      <h4>Simple Chip Control</h4>
+      <div class="example">
+        <div>This is the simplest form of chip control; no form integration, no autocomplete, just pure code management</div>
+      <div class="options-container">
+        <button color="secondary" (click)="addKeys()">Add 2 chips by key</button>
+        <button color="secondary" (click)="addValues()">Add 2 chips by value</button>
+        <button color="secondary" (click)="removeRandomKey()">Remove a random chip by key</button>
+        <button color="secondary" (click)="removeRandomValue()">Remove a random chip by value</button>
+      </div>
+      <tab-chip-control #chipControl
+        [getValuesByKeys]="getValuesByKeys"
+        [(keys)]="$selectedKeys"
+        [(values)]="$selectedValues">
+        <ng-template let-ctx [tabChipTemplate]="chipControl">
+          <tab-chip [allowRemove]="true" [selected]="ctx.selected" (removed)="ctx.chipControl.remove(ctx.data.key)">{{ ctx.data.value.name }}</tab-chip>
+        </ng-template>
+      </tab-chip-control>
+      </div>
+      
+    </div>
    
   </div>
 </div>

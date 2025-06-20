@@ -1,0 +1,1 @@
+export interface ChipData<TKey, TValue> { key: TKey; value: TValue }

@@ -1,0 +1,36 @@
+:host {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  outline: none;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  cursor: text;
+  &.focused {
+    border-color: var(--twc-color-focused-input);
+    border-width: var(--twc-input-focused-border-width);
+  }
+  .chip {
+    cursor: pointer;
+    user-select: none;
+  }
+  .search {
+    min-height: 2em;
+    appearance: none;
+    background-color: transparent;
+    box-sizing: border-box;
+    color: var(--twc-color-text);
+    font-family: var(--twc-font-family);
+    font-size: var(--twc-font-size-body);
+    outline: none;
+    border: none;
+    min-width: min(50%, 14rem);
+    flex-grow: 1;
+    padding: 0rem;
+    .placeholder,
+    &::placeholder,
+    &.placeholder {
+      color: var(--twc-color-text-light);
+    }
+  }
+}
