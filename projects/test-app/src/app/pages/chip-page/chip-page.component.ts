@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { TableauUiChipModule } from 'tableau-ui-angular/chip';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
 import { TableauUiIconModule } from 'tableau-ui-angular/icon';
@@ -7,17 +7,21 @@ import { data } from '../table-page/table-data-sample';
 import { DataType } from '../table-page/table-page.component';
 import { TableauUiButtonModule } from 'tableau-ui-angular/button';
 import { ChipData } from 'tableau-ui-angular/chip-control';
+import { TableauUiButtonToggleModule } from "../../../../../component-library/button-toggle/src/tableau-ui-button-toggle.module";
+import { FB, TableauUiFormModule } from 'tableau-ui-angular/form';
+import { TableauUiFormFieldModule } from 'tableau-ui-angular/form-field';
+import { ReactiveFormsModule, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-chip-page',
-  imports: [TableauUiChipModule, TableauUiIconModule, TableauUiCommonModule, TableauUiChipControlModule, TableauUiButtonModule],
+  imports: [TableauUiChipModule, TableauUiIconModule, TableauUiCommonModule, ReactiveFormsModule, TableauUiChipControlModule, TableauUiButtonModule, TableauUiButtonToggleModule, TableauUiFormModule, TableauUiFormFieldModule],
   standalone: true,
   templateUrl: './chip-page.component.html',
   styleUrl: './chip-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChipPageComponent {
-  
+  private readonly fb = inject(FB);
   readonly allData: DataType[] = data;
 
   readonly $selectedKeys = signal<number[]>([], {
@@ -26,6 +30,8 @@ export class ChipPageComponent {
   readonly $selectedValues = signal<ChipData<number, DataType>[]>([], {
     equal: () => false
   });
+
+  readonly $disabled = signal<boolean>(false);
 
   readonly getValuesByKeys = async (keys: number[]) => {
     await new Promise(resolve => setTimeout(resolve, 3000)); // Simulate async operation
@@ -71,4 +77,39 @@ export class ChipPageComponent {
     }
   }
   
+  readonly fc = this.fb.control<number[]>([], [
+    Validators.minLength(1), Validators.required, Validators.maxLength(5)
+  ]);
+
+  addFormKeys() {
+    const keys = [this.keyCounter++, this.keyCounter++];
+    this.fc.setValue([...this.fc.$value(), ...keys]);
+  }
+  addFormValues() {
+    const keys = [this.keyCounter++, this.keyCounter++];
+    const values = keys.map(key => this.allData.find(item => item.id === key));
+    const currentValues = this.fc.$value();
+    keys.forEach((key, index) => {
+      if (values[index]) {
+        currentValues.push(key);
+      }
+    });
+    this.fc.setValue([...currentValues]);
+  }
+  removeRandomFormKey() {
+    const keys = this.fc.$value();
+    if (keys.length > 0) {
+      const randomKey = keys[Math.floor(Math.random() * keys.length)];
+      this.fc.setValue(keys.filter(key => key !== randomKey));
+    }
+  }
+  removeRandomFormValue() {
+    const keys = this.fc.$value();
+    if (keys.length > 0) {
+      const randomKey = keys[Math.floor(Math.random() * keys.length)];
+      this.fc.setValue(keys.filter(key => key !== randomKey));
+    }
+  }
+
+
 }

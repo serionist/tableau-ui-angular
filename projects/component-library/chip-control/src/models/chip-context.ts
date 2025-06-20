@@ -5,4 +5,6 @@ export interface ChipContext<TKey, TValue> {
     data: ChipData<TKey, TValue>;
     chipControl: ChipControlComponent<TKey, TValue>;
     selected: boolean;
+    removable: boolean;
+    disabled: boolean;
 }

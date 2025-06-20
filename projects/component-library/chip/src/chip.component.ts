@@ -10,6 +10,7 @@ import type { TooltipArgs } from 'tableau-ui-angular/tooltip';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class.selected]': '$selected()',
+    '[class.disabled]': '$disabled()',
   }
 })
 export class ChipComponent {
@@ -29,6 +30,10 @@ export class ChipComponent {
    */
   readonly $selected = input<boolean>(false, {
     alias: 'selected',
+  });
+
+  readonly $disabled = input<boolean>(false, {
+    alias: 'disabled',
   });
 
   /**

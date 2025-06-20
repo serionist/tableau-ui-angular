@@ -8,7 +8,9 @@
           $implicit: {
             data: chip,
             chipControl: self,
-            selected: $highlightedChip() === chip.key,
+            selected: $highlightedChip() === chip.key && !$disabled(),
+            disabled: $disabled(),
+            removable: !$disabled(),
           },
         }
       "
@@ -19,6 +21,16 @@
   <tab-loading-gif width="1.2rem" height="1.2rem" />
 }
 
-<input #inputControl tabindex="0" name="chip-search" autocomplete="none" type="chip-search" class="search" (focus)="$focused.set(true)" (blur)="$focused.set(false)" (keydown)="inputKeydown($event)" (click)="$searchClicked.emit($event)" />
-
-
+<input
+  #inputControl
+  tabindex="0"
+  name="chip-search"
+  autocomplete="off"
+  type="chip-search"
+  class="search"
+  [disabled]="$disabled()"
+  (focus)="$focused.set(true)"
+  (blur)="$focused.set(false)"
+  (keydown)="inputKeydown($event)"
+  (click)="$searchClicked.emit($event)"
+/>

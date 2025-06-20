@@ -1,22 +1,31 @@
-import type { ElementRef} from '@angular/core';
-import { ChangeDetectionStrategy, Component, contentChild, effect, input, model, output, signal, untracked, viewChild } from '@angular/core';
+import type { ElementRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, contentChild, effect, forwardRef, input, model, output, signal, untracked, viewChild } from '@angular/core';
 import { ChipTemplateDirective } from '../directives/chip-template.directive';
 import type { ChipData } from '../models/chip-data';
+import { NG_VALUE_ACCESSOR, type ControlValueAccessor } from '@angular/forms';
 
 @Component({
   selector: 'tab-chip-control',
   standalone: false,
   templateUrl: './chip-control.component.html',
   styleUrl: './chip-control.component.scss',
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => ChipControlComponent),
+      multi: true,
+    },
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: 'tab-input',
     tabindex: '-1',
     '(click)': '$inputControl().nativeElement.focus()',
     '[class.focused]': '$focused()',
-  },
+    '[attr.disabled]': '$disabled() ? "true": undefined',
+  }
 })
-export class ChipControlComponent<TKey, TValue> {
+export class ChipControlComponent<TKey, TValue> implements ControlValueAccessor {
   readonly self = this;
   // #region Inputs and Outputs
   /**
@@ -54,6 +63,13 @@ export class ChipControlComponent<TKey, TValue> {
   });
 
   /**
+   * Disables the chip control.
+   */
+  readonly $disabled = model<boolean>(false, {
+    alias: 'disabled',
+  });
+
+  /**
    * Used to call an event when the search input is focused/onfocused
    */
   readonly $searchFocused = output<boolean>();
@@ -81,8 +97,6 @@ export class ChipControlComponent<TKey, TValue> {
    * This is useful for handling chip removal events, such as updating the UI or performing actions based on the removal.
    */
   readonly $chipRemoved = output<TKey>();
-
- 
 
   // #endregion Inputs and Outputs
   // #region Public Methods
@@ -124,6 +138,9 @@ export class ChipControlComponent<TKey, TValue> {
   }
 
   public focus() {
+    if (this.$disabled()) {
+      return;
+    }
     this.$inputControl().nativeElement.focus();
   }
 
@@ -134,12 +151,12 @@ export class ChipControlComponent<TKey, TValue> {
 
   // #region keys/values change events
 
-   /**
+  /**
    * A signal that indicates whether the values are currently being loaded.
    * This is called when the keys are manually changed.
    * Shows a loading indicator on the UI.
    */
-   protected readonly $isLoadingValues = signal<boolean>(false);
+  protected readonly $isLoadingValues = signal<boolean>(false);
   private loadChain = Promise.resolve();
   private loadingKeys: TKey[] = [];
   private readonly keysChanged = effect(() => {
@@ -173,7 +190,12 @@ export class ChipControlComponent<TKey, TValue> {
         console.log('Keys changed: Emitting chipRemoved for key:', key);
         this.$chipRemoved.emit(key);
       }
+      
     }
+
+    this._onChange([...keys]); // notify form control of the change
+
+    
     // add all values that are in the keys but not in the values
     // get which keys are not in the values
     const missingKeys = keys.filter(k => !values.some(vk => comparer(vk.key, k)));
@@ -214,6 +236,7 @@ export class ChipControlComponent<TKey, TValue> {
       }
       this.$isLoadingValues.set(false);
       this.loadingKeys = [];
+      this._onChange([...keys]);
       console.log('Keys changed async: Values updated successfully');
     });
   });
@@ -270,19 +293,32 @@ export class ChipControlComponent<TKey, TValue> {
   protected readonly $focused = signal<boolean>(false);
   private readonly focusEffect = effect(() => {
     const focused = this.$focused();
+    if (focused) {
+      this._onTouched();
+    }
     this.$searchFocused.emit(focused);
   });
 
   protected readonly $highlightedChip = signal<TKey | undefined>(undefined);
-
   protected chipClicked(key: TKey) {
+    if (this.$disabled()) {
+      return; // Do not allow interaction if the control is disabled
+    }
     // Prevent the click event from propagating to the host element
-    this.$highlightedChip.set(key);
+    if (this.$highlightedChip() !== key) {
+      this.$highlightedChip.set(key);
+    } else {
+      this.$highlightedChip.set(undefined); // Unset highlighted chip if it was already selected
+    }
+   
     // event.stopPropagation();
     // event.preventDefault();
   }
 
   protected inputKeydown(event: KeyboardEvent) {
+    if (this.$disabled()) {
+      return; // Do not allow interaction if the control is disabled
+    }
     const inputEl = event.target as HTMLInputElement;
     const caretStart = inputEl.selectionStart ?? 0;
     const caretEnd = inputEl.selectionEnd ?? 0;
@@ -369,4 +405,25 @@ export class ChipControlComponent<TKey, TValue> {
   }
 
   // #endregion
+
+  // #region Form Integration
+
+  writeValue(val: TKey[]): void {
+    this.$keys.set(val);
+  }
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  private _onChange: (val: TKey[]) => void = () => {};
+  registerOnChange(fn: (val: TKey[]) => void): void {
+    this._onChange = fn;
+  }
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  private _onTouched: () => void = () => {};
+  registerOnTouched(fn: () => void): void {
+    this._onTouched = fn;
+  }
+  setDisabledState?(isDisabled: boolean): void {
+    this.$disabled.set(isDisabled);
+  }
+
+  // #endregion Form Integration
 }

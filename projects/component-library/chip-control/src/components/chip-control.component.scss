@@ -13,7 +13,9 @@
   .chip {
     cursor: pointer;
     user-select: none;
+    color: var(--twc-color-text);
   }
+
   .search {
     min-height: 2em;
     appearance: none;
@@ -31,6 +33,19 @@
     &::placeholder,
     &.placeholder {
       color: var(--twc-color-text-light);
+    }
+  }
+  &[disabled] {
+    .chip {
+      cursor: initial;
+    }
+    .search {
+      color: var(--twc-color-disabled);
+      .placeholder,
+      &::placeholder,
+      &.placeholder {
+        color: var(--twc-color-disabled);
+      }
     }
   }
 }
