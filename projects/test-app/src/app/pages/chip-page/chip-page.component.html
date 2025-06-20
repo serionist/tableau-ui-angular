@@ -1,0 +1,39 @@
+<!-- eslint-disable  @angular-eslint/template/no-inline-styles -->
+<div class="page">
+  <div class="title">
+    <h1>Chips</h1>
+    <div class="text-light text-large">
+      Chips are a custom component that can be used to display small blocks of information, such as tags or categories. They can be used in various contexts, such as in a list or as standalone elements.
+      <br />
+      Chip control can be used to display a chip selector control
+    </div>
+  </div>
+  <tab-separator />
+  <div class="content">
+    <div class="section">
+      <h3>Basic Chips</h3>
+      <p>To use the component, import <code>TableauUiChipModule</code></p>
+      <h3>Examples</h3>
+
+      <div class="simple-chips">
+        <tab-chip>
+          <tab-icon value="search" />
+          <span>Simple Chip with icon</span>
+        </tab-chip>
+        <tab-chip [selected]="true" [style.font-size]="'1.5rem'">
+          <tab-icon value="search" />
+          <span>Larger highlighted Chip with icon</span>
+        </tab-chip>
+        <tab-chip [allowRemove]="true">
+          <tab-icon value="search" />
+          <span>Simple Chip with close</span>
+        </tab-chip>
+        <tab-chip [allowRemove]="true" [removeTooltip]="{ template: 'Close this chip', context: undefined }">
+          <tab-icon value="search" />
+          <span>Simple Chip with close tooltip</span>
+        </tab-chip>
+      </div>
+    </div>
+   
+  </div>
+</div>

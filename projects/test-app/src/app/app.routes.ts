@@ -26,6 +26,14 @@ export const routes: Routes = [
     },
   },
   {
+    path: 'chips',
+    loadComponent: async () => import('./pages/chip-page/chip-page.component').then(m => m.ChipPageComponent),
+    title: 'Chips',
+    data: {
+      page: 'chips',
+    },
+  },
+  {
     path: 'stepper',
     loadComponent: async () => import('./pages/stepper-page/stepper-page.component').then(m => m.StepperPageComponent),
     title: 'Stepper',

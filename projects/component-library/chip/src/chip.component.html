@@ -1,0 +1,6 @@
+<ng-content />
+@if ($allowRemove()) {
+  <button class="close-button" layout="small-icon" color="plain" tooltip tooltipArgsMode="full" [tooltipFullArgs]="$removeTooltip()">
+    <tab-icon value="close" />
+  </button>
+}

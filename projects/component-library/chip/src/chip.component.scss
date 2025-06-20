@@ -1,0 +1,18 @@
+:host {
+    display: flex;
+    gap: 0.25rem;
+    align-items: center;
+    background: var(--twc-color-highlight);
+    line-height: 1;
+    padding: 0.25rem 0.5rem;
+    white-space: nowrap;
+    height: fit-content;
+
+    .close-button {
+        background: transparent;
+    }
+
+    &.selected {
+        background: var(--twc-color-primary-light);
+    }
+}
