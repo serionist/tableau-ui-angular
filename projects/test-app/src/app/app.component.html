@@ -101,7 +101,9 @@
     <tab-nav-bar-button text="Arrow Scroller" link="/scroller" [isActive]="(page$ | async) === 'scroller'">
       <tab-icon value="unfold_more_double" />
     </tab-nav-bar-button>
-
+    <tab-nav-bar-button text="Virtualization" link="/virtualize" [isActive]="(page$ | async) === 'virtualize'">
+      <tab-icon value="receipt" />
+    </tab-nav-bar-button>
     <tab-nav-bar-button text="Clipboard" link="/clipboard" [isActive]="(page$ | async) === 'clipboard'">
       <tab-icon value="content_paste" />
     </tab-nav-bar-button>

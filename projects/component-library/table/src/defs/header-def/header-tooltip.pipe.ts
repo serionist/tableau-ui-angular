@@ -5,7 +5,7 @@ import type { TooltipArgs } from 'tableau-ui-angular/tooltip';
 import type { HeaderContext, HeaderTooltipContext } from './header-context';
 import type { ColumnDefDirective, SortOrderPair } from '../column-def/column-def.directive';
 import type { TableComponent } from '../../table.component';
-import type { DataSort } from 'tableau-ui-angular/virtualization';
+import type { DataSort } from 'tableau-ui-angular/virtualize';
 
 @Pipe({
   name: 'headerTooltip',

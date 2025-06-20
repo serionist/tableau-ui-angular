@@ -34,6 +34,14 @@ export const routes: Routes = [
     },
   },
   {
+    path: 'virtualize',
+    loadComponent: async () => import('./pages/virtualize-page/virtualize-page.component').then(m => m.VirtualizePageComponent),
+    title: 'Virtualization',
+    data: {
+      page: 'virtualize',
+    },
+  },
+  {
     path: 'stepper',
     loadComponent: async () => import('./pages/stepper-page/stepper-page.component').then(m => m.StepperPageComponent),
     title: 'Stepper',

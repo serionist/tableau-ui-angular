@@ -44,6 +44,7 @@ export class DataManager<TData> {
     this.dataBlockHeightPx = dataRowHeightPx * this.blockRowCount;
     this._totalRowCount = 0;
 
+
     if (this._allDataInfo) {
       this._allDataInfo.abort.abort();
       this._allDataInfo = undefined;

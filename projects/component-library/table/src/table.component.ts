@@ -22,8 +22,8 @@ import { ColRenderedWidthDirective } from './column-widths/col-rendered-width.di
 import type { SelectionOptions } from './selection/selection-options';
 import { MultiSelectionOptions, SingleSelectionOptions } from './selection/selection-options';
 import type { Primitive } from 'tableau-ui-angular/types';
-import type { DataOptions, DataRowCss, DataSort } from 'tableau-ui-angular/virtualization';
-import { VirtualizationBaseComponent } from 'tableau-ui-angular/virtualization';
+import type { DataOptions, DataRowCss, DataSort } from 'tableau-ui-angular/virtualize';
+import { VirtualizeBaseComponent } from 'tableau-ui-angular/virtualize';
 
 @Component({
   selector: 'tab-table',
@@ -33,7 +33,7 @@ import { VirtualizationBaseComponent } from 'tableau-ui-angular/virtualization';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {},
 })
-export class TableComponent<TData> extends VirtualizationBaseComponent<TData> {
+export class TableComponent<TData> extends VirtualizeBaseComponent<TData> {
   protected readonly checkboxColWidth = '2.5em';
 
   readonly self = this;
@@ -261,9 +261,9 @@ export class TableComponent<TData> extends VirtualizationBaseComponent<TData> {
 
   /**
    * Loads the table data. Only callable once. If the table is already loaded, this will do nothing.
-   * This will calculate the available window and row height and reset() the table.
+   * This will calculate the available window height and reset() the table.
    * Use this to load the table initially
-   * Use reload() to reload the table data if the table size or row size changes
+   * Use reload() to reload the table data if the table size changes
    */
   async load() {
     if (this.loaded) {
@@ -273,8 +273,8 @@ export class TableComponent<TData> extends VirtualizationBaseComponent<TData> {
   }
   /**
    * Reloads the table data.
-   * This will re-calculate the available window and row height and reset() the table.
-   * Use this to reload the table data if the table size or row size changes
+   * This will re-calculate the available window height and reset() the table.
+   * Use this to reload the table data if the table size changes
    */
   async reload() {
     this.loaded = false;
@@ -301,9 +301,6 @@ export class TableComponent<TData> extends VirtualizationBaseComponent<TData> {
     if (selectionOptions?.clearSelectedKeysOnAnyReset === true) {
       this.$selectedRows.set(new Map<Primitive, TData>());
     }
-    if (!this.loaded) {
-      return;
-    }
 
     untracked(() => void this.resetInternal(sort, dataOptions, dataBlockWindow));
   });
@@ -312,12 +309,8 @@ export class TableComponent<TData> extends VirtualizationBaseComponent<TData> {
       console.warn('Table reset called with undefined parameters, ignoring');
       return false;
     }
-    const dataRowHeight = this.$dataRowComputedStyle().height;
-    if (!dataRowHeight.endsWith('px')) {
-      console.warn('Table reset called with non-pixel height, ignoring');
-      return false;
-    }
-    const dataRowHeightPx = parseFloat(dataRowHeight);
+    
+    const dataRowHeightPx = this.$dataRowHeightPx();
     await this.dataManager.reset(this.dataWindowHeightPx, dataRowHeightPx, sort, dataBlockWindow, dataOptions);
     return true;
   }
@@ -400,8 +393,8 @@ export class TableComponent<TData> extends VirtualizationBaseComponent<TData> {
   // #endregion
   // #region Scrolling & Virtualization
   @HostListener('scroll', ['$event.target'])
-  private onScroll(element: HTMLElement) {
-    this.dataManager.setScrollPosition(element.scrollTop);
+  private onHostScrolled(element: HTMLElement) {
+    super.onScroll(element)
   }
   // #endregion
 

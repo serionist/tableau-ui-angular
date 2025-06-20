@@ -6,7 +6,7 @@ import type { HeaderContext } from '../header-def/header-context';
 import type { CellContext } from '../cell-def/cell-context';
 import { HeaderToolipDefDirective } from '../header-def/header-toolip-def.directive';
 import { CellToolipDefDirective } from '../cell-def/cell-toolip-def.directive';
-import type { DataSort } from 'tableau-ui-angular/virtualization';
+import type { DataSort } from 'tableau-ui-angular/virtualize';
 
 @Directive({
   selector: '[tabColumnDef]',

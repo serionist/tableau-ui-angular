@@ -1,0 +1,51 @@
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 300px;
+  max-height: 300px;
+  overflow: auto;
+
+  .no-data {
+    color: var(--twc-color-text-gray);
+    margin-top: 0.5em;
+    font-size: var(--twc-font-size-subtitle);
+  }
+
+  .item {
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    .status {
+        border-radius: 1em;
+        min-height: 1em;
+        width: 100%;
+        height: 1em;
+        max-height: 70%;
+
+        &.loader {
+          background-color: var(--twc-color-highlight);
+          animation: pulse 1.2s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+          0% {
+            opacity: 1;
+          }
+
+          50% {
+            opacity: 0.3;
+          }
+
+          100% {
+            opacity: 1;
+          }
+        }
+
+        &.error {
+          background-color: var(--twc-color-error);
+          opacity: 0.3;
+        }
+      }
+  }
+}

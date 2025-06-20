@@ -3,7 +3,7 @@ import { Pipe } from '@angular/core';
 import type { CellContext, CellTooltipContext } from './cell-context';
 import type { TooltipArgs } from 'tableau-ui-angular/tooltip';
 import type { ColumnDefDirective } from '../column-def/column-def.directive';
-import type { DataBlock } from 'tableau-ui-angular/virtualization';
+import type { DataBlock } from 'tableau-ui-angular/virtualize';
 
 @Pipe({
   name: 'cellTooltip',

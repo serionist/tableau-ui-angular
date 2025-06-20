@@ -3,7 +3,7 @@ import { computed } from '@angular/core';
 import type { DataOptions } from '../data/data-options';
 import { DataManager } from '../data/data-manager';
 
-type Unit = 'px' | 'em' | 'rem' | '%' |'';
+type Unit = 'px' | 'em' | 'rem' | '%' | '';
 type NumericUnit = `${number}${Unit}`;
 type PaddingValue = NumericUnit | `${NumericUnit} ${NumericUnit}` | `${NumericUnit} ${NumericUnit} ${NumericUnit}` | `${NumericUnit} ${NumericUnit} ${NumericUnit} ${NumericUnit}`;
 export type DataRowCss = Partial<Record<keyof CSSStyleDeclaration, string>> & {
@@ -11,7 +11,7 @@ export type DataRowCss = Partial<Record<keyof CSSStyleDeclaration, string>> & {
   lineHeight: string;
   padding: PaddingValue;
 };
-export abstract class VirtualizationBaseComponent<TData> {
+export abstract class VirtualizeBaseComponent<TData> {
   // #region Signals
   /**
    * The data load options.
@@ -47,13 +47,33 @@ export abstract class VirtualizationBaseComponent<TData> {
     document.body.removeChild(el);
     return style;
   });
+  protected readonly $dataRowHeightPx = computed(() => {
+    const computedStyle = this.$dataRowComputedStyle();
+    const getPxValue = (prop: string, value: string) => {
+      if (value.endsWith('px')) {
+        return parseFloat(value);
+      }
+      throw new Error(`Invalid CSS value for ${prop}: ${value}. It must be a pixel value.`);
+    };
+    return (
+      getPxValue('height', computedStyle.height) +
+      getPxValue('paddingTop', computedStyle.paddingTop) +
+      getPxValue('paddingBottom', computedStyle.paddingBottom) +
+      getPxValue('marginTop', computedStyle.marginTop) +
+      getPxValue('marginBottom', computedStyle.marginBottom) +
+      getPxValue('borderTopWidth', computedStyle.borderTopWidth) +
+      getPxValue('borderBottomWidth', computedStyle.borderBottomWidth)
+    );
+  });
+ 
 
   protected readonly dataManager: DataManager<TData>;
+
+  protected onScroll(virtualizeContainer: HTMLElement) {
+    this.dataManager.setScrollPosition(virtualizeContainer.scrollTop);
+  }
 
   constructor(cdr: ChangeDetectorRef) {
     this.dataManager = new DataManager<TData>(cdr);
   }
-
-  
-  
 }

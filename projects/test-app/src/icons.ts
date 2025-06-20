@@ -43,6 +43,7 @@ export class Icons extends UsedIcons {
     'code',
     'side_navigation',
     'steppers',
-    'variables'
+    'variables',
+    'receipt'
   ];
 }

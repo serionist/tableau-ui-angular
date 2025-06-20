@@ -1,0 +1,28 @@
+.simple-chips {
+    display: flex;
+    gap: 1rem;
+    
+}
+.options {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+  
+  .options-container {
+    padding: 0 1rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  
+    tab-button-toggle {
+      width: 100%;
+    }
+    
+  }
+  tab-checkbox {
+    margin-top: 1rem;
+}
+  
