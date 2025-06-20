@@ -1,8 +1,7 @@
 import type { AfterViewInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, computed, signal, viewChild } from '@angular/core';
 import { data } from './table-data-sample';
-import type { CellContext, DataSort, FullDataRequest, HeaderContext, IncrementalDataRequest } from 'tableau-ui-angular/table';
-import { FullDataOptions, IncrementalDataOptions, MultiSelectionOptions, SingleSelectionOptions, TableauUiTableModule, TableComponent } from 'tableau-ui-angular/table';
+
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
 import { TableauUiCheckboxModule } from 'tableau-ui-angular/checkbox';
 import { CommonModule } from '@angular/common';
@@ -11,6 +10,10 @@ import { TableauUiExpansionPanelModule } from '../../../../../component-library/
 import { TableauUiTabgroupModule } from '../../../../../component-library/tab-group/src/tableau-ui-tab-group.module';
 import { TableauUiRadioGroupModule } from '../../../../../component-library/radio-group/src/tableau-ui-radio-group.module';
 import { TableauUiButtonToggleModule } from 'tableau-ui-angular/button-toggle';
+import type { DataSort, FullDataRequest, IncrementalDataRequest } from 'tableau-ui-angular/virtualization';
+import { FullDataOptions, IncrementalDataOptions } from 'tableau-ui-angular/virtualization';
+import type { CellContext, HeaderContext} from 'tableau-ui-angular/table';
+import { MultiSelectionOptions, SingleSelectionOptions, TableauUiTableModule, TableComponent } from 'tableau-ui-angular/table';
 
 @Component({
   selector: 'app-table-page',

@@ -18,13 +18,12 @@ import {
 } from '@angular/core';
 import type { SortOrderPair } from './defs/column-def/column-def.directive';
 import { ColumnDefDirective } from './defs/column-def/column-def.directive';
-import type { DataSort } from './sorting/data-sort';
 import { ColRenderedWidthDirective } from './column-widths/col-rendered-width.directive';
-import { DataManager } from './data/data-manager';
 import type { SelectionOptions } from './selection/selection-options';
 import { MultiSelectionOptions, SingleSelectionOptions } from './selection/selection-options';
-import type { DataOptions } from './data/data-options';
 import type { Primitive } from 'tableau-ui-angular/types';
+import type { DataOptions, DataRowCss, DataSort } from 'tableau-ui-angular/virtualization';
+import { VirtualizationBaseComponent } from 'tableau-ui-angular/virtualization';
 
 @Component({
   selector: 'tab-table',
@@ -34,10 +33,21 @@ import type { Primitive } from 'tableau-ui-angular/types';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {},
 })
-export class TableComponent<TData> {
+export class TableComponent<TData> extends VirtualizationBaseComponent<TData> {
   protected readonly checkboxColWidth = '2.5em';
 
   readonly self = this;
+
+  // #region View Children
+  protected readonly $columnWidthDirectives = viewChildren(ColRenderedWidthDirective);
+  private readonly hostElement = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly $headerRow = viewChild.required<ElementRef<HTMLElement>>('headerRow');
+  // #endregion
+
+  constructor() {
+    super(inject(ChangeDetectorRef));
+  }
+
   // #region Inputs & Outputs
   // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
   /**
@@ -49,6 +59,9 @@ export class TableComponent<TData> {
     alias: 'displayedColumns',
   });
 
+  /**
+   * The data options for the table
+   */
   readonly $dataOptions = input.required<DataOptions<TData>>({
     alias: 'dataOptions',
   });
@@ -70,9 +83,16 @@ export class TableComponent<TData> {
    * If the height is not fixed, the table will not be able to calculate the row heights and will not be able to scroll properly.
    * @default '2.5em'
    */
-  readonly $dataRowHeight = input<string>('2.5em', {
-    alias: 'dataRowHeight',
-  });
+  readonly $dataRowCss = input<DataRowCss>(
+    {
+      height: '2.5em',
+      lineHeight: 'inherit',
+      padding: '0 0.5em',
+    },
+    {
+      alias: 'dataRowCss',
+    },
+  );
 
   /**
    * The margin for all header cells
@@ -80,14 +100,6 @@ export class TableComponent<TData> {
    */
   readonly $headerPadding = input<string>('0.5em', {
     alias: 'headerPadding',
-  });
-
-  /**
-   * The margin for all data cells
-   * @default '0 0.5em'
-   */
-  readonly $dataPadding = input<string>('0 0.5em', {
-    alias: 'dataPadding',
   });
 
   /**
@@ -243,21 +255,9 @@ export class TableComponent<TData> {
     },
   );
   // #endregion
-  // #region View Children
-  protected readonly $columnWidthDirectives = viewChildren(ColRenderedWidthDirective);
-  private readonly hostElement = inject<ElementRef<HTMLElement>>(ElementRef);
-  private readonly cdr = inject<ChangeDetectorRef>(ChangeDetectorRef);
-  private readonly $headerRow = viewChild.required<ElementRef<HTMLElement>>('headerRow');
-  private readonly $dataRowSizer = viewChild.required<ElementRef<HTMLElement>>('dataSizer');
-  // #endregion
-  protected readonly _dataManager = new DataManager<TData>(this.cdr);
-  get dataManager() {
-    return this._dataManager;
-  }
   // #region Load & Reset
   private loaded = false;
   private dataWindowHeightPx: number = 0;
-  private dataRowHeightPx: number = 0;
 
   /**
    * Loads the table data. Only callable once. If the table is already loaded, this will do nothing.
@@ -283,8 +283,6 @@ export class TableComponent<TData> {
     // calculate data window height
     this.dataWindowHeightPx = host.clientHeight - this.$headerRow().nativeElement.clientHeight;
 
-    this.dataRowHeightPx = this.$dataRowSizer().nativeElement.clientHeight;
-
     const initialLoad = await this.resetInternal(this.$sort(), this.$dataOptions(), this.$dataBlockWindow());
     if (initialLoad) {
       this.loaded = true;
@@ -296,6 +294,7 @@ export class TableComponent<TData> {
     const dataOptions = this.$dataOptions();
     const dataBlockWindow = this.$dataBlockWindow();
     const selectionOptions = this.$selectionOptions();
+    this.$dataRowComputedStyle(); // ensure the data row style is computed and run this on change
     if (!this.loaded) {
       return;
     }
@@ -309,11 +308,17 @@ export class TableComponent<TData> {
     untracked(() => void this.resetInternal(sort, dataOptions, dataBlockWindow));
   });
   private async resetInternal(sort: DataSort[] | undefined, dataOptions: DataOptions<TData> | undefined, dataBlockWindow: number): Promise<boolean> {
-    if (this.dataRowHeightPx === 0 || this.dataWindowHeightPx === 0 || !sort || !dataOptions) {
+    if (this.dataWindowHeightPx === 0 || !sort || !dataOptions) {
       console.warn('Table reset called with undefined parameters, ignoring');
       return false;
     }
-    await this._dataManager.reset(this.dataWindowHeightPx, this.dataRowHeightPx, sort, dataBlockWindow, dataOptions);
+    const dataRowHeight = this.$dataRowComputedStyle().height;
+    if (!dataRowHeight.endsWith('px')) {
+      console.warn('Table reset called with non-pixel height, ignoring');
+      return false;
+    }
+    const dataRowHeightPx = parseFloat(dataRowHeight);
+    await this.dataManager.reset(this.dataWindowHeightPx, dataRowHeightPx, sort, dataBlockWindow, dataOptions);
     return true;
   }
 
@@ -396,7 +401,7 @@ export class TableComponent<TData> {
   // #region Scrolling & Virtualization
   @HostListener('scroll', ['$event.target'])
   private onScroll(element: HTMLElement) {
-    this._dataManager.setScrollPosition(element.scrollTop);
+    this.dataManager.setScrollPosition(element.scrollTop);
   }
   // #endregion
 
@@ -409,10 +414,10 @@ export class TableComponent<TData> {
   }
   async selectionMultiHeaderCheckboxSelectAllChanged(val: boolean | 'partial') {
     if (val === true) {
-      if (this._dataManager.allDataInfo?.$status() !== 'success') {
+      if (this.dataManager.allDataInfo?.$status() !== 'success') {
         return;
       }
-      const allData = await this._dataManager.allDataInfo.promise;
+      const allData = await this.dataManager.allDataInfo.promise;
       this.$selectedRows.set(new Map<Primitive, TData>(allData.map(e => [e.key, e.data])));
     } else {
       this.$selectedRows.set(new Map<Primitive, TData>());
@@ -423,7 +428,7 @@ export class TableComponent<TData> {
     const selectedRows = this.$selectedRows();
     if (selectedRows.size === 0) {
       value = false;
-    } else if (this._dataManager.allDataInfo?.$status() === 'success' && [...this._dataManager.allDataInfo.$allKeys().keys()].every(key => selectedRows.has(key))) {
+    } else if (this.dataManager.allDataInfo?.$status() === 'success' && [...this.dataManager.allDataInfo.$allKeys().keys()].every(key => selectedRows.has(key))) {
       value = true;
     } else {
       value = 'partial';
@@ -499,26 +504,28 @@ export class TableComponent<TData> {
   protected readonly $lineClampRows = signal<number>(1);
   protected readonly $lineClampElementHeightPx = signal<number>(0);
   private initializeLineClamp() {
-    const rowSizer = this.$dataRowSizer().nativeElement;
     try {
-      const cellStyle = getComputedStyle(rowSizer);
-      const cellLineHeightString = cellStyle.lineHeight;
-      const cellLineHeightPx = cellLineHeightString.endsWith('px') ? parseFloat(cellLineHeightString) : parseFloat(cellLineHeightString) * parseFloat(cellStyle.fontSize);
-      const cellPaddingTop = parseFloat(cellStyle.paddingTop);
-      const cellPaddingBottom = parseFloat(cellStyle.paddingBottom);
-      const rowHeight = rowSizer.clientHeight - cellPaddingTop - cellPaddingBottom;
+      const cellStyle = this.$dataRowComputedStyle();
+      const getPxValue = (prop: string, value: string) => {
+        if (value.endsWith('px')) {
+          return parseFloat(value);
+        } else {
+          throw new Error(`Failed to initialize line clamping. Invalid CSS value for ${prop}: ${value}. Expected a pixel value.`);
+        }
+      }
+      const lineHeight = getPxValue('line-height', cellStyle.lineHeight);
+      const paddingTop = getPxValue('padding-top', cellStyle.paddingTop);
+      const paddingBottom = getPxValue('padding-bottom', cellStyle.paddingBottom);
+      const height = getPxValue('height', cellStyle.height);
 
-      const rows = Math.max(Math.floor(rowHeight / cellLineHeightPx), 1);
+      const rowHeight = height - paddingTop - paddingBottom;
+
+      const rows = Math.max(Math.floor(rowHeight / lineHeight), 1);
       this.$lineClampRows.set(rows);
-      this.$lineClampElementHeightPx.set(cellLineHeightPx * rows);
+      this.$lineClampElementHeightPx.set(lineHeight * rows);
     } catch (error: unknown) {
       console.warn('Failed to initialize line clamp:', error);
     }
   }
   // #endregion
-
-  constructor() {
-    console.log('TableComponent initialized', this.$dataRowHeight());
-
-  }
 }

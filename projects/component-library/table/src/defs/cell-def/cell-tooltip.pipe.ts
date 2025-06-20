@@ -2,8 +2,8 @@ import type { PipeTransform, TemplateRef } from '@angular/core';
 import { Pipe } from '@angular/core';
 import type { CellContext, CellTooltipContext } from './cell-context';
 import type { TooltipArgs } from 'tableau-ui-angular/tooltip';
-import type { DataBlock } from '../../data/data-block';
 import type { ColumnDefDirective } from '../column-def/column-def.directive';
+import type { DataBlock } from 'tableau-ui-angular/virtualization';
 
 @Pipe({
   name: 'cellTooltip',

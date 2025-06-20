@@ -1,8 +1,6 @@
 @let rowSelectionMode = $selectionOptions()?.selectionMode === 'row-and-checkbox';
 @let hasCheckboxColumn = $selectionOptions();
 <div class="table" role="table" [class.has-row-selection]="rowSelectionMode">
-  <!--Data Row Sizer. This is a position fixed, 0px wide row with the given row height px. used to calculate the actual height of data rows prior to virtualizing-->
-  <div #dataSizer class="data-sizer" [style.height]="$dataRowHeight()"></div>
   <!-- Column Row -->
   <div #headerRow class="column-row">
     @if (hasCheckboxColumn) {
@@ -195,7 +193,7 @@
       }
 
       <ng-template #defaultNoData let-message>
-        <div class="no-data" [style.padding]="$dataPadding()">
+        <div class="no-data" [style.padding]="$dataRowCss().padding">
           <span>{{ message ?? 'No data available' }}</span>
         </div>
       </ng-template>
@@ -211,7 +209,7 @@
                     <div
                         class="row"
                         role="row"
-                        [style.height]="$dataRowHeight()"
+                        [style.height]="$dataRowCss().height"
                         [class.even]="(block.offset + index) % 2 === 0"
                         [class.selected]="r.data | rowSelected: $selectedRows() : $dataOptions()"
                         (click)="rowClicked(r.data, $event)"
@@ -262,10 +260,10 @@
                                 [attr.data-column-even]="coleven"
                                 [attr.data-column-odd]="colodd"
                                 [class.pinned-left]="def.pinnedLeft"
-                                [style.left]="!def.pinnedLeft ? 'initial': hasCheckboxColumn ? checkboxColWidth: '0'"
                                 [class.pinned-right]="def.pinnedRight"
-                                [style.padding]="$dataPadding()"
-                                [style.width]="$columnWidthDirectives() | cellWidth: def.id : $dataPadding() | async"
+                                [ngStyle]="$dataRowCss()"
+                                [style.left]="!def.pinnedLeft ? 'initial': hasCheckboxColumn ? checkboxColWidth: '0'"
+                                [style.width]="$columnWidthDirectives() | cellWidth: def.id : $dataRowCss().padding| async"
                                 [ngClass]="cellContext.$implicit | cellClass"
                                 [tooltipLazyArgs]="cell | cellTooltip: def.col: cellContext.$implicit: block"
                             >

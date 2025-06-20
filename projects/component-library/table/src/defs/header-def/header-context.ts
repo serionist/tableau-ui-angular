@@ -1,6 +1,6 @@
 import type { TemplateRef } from '@angular/core';
-import type { DataSort } from '../../sorting/data-sort';
 import type { ColumnDefDirective, SortOrderPair } from '../column-def/column-def.directive';
+import type { DataSort } from 'tableau-ui-angular/virtualization';
 
 export interface HeaderContext<TData> {
   columnDef: ColumnDefDirective<TData>;

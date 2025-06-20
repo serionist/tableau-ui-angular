@@ -3,7 +3,7 @@ import { computed } from '@angular/core';
 import type { DataOptions } from '../data/data-options';
 import { DataManager } from '../data/data-manager';
 
-type Unit = 'px' | 'em' | 'rem' | '%';
+type Unit = 'px' | 'em' | 'rem' | '%' |'';
 type NumericUnit = `${number}${Unit}`;
 type PaddingValue = NumericUnit | `${NumericUnit} ${NumericUnit}` | `${NumericUnit} ${NumericUnit} ${NumericUnit}` | `${NumericUnit} ${NumericUnit} ${NumericUnit} ${NumericUnit}`;
 export type DataRowCss = Partial<Record<keyof CSSStyleDeclaration, string>> & {
@@ -42,7 +42,8 @@ export abstract class VirtualizationBaseComponent<TData> {
     el.style.top = '-1000px'; // Move it out of view
     el.style.left = '-1000px'; // Move it out of view
     document.body.appendChild(el);
-    const style = getComputedStyle(el);
+    // eslint-disable-next-line @typescript-eslint/no-misused-spread
+    const style = { ...getComputedStyle(el) };
     document.body.removeChild(el);
     return style;
   });

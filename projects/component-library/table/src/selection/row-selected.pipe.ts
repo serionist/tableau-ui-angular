@@ -1,7 +1,7 @@
 import type { PipeTransform } from '@angular/core';
 import { Pipe } from '@angular/core';
 import type { Primitive } from 'tableau-ui-angular/types';
-import type { DataOptions } from '../data/data-options';
+import type { DataOptions } from 'tableau-ui-angular/virtualization';
 
 @Pipe({
   name: 'rowSelected',
