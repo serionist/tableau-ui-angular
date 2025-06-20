@@ -34,7 +34,7 @@ import type { Primitive } from 'tableau-ui-angular/types';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {},
 })
-export class TableComponent<TData = number> {
+export class TableComponent<TData> {
   protected readonly checkboxColWidth = '2.5em';
 
   readonly self = this;
@@ -514,5 +514,11 @@ export class TableComponent<TData = number> {
     } catch (error: unknown) {
       console.warn('Failed to initialize line clamp:', error);
     }
+  }
+  // #endregion
+
+  constructor() {
+    console.log('TableComponent initialized', this.$dataRowHeight());
+
   }
 }

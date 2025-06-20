@@ -97,6 +97,9 @@
             "tableau-ui-angular/stepper": [
                 "./projects/component-library/stepper/src/public_api.ts"
             ],
+            "tableau-ui-angular/virtualization": [
+                "./projects/component-library/virtualization/src/public_api.ts"
+            ],
             "tableau-ui-angular/chip": [
                 "./projects/component-library/chip/src/public_api.ts"
             ],
