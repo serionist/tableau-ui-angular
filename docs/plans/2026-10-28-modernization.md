@@ -330,6 +330,9 @@ lock file's stale version (the quick lane catches it); zone mode in tests (the d
 - 2026-10-28, S3 merged (#28). S4a (#29): Prettier's reformat of 33 files alone. S4b: lint clean, `no-console` on the
   library and its 23 debug logs gone, `.gitattributes` with LF, `.editorconfig` at two spaces, `.git-blame-ignore-revs`
   with S4a's commit, the two template diagnostics on again; review round 1 clean.
+- 2026-10-28, S5: the harness (AGENTS.md, REVIEW.md, the four skills, `tools/gate.mjs`, the hooks, settings, `.mcp.json`);
+  its docs reformat merged first on its own (#31). Review round 1 (deep) found two majors, both fixed: AI review bots'
+  co-author lines got past, and glued-star `git diff` allows could print files outside the repo. Round 2 clean.
 - 2026-10-28, S4b merged (#30). S5: `AGENTS.md`, `REVIEW.md`, `.claude/` with the four skills, `.mcp.json`,
   `tools/gate.mjs` with both lanes, the `commit-msg` and `pre-push` hooks behind `npm run setup`, their tests,
   `.gitleaks.toml`, and the plan and review templates; the root config files and the docs joined Prettier's scope and
