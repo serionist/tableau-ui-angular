@@ -63,5 +63,17 @@ A change to them follows these rules.
 - Loosening includes a gate check dropped or made a skip, a lint rule or a test turned off, a question or a lens
   removed, attribution let through, a permission widened.
 - One that only makes a check stricter needs no more than a normal review.
-- The `Read` denies in `.claude/settings.json` don't cover Bash: an allowed command that prints any file gets around
-  them, so Bash allows stay narrow.
+
+## Permissions
+
+`.claude/settings.json` can't stop every command that reads a file or skips a hook; the gate on push, and CI once it
+runs, are the backstop.
+
+- The `Read` denies don't cover the shell: `git diff --no-index`, `git blame --contents`, or a path outside the repo
+  print any file.
+- An allow names its whole command; a ` *` only where git can't leave the repo, or where gh only reads from GitHub.
+- Claude Code runs git's read-only forms without an allow, so the paths that leave the repo get an `ask`, and the hook
+  bypasses a `deny`.
+- Text rules can't catch every spelling (`core.HOOKSPATH`, a combined `-vn`): the gate's attribution check catches
+  what they let through.
+- Bash rules don't reach PowerShell, so each ask and deny has a `PowerShell(...)` twin.

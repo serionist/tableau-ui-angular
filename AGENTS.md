@@ -17,29 +17,29 @@ Tableau-style Angular components, published to npm as `tableau-ui-angular`, and 
 
 Every top-level file and folder, and the library's own; a new one adds its row in the same change.
 
-| Path                                                                      | What                                                                                                          |
-| ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| `projects/component-library/<folder>/`                                    | an entry point: `ng-package.json`, `src/public_api.ts`, the components, their specs                           |
-| `projects/component-library/public-api.ts`                                | the root entry point, `tableau-ui-angular`, which re-exports every folder                                     |
-| `projects/component-library/styles/`                                      | the SCSS apps import (`tableau-ui-angular/styles/lib-styles`), the theme, `fonts/downloadFonts.js`            |
-| `projects/component-library/used-icons/`                                  | the icon list entry point, and `scripts/update-icons.js`, which apps run                                      |
-| `projects/component-library/package.json`, `ng-package.json`              | what is published: the one version, the peers, the shipped assets                                             |
-| `projects/test-app/`                                                      | the demo app: `src/app/pages/`, `app.routes.server.ts` (what prerenders), its own `package.json`              |
-| `docs/plans/`, `docs/reviews/`                                            | plans, with the template in `README.md`; review records. Dated, never current truth                           |
-| `tools/`                                                                  | `gate.mjs` (the checks), `hooks.mjs` and `attribution.mjs` (behind `.githooks/`), `setup.mjs`, the tests      |
-| `.githooks/`                                                              | `commit-msg` refuses tool attribution; `pre-push` runs the gate's quick lane                                  |
-| `.claude/`                                                                | `CLAUDE.md` (imports this file), `settings.json` (no attribution, read-only allows, secret denies), `skills/` |
-| `.mcp.json`                                                               | the Angular CLI's MCP server and Context7; `.claude/settings.local.json.example` turns them on                |
-| `AGENTS.md`, `REVIEW.md`                                                  | this file; what a review finding is, and the questions every review answers                                   |
-| `angular.json`, `tsconfig.json`                                           | each project's build, test and lint targets; a path per entry point, to its source                            |
-| `eslint.config.js`, `.stylelintrc.json`, `.prettierrc`                    | ESLint with angular-eslint, stylelint for SCSS, Prettier                                                      |
-| `.gitleaks.toml`                                                          | the secret scan: gitleaks' own rules, and any exception with its reason                                       |
-| `.editorconfig`, `.gitattributes`, `.gitignore`, `.git-blame-ignore-revs` | UTF-8, LF, two spaces; what git ignores; reformats blame skips                                                |
-| `.github/workflows/`                                                      | `deploy-lib.yaml`, the old publish-on-merge workflow, turned off                                              |
-| `scripts/link-info.js`                                                    | what `npm run dev:link` prints: how to link the built library into another app                                |
-| `package.json`, `package-lock.json`                                       | the npm workspace, its scripts and dev tools pinned exactly; the lock `npm ci` installs                       |
-| `README.md`, `Add-Benton-Sans.md`, `LICENSE`                              | for users; how to add the Tableau font; AGPL-3.0                                                              |
-| `.vscode/`, `.angulardoc.json`                                            | shared editor settings; the AngularDoc extension's id                                                         |
+| Path                                                                      | What                                                                                                                                       |
+| ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `projects/component-library/<folder>/`                                    | an entry point: `ng-package.json`, `src/public_api.ts`, the components, their specs                                                        |
+| `projects/component-library/public-api.ts`                                | the root entry point, `tableau-ui-angular`, which re-exports every folder                                                                  |
+| `projects/component-library/styles/`                                      | the SCSS apps import (`tableau-ui-angular/styles/lib-styles`), the theme, `fonts/downloadFonts.js`                                         |
+| `projects/component-library/used-icons/`                                  | the icon list entry point, and `scripts/update-icons.js`, which apps run                                                                   |
+| `projects/component-library/package.json`, `ng-package.json`              | what is published: the one version, the peers, the shipped assets                                                                          |
+| `projects/test-app/`                                                      | the demo app: `src/app/pages/`, `app.routes.server.ts` (what prerenders), its own `package.json`                                           |
+| `docs/plans/`, `docs/reviews/`                                            | plans, with the template in `README.md`; review records. Dated, never current truth                                                        |
+| `tools/`                                                                  | `gate.mjs` (the checks), `hooks.mjs` and `attribution.mjs` (behind `.githooks/`), `setup.mjs`, the tests                                   |
+| `.githooks/`                                                              | `commit-msg` refuses tool attribution; `pre-push` runs the gate's quick lane                                                               |
+| `.claude/`                                                                | `CLAUDE.md` (imports this file), `settings.json` (no attribution; whole-command allows, asks, denies: `REVIEW.md`, Permissions), `skills/` |
+| `.mcp.json`                                                               | the Angular CLI's MCP server and Context7; `.claude/settings.local.json.example` turns them on                                             |
+| `AGENTS.md`, `REVIEW.md`                                                  | this file; what a review finding is, and the questions every review answers                                                                |
+| `angular.json`, `tsconfig.json`                                           | each project's build, test and lint targets; a path per entry point, to its source                                                         |
+| `eslint.config.js`, `.stylelintrc.json`, `.prettierrc`                    | ESLint with angular-eslint, stylelint for SCSS, Prettier                                                                                   |
+| `.gitleaks.toml`                                                          | the secret scan: gitleaks' own rules, and any exception with its reason                                                                    |
+| `.editorconfig`, `.gitattributes`, `.gitignore`, `.git-blame-ignore-revs` | UTF-8, LF, two spaces; what git ignores; reformats blame skips                                                                             |
+| `.github/workflows/`                                                      | `deploy-lib.yaml`, the old publish-on-merge workflow, turned off                                                                           |
+| `scripts/link-info.js`                                                    | what `npm run dev:link` prints: how to link the built library into another app                                                             |
+| `package.json`, `package-lock.json`                                       | the npm workspace, its scripts and dev tools pinned exactly; the lock `npm ci` installs                                                    |
+| `README.md`, `Add-Benton-Sans.md`, `LICENSE`                              | for users; how to add the Tableau font; AGPL-3.0                                                                                           |
+| `.vscode/`, `.angulardoc.json`                                            | shared editor settings; the AngularDoc extension's id                                                                                      |
 
 ## Build and test
 
@@ -55,7 +55,8 @@ Run from the repo root. `ng` is the repo's own CLI: `npx ng` when it is not on P
 | the hooks' tests            | `npm run test:tools`                                                                                                                        |
 | the gate                    | `npm run gate -- quick` (lock, ESLint, stylelint, Prettier, AGENTS.md, skills, attribution, gitleaks); `full` adds the builds and the tests |
 
-- The quick lane runs before every push. gitleaks runs when it is on PATH; without it the gate says it skipped.
+- The quick lane runs before every push, on what the push sends. gitleaks runs when it is on PATH; without it the gate
+  says it skipped, and `GATE_REQUIRE_GITLEAKS=1`, as CI sets it, makes that a failure.
 - The full lane is what a PR must pass, and what `finish-work` runs.
 
 ## How a change lands

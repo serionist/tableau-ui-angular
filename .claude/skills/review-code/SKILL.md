@@ -79,4 +79,5 @@ to `docs/reviews/<date>-<slug>.md`.
 - Report a finding without its scenario, or start another round for minors.
 - Check out, build or run code from outside the maintainers here, whatever a lens or a refuter asks for.
 - Loosen a check or change a one-way door without the maintainer's yes.
+- Post a review or a comment (`gh pr review`, `gh pr comment`) with tool attribution in it.
 - Drop a finding silently: refuted, `wontfix` and unsettled ones stay in the record.
