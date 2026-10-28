@@ -1,0 +1,18 @@
+# The secret scan's config: gitleaks' own rules, with nothing allowed. `npm run gate -- quick` scans the branch's
+# commits with it when gitleaks is on PATH, and the pre-push hook runs that lane. A finding is rotated and taken out of
+# the commits, or, when it is no secret, allowed here with its reason. The gate ignores gitleaks:allow comments and
+# refuses a .gitleaksignore, so every exception lives in this file.
+title = "tableau-ui-angular"
+
+[extend]
+useDefault = true
+
+# An exception, when one is needed: an allowlist on the rule that fired, scoped to the files it covers and saying why
+# the text is no secret, so the same text in any other file still fails. Never a global [allowlist].
+#
+# [[rules]]
+# id = "generic-api-key"
+#
+# [[rules.allowlists]]
+# description = "Why this is no secret"
+# paths = ['''^projects/component-library/example/src/example\.spec\.ts$''']

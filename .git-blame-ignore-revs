@@ -2,3 +2,6 @@
 
 # Format the code with Prettier (#29)
 e69e16846290f9783ccb42144394c4b4f4111327
+
+# Format the root config files and docs with Prettier (#31)
+c5cb4ca1378c0697c396166a3d8404004c911b42
