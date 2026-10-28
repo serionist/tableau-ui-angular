@@ -45,3 +45,11 @@ testem.log
 Thumbs.db
 
 *storybook.log
+
+# Claude Code's local state: machine-specific settings and keys, and the worktrees the skills make
+.claude/settings.local.json
+.claude/worktrees/
+CLAUDE.local.md
+
+# Scratch files the skills write: review packs, issue and PR bodies
+.local/
