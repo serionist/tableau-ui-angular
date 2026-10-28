@@ -37,7 +37,7 @@
     "component-library": {
       "projectType": "library",
       "root": "projects/component-library",
-      "sourceRoot": "projects/component-library/src",
+      "sourceRoot": "projects/component-library",
       "prefix": "lib",
       "schematics": {
         "@schematics/angular:component": {
@@ -63,9 +63,11 @@
         
         },
         "test": {
-          "builder": "@angular/build:karma",
+          "builder": "@angular/build:unit-test",
           "options": {
-            "tsConfig": "projects/component-library/tsconfig.spec.json"
+            "tsConfig": "projects/component-library/tsconfig.spec.json",
+            "browsers": ["chromium", "firefox"],
+            "headless": true
           }
         },
         "storybook": {
@@ -163,20 +165,11 @@
           "builder": "@angular/build:extract-i18n"
         },
         "test": {
-          "builder": "@angular/build:karma",
+          "builder": "@angular/build:unit-test",
           "options": {
             "tsConfig": "projects/test-app/tsconfig.spec.json",
-            "inlineStyleLanguage": "scss",
-            "assets": [
-              {
-                "glob": "**/*",
-                "input": "projects/test-app/public"
-              }
-            ],
-            "styles": [
-              "projects/test-app/src/styles.scss"
-            ],
-            "scripts": []
+            "browsers": ["chromium", "firefox"],
+            "headless": true
           }
         },
         "storybook": {

@@ -1,29 +1,19 @@
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { AppComponent } from './app.component';
+import { routes } from './app.routes';
 
 describe('AppComponent', () => {
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
+  it('links to every page from the nav bar', async () => {
+    TestBed.configureTestingModule({
       imports: [AppComponent],
-    }).compileComponents();
-  });
-
-  it('should create the app', () => {
+      providers: [provideRouter(routes)],
+    });
     const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app).toBeTruthy();
-  });
+    await fixture.whenStable();
 
-  it(`should have the 'test-app' title`, () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app.title).toEqual('test-app');
-  });
-
-  it('should render title', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, test-app');
+    const host = fixture.nativeElement as HTMLElement;
+    const links = Array.from(host.querySelectorAll('tab-nav-bar-button a[href]'), a => a.getAttribute('href'));
+    expect(new Set(links)).toEqual(new Set(routes.map(route => `/${route.path}`)));
   });
 });
