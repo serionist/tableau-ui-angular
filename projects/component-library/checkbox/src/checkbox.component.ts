@@ -1,5 +1,5 @@
 import type { Signal } from '@angular/core';
-import { ChangeDetectionStrategy, Component, contentChild, forwardRef, input, model } from '@angular/core';
+import { ChangeDetectionStrategy, Component, contentChild, forwardRef, input, linkedSignal, model } from '@angular/core';
 import type { ControlValueAccessor } from '@angular/forms';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { ErrorComponent, HintComponent } from 'tableau-ui-angular/common';
@@ -20,10 +20,9 @@ import { generateRandomString } from 'tableau-ui-angular/utils';
   host: {
     class: 'checkbox',
     '[class.disabled]': '$disabled()',
-    '[class.checked]': '$value() === true',
-    '[class.partial]': '$value() === "partial"',
+    '[class.checked]': '$checked() === true',
+    '[class.partial]': '$checked() === "partial"',
     '[class.loading]': '$loading()',
-    '(click)': 'toggleValue()',
   },
 })
 export class CheckboxComponent implements ControlValueAccessor {
@@ -43,6 +42,11 @@ export class CheckboxComponent implements ControlValueAccessor {
   readonly $value = model<boolean | 'partial'>(false, {
     alias: 'value',
   });
+  /**
+   * What the box shows: the value input, or what a form wrote last. A form's write sets only this, since setting the
+   * model would emit (valueChange) as if the user had toggled.
+   */
+  protected readonly $checked = linkedSignal(() => this.$value());
   /**
    * The loading state of the checkbox.
    * This can be used to indicate that the checkbox is in a loading state, e.g., when data is being fetched.
@@ -87,8 +91,8 @@ export class CheckboxComponent implements ControlValueAccessor {
   onChange = (value: boolean) => {};
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   onTouched = () => {};
-  writeValue(value: boolean): void {
-    this.$value.set(value);
+  writeValue(value: boolean | 'partial' | null | undefined): void {
+    this.$checked.set(value ?? false);
   }
   registerOnChange(fn: (value: boolean) => void): void {
     this.onChange = fn;
@@ -99,30 +103,40 @@ export class CheckboxComponent implements ControlValueAccessor {
   setDisabledState(isDisabled: boolean): void {
     this.$disabled.set(isDisabled);
   }
+  /** Toggles the value as a user would: `'partial'` becomes `valueAfterPartial`, and (valueChange) and the form hear it */
   toggleValue() {
-    if (!this.$disabled() && !this.$loading()) {
-      let val = this.$value();
-      if (val === 'partial') {
-        val = this.$valueAfterPartial();
-      } else {
-        val = !val;
-      }
-      this.$value.set(val);
-      this.onChange(val);
+    if (this.$disabled() || this.$loading()) {
+      return;
+    }
+    const checked = this.$checked();
+    const value = checked === 'partial' ? this.$valueAfterPartial() : !checked;
+    this.$checked.set(value);
+    this.$value.set(value);
+    this.onChange(value);
+  }
 
-      this.onTouched();
+  protected onInputClick(e: MouseEvent) {
+    // A click while loading changes nothing; cancelling it keeps the input as it was
+    if (this.$loading()) {
+      e.preventDefault();
     }
   }
 
+  // The input's change is the one path that toggles: a click on it, on its label or text, and Space all end here
+  protected onInputChange(e: Event) {
+    this.toggleValue();
+    // The browser toggled the input its own way (indeterminate to checked); show the value instead
+    const element = e.target as HTMLInputElement;
+    const value = this.$checked();
+    element.checked = value === true;
+    element.indeterminate = value === 'partial';
+  }
+
   onKeyDown(e: KeyboardEvent) {
-    switch (e.key) {
-      case 'Enter':
-      case ' ':
-        this.toggleValue();
-        e.preventDefault();
-        break;
-      default:
-        return;
+    // Enter toggles too, as it always has here, instead of submitting the form
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      (e.target as HTMLInputElement).click();
     }
   }
 }
