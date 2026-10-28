@@ -1,0 +1,9 @@
+# Issues open from the forms only. A security vulnerability never goes into an issue, which anyone can read.
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security vulnerability
+    url: https://github.com/serionist/tableau-ui-angular/security/advisories/new
+    about: Privately, through a GitHub security advisory. SECURITY.md says what to include.
+  - name: Components and samples
+    url: https://serionist.github.io/tableau-ui-angular/
+    about: The demo site shows every component; check how it behaves there first.

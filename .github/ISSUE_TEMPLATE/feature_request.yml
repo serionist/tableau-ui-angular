@@ -1,0 +1,43 @@
+name: Feature request
+description: Something a component should do, or a component the library should have.
+labels: [enhancement]
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: Where
+      multiple: true
+      options: [A component that exists, A new component, Theming and styles, The demo and docs site, Other]
+    validations:
+      required: true
+  - type: input
+    id: component
+    attributes:
+      label: Component
+      description: Its selector or entry point, when it exists.
+      placeholder: tab-table, from tableau-ui-angular/table
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What you are trying to do in your app, and what stops you today.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What you propose
+      description: The input, output or component you have in mind, and how Tableau's own UI does it, if it does.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives
+      description: Workarounds you use now, or other designs you considered.
+  - type: dropdown
+    id: contribute
+    attributes:
+      label: Would you send the PR?
+      description: Every change starts with an issue, a typo included, and a non-trivial one gets a plan the maintainer approves first (CONTRIBUTING.md).
+      options: ['Yes', 'Maybe, with guidance', 'No']
