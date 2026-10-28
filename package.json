@@ -49,6 +49,6 @@
     "typescript": "6.0.3",
     "typescript-eslint": "8.72.1",
     "vitest": "5.0.5",
-    "wait-on": "8.0.3"
+    "wait-on": "9.5.1"
   }
 }
