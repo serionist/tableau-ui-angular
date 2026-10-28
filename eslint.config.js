@@ -87,8 +87,7 @@ module.exports = tseslint.config(
             //Require expressions of type void to appear in statement position
             '@typescript-eslint/no-confusing-void-expression': 'error',
             //Disallow using code marked as @deprecated
-            //Angular 21 deprecates Injectable's providedIn 'any'; the services that use it change injector when it goes, so that is their own fix
-            '@typescript-eslint/no-deprecated': ['error', { allow: [{ from: 'package', package: '@angular/core', name: 'Injectable' }] }],
+            '@typescript-eslint/no-deprecated': 'error',
             //Disallow duplicate class members
             '@typescript-eslint/no-dupe-class-members': 'error',
             //Disallow duplicate enum member values

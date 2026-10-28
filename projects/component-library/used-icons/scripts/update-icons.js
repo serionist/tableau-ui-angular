@@ -1,3 +1,8 @@
+// An ES module: the published package is "type": "module", so Node would refuse CommonJS here.
+// createRequire keeps require.resolve for the consumer's own imports.
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');

@@ -1,5 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { SnackService } from 'tableau-ui-angular/snack';
+// eslint-disable-next-line @typescript-eslint/no-deprecated -- Angular 21 deprecates providedIn 'any'; replacing it changes which injector owns the service, so it waits for this service's own fix
 @Injectable({
   providedIn: 'any',
 })

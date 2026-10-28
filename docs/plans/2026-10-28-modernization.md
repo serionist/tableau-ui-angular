@@ -47,7 +47,7 @@ Taken by @serionist on 2026-10-28 unless the row says otherwise.
 | D4 | Angular 22 and Vitest | `ng update` to 22; Karma goes, Vitest through Angular's `unit-test` builder in browser mode, because the virtual scroller, overlays and focus need real layout. Peers `^22.0.0` for `@angular/*`. Node `^22.22.3 \|\| ^24.15.0 \|\| >=26.0.0`, Angular 22's own range, in the root `package.json` and CI; the published package has no `engines` (F135). The 0.1.x line stays on npm for Angular 20 apps, with no backports after 0.1.129. |
 | D5 | Release from a tag | One version, in `projects/component-library/package.json`; a dated `## X.Y.Z (YYYY-MM-DD)` CHANGELOG section; npm trusted publishing with provenance, so no `NPM_TOKEN`; an `npm` environment with the maintainer as reviewer; the GitHub release's notes are the CHANGELOG section. First release `0.2.0`; in 0.x a minor may break, under CHANGELOG's Breaking. |
 | D6 | Names stay | npm `tableau-ui-angular`, repo `serionist/tableau-ui-angular`, entry points `tableau-ui-angular/<folder>`, the `tab` selector prefix, the `TableauUi*` modules. Renaming 46 selectors would cost every user a migration for taste. They become one-way doors at 0.2.0. (Recommended.) |
-| D7 | The public API file | The built `.d.ts` of every entry point, without `private` members, committed under `projects/component-library/api/`. It holds the exports and, through Angular's declarations, each component's selector, inputs and outputs. CI builds and compares; a change to it is named in the PR. (Recommended.) |
+| D7 | The public API file | The built `.d.ts` of every entry point, without `private` and `protected` members (protected ones are template-only in Angular), committed under `projects/component-library/api/`. It holds the exports and, through Angular's declarations, each component's selector, inputs and outputs. CI builds and compares; a change to it is named in the PR. (Recommended.) |
 | D8 | The demo app becomes the docs site | Each sample is a small component of its own, shown next to its source, which the build reads as text. GitHub Pages deploys from `main` after CI, and never publishes to npm. (Recommended.) |
 | D9 | Not affiliated | "Not affiliated with or endorsed by Tableau or Salesforce", Tableau.Api's wording, in the README, the package description and the docs site's footer. (Recommended.) |
 | D10 | Tests check behaviour | Each component's contract: inputs and outputs, keyboard, the forms contract, ARIA state. Not every line. The coverage floor only rises. (Recommended, as docket.) |
@@ -126,7 +126,7 @@ docs freshness, simplicity, harness integrity.
   to the Windows leg, once they can pass: the tarball installed into an empty folder with `typescript`, as an Angular
   app has it, and both scripts run from `node_modules/tableau-ui-angular/` against local stubs (an icon CSS server
   behind a base-URL environment variable, an HTTPS font server with a test CA), checking the files they write.
-- `pages.yml`: builds and prerenders the docs site from `main` after CI and deploys it. `deploy-lib.yaml` is
+- `pages.yml`: builds and prerenders the docs site from `main` after CI and deploys it. Until `/` prerenders, the build's shell is `index.csr.html`, which the job publishes as `index.html` and `404.html`. `deploy-lib.yaml` is
   deleted.
 - `pr-text.yml`: the PR title and body hold no attribution and name an issue, since the squash commit is built from
   them. It reads them from the event file, never through `${{ }}` in `run:`, and skips Dependabot's PRs, whose squash
@@ -155,7 +155,7 @@ prerender list:
 | S7d | Table, virtualize, list | F3, F91-F95 | |
 | S7e | Monaco, theme, clipboard, icon, styles, packaging | F118, F120 | The icon script on Node's `fetch` instead of an undeclared `axios`, with a base-URL override; F137; the scripts' run on the Windows leg |
 
-F1, F2 and F119 were fixed in S1, F117, F134, F135 and F136 in S3, F121 in S6. Each PR answers the improvements of
+F1, F2 and F119 were fixed in S1, F117, F134, F135 and F136 in S3, F121 in S6. Three services keep a line disable for Angular 21's deprecated `providedIn: 'any'` until their area's PR replaces it: `FB` (S7a), `SnackService` (S7c), `ClipboardService` (S7e). Each PR answers the improvements of
 its area (taken, left, later) and marks its findings in the review record. Minors it doesn't fix stay open there; the
 accessibility ones become issues (D15).
 
@@ -180,7 +180,9 @@ accessibility ones become issues (D15).
 |---|---|
 | 0.1.129 (S1) | Nothing; the title is shown as text, as typed |
 | The table's data types move (S2): `DataOptions`, `IncrementalDataOptions`, `FullDataOptions`, `FullDataRequest`, `IncrementalDataRequest`, `FullDataResponse`, `IncrementalDataResponse` and `DataSort` come from `tableau-ui-angular/virtualize`; `TableComponent` needs its type argument (the `number` default is gone); `dataRowHeight` and `dataPadding` become `[dataRowCss]` | Change the imports, the type annotations and the inputs; a Breaking line in CHANGELOG |
-| Angular 22 peers, `rxjs` a peer, `monaco-editor` optional (S3) | Update the app to Angular 22, or stay on 0.1.129; apps without Monaco stop installing it |
+| Angular 22 peers, `rxjs` a peer, `monaco-editor` optional (S3) | Update the app to Angular 22, or stay on 0.1.129; apps that use `tableau-ui-angular/monaco` install `monaco-editor` themselves |
+| The package is `"type": "module"` and its typings sit under `types/` (S3, ng-packagr 22) | Nothing for entry-point imports; deep `.d.ts` paths change |
+| `DatePickerDirective.$value` and `TabTreeNodeComponent.$expanded` are writable signals, no longer models; their inputs' class members are `$valueInput` and `$expandedInput` (S3, Angular 22's duplicate-output rule) | Code that read the members directly; `[(value)]` and `[(expanded)]` bind as before, and `valueChange` and `expandedChange` now fire once per change |
 | Fixes that change behaviour (S7): writes no longer mark forms dirty, touched on blur, the checkbox's label, `writeValue` no longer firing `valueChange` | Each has a CHANGELOG line under Breaking with the step |
 | The stepper entry point removed (S7c) | It rendered a placeholder; remove its import |
 | MIT (S12) | Nothing |
@@ -203,7 +205,7 @@ Each step is one PR, buildable and testable on its own.
 | S2 | The 8 local commits as they are | Nothing publishes on merge |
 | S3 | Angular 22, the Node range, the peers, Vitest on Chromium and Firefox, `npm ci`, the package built with `ng build`, the demo app prerendered, the scaffold specs, the Storybook targets and the root publish scripts gone | The library and the demo build and prerender; `ng test` runs in both browsers; the built typings keep `\| undefined` |
 | S4a | The Prettier reformat alone | Prettier clean |
-| S4b | `.git-blame-ignore-revs` with S4a's SHA, the lint fixes, `no-console`, `.gitattributes`, `.editorconfig` | ESLint and stylelint clean |
+| S4b | `.git-blame-ignore-revs` with S4a's SHA, the lint fixes, `no-console`, `.gitattributes`, `.editorconfig`; the two template diagnostics S3's migration suppressed turned back on, with its `$safeNavigationMigration()` wrappers gone | ESLint and stylelint clean; no diagnostic suppressed |
 | S5 | The harness | The quick lane passes; `commit-msg` refuses each attribution form |
 | S6 | GitHub: workflows, templates, SECURITY, CONTRIBUTING, CHANGELOG, settings | CI green on the PR itself |
 | S7 | The review's fixes, S7a to S7e | Each fix pinned by a test that fails without it; axe clean per component, with the issue-numbered exceptions; each area's routes prerender; the coverage floor set |
@@ -319,7 +321,12 @@ lock file's stale version (the quick lane catches it); zone mode in tests (the d
   didn't bypass 2FA); the workflow was turned off, the maintainer published 0.1.129 by hand from the `v0.1.129` tag
   (shasum `06b9dec`), and the `NPM_TOKEN` secret was deleted; the advisory drafted (GHSA-pf6h-4mjg-cmrw) for the
   maintainer to publish.
-- 2026-10-28: the plan approved by @serionist.
+- 2026-10-28: the plan approved by @serionist; S0 (#26) and S2 (#27) merged; the maintainer revoked the 1-day token
+  and published the advisory; issue #24 carries the step list.
+- 2026-10-28, S3: Angular 22.2.3, TypeScript 6.0.3, Vitest 5 in Chromium and Firefox with the F1 test, the package
+  built strict with `ng build`, the peers settled, the demo app's server build with every route on the client. Review
+  round 1 clean, five minors fixed: the shipped scripts became ES modules, since ng-packagr 22 publishes the package
+  as `"type": "module"`.
 
 ## For the maintainers
 

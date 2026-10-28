@@ -1,6 +1,7 @@
-const https = require('https');
-const fs = require('fs');
-const path = require('path');
+// An ES module: the published package is "type": "module", so Node would refuse CommonJS here.
+import fs from 'fs';
+import https from 'https';
+import path from 'path';
 
 // The list of font files to download
 const fontFiles = [

@@ -14,6 +14,7 @@
     "compilationMode": "partial",
     "extendedDiagnostics": {
       "checks": {
+        // Set by Angular 22's migration for the templates it wrapped in $safeNavigationMigration(); both go with those wrappers
         "nullishCoalescingNotNullable": "suppress",
         "optionalChainNotNullable": "suppress"
       }

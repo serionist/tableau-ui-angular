@@ -6,6 +6,7 @@ import { SnackComponent } from './snack.component';
 import { TAB_SNACK_DATA_REF } from './data.ref';
 
 // Styles for the snack container are in _snack.service.scss in the styles folder
+// eslint-disable-next-line @typescript-eslint/no-deprecated -- Angular 21 deprecates providedIn 'any'; replacing it changes which injector owns the service, so it waits for this service's own fix
 @Injectable({
   providedIn: 'any', // new instance for each injection -> also lazy loaded
 })
