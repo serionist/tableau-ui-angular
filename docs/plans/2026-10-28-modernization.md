@@ -1,9 +1,9 @@
 ---
 title: Modernize tableau-ui-angular and release 0.2.0
 issue: "#24"
-status: draft
-approved_by:
-approved_at:
+status: approved
+approved_by: serionist
+approved_at: 2026-10-28
 ---
 
 # Modernize tableau-ui-angular and release 0.2.0
@@ -317,7 +317,9 @@ lock file's stale version (the quick lane catches it); zone mode in tests (the d
   replaced and #25 merged (`1a1d792`); plan review round 2, approved.
 - 2026-10-28, S1: the old workflow pushed the 0.1.129 commit and tag but failed to publish with `EOTP` (the new token
   didn't bypass 2FA); the workflow was turned off, the maintainer published 0.1.129 by hand from the `v0.1.129` tag
-  (shasum `06b9dec`), and the `NPM_TOKEN` secret was deleted. Left: the advisory.
+  (shasum `06b9dec`), and the `NPM_TOKEN` secret was deleted; the advisory drafted (GHSA-pf6h-4mjg-cmrw) for the
+  maintainer to publish.
+- 2026-10-28: the plan approved by @serionist.
 
 ## For the maintainers
 
