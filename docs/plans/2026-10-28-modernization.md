@@ -350,7 +350,8 @@ lock file's stale version (the quick lane catches it); zone mode in tests (the d
   commit CI passed is still `main`'s head, and keeps a prerendered `index.html` once there is one; CHANGELOG also has
   an Added section for S2's two entry points.
 - 2026-10-28, S6 review round 1 (deep, at `1e752c9`): clean, three minors fixed. `PR text` now needs `Refs`, `Closes` or
-  `Fixes #<n>` and refuses a bare `Closes #`, since a mention of another issue let the template's bare line through;
+  `Fixes #<n>` and refuses a bare `Closes #`, since a mention of another issue let the template's bare line through,
+  and reads no reference in code, as GitHub links none there;
   only a Pages run that will deploy joins the `pages` group, so one that skips can't take the place of a waiting
   deployment; CHANGELOG no longer says the chip control logged in production, since 0.1.129 has no chip control. Both
   improvements taken: Dependabot leaves `monaco-editor`'s minors and majors alone, and `node tools/pr-text.mjs --text`
