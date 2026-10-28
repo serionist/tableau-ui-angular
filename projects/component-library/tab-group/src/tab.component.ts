@@ -2,7 +2,6 @@ import type { TemplateRef } from '@angular/core';
 import { ChangeDetectionStrategy, Component, input, output, viewChild } from '@angular/core';
 
 @Component({
-  // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'tab',
   standalone: false,
   template: `

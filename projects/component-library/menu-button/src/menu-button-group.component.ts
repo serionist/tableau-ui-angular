@@ -9,7 +9,6 @@ import { ButtonMenuDirective } from 'tableau-ui-angular/menu';
   standalone: false,
   template: `
     @for (entry of $menuGroupStack() | entries; track entry[1].id) {
-      <!-- eslint-disable @angular-eslint/template/prefer-template-literal -->
       <div
         class="menu-group"
         resizeWatcher
