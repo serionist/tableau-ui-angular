@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { DOCUMENT, inject, Injectable, PLATFORM_ID } from '@angular/core';
 import type { ThemeConfig } from './theme.config';
 import { toSignal } from '@angular/core/rxjs-interop';
 import type { Observable } from 'rxjs';
@@ -8,6 +9,10 @@ import { BehaviorSubject, combineLatest, map } from 'rxjs';
   providedIn: 'root',
 })
 export class ThemeService {
+  // The theme lives in the browser: its storage, its colour scheme and the page it styles. On the server the theme is
+  // the default, the scheme light, and initialize() changes nothing.
+  private readonly document = inject(DOCUMENT);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly themeKey = 'theme-config';
   private readonly defaultTheme: ThemeConfig = {
     fontSize: '12px',
@@ -18,7 +23,7 @@ export class ThemeService {
   public get theme$(): Observable<ThemeConfig> {
     return this._theme$;
   }
-  private readonly autoColor$ = new BehaviorSubject<'dark' | 'light'>(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  private readonly autoColor$ = new BehaviorSubject<'dark' | 'light'>(this.prefersDark()?.matches === true ? 'dark' : 'light');
   readonly $theme = toSignal(this._theme$, {
     initialValue: this._theme$.value,
   });
@@ -33,8 +38,16 @@ export class ThemeService {
   private getAppliedThemeMode(theme: ThemeConfig, autoColor: 'dark' | 'light'): 'dark' | 'light' {
     return theme.mode === 'auto' ? autoColor : theme.mode;
   }
+  private prefersDark(): MediaQueryList | undefined {
+    return this.isBrowser ? this.document.defaultView?.matchMedia('(prefers-color-scheme: dark)') : undefined;
+  }
   initialize() {
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+    if (!this.isBrowser) {
+      return;
+    }
+    // the injected document, which the rest of this method styles
+    const { document } = this;
+    this.prefersDark()?.addEventListener('change', e => {
       if (e.matches) {
         this.autoColor$.next('dark');
       } else {
@@ -43,7 +56,7 @@ export class ThemeService {
     });
 
     this._theme$.subscribe(theme => {
-      localStorage.setItem(this.themeKey, JSON.stringify(theme));
+      document.defaultView?.localStorage.setItem(this.themeKey, JSON.stringify(theme));
       document.documentElement.style.setProperty('--twc-font-size', theme.fontSize);
     });
 
@@ -87,7 +100,7 @@ export class ThemeService {
   }
 
   private getInitialTheme(): ThemeConfig {
-    const storedTheme = localStorage.getItem(this.themeKey);
+    const storedTheme = this.isBrowser ? (this.document.defaultView?.localStorage.getItem(this.themeKey) ?? null) : null;
     if (storedTheme !== null) {
       const t = JSON.parse(storedTheme) as Partial<ThemeConfig>;
       t.fontSize = t.fontSize ?? '12px';
