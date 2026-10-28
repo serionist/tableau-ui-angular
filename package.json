@@ -13,7 +13,7 @@
     "build:test-app": "npm run build:component-library && ng build test-app",
     "build:github-pages": "ng build component-library && npm run test-app:icons:download && ng build test-app --base-href /tableau-ui-angular/",
     "dev:link": "ng build component-library --configuration development && node scripts/link-info.js && ng build component-library --watch --configuration development",
-    "pretty": "prettier --write --log-level warn projects tools .claude docs \"*.{json,js,mjs,md}\" .prettierrc",
+    "pretty": "prettier --write --log-level warn projects tools .claude .github docs \"*.{json,js,mjs,md}\" .prettierrc",
     "lint:js": "ng lint",
     "lint:js:fix": "ng lint --fix",
     "lint:scss": "stylelint \"projects/**/*.scss\"",
