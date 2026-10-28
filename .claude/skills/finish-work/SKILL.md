@@ -45,7 +45,8 @@ Commit, then open a draft PR: its title and description become the commit on `ma
 - If `main` moved: `git fetch origin`, `git rebase origin/main`, `git push --force-with-lease`; the full lane again
   when code changed.
 - Merge on the maintainer's word, or under a standing approval their plan records, never for a release or a one-way
-  door. Write `.local/squash.md`, what and why ending `Refs #<issue>` or `Closes #<issue>`, then `gh pr ready <n>` and
+  door. Write `.local/squash.md`, what and why ending `Refs #<issue>` or `Closes #<issue>`, and check it with the
+  `PR text` rules: `node tools/pr-text.mjs --text .local/squash.md`. Then `gh pr ready <n>` and
   `gh pr merge <n> --squash --delete-branch --subject "<title> (#<n>)" --body-file .local/squash.md`.
 - After the merge, from the main checkout: `git worktree remove .claude/worktrees/<n>-<slug>`, `git pull`. Work that
   turned up on the way becomes an issue.
