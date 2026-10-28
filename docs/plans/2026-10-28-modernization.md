@@ -81,8 +81,9 @@ Taken by @serionist on 2026-10-28 unless the row says otherwise.
 - Vitest replaces Karma in `angular.json` for both projects, in browser mode through Playwright, on Chromium and
   Firefox, with `@vitest/coverage-istanbul` (the V8 provider can't cover Firefox). The 65 scaffold specs are deleted:
   each only checks that a component is created. The `storybook` targets, whose packages are not installed, go too.
-- The demo app is prerendered in CI from S3, at first with no routes. Each S7 PR adds its area's demo routes, which
-  proves its SSR fixes; S10 extends the list to the docs site.
+- The demo app is prerendered from S3 (in CI from S6), at first with no routes. S7a starts, with F133, by making the
+  shell SSR-safe: the theme service's fields and the form field. Each S7 PR then adds the routes whose components are
+  SSR-safe once it lands, and S7e adds the rest; S10 extends the list to the docs site.
 - Prettier, ESLint (angular-eslint) and stylelint stay, with today's settings plus `no-console` (F24, F48). S4a is the
   Prettier reformat of the 35 files alone; S4b holds `.git-blame-ignore-revs` with S4a's `main` SHA, the lint fixes,
   `no-console`, `.gitattributes` and `.editorconfig`.
@@ -121,9 +122,10 @@ docs freshness, simplicity, harness integrity.
 - Every workflow: actions pinned by SHA with a version comment, `contents: read` raised per job with its reason,
   `persist-credentials: false`, timeouts, `npm ci` (F121).
 - `ci.yml` on PRs and `main`: the full lane on Linux on Node 22 and 24, with gitleaks installed against its sha256;
-  on Windows, the build, then the `npm pack` tarball installed into an empty folder and both shipped scripts run from
-  `node_modules/tableau-ui-angular/` against local stubs (a canned icon CSS, an HTTPS font server with a test CA); one
-  final `CI` job as the required check.
+  on Windows, the build and `npm pack`; one final `CI` job as the required check. S7e adds the shipped scripts' run
+  to the Windows leg, once they can pass: the tarball installed into an empty folder with `typescript`, as an Angular
+  app has it, and both scripts run from `node_modules/tableau-ui-angular/` against local stubs (an icon CSS server
+  behind a base-URL environment variable, an HTTPS font server with a test CA), checking the files they write.
 - `pages.yml`: builds and prerenders the docs site from `main` after CI and deploys it. `deploy-lib.yaml` is
   deleted.
 - `pr-text.yml`: the PR title and body hold no attribution and name an issue, since the squash commit is built from
@@ -151,7 +153,7 @@ prerender list:
 | S7b | Select, autocomplete, chip control, menus, date picker | F32-F42 | |
 | S7c | Dialogs, snacks, panels, navigation, buttons | F64-F71 | The stepper entry point removed (F89) |
 | S7d | Table, virtualize, list | F3, F91-F95 | |
-| S7e | Monaco, theme, clipboard, icon, styles, packaging | F118, F120 | The icon script on Node's `fetch` instead of an undeclared `axios`; F137 |
+| S7e | Monaco, theme, clipboard, icon, styles, packaging | F118, F120 | The icon script on Node's `fetch` instead of an undeclared `axios`, with a base-URL override; F137; the scripts' run on the Windows leg |
 
 F1, F2 and F119 were fixed in S1, F117, F134, F135 and F136 in S3, F121 in S6. Each PR answers the improvements of
 its area (taken, left, later) and marks its findings in the review record. Minors it doesn't fix stay open there; the
@@ -164,8 +166,8 @@ accessibility ones become issues (D15).
 1. The tag is on `main`, equals the package version, and CHANGELOG has its dated section.
 2. `npm ci`, the full lane, the package built and packed, `npm pack --dry-run` listed; the tarball is uploaded.
 3. A green `ci.yml` run on the tagged commit.
-4. Publish in the `npm` environment: the job installs nothing and runs `npm publish` on the uploaded tarball, through
-   trusted publishing, with provenance.
+4. Publish in the `npm` environment: the job installs nothing beyond setup-node and runs `npm publish` on the
+   uploaded tarball, through trusted publishing, with provenance.
 5. The GitHub release, with the CHANGELOG section as notes and the tarball attached.
 
 `docs/releasing.md`: bump the version and date the CHANGELOG in one PR, merge, tag at once, approve the deployment.
@@ -177,7 +179,7 @@ accessibility ones become issues (D15).
 | Change | How a user moves over |
 |---|---|
 | 0.1.129 (S1) | Nothing; the title is shown as text, as typed |
-| The table's data types move (S2): `DataOptions`, `IncrementalDataOptions`, `FullDataOptions`, `DataRequest`, `DataResponse` and `DataSort` come from `tableau-ui-angular/virtualize`; `dataRowHeight` and `dataPadding` become `[dataRowCss]` | Change the imports and the inputs; a Breaking line in CHANGELOG |
+| The table's data types move (S2): `DataOptions`, `IncrementalDataOptions`, `FullDataOptions`, `FullDataRequest`, `IncrementalDataRequest`, `FullDataResponse`, `IncrementalDataResponse` and `DataSort` come from `tableau-ui-angular/virtualize`; `TableComponent` needs its type argument (the `number` default is gone); `dataRowHeight` and `dataPadding` become `[dataRowCss]` | Change the imports, the type annotations and the inputs; a Breaking line in CHANGELOG |
 | Angular 22 peers, `rxjs` a peer, `monaco-editor` optional (S3) | Update the app to Angular 22, or stay on 0.1.129; apps without Monaco stop installing it |
 | Fixes that change behaviour (S7): writes no longer mark forms dirty, touched on blur, the checkbox's label, `writeValue` no longer firing `valueChange` | Each has a CHANGELOG line under Breaking with the step |
 | The stepper entry point removed (S7c) | It rendered a placeholder; remove its import |
@@ -220,9 +222,9 @@ S1 and S2 come before the plan's merge: they don't depend on it, and S1 shouldn'
 | Suite | Runs where | New or changed |
 |---|---|---|
 | Component tests (Vitest, browser mode, Chromium and Firefox, axe) | CI, every PR | New in S3; the fixes' tests in S7; the rest in S8 |
-| Prerender of the demo app, then the docs site | CI, every PR | S3, routes added in S7, the docs site in S10 |
+| Prerender of the demo app, then the docs site | CI, every PR | S3 (in CI from S6), routes added in S7, the docs site in S10 |
 | The API file compare | CI, every PR | S9 |
-| The shipped scripts from the packed tarball | CI, Windows | S6 |
+| The shipped scripts from the packed tarball | CI, Windows | S7e |
 
 ## Docs
 
@@ -239,7 +241,7 @@ S1 and S2 come before the plan's merge: they don't depend on it, and S1 shouldn'
 | R2 | Browser-mode tests in two browsers are slow on CI | Accepted; sharded if a leg passes 5 minutes |
 | R3 | Starschema doesn't agree to MIT | Accepted; the repo stays AGPL-3.0 and nothing else in the plan changes |
 | R4 | A merge to `main` publishes a patch while `deploy-lib.yaml` runs | Used once on purpose for 0.1.129 (S1), then turned off; deleted in S6 |
-| R5 | Trusted publishing needs npm 11.5.1 or later in the publish job | `release.yml` installs it |
+| R5 | Trusted publishing needs npm 11.5.1 or later in the publish job | The publish job sets up Node 24, whose npm is 11, and stops unless `npm --version` is 11.5.1 or later |
 | R6 | The S1 fixes ship without automated tests | Accepted; two small changes, each shown by hand, and S7 adds their tests |
 | R7 | The old workflow's `NPM_TOKEN` is dead, so a merge without a new one tags 0.1.129 and fails to publish | S1 swaps in a 1-day token before the merge |
 
@@ -293,12 +295,26 @@ lock file's stale version (the quick lane catches it); zone mode in tests (the d
 | One-way doors include the scripts' paths and arguments and the theme's CSS custom properties | taken |
 | The root `package` and `publish` scripts go; the allow list names read-only commands | taken |
 
+### Round 2
+
+- **How:** a fresh reviewer, read only, on the round 1 fixes and what they changed; Claude Opus 5.5; 2026-10-28.
+- **Verdict:** approved. P1 to P13 hold, P4 and P8 only in part, which N1 and N2 finish.
+- **Now:** the four minors applied and checked in this session.
+
+| # | Sev | Finding | Status |
+|---|---|---|---|
+| N1 | minor | S7a to S7d can't prerender their routes: every route renders inside the app shell, whose theme service reads `window` in its fields (S7e's area); and there is no CI before S6 | fixed: S7a makes the shell SSR-safe first, routes join as their components become safe, prerender in CI from S6 |
+| N2 | minor | S6's Windows leg can't pass: in an empty folder the icon script misses `axios` and `typescript`, its CSS URL is hard-coded, and the font script reports success on a failed download until F137 | fixed: S6's Windows leg builds and packs; S7e adds the scripts' run with `typescript`, a base-URL override, and checks on the files written |
+| N3 | minor | The P2 row named types that never existed (`DataRequest`, `DataResponse`) and missed `TableComponent` losing its `number` default type argument | fixed: Compatibility |
+| N4 | minor | Release step 4 ("installs nothing") contradicted R5 ("installs" npm 11.5.1); on Node 22's npm 10 the publish fails after the tag | fixed: Node 24 set up, `npm --version` checked, nothing else installed |
+
 ## Progress log
 
 - 2026-10-28: the reference repos read through their sessions (docket, omniverse-mcp) and files
   (WriteableFileProviders); decisions D2 to D5 taken; issue #24 opened; the codebase review (five reviewers, a
   refuter per area, F3 reproduced in Firefox 143); decisions D12 to D15 taken; PR #25 (S1) opened, both fixes shown
-  in the demo before and after; plan review round 1; the squash message and secret scanning set.
+  in the demo before and after; plan review round 1; the squash message and secret scanning set; the token
+  replaced and #25 merged (`1a1d792`); plan review round 2, approved.
 
 ## For the maintainers
 
