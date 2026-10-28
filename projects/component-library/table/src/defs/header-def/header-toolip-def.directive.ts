@@ -24,6 +24,7 @@ export class HeaderToolipDefDirective<TData> {
 
   public templateRef = inject(TemplateRef<{ $implicit: HeaderTooltipContext<TData> }>);
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Angular's guard signature; ctx is used by its type predicate
   static ngTemplateContextGuard<TData>(dir: HeaderToolipDefDirective<TData>, ctx: unknown): ctx is { $implicit: HeaderTooltipContext<TData> } {
     return true;
   }

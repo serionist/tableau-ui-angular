@@ -110,13 +110,13 @@ export class IconComponent {
     alias: 'params',
   });
 
-  private readonly $actualColor = computed(() => {
+  protected readonly $actualColor = computed(() => {
     return this.$params()?.color ?? this.$color() ?? 'none';
   });
-  private readonly $actualType = computed(() => {
+  protected readonly $actualType = computed(() => {
     return this.$params()?.type ?? this.$type();
   });
-  private readonly $actualFontSize = computed(() => {
+  protected readonly $actualFontSize = computed(() => {
     return this.$params()?.fontSize ?? this.$fontSize();
   });
   private readonly $actualFill = computed(() => {
@@ -132,7 +132,7 @@ export class IconComponent {
     return this.$params()?.opticalSizePx ?? this.$opticalSizePx();
   });
 
-  private readonly $fontVariationSettings = computed(() => {
+  protected readonly $fontVariationSettings = computed(() => {
     return `'FILL' ${this.$actualFill() ? 1 : 0}, 'wght' ${this.$actualWeight()}, 'GRAD' ${this.$actualGrade()}, 'opsz' ${this.$actualOpticalSizePx()}`;
   });
 }

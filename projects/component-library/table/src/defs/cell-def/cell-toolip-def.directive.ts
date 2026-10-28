@@ -24,6 +24,7 @@ export class CellToolipDefDirective<TData> {
 
   readonly templateRef = inject(TemplateRef<{ $implicit: CellTooltipContext<TData> }>);
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Angular's guard signature; ctx is used by its type predicate
   static ngTemplateContextGuard<TData>(dir: CellToolipDefDirective<TData>, ctx: unknown): ctx is { $implicit: CellTooltipContext<TData> } {
     return true;
   }

@@ -188,8 +188,8 @@ export class VirtualizeComponent<TData> extends VirtualizeBaseComponent<TData> {
     return true;
   }
 
-  @HostListener('scroll', ['$event.target'])
-  private onHostScrolled(element: HTMLElement) {
+  @HostListener('scroll', ['$any($event.target)'])
+  protected onHostScrolled(element: HTMLElement) {
     super.onScroll(element)
   }
 }

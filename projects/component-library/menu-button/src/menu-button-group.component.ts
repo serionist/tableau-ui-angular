@@ -100,8 +100,8 @@ export class MenuButtonGroupComponent implements OnDestroy, AfterViewInit {
     equal: () => false,
   });
 
-  private readonly $height = signal<number>(0);
-  private readonly $width = signal<number>(0);
+  protected readonly $height = signal<number>(0);
+  protected readonly $width = signal<number>(0);
 
   private viewInitialized = false;
   private readonly subs: OutputRefSubscription[] = [];
