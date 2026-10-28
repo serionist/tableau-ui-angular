@@ -91,7 +91,8 @@ PRs are squash-merged, so the PR's title and description become the commit on `m
 - That holds for commits, PR titles, PR bodies and squash messages. `commit-msg` refuses them; the gate checks the
   branch, and `PR text` the title and body.
 - Dependabot's PRs skip `PR text`, since their bodies quote other projects' release notes: squash one with its title
-  and a line naming what moved, never its body.
+  and a line naming what moved, never its body. Minor and patch updates merge themselves once CI passes
+  (`dependabot-auto-merge.yml`); a draft holds one; majors wait for the maintainer.
 
 ## One-way doors
 
