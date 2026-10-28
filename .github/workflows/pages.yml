@@ -20,13 +20,20 @@ permissions:
   contents: read
 
 concurrency:
-  # One deployment at a time; one that started is never cancelled halfway.
-  group: pages
+  # One deployment at a time, and one that started is never cancelled halfway. A newer run waiting in the group takes
+  # the place of an older one, so only a run that will deploy joins it, under the build job's own condition: a run that
+  # skips, such as CI finishing late on a commit main has moved past, gets a group of its own and can't take the place
+  # of the newer commit's deployment.
+  group: >-
+    ${{ github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' ||
+    (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' &&
+    github.event.workflow_run.head_sha == github.sha)) && 'pages' || format('pages-skip-{0}', github.run_id) }}
   cancel-in-progress: false
 
 jobs:
   build:
     name: Build the demo app
+    # The same condition as the concurrency group's.
     if: >-
       github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' ||
       (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' &&
