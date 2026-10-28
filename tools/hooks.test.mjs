@@ -46,6 +46,8 @@ describe('commit-msg refuses', () => {
     'a claude.ai/code/session link': 'See HTTPS://claude.ai/code/session_01AbCdEfGhIjKlMn for the run.',
     'an Assisted-by trailer naming a tool': 'Assisted-by: Claude Code',
     'a Generated-by trailer naming a tool': 'Generated-by: Claude Code',
+    'a "Generated with" line in <sub> tags': '<sub>🤖 Generated with [Claude Code](https://claude.com/claude-code)</sub>',
+    'a "Generated with" line in emphasis': '_Generated with [Claude Code](https://claude.com/claude-code)_',
   };
   for (const [name, line] of Object.entries(forms)) {
     test(name, () => {
@@ -120,6 +122,12 @@ describe('git runs commit-msg through .githooks/commit-msg', () => {
     const done = git('commit', '--allow-empty', '-m', CLEAN);
     assert.equal(done.status, 0, done.stderr);
   });
+
+  test('and a commit a tool authors is refused, though its message is clean', () => {
+    const done = git('-c', 'user.name=Claude', '-c', 'user.email=noreply@anthropic.com', 'commit', '--allow-empty', '-m', CLEAN);
+    assert.notEqual(done.status, 0, done.stdout);
+    assert.match(done.stderr, /commit-msg: refused: tool attribution: author Claude <noreply@anthropic\.com>/);
+  });
 });
 
 describe('pre-push checks what the push sends', () => {
@@ -130,6 +138,8 @@ describe('pre-push checks what the push sends', () => {
   git('update-ref', 'refs/remotes/origin/main', start);
   git('commit', '--quiet', '--allow-empty', '-m', `${CLEAN}\n\nCo-Authored-By: Claude <noreply@anthropic.com>`);
   const tainted = sha('HEAD');
+  git('-c', 'user.name=copilot-swe-agent[bot]', '-c', 'user.email=198982749+Copilot@users.noreply.github.com', 'commit', '--quiet', '--allow-empty', '-m', CLEAN);
+  const toolAuthored = sha('HEAD');
   git('checkout', '--quiet', '-b', 'clean', start);
   git('commit', '--quiet', '--allow-empty', '-m', CLEAN);
   const cleanSha = sha('HEAD');
@@ -149,6 +159,12 @@ describe('pre-push checks what the push sends', () => {
     assert.equal(done.status, 1, done.stdout + done.stderr);
     assert.match(done.stdout, /attribution\s+FAIL/);
     assert.match(done.stdout, /working tree's checks are skipped: the push sends/);
+  });
+
+  test('a pushed commit a tool authored fails it, though its message is clean', () => {
+    const done = prePush(`refs/heads/main ${toolAuthored} refs/heads/main ${tainted}\n`);
+    assert.equal(done.status, 1, done.stdout + done.stderr);
+    assert.match(done.stdout, /author copilot-swe-agent\[bot\]/);
   });
 
   test('a clean pushed range passes, from the remote commit', () => {

@@ -25,7 +25,8 @@ const TOOL_NAME = new RegExp(
 const BOT_EMAIL = /^(?:\d+\+)?([^@\s]*)\[bot\]@users\.noreply\.github\.com$/i;
 const BOT_NAME = /^([^\s[\]]+)\[bot\]$/i;
 const NON_AI_BOTS = new Set(['dependabot', 'github-actions', 'renovate']);
-const GENERATED = new RegExp(String.raw`^\W*(?:generated|created|written|authored|produced|assisted|made)\s+(?:with|by|using|via|in)\b.*?\b(?:${TOOLS})\b`, 'i');
+// It may sit behind tags or emphasis too: `<sub>🤖 Generated with ...</sub>`, `_Generated with ..._`.
+const GENERATED = new RegExp(String.raw`^(?:[\W_]|<[^<>]*>)*(?:generated|created|written|authored|produced|assisted|made)\s+(?:with|by|using|via|in)\b.*?\b(?:${TOOLS})\b`, 'i');
 const TOOL_TRAILER = /^\W*(?:claude|anthropic|codex|openai|chatgpt|copilot|gemini)-[\w-]+\s*:/i;
 const SESSION_LINK = /(?:https?:\/\/)?(?:www\.)?(?:claude\.ai\/(?:code|chat|share)\b|chatgpt\.com\/(?:codex|share|c)\/)/i;
 // git splits a message on LF; a bare CR is split too, so no line can hide behind one.
@@ -36,7 +37,7 @@ const LINE_BREAK = /\r\n?|\n/;
 const SCISSORS = /^\S+ -{24} >8 -{24}\s*$/;
 const DIFF_LINE = /^(?:[-+ ]|@@|diff --git |index |(?:old|new|new file|deleted file) mode |(?:dis)?similarity index |(?:rename|copy) (?:from|to) |Binary files |\\ No newline)/;
 
-/** True when a trailer's `Name <email>` is a tool. */
+/** True when a trailer's `Name <email>`, or a commit's author or committer, is a tool. */
 export function toolCoAuthor(who) {
   const match = WHO.exec(who.trim());
   if (!match) return false;

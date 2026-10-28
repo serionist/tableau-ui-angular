@@ -11,13 +11,20 @@ import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { attributionLines, messageText } from './attribution.mjs';
+import { attributionLines, messageText, toolCoAuthor } from './attribution.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const ZERO_SHA = /^0+$/;
 
+/** `Name <email>` from git's ident line, which ends in a timestamp and a zone. */
+const ident = role => (spawnSync('git', ['var', `GIT_${role}_IDENT`], { cwd: ROOT, encoding: 'utf8' }).stdout ?? '').replace(/\s+\d+\s+[-+]\d{4}\s*$/, '').trim();
+
 function commitMsg(file) {
   const found = attributionLines(messageText(readFileSync(file, 'utf8')));
+  for (const role of ['AUTHOR', 'COMMITTER']) {
+    const who = ident(role);
+    if (who && toolCoAuthor(who)) found.push(`${role.toLowerCase()} ${who}`);
+  }
   for (const line of found) console.error(`commit-msg: refused: tool attribution: ${line}`);
   if (found.length) console.error('commit-msg: take those lines out and commit again (AGENTS.md, Commits and PRs)');
   return found.length ? 1 : 0;

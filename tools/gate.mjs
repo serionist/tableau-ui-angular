@@ -26,7 +26,7 @@ import { spawnSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { attributionLines } from './attribution.mjs';
+import { attributionLines, toolCoAuthor } from './attribution.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const AGENTS_MAX_LINES = 150;
@@ -167,12 +167,13 @@ function resolveRanges(specs) {
   return { ranges };
 }
 
-/** Why the working tree can't stand for what the ranges hold, or null when it can: each ends at HEAD, and nothing is changed or untracked. */
+/** Why the working tree can't stand for what the ranges hold, or null when it can: each ends at HEAD, and no tracked file is changed. */
 function treeSkipReason(ranges) {
   const head = git('rev-parse', '--verify', '--quiet', 'HEAD^{commit}').output;
   const other = ranges.find(({ to }) => to !== head);
   if (other) return `the push sends ${other.to.slice(0, 10)}, not HEAD`;
-  if (git('status', '--porcelain').output) return 'the working tree has changes the push does not send';
+  // Untracked files don't count: they are never pushed, and a scratch file shouldn't skip the lint checks.
+  if (git('status', '--porcelain', '--untracked-files=no').output) return 'the working tree has changes the push does not send';
   return null;
 }
 
@@ -183,16 +184,18 @@ function checkAttribution({ ranges, problem, shown }) {
   const seen = new Set();
   const found = [];
   for (const { range } of ranges) {
-    const log = git('log', '--format=%H%x00%B%x01', range);
+    const log = git('log', '--format=%H%x00%an <%ae>%x00%cn <%ce>%x00%B%x01', range);
     if (!log.ok) return fail(`git log ${range} failed`, log.output);
     const commits = log.output
       .split('\x01')
       .map(record => record.trim())
       .filter(Boolean)
       .map(record => record.split('\x00'));
-    for (const [sha, message = ''] of commits) {
+    for (const [sha, author = '', committer = '', message = ''] of commits) {
       if (seen.has(sha)) continue;
       seen.add(sha);
+      if (toolCoAuthor(author)) found.push(`${sha.slice(0, 10)}: author ${author}`);
+      if (toolCoAuthor(committer)) found.push(`${sha.slice(0, 10)}: committer ${committer}`);
       found.push(...attributionLines(message).map(line => `${sha.slice(0, 10)}: ${line}`));
     }
   }
@@ -240,7 +243,7 @@ function checkHookTests() {
   // skipped nor a todo, shows that a test ran.
   const ran = [...done.output.matchAll(/^\s*ok \d+ - (.*)$/gm)].filter(([, name]) => !/\.test\.mjs$|#\s*(?:SKIP|TODO)\b/i.test(name.trim())).length;
   const count = Number(/^# pass (\d+)/m.exec(done.output)?.[1] ?? 0);
-  return ran ? pass(`${count} tests pass`) : fail("no hooks' test ran: tools/*.test.mjs holds no test", done.output);
+  return ran && count ? pass(`${count} tests pass`) : fail("no hooks' test ran: tools/*.test.mjs holds no test", done.output);
 }
 
 function checkTests() {
