@@ -1,6 +1,6 @@
 @if ($labelElement()) {
   <div class="form-label">
-    <label [for]="id"><ng-content select="tab-label" /></label>
+    <label [id]="labelId" [attr.for]="$labelFor()"><ng-content select="tab-label" /></label>
   </div>
 }
 

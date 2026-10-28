@@ -1,7 +1,10 @@
-import type { AfterContentInit, AfterViewInit, OnDestroy, Signal } from '@angular/core';
-import { ChangeDetectionStrategy, Component, contentChild, ElementRef, inject, input, Renderer2, signal, viewChild } from '@angular/core';
+import type { AfterContentInit, OnDestroy, Signal } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, Component, contentChild, ElementRef, inject, Renderer2, signal, viewChild } from '@angular/core';
 import { ErrorComponent, HintComponent, LabelComponent, PrefixComponent, SuffixComponent } from 'tableau-ui-angular/common';
 import { generateRandomString } from 'tableau-ui-angular/utils';
+
+// Elements a <label for> can name; any other control is named through aria-labelledby on the element it focuses
+const LABELABLE = ['INPUT', 'TEXTAREA', 'SELECT'];
 
 @Component({
   selector: 'tab-form-field',
@@ -15,13 +18,13 @@ import { generateRandomString } from 'tableau-ui-angular/utils';
     'style.display': 'grid',
   },
 })
-export class FormFieldComponent implements AfterContentInit, AfterViewInit, OnDestroy {
-  // custom components go before input and textarea so they are found first (some of them have a nested input)
-  private readonly inputContainerSelector = 'tab-chip-control,tab-single-select,tab-multi-select,tab-list-single-select,tab-list-multi-select,input,textarea';
-  protected readonly id = generateRandomString(16);
-  readonly $style = input<string>(undefined, {
-    alias: 'style',
-  });
+export class FormFieldComponent implements AfterContentInit, OnDestroy {
+  // custom components go before input, textarea and select so they are found first (some of them have a nested input)
+  private readonly inputContainerSelector = 'tab-chip-control,tab-single-select,tab-multi-select,tab-list-single-select,tab-list-multi-select,input,textarea,select';
+  private readonly id = generateRandomString(16);
+  protected readonly labelId = `${this.id}-label`;
+  /** The label's `for`: the id of a native input, textarea or select, which keeps an id the app gave it */
+  protected readonly $labelFor = signal<string | null>(null);
   // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
   protected readonly $hintElement: Signal<HintComponent | undefined> = contentChild(HintComponent);
   // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
@@ -45,23 +48,43 @@ export class FormFieldComponent implements AfterContentInit, AfterViewInit, OnDe
   private intersectionObserver?: IntersectionObserver;
   private inputObserver?: MutationObserver;
 
+  constructor() {
+    // Observers and measuring need a browser: they start after the first render, which never runs on the server
+    afterNextRender(() => {
+      this.observe();
+    });
+  }
+
   ngAfterContentInit(): void {
-    this.updatePrefixSuffixWidths();
-
-    const inputElement: HTMLElement | null = this.$inputContainer().nativeElement.querySelector(this.inputContainerSelector);
-
+    const inputElement = this.findInput();
     if (inputElement) {
-      inputElement.id = this.id;
+      this.labelInput(inputElement);
       this.updateInputAttributes(inputElement);
-
-      this.inputObserver = new MutationObserver(() => {
-        this.updateInputAttributes(inputElement);
-      });
-      this.inputObserver.observe(inputElement, {
-        attributes: true,
-        attributeFilter: ['disabled', 'placeholder', 'required'],
-      });
     }
+  }
+
+  private findInput(): HTMLElement | null {
+    return this.$inputContainer().nativeElement.querySelector<HTMLElement>(this.inputContainerSelector);
+  }
+
+  /**
+   * Names the control by the label. A native input, textarea or select takes the label's `for`, and keeps its own id
+   * when it has one. A custom control's host can't be labelled that way, so the element it focuses, the chip control's
+   * search input or the host of a select or list, takes `aria-labelledby`.
+   */
+  private labelInput(inputElement: HTMLElement) {
+    if (!this.$labelElement()) {
+      return;
+    }
+    if (LABELABLE.includes(inputElement.tagName)) {
+      if (inputElement.id === '') {
+        inputElement.id = this.id;
+      }
+      this.$labelFor.set(inputElement.id);
+      return;
+    }
+    const focused = inputElement.tagName === 'TAB-CHIP-CONTROL' ? inputElement.querySelector('input') : inputElement;
+    focused?.setAttribute('aria-labelledby', this.labelId);
   }
 
   private updateInputAttributes(inputElement: HTMLElement) {
@@ -77,11 +100,19 @@ export class FormFieldComponent implements AfterContentInit, AfterViewInit, OnDe
       }
     }
   }
-  ngAfterViewInit(): void {
-    // Recalculate when view initializes
-    setTimeout(() => {
-      this.updatePrefixSuffixWidths();
-    });
+
+  private observe(): void {
+    const inputElement = this.findInput();
+    if (inputElement) {
+      this.inputObserver = new MutationObserver(() => {
+        this.updateInputAttributes(inputElement);
+      });
+      this.inputObserver.observe(inputElement, {
+        attributes: true,
+        attributeFilter: ['disabled', 'placeholder', 'required'],
+      });
+    }
+    this.updatePrefixSuffixWidths();
 
     // whenever the formFieldWrapper is in view, update the prefix/suffix widths
     this.intersectionObserver = new IntersectionObserver(
@@ -121,11 +152,15 @@ export class FormFieldComponent implements AfterContentInit, AfterViewInit, OnDe
   }
 
   private updatePrefixSuffixWidths(): void {
+    const inputElement = this.findInput();
+    if (!inputElement) {
+      return;
+    }
     const prefixElement = this.$prefixElement();
     if (prefixElement) {
       const prefixWidth = prefixElement.elementRef.nativeElement.offsetWidth;
       this.renderer.setStyle(
-        this.$inputContainer().nativeElement.querySelector(this.inputContainerSelector),
+        inputElement,
         'padding-left',
         `${prefixWidth + 12}px`, // Adds a small margin for spacing
       );
@@ -134,7 +169,7 @@ export class FormFieldComponent implements AfterContentInit, AfterViewInit, OnDe
     if (suffixElement) {
       const suffixWidth = suffixElement.elementRef.nativeElement.offsetWidth;
       this.renderer.setStyle(
-        this.$inputContainer().nativeElement.querySelector(this.inputContainerSelector),
+        inputElement,
         'padding-right',
         `${suffixWidth + 8}px`, // Adds a small margin for spacing
       );
