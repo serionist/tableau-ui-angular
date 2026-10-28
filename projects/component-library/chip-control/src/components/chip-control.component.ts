@@ -23,7 +23,7 @@ import { NG_VALUE_ACCESSOR, type ControlValueAccessor } from '@angular/forms';
     '(click)': '$inputControl().nativeElement.focus()',
     '[class.focused]': '$focused()',
     '[attr.disabled]': '$disabled() ? "true": undefined',
-  }
+  },
 })
 export class ChipControlComponent<TKey, TValue> implements ControlValueAccessor {
   readonly self = this;
@@ -190,12 +190,10 @@ export class ChipControlComponent<TKey, TValue> implements ControlValueAccessor 
         console.log('Keys changed: Emitting chipRemoved for key:', key);
         this.$chipRemoved.emit(key);
       }
-      
     }
 
     this._onChange([...keys]); // notify form control of the change
 
-    
     // add all values that are in the keys but not in the values
     // get which keys are not in the values
     const missingKeys = keys.filter(k => !values.some(vk => comparer(vk.key, k)));
@@ -310,7 +308,7 @@ export class ChipControlComponent<TKey, TValue> implements ControlValueAccessor 
     } else {
       this.$highlightedChip.set(undefined); // Unset highlighted chip if it was already selected
     }
-   
+
     // event.stopPropagation();
     // event.preventDefault();
   }

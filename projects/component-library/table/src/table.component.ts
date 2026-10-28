@@ -309,7 +309,7 @@ export class TableComponent<TData> extends VirtualizeBaseComponent<TData> {
       console.warn('Table reset called with undefined parameters, ignoring');
       return false;
     }
-    
+
     const dataRowHeightPx = this.$dataRowHeightPx();
     await this.dataManager.reset(this.dataWindowHeightPx, dataRowHeightPx, sort, dataBlockWindow, dataOptions);
     return true;
@@ -394,7 +394,7 @@ export class TableComponent<TData> extends VirtualizeBaseComponent<TData> {
   // #region Scrolling & Virtualization
   @HostListener('scroll', ['$any($event.target)'])
   protected onHostScrolled(element: HTMLElement) {
-    super.onScroll(element)
+    super.onScroll(element);
   }
   // #endregion
 
@@ -505,7 +505,7 @@ export class TableComponent<TData> extends VirtualizeBaseComponent<TData> {
         } else {
           throw new Error(`Failed to initialize line clamping. Invalid CSS value for ${prop}: ${value}. Expected a pixel value.`);
         }
-      }
+      };
       const lineHeight = getPxValue('line-height', cellStyle.lineHeight);
       const paddingTop = getPxValue('padding-top', cellStyle.paddingTop);
       const paddingBottom = getPxValue('padding-bottom', cellStyle.paddingBottom);

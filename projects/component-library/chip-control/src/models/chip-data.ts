@@ -1,1 +1,4 @@
-export interface ChipData<TKey, TValue> { key: TKey; value: TValue }
+export interface ChipData<TKey, TValue> {
+  key: TKey;
+  value: TValue;
+}

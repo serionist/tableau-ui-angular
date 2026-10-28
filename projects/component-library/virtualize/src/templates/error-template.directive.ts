@@ -11,5 +11,4 @@ export class ErrorTemplateDirective {
   static ngTemplateContextGuard(dir: ItemMetaContext, ctx: unknown): ctx is { $implicit: ItemMetaContext } {
     return true;
   }
-
 }

@@ -1,23 +1,23 @@
 :host {
-    display: flex;
-    gap: 0.25rem;
-    align-items: center;
-    background: var(--twc-color-highlight);
-    line-height: 1;
-    padding: 0.5rem 0.5rem;
-    white-space: nowrap;
-    height: fit-content;
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+  background: var(--twc-color-highlight);
+  line-height: 1;
+  padding: 0.5rem 0.5rem;
+  white-space: nowrap;
+  height: fit-content;
 
-    .close-button {
-        background: transparent;
-        width: 1rem;
-        height: 1rem;
-    }
+  .close-button {
+    background: transparent;
+    width: 1rem;
+    height: 1rem;
+  }
 
-    &.selected {
-        background: var(--twc-color-primary-light);
-    }
-    &.disabled {
-        background: var(--twc-color-disabled);
-    }
+  &.selected {
+    background: var(--twc-color-primary-light);
+  }
+  &.disabled {
+    background: var(--twc-color-disabled);
+  }
 }

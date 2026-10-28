@@ -21,7 +21,6 @@ export class VirtualizeComponent<TData> extends VirtualizeBaseComponent<TData> {
     super(inject(ChangeDetectorRef));
   }
 
-
   // #region Inputs
   /**
    * The data options for the table
@@ -54,7 +53,7 @@ export class VirtualizeComponent<TData> extends VirtualizeBaseComponent<TData> {
    * If set, this will override the automatic height calculation.
    */
   readonly $dataWindowHeightPx = input<number | undefined>(undefined, {
-    alias: 'dataWindowHeightPx'
+    alias: 'dataWindowHeightPx',
   });
   /**
    * The sort models.
@@ -91,7 +90,7 @@ export class VirtualizeComponent<TData> extends VirtualizeBaseComponent<TData> {
   readonly $errorTemplate = contentChild(ErrorTemplateDirective);
   readonly $customLoaderTemplate = contentChild(CustomLoaderDirective);
   // #endregion Templates
-  
+
   protected readonly $dataRowHorizontalPaddingPx = computed(() => {
     const computedStyle = this.$dataRowComputedStyle();
     const getPxValue = (prop: string, value: string) => {
@@ -109,7 +108,7 @@ export class VirtualizeComponent<TData> extends VirtualizeBaseComponent<TData> {
       getPxValue('borderRightWidth', computedStyle.borderRightWidth)
     );
   });
-  
+
   protected readonly $loading = signal(false);
   private loaded = false;
   private autoDataWindowHeightPx: number = 0; // This will be set to the host element's clientHeight when load() is called
@@ -180,7 +179,7 @@ export class VirtualizeComponent<TData> extends VirtualizeBaseComponent<TData> {
       console.warn('Container reset called with undefined parameters, ignoring');
       return false;
     }
-    
+
     const dataRowHeightPx = this.$dataRowHeightPx();
     this.$loading.set(true);
     await this.dataManager.reset(dataWindowHeightPx, dataRowHeightPx, sort, dataBlockWindow, dataOptions);
@@ -190,6 +189,6 @@ export class VirtualizeComponent<TData> extends VirtualizeBaseComponent<TData> {
 
   @HostListener('scroll', ['$any($event.target)'])
   protected onHostScrolled(element: HTMLElement) {
-    super.onScroll(element)
+    super.onScroll(element);
   }
 }

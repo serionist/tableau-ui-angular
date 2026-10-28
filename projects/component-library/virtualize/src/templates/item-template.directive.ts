@@ -7,7 +7,6 @@ import type { ItemContext } from './item-context';
   standalone: false,
 })
 export class ItemTemplateDirective<TData> {
-
   readonly container = input.required<VirtualizeComponent<TData>>({
     alias: 'tabItemTemplate',
   });
@@ -17,5 +16,4 @@ export class ItemTemplateDirective<TData> {
   static ngTemplateContextGuard<TData>(dir: ItemTemplateDirective<TData>, ctx: unknown): ctx is { $implicit: ItemContext<TData> } {
     return true;
   }
-
 }

@@ -4,10 +4,9 @@ import type { ChipContext } from '../models/chip-context';
 
 @Directive({
   selector: '[tabChipTemplate]',
-  standalone: false
+  standalone: false,
 })
 export class ChipTemplateDirective<TKey, TValue> {
-
   readonly container = input.required<ChipControlComponent<TKey, TValue>>({
     alias: 'tabChipTemplate',
   });
@@ -16,7 +15,6 @@ export class ChipTemplateDirective<TKey, TValue> {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Angular's guard signature; ctx is used by its type predicate
   static ngTemplateContextGuard<TKey, TValue>(dir: ChipTemplateDirective<TKey, TValue>, ctx: unknown): ctx is { $implicit: ChipContext<TKey, TValue> } {
-      return true;
-    }
-
+    return true;
+  }
 }
