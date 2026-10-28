@@ -58,6 +58,8 @@ describe('PR text refuses', () => {
     'a reference with a colon': 'Refs: #24',
     'an issue named only in an HTML comment': 'What and why.\n\n<!-- Closes #24 -->',
     'an issue named only in an unclosed HTML comment': 'What and why.\n\n<!-- Closes #24',
+    'an issue named only in code': 'What and why.\n\n`Closes #24`',
+    'an issue named only in a fenced block': 'What and why.\n\n```\nCloses #24\n```',
     'an HTML entity': 'It&#39;s done.',
     "a URL's fragment": 'See https://example.com/page#24',
     "another repository's issue": 'Like serionist/omniverse-mcp#13.',
@@ -84,6 +86,11 @@ describe('PR text refuses', () => {
 
   test("not a bare reference in an HTML comment, where the template's guidance sits", () => {
     assert.deepEqual(prTextProblems(TITLE, '<!-- Closes #<n> when this finishes the issue -->\n\nCloses #24'), []);
+  });
+
+  test('not a bare reference in code, where a PR quotes the rules', () => {
+    assert.deepEqual(prTextProblems(TITLE, 'It needs `Refs`, `Closes` or `Fixes #<n>`, never a bare `Closes #`.\n\nRefs #24'), []);
+    assert.deepEqual(prTextProblems(TITLE, 'The template ends:\n\n```\nCloses #\n```\n\nRefs #24'), []);
   });
 
   const attribution = {

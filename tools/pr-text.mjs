@@ -20,8 +20,9 @@ import { attributionLines } from './attribution.mjs';
 const ISSUE = /\b(?:refs|closes|fixes)[ \t]+#\d+\b/i;
 // The same word with no number, as the PR template leaves it: the squash commit would end with it.
 const BARE = /\b(refs|closes|fixes)[ \t]+#(?!\d)/gi;
-// The template's guidance sits in HTML comments, which the PR page doesn't show, so a reference there is none.
-const HTML_COMMENT = /<!--[\s\S]*?(?:-->|$)/g;
+// What GitHub doesn't read as a reference: an HTML comment, where the template's guidance sits and which the PR page
+// doesn't show, and code, a fenced block or a span, where a PR about these rules quotes them.
+const NOT_REFERENCES = /<!--[\s\S]*?(?:-->|$)|```[\s\S]*?(?:```|$)|~~~[\s\S]*?(?:~~~|$)|`[^`\n]*`/g;
 
 /** What is wrong with a PR's title and description: each attribution line, a bare reference, no issue named. */
 export function prTextProblems(title, body) {
@@ -32,7 +33,7 @@ export function prTextProblems(title, body) {
   ]) {
     problems.push(...attributionLines(text).map(line => `tool attribution in the ${where}: ${line}`));
   }
-  const shown = body.replace(HTML_COMMENT, '');
+  const shown = body.replace(NOT_REFERENCES, '');
   for (const [, word] of shown.matchAll(BARE)) problems.push(`the description has a bare "${word} #": give it the issue's number`);
   if (!ISSUE.test(shown)) problems.push('the description names no issue: end it with Refs #<n> or Closes #<n>');
   return problems;
