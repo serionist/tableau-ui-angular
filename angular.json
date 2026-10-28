@@ -69,27 +69,6 @@
             "browsers": ["chromium", "firefox"],
             "headless": true
           }
-        },
-        "storybook": {
-          "builder": "@storybook/angular:start-storybook",
-          "options": {
-            "configDir": "projects/component-library/.storybook",
-            "browserTarget": "component-library:build",
-            "compodoc": false,
-            "port": 6006,
-            "styles": [
-              "projects/component-library/styles/lib-styles.scss"
-            ]
-          }
-        },
-        "build-storybook": {
-          "builder": "@storybook/angular:build-storybook",
-          "options": {
-            "configDir": "projects/component-library/.storybook",
-            "browserTarget": "component-library:build",
-            "compodoc": false,
-            "outputDir": "dist/storybook/component-library"
-          }
         }
       }
     },
@@ -170,36 +149,6 @@
             "tsConfig": "projects/test-app/tsconfig.spec.json",
             "browsers": ["chromium", "firefox"],
             "headless": true
-          }
-        },
-        "storybook": {
-          "builder": "@storybook/angular:start-storybook",
-          "options": {
-            "configDir": "projects/test-app/.storybook",
-            "browserTarget": "test-app:build",
-            "compodoc": true,
-            "compodocArgs": [
-              "-e",
-              "json",
-              "-d",
-              "projects/test-app"
-            ],
-            "port": 6006
-          }
-        },
-        "build-storybook": {
-          "builder": "@storybook/angular:build-storybook",
-          "options": {
-            "configDir": "projects/test-app/.storybook",
-            "browserTarget": "test-app:build",
-            "compodoc": true,
-            "compodocArgs": [
-              "-e",
-              "json",
-              "-d",
-              "projects/test-app"
-            ],
-            "outputDir": "dist/storybook/test-app"
           }
         },
         "lint": {
