@@ -22,7 +22,7 @@
 @if (rightDrawer) {
   <div
     class="drawer right"
-    [style.right]=" rightDrawer.$isOpen() ? '0' :`calc(-1 * (${$rightDrawerPositionExpression()}))`"
+    [style.right]="rightDrawer.$isOpen() ? '0' : `calc(-1 * (${$rightDrawerPositionExpression()}))`"
     [style.width]="rightDrawer.$width()"
     [style.borderLeft]="rightDrawer.$border()"
   >
