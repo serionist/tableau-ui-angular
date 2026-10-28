@@ -21,7 +21,7 @@
     "tslib": "^2.3.0"
   },
   "devDependencies": {
-    "axios": "^1.7.9",
+    "axios": "^1.21.0",
     "chokidar-cli": "^3.0.0",
     "concurrently": "^9.1.2"
   }
