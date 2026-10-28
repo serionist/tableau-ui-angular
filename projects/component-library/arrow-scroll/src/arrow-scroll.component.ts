@@ -1,5 +1,5 @@
-import type { AfterViewInit, ElementRef, OnDestroy } from '@angular/core';
-import { ChangeDetectionStrategy, Component, computed, effect, HostListener, input, signal, viewChild } from '@angular/core';
+import type { ElementRef, OnDestroy } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, Component, computed, effect, HostListener, input, signal, viewChild } from '@angular/core';
 import type { IconParams } from 'tableau-ui-angular/icon';
 
 @Component({
@@ -14,7 +14,7 @@ import type { IconParams } from 'tableau-ui-angular/icon';
     '[class.vertical]': '$scrollDirection() === "vertical"',
   },
 })
-export class ArrowScrollComponent implements AfterViewInit, OnDestroy {
+export class ArrowScrollComponent implements OnDestroy {
   /**
    * The type of scroll behavior to use.
    * 'default' uses the default scroll behavior,
@@ -157,7 +157,13 @@ export class ArrowScrollComponent implements AfterViewInit, OnDestroy {
   private observer: ResizeObserver | null = null;
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   private scrollHandler: (event: Event) => void = () => {};
-  ngAfterViewInit(): void {
+  constructor() {
+    // Measuring and observing need a browser: they start after the first render, which never runs on the server
+    afterNextRender(() => {
+      this.observe();
+    });
+  }
+  private observe(): void {
     const el = this.$scrollContainer().nativeElement;
     this.recalculateScrollContainerDimensions(el);
     this.observer = new ResizeObserver(() => {

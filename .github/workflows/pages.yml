@@ -4,9 +4,9 @@
 # After CI it deploys only when the commit CI passed is still main's head: that is the commit checked out, so the site
 # never shows a commit CI hasn't passed. When main has moved on, the newer commit's own CI run deploys it.
 #
-# The icons are downloaded again for the build, which needs the network. No route prerenders yet, so the build's
-# shell, index.csr.html, is published as index.html, and as 404.html, which GitHub Pages serves for every other path,
-# so a deep link opens its page.
+# The icons are downloaded again for the build, which needs the network. Each route the build prerenders has its own
+# index.html in its folder. The build's shell, index.csr.html, serves the rest: it is published as 404.html, which
+# GitHub Pages serves for every other path, so a deep link opens its page, and as index.html until / prerenders.
 name: Pages
 
 on:
