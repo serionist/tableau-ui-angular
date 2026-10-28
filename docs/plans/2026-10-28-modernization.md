@@ -1,6 +1,6 @@
 ---
 title: Modernize tableau-ui-angular and release 0.2.0
-issue: "#24"
+issue: '#24'
 status: approved
 approved_by: serionist
 approved_at: 2026-10-28
@@ -20,14 +20,14 @@ a release that publishes from a tag. The codebase review it builds on is
 
 When this is done, `tableau-ui-angular@0.2.0` is on npm for Angular 22, published from a tag with provenance, and:
 
-| | |
-|---|---|
-| Fixed | The review's blockers and majors, each pinned by a test; the two shipped blockers also patched in 0.1.129 |
-| Checked | Lint, format, types, behaviour tests in Chromium and Firefox with axe checks and a coverage floor, the public API file, on every PR |
-| Safe to server-render | No component touches `window` or `document` while rendering; the demo app, then the docs site, is prerendered in CI |
-| Documented | A docs site on GitHub Pages that shows each sample next to its code, and a short README |
-| Worked on like the other repos | AGENTS.md, REVIEW.md, the skills, plans and review records |
-| Licensed | MIT, once Starschema agrees |
+|                                |                                                                                                                                     |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Fixed                          | The review's blockers and majors, each pinned by a test; the two shipped blockers also patched in 0.1.129                           |
+| Checked                        | Lint, format, types, behaviour tests in Chromium and Firefox with axe checks and a coverage floor, the public API file, on every PR |
+| Safe to server-render          | No component touches `window` or `document` while rendering; the demo app, then the docs site, is prerendered in CI                 |
+| Documented                     | A docs site on GitHub Pages that shows each sample next to its code, and a short README                                             |
+| Worked on like the other repos | AGENTS.md, REVIEW.md, the skills, plans and review records                                                                          |
+| Licensed                       | MIT, once Starschema agrees                                                                                                         |
 
 In scope: the 0.1.129 patch, the toolchain, the harness, GitHub, the review's fixes, tests, the API file, the docs
 site, the presentation, the licence, the release.
@@ -39,23 +39,23 @@ Storybook, `1.0.0`.
 
 Taken by @serionist on 2026-10-28 unless the row says otherwise.
 
-| # | Decision | Detail |
-|---|----------|--------|
-| D1 | No tool attribution on `main` | No AI co-author trailers, "Generated with" lines or session links in commits, PR titles or PR bodies. The history has none today. Squash commits are built from the PR title and description (set on 2026-10-28), and a `commit-msg` hook and a PR text check keep it so (S5, S6). |
-| D2 | MIT | "the tableau-ui-angular contributors", as WriteableFileProviders and Tableau.Api. 105 commits are from Starschema addresses, so the switch waits for Starschema's agreement (S12). The release doesn't wait: if the agreement comes later, 0.2.0 ships under AGPL-3.0 and the next release under MIT. |
-| D3 | The full loop | start-work, review-plan, review-code, finish-work. Plans in `docs/plans/`, review records in `docs/reviews/`. One issue for this plan, one PR per step, squash-merged once its review is clean and its checks pass: by Claude, under the maintainer's standing approval (2026-10-28), which leaves the release and one-way-door changes to the maintainer. |
-| D4 | Angular 22 and Vitest | `ng update` to 22; Karma goes, Vitest through Angular's `unit-test` builder in browser mode, because the virtual scroller, overlays and focus need real layout. Peers `^22.0.0` for `@angular/*`. Node `^22.22.3 \|\| ^24.15.0 \|\| >=26.0.0`, Angular 22's own range, in the root `package.json` and CI; the published package has no `engines` (F135). The 0.1.x line stays on npm for Angular 20 apps, with no backports after 0.1.129. |
-| D5 | Release from a tag | One version, in `projects/component-library/package.json`; a dated `## X.Y.Z (YYYY-MM-DD)` CHANGELOG section; npm trusted publishing with provenance, so no `NPM_TOKEN`; an `npm` environment with the maintainer as reviewer; the GitHub release's notes are the CHANGELOG section. First release `0.2.0`; in 0.x a minor may break, under CHANGELOG's Breaking. |
-| D6 | Names stay | npm `tableau-ui-angular`, repo `serionist/tableau-ui-angular`, entry points `tableau-ui-angular/<folder>`, the `tab` selector prefix, the `TableauUi*` modules. Renaming 46 selectors would cost every user a migration for taste. They become one-way doors at 0.2.0. (Recommended.) |
-| D7 | The public API file | The built `.d.ts` of every entry point, without `private` and `protected` members (protected ones are template-only in Angular), committed under `projects/component-library/api/`. It holds the exports and, through Angular's declarations, each component's selector, inputs and outputs. CI builds and compares; a change to it is named in the PR. (Recommended.) |
-| D8 | The demo app becomes the docs site | Each sample is a small component of its own, shown next to its source, which the build reads as text. GitHub Pages deploys from `main` after CI, and never publishes to npm. (Recommended.) |
-| D9 | Not affiliated | "Not affiliated with or endorsed by Tableau or Salesforce", Tableau.Api's wording, in the README, the package description and the docs site's footer. (Recommended.) |
-| D10 | Tests check behaviour | Each component's contract: inputs and outputs, keyboard, the forms contract, ARIA state. Not every line. The coverage floor only rises. (Recommended, as docket.) |
-| D11 | CI legs | Linux on Node 22 and 24, with the browser tests in Chromium and Firefox (F3 broke only Firefox); Windows on Node 24 for the build and the scripts consumers run, from the packed tarball. (Recommended.) |
-| D12 | Patch 0.1.129 first | F1 (the dialog title's XSS) and F2 (Monaco scrambling typed text) are fixed on what is published. The repo's `NPM_TOKEN` is dead (npm revoked classic tokens in December 2025), so the maintainer replaces it with a 1-day granular token before the merge; the merge then lets today's workflow publish 0.1.129 one last time. A GitHub security advisory covers F1. (Token: Q1, 2026-10-28.) |
-| D13 | The 8 local commits land as they are | After 0.1.129, the old workflow is turned off, and the virtualize container and the chip control merge in their own PR, so nothing publishes. Their findings are fixed in S7 and ship in 0.2.0. |
-| D14 | SSR-safe in 0.2.0 | One pattern across the ~20 places in F144: `inject(DOCUMENT)`, `afterNextRender` for observers and measuring, no browser globals in field initialisers. Prerendering in CI proves it. |
-| D15 | Accessibility: what blocks users | The review's accessibility majors (F11, F12, F13, F41, F42, F71, F95) to their WAI-ARIA patterns, and an axe check in every component test. F133 (the unnamed icon inside most components) is fixed first, in S7a. Any other axe rule a deferred minor trips is turned off in that test with its issue number, and that list only shrinks. The other minor accessibility findings become issues for after 0.2.0. |
+| #   | Decision                             | Detail                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| --- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| D1  | No tool attribution on `main`        | No AI co-author trailers, "Generated with" lines or session links in commits, PR titles or PR bodies. The history has none today. Squash commits are built from the PR title and description (set on 2026-10-28), and a `commit-msg` hook and a PR text check keep it so (S5, S6).                                                                                                                                                         |
+| D2  | MIT                                  | "the tableau-ui-angular contributors", as WriteableFileProviders and Tableau.Api. 105 commits are from Starschema addresses, so the switch waits for Starschema's agreement (S12). The release doesn't wait: if the agreement comes later, 0.2.0 ships under AGPL-3.0 and the next release under MIT.                                                                                                                                      |
+| D3  | The full loop                        | start-work, review-plan, review-code, finish-work. Plans in `docs/plans/`, review records in `docs/reviews/`. One issue for this plan, one PR per step, squash-merged once its review is clean and its checks pass: by Claude, under the maintainer's standing approval (2026-10-28), which leaves the release and one-way-door changes to the maintainer.                                                                                 |
+| D4  | Angular 22 and Vitest                | `ng update` to 22; Karma goes, Vitest through Angular's `unit-test` builder in browser mode, because the virtual scroller, overlays and focus need real layout. Peers `^22.0.0` for `@angular/*`. Node `^22.22.3 \|\| ^24.15.0 \|\| >=26.0.0`, Angular 22's own range, in the root `package.json` and CI; the published package has no `engines` (F135). The 0.1.x line stays on npm for Angular 20 apps, with no backports after 0.1.129. |
+| D5  | Release from a tag                   | One version, in `projects/component-library/package.json`; a dated `## X.Y.Z (YYYY-MM-DD)` CHANGELOG section; npm trusted publishing with provenance, so no `NPM_TOKEN`; an `npm` environment with the maintainer as reviewer; the GitHub release's notes are the CHANGELOG section. First release `0.2.0`; in 0.x a minor may break, under CHANGELOG's Breaking.                                                                          |
+| D6  | Names stay                           | npm `tableau-ui-angular`, repo `serionist/tableau-ui-angular`, entry points `tableau-ui-angular/<folder>`, the `tab` selector prefix, the `TableauUi*` modules. Renaming 46 selectors would cost every user a migration for taste. They become one-way doors at 0.2.0. (Recommended.)                                                                                                                                                      |
+| D7  | The public API file                  | The built `.d.ts` of every entry point, without `private` and `protected` members (protected ones are template-only in Angular), committed under `projects/component-library/api/`. It holds the exports and, through Angular's declarations, each component's selector, inputs and outputs. CI builds and compares; a change to it is named in the PR. (Recommended.)                                                                     |
+| D8  | The demo app becomes the docs site   | Each sample is a small component of its own, shown next to its source, which the build reads as text. GitHub Pages deploys from `main` after CI, and never publishes to npm. (Recommended.)                                                                                                                                                                                                                                                |
+| D9  | Not affiliated                       | "Not affiliated with or endorsed by Tableau or Salesforce", Tableau.Api's wording, in the README, the package description and the docs site's footer. (Recommended.)                                                                                                                                                                                                                                                                       |
+| D10 | Tests check behaviour                | Each component's contract: inputs and outputs, keyboard, the forms contract, ARIA state. Not every line. The coverage floor only rises. (Recommended, as docket.)                                                                                                                                                                                                                                                                          |
+| D11 | CI legs                              | Linux on Node 22 and 24, with the browser tests in Chromium and Firefox (F3 broke only Firefox); Windows on Node 24 for the build and the scripts consumers run, from the packed tarball. (Recommended.)                                                                                                                                                                                                                                   |
+| D12 | Patch 0.1.129 first                  | F1 (the dialog title's XSS) and F2 (Monaco scrambling typed text) are fixed on what is published. The repo's `NPM_TOKEN` is dead (npm revoked classic tokens in December 2025), so the maintainer replaces it with a 1-day granular token before the merge; the merge then lets today's workflow publish 0.1.129 one last time. A GitHub security advisory covers F1. (Token: Q1, 2026-10-28.)                                             |
+| D13 | The 8 local commits land as they are | After 0.1.129, the old workflow is turned off, and the virtualize container and the chip control merge in their own PR, so nothing publishes. Their findings are fixed in S7 and ship in 0.2.0.                                                                                                                                                                                                                                            |
+| D14 | SSR-safe in 0.2.0                    | One pattern across the ~20 places in F144: `inject(DOCUMENT)`, `afterNextRender` for observers and measuring, no browser globals in field initialisers. Prerendering in CI proves it.                                                                                                                                                                                                                                                      |
+| D15 | Accessibility: what blocks users     | The review's accessibility majors (F11, F12, F13, F41, F42, F71, F95) to their WAI-ARIA patterns, and an axe check in every component test. F133 (the unnamed icon inside most components) is fixed first, in S7a. Any other axe rule a deferred minor trips is turned off in that test with its issue number, and that list only shrinks. The other minor accessibility findings become issues for after 0.2.0.                           |
 
 ## Design
 
@@ -91,27 +91,27 @@ Taken by @serionist on 2026-10-28 unless the row says otherwise.
 
 ### Harness (S5)
 
-| File | What |
-|---|---|
-| `AGENTS.md` | The rules for every agent and person, within 150 lines: what this is, where things are, build and test, how a change lands, writing, commits and PRs, one-way doors, traps, never |
-| `.claude/CLAUDE.md` | `@../AGENTS.md` |
-| `REVIEW.md` | No scenario, no finding; blocker, major, minor; the yes or no questions; the harness list |
-| `.claude/settings.json` | Empty attribution; an allow list of read-only git and gh and the check script; denies on secrets |
-| `.claude/settings.local.json.example` | Opts into the `.mcp.json` servers |
-| `.mcp.json` | The Angular CLI's MCP server (`ng mcp`) and Context7 |
-| `.claude/skills/` | start-work, review-plan, review-code (each with `lenses.md`), finish-work |
-| `tools/gate.mjs` | The one check script, Node only, `npm run gate -- quick\|full` |
-| `.githooks/` | `commit-msg` refuses attribution; `pre-push` runs the quick lane. `npm run setup` turns them on |
-| `.gitleaks.toml` | The secret scan's config |
-| `docs/plans/README.md`, `docs/reviews/README.md` | The plan template; how review records are named |
+| File                                             | What                                                                                                                                                                              |
+| ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `AGENTS.md`                                      | The rules for every agent and person, within 150 lines: what this is, where things are, build and test, how a change lands, writing, commits and PRs, one-way doors, traps, never |
+| `.claude/CLAUDE.md`                              | `@../AGENTS.md`                                                                                                                                                                   |
+| `REVIEW.md`                                      | No scenario, no finding; blocker, major, minor; the yes or no questions; the harness list                                                                                         |
+| `.claude/settings.json`                          | Empty attribution; an allow list of read-only git and gh and the check script; denies on secrets                                                                                  |
+| `.claude/settings.local.json.example`            | Opts into the `.mcp.json` servers                                                                                                                                                 |
+| `.mcp.json`                                      | The Angular CLI's MCP server (`ng mcp`) and Context7                                                                                                                              |
+| `.claude/skills/`                                | start-work, review-plan, review-code (each with `lenses.md`), finish-work                                                                                                         |
+| `tools/gate.mjs`                                 | The one check script, Node only, `npm run gate -- quick\|full`                                                                                                                    |
+| `.githooks/`                                     | `commit-msg` refuses attribution; `pre-push` runs the quick lane. `npm run setup` turns them on                                                                                   |
+| `.gitleaks.toml`                                 | The secret scan's config                                                                                                                                                          |
+| `docs/plans/README.md`, `docs/reviews/README.md` | The plan template; how review records are named                                                                                                                                   |
 
 The check script's lanes. Each check lands with its step: the coverage floor in S7, the API compare in S9, the docs
 site's prerender in S10.
 
-| Lane | Runs |
-|---|---|
+| Lane  | Runs                                                                                                                                                                                                                    |
+| ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | quick | lock file in sync, ESLint, stylelint, Prettier check, AGENTS.md within 150 lines, each skill's name and description, no attribution in the branch's messages, gitleaks (CI installs it; locally it runs when installed) |
-| full | quick, then the library build, the API file compare, the tests with the coverage floor (never below `origin/main`'s), the demo app's build and prerender |
+| full  | quick, then the library build, the API file compare, the tests with the coverage floor (never below `origin/main`'s), the demo app's build and prerender                                                                |
 
 The review lenses are the ones this review used, kept: plan and intent, implementation, forms contract, change
 detection and signals, accessibility, overlays and the DOM (SSR included), security, public API and packaging, tests,
@@ -147,13 +147,13 @@ One PR per area of the review, each fixing its blockers and majors, the minors t
 SSR places, with a behaviour test for each fix, an axe check per component, and its demo routes added to the
 prerender list:
 
-| PR | Area | Blockers and majors | Also |
-|---|---|---|---|
-| S7a | Forms | F4-F13 | F133 first (D15) |
-| S7b | Select, autocomplete, chip control, menus, date picker | F32-F42 | |
-| S7c | Dialogs, snacks, panels, navigation, buttons | F64-F71 | The stepper entry point removed (F89) |
-| S7d | Table, virtualize, list | F3, F91-F95 | |
-| S7e | Monaco, theme, clipboard, icon, styles, packaging | F118, F120 | The icon script on Node's `fetch` instead of an undeclared `axios`, with a base-URL override; F137; the scripts' run on the Windows leg |
+| PR  | Area                                                   | Blockers and majors | Also                                                                                                                                    |
+| --- | ------------------------------------------------------ | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| S7a | Forms                                                  | F4-F13              | F133 first (D15)                                                                                                                        |
+| S7b | Select, autocomplete, chip control, menus, date picker | F32-F42             |                                                                                                                                         |
+| S7c | Dialogs, snacks, panels, navigation, buttons           | F64-F71             | The stepper entry point removed (F89)                                                                                                   |
+| S7d | Table, virtualize, list                                | F3, F91-F95         |                                                                                                                                         |
+| S7e | Monaco, theme, clipboard, icon, styles, packaging      | F118, F120          | The icon script on Node's `fetch` instead of an undeclared `axios`, with a base-URL override; F137; the scripts' run on the Windows leg |
 
 F1, F2 and F119 were fixed in S1, F117, F134, F135 and F136 in S3, F121 in S6. Three services keep a line disable for Angular 21's deprecated `providedIn: 'any'` until their area's PR replaces it: `FB` (S7a), `SnackService` (S7c), `ClipboardService` (S7e). Each PR answers the improvements of
 its area (taken, left, later) and marks its findings in the review record. Minors it doesn't fix stay open there; the
@@ -176,16 +176,16 @@ accessibility ones become issues (D15).
 
 0.1.128 is the latest on npm, at about 180 downloads a month.
 
-| Change | How a user moves over |
-|---|---|
-| 0.1.129 (S1) | Nothing; the title is shown as text, as typed |
-| The table's data types move (S2): `DataOptions`, `IncrementalDataOptions`, `FullDataOptions`, `FullDataRequest`, `IncrementalDataRequest`, `FullDataResponse`, `IncrementalDataResponse` and `DataSort` come from `tableau-ui-angular/virtualize`; `TableComponent` needs its type argument (the `number` default is gone); `dataRowHeight` and `dataPadding` become `[dataRowCss]` | Change the imports, the type annotations and the inputs; a Breaking line in CHANGELOG |
-| Angular 22 peers, `rxjs` a peer, `monaco-editor` optional (S3) | Update the app to Angular 22, or stay on 0.1.129; apps that use `tableau-ui-angular/monaco` install `monaco-editor` themselves |
-| The package is `"type": "module"` and its typings sit under `types/` (S3, ng-packagr 22) | Nothing for entry-point imports; deep `.d.ts` paths change |
-| `DatePickerDirective.$value` and `TabTreeNodeComponent.$expanded` are writable signals, no longer models; their inputs' class members are `$valueInput` and `$expandedInput` (S3, Angular 22's duplicate-output rule) | Code that read the members directly; `[(value)]` and `[(expanded)]` bind as before, and `valueChange` and `expandedChange` now fire once per change |
-| Fixes that change behaviour (S7): writes no longer mark forms dirty, touched on blur, the checkbox's label, `writeValue` no longer firing `valueChange` | Each has a CHANGELOG line under Breaking with the step |
-| The stepper entry point removed (S7c) | It rendered a placeholder; remove its import |
-| MIT (S12) | Nothing |
+| Change                                                                                                                                                                                                                                                                                                                                                                              | How a user moves over                                                                                                                               |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 0.1.129 (S1)                                                                                                                                                                                                                                                                                                                                                                        | Nothing; the title is shown as text, as typed                                                                                                       |
+| The table's data types move (S2): `DataOptions`, `IncrementalDataOptions`, `FullDataOptions`, `FullDataRequest`, `IncrementalDataRequest`, `FullDataResponse`, `IncrementalDataResponse` and `DataSort` come from `tableau-ui-angular/virtualize`; `TableComponent` needs its type argument (the `number` default is gone); `dataRowHeight` and `dataPadding` become `[dataRowCss]` | Change the imports, the type annotations and the inputs; a Breaking line in CHANGELOG                                                               |
+| Angular 22 peers, `rxjs` a peer, `monaco-editor` optional (S3)                                                                                                                                                                                                                                                                                                                      | Update the app to Angular 22, or stay on 0.1.129; apps that use `tableau-ui-angular/monaco` install `monaco-editor` themselves                      |
+| The package is `"type": "module"` and its typings sit under `types/` (S3, ng-packagr 22)                                                                                                                                                                                                                                                                                            | Nothing for entry-point imports; deep `.d.ts` paths change                                                                                          |
+| `DatePickerDirective.$value` and `TabTreeNodeComponent.$expanded` are writable signals, no longer models; their inputs' class members are `$valueInput` and `$expandedInput` (S3, Angular 22's duplicate-output rule)                                                                                                                                                               | Code that read the members directly; `[(value)]` and `[(expanded)]` bind as before, and `valueChange` and `expandedChange` now fire once per change |
+| Fixes that change behaviour (S7): writes no longer mark forms dirty, touched on blur, the checkbox's label, `writeValue` no longer firing `valueChange`                                                                                                                                                                                                                             | Each has a CHANGELOG line under Breaking with the step                                                                                              |
+| The stepper entry point removed (S7c)                                                                                                                                                                                                                                                                                                                                               | It rendered a placeholder; remove its import                                                                                                        |
+| MIT (S12)                                                                                                                                                                                                                                                                                                                                                                           | Nothing                                                                                                                                             |
 
 S9 compares the first API file once with 0.1.128's typings, from its npm tarball, and gives each difference not yet
 in CHANGELOG a Breaking line before S13.
@@ -198,35 +198,35 @@ custom properties; the shipped scripts' paths and arguments; the peer range.
 
 Each step is one PR, buildable and testable on its own.
 
-| Step | What | Proven by |
-|---|---|---|
-| S0 | This plan, the codebase review, the issue | The plan approved |
-| S1 | The 0.1.129 patch (#25): F1, F2, F119; the token swapped first; the advisory; then the old workflow turned off and the token revoked | Each fix shown in the demo; `npm view tableau-ui-angular@0.1.129` |
-| S2 | The 8 local commits as they are | Nothing publishes on merge |
-| S3 | Angular 22, the Node range, the peers, Vitest on Chromium and Firefox, `npm ci`, the package built with `ng build`, the demo app prerendered, the scaffold specs, the Storybook targets and the root publish scripts gone | The library and the demo build and prerender; `ng test` runs in both browsers; the built typings keep `\| undefined` |
-| S4a | The Prettier reformat alone | Prettier clean |
-| S4b | `.git-blame-ignore-revs` with S4a's SHA, the lint fixes, `no-console`, `.gitattributes`, `.editorconfig`; the two template diagnostics S3's migration suppressed turned back on, with its `$safeNavigationMigration()` wrappers gone | ESLint and stylelint clean; no diagnostic suppressed |
-| S5 | The harness | The quick lane passes; `commit-msg` refuses each attribution form |
-| S6 | GitHub: workflows, templates, SECURITY, CONTRIBUTING, CHANGELOG, settings | CI green on the PR itself |
-| S7 | The review's fixes, S7a to S7e | Each fix pinned by a test that fails without it; axe clean per component, with the issue-numbered exceptions; each area's routes prerender; the coverage floor set |
-| S8 | Behaviour tests for the components S7 didn't reach | The floor raised |
-| S9 | The public API file and its check; the one-time compare with 0.1.128 | A changed input fails the full lane |
-| S10 | The docs site with code, prerendered; the README rewrite; the not-affiliated line; the README's broken steps (F139-F143) | The site prerenders and every sample shows its source |
-| S11 | Presentation: a logo, a social preview, badges, screenshots from the docs site | The README renders on GitHub in light and dark |
-| S12 | MIT, once Starschema agrees | LICENSE and `package.json` say MIT |
-| S13 | `release.yml`, `docs/releasing.md`, then the `0.2.0` release PR and tag | `npm view tableau-ui-angular@0.2.0` shows provenance |
-| S14 | Announce: the awesome-angular list, the release on GitHub | The entry is merged |
+| Step | What                                                                                                                                                                                                                                 | Proven by                                                                                                                                                          |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| S0   | This plan, the codebase review, the issue                                                                                                                                                                                            | The plan approved                                                                                                                                                  |
+| S1   | The 0.1.129 patch (#25): F1, F2, F119; the token swapped first; the advisory; then the old workflow turned off and the token revoked                                                                                                 | Each fix shown in the demo; `npm view tableau-ui-angular@0.1.129`                                                                                                  |
+| S2   | The 8 local commits as they are                                                                                                                                                                                                      | Nothing publishes on merge                                                                                                                                         |
+| S3   | Angular 22, the Node range, the peers, Vitest on Chromium and Firefox, `npm ci`, the package built with `ng build`, the demo app prerendered, the scaffold specs, the Storybook targets and the root publish scripts gone            | The library and the demo build and prerender; `ng test` runs in both browsers; the built typings keep `\| undefined`                                               |
+| S4a  | The Prettier reformat alone                                                                                                                                                                                                          | Prettier clean                                                                                                                                                     |
+| S4b  | `.git-blame-ignore-revs` with S4a's SHA, the lint fixes, `no-console`, `.gitattributes`, `.editorconfig`; the two template diagnostics S3's migration suppressed turned back on, with its `$safeNavigationMigration()` wrappers gone | ESLint and stylelint clean; no diagnostic suppressed                                                                                                               |
+| S5   | The harness                                                                                                                                                                                                                          | The quick lane passes; `commit-msg` refuses each attribution form                                                                                                  |
+| S6   | GitHub: workflows, templates, SECURITY, CONTRIBUTING, CHANGELOG, settings                                                                                                                                                            | CI green on the PR itself                                                                                                                                          |
+| S7   | The review's fixes, S7a to S7e                                                                                                                                                                                                       | Each fix pinned by a test that fails without it; axe clean per component, with the issue-numbered exceptions; each area's routes prerender; the coverage floor set |
+| S8   | Behaviour tests for the components S7 didn't reach                                                                                                                                                                                   | The floor raised                                                                                                                                                   |
+| S9   | The public API file and its check; the one-time compare with 0.1.128                                                                                                                                                                 | A changed input fails the full lane                                                                                                                                |
+| S10  | The docs site with code, prerendered; the README rewrite; the not-affiliated line; the README's broken steps (F139-F143)                                                                                                             | The site prerenders and every sample shows its source                                                                                                              |
+| S11  | Presentation: a logo, a social preview, badges, screenshots from the docs site                                                                                                                                                       | The README renders on GitHub in light and dark                                                                                                                     |
+| S12  | MIT, once Starschema agrees                                                                                                                                                                                                          | LICENSE and `package.json` say MIT                                                                                                                                 |
+| S13  | `release.yml`, `docs/releasing.md`, then the `0.2.0` release PR and tag                                                                                                                                                              | `npm view tableau-ui-angular@0.2.0` shows provenance                                                                                                               |
+| S14  | Announce: the awesome-angular list, the release on GitHub                                                                                                                                                                            | The entry is merged                                                                                                                                                |
 
 S1 and S2 come before the plan's merge: they don't depend on it, and S1 shouldn't wait.
 
 ## Tests
 
-| Suite | Runs where | New or changed |
-|---|---|---|
-| Component tests (Vitest, browser mode, Chromium and Firefox, axe) | CI, every PR | New in S3; the fixes' tests in S7; the rest in S8 |
-| Prerender of the demo app, then the docs site | CI, every PR | S3 (in CI from S6), routes added in S7, the docs site in S10 |
-| The API file compare | CI, every PR | S9 |
-| The shipped scripts from the packed tarball | CI, Windows | S7e |
+| Suite                                                             | Runs where   | New or changed                                               |
+| ----------------------------------------------------------------- | ------------ | ------------------------------------------------------------ |
+| Component tests (Vitest, browser mode, Chromium and Firefox, axe) | CI, every PR | New in S3; the fixes' tests in S7; the rest in S8            |
+| Prerender of the demo app, then the docs site                     | CI, every PR | S3 (in CI from S6), routes added in S7, the docs site in S10 |
+| The API file compare                                              | CI, every PR | S9                                                           |
+| The shipped scripts from the packed tarball                       | CI, Windows  | S7e                                                          |
 
 ## Docs
 
@@ -237,15 +237,15 @@ S1 and S2 come before the plan's merge: they don't depend on it, and S1 shouldn'
 
 ## Risks
 
-| # | Risk | Status |
-|---|---|---|
-| R1 | `ng update` across two majors breaks the library's internals | Accepted; one major at a time, each building, before the tests exist |
-| R2 | Browser-mode tests in two browsers are slow on CI | Accepted; sharded if a leg passes 5 minutes |
-| R3 | Starschema doesn't agree to MIT | Accepted; the repo stays AGPL-3.0 and nothing else in the plan changes |
-| R4 | A merge to `main` publishes a patch while `deploy-lib.yaml` runs | Used once on purpose for 0.1.129 (S1), then turned off; deleted in S6 |
-| R5 | Trusted publishing needs npm 11.5.1 or later in the publish job | The publish job sets up Node 24, whose npm is 11, and stops unless `npm --version` is 11.5.1 or later |
-| R6 | The S1 fixes ship without automated tests | Accepted; two small changes, each shown by hand, and S7 adds their tests |
-| R7 | The old workflow's `NPM_TOKEN` is dead, so a merge without a new one tags 0.1.129 and fails to publish | S1 swaps in a 1-day token before the merge |
+| #   | Risk                                                                                                   | Status                                                                                                |
+| --- | ------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------- |
+| R1  | `ng update` across two majors breaks the library's internals                                           | Accepted; one major at a time, each building, before the tests exist                                  |
+| R2  | Browser-mode tests in two browsers are slow on CI                                                      | Accepted; sharded if a leg passes 5 minutes                                                           |
+| R3  | Starschema doesn't agree to MIT                                                                        | Accepted; the repo stays AGPL-3.0 and nothing else in the plan changes                                |
+| R4  | A merge to `main` publishes a patch while `deploy-lib.yaml` runs                                       | Used once on purpose for 0.1.129 (S1), then turned off; deleted in S6                                 |
+| R5  | Trusted publishing needs npm 11.5.1 or later in the publish job                                        | The publish job sets up Node 24, whose npm is 11, and stops unless `npm --version` is 11.5.1 or later |
+| R6  | The S1 fixes ship without automated tests                                                              | Accepted; two small changes, each shown by hand, and S7 adds their tests                              |
+| R7  | The old workflow's `NPM_TOKEN` is dead, so a merge without a new one tags 0.1.129 and fails to publish | S1 swaps in a 1-day token before the merge                                                            |
 
 ## Plan review
 
@@ -255,21 +255,21 @@ S1 and S2 come before the plan's merge: they don't depend on it, and S1 shouldn'
 - **Verdict:** needs-fixes (one blocker, one major).
 - **Now:** every finding below applied; the owner calls answered.
 
-| # | Sev | Finding | Status |
-|---|---|---|---|
-| P1 | blocker | The repo's `NPM_TOKEN` (April 2025) was revoked with npm's classic tokens in December 2025: merging #25 would tag 0.1.129 and fail to publish, and a re-run can't recover | fixed: D12, S1, R7, For the maintainers (Q1) |
-| P2 | major | The 8 local commits move the table's data types to `virtualize` and replace `dataRowHeight` and `dataPadding`, and nothing names it: 0.1.128 table users get TS2305 and NG8002 on 0.2.0 | fixed: a Compatibility row, a CHANGELOG Breaking line, S9's one-time compare with 0.1.128 |
-| P3 | minor | Axe fails from the first test on the deferred F133 (`role="img"` without a name, inside most components), so S7 would fix deferred minors or quietly turn rules off | fixed: D15, F133 first in S7a, issue-numbered exceptions that only shrink |
-| P4 | minor | S7's SSR fixes have no test that fails without them until S10 prerenders | fixed: the demo app prerenders from S3, each S7 PR adds its routes |
-| P5 | minor | The Node range missed `>=26.0.0`, and written into the package's `engines` it would block Yarn classic users | fixed: D4 |
-| P6 | minor | 0.2.0 freezes the peers while only `@angular/*` was settled; `monaco-editor ^0.52.2` is required and narrow | fixed: Toolchain peers, Compatibility |
-| P7 | minor | The stepper placeholder would be frozen as a one-way door and shown on the docs site | fixed: S7c removes it, Compatibility, Later |
-| P8 | minor | The Windows leg can't show the shipped scripts work for a consumer: `axios` resolves only through hoisting, and the font script needs a live Tableau Server | fixed: the leg runs them from the packed tarball against stubs; S7e moves the icon script to `fetch` |
-| P9 | minor | Every Dependabot PR fails `PR text`, and its body could carry co-author lines into the squash | fixed: GitHub |
-| P10 | minor | No secret scan was sure to run: gitleaks only "when installed", GitHub's scanning off | fixed: CI installs gitleaks; secret scanning and push protection on since 2026-10-28 (Q2) |
-| P11 | minor | No attribution guard before S5 and S6, and squash commits were built from the commit messages | fixed: the squash message from the PR title and body since 2026-10-28 (Q2); D1 |
-| P12 | minor | S4 as one PR can't hold its own squash SHA, and the blame skip would hide lint fixes | fixed: S4a and S4b |
-| P13 | minor | The review record used the old step numbers | fixed in the record |
+| #   | Sev     | Finding                                                                                                                                                                                 | Status                                                                                               |
+| --- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| P1  | blocker | The repo's `NPM_TOKEN` (April 2025) was revoked with npm's classic tokens in December 2025: merging #25 would tag 0.1.129 and fail to publish, and a re-run can't recover               | fixed: D12, S1, R7, For the maintainers (Q1)                                                         |
+| P2  | major   | The 8 local commits move the table's data types to `virtualize` and replace `dataRowHeight` and `dataPadding`, and nothing names it: 0.1.128 table users get TS2305 and NG8002 on 0.2.0 | fixed: a Compatibility row, a CHANGELOG Breaking line, S9's one-time compare with 0.1.128            |
+| P3  | minor   | Axe fails from the first test on the deferred F133 (`role="img"` without a name, inside most components), so S7 would fix deferred minors or quietly turn rules off                     | fixed: D15, F133 first in S7a, issue-numbered exceptions that only shrink                            |
+| P4  | minor   | S7's SSR fixes have no test that fails without them until S10 prerenders                                                                                                                | fixed: the demo app prerenders from S3, each S7 PR adds its routes                                   |
+| P5  | minor   | The Node range missed `>=26.0.0`, and written into the package's `engines` it would block Yarn classic users                                                                            | fixed: D4                                                                                            |
+| P6  | minor   | 0.2.0 freezes the peers while only `@angular/*` was settled; `monaco-editor ^0.52.2` is required and narrow                                                                             | fixed: Toolchain peers, Compatibility                                                                |
+| P7  | minor   | The stepper placeholder would be frozen as a one-way door and shown on the docs site                                                                                                    | fixed: S7c removes it, Compatibility, Later                                                          |
+| P8  | minor   | The Windows leg can't show the shipped scripts work for a consumer: `axios` resolves only through hoisting, and the font script needs a live Tableau Server                             | fixed: the leg runs them from the packed tarball against stubs; S7e moves the icon script to `fetch` |
+| P9  | minor   | Every Dependabot PR fails `PR text`, and its body could carry co-author lines into the squash                                                                                           | fixed: GitHub                                                                                        |
+| P10 | minor   | No secret scan was sure to run: gitleaks only "when installed", GitHub's scanning off                                                                                                   | fixed: CI installs gitleaks; secret scanning and push protection on since 2026-10-28 (Q2)            |
+| P11 | minor   | No attribution guard before S5 and S6, and squash commits were built from the commit messages                                                                                           | fixed: the squash message from the PR title and body since 2026-10-28 (Q2); D1                       |
+| P12 | minor   | S4 as one PR can't hold its own squash SHA, and the blame skip would hide lint fixes                                                                                                    | fixed: S4a and S4b                                                                                   |
+| P13 | minor   | The review record used the old step numbers                                                                                                                                             | fixed in the record                                                                                  |
 
 Refuted: V8 coverage with Firefox (the builder picks istanbul when it is installed; kept as an improvement); the full
 lane failing before its checks exist (each is placed); provenance and `repository.url` (they match); other XSS sinks
@@ -279,23 +279,23 @@ requirements (correct); the index being LF (it is); the 65 specs (65 on local `m
 agreement covers both domains); Angular 21 apps (an open choice in D4); the CHANGELOG heading (both forms parse); the
 lock file's stale version (the quick lane catches it); zone mode in tests (the demo app is zoneless).
 
-| # | Owner call | Recommendation | Answer |
-|---|---|---|---|
-| Q1 | How 0.1.129 reaches npm with a dead token | A 1-day granular token, revoked after | 1-day token |
-| Q2 | Set the squash message and secret scanning now, before #25 | Both now | Both now, applied 2026-10-28 |
+| #   | Owner call                                                 | Recommendation                        | Answer                       |
+| --- | ---------------------------------------------------------- | ------------------------------------- | ---------------------------- |
+| Q1  | How 0.1.129 reaches npm with a dead token                  | A 1-day granular token, revoked after | 1-day token                  |
+| Q2  | Set the squash message and secret scanning now, before #25 | Both now                              | Both now, applied 2026-10-28 |
 
-| Improvement | Answer |
-|---|---|
-| `@vitest/coverage-istanbul` for Firefox coverage | taken |
-| One line on when each check lands | taken |
-| The publish job installs nothing and publishes the build job's tarball | taken |
-| After the first trusted publish, "require 2FA and disallow tokens"; the `npm` environment limited to `v*` tags | taken |
-| The coverage floor never below `origin/main`'s, checked by the script | taken |
-| `PR text` requires an `API:` line when the API file changes | left: the API file's diff in the PR already names the change |
-| `PR text` reads the event file, not `${{ }}` in `run:` | taken |
-| The API file without `private` members | taken |
-| One-way doors include the scripts' paths and arguments and the theme's CSS custom properties | taken |
-| The root `package` and `publish` scripts go; the allow list names read-only commands | taken |
+| Improvement                                                                                                    | Answer                                                       |
+| -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| `@vitest/coverage-istanbul` for Firefox coverage                                                               | taken                                                        |
+| One line on when each check lands                                                                              | taken                                                        |
+| The publish job installs nothing and publishes the build job's tarball                                         | taken                                                        |
+| After the first trusted publish, "require 2FA and disallow tokens"; the `npm` environment limited to `v*` tags | taken                                                        |
+| The coverage floor never below `origin/main`'s, checked by the script                                          | taken                                                        |
+| `PR text` requires an `API:` line when the API file changes                                                    | left: the API file's diff in the PR already names the change |
+| `PR text` reads the event file, not `${{ }}` in `run:`                                                         | taken                                                        |
+| The API file without `private` members                                                                         | taken                                                        |
+| One-way doors include the scripts' paths and arguments and the theme's CSS custom properties                   | taken                                                        |
+| The root `package` and `publish` scripts go; the allow list names read-only commands                           | taken                                                        |
 
 ### Round 2
 
@@ -303,12 +303,12 @@ lock file's stale version (the quick lane catches it); zone mode in tests (the d
 - **Verdict:** approved. P1 to P13 hold, P4 and P8 only in part, which N1 and N2 finish.
 - **Now:** the four minors applied and checked in this session.
 
-| # | Sev | Finding | Status |
-|---|---|---|---|
-| N1 | minor | S7a to S7d can't prerender their routes: every route renders inside the app shell, whose theme service reads `window` in its fields (S7e's area); and there is no CI before S6 | fixed: S7a makes the shell SSR-safe first, routes join as their components become safe, prerender in CI from S6 |
-| N2 | minor | S6's Windows leg can't pass: in an empty folder the icon script misses `axios` and `typescript`, its CSS URL is hard-coded, and the font script reports success on a failed download until F137 | fixed: S6's Windows leg builds and packs; S7e adds the scripts' run with `typescript`, a base-URL override, and checks on the files written |
-| N3 | minor | The P2 row named types that never existed (`DataRequest`, `DataResponse`) and missed `TableComponent` losing its `number` default type argument | fixed: Compatibility |
-| N4 | minor | Release step 4 ("installs nothing") contradicted R5 ("installs" npm 11.5.1); on Node 22's npm 10 the publish fails after the tag | fixed: Node 24 set up, `npm --version` checked, nothing else installed |
+| #   | Sev   | Finding                                                                                                                                                                                         | Status                                                                                                                                      |
+| --- | ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| N1  | minor | S7a to S7d can't prerender their routes: every route renders inside the app shell, whose theme service reads `window` in its fields (S7e's area); and there is no CI before S6                  | fixed: S7a makes the shell SSR-safe first, routes join as their components become safe, prerender in CI from S6                             |
+| N2  | minor | S6's Windows leg can't pass: in an empty folder the icon script misses `axios` and `typescript`, its CSS URL is hard-coded, and the font script reports success on a failed download until F137 | fixed: S6's Windows leg builds and packs; S7e adds the scripts' run with `typescript`, a base-URL override, and checks on the files written |
+| N3  | minor | The P2 row named types that never existed (`DataRequest`, `DataResponse`) and missed `TableComponent` losing its `number` default type argument                                                 | fixed: Compatibility                                                                                                                        |
+| N4  | minor | Release step 4 ("installs nothing") contradicted R5 ("installs" npm 11.5.1); on Node 22's npm 10 the publish fails after the tag                                                                | fixed: Node 24 set up, `npm --version` checked, nothing else installed                                                                      |
 
 ## Progress log
 

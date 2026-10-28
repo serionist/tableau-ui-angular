@@ -9,13 +9,13 @@
 
 ## Findings
 
-| # | Sev | Where | Finding | Status |
-|---|---|---|---|---|
-| F1 | minor | `styles/fonts/downloadFonts.js`; the published `package.json` | ng-packagr 22 publishes the package as `"type": "module"`, so the CommonJS font script throws `require is not defined` for a consumer following Add-Benton-Sans.md; the icon script ran only because its entry point's stub `package.json` has no type | fixed: both scripts are ES modules (the icon script keeps `require.resolve` through `createRequire`); from the built package the font script prints its usage, the old one throws, and the icon script runs from the package and the repo |
-| F2 | minor | `angular.json`, `build:github-pages` | With a server build and every route on the client, the shell is `index.csr.html`, so a Pages deploy would 404 at the root | fixed in the plan: S6's `pages.yml` publishes it as `index.html` and `404.html` until `/` prerenders |
-| F3 | minor | five tsconfigs; tree node and virtualize templates | Angular 22's migration suppressed two template diagnostics and left six `$safeNavigationMigration()` wrappers, with no step that takes them back | fixed: a comment in `tsconfig.lib.json`; the plan's S4b row turns them back on |
-| F4 | minor | `eslint.config.js` `no-deprecated` | The `Injectable` allow silenced every deprecated use repo-wide, for three call sites | fixed: the rule is back to plain `error`; `FB`, `SnackService` and `ClipboardService` each have a line disable with the reason, and the plan's S7 names the PR that removes each |
-| F5 | minor | root `package.json` | Dev tools on carets, against the plan's "pinned exactly" | fixed: pinned to the locked versions; the lock only re-syncs its root entries |
+| #   | Sev   | Where                                                         | Finding                                                                                                                                                                                                                                                | Status                                                                                                                                                                                                                                    |
+| --- | ----- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| F1  | minor | `styles/fonts/downloadFonts.js`; the published `package.json` | ng-packagr 22 publishes the package as `"type": "module"`, so the CommonJS font script throws `require is not defined` for a consumer following Add-Benton-Sans.md; the icon script ran only because its entry point's stub `package.json` has no type | fixed: both scripts are ES modules (the icon script keeps `require.resolve` through `createRequire`); from the built package the font script prints its usage, the old one throws, and the icon script runs from the package and the repo |
+| F2  | minor | `angular.json`, `build:github-pages`                          | With a server build and every route on the client, the shell is `index.csr.html`, so a Pages deploy would 404 at the root                                                                                                                              | fixed in the plan: S6's `pages.yml` publishes it as `index.html` and `404.html` until `/` prerenders                                                                                                                                      |
+| F3  | minor | five tsconfigs; tree node and virtualize templates            | Angular 22's migration suppressed two template diagnostics and left six `$safeNavigationMigration()` wrappers, with no step that takes them back                                                                                                       | fixed: a comment in `tsconfig.lib.json`; the plan's S4b row turns them back on                                                                                                                                                            |
+| F4  | minor | `eslint.config.js` `no-deprecated`                            | The `Injectable` allow silenced every deprecated use repo-wide, for three call sites                                                                                                                                                                   | fixed: the rule is back to plain `error`; `FB`, `SnackService` and `ClipboardService` each have a line disable with the reason, and the plan's S7 names the PR that removes each                                                          |
+| F5  | minor | root `package.json`                                           | Dev tools on carets, against the plan's "pinned exactly"                                                                                                                                                                                               | fixed: pinned to the locked versions; the lock only re-syncs its root entries                                                                                                                                                             |
 
 ## Refuted
 
@@ -32,9 +32,9 @@ script (deleted in S6); members made protected (Angular's fix for host binding c
 
 ## Improvements
 
-| Improvement | Answer |
-|---|---|
-| The API file (S9) leaves out `protected` members too, so the ten made protected here don't become one-way doors | taken: D7 |
-| The codebase review record marks what S3 settled | taken |
-| The three `$any(...)` host arguments could go | later: S7, which rewrites those components |
-| The PR text gives the right counts: three `$any` sites, six wrappers | taken |
+| Improvement                                                                                                     | Answer                                     |
+| --------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| The API file (S9) leaves out `protected` members too, so the ten made protected here don't become one-way doors | taken: D7                                  |
+| The codebase review record marks what S3 settled                                                                | taken                                      |
+| The three `$any(...)` host arguments could go                                                                   | later: S7, which rewrites those components |
+| The PR text gives the right counts: three `$any` sites, six wrappers                                            | taken                                      |
