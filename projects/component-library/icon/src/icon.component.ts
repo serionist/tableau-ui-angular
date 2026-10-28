@@ -7,7 +7,11 @@ import { Component, input, computed, ChangeDetectionStrategy } from '@angular/co
   styleUrl: './icon.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    role: 'img',
+    // The ligature text ("home") is not a name: without a label the icon is hidden from assistive technology, and with
+    // one it is an image named by it.
+    '[attr.role]': '$hasLabel() ? "img" : null',
+    '[attr.aria-label]': '$hasLabel() ? $label() : null',
+    '[attr.aria-hidden]': '$hasLabel() ? null : "true"',
     class: 'tab-icon',
     '[class.error]': "$actualColor() === 'error'",
     '[class.primary]': "$actualColor() === 'primary'",
@@ -26,6 +30,17 @@ export class IconComponent {
    */
   readonly $value = input<string>(undefined, {
     alias: 'value',
+  });
+  // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+  /**
+   * What the icon means, for screen readers: "Delete", "Warning".
+   * Without it the icon is decorative and hidden from assistive technology (`aria-hidden="true"`); with it the icon is
+   * an image with this name (`role="img"`, `aria-label`). Give it a label when the icon alone carries meaning, such as
+   * the only content of a button.
+   * @default undefined
+   */
+  readonly $label: InputSignal<string | undefined> = input<string>(undefined, {
+    alias: 'label',
   });
   // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
   /**
@@ -110,6 +125,10 @@ export class IconComponent {
     alias: 'params',
   });
 
+  protected readonly $hasLabel = computed(() => {
+    const label = this.$label();
+    return label !== undefined && label.trim() !== '';
+  });
   protected readonly $actualColor = computed(() => {
     return this.$params()?.color ?? this.$color() ?? 'none';
   });

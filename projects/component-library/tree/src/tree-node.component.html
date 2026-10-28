@@ -28,7 +28,7 @@
       [tooltipContext]="$expandButtonTooltip()?.context"
       (click)="setExpanded(!$expanded())"
     >
-      <tab-icon [value]="$expanded() ? 'keyboard_arrow_down' : 'keyboard_arrow_right'" />
+      <tab-icon [value]="$expanded() ? 'keyboard_arrow_down' : 'keyboard_arrow_right'" [label]="$expanded() ? 'Collapse' : 'Expand'" />
     </button>
     <div class="header-content">
       @if ($expanded() && $expandedContent()) {
