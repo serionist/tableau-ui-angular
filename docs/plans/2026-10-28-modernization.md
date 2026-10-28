@@ -341,6 +341,14 @@ lock file's stale version (the quick lane catches it); zone mode in tests (the d
   file; the Angular CLI's MCP server runs as `node node_modules/@angular/cli/bin/ng.js mcp --read-only`, since `npx`
   needs a `cmd /c` wrapper on Windows and without a local install `npx ng` fetches npm's unrelated `ng` package;
   Prettier 3.5 pads every Markdown table, so the plan's and the records' tables are aligned now.
+- 2026-10-28, S5 merged (#32). S6 (#33): `ci.yml` (the full lane on Linux on Node 22 and 24 with gitleaks 8.30.1
+  checked against its sha256, the build and pack on Windows, one `CI` job), `pr-text.yml`, `codeql.yml`, `pages.yml`
+  and `dependabot.yml`; `deploy-lib.yaml` deleted; the issue forms, the PR template, CODEOWNERS; SECURITY.md,
+  CONTRIBUTING.md, CHANGELOG.md; `.github/` in Prettier's scope; the repo's description, homepage and topics set.
+  Departures: the PR text rules are `tools/pr-text.mjs`, with tests; the `CI` job runs with `always()`, so a cancelled
+  leg fails it instead of leaving it skipped, which a required check counts as passed; Pages deploys only while the
+  commit CI passed is still `main`'s head, and keeps a prerendered `index.html` once there is one; CHANGELOG also has
+  an Added section for S2's two entry points.
 
 ## For the maintainers
 
@@ -348,8 +356,11 @@ lock file's stale version (the quick lane catches it); zone mode in tests (the d
   1 day): `gh secret set NPM_TOKEN -R serionist/tableau-ui-angular`.
 - S1, after 0.1.129 is on npm: revoke that token and delete the secret; publish the GitHub security advisory for F1.
 - S12: Starschema's agreement to MIT.
-- S6, once its checks have run once: the ruleset on `main` with `CI` and `PR text` required; private vulnerability
-  reporting, which SECURITY.md links to; Dependabot alerts.
+- S6, once its checks have run once: the ruleset on `main` with PRs only and `CI` and `PR text` required; squash merges
+  only, auto-merge on, branches deleted on merge; private vulnerability reporting, which SECURITY.md and the issue
+  forms link to; Dependabot security updates (alerts are on); CodeQL's default setup left off, since `codeql.yml` is
+  the advanced setup. The description, homepage and topics were set in S6. Keep or drop CONTRIBUTING's line that a
+  contribution comes under AGPL-3.0 and MIT, so D2's move needs no outside contributor's agreement.
 - Before S13: on npmjs.com, a trusted publisher for `tableau-ui-angular` (this repo, `release.yml`, environment
   `npm`); the `npm` environment with you as reviewer, limited to `v*` tags.
 - S11: upload the social preview in the repo's settings (GitHub takes it only there).
