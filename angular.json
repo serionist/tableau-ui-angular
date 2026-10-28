@@ -66,7 +66,10 @@
           "options": {
             "tsConfig": "projects/component-library/tsconfig.spec.json",
             "browsers": ["chromium", "firefox"],
-            "headless": true
+            "headless": true,
+            "coverageInclude": ["projects/component-library/**/*.ts"],
+            "coverageExclude": ["projects/component-library/testing/**"],
+            "coverageReporters": ["json-summary", "text-summary"]
           }
         }
       }

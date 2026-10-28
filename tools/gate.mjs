@@ -8,25 +8,29 @@
 //   commits when gitleaks is on PATH (a line says when it was skipped; GATE_REQUIRE_GITLEAKS=1, as CI sets it, makes
 //   that a failure).
 // full: quick, then the library build, the hooks' tests, the component tests in Chromium and Firefox
-//   (ng test --watch=false), and the demo app's build with its prerender.
+//   (ng test --watch=false, the library's with coverage), the library's line coverage against the floor in
+//   tools/coverage.json, and the demo app's build with its prerender, which must prerender a route and log no error.
+//
+// The coverage floor is a whole percent that only rises: the gate fails when the library's line coverage is below it,
+// or when it is below the floor at the base commit (origin/main's by default), and says when it can rise.
 //
 // The commits are <base>..HEAD, origin/main..HEAD by default, and the working tree is checked as it is. The pre-push
 // hook passes each pushed range with --range instead; then the working tree's checks run only when every range ends at
 // HEAD and the tree is clean, and are skipped, with the reason, when it is not what is pushed.
 //
-// Checks still to come, each with the work it guards: a coverage floor that never falls below origin/main's, with the
-// fixes' tests; the public API file compared with the built typings, with the API file; the docs site's prerender,
-// with the docs site.
+// Checks still to come, each with the work it guards: the public API file compared with the built typings, with the
+// API file; the docs site's prerender, with the docs site.
 //
 // It prints a line per check, then the tail of each failed check's output, and exits 1 when any failed. Node only, no
 // dependencies: each tool runs from node_modules through node itself, the same on Windows and Linux; only npm, a .cmd
 // on Windows, goes through a shell there.
 
 import { spawnSync } from 'node:child_process';
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { attributionLines, toolCoAuthor } from './attribution.mjs';
+import { FLOOR_FILE, readFloor, verdict } from './coverage.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const AGENTS_MAX_LINES = 150;
@@ -35,6 +39,8 @@ const OUTPUT_TAIL = 40;
 const NG = 'node_modules/@angular/cli/bin/ng.js';
 const STYLELINT = 'node_modules/stylelint/bin/stylelint.mjs';
 const PRETTIER = 'node_modules/prettier/bin/prettier.cjs';
+// The summary the library's tests write with --coverage (angular.json, the library's test target)
+const COVERAGE_SUMMARY = 'coverage/component-library/coverage-summary.json';
 // What Prettier checks: the code, and the config, docs and harness around it. It skips what .gitignore lists, and
 // writes package.json and package-lock.json the way npm does.
 const PRETTIER_SCOPE = ['projects', 'tools', '.claude', '.github', 'docs', '*.{json,js,mjs,md}', '.prettierrc'];
@@ -247,16 +253,42 @@ function checkHookTests() {
 }
 
 function checkTests() {
-  const done = node(NG, 'test', '--watch=false');
-  const passed = [...done.output.matchAll(/^\s*Tests\s+(\d+) passed/gm)].reduce((sum, match) => sum + Number(match[1]), 0);
-  return done.ok ? pass(`${passed} passed, in Chromium and Firefox`) : fail('ng test failed', done.output);
+  // A summary left by an earlier run must never stand for this one
+  rmSync(join(ROOT, 'coverage'), { recursive: true, force: true });
+  const runs = [node(NG, 'test', 'component-library', '--watch=false', '--coverage'), node(NG, 'test', 'test-app', '--watch=false')];
+  const output = runs.map(done => done.output).join('\n');
+  const passed = [...output.matchAll(/^\s*Tests\s+(\d+) passed/gm)].reduce((sum, match) => sum + Number(match[1]), 0);
+  return runs.every(done => done.ok) ? pass(`${passed} passed, in Chromium and Firefox`) : fail('ng test failed', output);
+}
+
+function checkCoverage({ ranges, problem }) {
+  const summary = join(ROOT, COVERAGE_SUMMARY);
+  if (!existsSync(summary)) return fail(`the tests wrote no ${COVERAGE_SUMMARY}`);
+  const measured = Number(JSON.parse(readFileSync(summary, 'utf8')).total?.lines?.pct);
+  if (!Number.isFinite(measured)) return fail(`${COVERAGE_SUMMARY} has no total line coverage`);
+  const file = join(ROOT, FLOOR_FILE);
+  if (!existsSync(file)) return fail(`${FLOOR_FILE} is missing: it holds the library's line coverage floor`);
+  const { floor, problem: badFloor } = readFloor(readFileSync(file, 'utf8'));
+  if (badFloor) return fail(badFloor);
+  // The floor at the base, origin/main's by default; a base from before the floor existed has none
+  if (problem) return fail(problem);
+  const base = ranges[0].range.split('..')[0];
+  const atBase = git('show', `${base}:${FLOOR_FILE}`);
+  const { floor: baseFloor, problem: badBase } = atBase.ok ? readFloor(atBase.output, `${FLOOR_FILE} at ${base.slice(0, 10)}`) : {};
+  if (badBase) return fail(badBase);
+  const { ok, detail } = verdict({ measured, floor, baseFloor });
+  return ok ? pass(detail) : fail(detail);
 }
 
 function checkDemoBuild() {
   const done = node(NG, 'build', 'test-app');
   const prerendered = lines(done.output).find(line => /^Prerendered \d+ static routes?/.test(line));
   if (!done.ok) return fail('ng build test-app failed', done.output);
-  return prerendered ? pass(prerendered) : fail('the build printed no "Prerendered N static routes" line, so it did not prerender', done.output);
+  if (!prerendered) return fail('the build printed no "Prerendered N static routes" line, so it did not prerender', done.output);
+  if (/^Prerendered 0 /.test(prerendered)) return fail('the build prerendered no route: app.routes.server.ts lists the ones that render on the server', done.output);
+  // A page that throws while rendering on the server is still written, and the build only logs the error
+  const error = lines(done.output).find(line => /^ERROR\b/.test(line));
+  return error ? fail(`a page threw while prerendering: ${error}`, done.output) : pass(prerendered);
 }
 
 // Each check, and whether it reads the working tree.
@@ -274,6 +306,7 @@ const FULL = [
   ['library build', checkLibraryBuild, true],
   ['hook tests', checkHookTests, true],
   ['tests', checkTests, true],
+  ['coverage', checkCoverage, true],
   ['demo build', checkDemoBuild, true],
 ];
 const USAGE = 'usage: npm run gate -- quick|full [--base <ref> | --range <from>..<to> ...]';
