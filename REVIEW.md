@@ -33,7 +33,7 @@ remember that a check could do.
 Each is a yes or no, and a "no" is a finding.
 
 1. Did `npm run gate -- full` pass on the reviewed commit, the tests green in Chromium and Firefox, and CI on the PR's
-   head once the repo runs it?
+   head?
 2. Does the change do what its issue and plan say, and nothing nobody asked for?
 3. Does it leave the one-way doors in `AGENTS.md` alone, or name the one it changes and link the maintainer's agreement?
 4. Does each form control keep the forms contract: `writeValue` with `null` and before init, no `onChange` or dirty
@@ -44,7 +44,7 @@ Each is a yes or no, and a "no" is a finding.
    initialiser, so the demo app still prerenders?
 7. Does new behaviour have a test that fails without it, and a fix a test that reproduced the bug?
 8. No token, key or password in code, tests, docs, commits or the PR, and no HTML built from input?
-9. Did the docs move with it: `README.md`, the demo page, `AGENTS.md`, the plan, `CHANGELOG.md` once it exists?
+9. Did the docs move with it: `README.md`, the demo page, `AGENTS.md`, the plan, `CHANGELOG.md`?
 10. Is the PR title a plain imperative sentence, does the body say `Closes #<n>` or `Refs #<n>`, and is there no tool
     attribution in any commit, the title or the body?
 
@@ -53,7 +53,8 @@ Each is a yes or no, and a "no" is a finding.
 These files decide how every other change is checked:
 
 - `AGENTS.md`, `REVIEW.md`, `.claude/` (`CLAUDE.md`, the settings, the skills), `.mcp.json`;
-- `tools/`, `.githooks/`, `.gitleaks.toml`, and `.github/` once it exists;
+- `tools/`, `.githooks/`, `.gitleaks.toml`, and `.github/` (the workflows, `dependabot.yml`, CODEOWNERS, the
+  templates);
 - `eslint.config.js`, `.stylelintrc.json`, `.prettierrc`, the tsconfigs, `angular.json`'s test and lint targets, and
   the `package.json` scripts the gate runs.
 
@@ -66,8 +67,8 @@ A change to them follows these rules.
 
 ## Permissions
 
-`.claude/settings.json` can't stop every command that reads a file or skips a hook; the gate on push, and CI once it
-runs, are the backstop.
+`.claude/settings.json` can't stop every command that reads a file or skips a hook; the gate on push and CI are the
+backstop.
 
 - The `Read` denies don't cover the shell: `git diff --no-index`, `git blame --contents`, or a path outside the repo
   print any file.
