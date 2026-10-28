@@ -7,7 +7,7 @@ import type { MetaFns } from '../abstract-control/meta/interfaces';
 import type { AsyncValidatorFn, ValidatorFn, ValidatorFns } from '../abstract-control/validation/interfaces';
 import type { FC } from './interfaces';
 import type { FcRegisterFns } from './register/interfaces';
-import { FormControl, FormResetEvent } from '@angular/forms';
+import { FormControl, FormResetEvent, FormSubmittedEvent } from '@angular/forms';
 import { ValidatorFnsImpl as ValidatorFnsImpl } from '../abstract-control/validation/impl';
 import { MetaFnsImpl as MetaFnsImpl } from '../abstract-control/meta/impl';
 import { FcRegisterFnsImpl } from './register/impl';
@@ -62,24 +62,8 @@ export class FCImpl<T extends PrimitiveWithUndefined | PrimitiveWithUndefined[]>
         .pipe(
           startWith(control.value),
           distinctUntilChanged((a, b) => {
-            // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-            if (!a && !b) {
-              return true;
-            }
-            // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-            if (!a || !b) {
-              return false;
-            }
             if (Array.isArray(a) && Array.isArray(b)) {
-              if (a.length !== b.length) {
-                return false;
-              }
-              for (let i = 0; i < a.length; i++) {
-                if (a[i] !== b[i]) {
-                  return false;
-                }
-              }
-              return true;
+              return a.length === b.length && a.every((item, i) => item === b[i]);
             }
             return a === b;
           }),
@@ -94,7 +78,7 @@ export class FCImpl<T extends PrimitiveWithUndefined | PrimitiveWithUndefined[]>
       }),
     );
     this.submitted$ = this.control.events.pipe(
-      filter(e => e instanceof SubmitEvent),
+      filter(e => e instanceof FormSubmittedEvent),
       map(() => this._value$.value),
     );
     this.reset$ = this.control.events.pipe(
@@ -104,6 +88,7 @@ export class FCImpl<T extends PrimitiveWithUndefined | PrimitiveWithUndefined[]>
     this.registerFn = new FcRegisterFnsImpl<T>(this, this.subscriptions);
     this.validatorFn = new ValidatorFnsImpl<FC<T>>(this.control);
     this.metaFn = new MetaFnsImpl<FC<T>>(this.control, this);
+    this.refreshMeta();
   }
 
   setValue(value: T, options?: { onlySelf?: boolean; emitEvent?: boolean; emitModelToViewChange?: boolean; emitViewToModelChange?: boolean }) {

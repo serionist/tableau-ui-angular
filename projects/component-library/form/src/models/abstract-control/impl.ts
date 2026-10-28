@@ -1,6 +1,6 @@
 import type { WritableSignal } from '@angular/core';
 import { signal, type Signal } from '@angular/core';
-import { BehaviorSubject, distinctUntilChanged, filter, firstValueFrom, map, type Observable, type Subscription } from 'rxjs';
+import { BehaviorSubject, filter, firstValueFrom, map, merge, skip, switchMap, type Observable, type Subscription } from 'rxjs';
 import type { Hierarchy } from './hierarchy/interfaces';
 import type { AC } from './interfaces';
 import type { Meta, MetaFns } from './meta/interfaces';
@@ -46,17 +46,42 @@ export abstract class ACImpl<TValue> implements AC {
     const initialMeta = MetaImpl.fromControl(this);
     this.meta$ = new BehaviorSubject<Meta>(initialMeta);
     this.$meta = signal<Meta>(initialMeta);
+    // A group's or an array's meta holds its children's, so it is recomputed when its child list or a child's meta
+    // changes too: Angular emits a parent's event before it touches the children (markAllAsTouched), and an array's
+    // removeAt before its child list changes.
+    const childMetaChanges$ = this.hierarchy.childList$.pipe(switchMap(children => merge(...children.map(child => child.meta$.pipe(skip(1))))));
     this.subscriptions.push(
-      this.control.events
-        .pipe(
-          map(() => MetaImpl.fromControl(this)),
-          distinctUntilChanged((a, b) => MetaImpl.compare(a, b)),
-        )
-        .subscribe(meta => {
-          this.meta$.next(meta);
-          this.$meta.set(meta);
-        }),
+      merge(this.control.events, this.hierarchy.childList$.pipe(skip(1)), childMetaChanges$).subscribe(() => {
+        this.refreshMeta();
+      }),
     );
+  }
+
+  private emittingMeta = false;
+  private metaChangedWhileEmitting = false;
+  /**
+   * Recomputes the meta and emits it when it changed: the signal first, so a subscriber that reads `$meta()` sees what
+   * it was given. A change a subscriber makes is emitted after every subscriber has the current meta, so none of them
+   * ends on a stale one. Subclasses call it once their constructor has set the default value.
+   */
+  protected refreshMeta(): void {
+    if (this.emittingMeta) {
+      this.metaChangedWhileEmitting = true;
+      return;
+    }
+    this.emittingMeta = true;
+    try {
+      do {
+        this.metaChangedWhileEmitting = false;
+        const meta = MetaImpl.fromControl(this);
+        if (!MetaImpl.compare(meta, this.meta$.value)) {
+          this.$meta.set(meta);
+          this.meta$.next(meta);
+        }
+      } while (this.metaChangedWhileEmitting);
+    } finally {
+      this.emittingMeta = false;
+    }
   }
 
   public getRawValue(): TValue {

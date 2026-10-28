@@ -1,10 +1,11 @@
 import type { DeepPartial } from 'tableau-ui-angular/types';
-import { RegisterFnsImpl } from '../../abstract-control/register/impl';
+import { alsoOnEnabledChange, RegisterFnsImpl } from '../../abstract-control/register/impl';
 import type { FG } from '../../form-group/interfaces';
 import type { FA } from '../interaces';
 import type { FaRegisterFns } from './interfaces';
-import type { Observable, Subscription } from 'rxjs';
-import { combineLatest, filter, map, pairwise, startWith } from 'rxjs';
+import type { DestroyRef } from '@angular/core';
+import type { Subscription } from 'rxjs';
+import { pairwise, startWith } from 'rxjs';
 
 export class FaRegisterFnsImpl<TItem extends Record<string, unknown>> extends RegisterFnsImpl<FA<TItem>> implements FaRegisterFns<TItem> {
   constructor(
@@ -20,38 +21,22 @@ export class FaRegisterFnsImpl<TItem extends Record<string, unknown>> extends Re
    * @param callback
    * @param alsoRunOnEnabled Whether to also run the callback when the control is enabled.
    * @param alsoRunOnDisabled Whether to also run the callback when the control is disabled.
+   * @param destroyRef When given, the callback is released when it is destroyed, such as a component's; otherwise it
+   * lives until the form's `destroy()`.
    */
   valueChange(
     callback: (value: DeepPartial<TItem>[], oldValue: DeepPartial<TItem>[] | undefined, controls: FG<TItem>[], control: FA<TItem>) => void,
     alsoRunOnEnabled: boolean = false,
     alsoRunOnDisabled: boolean = false,
+    destroyRef?: DestroyRef,
   ): FA<TItem> {
-    const subs: [Observable<[DeepPartial<TItem>[] | undefined, DeepPartial<TItem>[]]>, Observable<boolean>?] = [
-      this.fa.value$.pipe(
-        startWith(undefined as unknown as DeepPartial<TItem[]>),
-        pairwise(),
-        map(v => [v[0] as DeepPartial<TItem>[] | undefined, (v[1] ?? v[0]) as DeepPartial<TItem>[]]),
-      ),
-    ];
-    if (alsoRunOnEnabled || alsoRunOnDisabled) {
-      subs.push(
-        this.fa.meta$.pipe(
-          map(e => e.enabled),
-          filter(enabled => {
-            if (enabled && alsoRunOnEnabled) {
-              return true;
-            } else if (!enabled && alsoRunOnDisabled) {
-              return true;
-            }
-            return false;
-          }),
-        ),
-      );
-    }
-    this.subscriptions.push(
-      combineLatest(subs).subscribe(([v]) => {
-        callback(v[1], v[0], this.fa.$controls(), this.fa);
-      }),
+    const changes$ = this.fa.value$.pipe(startWith(undefined), pairwise());
+    this.watch(
+      alsoOnEnabledChange(changes$, this.fa.meta$, alsoRunOnEnabled, alsoRunOnDisabled),
+      ([oldValue, value]) => {
+        callback(value!, oldValue, this.fa.$controls(), this.fa);
+      },
+      destroyRef,
     );
     return this.fa;
   }

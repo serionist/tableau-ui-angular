@@ -18,12 +18,8 @@ export class FormGroupValuePipe implements PipeTransform {
     if (!group) {
       throw new Error('FormGroupValuePipe: group is null or undefined');
     }
-    let ret;
-    if (kind === 'standard') {
-      ret = group.value$;
-    } else {
-      ret = group.rawValue$;
-    }
+    // the value, as the return type says, unless the raw value is asked for
+    const ret = kind === 'raw' ? group.rawValue$ : group.value$;
     return ret as unknown as Observable<TKind extends 'standard' ? DeepPartial<T> : T>;
   }
 }
