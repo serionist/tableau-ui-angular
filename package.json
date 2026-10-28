@@ -12,8 +12,6 @@
     "build:component-library": "ng build component-library && npm run copy-assets",
     "build:test-app": "npm run build:component-library && ng build test-app",
     "build:github-pages": "ng build component-library && npm run test-app:icons:download && ng build test-app --base-href /tableau-ui-angular/",
-    "package": "npx ng-packagr -p projects/component-library/ng-package.json && npm run copy-assets",
-    "publish": "npx ng-packagr -p projects/component-library/ng-package.json && npm run copy-assets && cd dist/component-library && npm publish",
     "dev:link": "ng build component-library --configuration development && node scripts/link-info.js && ng build component-library --watch --configuration development",
     "pretty": "npx prettier --write \"projects/**/*\" --log-level silent",
     "lint:js": "ng lint",
@@ -24,6 +22,9 @@
     "lint:fix": "npm run lint:js:fix && npm run lint:scss:fix && npm run pretty"
   },
   "private": true,
+  "engines": {
+    "node": "^22.22.3 || ^24.15.0 || >=26.0.0"
+  },
   "devDependencies": {
     "@angular-eslint/eslint-plugin": "^22.6.0",
     "@angular-eslint/eslint-plugin-template": "^22.6.0",
@@ -41,6 +42,7 @@
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
+    "monaco-editor": "^0.52.2",
     "ng-packagr": "22.2.5",
     "prettier": "^3.5.3",
     "stylelint": "^16.19.1",
