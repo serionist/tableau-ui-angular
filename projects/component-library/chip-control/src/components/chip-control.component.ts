@@ -146,7 +146,7 @@ export class ChipControlComponent<TKey, TValue> implements ControlValueAccessor 
 
   // #endregion Public Methods
 
-  private readonly $inputControl = viewChild.required<ElementRef<HTMLInputElement>>('inputControl');
+  protected readonly $inputControl = viewChild.required<ElementRef<HTMLInputElement>>('inputControl');
   readonly $chipTemplate = contentChild.required<ChipTemplateDirective<TKey, TValue>>(ChipTemplateDirective);
 
   // #region keys/values change events

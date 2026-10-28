@@ -1,6 +1,6 @@
 # Tableau UI Angular
 
-Tableau UI Angular is a third-party component library that brings Tableau-style components to Angular 18.
+Tableau UI Angular is a third-party component library that brings Tableau-style components to Angular 22.
 
 ## Getting started
 To install the library, run the following command:

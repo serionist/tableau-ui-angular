@@ -39,7 +39,7 @@ export class FormFieldComponent implements AfterContentInit, AfterViewInit, OnDe
 
   private readonly renderer = inject(Renderer2);
 
-  private readonly $inputDisabled = signal(false);
+  protected readonly $inputDisabled = signal(false);
 
   private resizeObserver?: ResizeObserver;
   private intersectionObserver?: IntersectionObserver;

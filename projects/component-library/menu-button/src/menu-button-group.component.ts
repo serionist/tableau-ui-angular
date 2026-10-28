@@ -9,7 +9,6 @@ import { ButtonMenuDirective } from 'tableau-ui-angular/menu';
   standalone: false,
   template: `
     @for (entry of $menuGroupStack() | entries; track entry[1].id) {
-      <!-- eslint-disable @angular-eslint/template/prefer-template-literal -->
       <div
         class="menu-group"
         resizeWatcher
@@ -100,8 +99,8 @@ export class MenuButtonGroupComponent implements OnDestroy, AfterViewInit {
     equal: () => false,
   });
 
-  private readonly $height = signal<number>(0);
-  private readonly $width = signal<number>(0);
+  protected readonly $height = signal<number>(0);
+  protected readonly $width = signal<number>(0);
 
   private viewInitialized = false;
   private readonly subs: OutputRefSubscription[] = [];

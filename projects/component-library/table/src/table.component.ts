@@ -392,8 +392,8 @@ export class TableComponent<TData> extends VirtualizeBaseComponent<TData> {
   }
   // #endregion
   // #region Scrolling & Virtualization
-  @HostListener('scroll', ['$event.target'])
-  private onHostScrolled(element: HTMLElement) {
+  @HostListener('scroll', ['$any($event.target)'])
+  protected onHostScrolled(element: HTMLElement) {
     super.onScroll(element)
   }
   // #endregion

@@ -20,18 +20,20 @@
         "url": "https://github.com/serionist/tableau-ui-angular/issues",
         "email": "osvaysoma@gmail.com"
     },
-    "engines": {
-        "node": ">=22.16.0",
-        "npm": ">=10.9.2"
-    },
     "homepage": "https://serionist.github.io/tableau-ui-angular/",
     "version": "0.1.129",
     "peerDependencies": {
-        "@angular/common": "^20.0.3",
-        "@angular/core": "^20.0.3",
-        "@angular/forms": "^20.0.3",
-        "@angular/router": "^20.0.3",
-        "monaco-editor": "^0.52.2"
+        "@angular/common": "^22.0.0",
+        "@angular/core": "^22.0.0",
+        "@angular/forms": "^22.0.0",
+        "@angular/router": "^22.0.0",
+        "monaco-editor": "^0.52.2",
+        "rxjs": "^7.4.0"
+    },
+    "peerDependenciesMeta": {
+        "monaco-editor": {
+            "optional": true
+        }
     },
     "dependencies": {
         "tabbable": "^6.2.0"

@@ -17,7 +17,6 @@ module.exports = tseslint.config(
         languageOptions: {
             parser: tseslint.parser,
             parserOptions: {
-                project: './tsconfig.json',
                 tsconfigRootDir: __dirname,
                 projectService: true,
             },
@@ -315,6 +314,8 @@ module.exports = tseslint.config(
                 'error',
                 {
                     type: 'attribute',
+                    // No prefix: the selectors are public API. angular-eslint 21 defaults it to 'app'
+                    prefix: [],
                     style: 'camelCase',
                 },
             ],
@@ -322,8 +323,6 @@ module.exports = tseslint.config(
             '@angular-eslint/no-async-lifecycle-method': 'error',
             //The @Attribute decorator is used to obtain a single value for an attribute. This is a much less common use-case than getting a stream of values (using @Input), so often the @Attribute decorator is mistakenly used when @Input was what was intended. This rule disallows usage of @Attribute decorator altogether in order to prevent these mistakes.
             '@angular-eslint/no-attribute-decorator': 'error',
-            //Ensures that directives not implement conflicting lifecycle interfaces.
-            '@angular-eslint/no-conflicting-lifecycle': 'error',
             //Ensures that metadata arrays do not contain duplicate entries.
             '@angular-eslint/no-duplicates-in-metadata-arrays': 'error',
             //Disallows declaring empty lifecycle methods

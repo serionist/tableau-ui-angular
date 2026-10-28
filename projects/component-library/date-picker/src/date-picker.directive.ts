@@ -1,5 +1,5 @@
-import type { ModelSignal } from '@angular/core';
-import { Directive, effect, ElementRef, forwardRef, HostListener, inject, input, model, output } from '@angular/core';
+import type { InputSignal, WritableSignal } from '@angular/core';
+import { Directive, effect, ElementRef, forwardRef, HostListener, inject, input, linkedSignal, output } from '@angular/core';
 import type { ControlValueAccessor } from '@angular/forms';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { ThemeService } from 'tableau-ui-angular/theme';
@@ -35,9 +35,10 @@ export class DatePickerDirective implements ControlValueAccessor {
     }
   });
   // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-  readonly $value: ModelSignal<Date | undefined> = model<Date | undefined>(undefined, {
+  readonly $valueInput: InputSignal<Date | undefined> = input<Date | undefined>(undefined, {
     alias: 'value',
   });
+  readonly $value: WritableSignal<Date | undefined> = linkedSignal(this.$valueInput);
   readonly valueChange = output<Date | undefined>();
 
   @HostListener('input')

@@ -14,6 +14,7 @@ export class ChipTemplateDirective<TKey, TValue> {
 
   public templateRef = inject<TemplateRef<{ $implicit: ChipContext<TKey, TValue> }>>(TemplateRef<{ $implicit: ChipContext<TKey, TValue> }>);
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Angular's guard signature; ctx is used by its type predicate
   static ngTemplateContextGuard<TKey, TValue>(dir: ChipTemplateDirective<TKey, TValue>, ctx: unknown): ctx is { $implicit: ChipContext<TKey, TValue> } {
       return true;
     }

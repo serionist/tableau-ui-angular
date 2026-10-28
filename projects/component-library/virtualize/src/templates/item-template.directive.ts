@@ -13,6 +13,7 @@ export class ItemTemplateDirective<TData> {
   });
   public templateRef = inject<TemplateRef<{ $implicit: ItemContext<TData> }>>(TemplateRef<{ $implicit: ItemContext<TData> }>);
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Angular's guard signature; ctx is used by its type predicate
   static ngTemplateContextGuard<TData>(dir: ItemTemplateDirective<TData>, ctx: unknown): ctx is { $implicit: ItemContext<TData> } {
     return true;
   }

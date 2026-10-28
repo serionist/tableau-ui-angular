@@ -103,7 +103,7 @@ export class MenuButtonComponent implements OnDestroy {
         this.hoverInterval = setInterval(() => {
           if (Date.now() - this.hoverstart > hoverMs) {
             this.openSubMenu.emit(new Event('mouseenter'));
-            if (this.hoverInterval) {
+            if (this.hoverInterval !== undefined) {
               clearInterval(this.hoverInterval);
             }
           }
@@ -112,14 +112,14 @@ export class MenuButtonComponent implements OnDestroy {
     }
   }
   onMouseLeave() {
-    if (this.hoverInterval) {
+    if (this.hoverInterval !== undefined) {
       clearInterval(this.hoverInterval);
     }
     this.$highlight.set(false);
   }
 
   ngOnDestroy(): void {
-    if (this.hoverInterval) {
+    if (this.hoverInterval !== undefined) {
       clearInterval(this.hoverInterval);
     }
   }

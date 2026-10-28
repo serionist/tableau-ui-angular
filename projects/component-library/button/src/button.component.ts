@@ -52,7 +52,7 @@ export class ButtonComponent {
   });
 
   private clickFromKeyboard = false;
-  @HostListener('keydown', ['$event'])
+  @HostListener('keydown', ['$any($event)'])
   handleKeydown(event: KeyboardEvent) {
     const el = this.$nativeElement.nativeElement;
     this.clickFromKeyboard = true; // set flag to indicate click from keyboard
