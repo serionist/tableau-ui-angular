@@ -22,6 +22,10 @@ export interface AC {
 
   readonly defaultValue: unknown;
 
+  /**
+   * Emits the value when the `<form>` this control is bound to with `[formGroup]` is submitted. Angular tells only that
+   * control, so a child's `submitted$` stays silent: listen on the root.
+   */
   readonly submitted$: Observable<unknown>;
   readonly reset$: Observable<unknown>;
 

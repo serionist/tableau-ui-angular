@@ -10,9 +10,9 @@ import type { FA } from './form-array/interaces';
 import { FAImpl } from './form-array/impl';
 import type { PrimitiveWithUndefined } from './form-control/types';
 
-// eslint-disable-next-line @typescript-eslint/no-deprecated -- Angular 21 deprecates providedIn 'any'; replacing it changes which injector owns the service, so it waits for this service's own fix
+// It holds no state, so one instance for the app serves every component and lazy route
 @Injectable({
-  providedIn: 'any',
+  providedIn: 'root',
 })
 export class FB {
   control<T extends PrimitiveWithUndefined | PrimitiveWithUndefined[]>(
