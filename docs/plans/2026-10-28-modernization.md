@@ -327,6 +327,9 @@ lock file's stale version (the quick lane catches it); zone mode in tests (the d
   built strict with `ng build`, the peers settled, the demo app's server build with every route on the client. Review
   round 1 clean, five minors fixed: the shipped scripts became ES modules, since ng-packagr 22 publishes the package
   as `"type": "module"`.
+- 2026-10-28, S3 merged (#28). S4a (#29): Prettier's reformat of 33 files alone. S4b: lint clean, `no-console` on the
+  library and its 23 debug logs gone, `.gitattributes` with LF, `.editorconfig` at two spaces, `.git-blame-ignore-revs`
+  with S4a's commit, the two template diagnostics on again; review round 1 clean.
 
 ## For the maintainers
 

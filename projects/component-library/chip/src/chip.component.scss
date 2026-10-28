@@ -4,7 +4,7 @@
   align-items: center;
   background: var(--twc-color-highlight);
   line-height: 1;
-  padding: 0.5rem 0.5rem;
+  padding: 0.5rem;
   white-space: nowrap;
   height: fit-content;
 
@@ -17,6 +17,7 @@
   &.selected {
     background: var(--twc-color-primary-light);
   }
+
   &.disabled {
     background: var(--twc-color-disabled);
   }

@@ -138,7 +138,6 @@ export class MenuButtonComponent implements OnDestroy {
       e.preventDefault();
       e.stopPropagation();
     } else {
-      console.log('MenuButtonComponent clicked');
       this.click.emit(e);
     }
   }

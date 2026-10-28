@@ -1,0 +1,8 @@
+# Text files are stored and checked out with LF on every OS, the line ending Prettier writes
+* text=auto eol=lf
+
+*.ico binary
+*.jpg binary
+*.png binary
+*.woff binary
+*.woff2 binary

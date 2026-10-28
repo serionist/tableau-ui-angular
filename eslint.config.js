@@ -505,4 +505,12 @@ module.exports = tseslint.config(
             '@angular-eslint/template/valid-aria': ['error'],
         },
     },
+    {
+        files: ['projects/component-library/**/*.ts'],
+        ignores: ['**/*.spec.ts'],
+        rules: {
+            //The library logs nothing in its consumers' consoles but warnings and errors
+            'no-console': ['error', { allow: ['warn', 'error'] }],
+        },
+    },
 );
