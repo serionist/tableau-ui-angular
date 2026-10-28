@@ -1,0 +1,10 @@
+#!/bin/sh
+# Runs the gate's quick lane before a push (AGENTS.md, Build and test). Turned on by `npm run setup`.
+cd "$(git rev-parse --show-toplevel)" || exit 1
+# A branch from before the hooks existed has no tools/hooks.mjs.
+[ -f tools/hooks.mjs ] || exit 0
+if ! command -v node >/dev/null 2>&1; then
+    echo "pre-push: node not found, so the gate did not run" >&2
+    exit 0
+fi
+exec node tools/hooks.mjs pre-push "$@"

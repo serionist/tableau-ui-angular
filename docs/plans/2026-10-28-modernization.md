@@ -330,6 +330,14 @@ lock file's stale version (the quick lane catches it); zone mode in tests (the d
 - 2026-10-28, S3 merged (#28). S4a (#29): Prettier's reformat of 33 files alone. S4b: lint clean, `no-console` on the
   library and its 23 debug logs gone, `.gitattributes` with LF, `.editorconfig` at two spaces, `.git-blame-ignore-revs`
   with S4a's commit, the two template diagnostics on again; review round 1 clean.
+- 2026-10-28, S4b merged (#30). S5: `AGENTS.md`, `REVIEW.md`, `.claude/` with the four skills, `.mcp.json`,
+  `tools/gate.mjs` with both lanes, the `commit-msg` and `pre-push` hooks behind `npm run setup`, their tests,
+  `.gitleaks.toml`, and the plan and review templates; the root config files and the docs joined Prettier's scope and
+  were formatted. Both lanes pass; `commit-msg` refuses each attribution form, in its tests and on a real commit. Three
+  departures: the hooks' tests run as `node --test "tools/*.test.mjs"`, since Node 24 runs `node --test tools/` as one
+  file; the Angular CLI's MCP server runs as `node node_modules/@angular/cli/bin/ng.js mcp --read-only`, since `npx`
+  needs a `cmd /c` wrapper on Windows and without a local install `npx ng` fetches npm's unrelated `ng` package;
+  Prettier 3.5 pads every Markdown table, so the plan's and the records' tables are aligned now.
 
 ## For the maintainers
 

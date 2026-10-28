@@ -1,0 +1,10 @@
+#!/bin/sh
+# Refuses tool attribution in the commit message (AGENTS.md, Commits and PRs). Turned on by `npm run setup`.
+cd "$(git rev-parse --show-toplevel)" || exit 1
+# A branch from before the hooks existed has no tools/hooks.mjs.
+[ -f tools/hooks.mjs ] || exit 0
+if ! command -v node >/dev/null 2>&1; then
+    echo "commit-msg: node not found, so the message was not checked; the gate still checks the branch" >&2
+    exit 0
+fi
+exec node tools/hooks.mjs commit-msg "$1"
