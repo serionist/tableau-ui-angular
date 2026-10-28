@@ -8,9 +8,9 @@
 
 ## Findings
 
-| # | Sev | Where | Finding | Status |
-|---|---|---|---|---|
-| F1 | nit | `.editorconfig`; `eslint.config.js` | The two-space indent now set for every file disagrees with `eslint.config.js`, indented with four spaces, which Prettier's `projects/**/*` scope never touched | left: S5's check script sets Prettier's scope, and the root config files join it there |
+| #   | Sev | Where                               | Finding                                                                                                                                                        | Status                                                                                 |
+| --- | --- | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| F1  | nit | `.editorconfig`; `eslint.config.js` | The two-space indent now set for every file disagrees with `eslint.config.js`, indented with four spaces, which Prettier's `projects/**/*` scope never touched | left: S5's check script sets Prettier's scope, and the root config files join it there |
 
 ## Refuted
 

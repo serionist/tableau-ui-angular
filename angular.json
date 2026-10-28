@@ -60,7 +60,6 @@
             }
           },
           "defaultConfiguration": "production"
-        
         },
         "test": {
           "builder": "@angular/build:unit-test",
@@ -101,9 +100,7 @@
               },
               { "glob": "**/*", "input": "node_modules/monaco-editor/min", "output": "/monaco-edit" }
             ],
-            "styles": [
-              "projects/test-app/src/styles.scss"
-            ],
+            "styles": ["projects/test-app/src/styles.scss"],
             "scripts": []
           },
           "configurations": {
@@ -156,10 +153,7 @@
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": [
-              "projects/**/*.ts",
-              "projects/**/*.html"
-            ]
+            "lintFilePatterns": ["projects/**/*.ts", "projects/**/*.html"]
           }
         }
       }
@@ -167,8 +161,6 @@
   },
   "cli": {
     "analytics": false,
-    "schematicCollections": [
-      "angular-eslint"
-    ]
+    "schematicCollections": ["angular-eslint"]
   }
 }

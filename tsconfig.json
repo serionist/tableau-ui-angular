@@ -1,133 +1,65 @@
 /* To learn more about Typescript configuration file: https://www.typescriptlang.org/docs/handbook/tsconfig-json.html. */
 /* To learn more about Angular compiler options: https://angular.dev/reference/configs/angular-compiler-options. */
 {
-    "compileOnSave": false,
-    "compilerOptions": {
-        "paths": {
-            "tableau-ui-angular/types": [
-                "./projects/component-library/types/src/public_api.ts"
-            ],
-            "tableau-ui-angular/utils": [
-                "./projects/component-library/utils/src/public_api.ts"
-            ],
-            "tableau-ui-angular/icon": [
-                "./projects/component-library/icon/src/public_api.ts"
-            ],
-            "tableau-ui-angular/tooltip": [
-                "./projects/component-library/tooltip/src/public_api.ts"
-            ],
-            "tableau-ui-angular/common": [
-                "./projects/component-library/common/src/public_api.ts"
-            ],
-            "tableau-ui-angular/button": [
-                "./projects/component-library/button/src/public_api.ts"
-            ],
-            "tableau-ui-angular/button-toggle": [
-                "./projects/component-library/button-toggle/src/public_api.ts"
-            ],
-            "tableau-ui-angular/arrow-scroll": [
-                "./projects/component-library/arrow-scroll/src/public_api.ts"
-            ],
-            "tableau-ui-angular/checkbox": [
-                "./projects/component-library/checkbox/src/public_api.ts"
-            ],
-            "tableau-ui-angular/snack": [
-                "./projects/component-library/snack/src/public_api.ts"
-            ],
-            "tableau-ui-angular/clipboard": [
-                "./projects/component-library/clipboard/src/public_api.ts"
-            ],
-            "tableau-ui-angular/dialog": [
-                "./projects/component-library/dialog/src/public_api.ts"
-            ],
-            "tableau-ui-angular/autocomplete": [
-                "./projects/component-library/autocomplete/src/public_api.ts"
-            ],
-            "tableau-ui-angular/date-picker": [
-                "./projects/component-library/date-picker/src/public_api.ts"
-            ],
-            "tableau-ui-angular/expansion-panel": [
-                "./projects/component-library/expansion-panel/src/public_api.ts"
-            ],
-            "tableau-ui-angular/form": [
-                "./projects/component-library/form/src/public_api.ts"
-            ],
-            "tableau-ui-angular/form-field": [
-                "./projects/component-library/form-field/src/public_api.ts"
-            ],
-            "tableau-ui-angular/list": [
-                "./projects/component-library/list/src/public_api.ts"
-            ],
-            "tableau-ui-angular/menu": [
-                "./projects/component-library/menu/src/public_api.ts"
-            ],
-            "tableau-ui-angular/menu-button": [
-                "./projects/component-library/menu-button/src/public_api.ts"
-            ],
-            "tableau-ui-angular/nav-bar": [
-                "./projects/component-library/nav-bar/src/public_api.ts"
-            ],
-            "tableau-ui-angular/radio-group": [
-                "./projects/component-library/radio-group/src/public_api.ts"
-            ],
-            "tableau-ui-angular/select": [
-                "./projects/component-library/select/src/public_api.ts"
-            ],
-            "tableau-ui-angular/tab-group": [
-                "./projects/component-library/tab-group/src/public_api.ts"
-            ],
-            "tableau-ui-angular/tree": [
-                "./projects/component-library/tree/src/public_api.ts"
-            ],
-            "tableau-ui-angular/table": [
-                "./projects/component-library/table/src/public_api.ts"
-            ],
-            "tableau-ui-angular/theme": [
-                "./projects/component-library/theme/src/public_api.ts"
-            ],
-            "tableau-ui-angular/used-icons": [
-                "./projects/component-library/used-icons/src/public_api.ts"
-            ],
-            "tableau-ui-angular/monaco": [
-                "./projects/component-library/monaco/src/public_api.ts"
-            ],
-            "tableau-ui-angular/drawer": [
-                "./projects/component-library/drawer/src/public_api.ts"
-            ],
-            "tableau-ui-angular/stepper": [
-                "./projects/component-library/stepper/src/public_api.ts"
-            ],
-            "tableau-ui-angular/virtualize": [
-                "./projects/component-library/virtualize/src/public_api.ts"
-            ],
-            "tableau-ui-angular/chip": [
-                "./projects/component-library/chip/src/public_api.ts"
-            ],
-            "tableau-ui-angular/chip-control": [
-                "./projects/component-library/chip-control/src/public_api.ts"
-            ],
-        },
-        "outDir": "./dist/out-tsc",
-        "strict": true,
-        "noImplicitOverride": true,
-        "noPropertyAccessFromIndexSignature": true,
-        "noImplicitReturns": true,
-        "noFallthroughCasesInSwitch": true,
-        "skipLibCheck": true,
-        "isolatedModules": true,
-        "esModuleInterop": true,
-        "sourceMap": true,
-        "declaration": false,
-        "experimentalDecorators": true,
-        "moduleResolution": "bundler",
-        "importHelpers": true,
-        "target": "ES2022",
-        "module": "ES2022"
+  "compileOnSave": false,
+  "compilerOptions": {
+    "paths": {
+      "tableau-ui-angular/types": ["./projects/component-library/types/src/public_api.ts"],
+      "tableau-ui-angular/utils": ["./projects/component-library/utils/src/public_api.ts"],
+      "tableau-ui-angular/icon": ["./projects/component-library/icon/src/public_api.ts"],
+      "tableau-ui-angular/tooltip": ["./projects/component-library/tooltip/src/public_api.ts"],
+      "tableau-ui-angular/common": ["./projects/component-library/common/src/public_api.ts"],
+      "tableau-ui-angular/button": ["./projects/component-library/button/src/public_api.ts"],
+      "tableau-ui-angular/button-toggle": ["./projects/component-library/button-toggle/src/public_api.ts"],
+      "tableau-ui-angular/arrow-scroll": ["./projects/component-library/arrow-scroll/src/public_api.ts"],
+      "tableau-ui-angular/checkbox": ["./projects/component-library/checkbox/src/public_api.ts"],
+      "tableau-ui-angular/snack": ["./projects/component-library/snack/src/public_api.ts"],
+      "tableau-ui-angular/clipboard": ["./projects/component-library/clipboard/src/public_api.ts"],
+      "tableau-ui-angular/dialog": ["./projects/component-library/dialog/src/public_api.ts"],
+      "tableau-ui-angular/autocomplete": ["./projects/component-library/autocomplete/src/public_api.ts"],
+      "tableau-ui-angular/date-picker": ["./projects/component-library/date-picker/src/public_api.ts"],
+      "tableau-ui-angular/expansion-panel": ["./projects/component-library/expansion-panel/src/public_api.ts"],
+      "tableau-ui-angular/form": ["./projects/component-library/form/src/public_api.ts"],
+      "tableau-ui-angular/form-field": ["./projects/component-library/form-field/src/public_api.ts"],
+      "tableau-ui-angular/list": ["./projects/component-library/list/src/public_api.ts"],
+      "tableau-ui-angular/menu": ["./projects/component-library/menu/src/public_api.ts"],
+      "tableau-ui-angular/menu-button": ["./projects/component-library/menu-button/src/public_api.ts"],
+      "tableau-ui-angular/nav-bar": ["./projects/component-library/nav-bar/src/public_api.ts"],
+      "tableau-ui-angular/radio-group": ["./projects/component-library/radio-group/src/public_api.ts"],
+      "tableau-ui-angular/select": ["./projects/component-library/select/src/public_api.ts"],
+      "tableau-ui-angular/tab-group": ["./projects/component-library/tab-group/src/public_api.ts"],
+      "tableau-ui-angular/tree": ["./projects/component-library/tree/src/public_api.ts"],
+      "tableau-ui-angular/table": ["./projects/component-library/table/src/public_api.ts"],
+      "tableau-ui-angular/theme": ["./projects/component-library/theme/src/public_api.ts"],
+      "tableau-ui-angular/used-icons": ["./projects/component-library/used-icons/src/public_api.ts"],
+      "tableau-ui-angular/monaco": ["./projects/component-library/monaco/src/public_api.ts"],
+      "tableau-ui-angular/drawer": ["./projects/component-library/drawer/src/public_api.ts"],
+      "tableau-ui-angular/stepper": ["./projects/component-library/stepper/src/public_api.ts"],
+      "tableau-ui-angular/virtualize": ["./projects/component-library/virtualize/src/public_api.ts"],
+      "tableau-ui-angular/chip": ["./projects/component-library/chip/src/public_api.ts"],
+      "tableau-ui-angular/chip-control": ["./projects/component-library/chip-control/src/public_api.ts"]
     },
-    "angularCompilerOptions": {
-        "enableI18nLegacyMessageIdFormat": false,
-        "strictInjectionParameters": true,
-        "strictInputAccessModifiers": true,
-        "strictTemplates": true
-    }
+    "outDir": "./dist/out-tsc",
+    "strict": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "declaration": false,
+    "experimentalDecorators": true,
+    "moduleResolution": "bundler",
+    "importHelpers": true,
+    "target": "ES2022",
+    "module": "ES2022"
+  },
+  "angularCompilerOptions": {
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    "strictTemplates": true
+  }
 }
