@@ -34,6 +34,14 @@ updates:
         update-types: ['version-update:semver-major']
       - dependency-name: '@schematics/*'
         update-types: ['version-update:semver-major']
+      # ESLint's majors move with angular-eslint's, which targets one ESLint major at a time (ESLint 10 also dropped
+      # @eslint/js, which eslint.config.js imports).
+      - dependency-name: eslint
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@eslint/*'
+        update-types: ['version-update:semver-major']
+      - dependency-name: typescript-eslint
+        update-types: ['version-update:semver-major']
       # The Monaco component loads Monaco's AMD build, and the library's peer range is ^0.52.2. A minor or major update
       # would move the pin the tests run on outside that range (before 1.0, ^0.52.2 stops at 0.53), so it moves by hand,
       # with the peer range, in a PR of its own.
