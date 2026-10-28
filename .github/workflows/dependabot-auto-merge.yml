@@ -64,6 +64,11 @@ jobs:
           # A grouped PR's title only counts what moved; the line names each, with versions when Dependabot gave them.
           bumps=$(jq -r 'map(.dependencyName + (if (.prevVersion // "") != "" and (.newVersion // "") != ""
             then " " + .prevVersion + " to " + .newVersion else "" end)) | join(", ")' <<<"$UPDATED")
-          gh pr merge --auto --squash "$PR_URL" \
-            --subject "$PR_TITLE (#$PR_NUMBER)" \
-            --body "Bumps $bumps, a ${UPDATE_TYPE#version-update:semver-} update; the release notes are in #$PR_NUMBER."
+          subject="$PR_TITLE (#$PR_NUMBER)"
+          body="Bumps $bumps, a ${UPDATE_TYPE#version-update:semver-} update; the release notes are in #$PR_NUMBER."
+          # GitHub refuses to turn on auto-merge for a PR whose checks have all passed (a held draft marked ready, a
+          # re-run), so such a PR is merged at once, with the same message.
+          gh pr merge --auto --squash "$PR_URL" --subject "$subject" --body "$body" || {
+            [ "$(gh pr view "$PR_URL" --json mergeStateStatus -q .mergeStateStatus)" = CLEAN ] &&
+              gh pr merge --squash "$PR_URL" --subject "$subject" --body "$body"
+          }
