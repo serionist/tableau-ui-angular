@@ -38,7 +38,7 @@
     "@vitest/coverage-istanbul": "5.0.5",
     "angular-eslint": "22.6.0",
     "cpy-cli": "5.0.0",
-    "eslint": "9.29.0",
+    "eslint": "10.13.0",
     "monaco-editor": "0.52.2",
     "ng-packagr": "22.2.5",
     "playwright": "1.64.1",
