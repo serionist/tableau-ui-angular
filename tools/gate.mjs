@@ -1,13 +1,18 @@
 // The gate: the checks a change passes before it lands. People run it, the pre-push hook runs its quick lane, and CI
 // is to run its full lane.
 //
-// Usage: npm run gate -- quick|full [--base <ref>]
+// Usage: npm run gate -- quick|full [--base <ref> | --range <from>..<to> ...]
 //
 // quick: package-lock.json in sync with every package.json, ESLint (ng lint), stylelint, Prettier, AGENTS.md within
-//   150 lines, each skill's name and description, no tool attribution in the messages of <base>..HEAD, and gitleaks
-//   on those commits when gitleaks is on PATH (a line says when it was skipped). <base> is origin/main.
+//   150 lines, each skill's name and description, no tool attribution in the commits' messages, and gitleaks on those
+//   commits when gitleaks is on PATH (a line says when it was skipped; GATE_REQUIRE_GITLEAKS=1, as CI sets it, makes
+//   that a failure).
 // full: quick, then the library build, the hooks' tests, the component tests in Chromium and Firefox
 //   (ng test --watch=false), and the demo app's build with its prerender.
+//
+// The commits are <base>..HEAD, origin/main..HEAD by default, and the working tree is checked as it is. The pre-push
+// hook passes each pushed range with --range instead; then the working tree's checks run only when every range ends at
+// HEAD and the tree is clean, and are skipped, with the reason, when it is not what is pushed.
 //
 // Checks still to come, each with the work it guards: a coverage floor that never falls below origin/main's, with the
 // fixes' tests; the public API file compared with the built typings, with the API file; the docs site's prerender,
@@ -147,45 +152,77 @@ function checkSkills() {
   return problems.length ? fail(problems[0]) : pass(`${folders.length} skills`);
 }
 
+// The scope: the commit ranges whose commits are checked, and whether the working tree stands for them
+
+/** Each `<from>..<to>` resolved to commit ids, or the problem that stopped it. */
+function resolveRanges(specs) {
+  const ranges = [];
+  for (const spec of specs) {
+    const at = spec.indexOf('..');
+    if (at < 1 || spec[at + 2] === '.') return { problem: `${spec} is not a <from>..<to> range` };
+    const ends = [spec.slice(0, at), spec.slice(at + 2) || 'HEAD'].map(ref => git('rev-parse', '--verify', '--quiet', `${ref}^{commit}`));
+    if (!ends.every(end => end.ok && end.output)) return { problem: `can't resolve ${spec}: git fetch origin, then run it again` };
+    ranges.push({ range: `${ends[0].output}..${ends[1].output}`, to: ends[1].output });
+  }
+  return { ranges };
+}
+
+/** Why the working tree can't stand for what the ranges hold, or null when it can: each ends at HEAD, and nothing is changed or untracked. */
+function treeSkipReason(ranges) {
+  const head = git('rev-parse', '--verify', '--quiet', 'HEAD^{commit}').output;
+  const other = ranges.find(({ to }) => to !== head);
+  if (other) return `the push sends ${other.to.slice(0, 10)}, not HEAD`;
+  if (git('status', '--porcelain').output) return 'the working tree has changes the push does not send';
+  return null;
+}
+
 // The commits' checks
 
-function commitRange(base) {
-  const from = git('rev-parse', '--verify', '--quiet', `${base}^{commit}`);
-  const to = git('rev-parse', '--verify', '--quiet', 'HEAD^{commit}');
-  if (!from.ok || !to.ok) return { problem: `can't resolve ${base}..HEAD: git fetch origin, then run it again` };
-  return { range: `${from.output}..${to.output}`, shown: `${base}..HEAD` };
-}
-
-function checkAttribution(base) {
-  const { range, shown, problem } = commitRange(base);
+function checkAttribution({ ranges, problem, shown }) {
   if (problem) return fail(problem);
-  const log = git('log', '--format=%H%x00%B%x01', range);
-  if (!log.ok) return fail(`git log ${shown} failed`, log.output);
-  const commits = log.output
-    .split('\x01')
-    .map(record => record.trim())
-    .filter(Boolean)
-    .map(record => record.split('\x00'));
-  const found = commits.flatMap(([sha, message = '']) => attributionLines(message).map(line => `${sha.slice(0, 10)}: ${line}`));
+  const seen = new Set();
+  const found = [];
+  for (const { range } of ranges) {
+    const log = git('log', '--format=%H%x00%B%x01', range);
+    if (!log.ok) return fail(`git log ${range} failed`, log.output);
+    const commits = log.output
+      .split('\x01')
+      .map(record => record.trim())
+      .filter(Boolean)
+      .map(record => record.split('\x00'));
+    for (const [sha, message = ''] of commits) {
+      if (seen.has(sha)) continue;
+      seen.add(sha);
+      found.push(...attributionLines(message).map(line => `${sha.slice(0, 10)}: ${line}`));
+    }
+  }
   if (found.length) return fail(`tool attribution in ${found.length} line(s) of ${shown}`, `${found.join('\n')}\nReword each commit without it.`);
-  return pass(`${commits.length} commit(s) in ${shown}`);
+  return pass(`${seen.size} commit(s) in ${shown}`);
 }
 
-function checkGitleaks(base) {
-  if (run('gitleaks', ['version']).missing) return skip('gitleaks is not on PATH, so the branch was not scanned (https://github.com/gitleaks/gitleaks)');
+function checkGitleaks({ ranges, problem, shown }) {
+  if (run('gitleaks', ['version']).missing) {
+    // CI sets GATE_REQUIRE_GITLEAKS=1, so a runner without gitleaks fails instead of passing unscanned.
+    if (/^(?:1|true|yes)$/i.test(process.env.GATE_REQUIRE_GITLEAKS ?? '')) return fail('gitleaks is not on PATH, and GATE_REQUIRE_GITLEAKS=1 requires it');
+    return skip('gitleaks is not on PATH, so the commits were not scanned (https://github.com/gitleaks/gitleaks)');
+  }
   if (existsSync(join(ROOT, '.gitleaksignore'))) return fail('.gitleaksignore skips findings without a reason: allow each in .gitleaks.toml instead');
-  const { range, shown, problem } = commitRange(base);
   if (problem) return fail(problem);
-  const count = git('rev-list', '--count', range).output;
-  if (count === '0') return pass(`no commits in ${shown}`);
-  // A developer's git config can reshape the `git log -p` gitleaks reads (colour, textconv), and without
-  // --diff-merges a merge commit shows no diff at all.
-  const logOpts = `--no-color --no-textconv --diff-merges=first-parent ${range}`;
-  const done = run('gitleaks', ['git', '--config', '.gitleaks.toml', '--log-opts', logOpts, '--redact', '--no-banner', '--ignore-gitleaks-allow', '--exit-code', '1', '--verbose', '.']);
-  if (!done.ok) return fail(`leaks found in ${shown}, or the scan failed`, done.output);
-  // gitleaks exits 0 when its own git log fails: it logs ERR and scans nothing.
-  const error = lines(done.output).find(line => /(?:^|\s)ERR\s/.test(line));
-  return error ? fail(`gitleaks could not read the commits: ${error}`, done.output) : pass(`${count} commit(s) in ${shown}, no leaks`);
+  let total = 0;
+  for (const { range } of ranges) {
+    const count = Number(git('rev-list', '--count', range).output);
+    if (!count) continue;
+    total += count;
+    // A developer's git config can reshape the `git log -p` gitleaks reads (colour, textconv), and without
+    // --diff-merges a merge commit shows no diff at all.
+    const logOpts = `--no-color --no-textconv --diff-merges=first-parent ${range}`;
+    const done = run('gitleaks', ['git', '--config', '.gitleaks.toml', '--log-opts', logOpts, '--redact', '--no-banner', '--ignore-gitleaks-allow', '--exit-code', '1', '--verbose', '.']);
+    if (!done.ok) return fail(`leaks found in ${shown}, or the scan failed`, done.output);
+    // gitleaks exits 0 when its own git log fails: it logs ERR and scans nothing.
+    const error = lines(done.output).find(line => /(?:^|\s)ERR\s/.test(line));
+    if (error) return fail(`gitleaks could not read the commits: ${error}`, done.output);
+  }
+  return pass(total ? `${total} commit(s) in ${shown}, no leaks` : `no commits in ${shown}`);
 }
 
 // The full lane's checks
@@ -197,10 +234,13 @@ function checkLibraryBuild() {
 }
 
 function checkHookTests() {
-  const done = node('--test', 'tools/*.test.mjs');
-  // The spec reporter's summary on a terminal, TAP's through a pipe.
-  const count = /^(?:ℹ|#) pass (\d+)/m.exec(done.output)?.[1];
-  return done.ok ? pass(`${count ?? 'all'} tests pass`) : fail("the hooks' tests failed", done.output);
+  const done = node('--test', '--test-reporter=tap', 'tools/*.test.mjs');
+  if (!done.ok) return fail("the hooks' tests failed", done.output);
+  // A test file with no tests passes as one test named after the file, so only a test with a name of its own, neither
+  // skipped nor a todo, shows that a test ran.
+  const ran = [...done.output.matchAll(/^\s*ok \d+ - (.*)$/gm)].filter(([, name]) => !/\.test\.mjs$|#\s*(?:SKIP|TODO)\b/i.test(name.trim())).length;
+  const count = Number(/^# pass (\d+)/m.exec(done.output)?.[1] ?? 0);
+  return ran ? pass(`${count} tests pass`) : fail("no hooks' test ran: tools/*.test.mjs holds no test", done.output);
 }
 
 function checkTests() {
@@ -216,41 +256,62 @@ function checkDemoBuild() {
   return prerendered ? pass(prerendered) : fail('the build printed no "Prerendered N static routes" line, so it did not prerender', done.output);
 }
 
+// Each check, and whether it reads the working tree.
 const QUICK = [
-  ['lock', checkLock],
-  ['eslint', checkEslint],
-  ['stylelint', checkStylelint],
-  ['prettier', checkPrettier],
-  ['AGENTS.md', checkAgentsMd],
-  ['skills', checkSkills],
-  ['attribution', checkAttribution],
-  ['gitleaks', checkGitleaks],
+  ['lock', checkLock, true],
+  ['eslint', checkEslint, true],
+  ['stylelint', checkStylelint, true],
+  ['prettier', checkPrettier, true],
+  ['AGENTS.md', checkAgentsMd, true],
+  ['skills', checkSkills, true],
+  ['attribution', checkAttribution, false],
+  ['gitleaks', checkGitleaks, false],
 ];
 const FULL = [
-  ['library build', checkLibraryBuild],
-  ['hook tests', checkHookTests],
-  ['tests', checkTests],
-  ['demo build', checkDemoBuild],
+  ['library build', checkLibraryBuild, true],
+  ['hook tests', checkHookTests, true],
+  ['tests', checkTests, true],
+  ['demo build', checkDemoBuild, true],
 ];
+const USAGE = 'usage: npm run gate -- quick|full [--base <ref> | --range <from>..<to> ...]';
+
+/** The lane and its scope: one range from --base (origin/main by default) to HEAD, or the --range ones. */
+function parse(args) {
+  const [lane, ...rest] = args;
+  let base = null;
+  const specs = [];
+  for (let i = 0; i < rest.length; i += 2) {
+    if (!rest[i + 1] || !['--base', '--range'].includes(rest[i])) return null;
+    if (rest[i] === '--base') base = rest[i + 1];
+    else specs.push(rest[i + 1]);
+  }
+  if (!['quick', 'full'].includes(lane) || (base && specs.length)) return null;
+  const shown = specs.length ? specs : [`${base ?? 'origin/main'}..HEAD`];
+  const { ranges = [], problem } = resolveRanges(shown);
+  // With --base the tree is checked as it is, edits included; with --range, only when it is what the ranges end at.
+  const treeSkipped = specs.length && !problem ? treeSkipReason(ranges) : null;
+  // A full commit id, as the hook passes one, is shown as its first 10 characters.
+  return { lane, scope: { ranges, problem, treeSkipped, shown: shown.join(', ').replace(/\b([0-9a-f]{10})[0-9a-f]{30}\b/g, '$1') } };
+}
 
 function main(args) {
-  const [lane, ...rest] = args;
-  const base = rest[0] === '--base' && rest[1] ? rest[1] : 'origin/main';
-  const extra = rest[0] === '--base' ? rest.slice(2) : rest;
-  if (!['quick', 'full'].includes(lane) || extra.length) {
-    console.error('usage: npm run gate -- quick|full [--base <ref>]');
+  const parsed = parse(args);
+  if (!parsed) {
+    console.error(USAGE);
     return 2;
   }
+  const { lane, scope } = parsed;
   const checks = lane === 'full' ? [...QUICK, ...FULL] : QUICK;
   const width = Math.max(...checks.map(([name]) => name.length));
-  console.log(`gate ${lane}, commits ${base}..HEAD`);
+  console.log(`gate ${lane}, commits ${scope.shown}`);
+  if (scope.treeSkipped) console.log(`the working tree's checks are skipped: ${scope.treeSkipped}; run the gate on that commit to check them`);
   const results = [];
-  for (const [name, check] of checks) {
+  for (const [name, check, readsTree] of checks) {
     process.stdout.write(`  ${name.padEnd(width)}  `);
     const started = performance.now();
     let result;
     try {
-      result = check(base);
+      result = readsTree && scope.treeSkipped ? skip('the working tree is not what is checked') : check(scope);
     } catch (error) {
       result = fail(`${error.name}: ${error.message}`);
     }

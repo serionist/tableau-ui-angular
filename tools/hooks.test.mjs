@@ -1,5 +1,5 @@
 // The hooks' tests: each form of tool attribution is refused, clean messages are accepted, a real `git commit` runs
-// commit-msg through its .githooks/ shim. Run with `npm run test:tools`.
+// commit-msg through its .githooks/ shim, and pre-push checks what a push sends. Run with `npm run test:tools`.
 
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
@@ -12,6 +12,7 @@ import { attributionLines, messageText } from './attribution.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const CLEAN = 'Add the check script\n\nOne script runs every check, so the hooks and CI agree.\n\nRefs #24';
+const ZERO = '0'.repeat(40);
 
 const scratch = mkdtempSync(join(tmpdir(), 'hooks-test-'));
 after(() => rmSync(scratch, { recursive: true, force: true }));
@@ -118,5 +119,42 @@ describe('git runs commit-msg through .githooks/commit-msg', () => {
   test('and a clean commit is made', () => {
     const done = git('commit', '--allow-empty', '-m', CLEAN);
     assert.equal(done.status, 0, done.stderr);
+  });
+});
+
+describe('pre-push checks what the push sends', () => {
+  const { repo, git } = scratchRepo('push');
+  const sha = ref => git('rev-parse', ref).stdout.trim();
+  git('commit', '--quiet', '--allow-empty', '-m', 'Start');
+  const start = sha('HEAD');
+  git('update-ref', 'refs/remotes/origin/main', start);
+  git('commit', '--quiet', '--allow-empty', '-m', `${CLEAN}\n\nCo-Authored-By: Claude <noreply@anthropic.com>`);
+  const tainted = sha('HEAD');
+  git('checkout', '--quiet', '-b', 'clean', start);
+  git('commit', '--quiet', '--allow-empty', '-m', CLEAN);
+  const cleanSha = sha('HEAD');
+  // HEAD is neither pushed commit, so the gate checks only the commits and skips the working tree's checks.
+  git('checkout', '--quiet', '--detach', start);
+  const env = { ...process.env, GATE_REQUIRE_GITLEAKS: '' };
+  const prePush = input => spawnSync(process.execPath, [join(repo, 'tools', 'hooks.mjs'), 'pre-push'], { cwd: repo, input, encoding: 'utf8', env });
+
+  test('a push that only deletes exits 0', () => {
+    const done = prePush(`(delete) ${ZERO} refs/heads/old ${start}\n`);
+    assert.equal(done.status, 0, done.stdout + done.stderr);
+    assert.match(done.stderr, /only deletes/);
+  });
+
+  test('a pushed commit with attribution fails it with 1, though HEAD is clean', () => {
+    const done = prePush(`refs/heads/main ${tainted} refs/heads/main ${ZERO}\n`);
+    assert.equal(done.status, 1, done.stdout + done.stderr);
+    assert.match(done.stdout, /attribution\s+FAIL/);
+    assert.match(done.stdout, /working tree's checks are skipped: the push sends/);
+  });
+
+  test('a clean pushed range passes, from the remote commit', () => {
+    const done = prePush(`refs/heads/clean ${cleanSha} refs/heads/clean ${start}\n`);
+    assert.equal(done.status, 0, done.stdout + done.stderr);
+    assert.match(done.stdout, new RegExp(`commits ${start.slice(0, 10)}\\.\\.${cleanSha.slice(0, 10)}\\b`));
+    assert.match(done.stdout, /attribution\s+pass\s+\S+\s+1 commit/);
   });
 });
