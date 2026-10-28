@@ -44,8 +44,7 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
 
 ### Changed
 
-- The components no longer write debug logs to the console: the chip control, the menu button and the form group
-  pipe wrote them in production.
+- The menu button and the form group pipe no longer write debug logs to the console, which they did in production.
 - The package declares no `engines`, so Yarn classic installs it on every Node version Angular 22 supports.
 
 ## 0.1.129 (2026-10-28)
