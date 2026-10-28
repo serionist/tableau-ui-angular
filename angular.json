@@ -90,6 +90,8 @@
             "outputPath": "dist/test-app",
             "index": "projects/test-app/src/index.html",
             "browser": "projects/test-app/src/main.ts",
+            "server": "projects/test-app/src/main.server.ts",
+            "outputMode": "static",
             "tsConfig": "projects/test-app/tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
