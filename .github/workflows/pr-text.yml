@@ -1,0 +1,41 @@
+# The PR's title and description, checked whenever they change: a squash merge makes them the commit on main, so they
+# carry no tool attribution and name the issue (tools/pr-text.mjs). ci.yml's gate checks the branch's commits; this
+# checks the text, in a workflow of its own so that an edit re-runs only this. It runs on every push too, so the PR's
+# head commit always carries it. It and ci.yml's CI are the checks the ruleset on main requires.
+#
+# Dependabot's PRs are skipped: their descriptions quote other projects' release notes, which may say anything, and
+# the maintainer cuts their squash message to the title and the bump line. A job skipped by its `if` reports success,
+# so the required check still passes.
+#
+# It runs on pull_request, never pull_request_target: a fork's PR gets a read-only token and no secrets, and this
+# workflow asks for none. The title and description are read from GitHub's event file, never put into the script by
+# an expression, so no text in them can run as shell. The check is Node alone, with nothing to install.
+name: PR text
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-text-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  text:
+    name: PR text
+    if: github.event.pull_request.user.login != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - name: No tool attribution, and the issue named
+        run: node tools/pr-text.mjs "$GITHUB_EVENT_PATH"

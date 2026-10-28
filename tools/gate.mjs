@@ -1,5 +1,5 @@
 // The gate: the checks a change passes before it lands. People run it, the pre-push hook runs its quick lane, and CI
-// is to run its full lane.
+// (.github/workflows/ci.yml) runs its full lane.
 //
 // Usage: npm run gate -- quick|full [--base <ref> | --range <from>..<to> ...]
 //
@@ -37,7 +37,7 @@ const STYLELINT = 'node_modules/stylelint/bin/stylelint.mjs';
 const PRETTIER = 'node_modules/prettier/bin/prettier.cjs';
 // What Prettier checks: the code, and the config, docs and harness around it. It skips what .gitignore lists, and
 // writes package.json and package-lock.json the way npm does.
-const PRETTIER_SCOPE = ['projects', 'tools', '.claude', 'docs', '*.{json,js,mjs,md}', '.prettierrc'];
+const PRETTIER_SCOPE = ['projects', 'tools', '.claude', '.github', 'docs', '*.{json,js,mjs,md}', '.prettierrc'];
 const ANSI = /\x1b\[[0-9;]*m/g;
 
 function run(command, args, { shell = false } = {}) {

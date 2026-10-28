@@ -1,0 +1,55 @@
+# Dependabot version updates, weekly on Monday: the npm packages, the root's and the demo app's through the one
+# package-lock.json of the workspace, and the actions the workflows pin by SHA. Minor and patch updates come grouped,
+# one PR a week for each; a major comes on a PR of its own. Each is a PR like any other, and CI must pass. Security
+# updates come as soon as an advisory is published, whatever the schedule, once the maintainer turns them on in the
+# repository's settings; the cooldown holds version updates only.
+version: 2
+
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    # Wait a week after a version is published before proposing it, so a broken or compromised release is pulled first.
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 5
+    groups:
+      npm:
+        patterns: ['*']
+        update-types: [minor, patch]
+    # Angular's majors move by `ng update`, one major at a time with its migrations, and the demo app's packages by
+    # hand to the same versions (AGENTS.md, Traps); the tools pinned to Angular's major move with it.
+    ignore:
+      - dependency-name: '@angular/*'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@angular-eslint/*'
+        update-types: ['version-update:semver-major']
+      - dependency-name: angular-eslint
+        update-types: ['version-update:semver-major']
+      - dependency-name: ng-packagr
+        update-types: ['version-update:semver-major']
+      - dependency-name: typescript
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@schematics/*'
+        update-types: ['version-update:semver-major']
+      # The Monaco component loads Monaco's AMD build, and the library's peer range is ^0.52.2. A minor or major update
+      # would move the pin the tests run on outside that range (before 1.0, ^0.52.2 stops at 0.53), so it moves by hand,
+      # with the peer range, in a PR of its own.
+      - dependency-name: monaco-editor
+        update-types: ['version-update:semver-major', 'version-update:semver-minor']
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 5
+    # Dependabot moves the pinned SHA and the version comment beside it together.
+    groups:
+      actions:
+        patterns: ['*']
+        update-types: [minor, patch]

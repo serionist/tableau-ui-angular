@@ -1,0 +1,111 @@
+# The gate on every pull request and every push to main. Linux runs the gate's full lane on Node 22 and 24: lint,
+# format, the harness, no tool attribution and no secrets in the commits, the library build, the hooks' tests, the
+# component tests in Chromium and Firefox, and the demo app's build and prerender. Windows builds the package on Node
+# 24 and packs it, and checks the scripts apps run are in the tarball. The CI job needs every leg; it and pr-text.yml's
+# PR text are the checks the ruleset on main requires.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  # Superseded PR runs are cancelled. Each push to main has a group of its own and keeps its result: one group for
+  # main would cancel a waiting run when the next push came.
+  group: ci-${{ github.ref }}-${{ github.event_name == 'pull_request' && 'pr' || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  gate:
+    name: Gate (Linux, Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The attribution and secret checks read the commits since the base, which a shallow clone doesn't have.
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      - name: Install Chromium and Firefox for the tests
+        run: npx playwright install --with-deps chromium firefox
+      - name: Install gitleaks
+        run: |
+          curl -sSfL -o "$RUNNER_TEMP/gitleaks.tgz" \
+            https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz
+          echo "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  $RUNNER_TEMP/gitleaks.tgz" | sha256sum -c -
+          sudo tar -xzf "$RUNNER_TEMP/gitleaks.tgz" -C /usr/local/bin gitleaks
+      # The commits checked start after the PR's base, or after the commit main was on before the push. A PR's
+      # checkout is the merge of its branch into the base, so that merge is checked too. A push's before is all zeros
+      # for a new branch, and names a commit no longer in the history after a force push: then the head commit alone
+      # is checked, since a squash merge is one commit. GATE_REQUIRE_GITLEAKS makes a missing gitleaks a failure.
+      - name: The gate's full lane
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          GATE_REQUIRE_GITLEAKS: '1'
+        run: |
+          if ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then
+            echo "::notice::${BASE:-no base} is not in the history; checking HEAD~1..HEAD"
+            BASE=HEAD~1
+          fi
+          npm run gate -- full --base "$BASE"
+
+  windows:
+    name: Build and pack (Windows, Node 24)
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build:component-library
+      # Apps run these two from node_modules/tableau-ui-angular/ (AGENTS.md, One-way doors). Running them from the
+      # tarball, against local stubs, comes once they can pass.
+      - name: Pack the package, and check the shipped scripts are in it
+        shell: bash
+        working-directory: dist/component-library
+        run: |
+          set -euo pipefail
+          tarball=$(npm pack --json | node -p "JSON.parse(require('fs').readFileSync(0, 'utf8'))[0].filename")
+          files=$(tar -tzf "$tarball")
+          for file in styles/fonts/downloadFonts.js used-icons/scripts/update-icons.js; do
+            if ! grep -qxF "package/$file" <<<"$files"; then
+              echo "::error::$tarball has no $file"
+              exit 1
+            fi
+          done
+          echo "$tarball holds styles/fonts/downloadFonts.js and used-icons/scripts/update-icons.js"
+
+  # The check the ruleset on main requires: every leg passed. It runs whatever happened to them, so a failed or
+  # cancelled leg fails it: a skipped job would count as passed.
+  ci:
+    name: CI
+    needs: [gate, windows]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Every leg passed
+        env:
+          GATE: ${{ needs.gate.result }}
+          WINDOWS: ${{ needs.windows.result }}
+        run: |
+          echo "Gate (Linux): $GATE; Build and pack (Windows): $WINDOWS"
+          test "$GATE" = success && test "$WINDOWS" = success

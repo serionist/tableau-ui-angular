@@ -1,0 +1,79 @@
+# The demo app on GitHub Pages, at https://serionist.github.io/tableau-ui-angular/. It deploys once CI has passed on
+# a push to main, or on demand from main, and never publishes to npm.
+#
+# After CI it deploys only when the commit CI passed is still main's head: that is the commit checked out, so the site
+# never shows a commit CI hasn't passed. When main has moved on, the newer commit's own CI run deploys it.
+#
+# The icons are downloaded again for the build, which needs the network. No route prerenders yet, so the build's
+# shell, index.csr.html, is published as index.html, and as 404.html, which GitHub Pages serves for every other path,
+# so a deep link opens its page.
+name: Pages
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  # One deployment at a time, and one that started is never cancelled halfway. A newer run waiting in the group takes
+  # the place of an older one, so only a run that will deploy joins it, under the build job's own condition: a run that
+  # skips, such as CI finishing late on a commit main has moved past, gets a group of its own and can't take the place
+  # of the newer commit's deployment.
+  group: >-
+    ${{ github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' ||
+    (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' &&
+    github.event.workflow_run.head_sha == github.sha)) && 'pages' || format('pages-skip-{0}', github.run_id) }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build the demo app
+    # The same condition as the concurrency group's.
+    if: >-
+      github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_sha == github.sha))
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      # No dependency cache: what this job builds is published.
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - run: npm ci
+      - name: Build the library and the demo app, under /tableau-ui-angular/
+        run: npm run build:github-pages
+      - name: Publish the shell as index.html and 404.html
+        working-directory: dist/test-app/browser
+        run: |
+          test -f index.csr.html
+          # Once / prerenders, its index.html is the page, and only 404.html takes the shell.
+          [ -f index.html ] || cp index.csr.html index.html
+          cp index.csr.html 404.html
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: dist/test-app/browser
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write # the deployment
+      id-token: write # deploy-pages proves to Pages that the deployment comes from this workflow
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
