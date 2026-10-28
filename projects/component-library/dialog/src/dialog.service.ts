@@ -312,7 +312,8 @@ export class DialogService {
       headerElement.classList.add('dialog-header');
       const titleElement = document.createElement('div');
       titleElement.classList.add('dialog-title');
-      titleElement.innerHTML = args.header.title;
+      // the title is text: callers build it from their data, so it must never be parsed as HTML
+      titleElement.textContent = args.header.title;
       headerElement.appendChild(titleElement);
       if (args.header.allowClose) {
         const iconRef: ComponentRef<IconComponent> = createComponent(IconComponent, {

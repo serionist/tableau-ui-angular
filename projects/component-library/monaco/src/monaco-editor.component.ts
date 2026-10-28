@@ -143,14 +143,15 @@ export class MonacoEditorComponent implements AfterViewInit, OnDestroy, ControlV
   });
   // When the value changes, update the editor to use the new value if it's initialized
   readonly valueChanged = effect(() => {
-    const value = this.$value();
+    const value = this.$value() ?? '';
     const uri = untracked(() => this.$uri());
     if (this._editor) {
       // update or create the model with the new value
       const editorModel = monaco.editor.getModel(monaco.Uri.parse(uri));
       if (!editorModel) {
         console.warn('Can not update value. Monaco editor model not found for URI:', uri);
-      } else {
+      } else if (editorModel.getValue() !== value) {
+        // setValue clears the undo stack and moves the cursor to the start, so skip it for the text the user just typed
         editorModel.setValue(value);
       }
     }
@@ -245,8 +246,9 @@ export class MonacoEditorComponent implements AfterViewInit, OnDestroy, ControlV
   private onPropagateTouched: () => void = () => {};
   // #region ControlValueAccessor
 
-  writeValue(val: string): void {
-    this.$value.set(val);
+  writeValue(val: string | null): void {
+    // forms write null on reset, and Monaco throws on a null value
+    this.$value.set(val ?? '');
   }
   registerOnChange(fn: (val: string) => void): void {
     this.onPropagateChange = fn;
