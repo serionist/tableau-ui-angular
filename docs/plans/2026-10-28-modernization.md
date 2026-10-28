@@ -315,6 +315,9 @@ lock file's stale version (the quick lane catches it); zone mode in tests (the d
   refuter per area, F3 reproduced in Firefox 143); decisions D12 to D15 taken; PR #25 (S1) opened, both fixes shown
   in the demo before and after; plan review round 1; the squash message and secret scanning set; the token
   replaced and #25 merged (`1a1d792`); plan review round 2, approved.
+- 2026-10-28, S1: the old workflow pushed the 0.1.129 commit and tag but failed to publish with `EOTP` (the new token
+  didn't bypass 2FA); the workflow was turned off, the maintainer published 0.1.129 by hand from the `v0.1.129` tag
+  (shasum `06b9dec`), and the `NPM_TOKEN` secret was deleted. Left: the advisory.
 
 ## For the maintainers
 
