@@ -160,7 +160,6 @@ export class ChipControlComponent<TKey, TValue> implements ControlValueAccessor 
   private loadChain = Promise.resolve();
   private loadingKeys: TKey[] = [];
   private readonly keysChanged = effect(() => {
-    console.log('Keys changed:', this.$keys());
     const keys = this.$keys();
     const values = untracked(() => this.$values());
     const comparer = untracked(() => this.$keyComparer());
@@ -171,10 +170,8 @@ export class ChipControlComponent<TKey, TValue> implements ControlValueAccessor 
     const deleted: TKey[] = [];
     for (const val of values.entries()) {
       if (!keys.some(k => comparer(k, val[1].key))) {
-        console.log('Keys changed: Deleting value for key:', val[1].key);
         values.splice(val[0], 1);
         if (selectedChip !== undefined && comparer(selectedChip, val[1].key)) {
-          console.log('Keys changed: Unsetting highlighted chip for key:', val[1].key);
           this.$highlightedChip.set(undefined); // unset highlighted chip if it was deleted
         }
         deleted.push(val[1].key);
@@ -182,12 +179,7 @@ export class ChipControlComponent<TKey, TValue> implements ControlValueAccessor 
     }
     if (deleted.length > 0) {
       this.$values.set([...values]);
-      console.log(
-        'new values after deletion:',
-        untracked(() => this.$values()),
-      );
       for (const key of deleted) {
-        console.log('Keys changed: Emitting chipRemoved for key:', key);
         this.$chipRemoved.emit(key);
       }
     }
@@ -199,48 +191,38 @@ export class ChipControlComponent<TKey, TValue> implements ControlValueAccessor 
     const missingKeys = keys.filter(k => !values.some(vk => comparer(vk.key, k)));
 
     if (missingKeys.length === 0) {
-      console.log('Keys changed: No new keys');
       return;
     }
-    console.log('Keys changed: Loading values for missing keys:', missingKeys);
     this.loadChain = this.loadChain.then(async () => {
       const currentKeys = untracked(() => this.$keys());
       const currentValues = untracked(() => this.$values());
       const currentMissing = currentKeys.filter(k => !currentValues.some(vk => comparer(vk.key, k)));
 
       if (currentMissing.length === 0) {
-        console.log('Keys changed async: No missing keys after untracked check');
         return;
       }
       this.$isLoadingValues.set(true);
       this.loadingKeys = [...currentMissing];
-      console.log('Keys changed async: Loading started for missing keys:', currentMissing);
       const results = await untracked(() => this.$getValuesByKeys())(currentMissing);
       const newValues: ChipData<TKey, TValue>[] = [];
-      console.log('Keys changed async: Results loaded:', results);
       for (const result of results) {
         if (result.value === undefined || currentValues.some(vk => comparer(vk.key, result.key))) {
-          console.log(`Keys changed async: Skipping key ${result.key} with value ${result.value} - already exists or is undefined`);
           continue; // skip if value is undefined or already exists
         }
-        console.log(`Keys changed async: Adding key ${result.key} with value ${result.value}`);
         newValues.push(result);
       }
       this.$values.set([...currentValues, ...newValues]);
 
       for (const newValue of newValues) {
-        console.log('Keys changed async: Emitting chipAdded for key:', newValue.key);
         this.$chipAdded.emit(newValue);
       }
       this.$isLoadingValues.set(false);
       this.loadingKeys = [];
       this._onChange([...keys]);
-      console.log('Keys changed async: Values updated successfully');
     });
   });
 
   private readonly valuesChanged = effect(() => {
-    console.log('Values changed:', this.$values());
     const values = this.$values();
     const keys = untracked(() => this.$keys());
     const comparer = untracked(() => this.$keyComparer());
@@ -252,10 +234,8 @@ export class ChipControlComponent<TKey, TValue> implements ControlValueAccessor 
     const deletedKeys: TKey[] = [];
     for (const key of [...keys]) {
       if (!values.some(v => comparer(v.key, key)) && !this.loadingKeys.some(loadingKey => comparer(loadingKey, key))) {
-        console.log('Values changed: Deleting key:', key);
         keys.splice(keys.indexOf(key), 1);
         if (selectedChip !== undefined && comparer(selectedChip, key)) {
-          console.log('Values changed: Unsetting highlighted chip for key:', key);
           this.$highlightedChip.set(undefined); // unset highlighted chip if it was deleted
         }
         deletedKeys.push(key);
@@ -264,23 +244,16 @@ export class ChipControlComponent<TKey, TValue> implements ControlValueAccessor 
     if (deletedKeys.length > 0) {
       this.$keys.set([...keys]);
       for (const key of deletedKeys) {
-        console.log('Values changed: Emitting chipRemoved for key:', key);
         this.$chipRemoved.emit(key);
       }
     }
     // add all keys that are in the values but not in the keys
     const missing = values.filter(v => !keys.some(k => comparer(k, v.key)));
     if (missing.length === 0) {
-      console.log('Values changed: No new keys');
       return;
     }
-    console.log(
-      'Values changed: Adding new keys:',
-      missing.map(m => m.key),
-    );
     this.$keys.set([...keys, ...missing.map(m => m.key)]);
     for (const m of missing) {
-      console.log('Values changed: Emitting chipAdded for key:', m.key);
       this.$chipAdded.emit(m);
     }
   });

@@ -1,5 +1,4 @@
 @for (chip of $values(); track chip.key) {
-  <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
   <div class="chip" (mousedown)="chipClicked(chip.key)">
     <ng-container
       *ngTemplateOutlet="

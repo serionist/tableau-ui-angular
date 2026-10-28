@@ -22,10 +22,10 @@
       [style.minWidth]="'0px'"
       [style.height]="$expandButtonSize()"
       [style.color]="$expandButtonColor() || $expandButtonColorInherited()"
-      [tooltip]="$expanded() ? $safeNavigationMigration($expandButtonTooltip()?.collapse) : $safeNavigationMigration($expandButtonTooltip()?.expand)"
-      [tooltipPosition]="$safeNavigationMigration($expandButtonTooltip()?.position)"
-      [tooltipMargin]="$safeNavigationMigration($expandButtonTooltip()?.margin)"
-      [tooltipContext]="$safeNavigationMigration($expandButtonTooltip()?.context)"
+      [tooltip]="$expanded() ? $expandButtonTooltip()?.collapse : $expandButtonTooltip()?.expand"
+      [tooltipPosition]="$expandButtonTooltip()?.position"
+      [tooltipMargin]="$expandButtonTooltip()?.margin"
+      [tooltipContext]="$expandButtonTooltip()?.context"
       (click)="setExpanded(!$expanded())"
     >
       <tab-icon [value]="$expanded() ? 'keyboard_arrow_down' : 'keyboard_arrow_right'" />

@@ -12,6 +12,7 @@ export class FormErrorPipe implements PipeTransform {
   transform(meta: Meta | null | undefined, specificError: string, requireTouched: boolean = true, log = false): Primitive {
     const ret = meta?.getErrorValue(specificError, requireTouched);
     if (log) {
+      // eslint-disable-next-line no-console -- the caller asked for it with the pipe's log argument
       console.log('getFormError', meta, specificError, requireTouched, ret);
     }
     return ret === undefined ? null : ret;

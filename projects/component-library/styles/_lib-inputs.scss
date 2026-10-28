@@ -1,6 +1,7 @@
 :root {
-  --twc-input-focused-border-width: 1px;
+  --twc-input-focused-border-width: 1px; // stylelint-disable-line declaration-property-unit-disallowed-list
 }
+
 input[type='text'],
 input[type='password'],
 input[type='email'],
