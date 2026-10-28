@@ -122,7 +122,7 @@
       >
         <ng-container tabColumnDef="id" headerClass="custom-static-class" [showAutoHeaderTooltip]="false">
           <ng-template let-ctx [tabHeaderDef]="table">{{ ctx.columnDef.$id() }}</ng-template>
-          <ng-template let-ctx [tabCellDef]="table" [textClamping]="true">{{ `${ctx.row.id} ${ctx.meta.odd ? 'odd': 'even'}` }}</ng-template>
+          <ng-template let-ctx [tabCellDef]="table" [textClamping]="true">{{ `${ctx.row.id} ${ctx.meta.odd ? 'odd' : 'even'}` }}</ng-template>
         </ng-container>
         <ng-container tabColumnDef="name" minWidth="100px" maxWidth="200px" [headerClass]="customCalculatedClass">
           <ng-template let-ctx [tabHeaderDef]="table">Name</ng-template>
