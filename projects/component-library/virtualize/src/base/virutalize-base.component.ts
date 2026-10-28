@@ -65,7 +65,6 @@ export abstract class VirtualizeBaseComponent<TData> {
       getPxValue('borderBottomWidth', computedStyle.borderBottomWidth)
     );
   });
- 
 
   protected readonly dataManager: DataManager<TData>;
 

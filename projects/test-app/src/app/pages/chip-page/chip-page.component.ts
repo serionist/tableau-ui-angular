@@ -2,19 +2,29 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { TableauUiChipModule } from 'tableau-ui-angular/chip';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
 import { TableauUiIconModule } from 'tableau-ui-angular/icon';
-import { TableauUiChipControlModule } from "../../../../../component-library/chip-control/src/tableau-ui-chip-control.module";
+import { TableauUiChipControlModule } from '../../../../../component-library/chip-control/src/tableau-ui-chip-control.module';
 import { data } from '../table-page/table-data-sample';
 import { DataType } from '../table-page/table-page.component';
 import { TableauUiButtonModule } from 'tableau-ui-angular/button';
 import { ChipData } from 'tableau-ui-angular/chip-control';
-import { TableauUiButtonToggleModule } from "../../../../../component-library/button-toggle/src/tableau-ui-button-toggle.module";
+import { TableauUiButtonToggleModule } from '../../../../../component-library/button-toggle/src/tableau-ui-button-toggle.module';
 import { FB, TableauUiFormModule } from 'tableau-ui-angular/form';
 import { TableauUiFormFieldModule } from 'tableau-ui-angular/form-field';
 import { ReactiveFormsModule, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-chip-page',
-  imports: [TableauUiChipModule, TableauUiIconModule, TableauUiCommonModule, ReactiveFormsModule, TableauUiChipControlModule, TableauUiButtonModule, TableauUiButtonToggleModule, TableauUiFormModule, TableauUiFormFieldModule],
+  imports: [
+    TableauUiChipModule,
+    TableauUiIconModule,
+    TableauUiCommonModule,
+    ReactiveFormsModule,
+    TableauUiChipControlModule,
+    TableauUiButtonModule,
+    TableauUiButtonToggleModule,
+    TableauUiFormModule,
+    TableauUiFormFieldModule,
+  ],
   standalone: true,
   templateUrl: './chip-page.component.html',
   styleUrl: './chip-page.component.scss',
@@ -25,10 +35,10 @@ export class ChipPageComponent {
   readonly allData: DataType[] = data;
 
   readonly $selectedKeys = signal<number[]>([], {
-    equal: () => false
+    equal: () => false,
   });
   readonly $selectedValues = signal<ChipData<number, DataType>[]>([], {
-    equal: () => false
+    equal: () => false,
   });
 
   readonly $disabled = signal<boolean>(false);
@@ -36,8 +46,8 @@ export class ChipPageComponent {
   readonly getValuesByKeys = async (keys: number[]) => {
     await new Promise(resolve => setTimeout(resolve, 3000)); // Simulate async operation
 
-    return (keys.map(key => ({ key, value: this.allData.find(item => item.id === key)} as ChipData<number, DataType>)));
-  }
+    return keys.map(key => ({ key, value: this.allData.find(item => item.id === key) }) as ChipData<number, DataType>);
+  };
 
   private keyCounter = 1;
   addKeys() {
@@ -50,7 +60,7 @@ export class ChipPageComponent {
     this.$selectedValues.update(vals => {
       keys.forEach((key, index) => {
         if (values[index]) {
-          vals.push({ key, value: values[index]});
+          vals.push({ key, value: values[index] });
         }
       });
       return [...vals];
@@ -62,7 +72,6 @@ export class ChipPageComponent {
     if (keys.length > 0) {
       const randomKey = keys[Math.floor(Math.random() * keys.length)];
       this.$selectedKeys.update(currentKeys => currentKeys.filter(key => key !== randomKey));
-      
     }
   }
   removeRandomValue() {
@@ -76,10 +85,8 @@ export class ChipPageComponent {
       });
     }
   }
-  
-  readonly fc = this.fb.control<number[]>([], [
-    Validators.minLength(1), Validators.required, Validators.maxLength(5)
-  ]);
+
+  readonly fc = this.fb.control<number[]>([], [Validators.minLength(1), Validators.required, Validators.maxLength(5)]);
 
   addFormKeys() {
     const keys = [this.keyCounter++, this.keyCounter++];
@@ -110,6 +117,4 @@ export class ChipPageComponent {
       this.fc.setValue(keys.filter(key => key !== randomKey));
     }
   }
-
-
 }

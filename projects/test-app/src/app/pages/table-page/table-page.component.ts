@@ -12,7 +12,7 @@ import { TableauUiRadioGroupModule } from '../../../../../component-library/radi
 import { TableauUiButtonToggleModule } from 'tableau-ui-angular/button-toggle';
 import type { DataSort, FullDataRequest, IncrementalDataRequest } from 'tableau-ui-angular/virtualize';
 import { FullDataOptions, IncrementalDataOptions } from 'tableau-ui-angular/virtualize';
-import type { CellContext, HeaderContext} from 'tableau-ui-angular/table';
+import type { CellContext, HeaderContext } from 'tableau-ui-angular/table';
 import { MultiSelectionOptions, SingleSelectionOptions, TableauUiTableModule, TableComponent } from 'tableau-ui-angular/table';
 
 @Component({

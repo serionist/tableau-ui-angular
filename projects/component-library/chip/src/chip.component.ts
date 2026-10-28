@@ -11,10 +11,9 @@ import type { TooltipArgs } from 'tableau-ui-angular/tooltip';
   host: {
     '[class.selected]': '$selected()',
     '[class.disabled]': '$disabled()',
-  }
+  },
 })
 export class ChipComponent {
-
   /**
    * Show a remove icon in the chip.
    */
@@ -40,6 +39,4 @@ export class ChipComponent {
    * Event called when remove is clicked
    */
   readonly removed = output();
-
-
 }

@@ -69,11 +69,7 @@
           <button color="secondary" (click)="addFormValues()">Add 2 chips by value</button>
           <button color="secondary" (click)="removeRandomFormKey()">Remove a random chip by key</button>
           <button color="secondary" (click)="removeRandomFormValue()">Remove a random chip by value</button>
-          <tab-button-toggle
-            [style.width]="'15rem'"
-            [selectedValue]="(fc | formMeta | async)!.disabled"
-            (selectedValueChange)="$event ? fc.metaFn.disable() : fc.metaFn.enable()"
-          >
+          <tab-button-toggle [style.width]="'15rem'" [selectedValue]="(fc | formMeta | async)!.disabled" (selectedValueChange)="$event ? fc.metaFn.disable() : fc.metaFn.enable()">
             <tab-option text="Enabled" [value]="false" />
             <tab-option text="Disabled" [value]="true" />
           </tab-button-toggle>
@@ -85,10 +81,10 @@
               <tab-chip [allowRemove]="ctx.removable" [selected]="ctx.selected" [disabled]="ctx.disabled" (removed)="ctx.chipControl.remove(ctx.data.key)">{{ ctx.data.value.name }}</tab-chip>
             </ng-template>
           </tab-chip-control>
-          @if (fc | formMeta | async | formHasError:'required') {
+          @if (fc | formMeta | async | formHasError: 'required') {
             <tab-error>At least one chip is required</tab-error>
           }
-          @if (fc | formMeta | async | formHasError:'maxlength') {
+          @if (fc | formMeta | async | formHasError: 'maxlength') {
             <tab-error>Max 5 chips are allowed</tab-error>
           }
         </tab-form-field>

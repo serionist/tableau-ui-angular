@@ -2,7 +2,7 @@ import type { AfterViewInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, computed, effect, signal, viewChild } from '@angular/core';
 import { TableauUiButtonToggleModule } from 'tableau-ui-angular/button-toggle';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
-import type { DataSort, FullDataRequest, IncrementalDataRequest} from 'tableau-ui-angular/virtualize';
+import type { DataSort, FullDataRequest, IncrementalDataRequest } from 'tableau-ui-angular/virtualize';
 import { FullDataOptions, IncrementalDataOptions, TableauUiVirtualizeModule, VirtualizeComponent } from 'tableau-ui-angular/virtualize';
 import type { DataType } from '../table-page/table-page.component';
 import { data } from '../table-page/table-data-sample';
@@ -33,8 +33,8 @@ export class VirtualizePageComponent implements AfterViewInit {
     this.$mode();
     window.requestAnimationFrame(() => {
       void this.$virtualizeContainer().reload();
-    })
-  })
+    });
+  });
   readonly $showTop2Data = signal(false);
   private readonly baseDataRequest: (abort: AbortSignal, dataSort: readonly DataSort[]) => Promise<DataType[]> = async (abort: AbortSignal, dataSort: readonly DataSort[]) => {
     // Simulate a data load with a delay
