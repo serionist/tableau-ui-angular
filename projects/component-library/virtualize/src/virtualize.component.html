@@ -1,0 +1,69 @@
+<div class="container">
+  @let dmBlocks = dataManager.$blocks();
+  @if (dmBlocks.blocks.length === 0) {
+    @let _noDataTemplate = $noDataTemplate();
+    @if (_noDataTemplate === 'default') {
+      <ng-container [ngTemplateOutlet]="defaultNoData" />
+    } @else if (typeof _noDataTemplate === 'string') {
+      <ng-container *ngTemplateOutlet="defaultNoData; context: { $implicit: _noDataTemplate }" />
+    } @else {
+      <ng-container [ngTemplateOutlet]="_noDataTemplate" />
+    }
+
+    <ng-template #defaultNoData let-message>
+      <div class="no-data" [style.padding]="$dataRowCss().padding">
+        <span>{{ message ?? 'No data available' }}</span>
+      </div>
+    </ng-template>
+  } @else if ($loading() && $customLoaderTemplate()) {
+    <ng-container *ngTemplateOutlet="$customLoaderTemplate()?.templateRef" />
+  } @else {
+    <div class="virtualize pre" [style.height]="`${dmBlocks.prePixels}px`"></div>
+    @for (block of dmBlocks.blocks; track block.id) {
+      @for (r of block.$data(); track r.key) {
+        @let itemMetaContext =
+          {
+            index: $index,
+            first: $first,
+            last: $last,
+            even: $even,
+            odd: $odd,
+            count: $count,
+          };
+        @let loadingTemplate = $loadingTemplate();
+        @let errorTemplate = $errorTemplate();
+        @let itemTemplate = $itemTemplate();
+        <div
+          class="item"
+          [ngStyle]="$dataRowCss()"
+          [style.height]="$dataRowCss().height"
+          [style.maxHeight]="$dataRowCss().height"
+          [style.minHeight]="$dataRowCss().height"
+          [class.even]="(block.offset + $index) % 2 === 0"
+          [style.width]="`calc(100% - ${$dataRowHorizontalPaddingPx}px)`"
+        >
+          @switch (block.$status()) {
+            @case ('loading') {
+              @if (loadingTemplate) {
+                <ng-container [ngTemplateOutlet]="loadingTemplate.templateRef" [ngTemplateOutletContext]="{ $implicit: itemMetaContext }" />
+              } @else {
+                <span class="status loader"></span>
+              }
+            }
+            @case ('error') {
+              @if (errorTemplate) {
+                <ng-container [ngTemplateOutlet]="errorTemplate.templateRef" [ngTemplateOutletContext]="{ $implicit: itemMetaContext }" />
+              } @else {
+                <span class="status error"></span>
+              }
+            }
+            @case ('success') {
+              <ng-container [ngTemplateOutlet]="itemTemplate.templateRef" [ngTemplateOutletContext]="{ $implicit: { item: r.data, meta: itemMetaContext } }" />
+            }
+          }
+        </div>
+      }
+    }
+    <div class="virtualize post" [style.height]="`${dmBlocks.postPixels}px`"></div>
+  }
+</div>

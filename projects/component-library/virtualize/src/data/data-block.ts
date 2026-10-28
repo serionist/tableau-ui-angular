@@ -1,10 +1,11 @@
 import type { Signal } from '@angular/core';
 import { computed, signal } from '@angular/core';
 import type { Primitive } from 'tableau-ui-angular/types';
+export type DataBlockStatus = 'canceled' | 'error' | 'loading' | 'success';
 
 export class DataBlock<TData> {
-  private readonly $_status = signal<'canceled' | 'error' | 'loading' | 'success'>('loading');
-  public get $status(): Signal<'canceled' | 'error' | 'loading' | 'success'> {
+  private readonly $_status = signal<DataBlockStatus>('loading');
+  public get $status(): Signal<DataBlockStatus> {
     return this.$_status;
   }
   private readonly $response = signal<{ key: Primitive; data: TData }[]>([]);

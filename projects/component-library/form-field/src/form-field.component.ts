@@ -16,7 +16,8 @@ import { generateRandomString } from 'tableau-ui-angular/utils';
   },
 })
 export class FormFieldComponent implements AfterContentInit, AfterViewInit, OnDestroy {
-  private readonly inputContainerSelector = 'input,textarea,tab-single-select,tab-multi-select,tab-list-single-select,tab-list-multi-select';
+  // custom components go before input and textarea so they are found first (some of them have a nested input)
+  private readonly inputContainerSelector = 'tab-chip-control,tab-single-select,tab-multi-select,tab-list-single-select,tab-list-multi-select,input,textarea';
   protected readonly id = generateRandomString(16);
   readonly $style = input<string>(undefined, {
     alias: 'style',

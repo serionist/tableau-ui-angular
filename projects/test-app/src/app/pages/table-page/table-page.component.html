@@ -35,16 +35,18 @@
             />
           </tab-button-toggle>
           <div class="options">
-            <button color="primary" (click)="reset(true, false)">Reset and show data</button>
-            <button color="primary" (click)="reset(false, false)">Reset and show no data</button>
-            <button color="primary" (click)="reset(true, true)">
-              Reset and throw error
+            <button color="primary" (click)="reset(true, false, false)">Show data</button>
+            <button color="primary" (click)="reset(false, false, false)">Show no data</button>
+            <button color="primary" (click)="reset(true, false, true)">Show 2 rows</button>
+            <button color="primary" (click)="reset(true, true, false)">
+              Throw error
               @if ($dataMode() === 'incremental') {
                 on any block load after 20 offset
               } @else {
                 on data load
               }
             </button>
+            
           </div>
         </div>
       </tab-expansion-panel>

@@ -1,4 +1,4 @@
-import type { DataSort } from '../sorting/data-sort';
+import type { DataSort } from './data-sort';
 
 export interface FullDataRequest {
   readonly sort: readonly DataSort[];

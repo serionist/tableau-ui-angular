@@ -1,6 +1,6 @@
 import type { PipeTransform } from '@angular/core';
 import { Pipe } from '@angular/core';
-import type { DataSort } from './data-sort';
+import type { DataSort } from 'tableau-ui-angular/virtualize';
 @Pipe({
   name: 'sortInfo',
   standalone: false,

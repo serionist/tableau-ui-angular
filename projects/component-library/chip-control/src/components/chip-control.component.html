@@ -1,0 +1,36 @@
+@for (chip of $values(); track chip.key) {
+  <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
+  <div class="chip" (mousedown)="chipClicked(chip.key)">
+    <ng-container
+      *ngTemplateOutlet="
+        $chipTemplate().templateRef;
+        context: {
+          $implicit: {
+            data: chip,
+            chipControl: self,
+            selected: $highlightedChip() === chip.key && !$disabled(),
+            disabled: $disabled(),
+            removable: !$disabled(),
+          },
+        }
+      "
+    />
+  </div>
+}
+@if ($isLoadingValues()) {
+  <tab-loading-gif width="1.2rem" height="1.2rem" />
+}
+
+<input
+  #inputControl
+  tabindex="0"
+  name="chip-search"
+  autocomplete="off"
+  type="chip-search"
+  class="search"
+  [disabled]="$disabled()"
+  (focus)="$focused.set(true)"
+  (blur)="$focused.set(false)"
+  (keydown)="inputKeydown($event)"
+  (click)="$searchClicked.emit($event)"
+/>

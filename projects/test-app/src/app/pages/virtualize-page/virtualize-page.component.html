@@ -1,0 +1,76 @@
+<!-- eslint-disable  @angular-eslint/template/no-inline-styles -->
+<div class="page">
+  <div class="title">
+    <h1>Virtualization</h1>
+    <div class="text-light text-large">
+      Virtualization is a technique used to improve performance by rendering only the visible items in a list or grid. This is particularly useful for large datasets where rendering all items at once
+      can lead to performance issues.
+      <br />
+      The Tableau UI library provides a <code>tableau-ui-angular/virtualize</code> entry point that contains classes related to virtualization
+    </div>
+  </div>
+  <tab-separator />
+  <div class="content">
+    <div class="section">
+      <h3>Custom Virtualization</h3>
+
+      <p>
+        A custom <code>VirtualizeBaseComponent</code> abstract class is provided to build your own virtualization mechanism.<br />
+        It contains inputs related to data row height and a DataManager class which can be used to load windowed data based on the scroll position.
+      </p>
+    </div>
+    <div class="section">
+      <h3>Virtualize Component</h3>
+      <p>
+        A basic <code>VirtualizeComponent</code> is also provided.<br />
+        To use the component, import <code>TableauUiChipModule</code>
+      </p>
+      <h4>Example</h4>
+      <div class="example">
+        <tab-expansion-panel>
+          <tab-expansion-panel-title>Data Load options</tab-expansion-panel-title>
+          <div class="options-container">
+            <tab-button-toggle [(selectedValue)]="$dataMode">
+              <tab-option text="Incremental Data Mode" value="incremental" hint="Data is loaded on-demand as the user scrolls. HTML rendering is virtualized." />
+              <tab-option
+                text="Full Data Mode"
+                value="full"
+                hint="Data is loaded entirely in the background. HTML rendering is still virtualized. Required when SelectAll option is needed for MultiSelect."
+              />
+            </tab-button-toggle>
+            <div class="options">
+              <button color="primary" (click)="reset(true, false, false)">Show data</button>
+              <button color="primary" (click)="reset(false, false, false)">Show no data</button>
+              <button color="primary" (click)="reset(true, false, true)">Show 2 rows</button>
+              <button color="primary" (click)="reset(true, true, false)">
+                Throw error
+                @if ($dataMode() === 'incremental') {
+                  on any block load after 20 offset
+                } @else {
+                  on data load
+                }
+              </button>
+            </div>
+          </div>
+        </tab-expansion-panel>
+        <tab-checkbox [(value)]="$customNoDataTemplate">CustomNoDataTemplate</tab-checkbox>
+        <tab-radio-group [(value)]="$mode">
+          <tab-option value="fixed" text="Fixed mode" hint="The virtualize container will is of fixed height. The data window height (pixels) is calculated automatically" />
+          <tab-option value="expand" text="Dynamic mode" hint="The virtualize container has a height of 0, maxHeight of 300px. The data window height is provided manually. When loading, the height is 0" />
+        </tab-radio-group>
+        <ng-template #customnodatatemplate>Custom No Data Template</ng-template>
+        <tab-virtualize #virtualize [dataOptions]="$dataOptions()" [dataSort]="[{ property: 'id', direction: 'asc' }]" [noDataTemplate]="$customNoDataTemplate() ? customnodatatemplate : 'default'"
+        [style.height]="$mode() === 'fixed' ? '300px' : 'auto'" [style.maxHeight]="'300px'">
+          @if ($mode() === 'expand') {
+            <ng-template tabCustomLoader>
+              <tab-loading-gif />
+            </ng-template>  
+          }
+        <ng-template let-ctx [tabItemTemplate]="virtualize">
+            {{ ctx.item.name }}
+          </ng-template>
+        </tab-virtualize>
+      </div>
+    </div>
+  </div>
+</div>

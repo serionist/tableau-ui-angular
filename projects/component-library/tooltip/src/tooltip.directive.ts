@@ -157,7 +157,7 @@ export class TooltipDirective<T> implements OnDestroy {
     if (this.tooltipDialogRef || args?.template === undefined || args?.template === null) {
       return;
     }
-    const marginWithUnit = /^\d+$/.test(args.margin ?? '0.5rem') ? `${args.margin}px` : args.margin;
+    const marginWithUnit = /^\d+$/.test(args.margin ?? '0.5rem') ? `${args.margin}px` : (args.margin ?? '0px');
     const calculateTop = (pos: 'bottom' | 'left' | 'right' | 'top', actualWidth: number, actualHeight: number, insertAfterElementRect: DOMRect, recalculateCounter = 0) => {
       switch (pos) {
         case 'left':

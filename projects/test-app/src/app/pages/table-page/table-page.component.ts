@@ -1,8 +1,7 @@
 import type { AfterViewInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, computed, signal, viewChild } from '@angular/core';
 import { data } from './table-data-sample';
-import type { CellContext, DataSort, FullDataRequest, HeaderContext, IncrementalDataRequest } from 'tableau-ui-angular/table';
-import { FullDataOptions, IncrementalDataOptions, MultiSelectionOptions, SingleSelectionOptions, TableauUiTableModule, TableComponent } from 'tableau-ui-angular/table';
+
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
 import { TableauUiCheckboxModule } from 'tableau-ui-angular/checkbox';
 import { CommonModule } from '@angular/common';
@@ -11,6 +10,10 @@ import { TableauUiExpansionPanelModule } from '../../../../../component-library/
 import { TableauUiTabgroupModule } from '../../../../../component-library/tab-group/src/tableau-ui-tab-group.module';
 import { TableauUiRadioGroupModule } from '../../../../../component-library/radio-group/src/tableau-ui-radio-group.module';
 import { TableauUiButtonToggleModule } from 'tableau-ui-angular/button-toggle';
+import type { DataSort, FullDataRequest, IncrementalDataRequest } from 'tableau-ui-angular/virtualize';
+import { FullDataOptions, IncrementalDataOptions } from 'tableau-ui-angular/virtualize';
+import type { CellContext, HeaderContext} from 'tableau-ui-angular/table';
+import { MultiSelectionOptions, SingleSelectionOptions, TableauUiTableModule, TableComponent } from 'tableau-ui-angular/table';
 
 @Component({
   selector: 'app-table-page',
@@ -34,6 +37,7 @@ export class TablePageComponent implements AfterViewInit {
   readonly $dataMode = signal<'incremental' | 'full'>('incremental');
   readonly $showData = signal(true);
   readonly $errorOnData = signal(false);
+  readonly $showTop2Data = signal(false);
   private readonly baseDataRequest: (abort: AbortSignal, dataSort: readonly DataSort[]) => Promise<DataType[]> = async (abort: AbortSignal, dataSort: readonly DataSort[]) => {
     // Simulate a data load with a delay
     await new Promise(resolve => setTimeout(resolve, 1000));
@@ -44,8 +48,13 @@ export class TablePageComponent implements AfterViewInit {
       console.log('Data loading is disabled, returning empty response');
       return [];
     }
+    let d = [...data];
+    if (this.$showTop2Data()) {
+      console.log('Returning top 2 data items');
+      d = d.slice(0, 2);
+    }
 
-    const sortedData = [...data].sort((a, b) => {
+    const sortedData = [...d].sort((a, b) => {
       if (dataSort.length > 0) {
         for (const sort of dataSort) {
           const aValue = (a as Record<string, boolean | number | string>)[sort.property];
@@ -151,9 +160,10 @@ export class TablePageComponent implements AfterViewInit {
   readonly $selectedRows = signal<Map<number, DataType>>(new Map<number, DataType>());
 
   private readonly tabTable = viewChild.required<TableComponent<DataType>>(TableComponent);
-  reset(showData: boolean, errorOnData: boolean) {
+  reset(showData: boolean, errorOnData: boolean, top2Data: boolean) {
     this.$showData.set(showData);
     this.$errorOnData.set(errorOnData);
+    this.$showTop2Data.set(top2Data);
     void this.tabTable().reset();
   }
   customCalculatedClass(ctx: HeaderContext<DataType>): string | undefined {

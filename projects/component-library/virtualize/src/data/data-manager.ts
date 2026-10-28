@@ -1,6 +1,6 @@
 import type { ChangeDetectorRef, Signal } from '@angular/core';
 import { signal } from '@angular/core';
-import type { DataSort } from '../sorting/data-sort';
+import type { DataSort } from './data-sort';
 import { DataBlock } from './data-block';
 import type { Primitive } from 'tableau-ui-angular/types';
 import type { DataOptions } from './data-options';
@@ -43,6 +43,7 @@ export class DataManager<TData> {
     this.blockRowCount = Math.floor(dataWindowHeightPx / dataRowHeightPx);
     this.dataBlockHeightPx = dataRowHeightPx * this.blockRowCount;
     this._totalRowCount = 0;
+
 
     if (this._allDataInfo) {
       this._allDataInfo.abort.abort();
