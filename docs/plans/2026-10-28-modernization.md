@@ -364,6 +364,14 @@ lock file's stale version (the quick lane catches it); zone mode in tests (the d
   vulnerability reporting, Dependabot security updates). Dependabot's first batch handled: 13 merged, ESLint 10 (#37)
   closed and ESLint's majors held (#45). The maintainer asked for Dependabot's minor and patch updates to merge once CI
   passes: D16, `dependabot-auto-merge.yml`, and a daily CI run on `main` (#34).
+- 2026-10-29, S7a: F133 first, with a `label` input on `tab-icon`; the majors F4 to F13 and the minors on their lines
+  (F14, F15, F20 to F22, F25, F26, F29 to F31), each with a test run once against the unfixed code to see it fail;
+  F27 and F28 became #52 and #53. axe-core 4.14.0 in every touched component's spec, with no rule turned off. The
+  shell renders on the server, and `/checkbox`, `/radios` and `/form-fields` prerender, without hydration, which they
+  don't need. The full lane runs the library's tests with coverage, floor 25% in `tools/coverage.json`, and fails a
+  prerender that logs an error. `FB` is `providedIn: 'root'`. Departures: the nav bar's arrow scroll also measured on
+  the server, so it moved to `afterNextRender` here; hiding icons left the library's icon-only buttons nameless, so
+  their icons got labels in this PR.
 
 ## For the maintainers
 
