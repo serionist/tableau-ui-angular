@@ -143,8 +143,8 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
 - The menus: a closed submenu leaves the screen; a group no longer adds a subscription to its menu on each open; the
   arrows, Enter and Space no longer scroll the page under a menu; an item that is loading is disabled, for the mouse
   too; a menu whose items are still loading no longer throws; a menu closes when its owner is destroyed;
-  `autoOpenClose` can be turned off; and focus moving onto an item, as a screen reader may move it, no longer closes
-  the submenu that holds it.
+  `autoOpenClose` can be turned off; focus moving onto an item, as a screen reader may move it, no longer closes the
+  submenu that holds it; and items that arrive while the menu has focus get the highlight, on the first of them.
 - The select, the chip control, the date picker and the menus render on the server, so a page with them can be
   prerendered.
 

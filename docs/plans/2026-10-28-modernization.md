@@ -365,6 +365,7 @@ and review record hold the same calls with more detail.
 | S7b (#56) | The menu-button group measures nothing when it has no menus                                                                                                                                                                                                             | Its teardown measured, which threw on the server and stopped the prerender                                                                                                                                                                | `ngOnDestroy` only unsubscribing, which would leave the sizes of menus gone                                       | proposed |
 | S7b (#56) | Focus moving within a menu-button group is neither entering nor leaving it; `onFocusIn` and `onFocusOut` take the event, optionally                                                                                                                                     | A submenu item that got focus could not run itself                                                                                                                                                                                        | A required parameter, which breaks code that calls them                                                           | proposed |
 | S7b (#56) | A label with no id, or one around the input, names the autocomplete's listbox by its text                                                                                                                                                                               | A listbox needs a name, and the label's text is the input's                                                                                                                                                                               | Giving the label an id, which changes the app's DOM                                                               | proposed |
+| S7b (#56) | Menu items that arrive while the menu has focus get the highlight focus gives, on the first of them                                                                                                                                                                     | Items that resolved after the group had focused itself rebuilt the menu without a highlight, so the keys started one item off; CI's Firefox on Linux hit it                                                                               | Waiting in the tests only                                                                                         | proposed |
 
 ## Progress log
 
@@ -451,7 +452,8 @@ and review record hold the same calls with more detail.
   closes around a search box; dropdowns and menus follow scrolling, through the dialog service; a standalone
   menu-button group no longer measures on teardown, which stopped the prerender; a focused submenu item runs itself;
   a label with no id names the autocomplete's listbox; F44's release of a removed input is pinned; two CHANGELOG lines.
-  The six improvements taken; the floor rose to 46%. No second round.
+  The six improvements taken; the floor rose to 46%. CI's Firefox on Linux then showed menu items that resolved
+  after the group focused itself losing their highlight; they now get it. No second round.
 
 ## For the maintainers
 

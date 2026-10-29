@@ -149,6 +149,10 @@ export class MenuButtonGroupComponent implements OnDestroy {
     }
     this.destroyGroupsUntil();
     void this.addMenuGroup();
+    // items that arrive while the menu has focus, as when they load, get the highlight focus gives
+    if (this.document.activeElement === this.nativeElement.nativeElement) {
+      this.highlightFirst();
+    }
   }
 
   ngOnDestroy(): void {
@@ -333,6 +337,9 @@ export class MenuButtonGroupComponent implements OnDestroy {
     if (this.within(event)) {
       return;
     }
+    this.highlightFirst();
+  }
+  private highlightFirst() {
     // the first group in the stack, which a menu whose items are still loading has not got yet
     const root = this.$menuGroupStack().at(0);
     if (root === undefined) {

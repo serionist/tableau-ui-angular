@@ -76,11 +76,13 @@ describe('MenuButtonGroupComponent', () => {
     const name = (button: Element | null | undefined) => button?.querySelector('.button-content')?.textContent.trim();
     const item = (text: string) => Array.from(document.querySelectorAll<HTMLElement>('.menu-button')).find(button => name(button) === text)!;
     const active = () => name(document.getElementById(group()?.getAttribute('aria-activedescendant') ?? ''));
-    const open = async () => {
+    // opens the menu, and waits for focus, and for the highlight focus gives the first item when there is one
+    const open = async (first?: string) => {
       trigger.click();
       await fixture.whenStable();
       await vi.waitFor(() => {
         expect(document.activeElement).toBe(group());
+        expect(active()).toBe(first);
       });
     };
     return { fixture, host, trigger, group, groups, item, active, open, component: fixture.componentInstance };
@@ -97,7 +99,7 @@ describe('MenuButtonGroupComponent', () => {
     expect(trigger.getAttribute('aria-haspopup')).toBe('menu');
     expect(trigger.getAttribute('aria-expanded')).toBe('false');
 
-    await open();
+    await open('New');
 
     expect(trigger.getAttribute('aria-expanded')).toBe('true');
     expect(group()!.getAttribute('role')).toBe('menu');
@@ -133,7 +135,7 @@ describe('MenuButtonGroupComponent', () => {
   // F40: the stack was spliced in place, so the pure pipe kept a closed submenu on screen
   it('takes a closed submenu off the screen', async () => {
     const { fixture, groups, item, active, open } = await render(FileMenuComponent);
-    await open();
+    await open('New');
     await userEvent.keyboard('{ArrowUp}');
     await userEvent.keyboard('{ArrowRight}');
     await fixture.whenStable();
@@ -153,13 +155,13 @@ describe('MenuButtonGroupComponent', () => {
     const updates = vi.spyOn(MenuButtonGroupComponent.prototype, 'updateSizes');
     try {
       const { fixture, open } = await render(FileMenuComponent);
-      await open();
+      await open('New');
       const first = updates.mock.contexts[0];
       await userEvent.keyboard('{Escape}');
       await fixture.whenStable();
 
       updates.mockClear();
-      await open();
+      await open('New');
 
       expect(updates.mock.contexts.length).toBeGreaterThan(0);
       expect(updates.mock.contexts).not.toContain(first);
@@ -171,7 +173,7 @@ describe('MenuButtonGroupComponent', () => {
   // F59: the keys the menu took still scrolled the page under it
   it('keeps the keys it handles from scrolling the page', async () => {
     const { group, open } = await render(FileMenuComponent);
-    await open();
+    await open('New');
     // whether the menu took the key, so the browser does nothing with it
     const taken = (key: string) => !group()!.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
 
@@ -183,7 +185,7 @@ describe('MenuButtonGroupComponent', () => {
   it('treats an item that is loading as disabled', async () => {
     const { fixture, item, open, component } = await render(FileMenuComponent);
     component.$saving.set(true);
-    await open();
+    await open('New');
 
     // from New past Locked and the loading Save to Export, whose submenu Enter opens
     await userEvent.keyboard('{ArrowDown}');
@@ -200,7 +202,7 @@ describe('MenuButtonGroupComponent', () => {
   // A screen reader may move focus onto an item itself; Enter then runs that item, not the one the menu highlights
   it('runs an item that has focus itself on Enter', async () => {
     const { fixture, item, open, component } = await render(FileMenuComponent);
-    await open();
+    await open('New');
 
     item('Save').focus();
     await userEvent.keyboard('{Enter}');
@@ -212,7 +214,7 @@ describe('MenuButtonGroupComponent', () => {
   // Round 1, B4: focus moving onto a submenu's item counted as leaving the menu, which closed the submenu under it
   it('runs a submenu item that has focus itself', async () => {
     const { fixture, item, active, open, component } = await render(FileMenuComponent);
-    await open();
+    await open('New');
     await userEvent.keyboard('{ArrowDown}');
     await userEvent.keyboard('{ArrowDown}');
     await userEvent.keyboard('{ArrowRight}');
@@ -231,7 +233,7 @@ describe('MenuButtonGroupComponent', () => {
   it('does not highlight a loading item under the mouse', async () => {
     const { fixture, item, active, open, component } = await render(FileMenuComponent);
     component.$saving.set(true);
-    await open();
+    await open('New');
 
     item('Save').dispatchEvent(new MouseEvent('mouseenter'));
     await fixture.whenStable();
@@ -248,11 +250,15 @@ describe('MenuButtonGroupComponent', () => {
     await fixture.whenStable();
     expect(group()!.getAttribute('aria-activedescendant')).toBeNull();
 
-    component.$items.set(['Report.twbx']);
+    // items that arrive while the menu has focus get the highlight focus gives
+    component.$items.set(['Report.twbx', 'Sales.twbx']);
     await fixture.whenStable();
+    await vi.waitFor(() => {
+      expect(active()).toBe('Report.twbx');
+    });
     await userEvent.keyboard('{ArrowDown}');
     await fixture.whenStable();
-    expect(active()).toBe('Report.twbx');
+    expect(active()).toBe('Sales.twbx');
   });
 
   // The server has no ResizeObserver and no layout: the group built and measured its menus after its view; and, round 1,
@@ -296,7 +302,7 @@ describe('MenuButtonGroupComponent', () => {
 
   it('passes axe with a submenu open', async () => {
     const { fixture, host, open } = await render(FileMenuComponent);
-    await open();
+    await open('New');
     await userEvent.keyboard('{ArrowUp}');
     await userEvent.keyboard('{ArrowRight}');
     await fixture.whenStable();
