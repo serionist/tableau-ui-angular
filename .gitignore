@@ -44,8 +44,6 @@ testem.log
 .DS_Store
 Thumbs.db
 
-*storybook.log
-
 # Claude Code's local state: machine-specific settings and keys, and the worktrees the skills make
 .claude/settings.local.json
 .claude/worktrees/

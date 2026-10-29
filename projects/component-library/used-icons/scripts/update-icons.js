@@ -1,16 +1,31 @@
 // An ES module: the published package is "type": "module", so Node would refuse CommonJS here.
 // createRequire keeps require.resolve for the consumer's own imports.
+// It downloads with Node's own fetch, and compiles the app's icon list with the app's own typescript.
 import { createRequire } from 'module';
 
 const require = createRequire(import.meta.url);
 const fs = require('fs');
 const path = require('path');
-const axios = require('axios');
-const ts = require('typescript');
+
+// Google Fonts' CSS API, or the one in TABLEAU_UI_ICONS_CSS_URL, such as a mirror's; each font's query is added to it
+const cssApiUrl = process.env.TABLEAU_UI_ICONS_CSS_URL || 'https://fonts.googleapis.com/css2';
+
+function loadTypeScript() {
+  try {
+    return require('typescript');
+  } catch (error) {
+    if (error.code !== 'MODULE_NOT_FOUND') {
+      throw error;
+    }
+    console.error('update-icons.js compiles the icon list with typescript, which an Angular app has: npm install --save-dev typescript');
+    process.exit(1);
+  }
+}
+const ts = loadTypeScript();
 
 // Generate Material Design URL based on the provided font options and icons
 function generateMaterialDesignUrl({ font, weights, grades, opticalSizes, fills, icons }) {
-  const baseUrl = 'https://fonts.googleapis.com/css2';
+  const baseUrl = cssApiUrl;
 
   // Helper function to format ranges
   const formatRange = values => {
@@ -56,13 +71,16 @@ function generateMaterialDesignUrl({ font, weights, grades, opticalSizes, fills,
 
 // Download a file from a URL
 async function downloadFile(url, outputPath) {
-  const response = await axios.get(url, {
-    responseType: 'arraybuffer',
+  const response = await fetch(url, {
     headers: {
+      // Google Fonts answers a browser's user agent with WOFF2
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
     },
   });
-  fs.writeFileSync(outputPath, response.data);
+  if (!response.ok) {
+    throw new Error(`${url} answered ${response.status} ${response.statusText}`);
+  }
+  fs.writeFileSync(outputPath, Buffer.from(await response.arrayBuffer()));
 }
 
 function loadTypeScriptFile(filePath) {

@@ -1,9 +1,10 @@
 # The gate on every pull request and every push to main. Linux runs the gate's full lane on Node 22 and 24: lint,
 # format, the harness, no tool attribution and no secrets in the commits, the library build, the hooks' tests, the
 # component tests in Chromium and Firefox, the library's line coverage against its floor, and the demo app's build and
-# prerender. Windows builds the package on Node 24 and packs it, and checks the scripts apps run are in the tarball. The CI job needs every leg; it and pr-text.yml's
-# PR text are the checks the ruleset on main requires. It also runs daily on main, which tests the Dependabot updates
-# that merged themselves: their merge, made with a workflow's token, starts no run of its own.
+# prerender. Windows builds the package on Node 24 and packs it, installs the tarball into an empty app and runs there
+# the two scripts apps run, against local stubs. The CI job needs every leg; it and pr-text.yml's PR text are the
+# checks the ruleset on main requires. It also runs daily on main, which tests the Dependabot updates that merged
+# themselves: their merge, made with a workflow's token, starts no run of its own.
 name: CI
 
 on:
@@ -81,9 +82,9 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build:component-library
-      # Apps run these two from node_modules/tableau-ui-angular/ (AGENTS.md, One-way doors). Running them from the
-      # tarball, against local stubs, comes once they can pass.
+      # Apps run these two from node_modules/tableau-ui-angular/ (AGENTS.md, One-way doors).
       - name: Pack the package, and check the shipped scripts are in it
+        id: pack
         shell: bash
         working-directory: dist/component-library
         run: |
@@ -97,6 +98,15 @@ jobs:
             fi
           done
           echo "$tarball holds styles/fonts/downloadFonts.js and used-icons/scripts/update-icons.js"
+          echo "tarball=$tarball" >> "$GITHUB_OUTPUT"
+      # The tarball goes into an empty app with typescript, as an Angular app has it, and both scripts run there:
+      # update-icons.js against an icon CSS stub, downloadFonts.js against an HTTPS font stub with a test CA. The
+      # checks read the files they write.
+      - name: Run the shipped scripts from the tarball, in an empty app, against local stubs
+        shell: bash
+        env:
+          TARBALL: dist/component-library/${{ steps.pack.outputs.tarball }}
+        run: node tools/shipped-scripts.mjs "$TARBALL"
 
   # The check the ruleset on main requires: every leg passed. It runs whatever happened to them, so a failed or
   # cancelled leg fails it: a skipped job would count as passed.
