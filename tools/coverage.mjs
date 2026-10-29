@@ -15,6 +15,19 @@ export function readFloor(text, where = FLOOR_FILE) {
   return Number.isInteger(lines) && lines >= 0 && lines <= 100 ? { floor: lines } : { problem: `${where} needs "lines", a whole percent from 0 to 100` };
 }
 
+// A comment that tells istanbul, c8 or V8 to skip code, which would take it out of what the floor measures
+const IGNORE_COMMENT = /\b(?:istanbul|c8|v8)\s+ignore\b/;
+
+/** Each `path:line` of `files`, `{ path, text }`, that holds a coverage ignore comment. */
+export function ignoreComments(files) {
+  return files.flatMap(({ path, text }) =>
+    text
+      .split(/\r?\n/)
+      .map((line, i) => (IGNORE_COMMENT.test(line) ? `${path}:${i + 1}` : null))
+      .filter(Boolean),
+  );
+}
+
 /**
  * Whether the measured line coverage, a percent, passes the floor: `{ ok, detail }`. It fails below the floor, and when
  * the floor is below the base's, since the floor only rises; with no floor at the base yet, nothing is compared.

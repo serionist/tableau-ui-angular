@@ -4,11 +4,11 @@
 // Usage: npm run gate -- quick|full [--base <ref> | --range <from>..<to> ...]
 //
 // quick: package-lock.json in sync with every package.json, ESLint (ng lint), stylelint, Prettier, AGENTS.md within
-//   150 lines, each skill's name and description, no tool attribution in the commits' messages, and gitleaks on those
-//   commits when gitleaks is on PATH (a line says when it was skipped; GATE_REQUIRE_GITLEAKS=1, as CI sets it, makes
-//   that a failure).
-// full: quick, then the library build, the hooks' tests, the component tests in Chromium and Firefox
-//   (ng test --watch=false, the library's with coverage), the library's line coverage against the floor in
+//   150 lines, each skill's name and description, no coverage ignore comment in the library, no tool attribution in the
+//   commits' messages, and gitleaks on those commits when gitleaks is on PATH (a line says when it was skipped;
+//   GATE_REQUIRE_GITLEAKS=1, as CI sets it, makes that a failure).
+// full: quick, then the library build, the hooks' tests, the tests of every angular.json project in Chromium and
+//   Firefox (ng test --watch=false, the library's with coverage), the library's line coverage against the floor in
 //   tools/coverage.json, and the demo app's build with its prerender, which must prerender a route and log no error.
 //
 // The coverage floor is a whole percent that only rises: the gate fails when the library's line coverage is below it,
@@ -30,7 +30,8 @@ import { existsSync, readdirSync, readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { attributionLines, toolCoAuthor } from './attribution.mjs';
-import { FLOOR_FILE, readFloor, verdict } from './coverage.mjs';
+import { prerenderVerdict, testRuns } from './angular.mjs';
+import { FLOOR_FILE, ignoreComments, readFloor, verdict } from './coverage.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const AGENTS_MAX_LINES = 150;
@@ -158,6 +159,18 @@ function checkSkills() {
   return problems.length ? fail(problems[0]) : pass(`${folders.length} skills`);
 }
 
+/** No comment under the library tells istanbul, c8 or V8 to skip code: that would take it out of what the floor measures. */
+function checkCoverageIgnores() {
+  const dir = join(ROOT, 'projects', 'component-library');
+  const files = readdirSync(dir, { recursive: true, encoding: 'utf8' })
+    .map(path => path.split('\\').join('/'))
+    .filter(path => /\.(?:ts|m?js|html)$/.test(path) && !path.split('/').includes('node_modules'))
+    .map(path => ({ path: `projects/component-library/${path}`, text: readFileSync(join(dir, path), 'utf8') }));
+  const found = ignoreComments(files);
+  if (found.length) return fail(`${found.length} coverage ignore comment(s): test the code instead`, found.join('\n'));
+  return pass(`${files.length} files under projects/component-library`);
+}
+
 // The scope: the commit ranges whose commits are checked, and whether the working tree stands for them
 
 /** Each `<from>..<to>` resolved to commit ids, or the problem that stopped it. */
@@ -255,7 +268,7 @@ function checkHookTests() {
 function checkTests() {
   // A summary left by an earlier run must never stand for this one
   rmSync(join(ROOT, 'coverage'), { recursive: true, force: true });
-  const runs = [node(NG, 'test', 'component-library', '--watch=false', '--coverage'), node(NG, 'test', 'test-app', '--watch=false')];
+  const runs = testRuns(JSON.parse(readFileSync(join(ROOT, 'angular.json'), 'utf8'))).map(args => node(NG, ...args));
   const output = runs.map(done => done.output).join('\n');
   const passed = [...output.matchAll(/^\s*Tests\s+(\d+) passed/gm)].reduce((sum, match) => sum + Number(match[1]), 0);
   return runs.every(done => done.ok) ? pass(`${passed} passed, in Chromium and Firefox`) : fail('ng test failed', output);
@@ -285,13 +298,9 @@ function checkCoverage({ ranges, problem }) {
 
 function checkDemoBuild() {
   const done = node(NG, 'build', 'test-app');
-  const prerendered = lines(done.output).find(line => /^Prerendered \d+ static routes?/.test(line));
   if (!done.ok) return fail('ng build test-app failed', done.output);
-  if (!prerendered) return fail('the build printed no "Prerendered N static routes" line, so it did not prerender', done.output);
-  if (/^Prerendered 0 /.test(prerendered)) return fail('the build prerendered no route: app.routes.server.ts lists the ones that render on the server', done.output);
-  // A page that throws while rendering on the server is still written, and the build only logs the error
-  const error = lines(done.output).find(line => /^ERROR\b/.test(line));
-  return error ? fail(`a page threw while prerendering: ${error}`, done.output) : pass(prerendered);
+  const { ok, detail } = prerenderVerdict(done.output);
+  return ok ? pass(detail) : fail(detail, done.output);
 }
 
 // Each check, and whether it reads the working tree.
@@ -302,6 +311,7 @@ const QUICK = [
   ['prettier', checkPrettier, true],
   ['AGENTS.md', checkAgentsMd, true],
   ['skills', checkSkills, true],
+  ['coverage ignores', checkCoverageIgnores, true],
   ['attribution', checkAttribution, false],
   ['gitleaks', checkGitleaks, false],
 ];

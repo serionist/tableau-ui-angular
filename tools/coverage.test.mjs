@@ -1,12 +1,13 @@
 // The coverage floor's tests: the floor file must hold a whole percent, coverage below the floor fails, and so does a
-// floor lowered below the base's, since it only rises. Run with `npm run test:tools`.
+// floor lowered below the base's, since it only rises; and a coverage ignore comment is found. Run with
+// `npm run test:tools`.
 
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { FLOOR_FILE, readFloor, verdict } from './coverage.mjs';
+import { FLOOR_FILE, ignoreComments, readFloor, verdict } from './coverage.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -32,6 +33,21 @@ describe('the floor file', () => {
 
   test("the repo's own is one", () => {
     assert.equal(typeof readFloor(readFileSync(join(ROOT, FLOOR_FILE), 'utf8')).floor, 'number');
+  });
+});
+
+describe('coverage ignore comments', () => {
+  test('are found, with their file and line', () => {
+    const files = [
+      { path: 'a.ts', text: 'const a = 1;\n/* istanbul ignore next */\nfoo();' },
+      { path: 'b.ts', text: '// c8 ignore start\nbar();\r\n/* v8 ignore next 3 */' },
+      { path: 'c.ts', text: 'const istanbul = 1; // an ignored test, not a comment for the tool' },
+    ];
+    assert.deepEqual(ignoreComments(files), ['a.ts:2', 'b.ts:1', 'b.ts:3']);
+  });
+
+  test('none in a clean file', () => {
+    assert.deepEqual(ignoreComments([{ path: 'a.ts', text: 'export const a = 1;\n' }]), []);
   });
 });
 
