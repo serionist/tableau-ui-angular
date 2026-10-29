@@ -22,5 +22,7 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'tree', renderMode: RenderMode.Prerender },
   { path: 'drawer', renderMode: RenderMode.Prerender },
   { path: 'scroller', renderMode: RenderMode.Prerender },
+  { path: 'table', renderMode: RenderMode.Prerender },
+  { path: 'virtualize', renderMode: RenderMode.Prerender },
   { path: '**', renderMode: RenderMode.Client },
 ];

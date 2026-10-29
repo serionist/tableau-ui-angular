@@ -1,5 +1,5 @@
 import type { AfterViewInit } from '@angular/core';
-import { ChangeDetectionStrategy, Component, computed, effect, signal, viewChild } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, Component, computed, effect, inject, Injector, signal, viewChild } from '@angular/core';
 import { TableauUiButtonToggleModule } from 'tableau-ui-angular/button-toggle';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
 import type { DataSort, FullDataRequest, IncrementalDataRequest } from 'tableau-ui-angular/virtualize';
@@ -29,11 +29,11 @@ export class VirtualizePageComponent implements AfterViewInit {
 
   readonly $mode = signal<'fixed' | 'expand'>('fixed');
 
+  private readonly injector = inject(Injector);
+  // the container measures its new height once it is drawn, which the server never does
   readonly modeChanged = effect(() => {
     this.$mode();
-    window.requestAnimationFrame(() => {
-      void this.$virtualizeContainer().reload();
-    });
+    afterNextRender(() => void this.$virtualizeContainer().reload(), { injector: this.injector });
   });
   readonly $showTop2Data = signal(false);
   private readonly baseDataRequest: (abort: AbortSignal, dataSort: readonly DataSort[]) => Promise<DataType[]> = async (abort: AbortSignal, dataSort: readonly DataSort[]) => {
