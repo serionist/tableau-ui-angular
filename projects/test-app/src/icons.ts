@@ -42,7 +42,6 @@ export class Icons extends UsedIcons {
     'table',
     'code',
     'side_navigation',
-    'steppers',
     'variables',
     'receipt',
   ];
