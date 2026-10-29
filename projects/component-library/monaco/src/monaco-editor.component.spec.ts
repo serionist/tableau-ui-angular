@@ -11,8 +11,12 @@ interface AmdRequire {
   (modules: string[], onLoad: () => void, onError?: (error: unknown) => void): void;
   config?: (config: { paths: Record<string, string> }) => void;
 }
-type MonacoWindow = Window & { monaco?: Monaco; require?: AmdRequire };
-const page = window as MonacoWindow;
+// The page's globals Monaco's AMD build defines; Node's types give require another type
+interface MonacoGlobals {
+  monaco?: Monaco;
+  require?: AmdRequire;
+}
+const page = window as unknown as MonacoGlobals;
 
 // Monaco's AMD build, which an app serves at monaco-edit/vs; the specs load it from node_modules themselves
 const MONACO_VS = '/node_modules/monaco-editor/min/vs';
