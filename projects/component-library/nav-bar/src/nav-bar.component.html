@@ -1,6 +1,7 @@
 <div class="menu-toggle-button">
   <button layout="icon" tooltipPosition="right" color="plain" [tooltip]="$expanded() ? 'Collapse menu' : 'Expand menu'" [attr.aria-expanded]="$expanded()" (click)="$expanded.set(!$expanded())">
-    <tab-icon [value]="$expanded() ? 'keyboard_arrow_left' : 'keyboard_arrow_right'" [label]="$expanded() ? 'Collapse menu' : 'Expand menu'" />
+    <!-- one name; aria-expanded tells whether the bar is open -->
+    <tab-icon label="Menu" [value]="$expanded() ? 'keyboard_arrow_left' : 'keyboard_arrow_right'" />
   </button>
 </div>
 

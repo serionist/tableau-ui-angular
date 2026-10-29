@@ -1,6 +1,7 @@
 import type { OnDestroy } from '@angular/core';
 import { ApplicationRef, ChangeDetectionStrategy, Component, inject, PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { TableauUiButtonModule } from 'tableau-ui-angular/button';
 import { axeViolations } from '../../testing/axe';
 import { movePointerAway } from '../../testing/pointer';
 import { SnackService } from './snack.service';
@@ -18,6 +19,15 @@ class SnackContentComponent implements OnDestroy {
     destroyed.push('SnackContentComponent');
   }
 }
+
+// A component snack with the library's own button
+@Component({
+  selector: 'tab-test-retry-snack',
+  imports: [TableauUiButtonModule],
+  template: `Not sent <button color="primary">Retry</button>`,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class RetrySnackComponent {}
 
 // A page that imports the snack module
 @Component({
@@ -114,6 +124,22 @@ describe('SnackService', () => {
     expect(closed).toHaveBeenCalledWith(true);
   });
 
+  // The action's reset set only the font's family, so Undo showed in the browser's small button size; and the reset
+  // reached every button in a snack, an app's own in a template or component snack included
+  it("draws its action in the snack's text, and leaves an app's buttons alone", async () => {
+    TestBed.inject(SnackService).openSnackWithAction('Deleted', 'Undo', () => undefined, 0);
+    TestBed.inject(SnackService).openSnackComponent(RetrySnackComponent, undefined, 0);
+    TestBed.inject(ApplicationRef).tick();
+
+    const undo = document.querySelector<HTMLButtonElement>('.tab-snacks .action')!;
+    const text = undo.closest<HTMLElement>('.text')!;
+    expect(getComputedStyle(undo).fontSize).toBe(getComputedStyle(text).fontSize);
+    expect(getComputedStyle(undo).borderTopStyle).toBe('none');
+    const retry = document.querySelector<HTMLButtonElement>('tab-test-retry-snack button')!;
+    expect(getComputedStyle(retry).borderTopStyle).toBe('solid');
+    expect(getComputedStyle(retry).borderTopWidth).toBe('1px');
+  });
+
   // F90: a snack closed after its time with no pause, so a user still reading it, or on its buttons, lost it
   it('waits while the pointer or focus is on it', async () => {
     const hovered = open('Saved', 300);
@@ -136,6 +162,8 @@ describe('SnackService', () => {
     close.focus();
     await wait(600);
     expect(focusedClosed).not.toHaveBeenCalled();
+    // the snack moved into its live region meanwhile, and focus came back with it
+    expect(document.activeElement).toBe(close);
     close.blur();
     await vi.waitFor(() => {
       expect(focusedClosed).toHaveBeenCalled();

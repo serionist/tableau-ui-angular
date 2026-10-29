@@ -55,12 +55,16 @@ describe('AccordionComponent', () => {
   it('says whether each panel is open on its toggle, and passes axe', async () => {
     const { host, panel, toggle } = await render();
     const button = panel('Billing').querySelector('button')!;
+    // named by its panel's title, the same open or closed, so a list of panels isn't three buttons called Expand
+    // the button's content is its icon, an image named by the title
+    const name = () => document.getElementById(button.querySelector('tab-icon')?.getAttribute('aria-labelledby') ?? '')?.textContent.trim();
     expect(button.getAttribute('aria-expanded')).toBe('false');
-    expect(button.querySelector('tab-icon')?.getAttribute('aria-label')).toBe('Expand');
+    expect(name()).toBe('Billing');
 
     await toggle('Billing');
 
     expect(button.getAttribute('aria-expanded')).toBe('true');
+    expect(name()).toBe('Billing');
     expect(panel('Billing').textContent).toContain('Billing details');
     expect(host.querySelector('tab-accordion')!.hasAttribute('role')).toBe(false);
     expect(await axeViolations(host)).toEqual([]);

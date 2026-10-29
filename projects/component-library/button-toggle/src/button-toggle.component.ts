@@ -66,6 +66,10 @@ export class ButtonToggleComponent<T extends Primitive> {
 
   @HostListener('keydown', ['$event'])
   onKeyDown(event: KeyboardEvent): void {
+    // a click focuses a disabled toggle, whose value the arrows must not change either
+    if (this.$disabled()) {
+      return;
+    }
     if (event.key === 'ArrowLeft') {
       const curIndex = this.$options().findIndex(opt => opt.$value() === this.$selectedValue());
       if (curIndex === -1) {

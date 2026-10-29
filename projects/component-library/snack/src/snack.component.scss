@@ -1,0 +1,25 @@
+// The snack's action and close are buttons drawn as text and as an icon. Only these two: a template or a component
+// snack may hold the app's own buttons
+.action,
+.close {
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  cursor: pointer;
+}
+
+.action {
+  color: var(--twc-color-link);
+}
+
+.close {
+  font-size: 1.5em;
+  line-height: 0;
+  margin-left: 0.25em;
+  color: var(--twc-color-border-dark);
+}
+
+.close:hover {
+  background-color: var(--twc-color-border-dark-disabled);
+}

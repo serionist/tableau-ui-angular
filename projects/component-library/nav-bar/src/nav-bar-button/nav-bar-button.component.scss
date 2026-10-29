@@ -1,5 +1,7 @@
 a,
 button {
+  // the box the collapsed text is placed in, so it stays inside the bar
+  position: relative;
   background-color: transparent;
   border: none;
   font: inherit;
@@ -66,9 +68,11 @@ button {
     overflow: hidden;
     white-space: nowrap;
 
-    // out of sight and out of the layout, still read
+    // out of sight and out of the layout, still read: a box of one pixel at the default size, clipped
     &.collapsed {
       position: absolute;
+      width: 0.0625rem;
+      height: 0.0625rem;
       clip-path: inset(50%);
     }
   }

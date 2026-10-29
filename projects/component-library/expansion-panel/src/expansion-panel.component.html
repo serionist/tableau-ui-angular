@@ -1,18 +1,21 @@
 <!-- eslint-disable-next-line @angular-eslint/template/interactive-supports-focus, @angular-eslint/template/click-events-have-key-events -->
 <div class="header" [class.disabled]="$disabled()" [class.no-hover]="$noHeaderHover()" (click)="onclick()">
   @if ($expanded() && $expandedHeader()) {
-    <div>
+    <div [id]="titleId">
       <ng-content select="tab-expansion-panel-title[expanded]" />
     </div>
   } @else if (!$expanded() && $collapsedHeader()) {
-    <div>
+    <div [id]="titleId">
       <ng-content select="tab-expansion-panel-title[collapsed]" />
     </div>
   } @else {
-    <div><ng-content select="tab-expansion-panel-title" /></div>
+    <div [id]="titleId"><ng-content select="tab-expansion-panel-title" /></div>
   }
+  <!-- Named by the panel's title, or Details without one, through its icon: an image named by the title is the
+       button's content, so the button keeps no label of its own that its icon's glyph would have to match.
+       aria-expanded tells whether it is open -->
   <button layout="icon" color="plain" [disabled]="$disabled()" [attr.aria-expanded]="$expanded()">
-    <tab-icon [value]="$expanded() ? 'keyboard_arrow_up' : 'keyboard_arrow_down'" [label]="$expanded() ? 'Collapse' : 'Expand'" />
+    <tab-icon label="Details" [value]="$expanded() ? 'keyboard_arrow_up' : 'keyboard_arrow_down'" [attr.aria-labelledby]="$title() ? titleId : null" />
   </button>
 </div>
 

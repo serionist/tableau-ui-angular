@@ -9,7 +9,7 @@ import { TableauUiNavBarModule } from './tableau-ui-nav-bar.module';
   imports: [TableauUiNavBarModule, TableauUiIconModule],
   template: `
     <tab-nav-bar [(expanded)]="$expanded">
-      <tab-nav-bar-button text="Home" link="/home" (click)="clicks.push('Home')">
+      <tab-nav-bar-button text="Home" link="/home" [isActive]="true" (click)="clicks.push('Home')">
         <tab-icon value="home" />
       </tab-nav-bar-button>
       <tab-nav-bar-button text="Help" (click)="clicks.push('Help')">
@@ -34,6 +34,27 @@ class NavHostComponent {
   readonly $expanded = signal(true);
   readonly $later = signal(false);
   readonly clicks: string[] = [];
+}
+
+// An app shell shorter than its nav bar's buttons, which the bar scrolls
+@Component({
+  imports: [TableauUiNavBarModule, TableauUiIconModule],
+  template: `
+    <div style="display: flex; height: 200px">
+      <tab-nav-bar [(expanded)]="$expanded">
+        @for (page of pages; track page) {
+          <tab-nav-bar-button [text]="page" [link]="'/' + page">
+            <tab-icon value="article" />
+          </tab-nav-bar-button>
+        }
+      </tab-nav-bar>
+    </div>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class ShortShellComponent {
+  readonly $expanded = signal(true);
+  readonly pages = Array.from({ length: 40 }, (_, i) => `page-${i + 1}`);
 }
 
 describe('NavBarComponent', () => {
@@ -114,5 +135,37 @@ describe('NavBarComponent', () => {
     expect(texts()).toEqual([]);
     expect(Array.from(host.querySelectorAll('tab-nav-bar-button span'), span => span.textContent.trim())).toEqual(['Home', 'Help', 'Admin', 'Settings']);
     expect(await axeViolations(host)).toEqual([]);
+  });
+
+  // The toggle keeps one name, and aria-expanded alone tells whether the bar is open; the active page's button says so
+  it('names its toggle once, and marks the current page', async () => {
+    const { fixture, item, toggle, component } = await render();
+    const name = () => toggle.querySelector('tab-icon')?.getAttribute('aria-label');
+    expect(name()).toBe('Menu');
+
+    component.$expanded.set(false);
+    await fixture.whenStable();
+
+    expect(name()).toBe('Menu');
+    expect(item('Home').getAttribute('aria-current')).toBe('page');
+    expect(['Help', 'Admin', 'Settings'].map(text => item(text).getAttribute('aria-current'))).toEqual([null, null, null]);
+  });
+
+  // The collapsed text was placed against the page, so the hidden texts of the buttons below a short shell made the
+  // page itself scroll, onto blank space
+  it('keeps the page the same height when it collapses in a short shell', async () => {
+    const fixture = TestBed.createComponent(ShortShellComponent);
+    fixture.autoDetectChanges();
+    await fixture.whenStable();
+    const expanded = document.documentElement.scrollHeight;
+
+    fixture.componentInstance.$expanded.set(false);
+    await fixture.whenStable();
+    await new Promise(resolve => {
+      requestAnimationFrame(resolve);
+    });
+
+    expect((fixture.nativeElement as HTMLElement).querySelectorAll('tab-nav-bar-button span.collapsed').length).toBe(40);
+    expect(document.documentElement.scrollHeight).toBe(expanded);
   });
 });

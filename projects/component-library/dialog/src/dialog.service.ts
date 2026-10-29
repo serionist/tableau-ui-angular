@@ -75,6 +75,11 @@ export class DialogService implements OnDestroy {
     return ref;
   }
 
+  /**
+   * Asks the user to accept or cancel, in a modal with `title` as its header, and resolves `true` when they accept.
+   * On the server, where no one can answer, it resolves `false` at once, so a guard or a resolver that awaits it doesn't
+   * hold the render.
+   */
   async openConfirmationMessageDialog(
     title: string,
     message: string,
@@ -84,6 +89,9 @@ export class DialogService implements OnDestroy {
     autofocus: 'accept' | 'cancel' | undefined,
     args?: IConfirmationDialogArgs,
   ): Promise<boolean> {
+    if (!this.isBrowser) {
+      return false;
+    }
     const modalArgs = {
       ...(args ?? {}),
       header: { title, allowClose: true },
@@ -105,6 +113,11 @@ export class DialogService implements OnDestroy {
     });
   }
 
+  /**
+   * Asks the user to accept or cancel, in a modal with `title` as its header and `template` as its content, and resolves `true` when they accept.
+   * On the server, where no one can answer, it resolves `false` at once, so a guard or a resolver that awaits it doesn't
+   * hold the render.
+   */
   async openConfirmationTemplateDialog<TContext>(
     title: string,
     template: TemplateRef<TContext>,
@@ -115,6 +128,9 @@ export class DialogService implements OnDestroy {
     autofocus: 'accept' | 'cancel' | undefined,
     args?: IConfirmationDialogArgs,
   ): Promise<boolean> {
+    if (!this.isBrowser) {
+      return false;
+    }
     const modalArgs = {
       ...(args ?? {}),
       header: { title, allowClose: true },
@@ -225,10 +241,17 @@ export class DialogService implements OnDestroy {
       if (resizeSubscription) {
         resizeSubscription.unsubscribe();
       }
-      this.appRef.detachView(componentView);
-      componentView.destroy();
+      // the application may be gone first, when the app is destroyed with the dialog open, and its views with it
+      if (!this.appRef.destroyed) {
+        this.appRef.detachView(componentView);
+      }
+      if (!componentView.destroyed) {
+        componentView.destroy();
+      }
       // the header's close icon is a view of its own, attached to the application
-      headerIcon?.destroy();
+      if (headerIcon && !headerIcon.hostView.destroyed) {
+        headerIcon.destroy();
+      }
       dialogElement.remove();
 
       const dialogIndex = this.dialogStack.findIndex(d => d.zIndex === zIndex);
@@ -273,8 +296,12 @@ export class DialogService implements OnDestroy {
 
   escapeSubscription: Subscription | null = null;
 
-  // An app destroyed with a dialog open, as a test's is, leaves no Escape listener on its document
+  // An app destroyed with dialogs open closes them, top first: their backdrops, DOM, observers and listeners go, and
+  // the page's tab order comes back
   ngOnDestroy(): void {
+    for (const { dialogRef } of [...this.dialogStack].reverse()) {
+      dialogRef.close();
+    }
     this.escapeSubscription?.unsubscribe();
     this.escapeSubscription = null;
   }

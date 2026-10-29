@@ -1,6 +1,6 @@
 import type { OnDestroy, OnInit, Signal } from '@angular/core';
 import { ChangeDetectionStrategy, Component, contentChild, inject, input, model } from '@angular/core';
-import { ExpansionPanelTitleCollapsedContentDirective, ExpansionPanelTitleExpandedContentDirective } from './expansion-panel-title.component';
+import { ExpansionPanelTitleCollapsedContentDirective, ExpansionPanelTitleComponent, ExpansionPanelTitleExpandedContentDirective } from './expansion-panel-title.component';
 import { AccordionComponent } from './accordion.component';
 import type { AccordionRegistry } from './accordion.registry';
 import { toObservable } from '@angular/core/rxjs-interop';
@@ -20,6 +20,8 @@ import { generateRandomString } from 'tableau-ui-angular/utils';
 })
 export class ExpansionPanelComponent implements OnInit, OnDestroy {
   readonly id = generateRandomString(16);
+  // the element that holds the title shown, which names the toggle
+  protected readonly titleId = `tab-expansion-panel-title-${this.id}`;
   /**
    * The expanded state of the panel.
    * @default false
@@ -44,6 +46,7 @@ export class ExpansionPanelComponent implements OnInit, OnDestroy {
 
   protected readonly $expandedHeader: Signal<ExpansionPanelTitleExpandedContentDirective | undefined> = contentChild(ExpansionPanelTitleExpandedContentDirective);
   protected readonly $collapsedHeader: Signal<ExpansionPanelTitleCollapsedContentDirective | undefined> = contentChild(ExpansionPanelTitleCollapsedContentDirective);
+  protected readonly $title: Signal<ExpansionPanelTitleComponent | undefined> = contentChild(ExpansionPanelTitleComponent);
 
   private readonly accordion = inject(AccordionComponent, {
     skipSelf: true,

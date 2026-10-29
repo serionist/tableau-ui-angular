@@ -30,6 +30,8 @@ import { TAB_SNACK_DATA_REF } from './data.ref';
       </div>
     </div>
   `,
+  // the action and close buttons; the rest below
+  styleUrl: './snack.component.scss',
   styles: `
     .snack-content {
       padding: 10px 16px 10px 8px;
@@ -67,18 +69,6 @@ import { TAB_SNACK_DATA_REF } from './data.ref';
     }
     .success .content div {
       border-color: rgb(147, 206, 147);
-    }
-    .action {
-      color: var(--twc-color-link);
-    }
-    .close {
-      font-size: 1.5em;
-      line-height: 0;
-      margin-left: 0.25em;
-      color: var(--twc-color-border-dark);
-    }
-    .close:hover {
-      background-color: var(--twc-color-border-dark-disabled);
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

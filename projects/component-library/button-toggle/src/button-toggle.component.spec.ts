@@ -68,6 +68,19 @@ describe('ButtonToggleComponent', () => {
     expect(component.$value()).toBe('right');
   });
 
+  // The arrows changed the value of a disabled toggle, which a click focuses
+  it('keeps the bound value on the arrows while disabled', async () => {
+    const { host, component, fixture } = await render(AlignmentComponent, alignment => {
+      alignment.$disabled.set(true);
+    });
+    host.querySelector<HTMLElement>('tab-button-toggle')!.focus();
+
+    await userEvent.keyboard('{ArrowRight}');
+    await fixture.whenStable();
+
+    expect(component.$value()).toBe('right');
+  });
+
   // F68: before its options were there, the toggle found no option for the value and wiped it
   it('keeps a value whose options come later, and a value on a disabled option', async () => {
     const { selected, component, fixture } = await render(AlignmentComponent, host => {

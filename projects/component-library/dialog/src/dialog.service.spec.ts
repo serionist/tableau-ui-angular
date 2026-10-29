@@ -246,4 +246,53 @@ describe('DialogService', () => {
     dialogRef.close();
     expect(closed).toHaveBeenCalled();
   });
+
+  // A guard or resolver that awaited a confirmation on the server waited for ever, since no one can answer it there,
+  // and held the request or the prerender
+  it('answers a confirmation with false at once on the server', async () => {
+    TestBed.overrideProvider(PLATFORM_ID, { useValue: 'server' });
+    const question = TestBed.createComponent(QuestionComponent).componentInstance.$question();
+    const dialogs = TestBed.inject(DialogService);
+    const globals = globalThis as { ngServerMode?: boolean };
+    // Angular's own flag for server rendering
+    globals.ngServerMode = true;
+    try {
+      const pending = new Promise(resolve => {
+        setTimeout(resolve, 500, 'still waiting');
+      });
+      const message = dialogs.openConfirmationMessageDialog('Leave', 'Leave this page?', 'primary', undefined, undefined, undefined);
+      const template = dialogs.openConfirmationTemplateDialog('Delete', question, { name: 'Report' }, 'error', undefined, undefined, undefined);
+
+      expect(await Promise.race([message, pending])).toBe(false);
+      expect(await Promise.race([template, pending])).toBe(false);
+      expect(document.querySelector('.dialog-container')).toBeNull();
+    } finally {
+      delete globals.ngServerMode;
+    }
+  });
+
+  // Destroying the app with a dialog open left its backdrop, its DOM, its observers and the page's tab order as the
+  // dialog had set them
+  it('closes its dialogs when the app is destroyed', async () => {
+    const page = document.createElement('button');
+    page.textContent = 'On the page';
+    document.body.appendChild(page);
+    try {
+      const dialogs = TestBed.inject(DialogService);
+      const below = dialogs.openModal(DialogContentComponent, undefined, { header: { title: 'Below', allowClose: true } });
+      const top = dialogs.openModal(DialogContentComponent, undefined);
+      const closed: string[] = [];
+      below.closed$.subscribe(() => closed.push('below'));
+      top.closed$.subscribe(() => closed.push('top'));
+      expect(page.tabIndex).toBe(-1);
+
+      TestBed.resetTestingModule();
+
+      expect(closed).toEqual(['top', 'below']);
+      expect(document.querySelector('.dialog-container, .dialog-backdrop')).toBeNull();
+      expect(page.tabIndex).toBe(0);
+    } finally {
+      page.remove();
+    }
+  });
 });

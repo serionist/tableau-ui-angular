@@ -43,15 +43,6 @@
       transition: opacity 200ms;
       opacity: 0;
 
-      // the action and the close are buttons drawn as text and an icon
-      button {
-        padding: 0;
-        border: none;
-        background: none;
-        font-family: inherit;
-        cursor: pointer;
-      }
-
       .timer {
         height: 2px; // stylelint-disable-line declaration-property-unit-disallowed-list
         width: 100%;
