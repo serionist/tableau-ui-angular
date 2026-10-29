@@ -178,24 +178,30 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
 - Dialogs: a closed dialog destroys its header's close icon, which leaked with each dialog. A modal is centred by its
   height, which was taken from its width, and never placed above or left of the screen, so a large one keeps its header
   on it; it keeps `minWidth` and `minHeight`. Escape closes only the top dialog, and still closes a modal while a
-  tooltip shows over it. A confirmation template gets its context.
+  tooltip shows over it. A confirmation template gets its context. Destroying the app with dialogs open closes them,
+  so their backdrops and listeners go and the page's tab order comes back.
 - Snacks are announced: each is in a live region, polite, or assertive for an error. A closed snack is destroyed, so
   its component's `ngOnDestroy` runs; it was only detached. The action is a button, which no longer navigates or needs a
   router, and the close is a button named Close. A snack waits while the pointer or focus is on it, then goes on
   counting from where it was.
 - `tab-accordion` keeps one panel open after a panel leaves it; it kept the others open once any had gone. It no
-  longer claims to be a tablist, and each panel's toggle says whether it is open (`aria-expanded`).
+  longer claims to be a tablist, and each panel's toggle is named by the panel's title, or Details without one, and
+  says whether it is open (`aria-expanded`); it was Expand or Collapse on every panel.
 - `tab-button-toggle` keeps the value bound to it while it is disabled, on a disabled option, or before its options
-  come; it cleared it. A template hint shows its content, not "[object Object]".
+  come, and the arrow keys leave a disabled one alone; it cleared the value, and the arrows changed it. A template hint
+  shows its content, not "[object Object]".
 - The nav bar's buttons follow its `expanded`, set by the app or by its toggle, buttons added later included. A
-  collapsed button keeps its text for screen readers, out of sight, so it has a name; its toggle says whether the bar
-  is open; and a button without a link is a button the keyboard reaches.
+  collapsed button keeps its text for screen readers, out of sight, so it has a name; the active page's button is
+  `aria-current="page"`; its toggle is named Menu and says whether the bar is open (`aria-expanded`); and a button
+  without a link is a button the keyboard reaches.
 - `tab-group` selects the first tab of tabs that come later, and the last one when the selected last tab closes; it
   showed none. Selecting a tab scrolls the strip of tabs only: on load it scrolled the page down to the tabs.
 - A form control on `tab-tree-node` fails with Angular's own "no value accessor" error: the node offered forms one it
   couldn't keep, which threw `writeValue is not a function`.
 - `DialogService`, `SnackService`, `tab-group` and `tab-tree` render on the server, so a page with them can be
-  prerendered. A dialog or a snack opened there shows nothing, since the browser renders the page again.
+  prerendered. A dialog or a snack opened there shows nothing, since the browser renders the page again, and
+  `openConfirmationMessageDialog` and `openConfirmationTemplateDialog` resolve `false` at once, so a guard or a
+  resolver that awaits one doesn't hold the render.
 
 ### Changed
 
