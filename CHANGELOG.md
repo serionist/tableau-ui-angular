@@ -233,8 +233,8 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   when the selection holds every row, once the full load answers; it stayed partial.
 - `tab-list-single-select` and `tab-list-multi-select` follow WAI-ARIA's listbox pattern: a listbox of options,
   multi-selectable for the multi-select, each option with `aria-selected`, and `aria-activedescendant` naming the
-  option the keyboard or the pointer highlights, so a screen reader announces each one. A disabled list takes no click,
-  and is never marked touched.
+  option the keyboard or the pointer highlights, so a screen reader announces each one. A disabled list takes no focus,
+  not even from a click, and is never marked touched; its options still take the pointer and the wheel.
 - `tab-table` and `tab-virtualize` render on the server: `load()` and `reload()` measure and load in the browser only,
   and return `false` on the server, and the table's column widths start observing after the first render, so a page
   with them can be prerendered.
