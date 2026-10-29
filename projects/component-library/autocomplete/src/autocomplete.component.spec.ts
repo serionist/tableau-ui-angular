@@ -4,6 +4,7 @@ import { userEvent } from 'vitest/browser';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
 import { TableauUiFormFieldModule } from 'tableau-ui-angular/form-field';
 import { axeViolations } from '../../testing/axe';
+import { movePointerAway } from '../../testing/pointer';
 import type { AutoCompleteComponent } from './autocomplete.component';
 import { TableauUiAutoCompleteModule } from './tableau-ui-autocomplete.module';
 
@@ -38,6 +39,9 @@ class TripComponent {
 }
 
 describe('AutoCompleteComponent', () => {
+  // a pointer left over an opening dropdown or menu would move its highlight
+  beforeEach(movePointerAway);
+
   async function render() {
     const fixture = TestBed.createComponent(TripComponent);
     fixture.autoDetectChanges();
@@ -229,6 +233,8 @@ class CityComponent {
 }
 
 describe('AutoCompleteDirective', () => {
+  beforeEach(movePointerAway);
+
   // Round 1, B6, F44: a removed input kept its subscription to the suggestions it shared
   it('lets go of its suggestions when its input is removed, and closes them', async () => {
     const fixture = TestBed.createComponent(CityComponent);

@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { axeViolations } from '../../testing/axe';
+import { movePointerAway } from '../../testing/pointer';
 import { TableauUiMenuModule } from './tableau-ui-menu.module';
 
 @Component({
@@ -21,6 +22,9 @@ class HelpComponent {
 }
 
 describe('MenuDirective', () => {
+  // a pointer left over an opening dropdown or menu would move its highlight
+  beforeEach(movePointerAway);
+
   async function render() {
     const fixture = TestBed.createComponent(HelpComponent);
     fixture.autoDetectChanges();

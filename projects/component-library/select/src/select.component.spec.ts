@@ -5,6 +5,7 @@ import { userEvent } from 'vitest/browser';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
 import { TableauUiFormFieldModule } from 'tableau-ui-angular/form-field';
 import { axeViolations } from '../../testing/axe';
+import { movePointerAway } from '../../testing/pointer';
 import { TableauUiSelectModule } from './tableau-ui-select.module';
 
 @Component({
@@ -36,6 +37,9 @@ class TravelComponent {
 }
 
 describe('SelectComponent', () => {
+  // a pointer left over an opening dropdown or menu would move its highlight
+  beforeEach(movePointerAway);
+
   async function render(country?: FormControl<string | null>) {
     const fixture = TestBed.createComponent(TravelComponent);
     if (country) {

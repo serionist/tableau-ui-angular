@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { userEvent } from 'vitest/browser';
 import { TableauUiMenuModule } from 'tableau-ui-angular/menu';
 import { axeViolations } from '../../testing/axe';
+import { movePointerAway } from '../../testing/pointer';
 import { MenuButtonGroupComponent } from './menu-button-group.component';
 import { TableauUiMenuButtonModule } from './tableau-ui-menu-button.module';
 
@@ -64,6 +65,9 @@ class RecentMenuComponent {
 class StandaloneMenuComponent {}
 
 describe('MenuButtonGroupComponent', () => {
+  // a pointer left over an opening dropdown or menu would move its highlight
+  beforeEach(movePointerAway);
+
   async function render<T>(component: new () => T) {
     const fixture = TestBed.createComponent(component);
     fixture.autoDetectChanges();
