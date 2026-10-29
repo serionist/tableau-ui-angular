@@ -306,6 +306,119 @@ describe('TableComponent', () => {
     expect(appSort).toEqual({ property: 'id', direction: 'asc' });
   });
 
+  it('adds a column to its multi-sort on a shift-click, turns it, then drops it', async () => {
+    const { component, header, names, server, settle, load } = await render();
+    await load();
+    const click = async (column: string, shiftKey = false) => {
+      header(column).dispatchEvent(new MouseEvent('click', { bubbles: true, shiftKey }));
+      await server.answerAll(settle);
+    };
+
+    await click('name');
+    expect(component.$sort()).toEqual([{ property: 'name', direction: 'asc' }]);
+    await click('id', true);
+    expect(component.$sort()).toEqual([
+      { property: 'name', direction: 'asc' },
+      { property: 'id', direction: 'asc' },
+    ]);
+    await click('id', true);
+    expect(component.$sort()).toEqual([
+      { property: 'name', direction: 'asc' },
+      { property: 'id', direction: 'desc' },
+    ]);
+    await click('id', true);
+    expect(component.$sort()).toEqual([{ property: 'name', direction: 'asc' }]);
+
+    // a plain click sorts by that column alone, then turns it, then clears the sort
+    await click('id');
+    expect(component.$sort()).toEqual([{ property: 'id', direction: 'asc' }]);
+    await click('id');
+    expect(names().slice(0, 2)).toEqual(['Person 100', 'Person 99']);
+    await click('id');
+    expect(component.$sort()).toEqual([]);
+  });
+
+  it('selects every row with the header checkbox once the full load is in, and clears them with it', async () => {
+    const { host, selectedIds, settle, load } = await render(c => {
+      c.$options.set(c.server.full);
+      c.$selection.set(new MultiSelectionOptions('selectAll'));
+    });
+    await load();
+    const all = () => host.querySelector<HTMLElement>('.column-header.pinned-left .box')!;
+
+    all().click();
+    await settle();
+    expect(selectedIds()).toEqual(PEOPLE.map(person => person.id));
+
+    all().click();
+    await settle();
+    expect(selectedIds()).toEqual([]);
+  });
+
+  it('clears a partial selection with the select-none header checkbox', async () => {
+    const { host, rows, cell, selectedIds, settle, load } = await render(c => {
+      c.$selection.set(new MultiSelectionOptions('selectNone'));
+    });
+    await load();
+    cell(rows()[0], 'name').click();
+    cell(rows()[1], 'name').dispatchEvent(new MouseEvent('click', { bubbles: true, ctrlKey: true }));
+    await settle();
+    expect(selectedIds()).toEqual([1, 2]);
+
+    host.querySelector<HTMLElement>('.column-header.pinned-left .box')!.click();
+    await settle();
+
+    expect(selectedIds()).toEqual([]);
+  });
+
+  it('selects one row at a time with single selection, and a second click clears it', async () => {
+    const { rows, cell, selectedIds, settle, load } = await render(c => {
+      c.$selection.set(new SingleSelectionOptions());
+    });
+    await load();
+
+    cell(rows()[1], 'name').click();
+    await settle();
+    expect(selectedIds()).toEqual([2]);
+    cell(rows()[2], 'name').click();
+    await settle();
+    expect(selectedIds()).toEqual([3]);
+    cell(rows()[2], 'name').click();
+    await settle();
+    expect(selectedIds()).toEqual([]);
+  });
+
+  it('clears its selection on the resets its selection options name', async () => {
+    const { component, rows, cell, selectedIds, server, settle, load } = await render(c => {
+      // cleared on a manual reset only, the default
+      c.$selection.set(new MultiSelectionOptions('none'));
+    });
+    await load();
+    const select = async () => {
+      cell(rows()[0], 'name').click();
+      await settle();
+      expect(selectedIds()).toEqual([1]);
+    };
+
+    await select();
+    component.$sort.set([{ property: 'id', direction: 'asc' }]);
+    await server.answerAll(settle);
+    expect(selectedIds()).toEqual([1]);
+    void component.table().reset();
+    await server.answerAll(settle);
+    expect(selectedIds()).toEqual([]);
+
+    // cleared on an input's change, and not on a manual reset
+    component.$selection.set(new MultiSelectionOptions('none', 'row-and-checkbox', false, true));
+    await select();
+    void component.table().reset();
+    await server.answerAll(settle);
+    expect(selectedIds()).toEqual([1]);
+    component.$sort.set([]);
+    await server.answerAll(settle);
+    expect(selectedIds()).toEqual([]);
+  });
+
   // F104: the line clamp was worked out in reload() only, so a taller row from the app kept clamping to one line
   it("clamps a cell's text to the lines its row holds", async () => {
     const { component, host, server, settle, load } = await render();

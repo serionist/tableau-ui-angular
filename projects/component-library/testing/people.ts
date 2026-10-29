@@ -18,9 +18,11 @@ export interface HeldRequest {
   readonly count?: number;
   readonly sort: readonly DataSort[];
   readonly abort: AbortSignal;
-  /** Answered, or failed on its abort */
+  /** Answered, failed, or failed on its abort */
   done: boolean;
   answer: () => void;
+  /** Fails it, as a server error does */
+  fail: () => void;
 }
 
 /**
@@ -73,6 +75,10 @@ export class PeopleServer {
         answer: () => {
           held.done = true;
           resolve(build(sortRows(this.rows, req.sort)));
+        },
+        fail: () => {
+          held.done = true;
+          reject(new Error('The server failed'));
         },
       };
       // outside Angular's zone, as fetch's own abort is: a listener in it would run change detection inside the abort

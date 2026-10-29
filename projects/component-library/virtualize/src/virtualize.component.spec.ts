@@ -13,6 +13,10 @@ import { VirtualizeComponent } from './virtualize.component';
   imports: [TableauUiVirtualizeModule],
   template: `
     <tab-virtualize #list style="height: 200px" [style.fontSize]="$fontSize()" [dataOptions]="$options()" [(dataSort)]="$sort" [dataRowCss]="$rowCss()">
+      @if ($customLoader()) {
+        <ng-template tabCustomLoader>Loading people</ng-template>
+      }
+      <ng-template tabItemErrorTemplate>Not loaded</ng-template>
       <ng-template let-ctx [tabItemTemplate]="list">{{ ctx.item.name }}</ng-template>
     </tab-virtualize>
   `,
@@ -25,6 +29,7 @@ class PeopleListComponent {
   // 20 px rows, 10 to the 200 px window
   readonly $rowCss = signal<DataRowCss>({ height: '20px', lineHeight: '20px', padding: '0 8px' });
   readonly $fontSize = signal<string | null>(null);
+  readonly $customLoader = signal(false);
   readonly list = viewChild.required<VirtualizeComponent<Person>>(VirtualizeComponent);
 }
 
@@ -185,6 +190,54 @@ describe('VirtualizeComponent', () => {
     fixture.destroy();
 
     expect(first.abort.aborted).toBe(true);
+  });
+
+  it('shows its custom loader until the newest reset has its first block', async () => {
+    const { component, host, server, shown, settle } = await render(c => {
+      c.$customLoader.set(true);
+    });
+
+    const loading = component.list().load();
+    await settle();
+    expect(host.textContent).toContain('Loading people');
+    await server.answerAll(settle);
+    await loading;
+    expect(host.textContent).not.toContain('Loading people');
+
+    // the first reset's block is cancelled by the second, which still loads
+    void component.list().reset();
+    void component.list().reset();
+    await settle();
+    expect(host.textContent).toContain('Loading people');
+    await server.answerAll(settle);
+
+    expect(host.textContent).not.toContain('Loading people');
+    expect(shown()[0]).toBe('Person 1');
+  });
+
+  it('shows its error template for the rows of a block that fails, and reports the error', async () => {
+    const logged = vi.spyOn(console, 'error').mockImplementation(() => {
+      // recorded only
+    });
+    try {
+      const { component, host, server, shown, settle } = await render();
+      const loading = component.list().load();
+      await settle();
+      server.waiting[0].answer();
+      await settle();
+      await loading;
+
+      // the second block fails, the others come
+      server.waiting.find(request => request.offset === 10)!.fail();
+      await server.answerAll(settle);
+
+      expect(shown().slice(0, 11)).toEqual([...PEOPLE.slice(0, 10).map(person => person.name), 'Not loaded']);
+      expect(host.querySelectorAll('.item').length).toBe(50);
+      // logged, and rethrown for the app's error handling, unlike a cancel
+      expect(logged.mock.calls[0]).toEqual(['Error loading data block:', new Error('The server failed')]);
+    } finally {
+      logged.mockRestore();
+    }
   });
 
   it('reloads when the app changes its data options', async () => {
