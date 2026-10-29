@@ -1,5 +1,5 @@
-import type { Signal } from '@angular/core';
-import { ChangeDetectionStrategy, Component, contentChild, contentChildren, forwardRef, model, signal } from '@angular/core';
+import type { InputSignal, Signal, WritableSignal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, contentChild, contentChildren, forwardRef, input, linkedSignal, output, signal } from '@angular/core';
 
 import type { ControlValueAccessor } from '@angular/forms';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
@@ -24,13 +24,23 @@ import { generateRandomString } from 'tableau-ui-angular/utils';
 })
 export class RadioGroupComponent<T extends Primitive> implements ControlValueAccessor {
   readonly $disabled = signal(false);
-  readonly $value = model<T | undefined>(undefined, {
+  /** The selected value */
+  readonly $valueInput: InputSignal<T | undefined> = input<T | undefined>(undefined, {
     alias: 'value',
   });
+  /** The selected value: the value input, until a form writes or the user picks */
+  readonly $value: WritableSignal<T | undefined> = linkedSignal(this.$valueInput);
+  /** Emits the value on each pick by the user; a form's write emits nothing */
+  readonly valueChange = output<T | undefined>();
   readonly name = this.generateRandomGroupName();
   readonly $options = contentChildren<OptionComponent<T>>(OptionComponent<T>);
   // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
   readonly $errorElement: Signal<ErrorComponent | undefined> = contentChild(ErrorComponent);
+  // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+  protected readonly $selectedOption: Signal<OptionComponent<T> | undefined> = computed(() => {
+    const selected = this.$value();
+    return this.$options().find(option => sameValue(option.$value(), selected));
+  });
 
   // eslint-disable-next-line  @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
   onChange = (value: T | undefined) => {};
@@ -54,12 +64,11 @@ export class RadioGroupComponent<T extends Primitive> implements ControlValueAcc
   }
 
   selectValue(option: OptionComponent<T>) {
-    if (!this.$disabled() && !option.$disabled()) {
-      if (this.$value() !== option.$value()) {
-        this.$value.set(option.$value());
-        this.onChange(this.$value());
-      }
-      this.onTouched();
+    if (!this.$disabled() && !option.$disabled() && this.$selectedOption() !== option) {
+      const value = option.$value();
+      this.$value.set(value);
+      this.valueChange.emit(value);
+      this.onChange(value);
     }
   }
 
@@ -79,4 +88,9 @@ export class RadioGroupComponent<T extends Primitive> implements ControlValueAcc
     renderText: true,
     renderHint: true,
   };
+}
+
+/** Whether two option values are the same: equal dates are, though they are different objects */
+function sameValue(a: Primitive | undefined, b: Primitive | undefined): boolean {
+  return a instanceof Date && b instanceof Date ? a.getTime() === b.getTime() : a === b;
 }

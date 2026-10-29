@@ -1,5 +1,5 @@
-import type { Signal } from '@angular/core';
-import { ChangeDetectionStrategy, Component, contentChild, forwardRef, input, model } from '@angular/core';
+import type { InputSignal, Signal, WritableSignal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, contentChild, forwardRef, input, linkedSignal, model, output } from '@angular/core';
 import type { ControlValueAccessor } from '@angular/forms';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { ErrorComponent, HintComponent } from 'tableau-ui-angular/common';
@@ -23,7 +23,6 @@ import { generateRandomString } from 'tableau-ui-angular/utils';
     '[class.checked]': '$value() === true',
     '[class.partial]': '$value() === "partial"',
     '[class.loading]': '$loading()',
-    '(click)': 'toggleValue()',
   },
 })
 export class CheckboxComponent implements ControlValueAccessor {
@@ -40,9 +39,13 @@ export class CheckboxComponent implements ControlValueAccessor {
    * - `false`: Checkbox is unchecked
    * - `'partial'`: Checkbox is in a partial state (e.g., indeterminate)
    */
-  readonly $value = model<boolean | 'partial'>(false, {
+  readonly $valueInput: InputSignal<boolean | 'partial'> = input<boolean | 'partial'>(false, {
     alias: 'value',
   });
+  /** What the box shows: the value input, until a form writes or the user toggles */
+  readonly $value: WritableSignal<boolean | 'partial'> = linkedSignal(this.$valueInput);
+  /** Emits the value on each toggle by the user; a form's write emits nothing */
+  readonly valueChange = output<boolean | 'partial'>();
   /**
    * The loading state of the checkbox.
    * This can be used to indicate that the checkbox is in a loading state, e.g., when data is being fetched.
@@ -87,8 +90,8 @@ export class CheckboxComponent implements ControlValueAccessor {
   onChange = (value: boolean) => {};
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   onTouched = () => {};
-  writeValue(value: boolean): void {
-    this.$value.set(value);
+  writeValue(value: boolean | 'partial' | null | undefined): void {
+    this.$value.set(value ?? false);
   }
   registerOnChange(fn: (value: boolean) => void): void {
     this.onChange = fn;
@@ -99,30 +102,40 @@ export class CheckboxComponent implements ControlValueAccessor {
   setDisabledState(isDisabled: boolean): void {
     this.$disabled.set(isDisabled);
   }
+  /** Toggles the value as a user would: `'partial'` becomes `valueAfterPartial`, and (valueChange) and the form hear it */
   toggleValue() {
-    if (!this.$disabled() && !this.$loading()) {
-      let val = this.$value();
-      if (val === 'partial') {
-        val = this.$valueAfterPartial();
-      } else {
-        val = !val;
-      }
-      this.$value.set(val);
-      this.onChange(val);
+    if (this.$disabled() || this.$loading()) {
+      return;
+    }
+    const checked = this.$value();
+    const value = checked === 'partial' ? this.$valueAfterPartial() : !checked;
+    this.$value.set(value);
+    this.valueChange.emit(value);
+    this.onChange(value);
+  }
 
-      this.onTouched();
+  protected onInputClick(e: MouseEvent) {
+    // A click while loading changes nothing; cancelling it keeps the input as it was
+    if (this.$loading()) {
+      e.preventDefault();
     }
   }
 
+  // The input's change is the one path that toggles: a click on it, on its label or text, and Space all end here
+  protected onInputChange(e: Event) {
+    this.toggleValue();
+    // The browser toggled the input its own way (indeterminate to checked); show the value instead
+    const element = e.target as HTMLInputElement;
+    const value = this.$value();
+    element.checked = value === true;
+    element.indeterminate = value === 'partial';
+  }
+
   onKeyDown(e: KeyboardEvent) {
-    switch (e.key) {
-      case 'Enter':
-      case ' ':
-        this.toggleValue();
-        e.preventDefault();
-        break;
-      default:
-        return;
+    // Enter toggles too, as it always has here, instead of submitting the form
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      (e.target as HTMLInputElement).click();
     }
   }
 }

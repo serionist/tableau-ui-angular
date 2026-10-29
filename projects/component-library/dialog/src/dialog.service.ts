@@ -316,24 +316,22 @@ export class DialogService {
       titleElement.textContent = args.header.title;
       headerElement.appendChild(titleElement);
       if (args.header.allowClose) {
+        // A button, so a screen reader says what it is and Enter and Space press it; its labelled icon names it
+        const closeButton = document.createElement('button');
+        closeButton.type = 'button';
+        closeButton.classList.add('dialog-close');
+        closeButton.addEventListener('click', () => {
+          dialogRef.close();
+        });
         const iconRef: ComponentRef<IconComponent> = createComponent(IconComponent, {
           environmentInjector: this.environmentInjector,
           elementInjector: injector,
         });
-        const iconElement = (iconRef.hostView as EmbeddedViewRef<unknown>).rootNodes[0] as HTMLElement;
-        iconElement.textContent = 'close';
-        iconElement.setAttribute('tabindex', '0');
-        iconElement.addEventListener('click', () => {
-          dialogRef.close();
-        });
-        iconElement.addEventListener('keydown', (e: KeyboardEvent) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            dialogRef.close();
-            e.preventDefault();
-          }
-        });
+        iconRef.setInput('value', 'close');
+        iconRef.setInput('label', 'Close');
         this.appRef.attachView(iconRef.hostView);
-        headerElement.appendChild(iconElement);
+        closeButton.appendChild((iconRef.hostView as EmbeddedViewRef<unknown>).rootNodes[0] as HTMLElement);
+        headerElement.appendChild(closeButton);
       }
       dialogElement.insertBefore(headerElement, dialogElement.firstChild);
     }

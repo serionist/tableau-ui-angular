@@ -23,7 +23,7 @@ import { TAB_SNACK_DATA_REF } from './data.ref';
           </div>
         }
 
-        <tab-icon class="close" tabindex="0" value="close" (click)="snackRef.close(true)" (keydown.enter)="snackRef.close(true)" (keydown.space)="snackRef.close(true)" />
+        <tab-icon class="close" tabindex="0" value="close" label="Close" (click)="snackRef.close(true)" (keydown.enter)="snackRef.close(true)" (keydown.space)="snackRef.close(true)" />
       </div>
     </div>
   `,

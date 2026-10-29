@@ -1,6 +1,6 @@
 import type { WritableSignal } from '@angular/core';
 import { signal, type Signal } from '@angular/core';
-import { BehaviorSubject, distinctUntilChanged, filter, firstValueFrom, map, type Observable, type Subscription } from 'rxjs';
+import { BehaviorSubject, filter, firstValueFrom, map, merge, skip, switchMap, type Observable, type Subscription } from 'rxjs';
 import type { Hierarchy } from './hierarchy/interfaces';
 import type { AC } from './interfaces';
 import type { Meta, MetaFns } from './meta/interfaces';
@@ -46,17 +46,62 @@ export abstract class ACImpl<TValue> implements AC {
     const initialMeta = MetaImpl.fromControl(this);
     this.meta$ = new BehaviorSubject<Meta>(initialMeta);
     this.$meta = signal<Meta>(initialMeta);
+    // A group's or an array's meta holds its children's, so it follows their metas too: Angular emits the parent's
+    // event before it touches the children (markAllAsTouched). A child's change rebuilds only that part, and the
+    // parent's own flags wait for its own event, which Angular emits once the children are done: enable() makes the
+    // group enabled before it enables them, and a rule run on enable must not see that.
+    const childMetaChanges$ = this.hierarchy.childList$.pipe(switchMap(children => merge(...children.map(child => child.meta$.pipe(skip(1))))));
     this.subscriptions.push(
-      this.control.events
-        .pipe(
-          map(() => MetaImpl.fromControl(this)),
-          distinctUntilChanged((a, b) => MetaImpl.compare(a, b)),
-        )
-        .subscribe(meta => {
-          this.meta$.next(meta);
-          this.$meta.set(meta);
-        }),
+      merge(this.control.events, this.hierarchy.childList$.pipe(skip(1))).subscribe(() => {
+        this.refreshMeta();
+      }),
+      childMetaChanges$.subscribe(() => {
+        this.refreshMeta('children');
+      }),
     );
+  }
+
+  /**
+   * Refreshes this control's whole meta and then each ancestor's, after a change Angular made without an event, such
+   * as a FormArray's `push` with `emitEvent: false`, which still sets its and its parents' status. Each refresh costs
+   * the direct children.
+   */
+  protected refreshMetaUpwards(): void {
+    this.refreshMeta();
+    for (let parent = this.hierarchy.parent; parent; parent = parent.hierarchy.parent) {
+      (parent as ACImpl<unknown>).refreshMeta();
+    }
+  }
+
+  private emittingMeta = false;
+  private pendingMeta: 'all' | 'children' | undefined;
+  /**
+   * Recomputes the meta, all of it or only its children's part, and emits it when it changed: the signal first, so a
+   * subscriber that reads `$meta()` sees what it was given. A change a subscriber makes is emitted after every
+   * subscriber has the current meta, so none of them ends on a stale one. Subclasses call it once their constructor
+   * has set the default value.
+   */
+  protected refreshMeta(scope: 'all' | 'children' = 'all'): void {
+    if (this.emittingMeta) {
+      this.pendingMeta = this.pendingMeta === 'all' || scope === 'all' ? 'all' : 'children';
+      return;
+    }
+    this.emittingMeta = true;
+    try {
+      let next: 'all' | 'children' | undefined = scope;
+      while (next) {
+        this.pendingMeta = undefined;
+        const meta = next === 'all' ? MetaImpl.fromControl(this) : MetaImpl.withChildren(this.meta$.value, this);
+        if (!MetaImpl.compare(meta, this.meta$.value)) {
+          this.$meta.set(meta);
+          this.meta$.next(meta);
+        }
+        next = this.pendingMeta;
+      }
+    } finally {
+      this.emittingMeta = false;
+      this.pendingMeta = undefined;
+    }
   }
 
   public getRawValue(): TValue {

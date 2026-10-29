@@ -11,6 +11,11 @@
   grid-template-rows: auto auto;
   column-gap: 0.5em;
 
+  // The label's children sit in the host's grid, as they did before there was a label
+  .control {
+    display: contents;
+  }
+
   tab-loading-gif,
   .box {
     width: 1.2em;

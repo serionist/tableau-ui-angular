@@ -9,7 +9,7 @@ import type { FA } from './interaces';
 import { FaRegisterFnsImpl } from './register/impl';
 import type { FG } from '../form-group/interfaces';
 import type { FormGroup } from '@angular/forms';
-import { FormArray, FormResetEvent } from '@angular/forms';
+import { FormArray, FormResetEvent, FormSubmittedEvent } from '@angular/forms';
 import type { ControlsOf } from '../../types/controls-of';
 import { ValidatorFnsImpl } from '../abstract-control/validation/impl';
 import { MetaFnsImpl } from '../abstract-control/meta/impl';
@@ -67,7 +67,8 @@ export class FAImpl<T extends Record<string, unknown>> extends ACImpl<T[]> imple
       updateOn: params.updateOn,
     });
 
-    super('array', control, params.controls);
+    // a copy, so the rows the caller passed in stay theirs
+    super('array', control, [...params.controls]);
     this._control = control;
     this._defaultValue = control.getRawValue() as T[];
 
@@ -82,21 +83,20 @@ export class FAImpl<T extends Record<string, unknown>> extends ACImpl<T[]> imple
         this._value$.next(v);
       }),
     );
+    // The raw value changes with an edit as well as with the rows, as the group's does
     this.subscriptions.push(
       this._value$.subscribe(v => {
         this.$_value.set(v);
+        this.refreshRawValue();
       }),
     );
     this.subscriptions.push(
       this._controls$.subscribe(v => {
         this.$_controls.set(v);
-        const rawValue = control.getRawValue() as T[];
-        this._rawValue$.next(rawValue);
-        this.$_rawValue.set(rawValue);
       }),
     );
     this.submitted$ = this.control.events.pipe(
-      filter(e => e instanceof SubmitEvent),
+      filter(e => e instanceof FormSubmittedEvent),
       map(() => this._value$.value),
     );
     this.reset$ = this.control.events.pipe(
@@ -106,11 +106,20 @@ export class FAImpl<T extends Record<string, unknown>> extends ACImpl<T[]> imple
     this.registerFn = new FaRegisterFnsImpl<T>(this, this.subscriptions);
     this.validatorFn = new ValidatorFnsImpl<FA<T>>(this.control);
     this.metaFn = new MetaFnsImpl<FA<T>>(this.control, this);
+    this.refreshMeta();
   }
 
   private get formArray() {
     return this.control as FormArray<FormGroup<ControlsOf<T>>>;
   }
+  private refreshRawValue() {
+    const rawValue = this.control.getRawValue() as T[];
+    this.$_rawValue.set(rawValue);
+    this._rawValue$.next(rawValue);
+  }
+  // push, insert and removeAt change the child list first, as a new list so the signals over it notify, and then the
+  // FormArray, whose event then reaches valueChange with the rows its value holds. The raw value and the metas, the
+  // array's and its ancestors', follow the FormArray even when it emits nothing.
   push(
     control: FG<T>,
     options?: {
@@ -118,20 +127,24 @@ export class FAImpl<T extends Record<string, unknown>> extends ACImpl<T[]> imple
     },
   ) {
     const c = (control as FGImpl<T>).control;
+    this.hierarchy.childList$.next([...this.hierarchy.childList$.value, control]);
     this.formArray.push(c as FormGroup<ControlsOf<T>>, options);
-    const childList = this.hierarchy.childList$.value;
-    childList.push(control);
-    this.hierarchy.childList$.next(childList);
+    this.refreshRawValue();
+    this.refreshMetaUpwards();
   }
 
   removeAt(index: number, destroyControl: boolean, options?: { emitEvent?: boolean }) {
-    this.formArray.removeAt(index, options);
     const childList = this.hierarchy.childList$.value;
-    const control = childList.splice(index, 1)[0];
+    // a negative index counts from the end, as FormArray's does
+    const at = index < 0 ? index + childList.length : index;
+    const control = childList[at];
+    this.hierarchy.childList$.next(childList.filter((_, i) => i !== at));
+    this.formArray.removeAt(index, options);
+    this.refreshRawValue();
+    this.refreshMetaUpwards();
     if (control !== undefined && destroyControl) {
       control.destroy();
     }
-    this.hierarchy.childList$.next(childList);
   }
   insert(
     index: number,
@@ -142,20 +155,23 @@ export class FAImpl<T extends Record<string, unknown>> extends ACImpl<T[]> imple
   ) {
     const c = (control as FGImpl<T>).control;
 
-    this.formArray.insert(index, c as FormGroup<ControlsOf<T>>, options);
     const childList = this.hierarchy.childList$.value;
-    childList.splice(index, 0, control);
-    this.hierarchy.childList$.next(childList);
+    this.hierarchy.childList$.next([...childList.slice(0, index), control, ...childList.slice(index)]);
+    this.formArray.insert(index, c as FormGroup<ControlsOf<T>>, options);
+    this.refreshRawValue();
+    this.refreshMetaUpwards();
   }
   clear(destroyControls: boolean, options?: { emitEvent?: boolean }) {
-    this.formArray.clear(options);
     const childList = this.hierarchy.childList$.value;
+    this.hierarchy.childList$.next([]);
+    this.formArray.clear(options);
+    this.refreshRawValue();
+    this.refreshMetaUpwards();
     if (destroyControls) {
       childList.forEach(child => {
         child.destroy();
       });
     }
-    this.hierarchy.childList$.next([]);
   }
   at(index: number): FG<T> | undefined {
     return this._controls$.value[index];

@@ -18,12 +18,8 @@ export class FormArrayValuePipe implements PipeTransform {
     if (!formRef) {
       throw new Error('FormArrayValuePipe: formRef is null or undefined');
     }
-    let ret;
-    if (kind === 'standard') {
-      ret = formRef.value$;
-    } else {
-      ret = formRef.rawValue$;
-    }
+    // the value, as the return type says, unless the raw value is asked for
+    const ret = kind === 'raw' ? formRef.rawValue$ : formRef.value$;
     return ret as unknown as Observable<TKind extends 'standard' ? DeepPartial<TItem[]> : TItem[]>;
   }
 }

@@ -2,6 +2,12 @@ import type { FormControlStatus, ValidationErrors } from '@angular/forms';
 import type { AC } from '../interfaces';
 import type { Primitive } from 'tableau-ui-angular/types';
 
+/**
+ * A control's state, as of its last event. A group's or an array's `childControls`, and its `valueIsDefault`, are its
+ * children's metas as of their last events, so a refresh costs only the direct children. A write with
+ * `emitEvent: false` shows in the metas at that control's next event: `name.setValue('Ada', { emitEvent: false })`
+ * leaves the group's `valueIsDefault` as it was until `name` emits again.
+ */
 export interface Meta {
   readonly untouched: boolean;
   readonly touched: boolean;
@@ -10,9 +16,11 @@ export interface Meta {
   readonly dirty: boolean;
   readonly enabled: boolean;
   readonly disabled: boolean;
+  /** Whether the value equals the default; for a group or an array, whether every child's does */
   readonly valueIsDefault: boolean;
   readonly updateOn: 'blur' | 'change' | 'submit';
   readonly errors: ValidationErrors | null;
+  /** The children's metas, as of their last events */
   readonly childControls: readonly Meta[] | undefined;
 
   hasError: (errorCode?: string, requireTouched?: boolean) => boolean;

@@ -18,7 +18,7 @@
 </div>
 @if ($displayClearButton()) {
   <button layout="icon" color="plain" tabindex="0" [disabled]="$disabled()" (click)="clearValue($event)" (keydown)="clearKeyDown($event)">
-    <tab-icon value="clear" />
+    <tab-icon value="clear" label="Clear" />
   </button>
 }
 @if ($showChevron()) {

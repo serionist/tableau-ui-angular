@@ -23,10 +23,11 @@ Every top-level file and folder, and the library's own; a new one adds its row i
 | `projects/component-library/public-api.ts`                                | the root entry point, `tableau-ui-angular`, which re-exports every folder                                                                             |
 | `projects/component-library/styles/`                                      | the SCSS apps import (`tableau-ui-angular/styles/lib-styles`), the theme, `fonts/downloadFonts.js`                                                    |
 | `projects/component-library/used-icons/`                                  | the icon list entry point, and `scripts/update-icons.js`, which apps run                                                                              |
+| `projects/component-library/testing/`                                     | what the specs share, such as `axeViolations`, the axe check every component test runs; never published                                               |
 | `projects/component-library/package.json`, `ng-package.json`              | what is published: the one version, the peers, the shipped assets                                                                                     |
 | `projects/test-app/`                                                      | the demo app: `src/app/pages/`, `app.routes.server.ts` (what prerenders), its own `package.json`                                                      |
 | `docs/plans/`, `docs/reviews/`                                            | plans, with the template in `README.md`; review records. Dated, never current truth                                                                   |
-| `tools/`                                                                  | `gate.mjs` (the checks), `hooks.mjs` and `attribution.mjs` (behind `.githooks/`), `pr-text.mjs` (behind `pr-text.yml`), `setup.mjs`, the tests        |
+| `tools/`                                                                  | `gate.mjs` with `coverage.mjs` and `angular.mjs`, `hooks.mjs` and `attribution.mjs` (behind `.githooks/`), `pr-text.mjs`, `setup.mjs`, the tests      |
 | `.githooks/`                                                              | `commit-msg` refuses tool attribution; `pre-push` runs the gate's quick lane                                                                          |
 | `.claude/`                                                                | `CLAUDE.md` (imports this file), `settings.json` (no attribution; whole-command allows, asks, denies: `REVIEW.md`, Permissions), `skills/`            |
 | `.mcp.json`                                                               | the Angular CLI's MCP server and Context7; `.claude/settings.local.json.example` turns them on                                                        |
@@ -47,19 +48,24 @@ Every top-level file and folder, and the library's own; a new one adds its row i
 
 Run from the repo root. `ng` is the repo's own CLI: `npx ng` when it is not on PATH. The same in bash and PowerShell.
 
-| What                        | Command                                                                                                                                     |
-| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| once per clone and worktree | `npm ci`, then `npm run setup` (the hooks, `git blame` skipping reformats)                                                                  |
-| the library                 | `npm run build:component-library`, into `dist/component-library`                                                                            |
-| the demo app                | `ng build test-app` (prints "Prerendered N static routes"); `npm start` serves it on port 4201                                              |
-| tests                       | `ng test --watch=false`: both projects, in Chromium and Firefox (`npx playwright install chromium firefox`)                                 |
-| lint and format             | `ng lint`, `npm run lint:scss`; `npm run pretty` formats everything the gate's Prettier check reads                                         |
-| the hooks' tests            | `npm run test:tools`                                                                                                                        |
-| the gate                    | `npm run gate -- quick` (lock, ESLint, stylelint, Prettier, AGENTS.md, skills, attribution, gitleaks); `full` adds the builds and the tests |
+| What                        | Command                                                                                                                                            |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| once per clone and worktree | `npm ci`, then `npm run setup` (the hooks, `git blame` skipping reformats)                                                                         |
+| the library                 | `npm run build:component-library`, into `dist/component-library`                                                                                   |
+| the demo app                | `ng build test-app` (prints "Prerendered N static routes", N above 0); `npm start` serves it on port 4201                                          |
+| tests                       | `ng test --watch=false`: both projects, in Chromium and Firefox (`npx playwright install chromium firefox`)                                        |
+| lint and format             | `ng lint`, `npm run lint:scss`; `npm run pretty` formats everything the gate's Prettier check reads                                                |
+| the hooks' tests            | `npm run test:tools`                                                                                                                               |
+| the gate                    | `npm run gate -- quick` (lock, ESLint, stylelint, Prettier, AGENTS.md, skills, attribution, gitleaks); `full` adds the builds, the tests, coverage |
 
 - The quick lane runs before every push, on what the push sends. gitleaks runs when it is on PATH; without it the gate
   says it skipped, and `GATE_REQUIRE_GITLEAKS=1`, as CI sets it, makes that a failure.
 - The full lane is what a PR must pass, and what `finish-work` runs.
+- The coverage floor, `lines` in `tools/coverage.json`, is the library's line coverage in whole percent, and it only
+  rises: the full lane fails below it, or below the base's. When the lane says "raise it to N", set it to N in that PR.
+  `ng test component-library --watch=false --coverage` measures it; the quick lane refuses an ignore comment for it.
+- A component's spec runs `axeViolations` (`projects/component-library/testing/`); a rule it turns off names the open
+  issue that will fix it, and that list only shrinks. The prerender must log no error: a page that throws is a failure.
 
 ## How a change lands
 

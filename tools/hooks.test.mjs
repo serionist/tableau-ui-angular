@@ -28,7 +28,7 @@ function scratchRepo(name, hooksPath = join(scratch, 'no-hooks')) {
   const repo = join(scratch, name);
   mkdirSync(join(repo, 'tools'), { recursive: true });
   mkdirSync(hooksPath, { recursive: true });
-  for (const file of ['hooks.mjs', 'attribution.mjs', 'gate.mjs']) copyFileSync(join(ROOT, 'tools', file), join(repo, 'tools', file));
+  for (const file of ['hooks.mjs', 'attribution.mjs', 'angular.mjs', 'coverage.mjs', 'gate.mjs']) copyFileSync(join(ROOT, 'tools', file), join(repo, 'tools', file));
   copyFileSync(join(ROOT, '.gitleaks.toml'), join(repo, '.gitleaks.toml'));
   const git = (...args) => spawnSync('git', ['-c', 'user.name=Test', '-c', 'user.email=test@example.com', '-c', `core.hooksPath=${hooksPath}`, ...args], { cwd: repo, encoding: 'utf8' });
   git('init', '--quiet');

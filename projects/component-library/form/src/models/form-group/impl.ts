@@ -8,7 +8,7 @@ import type { MetaFns } from '../abstract-control/meta/interfaces';
 import type { AsyncValidatorFn, ValidatorFn, ValidatorFns } from '../abstract-control/validation/interfaces';
 import type { FG } from './interfaces';
 import type { FgRegisterFns } from './register/interfaces';
-import { FormGroup, FormResetEvent } from '@angular/forms';
+import { FormGroup, FormResetEvent, FormSubmittedEvent } from '@angular/forms';
 import type { ControlsOf } from '../../types/controls-of';
 import type { FormReferencesOf } from '../../types/form-references-of';
 import { FgRegisterFnsImpl } from './register/impl';
@@ -85,7 +85,7 @@ export class FGImpl<T extends Record<string, unknown>> extends ACImpl<T> impleme
       }),
     );
     this.submitted$ = this.control.events.pipe(
-      filter(e => e instanceof SubmitEvent),
+      filter(e => e instanceof FormSubmittedEvent),
       map(() => this._value$.value),
     );
     this.reset$ = this.control.events.pipe(
@@ -95,6 +95,7 @@ export class FGImpl<T extends Record<string, unknown>> extends ACImpl<T> impleme
     this.registerFn = new FgRegisterFnsImpl<T>(this, this.subscriptions);
     this.validatorFn = new ValidatorFnsImpl<FG<T>>(this.control);
     this.metaFn = new MetaFnsImpl<FG<T>>(this.control, this);
+    this.refreshMeta();
   }
 
   setValue(value: T, options?: { onlySelf?: boolean; emitEvent?: boolean; emitModelToViewChange?: boolean; emitViewToModelChange?: boolean }) {

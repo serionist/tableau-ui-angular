@@ -26,8 +26,33 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   `[dataRowCss]="{ height: '2em', lineHeight: 'inherit', padding: '0 1em' }"`.
 - `DatePickerDirective.$value` and `TabTreeNodeComponent.$expanded` are writable signals, no longer models, and their
   inputs' class members are `$valueInput` and `$expandedInput`. `[(value)]` and `[(expanded)]` bind as before, and
-  `()` and `.set()` work as before; code that typed them as `ModelSignal` or subscribed to them types them as
-  `WritableSignal` and listens to `valueChange` or `expandedChange`.
+  `()` reads as before. `.set()` changes what the control shows and no longer emits `valueChange` or `expandedChange`,
+  nor updates a two-way binding: set the bound value instead. Code that typed them as `ModelSignal` or subscribed to
+  them types them as `WritableSignal` and listens to `valueChange` or `expandedChange`.
+- `tab-checkbox` and `tab-radio-group` emit `(valueChange)` on each toggle or pick by the user, and never when a form
+  writes their value (on init, `setValue`, `reset`). Code that followed the form's value through `(valueChange)`
+  subscribes to the control's `valueChanges` instead.
+- `CheckboxComponent.$value` and `RadioGroupComponent.$value` are writable signals, no longer models; their inputs'
+  class members are `$valueInput`, and `valueChange` is an output of its own. `[(value)]` binds as before, and `()`
+  reads as before. `.set()` changes what the control shows and no longer emits `valueChange`, nor updates a
+  `[(value)]` binding: set the bound value instead. Code that typed them as `ModelSignal` or subscribed to them types
+  them as `WritableSignal` and listens to `valueChange`.
+- `tab-checkbox` and `tab-radio-group` mark their control touched on blur, as Angular's own checkbox and radio buttons
+  do, not when the user toggles or picks. An error shown once the control is touched now shows when the user leaves it,
+  or on `markAllAsTouched()` at submit.
+- `tab-checkbox`'s text is a `<label>` around its input, which names it. A click on the hint or the error no longer
+  toggles it, nor does one on a link or a button inside the text. Styles that targeted the inner `div.label` target
+  `.label`, now a `span` inside `label.control`.
+- `tab-icon` is hidden from screen readers (`aria-hidden="true"`) unless it has the new `label` input, which makes it
+  an image with that name. An icon that means something on its own, such as the only content of a button, takes one:
+  `<tab-icon value="delete" label="Delete" />`.
+- The `formGroupValue` and `formArrayValue` pipes give the value without an argument, disabled fields left out, as
+  their type says; they gave the raw value. Pass `'raw'` for the raw value: `form | formGroupValue: 'raw'`.
+- `tab-form-field` has no `style` input. It was unused, and it took a `[style]` binding away from the host; a `style`
+  attribute or a `[style]` binding now styles the field itself.
+- `FormFieldComponent` and `ArrowScrollComponent` have no `ngAfterViewInit`: their measuring and observers start after
+  the first render in the browser, so they can render on the server. Code that called the method has nothing to call;
+  the component does that work itself.
 
 ### Added
 
@@ -35,12 +60,39 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   the table does, with the data manager the two share.
 - `tab-chip`, in `tableau-ui-angular/chip`, and `tab-chip-control`, in `tableau-ui-angular/chip-control`: chips, and
   a form control that edits a list of them.
+- `tab-icon`'s `label` input, the icon's name for screen readers.
+- The typed forms' `registerFn` callbacks (`valueChange`, `childChange`, `childGroupChange`, `metaChange`,
+  `enableChange`) take an optional `DestroyRef` last, which releases the callback when it is destroyed, such as a
+  component's; without one a callback lives as long as the form.
 
 ### Fixed
 
 - The published typings are strict again: an optional input keeps `| undefined` in its type (0.1.129 and older lost
   it, so a strict-template app that bound `undefined` to one got TS2322).
 - The date picker's `valueChange` and the tree node's `expandedChange` fire once per change, not twice.
+- A select, a list or a chip control in `tab-form-field` is named by the field's label, through `aria-labelledby` on
+  the element it focuses; a native `<select>` gets the label's `for`, and an input keeps an id the app gave it.
+- `tab-checkbox` toggles once when its input itself is clicked, as assistive technology and a `<label for>` do; it
+  toggled twice. Its partial state reads as mixed, its disabled state as disabled, and a click while it loads leaves
+  the box as it was.
+- `tab-radio-group` selects the option equal to a date the form writes, though the two are different objects.
+- The library's icon-only buttons keep a name now that icons are hidden: the chip's remove, the select's clear, the
+  snack's close, the arrow scroll's back and forward, and the expansion panel's, nav bar's and tree node's toggles. The
+  dialog's header close is a button named Close, where it was a focusable icon.
+- The typed forms: a change from `null` to `0`, or between other falsy values, reaches `$value()`, `value$` and
+  `valueChange`; `valueChange` gets `null` when a control is cleared, not the old value. `alsoRunOnEnabled` runs a
+  callback again when the control is enabled, not on every touched or dirty change, and `alsoRunOnDisabled` also runs
+  it on an enabled control, first and on each change.
+- A group's and an array's meta follow their children: `markAllAsTouched()` shows a child's error, and a removed row's
+  error goes. An array's `$controls()` and `$childList()` notify on `push`, `insert` and `removeAt`, `valueChange`
+  gets the rows its value holds, its raw value follows edits, its meta and its ancestors' follow a `push` or
+  `removeAt` with `emitEvent: false`, and the array given to `fb.array` is left as it was.
+- An `alwaysDisabled()` field stays disabled, its element too, after its form is disabled and enabled again; `enable()`
+  leaves it disabled.
+- `submitted$` emits when the form bound with `[formGroup]` is submitted; `valueIsDefault` is true from the start; and
+  `childChange` and `formControlValue` take an optional field's `FC<T | undefined>` under strict templates.
+- `ThemeService`, `tab-form-field` and `tab-arrow-scroll` render on the server: they touch the window, storage and
+  observers only in the browser, so a page with them can be prerendered.
 
 ### Changed
 
