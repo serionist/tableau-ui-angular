@@ -46,6 +46,16 @@ describe('coverage ignore comments', () => {
     assert.deepEqual(ignoreComments(files), ['a.ts:2', 'b.ts:1', 'b.ts:3']);
   });
 
+  // istanbul's own patterns are unanchored, and its whitespace spans lines
+  test('are found glued to a word, or split across lines', () => {
+    const files = [
+      { path: 'a.ts', text: 'const a = 1;\n// xistanbul ignore start\nfoo();' },
+      { path: 'b.ts', text: 'bar();\n/* istanbul\nignore file */\nbaz();' },
+      { path: 'c.ts', text: '/* c8\r\n   ignore next */' },
+    ];
+    assert.deepEqual(ignoreComments(files), ['a.ts:2', 'b.ts:2', 'c.ts:1']);
+  });
+
   test('none in a clean file', () => {
     assert.deepEqual(ignoreComments([{ path: 'a.ts', text: 'export const a = 1;\n' }]), []);
   });

@@ -15,17 +15,13 @@ export function readFloor(text, where = FLOOR_FILE) {
   return Number.isInteger(lines) && lines >= 0 && lines <= 100 ? { floor: lines } : { problem: `${where} needs "lines", a whole percent from 0 to 100` };
 }
 
-// A comment that tells istanbul, c8 or V8 to skip code, which would take it out of what the floor measures
-const IGNORE_COMMENT = /\b(?:istanbul|c8|v8)\s+ignore\b/;
+// A comment that tells istanbul, c8 or V8 to skip code, which would take it out of what the floor measures. Like the
+// tools' own patterns it is unanchored, so `xistanbul ignore` counts, and its whitespace spans lines.
+const IGNORE_COMMENT = /(?:istanbul|[cv]8)\s+ignore\b/g;
 
-/** Each `path:line` of `files`, `{ path, text }`, that holds a coverage ignore comment. */
+/** Each `path:line` of `files`, `{ path, text }`, where a coverage ignore comment starts. */
 export function ignoreComments(files) {
-  return files.flatMap(({ path, text }) =>
-    text
-      .split(/\r?\n/)
-      .map((line, i) => (IGNORE_COMMENT.test(line) ? `${path}:${i + 1}` : null))
-      .filter(Boolean),
-  );
+  return files.flatMap(({ path, text }) => [...text.matchAll(IGNORE_COMMENT)].map(match => `${path}:${text.slice(0, match.index).split('\n').length}`));
 }
 
 /**
