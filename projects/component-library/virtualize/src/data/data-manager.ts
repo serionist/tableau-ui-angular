@@ -28,12 +28,20 @@ export class DataManager<TData> {
     return this.$_blocks;
   }
 
-  private _allDataInfo: AllDataInfo<TData> | undefined = undefined;
+  private readonly $_allDataInfo = signal<AllDataInfo<TData> | undefined>(undefined);
+  /** The full load's state, with `FullDataOptions`; a signal, so a view or a `computed` follows each reset's */
+  get $allDataInfo(): Signal<AllDataInfo<TData> | undefined> {
+    return this.$_allDataInfo;
+  }
   get allDataInfo(): AllDataInfo<TData> | undefined {
-    return this._allDataInfo;
+    return this.$_allDataInfo();
   }
   private resetting = false;
+  // Each reset and destroy() starts a generation; what an older one's loads answer after it is dropped, so a reset
+  // that a newer one overtook writes nothing the newer one owns
+  private generation = 0;
   public async reset(dataWindowHeightPx: number, dataRowHeightPx: number, sort: DataSort[], dataBlockWindow: number, dataOptions: DataOptions<TData>) {
+    const generation = ++this.generation;
     this.resetting = true;
     this.dataOptions = dataOptions;
     this.dataRowHeightPx = dataRowHeightPx;
@@ -44,13 +52,11 @@ export class DataManager<TData> {
     this.dataBlockHeightPx = dataRowHeightPx * this.blockRowCount;
     this._totalRowCount = 0;
 
-    if (this._allDataInfo) {
-      this._allDataInfo.abort.abort();
-      this._allDataInfo = undefined;
-    }
+    this.$_allDataInfo()?.abort.abort();
+    this.$_allDataInfo.set(undefined);
 
     if (!Number.isFinite(this.blockRowCount) || this.blockRowCount <= 0) {
-      this.$_blocks.set({
+      this.showBlocks({
         prePixels: 0,
         blocks: [],
         postPixels: 0,
@@ -64,25 +70,22 @@ export class DataManager<TData> {
       initialBlock = this.getBlock(0);
     } else if (this.dataOptions instanceof FullDataOptions) {
       const allDataAbort = new AbortController();
-      let allDataPromise: Promise<{ key: Primitive; data: TData }[]>;
-
-      if (!Number.isFinite(this.blockRowCount)) {
-        allDataPromise = Promise.resolve([]);
-      } else {
-        allDataPromise = this.dataOptions
-          .getAllData({
-            sort: sort,
-            abort: allDataAbort.signal,
-          })
-          .then(response => {
+      const options = this.dataOptions;
+      const allDataPromise = options
+        .getAllData({
+          sort: sort,
+          abort: allDataAbort.signal,
+        })
+        .then(response => {
+          if (generation === this.generation) {
             this._totalRowCount = response.data.length;
-            return response.data.map(row => ({
-              key: this.dataOptions!.getRowKey(row),
-              data: row,
-            }));
-          });
-      }
-      this._allDataInfo = new AllDataInfo<TData>(allDataPromise, allDataAbort);
+          }
+          return response.data.map(row => ({
+            key: options.getRowKey(row),
+            data: row,
+          }));
+        });
+      this.$_allDataInfo.set(new AllDataInfo<TData>(allDataPromise, allDataAbort));
       initialBlock = this.getBlock(0);
     } else {
       this.resetting = false;
@@ -90,44 +93,60 @@ export class DataManager<TData> {
     }
 
     // load initial block
-    this.$_blocks.update(blocks => {
-      // Clear existing blocks
-      blocks.blocks.forEach(block => {
-        block.abort?.abort();
-      });
-      return {
-        prePixels: 0,
-        blocks: [initialBlock],
-        postPixels: 0,
-      };
+    this.showBlocks({
+      prePixels: 0,
+      blocks: [initialBlock],
+      postPixels: 0,
     });
     this.cdr.markForCheck();
 
     try {
       await initialBlock.dataPromise;
-      this.cdr.markForCheck();
-      this.resetting = false;
-      this.setScrollPosition(0);
     } catch (error: unknown) {
+      if (generation !== this.generation) {
+        return;
+      }
       console.error('Error loading initial data block:', error);
       this.cdr.markForCheck();
       this.resetting = false;
+      return;
     }
-    // const initialBlockStatus = initialBlock.$status();
-    // if (initialBlockStatus !== 'success') {
-    //     console.error('Initial data block failed to load:', initialBlockStatus);
-    //     this.cdr.markForCheck();
-    //     return;
-    // }
+    if (generation !== this.generation) {
+      return;
+    }
+    this.cdr.markForCheck();
+    this.resetting = false;
+    this.setScrollPosition(0);
+  }
+
+  /** Cancels every load and drops what they would answer; for a component that is destroyed */
+  destroy() {
+    this.generation++;
+    this.$_allDataInfo()?.abort.abort();
+    for (const block of this.$_blocks().blocks) {
+      block.abort?.abort();
+    }
   }
 
   private getBlock(blockId: number): DataBlock<TData> {
-    if (this.allDataInfo) {
+    const generation = this.generation;
+    const options = this.dataOptions!;
+    const allDataInfo = this.$_allDataInfo();
+    if (allDataInfo) {
       // we are using full data
-      const blockPromise = this.allDataInfo.promise.then(data => {
+      const blockPromise = allDataInfo.promise.then(data => {
         return data.slice(blockId * this.blockRowCount, (blockId + 1) * this.blockRowCount);
       });
-      return new DataBlock<TData>(blockId, undefined, this.blockRowCount, this.dataOptions!.getRowKey, blockPromise);
+      // aborted with the full load, so the block is cancelled, not failed, when a newer load replaces that one
+      const blockAbort = new AbortController();
+      allDataInfo.abort.signal.addEventListener(
+        'abort',
+        () => {
+          blockAbort.abort();
+        },
+        { once: true },
+      );
+      return new DataBlock<TData>(blockId, blockAbort, this.blockRowCount, options.getRowKey, blockPromise);
     } else {
       // we are using incremental data
       const blockAbort = new AbortController();
@@ -135,7 +154,7 @@ export class DataManager<TData> {
       if (!Number.isFinite(this.blockRowCount)) {
         blockPromise = Promise.resolve([]);
       } else {
-        blockPromise = (this.dataOptions as IncrementalDataOptions<TData>)
+        blockPromise = (options as IncrementalDataOptions<TData>)
           .getDataBlock({
             offset: blockId * this.blockRowCount,
             count: this.blockRowCount,
@@ -143,9 +162,11 @@ export class DataManager<TData> {
             abort: blockAbort.signal,
           })
           .then(response => {
-            this._totalRowCount = response.total;
+            if (generation === this.generation) {
+              this._totalRowCount = response.total;
+            }
             return response.data.map(row => ({
-              key: this.dataOptions!.getRowKey(row),
+              key: options.getRowKey(row),
               data: row,
             }));
           })
@@ -157,7 +178,7 @@ export class DataManager<TData> {
             return data;
           });
       }
-      return new DataBlock<TData>(blockId, blockAbort, this.blockRowCount, this.dataOptions!.getRowKey, blockPromise);
+      return new DataBlock<TData>(blockId, blockAbort, this.blockRowCount, options.getRowKey, blockPromise);
     }
   }
 
@@ -189,33 +210,35 @@ export class DataManager<TData> {
       blockIdsToLoad.push(i);
     }
 
-    this.$_blocks.update(existing => {
-      const blocks: DataBlock<TData>[] = [];
-      for (const existingBlock of existing.blocks) {
-        if (blockIdsToLoad.includes(existingBlock.id)) {
-          blocks.push(existingBlock);
-        } else {
-          existingBlock.abort?.abort();
-        }
+    const blocks: DataBlock<TData>[] = this.$_blocks().blocks.filter(block => blockIdsToLoad.includes(block.id));
+    for (const blockId of blockIdsToLoad) {
+      if (!blocks.some(b => b.id === blockId)) {
+        blocks.push(this.getBlock(blockId));
       }
-      for (const blockId of blockIdsToLoad) {
-        if (!blocks.some(b => b.id === blockId)) {
-          const newBlock = this.getBlock(blockId);
-          blocks.push(newBlock);
-        }
-      }
+    }
+    blocks.sort((a, b) => a.id - b.id);
 
-      existing.blocks = blocks.sort((a, b) => a.id - b.id);
-
-      // // rows before the first block
-      existing.prePixels = existing.blocks.length === 0 ? 0 : existing.blocks[0].id * this.dataBlockHeightPx;
-      // // rows after the last block
-      const lastBlock = existing.blocks.length === 0 ? undefined : existing.blocks[existing.blocks.length - 1];
-      const preAndDisplayedRowsCount = (lastBlock?.offset ?? 0) + (this.blockRowCount ?? 0);
-      const postRowsCount = this.totalRowCount - preAndDisplayedRowsCount;
-      existing.postPixels = Math.max(0, postRowsCount) * this.dataRowHeightPx;
-      return existing;
+    // rows before the first block
+    const prePixels = blocks.length === 0 ? 0 : blocks[0].id * this.dataBlockHeightPx;
+    // rows after the last block
+    const lastBlock = blocks.length === 0 ? undefined : blocks[blocks.length - 1];
+    const preAndDisplayedRowsCount = (lastBlock?.offset ?? 0) + this.blockRowCount;
+    const postRowsCount = this.totalRowCount - preAndDisplayedRowsCount;
+    this.showBlocks({
+      prePixels,
+      blocks,
+      postPixels: Math.max(0, postRowsCount) * this.dataRowHeightPx,
     });
+  }
+
+  // A new object each time, so the view and any computed see the change; the blocks it drops are cancelled once it is
+  // set, since a cancel can run change detection, which then reads the new blocks
+  private showBlocks(next: BlocksInfo<TData>) {
+    const dropped = this.$_blocks().blocks.filter(block => !next.blocks.includes(block));
+    this.$_blocks.set(next);
+    for (const block of dropped) {
+      block.abort?.abort();
+    }
   }
 }
 
@@ -244,9 +267,10 @@ export class AllDataInfo<TData> {
         this.$_status.set('success');
       })
       .catch((error: unknown) => {
+        // a cancelled load is no error: a newer load replaced it
         if (this.abort.signal.aborted) {
           this.$_status.set('canceled');
-          throw error;
+          return;
         }
         this.$_status.set('error');
         console.error('Error loading all data:', error);

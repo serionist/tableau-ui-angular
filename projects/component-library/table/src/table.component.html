@@ -204,6 +204,8 @@
         @for (r of block.$data(); track r.key) {
           @let rowIndex = $index;
           @let rowFirst = $first;
+          <!-- a row still loading is a placeholder, which the app's code never gets -->
+          @let loaded = block.$status() === 'success';
 
           <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
           <div
@@ -212,13 +214,13 @@
             [style.height]="$dataRowCss().height"
             [style.maxHeight]="$dataRowCss().height"
             [class.even]="(block.offset + rowIndex) % 2 === 0"
-            [class.selected]="r.data | rowSelected: $selectedRows() : $dataOptions()"
-            (click)="rowClicked(r.data, $event)"
+            [class.selected]="loaded && (r.data | rowSelected: $selectedRows() : $dataOptions())"
+            (click)="rowClicked(r.data, block, $event)"
           >
             @if (hasCheckboxColumn) {
               <div class="cell check-select pinned-left" role="cell" [style.width]="checkboxColWidth" [style.minWidth]="checkboxColWidth">
-                @if (block.$status() === 'success') {
-                  <tab-checkbox [value]="r.data | rowSelected: $selectedRows() : $dataOptions()" (valueChange)="checkboxSelectChange(r.data, $event)" (click)="checkboxClicked($event)" />
+                @if (loaded) {
+                  <tab-checkbox [value]="r.data | rowSelected: $selectedRows() : $dataOptions()" (valueChange)="checkboxSelectChange(r.data, $event)" />
                 }
               </div>
             }
@@ -259,7 +261,7 @@
                 [ngStyle]="$dataRowCss()"
                 [style.left]="!def.pinnedLeft ? 'initial' : hasCheckboxColumn ? checkboxColWidth : '0'"
                 [style.width]="$columnWidthDirectives() | cellWidth: def.id : $dataRowCss().padding | async"
-                [ngClass]="cellContext.$implicit | cellClass"
+                [ngClass]="loaded ? (cellContext.$implicit | cellClass) : undefined"
                 [tooltipLazyArgs]="cell | cellTooltip: def.col : cellContext.$implicit : block"
               >
                 @switch (block.$status()) {

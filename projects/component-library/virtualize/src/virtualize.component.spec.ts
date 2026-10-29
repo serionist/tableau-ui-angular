@@ -1,0 +1,240 @@
+import { ChangeDetectionStrategy, Component, PLATFORM_ID, signal, viewChild } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
+import { axeViolations } from '../../testing/axe';
+import type { Person } from '../../testing/people';
+import { PEOPLE, PeopleServer } from '../../testing/people';
+import type { DataRowCss } from './base/virutalize-base.component';
+import type { DataOptions } from './data/data-options';
+import type { DataSort } from './data/data-sort';
+import { TableauUiVirtualizeModule } from './tableau-ui-virtualize.module';
+import { VirtualizeComponent } from './virtualize.component';
+
+@Component({
+  imports: [TableauUiVirtualizeModule],
+  template: `
+    <tab-virtualize #list style="height: 200px" [style.fontSize]="$fontSize()" [dataOptions]="$options()" [(dataSort)]="$sort" [dataRowCss]="$rowCss()">
+      <ng-template let-ctx [tabItemTemplate]="list">{{ ctx.item.name }}</ng-template>
+    </tab-virtualize>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class PeopleListComponent {
+  readonly server = new PeopleServer();
+  readonly $options = signal<DataOptions<Person>>(this.server.incremental);
+  readonly $sort = signal<DataSort[]>([]);
+  // 20 px rows, 10 to the 200 px window
+  readonly $rowCss = signal<DataRowCss>({ height: '20px', lineHeight: '20px', padding: '0 8px' });
+  readonly $fontSize = signal<string | null>(null);
+  readonly list = viewChild.required<VirtualizeComponent<Person>>(VirtualizeComponent);
+}
+
+describe('VirtualizeComponent', () => {
+  async function render(setUp?: (component: PeopleListComponent) => void) {
+    const fixture = TestBed.createComponent(PeopleListComponent);
+    const component = fixture.componentInstance;
+    setUp?.(component);
+    fixture.autoDetectChanges();
+    await fixture.whenStable();
+    const host = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('tab-virtualize')!;
+    // the names the rows show, in order
+    const shown = () => Array.from(host.querySelectorAll('.item'), item => item.textContent.trim()).filter(text => text !== '');
+    // lets the answers' promises run and the page render
+    const settle = async () => {
+      await new Promise(resolve => setTimeout(resolve));
+      await fixture.whenStable();
+    };
+    const { server } = component;
+    // loads, answering each request
+    const load = async () => {
+      const loading = component.list().load();
+      await server.answerAll(settle);
+      return loading;
+    };
+    const scrollTo = async (top: number) => {
+      host.scrollTop = top;
+      host.dispatchEvent(new Event('scroll'));
+      await server.answerAll(settle);
+    };
+    return { fixture, component, host, server, shown, settle, load, scrollTo };
+  }
+
+  // F3: the row metrics came from spreading getComputedStyle(), which copies no named property in Firefox, so the
+  // height was undefined, load() threw and the list showed "No data available"
+  it('shows its rows in every browser', async () => {
+    const { host, shown, load } = await render();
+
+    expect(await load()).toBe(true);
+
+    expect(shown().slice(0, 3)).toEqual(['Person 1', 'Person 2', 'Person 3']);
+    expect(host.textContent).not.toContain('No data available');
+    // 100 rows of 20 px: the rows shown and the space for the rest
+    expect(host.scrollHeight).toBe(2000);
+  });
+
+  // F109: a row was measured on the body, so with another font size in the list its em height was wrong, and the
+  // space kept for the rows not shown didn't match the rows
+  it('measures a row in its own font size', async () => {
+    const { component, host, load } = await render(c => {
+      c.$fontSize.set('10px');
+      c.$rowCss.set({ height: '2em', lineHeight: '2em', padding: '0 8px' });
+    });
+
+    await load();
+
+    expect(host.querySelector<HTMLElement>('.item')!.getBoundingClientRect().height).toBe(20);
+    expect(host.scrollHeight).toBe(2000);
+    expect(component.server.requests[0].count).toBe(10);
+  });
+
+  // F92: load() let the inputs' changes through only once its first block came, so a sort set while it loaded was
+  // dropped
+  it('loads with the sort the app sets while it first loads', async () => {
+    const { component, server, shown, settle } = await render();
+
+    const loading = component.list().load();
+    await settle();
+    component.$sort.set([{ property: 'id', direction: 'desc' }]);
+    await server.answerAll(settle);
+
+    expect(await loading).toBe(true);
+    expect(shown().slice(0, 2)).toEqual(['Person 100', 'Person 99']);
+    expect(server.requests.at(-1)!.sort).toEqual([{ property: 'id', direction: 'desc' }]);
+  });
+
+  // F91: a reset another one overtook still wrote the shared state when its block was cancelled: it let scrolling
+  // through, which found no rows yet and dropped the newer reset's block, leaving "No data available"
+  it('leaves the rows to the newer of two resets', async () => {
+    const { component, server, shown, settle, load, scrollTo, host } = await render();
+    await load();
+    await scrollTo(600);
+
+    // the app resets twice in a row, as a double click on its refresh button does
+    void component.list().reset();
+    void component.list().reset();
+    await settle();
+    // the rows go while the first block reloads, so the browser scrolls back up
+    host.dispatchEvent(new Event('scroll'));
+    await server.answerAll(settle);
+
+    expect(shown().slice(0, 2)).toEqual(['Person 1', 'Person 2']);
+  });
+
+  // F91: an overtaken request that a server answered anyway set the row count and finished its reset
+  it('ignores the answer to a request a newer reset replaced', async () => {
+    const { component, server, shown, settle, load, host } = await render();
+    await load();
+    server.ignoresAbort = true;
+
+    void component.list().reset();
+    await settle();
+    const overtaken = server.waiting;
+    server.rows = PEOPLE.slice(0, 5);
+    void component.list().reset();
+    await settle();
+    for (const request of server.waiting.filter(request => !overtaken.includes(request))) {
+      request.answer();
+    }
+    await settle();
+    expect(shown()).toEqual(['Person 1', 'Person 2', 'Person 3', 'Person 4', 'Person 5']);
+
+    server.rows = PEOPLE;
+    await server.answerAll(settle);
+    host.dispatchEvent(new Event('scroll'));
+    await server.answerAll(settle);
+
+    expect(shown()).toEqual(['Person 1', 'Person 2', 'Person 3', 'Person 4', 'Person 5']);
+  });
+
+  // F98: cancelling a full load, as two quick sorts do, logged errors and rejected two promises nobody handled, which
+  // reach the app's ErrorHandler as errors
+  it('cancels a load a newer one replaces without an error', async () => {
+    const rejections: unknown[] = [];
+    const listener = (event: PromiseRejectionEvent) => rejections.push(event.reason);
+    window.addEventListener('unhandledrejection', listener);
+    const logged = vi.spyOn(console, 'error').mockImplementation(() => {
+      // recorded only
+    });
+    try {
+      const { component, server, shown, settle, load } = await render(c => {
+        c.$options.set(c.server.full);
+      });
+      await load();
+
+      component.$sort.set([{ property: 'id', direction: 'desc' }]);
+      await settle();
+      component.$sort.set([{ property: 'name', direction: 'asc' }]);
+      await server.answerAll(settle);
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      expect(rejections).toEqual([]);
+      expect(logged.mock.calls).toEqual([]);
+      expect(shown().slice(0, 3)).toEqual(['Person 1', 'Person 10', 'Person 100']);
+    } finally {
+      window.removeEventListener('unhandledrejection', listener);
+      logged.mockRestore();
+    }
+  });
+
+  // F106: a destroyed list kept loading, and wrote its answers into a list nobody saw
+  it('cancels its loads when it is destroyed', async () => {
+    const { fixture, component, server, settle } = await render();
+    void component.list().load();
+    await settle();
+    const [first] = server.waiting;
+
+    fixture.destroy();
+
+    expect(first.abort.aborted).toBe(true);
+  });
+
+  it('reloads when the app changes its data options', async () => {
+    const { component, server, shown, settle, load } = await render();
+    await load();
+    const other = new PeopleServer(PEOPLE.slice(0, 3));
+
+    component.$options.set(other.incremental);
+    await other.answerAll(settle);
+
+    expect(shown()).toEqual(['Person 1', 'Person 2', 'Person 3']);
+    expect(server.waiting).toEqual([]);
+  });
+
+  it('shows no rows for no data', async () => {
+    const { component, host, load } = await render(c => {
+      c.server.rows = [];
+    });
+
+    expect(await load()).toBe(true);
+
+    expect(component.server.requests).toHaveLength(1);
+    expect(host.textContent).toContain('No data available');
+  });
+
+  // F144: the row was measured while rendering, with the document and getComputedStyle, which the server has not
+  it('renders on the server, measuring nothing there', async () => {
+    const measured = vi.spyOn(window, 'getComputedStyle');
+    TestBed.overrideProvider(PLATFORM_ID, { useValue: 'server' });
+    const globals = globalThis as { ngServerMode?: boolean };
+    // Angular's own flag for server rendering, which afterNextRender reads
+    globals.ngServerMode = true;
+    try {
+      const { component, host } = await render();
+
+      expect(await component.list().load()).toBe(false);
+      expect(measured).not.toHaveBeenCalled();
+      expect(component.server.requests).toEqual([]);
+      expect(host.textContent).toContain('No data available');
+    } finally {
+      delete globals.ngServerMode;
+      measured.mockRestore();
+    }
+  });
+
+  it('passes axe', async () => {
+    const { fixture, load } = await render();
+    await load();
+
+    // a list of plain text holds nothing focusable, so the keyboard can't scroll it in every browser (#68)
+    expect(await axeViolations(fixture.nativeElement as HTMLElement, { 'scrollable-region-focusable': '#68' })).toEqual([]);
+  });
+});
