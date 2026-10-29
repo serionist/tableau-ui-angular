@@ -38,6 +38,7 @@ export class DataBlock<TData> {
         this.$_status.set('success');
       })
       .catch((error: unknown) => {
+        // a cancelled block is no error: a newer load, or scrolling, replaced it
         if (this.abort?.signal.aborted === true) {
           this.$_status.set('canceled');
           return;

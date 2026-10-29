@@ -40,7 +40,6 @@
           [style.maxHeight]="$dataRowCss().height"
           [style.minHeight]="$dataRowCss().height"
           [class.even]="(block.offset + $index) % 2 === 0"
-          [style.width]="`calc(100% - ${$dataRowHorizontalPaddingPx}px)`"
         >
           @switch (block.$status()) {
             @case ('loading') {

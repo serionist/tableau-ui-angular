@@ -1,5 +1,5 @@
 import type { TemplateRef } from '@angular/core';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, contentChild, effect, ElementRef, HostListener, inject, input, model, signal, untracked } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, contentChild, ElementRef, HostListener, inject, input, model } from '@angular/core';
 import type { DataRowCss } from './base/virutalize-base.component';
 import { VirtualizeBaseComponent } from './base/virutalize-base.component';
 import type { DataOptions } from './data/data-options';
@@ -51,6 +51,7 @@ export class VirtualizeComponent<TData> extends VirtualizeBaseComponent<TData> {
    * The height of the data window in pixels.
    * When undefined, the height will be calculated based on the container size.
    * If set, this will override the automatic height calculation.
+   * It is read by load() and reload(): call reload() after changing it.
    */
   readonly $dataWindowHeightPx = input<number | undefined>(undefined, {
     alias: 'dataWindowHeightPx',
@@ -62,6 +63,7 @@ export class VirtualizeComponent<TData> extends VirtualizeBaseComponent<TData> {
   readonly $dataSort = model.required<DataSort[]>({
     alias: 'dataSort',
   });
+  protected readonly $sortModel = this.$dataSort;
 
   /**
    * The number of data blocks to load before and after the currently displayed block(s) based on scroll position.
@@ -91,100 +93,9 @@ export class VirtualizeComponent<TData> extends VirtualizeBaseComponent<TData> {
   readonly $customLoaderTemplate = contentChild(CustomLoaderDirective);
   // #endregion Templates
 
-  protected readonly $dataRowHorizontalPaddingPx = computed(() => {
-    const computedStyle = this.$dataRowComputedStyle();
-    const getPxValue = (prop: string, value: string) => {
-      if (value.endsWith('px')) {
-        return parseFloat(value);
-      }
-      throw new Error(`Invalid CSS value for ${prop}: ${value}. It must be a pixel value.`);
-    };
-    return (
-      getPxValue('paddingLeft', computedStyle.paddingLeft) +
-      getPxValue('paddingRight', computedStyle.paddingRight) +
-      getPxValue('marginLeft', computedStyle.marginLeft) +
-      getPxValue('marginRight', computedStyle.marginRight) +
-      getPxValue('borderLeftWidth', computedStyle.borderLeftWidth) +
-      getPxValue('borderRightWidth', computedStyle.borderRightWidth)
-    );
-  });
-
-  protected readonly $loading = signal(false);
-  private loaded = false;
-  private autoDataWindowHeightPx: number = 0; // This will be set to the host element's clientHeight when load() is called
-  /**
-   * Loads the container data. Only callable once. If the container is already loaded, this will do nothing.
-   * This will calculate the available window height and reset() the container.
-   * Use this to load the container initially
-   * Use reload() to reload the container data if the container size changes
-   */
-  async load() {
-    if (this.loaded) {
-      return false;
-    }
-    return this.reload();
-  }
-
-  /**
-   * Reloads the container data.
-   * This will re-calculate the available window height and reset() the container.
-   * Use this to reload the container data if the container size changes
-   */
-  async reload() {
-    this.loaded = false;
-    const host = this.host.nativeElement;
-    this.autoDataWindowHeightPx = host.clientHeight;
-    const initialLoad = await this.resetInternal(this.$dataSort(), this.$dataOptions(), this.$dataBlockWindow());
-    if (initialLoad) {
-      this.loaded = true;
-    }
-    return initialLoad;
-  }
-
-  /**
-   * Resets the container to its initial state.
-   * This will reset the scroll position, and data
-   * If resetSort is true, the sort will also be reset to the initial state.
-   * @param resetSort Whether to reset the sort to the initial state
-   * @returns A promise that resolves to true if the reset was successful, false otherwise.
-   */
-  async reset(resetSort: boolean = false): Promise<boolean> {
-    if (!this.loaded) {
-      return false;
-    }
-    if (resetSort) {
-      this.$dataSort.set([]);
-    }
-    const sort = this.$dataSort();
-    const dataOptions = this.$dataOptions();
-    const dataBlockWindow = this.$dataBlockWindow();
-    return this.resetInternal(sort, dataOptions, dataBlockWindow);
-  }
-
-  private readonly autoReset = effect(() => {
-    const sort = this.$dataSort();
-    const dataOptions = this.$dataOptions();
-    const dataBlockWindow = this.$dataBlockWindow();
-    this.$dataRowComputedStyle(); // ensure the data row style is computed and run this on change
-    if (!this.loaded) {
-      return;
-    }
-
-    untracked(() => void this.resetInternal(sort, dataOptions, dataBlockWindow));
-  });
-
-  private async resetInternal(sort: DataSort[] | undefined, dataOptions: DataOptions<TData> | undefined, dataBlockWindow: number): Promise<boolean> {
-    const dataWindowHeightPx = this.$dataWindowHeightPx() ?? this.autoDataWindowHeightPx;
-    if (dataWindowHeightPx === 0 || !sort || !dataOptions) {
-      console.warn('Container reset called with undefined parameters, ignoring');
-      return false;
-    }
-
-    const dataRowHeightPx = this.$dataRowHeightPx();
-    this.$loading.set(true);
-    await this.dataManager.reset(dataWindowHeightPx, dataRowHeightPx, sort, dataBlockWindow, dataOptions);
-    this.$loading.set(false);
-    return true;
+  // the dataWindowHeightPx input, or the host's height
+  protected measureDataWindowHeightPx(): number {
+    return this.$dataWindowHeightPx() ?? this.host.nativeElement.clientHeight;
   }
 
   @HostListener('scroll', ['$any($event.target)'])

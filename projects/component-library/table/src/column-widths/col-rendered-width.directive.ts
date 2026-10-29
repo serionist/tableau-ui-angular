@@ -1,12 +1,12 @@
-import type { AfterViewInit, OnDestroy } from '@angular/core';
-import { Directive, ElementRef, inject, input } from '@angular/core';
+import type { OnDestroy } from '@angular/core';
+import { afterNextRender, Directive, ElementRef, inject, input } from '@angular/core';
 import type { Observable } from 'rxjs';
 import { BehaviorSubject } from 'rxjs';
 @Directive({
   selector: '[colRenderedWidth]',
   standalone: false,
 })
-export class ColRenderedWidthDirective implements OnDestroy, AfterViewInit {
+export class ColRenderedWidthDirective implements OnDestroy {
   readonly columnId = input.required<string>({
     alias: 'colRenderedWidth',
   });
@@ -21,12 +21,16 @@ export class ColRenderedWidthDirective implements OnDestroy, AfterViewInit {
   public get isObserving() {
     return this.observer !== undefined;
   }
-  ngAfterViewInit(): void {
-    this.observer = new ResizeObserver(() => {
-      const width = +getComputedStyle(this.element.nativeElement).width.replace('px', '');
-      this._renderedWidth.next(width);
+
+  constructor() {
+    // after the first render, in the browser only: the server has no ResizeObserver, nor a layout to measure
+    afterNextRender(() => {
+      this.observer = new ResizeObserver(() => {
+        const width = +getComputedStyle(this.element.nativeElement).width.replace('px', '');
+        this._renderedWidth.next(width);
+      });
+      this.observer.observe(this.element.nativeElement);
     });
-    this.observer.observe(this.element.nativeElement);
   }
 
   ngOnDestroy(): void {

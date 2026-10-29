@@ -1,28 +1,12 @@
 import type { InputSignal, ModelSignal, TemplateRef } from '@angular/core';
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  computed,
-  contentChildren,
-  effect,
-  ElementRef,
-  HostListener,
-  inject,
-  input,
-  model,
-  signal,
-  untracked,
-  viewChild,
-  viewChildren,
-} from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, contentChildren, ElementRef, HostListener, inject, input, model, viewChild, viewChildren } from '@angular/core';
 import type { SortOrderPair } from './defs/column-def/column-def.directive';
 import { ColumnDefDirective } from './defs/column-def/column-def.directive';
 import { ColRenderedWidthDirective } from './column-widths/col-rendered-width.directive';
 import type { SelectionOptions } from './selection/selection-options';
 import { MultiSelectionOptions, SingleSelectionOptions } from './selection/selection-options';
 import type { Primitive } from 'tableau-ui-angular/types';
-import type { DataOptions, DataRowCss, DataSort } from 'tableau-ui-angular/virtualize';
+import type { DataBlock, DataOptions, DataRowCss, DataSort } from 'tableau-ui-angular/virtualize';
 import { VirtualizeBaseComponent } from 'tableau-ui-angular/virtualize';
 
 @Component({
@@ -256,87 +240,21 @@ export class TableComponent<TData> extends VirtualizeBaseComponent<TData> {
   );
   // #endregion
   // #region Load & Reset
-  private loaded = false;
-  private dataWindowHeightPx: number = 0;
+  // load(), reload() and reset() are the base's: the sort the data loads with is the table's, and the window the rows
+  // are shown in is the host's height under the header row
+  protected readonly $sortModel = this.$sort;
 
-  /**
-   * Loads the table data. Only callable once. If the table is already loaded, this will do nothing.
-   * This will calculate the available window height and reset() the table.
-   * Use this to load the table initially
-   * Use reload() to reload the table data if the table size changes
-   */
-  async load() {
-    if (this.loaded) {
-      return false;
-    }
-    return this.reload();
+  protected measureDataWindowHeightPx(): number {
+    return this.hostElement.nativeElement.clientHeight - this.$headerRow().nativeElement.clientHeight;
   }
-  /**
-   * Reloads the table data.
-   * This will re-calculate the available window height and reset() the table.
-   * Use this to reload the table data if the table size changes
-   */
-  async reload() {
-    this.loaded = false;
-    this.initializeLineClamp();
-    const host = this.hostElement.nativeElement;
-    // calculate data window height
-    this.dataWindowHeightPx = host.clientHeight - this.$headerRow().nativeElement.clientHeight;
 
-    const initialLoad = await this.resetInternal(this.$sort(), this.$dataOptions(), this.$dataBlockWindow());
-    if (initialLoad) {
-      this.loaded = true;
-    }
-    return initialLoad;
-  }
-  private readonly dataManagerReset = effect(() => {
-    const sort = this.$sort();
-    const dataOptions = this.$dataOptions();
-    const dataBlockWindow = this.$dataBlockWindow();
+  // The selection options say which resets clear the selection; reading them here doesn't make them reset the data
+  protected override beforeReset(trigger: 'auto' | 'manual') {
     const selectionOptions = this.$selectionOptions();
-    this.$dataRowComputedStyle(); // ensure the data row style is computed and run this on change
-    if (!this.loaded) {
-      return;
-    }
-    if (selectionOptions?.clearSelectedKeysOnAnyReset === true) {
+    const clear = trigger === 'manual' ? selectionOptions?.clearSelectedKeysOnManualReset !== false : selectionOptions?.clearSelectedKeysOnAnyReset === true;
+    if (clear) {
       this.$selectedRows.set(new Map<Primitive, TData>());
     }
-
-    untracked(() => void this.resetInternal(sort, dataOptions, dataBlockWindow));
-  });
-  private async resetInternal(sort: DataSort[] | undefined, dataOptions: DataOptions<TData> | undefined, dataBlockWindow: number): Promise<boolean> {
-    if (this.dataWindowHeightPx === 0 || !sort || !dataOptions) {
-      console.warn('Table reset called with undefined parameters, ignoring');
-      return false;
-    }
-
-    const dataRowHeightPx = this.$dataRowHeightPx();
-    await this.dataManager.reset(this.dataWindowHeightPx, dataRowHeightPx, sort, dataBlockWindow, dataOptions);
-    return true;
-  }
-
-  /**
-   * Resets the table to its initial state.
-   * This will reset the scroll position, data, and optionally selection.
-   * If resetSort is true, the sort will also be reset to the initial state.
-   * @param resetSort Whether to reset the sort to the initial state
-   * @returns A promise that resolves to true if the reset was successful, false otherwise.
-   */
-  async reset(resetSort: boolean = false): Promise<boolean> {
-    if (!this.loaded) {
-      return false;
-    }
-    if (resetSort) {
-      this.$sort.set([]);
-    }
-    const sort = this.$sort();
-    const dataOptions = this.$dataOptions();
-    const dataBlockWindow = this.$dataBlockWindow();
-    const selectionOptions = this.$selectionOptions();
-    if (selectionOptions?.clearSelectedKeysOnManualReset !== false) {
-      this.$selectedRows.set(new Map<Primitive, TData>());
-    }
-    return this.resetInternal(sort, dataOptions, dataBlockWindow);
   }
   // #endregion
 
@@ -369,12 +287,13 @@ export class TableComponent<TData> extends VirtualizeBaseComponent<TData> {
         if (s.property === propertyName) {
           // toggle sort mode
           if (s.direction === def.$sortOrder()[1]) {
-            // emove sort
+            // remove sort
             this.$sort.set(sort.filter(f => f.property !== propertyName));
             return;
           } else {
-            s.direction = s.direction === 'asc' ? 'desc' : 'asc';
-            this.$sort.set([...sort]);
+            // a new object for the turned column: the list's may be the app's own
+            const direction = s.direction === 'asc' ? 'desc' : 'asc';
+            this.$sort.set(sort.map(f => (f === s ? { ...f, direction } : f)));
           }
 
           return;
@@ -401,7 +320,19 @@ export class TableComponent<TData> extends VirtualizeBaseComponent<TData> {
   // #region Selection
 
   // #region MultiSelect Header Checkbox
-  protected readonly $selectionMultiHeaderCheckboxSelected = model<boolean | 'partial'>(this.$selectedRows().size > 0 ? 'partial' : false);
+  // Checked when the selection holds every row of the full load, partial when it holds some; it follows each reset's
+  // load, since the data manager's all-data info is a signal
+  protected readonly $selectionMultiHeaderCheckboxSelected = computed<boolean | 'partial'>(() => {
+    const selectedRows = this.$selectedRows();
+    if (selectedRows.size === 0) {
+      return false;
+    }
+    const allDataInfo = this.dataManager.$allDataInfo();
+    if (allDataInfo?.$status() === 'success' && [...allDataInfo.$allKeys()].every(key => selectedRows.has(key))) {
+      return true;
+    }
+    return 'partial';
+  });
   selectionMultiHeaderCheckboxSelectNoneChanged() {
     this.$selectedRows.set(new Map<Primitive, TData>());
   }
@@ -416,21 +347,11 @@ export class TableComponent<TData> extends VirtualizeBaseComponent<TData> {
       this.$selectedRows.set(new Map<Primitive, TData>());
     }
   }
-  private readonly updateSelectionMultiHeaderCheckboxSelected = effect(() => {
-    let value: boolean | 'partial' = false;
-    const selectedRows = this.$selectedRows();
-    if (selectedRows.size === 0) {
-      value = false;
-    } else if (this.dataManager.allDataInfo?.$status() === 'success' && [...this.dataManager.allDataInfo.$allKeys().keys()].every(key => selectedRows.has(key))) {
-      value = true;
-    } else {
-      value = 'partial';
-    }
-    this.$selectionMultiHeaderCheckboxSelected.set(value);
-  });
   // #endregion
 
-  protected rowClicked(row: TData, e: MouseEvent) {
+  // A click on a row selects it, unless it was meant for a control in a cell, such as a link, a checkbox (the row's own
+  // selection checkbox included) or a button: that click is the control's, and isn't cancelled
+  protected rowClicked(row: TData, block: DataBlock<TData>, e: MouseEvent) {
     const selectionOptions = this.$selectionOptions();
     if (!selectionOptions) {
       return;
@@ -438,8 +359,16 @@ export class TableComponent<TData> extends VirtualizeBaseComponent<TData> {
     if (selectionOptions.selectionMode !== 'row-and-checkbox') {
       return;
     }
+    const control = e.target instanceof Element ? e.target.closest(INTERACTIVE) : null;
+    if (control !== null && e.currentTarget instanceof Element && e.currentTarget.contains(control)) {
+      return;
+    }
     e.stopPropagation();
     e.preventDefault();
+    // a row still loading is a placeholder, not the app's row
+    if (block.$status() !== 'success') {
+      return;
+    }
     const dataOptions = this.$dataOptions();
     const key = dataOptions.getRowKey(row);
     const selectedRows = this.$selectedRows();
@@ -458,12 +387,6 @@ export class TableComponent<TData> extends VirtualizeBaseComponent<TData> {
         this.$selectedRows.set(new Map<Primitive, TData>([[key, row]]));
       }
     }
-
-    // select the row
-  }
-  protected checkboxClicked(e: MouseEvent) {
-    e.stopPropagation();
-    e.preventDefault();
   }
   protected checkboxSelectChange(row: TData, checked: boolean | 'partial') {
     const selectionOptions = this.$selectionOptions();
@@ -473,13 +396,14 @@ export class TableComponent<TData> extends VirtualizeBaseComponent<TData> {
     const dataOptions = this.$dataOptions();
     if (selectionOptions instanceof MultiSelectionOptions) {
       const key = dataOptions.getRowKey(row);
-      const selectedRows = this.$selectedRows();
+      // a copy changed: the Map may be the app's own
+      const selectedRows = new Map<Primitive, TData>(this.$selectedRows());
       if (checked === true) {
         selectedRows.set(key, row);
       } else {
         selectedRows.delete(key);
       }
-      this.$selectedRows.set(new Map<Primitive, TData>(selectedRows));
+      this.$selectedRows.set(selectedRows);
     } else if (selectionOptions instanceof SingleSelectionOptions) {
       const key = dataOptions.getRowKey(row);
       if (checked === true) {
@@ -494,9 +418,9 @@ export class TableComponent<TData> extends VirtualizeBaseComponent<TData> {
 
   // #region Line clamping
 
-  protected readonly $lineClampRows = signal<number>(1);
-  protected readonly $lineClampElementHeightPx = signal<number>(0);
-  private initializeLineClamp() {
+  // The lines of text a cell holds, from the row's CSS, so a change to dataRowCss clamps to its rows; the clamp takes
+  // no height of its own, since -webkit-line-clamp clamps it, and a row's normal line height measures no pixels
+  protected readonly $lineClampRows = computed(() => {
     try {
       const cellStyle = this.$dataRowComputedStyle();
       const getPxValue = (prop: string, value: string) => {
@@ -513,12 +437,31 @@ export class TableComponent<TData> extends VirtualizeBaseComponent<TData> {
 
       const rowHeight = height - paddingTop - paddingBottom;
 
-      const rows = Math.max(Math.floor(rowHeight / lineHeight), 1);
-      this.$lineClampRows.set(rows);
-      this.$lineClampElementHeightPx.set(lineHeight * rows);
+      return Math.max(Math.floor(rowHeight / lineHeight), 1);
     } catch (error: unknown) {
-      console.warn('Failed to initialize line clamp:', error);
+      // once: the clamp holds one line then, and each reload() would say it again
+      if (!this.lineClampWarned) {
+        this.lineClampWarned = true;
+        console.warn('Failed to initialize line clamp:', error);
+      }
+      return 1;
     }
-  }
+  });
+  private lineClampWarned = false;
   // #endregion
 }
+
+// What a click in a cell can be meant for instead of the row: native controls, the library's button toggle, whose
+// options have no role yet, and the WAI-ARIA widget roles
+const INTERACTIVE = [
+  'a[href]',
+  'button',
+  'input',
+  'select',
+  'textarea',
+  'label',
+  'summary',
+  '[contenteditable]:not([contenteditable="false"])',
+  'tab-button-toggle',
+  ...['button', 'link', 'checkbox', 'radio', 'switch', 'tab', 'option', 'menuitem', 'combobox', 'slider', 'spinbutton', 'textbox', 'searchbox'].map(role => `[role="${role}"]`),
+].join(', ');

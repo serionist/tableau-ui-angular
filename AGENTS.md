@@ -115,13 +115,14 @@ maintainer agrees in its issue; in 0.x a minor may break one, under CHANGELOG's 
 
 What this repo already paid for, and the guard.
 
-| What broke                                                                                                             | The guard                                                             |
-| ---------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| `{ ...getComputedStyle(el) }` copies no named property in Firefox, so every table and virtual list was empty           | Read each property by name (`style.height`); the tests run in Firefox |
-| ng-packagr 22 publishes the package as `"type": "module"`, so a CommonJS shipped script threw `require is not defined` | Every shipped `.js` script is an ES module; run it from `dist/` once  |
-| Angular 22 type-checks host bindings, so a `private` member one reads fails the build                                  | Members a template or host binding reads are `protected`              |
-| `ng update` sees only the root `package.json`; the demo app's Angular packages are in `projects/test-app/package.json` | Move them by hand to the same versions, then `npm install`            |
-| A worktree whose `node_modules` linked to another checkout's built and tested that checkout's library                  | `npm ci` in each worktree; never a link or a copy                     |
+| What broke                                                                                                                                          | The guard                                                                                   |
+| --------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `{ ...getComputedStyle(el) }` copies no named property in Firefox, so every table and virtual list was empty                                        | Read each property by name (`style.height`); the tests run in Firefox                       |
+| ng-packagr 22 publishes the package as `"type": "module"`, so a CommonJS shipped script threw `require is not defined`                              | Every shipped `.js` script is an ES module; run it from `dist/` once                        |
+| Angular 22 type-checks host bindings, so a `private` member one reads fails the build                                                               | Members a template or host binding reads are `protected`                                    |
+| `ng update` sees only the root `package.json`; the demo app's Angular packages are in `projects/test-app/package.json`                              | Move them by hand to the same versions, then `npm install`                                  |
+| A worktree whose `node_modules` linked to another checkout's built and tested that checkout's library                                               | `npm ci` in each worktree; never a link or a copy                                           |
+| A worktree inside the main checkout resolved what its own `node_modules` lacks from the main checkout's: zone.js loaded in its specs, never in CI's | Keep the main checkout's install current (`npm ci` there); CI's run, zoneless, is the judge |
 
 ## Look up APIs first
 
