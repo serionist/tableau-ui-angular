@@ -27,7 +27,7 @@ Every top-level file and folder, and the library's own; a new one adds its row i
 | `projects/component-library/package.json`, `ng-package.json`              | what is published: the one version, the peers, the shipped assets                                                                                     |
 | `projects/test-app/`                                                      | the demo app: `src/app/pages/`, `app.routes.server.ts` (what prerenders), its own `package.json`                                                      |
 | `docs/plans/`, `docs/reviews/`                                            | plans, with the template in `README.md`; review records. Dated, never current truth                                                                   |
-| `tools/`                                                                  | `gate.mjs` and `coverage.mjs` (the checks), `hooks.mjs` and `attribution.mjs` (behind `.githooks/`), `pr-text.mjs`, `setup.mjs`, the tests            |
+| `tools/`                                                                  | `gate.mjs` with `coverage.mjs` and `angular.mjs`, `hooks.mjs` and `attribution.mjs` (behind `.githooks/`), `pr-text.mjs`, `setup.mjs`, the tests      |
 | `.githooks/`                                                              | `commit-msg` refuses tool attribution; `pre-push` runs the gate's quick lane                                                                          |
 | `.claude/`                                                                | `CLAUDE.md` (imports this file), `settings.json` (no attribution; whole-command allows, asks, denies: `REVIEW.md`, Permissions), `skills/`            |
 | `.mcp.json`                                                               | the Angular CLI's MCP server and Context7; `.claude/settings.local.json.example` turns them on                                                        |
@@ -63,7 +63,7 @@ Run from the repo root. `ng` is the repo's own CLI: `npx ng` when it is not on P
 - The full lane is what a PR must pass, and what `finish-work` runs.
 - The coverage floor, `lines` in `tools/coverage.json`, is the library's line coverage in whole percent, and it only
   rises: the full lane fails below it, or below the base's. When the lane says "raise it to N", set it to N in that PR.
-  `ng test component-library --watch=false --coverage` measures it.
+  `ng test component-library --watch=false --coverage` measures it; the quick lane refuses an ignore comment for it.
 - A component's spec runs `axeViolations` (`projects/component-library/testing/`); a rule it turns off names the open
   issue that will fix it, and that list only shrinks. The prerender must log no error: a page that throws is a failure.
 

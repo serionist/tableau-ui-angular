@@ -1,7 +1,7 @@
 # The gate on every pull request and every push to main. Linux runs the gate's full lane on Node 22 and 24: lint,
 # format, the harness, no tool attribution and no secrets in the commits, the library build, the hooks' tests, the
-# component tests in Chromium and Firefox, and the demo app's build and prerender. Windows builds the package on Node
-# 24 and packs it, and checks the scripts apps run are in the tarball. The CI job needs every leg; it and pr-text.yml's
+# component tests in Chromium and Firefox, the library's line coverage against its floor, and the demo app's build and
+# prerender. Windows builds the package on Node 24 and packs it, and checks the scripts apps run are in the tarball. The CI job needs every leg; it and pr-text.yml's
 # PR text are the checks the ruleset on main requires. It also runs daily on main, which tests the Dependabot updates
 # that merged themselves: their merge, made with a workflow's token, starts no run of its own.
 name: CI
@@ -54,7 +54,8 @@ jobs:
       # The commits checked start after the PR's base, or after the commit main was on before the push. A PR's
       # checkout is the merge of its branch into the base, so that merge is checked too. A push's before is all zeros
       # for a new branch, and names a commit no longer in the history after a force push: then the head commit alone
-      # is checked, since a squash merge is one commit. GATE_REQUIRE_GITLEAKS makes a missing gitleaks a failure.
+      # is checked, since a squash merge is one commit. The base also holds the coverage floor the branch's may not go
+      # below. GATE_REQUIRE_GITLEAKS makes a missing gitleaks a failure.
       - name: The gate's full lane
         env:
           BASE: ${{ github.event.pull_request.base.sha || github.event.before }}

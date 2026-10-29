@@ -28,9 +28,13 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   inputs' class members are `$valueInput` and `$expandedInput`. `[(value)]` and `[(expanded)]` bind as before, and
   `()` and `.set()` work as before; code that typed them as `ModelSignal` or subscribed to them types them as
   `WritableSignal` and listens to `valueChange` or `expandedChange`.
-- `tab-checkbox` and `tab-radio-group` emit `(valueChange)` only when the user toggles or picks, not when a form writes
-  their value (on init, `setValue`, `reset`). Code that followed the form's value through `(valueChange)` subscribes to
-  the control's `valueChanges` instead.
+- `tab-checkbox` and `tab-radio-group` emit `(valueChange)` on each toggle or pick by the user, and never when a form
+  writes their value (on init, `setValue`, `reset`). Code that followed the form's value through `(valueChange)`
+  subscribes to the control's `valueChanges` instead.
+- `CheckboxComponent.$value` and `RadioGroupComponent.$value` are writable signals, no longer models; their inputs'
+  class members are `$valueInput`, and `valueChange` is an output of its own. `[(value)]` binds as before, and `()`
+  and `.set()` work as before; code that typed them as `ModelSignal` or subscribed to them types them as
+  `WritableSignal` and listens to `valueChange`.
 - `tab-checkbox` and `tab-radio-group` mark their control touched on blur, as Angular's own checkbox and radio buttons
   do, not when the user toggles or picks. An error shown once the control is touched now shows when the user leaves it,
   or on `markAllAsTouched()` at submit.
@@ -44,6 +48,9 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   their type says; they gave the raw value. Pass `'raw'` for the raw value: `form | formGroupValue: 'raw'`.
 - `tab-form-field` has no `style` input. It was unused, and it took a `[style]` binding away from the host; a `style`
   attribute or a `[style]` binding now styles the field itself.
+- `FormFieldComponent` and `ArrowScrollComponent` have no `ngAfterViewInit`: their measuring and observers start after
+  the first render in the browser, so they can render on the server. Code that called the method has nothing to call;
+  the component does that work itself.
 
 ### Added
 
@@ -68,14 +75,15 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   the box as it was.
 - `tab-radio-group` selects the option equal to a date the form writes, though the two are different objects.
 - The library's icon-only buttons keep a name now that icons are hidden: the chip's remove, the select's clear, the
-  snack's close, the arrow scroll's back and forward, and the expansion panel's, nav bar's and tree node's toggles.
+  snack's close, the dialog's close, the arrow scroll's back and forward, and the expansion panel's, nav bar's and tree
+  node's toggles.
 - The typed forms: a change from `null` to `0`, or between other falsy values, reaches `$value()`, `value$` and
   `valueChange`; `valueChange` gets `null` when a control is cleared, not the old value. `alsoRunOnEnabled` runs a
   callback again when the control is enabled, not on every touched or dirty change, and `alsoRunOnDisabled` also runs
   it on an enabled control, first and on each change.
 - A group's and an array's meta follow their children: `markAllAsTouched()` shows a child's error, and a removed row's
-  error goes. An array's `$controls()` and `$childList()` notify on `push`, `insert` and `removeAt`, its raw value
-  follows edits, and the array given to `fb.array` is left as it was.
+  error goes. An array's `$controls()` and `$childList()` notify on `push`, `insert` and `removeAt`, `valueChange`
+  gets the rows its value holds, its raw value follows edits, and the array given to `fb.array` is left as it was.
 - An `alwaysDisabled()` field stays disabled, its element too, after its form is disabled and enabled again; `enable()`
   leaves it disabled.
 - `submitted$` emits when the form bound with `[formGroup]` is submitted; `valueIsDefault` is true from the start; and
