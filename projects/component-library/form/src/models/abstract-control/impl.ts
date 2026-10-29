@@ -61,6 +61,18 @@ export abstract class ACImpl<TValue> implements AC {
     );
   }
 
+  /**
+   * Refreshes this control's whole meta and then each ancestor's, after a change Angular made without an event, such
+   * as a FormArray's `push` with `emitEvent: false`, which still sets its and its parents' status. Each refresh costs
+   * the direct children.
+   */
+  protected refreshMetaUpwards(): void {
+    this.refreshMeta();
+    for (let parent = this.hierarchy.parent; parent; parent = parent.hierarchy.parent) {
+      (parent as ACImpl<unknown>).refreshMeta();
+    }
+  }
+
   private emittingMeta = false;
   private pendingMeta: 'all' | 'children' | undefined;
   /**

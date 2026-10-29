@@ -71,12 +71,20 @@ describe('FA', () => {
     ]);
   });
 
-  it('keeps the raw value in step when a row is pushed without an event', () => {
-    const array = fb.array([row('a')]);
+  // With emitEvent: false Angular changes the FormArray's status, and its parents', without an event, so their metas
+  // kept the old validity
+  it('keeps the raw value and the metas in step when rows change without an event', () => {
+    const form = fb.group<{ items: Row[] }>({ items: fb.array([row('a')]) });
+    const items = form.controls.items;
 
-    array.push(row('b'), { emitEvent: false });
+    items.push(row('', Validators.required), { emitEvent: false });
+    expect(items.$rawValue()).toEqual([{ name: 'a' }, { name: '' }]);
+    expect(items.$meta().validity).toBe('INVALID');
+    expect(form.$meta().validity).toBe('INVALID');
 
-    expect(array.$rawValue()).toEqual([{ name: 'a' }, { name: 'b' }]);
+    items.removeAt(1, true, { emitEvent: false });
+    expect(items.$meta().validity).toBe('VALID');
+    expect(form.$meta().validity).toBe('VALID');
   });
 
   // F7: removeAt emitted the array's meta before its child list changed, so a removed row's error stayed

@@ -118,8 +118,8 @@ export class FAImpl<T extends Record<string, unknown>> extends ACImpl<T[]> imple
     this._rawValue$.next(rawValue);
   }
   // push, insert and removeAt change the child list first, as a new list so the signals over it notify, and then the
-  // FormArray, whose event then reaches valueChange with the rows its value holds. The raw value follows the FormArray
-  // even when it emits nothing.
+  // FormArray, whose event then reaches valueChange with the rows its value holds. The raw value and the metas, the
+  // array's and its ancestors', follow the FormArray even when it emits nothing.
   push(
     control: FG<T>,
     options?: {
@@ -130,6 +130,7 @@ export class FAImpl<T extends Record<string, unknown>> extends ACImpl<T[]> imple
     this.hierarchy.childList$.next([...this.hierarchy.childList$.value, control]);
     this.formArray.push(c as FormGroup<ControlsOf<T>>, options);
     this.refreshRawValue();
+    this.refreshMetaUpwards();
   }
 
   removeAt(index: number, destroyControl: boolean, options?: { emitEvent?: boolean }) {
@@ -140,6 +141,7 @@ export class FAImpl<T extends Record<string, unknown>> extends ACImpl<T[]> imple
     this.hierarchy.childList$.next(childList.filter((_, i) => i !== at));
     this.formArray.removeAt(index, options);
     this.refreshRawValue();
+    this.refreshMetaUpwards();
     if (control !== undefined && destroyControl) {
       control.destroy();
     }
@@ -157,12 +159,14 @@ export class FAImpl<T extends Record<string, unknown>> extends ACImpl<T[]> imple
     this.hierarchy.childList$.next([...childList.slice(0, index), control, ...childList.slice(index)]);
     this.formArray.insert(index, c as FormGroup<ControlsOf<T>>, options);
     this.refreshRawValue();
+    this.refreshMetaUpwards();
   }
   clear(destroyControls: boolean, options?: { emitEvent?: boolean }) {
     const childList = this.hierarchy.childList$.value;
     this.hierarchy.childList$.next([]);
     this.formArray.clear(options);
     this.refreshRawValue();
+    this.refreshMetaUpwards();
     if (destroyControls) {
       childList.forEach(child => {
         child.destroy();
