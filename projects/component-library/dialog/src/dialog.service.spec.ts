@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ApplicationRef, ChangeDetectionStrategy, Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { axeViolations } from '../../testing/axe';
 import { DialogService } from './dialog.service';
 import { TableauUiDialogModule } from './tableau-ui-dialog.module';
 
@@ -15,8 +16,9 @@ describe('DialogService', () => {
     TestBed.configureTestingModule({ imports: [TableauUiDialogModule] });
   });
 
-  // F1: the title was set with innerHTML, so a title built from user data could run script
-  it('shows a header title as text', () => {
+  // F1: the title was set with innerHTML, so a title built from user data could run script. The header's close icon is
+  // focusable, so it is named, not hidden as a decorative icon is
+  it('shows a header title as text, with a named close icon', async () => {
     const title = '<img src=x onerror="alert(1)">';
     const dialogRef = TestBed.inject(DialogService).openModal(DialogContentComponent, undefined, {
       header: { title, allowClose: true },
@@ -26,6 +28,9 @@ describe('DialogService', () => {
     expect(titleElement).not.toBeNull();
     expect(titleElement?.textContent).toBe(title);
     expect(titleElement?.querySelector('img')).toBeNull();
+    TestBed.inject(ApplicationRef).tick();
+    expect(document.querySelector('.dialog-header tab-icon')?.getAttribute('aria-label')).toBe('Close');
+    expect(await axeViolations(document.querySelector('.dialog-container')!)).toEqual([]);
 
     dialogRef.close();
   });

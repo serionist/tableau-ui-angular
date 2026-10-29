@@ -320,6 +320,8 @@ export class DialogService {
           environmentInjector: this.environmentInjector,
           elementInjector: injector,
         });
+        // it is focusable and closes the dialog, so it has a name: an icon without a label is hidden from screen readers
+        iconRef.setInput('label', 'Close');
         const iconElement = (iconRef.hostView as EmbeddedViewRef<unknown>).rootNodes[0] as HTMLElement;
         iconElement.textContent = 'close';
         iconElement.setAttribute('tabindex', '0');
