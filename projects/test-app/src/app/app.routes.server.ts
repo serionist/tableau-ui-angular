@@ -7,5 +7,10 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'checkbox', renderMode: RenderMode.Prerender },
   { path: 'radios', renderMode: RenderMode.Prerender },
   { path: 'form-fields', renderMode: RenderMode.Prerender },
+  { path: 'select', renderMode: RenderMode.Prerender },
+  { path: 'list', renderMode: RenderMode.Prerender },
+  { path: 'chips', renderMode: RenderMode.Prerender },
+  { path: 'menu', renderMode: RenderMode.Prerender },
+  { path: 'date-picker', renderMode: RenderMode.Prerender },
   { path: '**', renderMode: RenderMode.Client },
 ];
