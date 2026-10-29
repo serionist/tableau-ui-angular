@@ -119,11 +119,16 @@ export class AutoCompleteComponent<T extends Primitive> {
       }
       this.$openDialog()?.ref.close();
     }
-    const labelId = parentControl.labels?.[0]?.id;
+    // a label with an id names the listbox by reference; one without, or one around the input, by its text
+    const label = parentControl.labels?.[0];
+    const labelledBy = parentControl.getAttribute('aria-labelledby') ?? (label !== undefined && label.id !== '' ? label.id : null);
+    const labelText = label?.textContent.trim() ?? '';
     this.$listboxName.set({
-      labelledBy: parentControl.getAttribute('aria-labelledby') ?? (labelId !== undefined && labelId !== '' ? labelId : null),
-      label: parentControl.getAttribute('aria-label'),
+      labelledBy,
+      label: parentControl.getAttribute('aria-label') ?? (labelledBy === null && labelText !== '' ? labelText : null),
     });
+    // each opening starts with no suggestion highlighted, as the select's does
+    this.$highlightedOption.set(undefined);
 
     const ref = this.dialogService.openTemplateDialog(
       this.$dropdownTemplate()!,

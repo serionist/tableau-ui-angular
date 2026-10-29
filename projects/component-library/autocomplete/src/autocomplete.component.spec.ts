@@ -1,9 +1,10 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { userEvent } from 'vitest/browser';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
 import { TableauUiFormFieldModule } from 'tableau-ui-angular/form-field';
 import { axeViolations } from '../../testing/axe';
+import type { AutoCompleteComponent } from './autocomplete.component';
 import { TableauUiAutoCompleteModule } from './tableau-ui-autocomplete.module';
 
 @Component({
@@ -20,6 +21,9 @@ import { TableauUiAutoCompleteModule } from './tableau-ui-autocomplete.module';
       <input class="to" type="text" aria-label="To" [tabAutoComplete]="cities" />
     }
     <input class="fixed" type="text" aria-label="Home" readonly value="Vienna" [tabAutoComplete]="cities" />
+    <label for="via">Via</label>
+    <input id="via" class="via" type="text" [tabAutoComplete]="cities" />
+    <label>Stop <input class="stop" type="text" [tabAutoComplete]="cities" /></label>
     <tab-autocomplete #cities>
       <tab-option value="Budapest" text="Budapest" />
       <tab-option value="Berlin" text="Berlin" [disabled]="true" />
@@ -84,6 +88,39 @@ describe('AutoCompleteComponent', () => {
     expect(from.value).toBe('Bern');
     expect(from.getAttribute('aria-expanded')).toBe('false');
     expect(from.getAttribute('aria-controls')).toBeNull();
+    expect(from.getAttribute('aria-activedescendant')).toBeNull();
+  });
+
+  // Round 1, B5: a label with no id, or one wrapped around the input, left the listbox without a name
+  it('names its listbox by a label with no id, or one around the input', async () => {
+    const { fixture, host, input, listbox } = await render();
+
+    for (const [name, text] of [
+      ['via', 'Via'],
+      ['stop', 'Stop'],
+    ]) {
+      input(name).focus();
+      await fixture.whenStable();
+      expect(listbox(input(name))?.getAttribute('aria-label')).toBe(text);
+      expect(await axeViolations(host)).toEqual([]);
+    }
+  });
+
+  // Each opening starts with no suggestion highlighted, as the select's does
+  it('opens with no suggestion highlighted', async () => {
+    const { fixture, input } = await render();
+    const from = input('from');
+    from.focus();
+    await userEvent.keyboard('{ArrowDown}');
+    await fixture.whenStable();
+    expect(from.getAttribute('aria-activedescendant')).not.toBeNull();
+
+    await userEvent.keyboard('{Escape}');
+    await fixture.whenStable();
+    from.click();
+    await fixture.whenStable();
+
+    expect(from.getAttribute('aria-expanded')).toBe('true');
     expect(from.getAttribute('aria-activedescendant')).toBeNull();
   });
 
@@ -171,5 +208,42 @@ describe('AutoCompleteComponent', () => {
     await fixture.whenStable();
 
     expect(await axeViolations(host)).toEqual([]);
+  });
+});
+
+@Component({
+  imports: [TableauUiAutoCompleteModule, TableauUiCommonModule],
+  template: `
+    @if ($shown()) {
+      <input type="text" aria-label="City" [tabAutoComplete]="cities" />
+    }
+    <tab-autocomplete #cities>
+      <tab-option value="Budapest" text="Budapest" />
+    </tab-autocomplete>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class CityComponent {
+  readonly $shown = signal(true);
+  readonly $cities = viewChild.required<AutoCompleteComponent<string>>('cities');
+}
+
+describe('AutoCompleteDirective', () => {
+  // Round 1, B6, F44: a removed input kept its subscription to the suggestions it shared
+  it('lets go of its suggestions when its input is removed, and closes them', async () => {
+    const fixture = TestBed.createComponent(CityComponent);
+    fixture.autoDetectChanges();
+    await fixture.whenStable();
+    const component = fixture.componentInstance;
+    (fixture.nativeElement as HTMLElement).querySelector('input')!.focus();
+    await fixture.whenStable();
+    expect(document.querySelector('.dropdown-container')).not.toBeNull();
+    expect(component.$cities().selectValue$.observed).toBe(true);
+
+    component.$shown.set(false);
+    await fixture.whenStable();
+
+    expect(document.querySelector('.dropdown-container')).toBeNull();
+    expect(component.$cities().selectValue$.observed).toBe(false);
   });
 });
