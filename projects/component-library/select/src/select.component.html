@@ -26,7 +26,7 @@
 }
 
 <ng-template #dropdownTemplate>
-  <div class="dropdown-container" [id]="dropdownId" [ngStyle]="$dropdownContainerCss()" (focusout)="onFocusOut($event)">
+  <div class="dropdown-container" [id]="dropdownId" [ngStyle]="$dropdownContainerCss()" (focusin)="onDropdownFocusIn()" (focusout)="onFocusOut($event)">
     @if ($dropdownPrefix()) {
       <div class="options-prefix">
         <ng-content select="tab-prefix" />

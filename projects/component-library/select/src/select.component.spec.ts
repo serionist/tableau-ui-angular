@@ -161,6 +161,46 @@ describe('SelectComponent', () => {
     expect(component.country.touched).toBe(true);
   });
 
+  // Round 1, B1: the dropdown closed around a focused search box, focus fell to the page, and touched never came, so
+  // with updateOn: 'blur' a pick was never committed
+  it('takes focus back when its dropdown closes with focus in it', async () => {
+    const country = new FormControl<string | null>(null, { updateOn: 'blur' });
+    const { fixture, host, select, dropdown } = await render(country);
+
+    select.click();
+    await fixture.whenStable();
+    dropdown()!.querySelector('input')!.focus();
+    await userEvent.keyboard('{Escape}');
+    await fixture.whenStable();
+    expect(dropdown()).toBeNull();
+    expect(document.activeElement).toBe(select);
+
+    select.click();
+    await fixture.whenStable();
+    dropdown()!.querySelector('input')!.focus();
+    dropdown()!.querySelector<HTMLElement>('[role=option]')!.click();
+    await fixture.whenStable();
+    expect(document.activeElement).toBe(select);
+    expect(country.touched).toBe(false);
+
+    host.querySelector<HTMLElement>('button[type=button]:not([layout])')!.focus();
+    await fixture.whenStable();
+    expect(country.touched).toBe(true);
+    expect(country.value).toBe('hu');
+  });
+
+  // The clear button goes once the value is gone; focus stays on the select, which the user has not left
+  it('keeps focus on the select when its clear button clears it', async () => {
+    const { fixture, select, component } = await render(new FormControl<string | null>('hu'));
+
+    await userEvent.click(select.querySelector('button')!);
+    await fixture.whenStable();
+
+    expect(component.country.value).toBeUndefined();
+    expect(document.activeElement).toBe(select);
+    expect(component.country.touched).toBe(false);
+  });
+
   // F51: the document keydown handler took Space from a text box in the dropdown and closed it
   it('lets a text box in its dropdown take a space', async () => {
     const { fixture, select, dropdown } = await render();
@@ -208,6 +248,28 @@ describe('SelectComponent', () => {
 
     expect(place().left).toBeCloseTo(select.getBoundingClientRect().left, 0);
     expect(place().top).toBeCloseTo(select.getBoundingClientRect().bottom, 0);
+  });
+
+  // Round 1, B2: the dropdown was placed again on a resize, not on a scroll, so it stayed behind in a scrolled container
+  it('keeps its dropdown under it when a container scrolls', async () => {
+    const { fixture, host, select, dropdown, placed } = await render();
+    host.style.display = 'block';
+    host.style.height = '60px';
+    host.style.overflow = 'auto';
+    select.click();
+    await placed();
+    const top = () => parseFloat(dropdown()!.closest<HTMLElement>('.dialog-container')!.style.top);
+    const before = select.getBoundingClientRect().bottom;
+    expect(top()).toBeCloseTo(before, 0);
+
+    host.scrollTop = 30;
+    // the browser sends the scroll event before the next frame
+    await new Promise(resolve => requestAnimationFrame(resolve));
+    await new Promise(resolve => requestAnimationFrame(resolve));
+    await fixture.whenStable();
+
+    expect(select.getBoundingClientRect().bottom).toBeLessThan(before - 20);
+    expect(top()).toBeCloseTo(select.getBoundingClientRect().bottom, 0);
   });
 
   // F52: an open dropdown outlived its select, backdrop included, after a route change

@@ -295,6 +295,8 @@ export abstract class SelectBaseComponent<TOption extends Primitive, TValue exte
     // }
     this.clearValueInternal();
     this.onChange(this.$value());
+    // the clear button goes with the value; focus stays on the select, which the user has not left
+    this.elementRef.nativeElement.focus();
   }
 
   protected abstract readonly clearValueInternal: () => void;
@@ -369,6 +371,12 @@ export abstract class SelectBaseComponent<TOption extends Primitive, TValue exte
       this.unregisterOptionKeyNavigation();
       if (this.$dropdownReference() === ref) {
         this.$dropdownReference.set(undefined);
+      }
+      // closing with focus in the dropdown, as on a search box in its prefix, gives focus back to the select, as the
+      // WAI-ARIA combobox pattern does; touched comes when the user leaves it
+      if (this.focusInDropdown) {
+        this.focusInDropdown = false;
+        this.elementRef.nativeElement.focus();
       }
     });
     this.$dropdownReference.set(ref);
@@ -523,6 +531,25 @@ export abstract class SelectBaseComponent<TOption extends Primitive, TValue exte
     if ((next instanceof Node && this.contains(next)) || !this.document.hasFocus()) {
       return;
     }
+    if (next === null && this.focusInDropdown) {
+      // focus fell from the dropdown to nothing: a click outside, or the dropdown closing around it, whose close gives
+      // focus back to the select; which one it was is known once the event is done
+      setTimeout(() => {
+        if (this.$dropdownReference()) {
+          this.leave();
+        }
+      });
+      return;
+    }
+    this.leave();
+  }
+  // Whether focus is in the dropdown, which closing it removes, so focus would fall to the page
+  private focusInDropdown = false;
+  protected onDropdownFocusIn() {
+    this.focusInDropdown = true;
+  }
+  private leave() {
+    this.focusInDropdown = false;
     this.closeDropdown();
     this.onTouched();
   }
