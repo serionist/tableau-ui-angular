@@ -1,13 +1,34 @@
-<a
-  tooltipPosition="right"
-  [routerLink]="$disabled() ? undefined : $link()"
-  [class.active]="$isActive()"
-  [attr.disabled]="$disabled()"
-  [tooltip]="$isExpanded() ? undefined : $text()"
-  (click)="click.emit()"
->
+<!-- Collapsed, only the icon shows, which screen readers skip: the text stays, out of sight, and names it -->
+<ng-template #content>
   <ng-content select="tab-icon" />
-  @if ($isExpanded()) {
-    <span>{{ $text() }}</span>
-  }
-</a>
+  <span class="text" [class.collapsed]="!$isExpanded()">{{ $text() }}</span>
+</ng-template>
+
+@let link = $link();
+@if (link !== undefined && link !== null) {
+  <!-- A disabled link has no href, and says it is a disabled link, as WAI-ARIA's practices do -->
+  <a
+    tooltipPosition="right"
+    [routerLink]="$disabled() ? undefined : link"
+    [class.active]="$isActive()"
+    [attr.aria-current]="$isActive() ? 'page' : null"
+    [attr.role]="$disabled() ? 'link' : null"
+    [attr.aria-disabled]="$disabled() ? 'true' : null"
+    [tooltip]="$isExpanded() ? undefined : $text()"
+    (click)="onClick($event)"
+  >
+    <ng-container [ngTemplateOutlet]="content" />
+  </a>
+} @else {
+  <button
+    type="button"
+    tooltipPosition="right"
+    [class.active]="$isActive()"
+    [attr.aria-current]="$isActive() ? 'page' : null"
+    [attr.aria-disabled]="$disabled() ? 'true' : null"
+    [tooltip]="$isExpanded() ? undefined : $text()"
+    (click)="onClick($event)"
+  >
+    <ng-container [ngTemplateOutlet]="content" />
+  </button>
+}

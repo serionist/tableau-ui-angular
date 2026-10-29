@@ -1,7 +1,7 @@
 import type { OnInit, WritableSignal } from '@angular/core';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
-import { BehaviorSubject, debounceTime, skip, Subject } from 'rxjs';
+import { BehaviorSubject, debounceTime, Subject } from 'rxjs';
 import { TableauUiCommonModule, type IOptionGridContext } from 'tableau-ui-angular/common';
 import { FB, TableauUiFormModule } from 'tableau-ui-angular/form';
 import { TableauUiFormFieldModule } from 'tableau-ui-angular/form-field';
@@ -39,8 +39,7 @@ export class ListPageComponent implements OnInit {
 
   ngOnInit(): void {
     console.log(this.disabledSingleFormControl, this.singleFormControl);
-    // a change only: the value on load is no change, and the snack it opened could not render on the server
-    this.multiFormControl.value$.pipe(skip(1)).subscribe(val => {
+    this.multiFormControl.value$.subscribe(val => {
       console.log('multi select value changed', val);
       this.snack.openSnack('Multi select value changed to: ' + val?.join(', '));
     });

@@ -7,7 +7,7 @@
     [tooltipContext]="{
       hint: option.$hint() ? option.$hint() : undefined,
     }"
-    [class.selected]="$selectedValue() === option.$value()"
+    [class.selected]="$selectedOption() === option"
     (click)="optionClicked(option)"
   >
     <ng-container [ngTemplateOutlet]="option.$template()" [ngTemplateOutletContext]="$optionRenderContext()" />
@@ -15,7 +15,13 @@
 
   <ng-template #tooltipTemplate let-hint="hint">
     @if (hint) {
-      <tab-hint class="hint">{{ hint }}</tab-hint>
+      <tab-hint class="hint">
+        @if ($isTemplate(hint)) {
+          <ng-container [ngTemplateOutlet]="hint" />
+        } @else {
+          {{ hint }}
+        }
+      </tab-hint>
     }
   </ng-template>
 }

@@ -1,5 +1,5 @@
-import type { Signal, ElementRef, AfterViewInit } from '@angular/core';
-import { Component, contentChildren, signal, computed, ChangeDetectionStrategy, input, viewChildren, output } from '@angular/core';
+import type { AfterContentChecked, Signal, ElementRef } from '@angular/core';
+import { afterNextRender, Component, contentChildren, signal, computed, ChangeDetectionStrategy, inject, Injector, input, viewChildren, output } from '@angular/core';
 import { TabComponent } from './tab.component';
 
 @Component({
@@ -10,7 +10,9 @@ import { TabComponent } from './tab.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {},
 })
-export class TabGroupComponent implements AfterViewInit {
+export class TabGroupComponent implements AfterContentChecked {
+  private readonly injector = inject(Injector);
+
   /**
    * Padding for the tab header, can be adjusted to fit design requirements.
    * @default '0.25rem 1.5rem'
@@ -46,36 +48,72 @@ export class TabGroupComponent implements AfterViewInit {
   readonly $selectedTab: Signal<TabComponent | null> = computed(() => this.$tabs()[this.$selectedIndex()] ?? null);
 
   readonly tabSelected = output<{ index: number; key: string | undefined; tab: TabComponent }>();
-  selectTabByIndex(index: number) {
-    const tabs = this.$tabs();
 
-    const tab = tabs[index];
-    if (tab.$disabled()) {
+  // The selection follows the tabs, checked once their inputs are bound: tabs that come later get the first enabled
+  // one, and when the selected tab goes from the end, the last enabled one takes it. It runs on the server too, so the
+  // page is rendered with a tab shown
+  ngAfterContentChecked(): void {
+    const tabs = this.$tabs();
+    const index = this.$_selectedIndex();
+    if (index >= 0 && index < tabs.length) {
+      return;
+    }
+    if (tabs.length === 0) {
+      this.$_selectedIndex.set(-1);
+      return;
+    }
+    if (index === -1 && !this.$autoSelectFirstTab()) {
+      return;
+    }
+    const enabled = tabs.filter(tab => !tab.$disabled());
+    const next = index === -1 ? enabled.at(0) : enabled.at(-1);
+    if (next) {
+      this.selectTab(tabs.indexOf(next));
+    }
+  }
+
+  selectTabByIndex(index: number) {
+    this.selectTab(index);
+  }
+
+  private selectTab(index: number) {
+    const tab = this.$tabs().at(index);
+    if (!tab || tab.$disabled()) {
       return;
     }
     this.$_selectedIndex.set(index);
-    const tabElement = this.$tabElements()[index];
-    tabElement.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     this.tabSelected.emit({ index, key: tab.$key(), tab });
-    window.requestAnimationFrame(() => {
-      tab.afterActivate.emit();
-    });
+    // in the browser, once the tab's content is drawn; the server has no layout
+    afterNextRender(
+      () => {
+        const tabElement = this.$tabElements().at(index)?.nativeElement;
+        if (tabElement) {
+          TabGroupComponent.scrollIntoStrip(tabElement);
+        }
+        tab.afterActivate.emit();
+      },
+      { injector: this.injector },
+    );
+  }
+
+  // Brings the tab into view in the strip of tabs, and never scrolls the page, as scrollIntoView did on load
+  private static scrollIntoStrip(tab: HTMLElement) {
+    const strip = tab.closest<HTMLElement>('.scroll-container');
+    if (!strip) {
+      return;
+    }
+    const tabRect = tab.getBoundingClientRect();
+    const stripRect = strip.getBoundingClientRect();
+    const offset = tabRect.left < stripRect.left ? tabRect.left - stripRect.left : tabRect.right > stripRect.right ? tabRect.right - stripRect.right : 0;
+    if (offset !== 0) {
+      strip.scrollBy({ left: offset, behavior: 'smooth' });
+    }
   }
   selectTabByKey(key: string) {
     const tabs = this.$tabs();
     const index = tabs.findIndex(tab => tab.$key() === key);
     if (index !== -1) {
       this.selectTabByIndex(index);
-    }
-  }
-
-  ngAfterViewInit() {
-    // Ensure the first tab is selected by default if available
-    if (this.$autoSelectFirstTab()) {
-      const firstNonDisabledTabIndex = this.$tabs().findIndex(tab => !tab.$disabled());
-      if (firstNonDisabledTabIndex !== -1) {
-        this.selectTabByIndex(firstNonDisabledTabIndex);
-      }
     }
   }
 

@@ -18,15 +18,20 @@ import { TAB_SNACK_DATA_REF } from './data.ref';
           <div class="text">
             {{ data.message }}
             @if (data.actionLink && data.action) {
-              <a [routerLink]="[]" (click)="data.action(snackRef)">{{ data.actionLink }}</a>
+              <!-- a button: the action runs the app's code, and navigates nowhere -->
+              <button type="button" class="action" (click)="data.action(snackRef)">{{ data.actionLink }}</button>
             }
           </div>
         }
 
-        <tab-icon class="close" tabindex="0" value="close" label="Close" (click)="snackRef.close(true)" (keydown.enter)="snackRef.close(true)" (keydown.space)="snackRef.close(true)" />
+        <button type="button" class="close" (click)="snackRef.close(true)">
+          <tab-icon value="close" label="Close" />
+        </button>
       </div>
     </div>
   `,
+  // the action and close buttons; the rest below
+  styleUrl: './snack.component.scss',
   styles: `
     .snack-content {
       padding: 10px 16px 10px 8px;
@@ -64,15 +69,6 @@ import { TAB_SNACK_DATA_REF } from './data.ref';
     }
     .success .content div {
       border-color: rgb(147, 206, 147);
-    }
-    .close {
-      font-size: 1.5em;
-      margin-left: 0.25em;
-      color: var(--twc-color-border-dark);
-      cursor: pointer;
-    }
-    .close:hover {
-      background-color: var(--twc-color-border-dark-disabled);
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

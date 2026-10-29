@@ -1,5 +1,11 @@
-a {
+a,
+button {
+  // the box the collapsed text is placed in, so it stays inside the bar
+  position: relative;
   background-color: transparent;
+  border: none;
+  font: inherit;
+  text-align: start;
   box-sizing: border-box;
   display: flex;
   flex-direction: row;
@@ -14,7 +20,7 @@ a {
   padding: 0 1rem;
   gap: 0.75rem;
 
-  &[disabled='true'] {
+  &[aria-disabled='true'] {
     color: var(--twc-color-disabled);
     cursor: not-allowed;
   }
@@ -42,7 +48,7 @@ a {
     }
   }
 
-  &:not([disabled='true'], .active):hover {
+  &:not([aria-disabled='true'], .active):hover {
     text-decoration: none;
     background-color: var(--twc-color-mouse-highlight);
     color: var(--twc-color-text);
@@ -61,5 +67,13 @@ a {
     line-height: 1.5rem;
     overflow: hidden;
     white-space: nowrap;
+
+    // out of sight and out of the layout, still read: a box of one pixel at the default size, clipped
+    &.collapsed {
+      position: absolute;
+      width: 0.0625rem;
+      height: 0.0625rem;
+      clip-path: inset(50%);
+    }
   }
 }

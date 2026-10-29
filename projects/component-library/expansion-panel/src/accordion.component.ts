@@ -17,12 +17,9 @@ import type { Subscription } from 'rxjs';
       }
     }
   `,
+  // no role: an accordion is its panels' headers and their toggles (WAI-ARIA's accordion pattern), not a tablist,
+  // which needs tabs
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: {
-    '[attr.role]': '"tablist"',
-    '[attr.aria-multiselectable]': 'false',
-    '[attr.aria-orientation]': '"vertical"',
-  },
 })
 export class AccordionComponent {
   readonly registry = new AccordionRegistry();

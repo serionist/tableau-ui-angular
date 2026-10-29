@@ -13,7 +13,7 @@ export class AccordionRegistry {
   }
   unregister(node: ExpansionPanelComponent) {
     const nodes = this.nodes();
-    const filteredNodes = nodes.filter(n => n.id === node.id);
+    const filteredNodes = nodes.filter(n => n.id !== node.id);
     if (filteredNodes.length !== nodes.length) {
       this.nodes.set(filteredNodes);
     }

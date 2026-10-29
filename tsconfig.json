@@ -34,7 +34,6 @@
       "tableau-ui-angular/used-icons": ["./projects/component-library/used-icons/src/public_api.ts"],
       "tableau-ui-angular/monaco": ["./projects/component-library/monaco/src/public_api.ts"],
       "tableau-ui-angular/drawer": ["./projects/component-library/drawer/src/public_api.ts"],
-      "tableau-ui-angular/stepper": ["./projects/component-library/stepper/src/public_api.ts"],
       "tableau-ui-angular/virtualize": ["./projects/component-library/virtualize/src/public_api.ts"],
       "tableau-ui-angular/chip": ["./projects/component-library/chip/src/public_api.ts"],
       "tableau-ui-angular/chip-control": ["./projects/component-library/chip-control/src/public_api.ts"]

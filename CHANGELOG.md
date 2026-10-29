@@ -74,6 +74,34 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   dropdown, not on the document, so it can render on the server. Code that called them has nothing to call.
 - `MenuButtonGroupComponent` has no `ngAfterViewInit`: it builds, measures and focuses its menus after the first render
   in the browser. Code that called the method has nothing to call.
+- The `tableau-ui-angular/stepper` entry point is gone: its `tab-stepper` and `tab-step` rendered only a placeholder
+  ("stepper works!"). Remove the imports of `TableauUiStepperModule`, `StepperComponent` and `StepComponent`, and the
+  elements.
+- `tab-menu-button`'s `click` output is `clicked`: write `(clicked)="..."` where a template wrote `(click)="..."` on a
+  `tab-menu-button`. A `(click)` there no longer runs, since the item the user clicks is drawn in the menu, not in the
+  button's element. Code that subscribed to `MenuButtonComponent.click` subscribes to `clicked`.
+- `tab-nav-bar-button` has no `click` output: `(click)` on it is the element's own click, which now runs once per
+  click, not twice, gets the `MouseEvent`, and doesn't run while the button is disabled. Code that subscribed to
+  `NavBarButtonComponent.click` listens to the element's `click` event. A button without a `link` is a `<button>`, and a
+  disabled one says so with `aria-disabled="true"`, not `disabled`: styles that matched `[disabled='true']` inside it
+  match `[aria-disabled='true']`.
+- `NavBarButtonComponent` has no `setExpandedInternal()` and `NavBarComponent` no `ngAfterContentInit`: each button reads
+  its bar's `expanded` itself. Code that called them has nothing to call.
+- `SnackService` is one for the app (`providedIn: 'root'`), and `TableauUiSnackModule` no longer provides it nor
+  imports `RouterModule`; it was `providedIn: 'any'`, one per lazy route or page that injected it. A component opened
+  with `openSnackComponent` gets its dependencies from the root injector: provide a service it needs in root, or put
+  `SnackService` in the route's `providers` to keep one there.
+- `TableauUiDialogModule` no longer provides `DialogService`, which is `providedIn: 'root'`: a page that imported the
+  module, itself or through the select, menu or tooltip modules, had a dialog stack of its own, so one Escape closed
+  the top dialog of each. A dialog's content gets its dependencies from the root injector, as it did when opened from
+  the root's service.
+- `ButtonToggleComponent` has no `selectedValueChange` member: that effect wrote `undefined` into `[(selectedValue)]`
+  when the toggle was disabled, its option disabled or its options not there yet, and is gone. The `selectedValueChange`
+  output of `[(selectedValue)]` is unchanged.
+- `TabGroupComponent` has no `ngAfterViewInit` and `TabTreeComponent` no `ngAfterContentInit`: the tab group selects a
+  tab whenever its tabs change, and the tree observes and measures after the first render in the browser, so both
+  render on the server. A tab's `afterActivate` fires once its content is drawn, in the browser only, where it fired on
+  the next animation frame. Code that called the methods has nothing to call.
 
 ### Added
 
@@ -147,6 +175,33 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   submenu that holds it; and items that arrive while the menu has focus get the highlight, on the first of them.
 - The select, the chip control, the date picker and the menus render on the server, so a page with them can be
   prerendered.
+- Dialogs: a closed dialog destroys its header's close icon, which leaked with each dialog. A modal is centred by its
+  height, which was taken from its width, and never placed above or left of the screen, so a large one keeps its header
+  on it; it keeps `minWidth` and `minHeight`. Escape closes only the top dialog, and still closes a modal while a
+  tooltip shows over it. A confirmation template gets its context. Destroying the app with dialogs open closes them,
+  so their backdrops and listeners go and the page's tab order comes back.
+- Snacks are announced: each is in a live region, polite, or assertive for an error. A closed snack is destroyed, so
+  its component's `ngOnDestroy` runs; it was only detached. The action is a button, which no longer navigates or needs a
+  router, and the close is a button named Close. A snack waits while the pointer or focus is on it, then goes on
+  counting from where it was.
+- `tab-accordion` keeps one panel open after a panel leaves it; it kept the others open once any had gone. It no
+  longer claims to be a tablist, and each panel's toggle is named by the panel's title, or Details without one, and
+  says whether it is open (`aria-expanded`); it was Expand or Collapse on every panel.
+- `tab-button-toggle` keeps the value bound to it while it is disabled, on a disabled option, or before its options
+  come, and the arrow keys leave a disabled one alone; it cleared the value, and the arrows changed it. A template hint
+  shows its content, not "[object Object]".
+- The nav bar's buttons follow its `expanded`, set by the app or by its toggle, buttons added later included. A
+  collapsed button keeps its text for screen readers, out of sight, so it has a name; the active page's button is
+  `aria-current="page"`; its toggle is named Menu and says whether the bar is open (`aria-expanded`); and a button
+  without a link is a button the keyboard reaches.
+- `tab-group` selects the first tab of tabs that come later, and the last one when the selected last tab closes; it
+  showed none. Selecting a tab scrolls the strip of tabs only: on load it scrolled the page down to the tabs.
+- A form control on `tab-tree-node` fails with Angular's own "no value accessor" error: the node offered forms one it
+  couldn't keep, which threw `writeValue is not a function`.
+- `DialogService`, `SnackService`, `tab-group` and `tab-tree` render on the server, so a page with them can be
+  prerendered. A dialog or a snack opened there shows nothing, since the browser renders the page again, and
+  `openConfirmationMessageDialog` and `openConfirmationTemplateDialog` resolve `false` at once, so a guard or a
+  resolver that awaits one doesn't hold the render.
 
 ### Changed
 

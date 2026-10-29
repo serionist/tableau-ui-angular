@@ -14,14 +14,14 @@ import { TableauUiMenuButtonModule } from './tableau-ui-menu-button.module';
     <ng-template #fileMenu="buttonMenu" buttonMenu>
       <tab-menu-button-group>
         @for (item of $items(); track item) {
-          <tab-menu-button (click)="clicks.push(item)">{{ item }}</tab-menu-button>
+          <tab-menu-button (clicked)="clicks.push(item)">{{ item }}</tab-menu-button>
         }
         <tab-menu-button [disabled]="true">Locked</tab-menu-button>
-        <tab-menu-button [loading]="$saving()" (click)="clicks.push('Save')">Save</tab-menu-button>
+        <tab-menu-button [loading]="$saving()" (clicked)="clicks.push('Save')">Save</tab-menu-button>
         <tab-menu-button>
           Export
-          <tab-menu-button (click)="clicks.push('PDF')">PDF</tab-menu-button>
-          <tab-menu-button (click)="clicks.push('CSV')">CSV</tab-menu-button>
+          <tab-menu-button (clicked)="clicks.push('PDF')">PDF</tab-menu-button>
+          <tab-menu-button (clicked)="clicks.push('CSV')">CSV</tab-menu-button>
         </tab-menu-button>
       </tab-menu-button-group>
     </ng-template>

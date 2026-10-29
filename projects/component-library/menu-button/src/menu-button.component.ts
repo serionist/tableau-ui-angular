@@ -90,8 +90,9 @@ export class MenuButtonComponent implements OnDestroy {
 
   readonly openSubMenu = output<Event>();
 
-  // eslint-disable-next-line @angular-eslint/no-output-native
-  readonly click = output<Event>();
+  // The user ran the item, by a click, Enter or Space. Not 'click': the item is drawn in the menu, so a (click) on
+  // tab-menu-button would also listen on an element nobody clicks
+  readonly clicked = output<Event>();
   constructor() {
     this.id = generateRandomString();
   }
@@ -144,7 +145,7 @@ export class MenuButtonComponent implements OnDestroy {
       e.preventDefault();
       e.stopPropagation();
     } else {
-      this.click.emit(e);
+      this.clicked.emit(e);
     }
   }
 

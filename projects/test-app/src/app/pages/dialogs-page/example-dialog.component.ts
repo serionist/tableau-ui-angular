@@ -18,7 +18,6 @@ import { DialogService, injectDialogData, injectDialogRef } from 'tableau-ui-ang
       <button (click)="closeDialog()">Close</button>
     </div>
   `,
-  providers: [DialogService],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExampleDialogComponent {
