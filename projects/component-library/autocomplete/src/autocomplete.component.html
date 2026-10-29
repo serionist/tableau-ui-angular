@@ -5,25 +5,32 @@
         <ng-content select="tab-prefix" />
       </div>
     }
-    @if ($options().length > 0) {
-      <div class="option-values" [ngStyle]="$dropdownOptionsContainerCss()">
-        @for (option of $options(); track option.$value()) {
-          <!-- eslint-disable-next-line  @angular-eslint/template/interactive-supports-focus, @angular-eslint/template/click-events-have-key-events -->
-          <div
-            class="option-wrapper"
-            [class.disabled]="option.$disabled()"
-            [class.highlight]="!!$highlightedOption() && $highlightedOption()!.$value() === option.$value()"
-            (click)="selectValue$.next(option)"
-            (mousedown)="optionMouseDown($event)"
-            (mouseenter)="$highlightedOption.set(option)"
-          >
-            <div class="option-content">
-              <ng-container [ngTemplateOutlet]="option.$template()" [ngTemplateOutletContext]="$dropdownValueTemplateContext()" />
+    <div role="listbox" [id]="listboxId" [attr.aria-labelledby]="$listboxName().labelledBy" [attr.aria-label]="$listboxName().label">
+      @if ($options().length > 0) {
+        <div class="option-values" [ngStyle]="$dropdownOptionsContainerCss()">
+          @for (option of $options(); track option.$value(); let i = $index) {
+            @let highlighted = !!$highlightedOption() && $highlightedOption()!.$value() === option.$value();
+            <!-- eslint-disable-next-line  @angular-eslint/template/interactive-supports-focus, @angular-eslint/template/click-events-have-key-events -->
+            <div
+              class="option-wrapper"
+              role="option"
+              [id]="`${listboxId}-${i}`"
+              [attr.aria-selected]="highlighted"
+              [attr.aria-disabled]="option.$disabled() ? true : null"
+              [class.disabled]="option.$disabled()"
+              [class.highlight]="highlighted"
+              (click)="selectValue$.next(option)"
+              (mousedown)="optionMouseDown($event)"
+              (mouseenter)="$highlightedOption.set(option)"
+            >
+              <div class="option-content">
+                <ng-container [ngTemplateOutlet]="option.$template()" [ngTemplateOutletContext]="$dropdownValueTemplateContext()" />
+              </div>
             </div>
-          </div>
-        }
-      </div>
-    }
+          }
+        </div>
+      }
+    </div>
 
     @if ($dropdownSuffix()) {
       <div class="options-suffix">

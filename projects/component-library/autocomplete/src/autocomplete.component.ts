@@ -1,8 +1,8 @@
 import type { Signal, TemplateRef, WritableSignal } from '@angular/core';
-import { ChangeDetectionStrategy, Component, contentChild, contentChildren, ElementRef, inject, model, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, contentChild, contentChildren, DOCUMENT, effect, inject, model, signal, viewChild } from '@angular/core';
 
 import type { Subscription } from 'rxjs';
-import { fromEvent, map, Subject } from 'rxjs';
+import { fromEvent, Subject } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
 import type { IOptionGridContext } from 'tableau-ui-angular/common';
 import { OptionComponent, PrefixComponent, SuffixComponent } from 'tableau-ui-angular/common';
@@ -20,9 +20,10 @@ import type { Primitive } from 'tableau-ui-angular/types';
 })
 export class AutoCompleteComponent<T extends Primitive> {
   private readonly dialogService = inject(DialogService);
-  private readonly elementRef = inject(ElementRef);
+  private readonly document = inject(DOCUMENT);
 
   protected readonly dropdownId: string;
+  protected readonly listboxId: string;
 
   public readonly selectValue$ = new Subject<OptionComponent<T>>();
   /**
@@ -81,6 +82,7 @@ export class AutoCompleteComponent<T extends Primitive> {
   constructor() {
     const id = generateRandomString();
     this.dropdownId = `dropdown-${id}`;
+    this.listboxId = `listbox-${id}`;
     toObservable(this.$options).subscribe(() => {
       this.$highlightedOption.set(undefined);
     });
@@ -88,8 +90,27 @@ export class AutoCompleteComponent<T extends Primitive> {
 
   // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
   private readonly $openDialog: WritableSignal<{ ref: DialogRef; el: HTMLInputElement } | undefined> = signal<{ ref: DialogRef; el: HTMLInputElement } | undefined>(undefined);
+  // The listbox is named as its input is: by aria-labelledby, its label, or aria-label
+  protected readonly $listboxName = signal<{ labelledBy: string | null; label: string | null }>({ labelledBy: null, label: null });
+  // The highlighted suggestion's id, which the input's aria-activedescendant names
+  private readonly $activeDescendant = computed(() => {
+    const highlighted = this.$highlightedOption();
+    const index = highlighted ? this.$options().findIndex(o => o.$value() === highlighted.$value()) : -1;
+    return index === -1 ? null : `${this.listboxId}-${index}`;
+  });
+  // The input the suggestions are open for is a combobox (WAI-ARIA's pattern) that names the listbox it controls and
+  // the highlighted suggestion; this component knows which input that is, so it sets them on it
+  private readonly comboboxState = effect(() => {
+    const open = this.$openDialog();
+    const active = this.$activeDescendant();
+    if (open) {
+      open.el.setAttribute('aria-expanded', 'true');
+      open.el.setAttribute('aria-controls', this.listboxId);
+      setOrRemove(open.el, 'aria-activedescendant', active);
+    }
+  });
   openDropdown(parentControl: HTMLInputElement) {
-    if (parentControl.hasAttribute('disabled') && parentControl.getAttribute('disabled') !== 'false') {
+    if ((parentControl.hasAttribute('disabled') && parentControl.getAttribute('disabled') !== 'false') || parentControl.readOnly) {
       return undefined;
     }
     if (this.$openDialog()) {
@@ -98,21 +119,24 @@ export class AutoCompleteComponent<T extends Primitive> {
       }
       this.$openDialog()?.ref.close();
     }
-
-    const inputRect = parentControl.getBoundingClientRect();
+    const labelId = parentControl.labels?.[0]?.id;
+    this.$listboxName.set({
+      labelledBy: parentControl.getAttribute('aria-labelledby') ?? (labelId !== undefined && labelId !== '' ? labelId : null),
+      label: parentControl.getAttribute('aria-label'),
+    });
 
     const ref = this.dialogService.openTemplateDialog(
       this.$dropdownTemplate()!,
       {
-        //top: inputRect.bottom + 'px',
-        top(actualWidth, actualHeight) {
-          if (inputRect.bottom + actualHeight > window.innerHeight && inputRect.top - actualHeight > 0) {
-            return inputRect.top - actualHeight + 'px';
+        // placed from the input's rect each time the dialog service places it, so it follows the input
+        top(actualWidth, actualHeight, rect) {
+          if (rect!.bottom + actualHeight > window.innerHeight && rect!.top - actualHeight > 0) {
+            return `${rect!.top - actualHeight}px`;
           }
-          return inputRect.bottom + 'px';
+          return `${rect!.bottom}px`;
         },
-        left: inputRect.left + 'px',
-        width: inputRect.width + 'px',
+        left: (actualWidth, actualHeight, rect) => `${rect!.left}px`,
+        width: rect => `${rect.width}px`,
         closeOnEscape: true,
         closeOnBackdropClick: true,
         backdropCss: {
@@ -126,6 +150,9 @@ export class AutoCompleteComponent<T extends Primitive> {
     this.registerKeyNavigation();
     ref.closed$.subscribe(() => {
       this.unregisterKeyNavigation();
+      parentControl.setAttribute('aria-expanded', 'false');
+      parentControl.removeAttribute('aria-controls');
+      parentControl.removeAttribute('aria-activedescendant');
       if (this.$openDialog()?.ref === ref) {
         this.$openDialog.set(undefined);
       }
@@ -148,11 +175,9 @@ export class AutoCompleteComponent<T extends Primitive> {
   private optionKeyNavSubscription: Subscription | undefined;
   private registerKeyNavigation() {
     this.unregisterKeyNavigation();
-    this.optionKeyNavSubscription = fromEvent(document, 'keydown')
-      .pipe(map(e => e as KeyboardEvent))
-      .subscribe((e: KeyboardEvent) => {
-        this.onKeyDown(e);
-      });
+    this.optionKeyNavSubscription = fromEvent<KeyboardEvent>(this.document, 'keydown').subscribe(e => {
+      this.onKeyDown(e);
+    });
   }
   private unregisterKeyNavigation() {
     if (this.optionKeyNavSubscription) {
@@ -175,13 +200,13 @@ export class AutoCompleteComponent<T extends Primitive> {
         // if an option is highlighted, select it
         if (this.$highlightedOption()) {
           this.selectValue$.next(this.$highlightedOption()!);
+          e.preventDefault();
+          e.stopPropagation();
         } else {
-          // if an option is not highlighted, close the dropdown
+          // if an option is not highlighted, close the dropdown, and let Enter do what it does, such as submit a form
           this.$openDialog()?.ref.close();
         }
       }
-      e.preventDefault();
-      e.stopPropagation();
     }
     if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
       // if dropdown is open:
@@ -246,7 +271,7 @@ export class AutoCompleteComponent<T extends Primitive> {
 
         setTimeout(
           () =>
-            document.querySelector(`#${this.dropdownId} .option-wrapper.highlight`)?.scrollIntoView({
+            this.document.querySelector(`#${this.dropdownId} .option-wrapper.highlight`)?.scrollIntoView({
               block: 'nearest',
             }),
           10,
@@ -256,5 +281,13 @@ export class AutoCompleteComponent<T extends Primitive> {
       e.preventDefault();
       e.stopPropagation();
     }
+  }
+}
+
+function setOrRemove(element: HTMLElement, name: string, value: string | null) {
+  if (value === null) {
+    element.removeAttribute(name);
+  } else {
+    element.setAttribute(name, value);
   }
 }
