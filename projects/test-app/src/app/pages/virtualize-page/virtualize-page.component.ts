@@ -1,4 +1,3 @@
-import type { AfterViewInit } from '@angular/core';
 import { afterNextRender, ChangeDetectionStrategy, Component, computed, effect, inject, Injector, signal, viewChild } from '@angular/core';
 import { TableauUiButtonToggleModule } from 'tableau-ui-angular/button-toggle';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
@@ -19,7 +18,7 @@ import { TableauUiRadioGroupModule } from 'tableau-ui-angular/radio-group';
   styleUrl: './virtualize-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class VirtualizePageComponent implements AfterViewInit {
+export class VirtualizePageComponent {
   private readonly $virtualizeContainer = viewChild.required<VirtualizeComponent<DataType>>(VirtualizeComponent);
   readonly $dataMode = signal<'incremental' | 'full'>('incremental');
 
@@ -30,7 +29,7 @@ export class VirtualizePageComponent implements AfterViewInit {
   readonly $mode = signal<'fixed' | 'expand'>('fixed');
 
   private readonly injector = inject(Injector);
-  // the container measures its new height once it is drawn, which the server never does
+  // the container measures its height once it is drawn, which the server never does; the first run loads it
   readonly modeChanged = effect(() => {
     this.$mode();
     afterNextRender(() => void this.$virtualizeContainer().reload(), { injector: this.injector });
@@ -117,8 +116,5 @@ export class VirtualizePageComponent implements AfterViewInit {
     this.$errorOnData.set(errorOnData);
     this.$showTop2Data.set(top2Data);
     void this.$virtualizeContainer().reset();
-  }
-  ngAfterViewInit(): void {
-    void this.$virtualizeContainer().load();
   }
 }
