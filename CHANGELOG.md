@@ -214,20 +214,27 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   header clicked then showed its arrow over rows in the old order.
 - Cancelling a load, as two quick sorts do, logs no error and reaches no `ErrorHandler`, and a destroyed table or
   `tab-virtualize` cancels its loads.
-- With row selection, a click on a link, a button or a checkbox in a cell is that control's own: it works, and selects
-  no row. Each row's selection checkbox toggles; the table cancelled every click in a row, its checkbox's included.
+- With row selection, a click on a link, a button, a checkbox, a `tab-button-toggle` or another control in a cell, one
+  with a WAI-ARIA widget role included, is that control's own: it works, and selects no row. Each row's selection
+  checkbox toggles; the table cancelled every click in a row, its checkbox's included.
 - The app's `getRowKey` and `cellClass` get only loaded rows, never a loading row's empty placeholder, and a click on a
   loading row selects nothing. The table no longer changes the app's own sort objects, on a shift-click, nor its
   `selectedRows` Map, on a checkbox or a ctrl-click: it emits new ones.
 - Under a border-box reset, such as Tailwind's or Bootstrap's, each table cell is as wide as its header; cells were
   narrower by their padding, and the columns drifted apart.
 - A row is measured inside the table or `tab-virtualize`, so a row height in `em` follows the font size there; with
-  another font size in the table, its rows jumped as it scrolled. Text clamping follows `dataRowCss` when it changes.
+  another font size in the table, its rows jumped as it scrolled. `reload()` measures the row again, so a font changed
+  since shows too. Text clamping follows `dataRowCss` when it changes, and a clamped cell shows its text when the
+  row's line height is no pixel value, such as `normal`; the clamp took a height of 0.
+- `load()`, `reload()` and `reset()` called from an app's effect add nothing to what the effect tracks: the effect ran
+  again when the table's inputs changed. Scrolling a table or `tab-virtualize` with `FullDataOptions` keeps no
+  listener for each block it drops.
 - Changing the table's `selectionOptions` no longer loads its data again. The header's select-all checkbox is checked
   when the selection holds every row, once the full load answers; it stayed partial.
 - `tab-list-single-select` and `tab-list-multi-select` follow WAI-ARIA's listbox pattern: a listbox of options,
   multi-selectable for the multi-select, each option with `aria-selected`, and `aria-activedescendant` naming the
-  option the keyboard or the pointer highlights, so a screen reader announces each one.
+  option the keyboard or the pointer highlights, so a screen reader announces each one. A disabled list takes no click,
+  and is never marked touched.
 - `tab-table` and `tab-virtualize` render on the server: `load()` and `reload()` measure and load in the browser only,
   and return `false` on the server, and the table's column widths start observing after the first render, so a page
   with them can be prerendered.
