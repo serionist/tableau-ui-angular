@@ -1,5 +1,5 @@
 import type { ElementRef } from '@angular/core';
-import { ChangeDetectionStrategy, Component, contentChild, effect, forwardRef, input, model, output, signal, untracked, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, contentChild, effect, ErrorHandler, forwardRef, inject, input, model, output, signal, untracked, viewChild } from '@angular/core';
 import { ChipTemplateDirective } from '../directives/chip-template.directive';
 import type { ChipData } from '../models/chip-data';
 import { NG_VALUE_ACCESSOR, type ControlValueAccessor } from '@angular/forms';
@@ -27,6 +27,9 @@ import { NG_VALUE_ACCESSOR, type ControlValueAccessor } from '@angular/forms';
 })
 export class ChipControlComponent<TKey, TValue> implements ControlValueAccessor {
   readonly self = this;
+  private readonly errorHandler = inject(ErrorHandler);
+  // The values array before the app binds one: no app write, so it never replaces the keys a form wrote
+  private readonly noValues: ChipData<TKey, TValue>[] = [];
   // #region Inputs and Outputs
   /**
    * The keys of the chip control.
@@ -43,7 +46,7 @@ export class ChipControlComponent<TKey, TValue> implements ControlValueAccessor 
    * They can be of any type, including complex objects.
    * This allows for flexibility in the data structure used in the chip control.
    */
-  readonly $values = model<ChipData<TKey, TValue>[]>([], {
+  readonly $values = model<ChipData<TKey, TValue>[]>(this.noValues, {
     alias: 'values',
   });
 
@@ -113,10 +116,11 @@ export class ChipControlComponent<TKey, TValue> implements ControlValueAccessor 
    * @param clearInput
    */
   public add(key: TKey, value: TValue, clearInput: boolean): void {
-    this.$values.update(values => {
-      values.push({ key, value });
-      return [...values];
-    });
+    this.remember([{ key, value }]);
+    const keys = this.$currentKeys();
+    if (!keys.some(k => this.$keyComparer()(k, key))) {
+      this.changeKeys([...keys, key]);
+    }
     if (clearInput) {
       this.clearInput();
     }
@@ -128,13 +132,10 @@ export class ChipControlComponent<TKey, TValue> implements ControlValueAccessor 
    * @param key
    */
   public remove(key: TKey) {
-    this.$values.update(values => {
-      const val = values.findIndex(v => this.$keyComparer()(v.key, key));
-      if (val !== -1) {
-        values.splice(val, 1);
-      }
-      return [...values];
-    });
+    const keys = this.$currentKeys();
+    if (keys.some(k => this.$keyComparer()(k, key))) {
+      this.changeKeys(keys.filter(k => !this.$keyComparer()(k, key)));
+    }
   }
 
   public focus() {
@@ -150,125 +151,151 @@ export class ChipControlComponent<TKey, TValue> implements ControlValueAccessor 
   readonly $chipTemplate = contentChild.required<ChipTemplateDirective<TKey, TValue>>(ChipTemplateDirective);
 
   // #region keys/values change events
+  // The keys are the one state that changes: a form's write, the keys or values the app binds, add() and remove() all
+  // set them, and the chips shown follow from them and from what is known about each key.
 
+  // A null write (a new FormControl, reset()) is no chips
+  private readonly $currentKeys = computed(() => this.$keys() ?? []);
+  // What each key shows, from add(), the values the app binds and the lookup; only the current keys' data is kept, so
+  // a key added again is looked up again
+  private readonly $known = signal<ChipData<TKey, TValue>[]>([]);
+  /** The chips shown: the keys whose data is known, in the keys' order. */
+  protected readonly $chips = computed(() => {
+    const comparer = this.$keyComparer();
+    const known = this.$known();
+    const chips: ChipData<TKey, TValue>[] = [];
+    for (const key of this.$currentKeys()) {
+      const chip = known.find(k => comparer(k.key, key));
+      if (chip) {
+        chips.push(chip);
+      }
+    }
+    return chips;
+  });
+  protected readonly $chipViews = computed(() => {
+    const comparer = this.$keyComparer();
+    const highlighted = this.$highlightedChip();
+    return this.$chips().map(chip => ({ chip, selected: highlighted !== undefined && comparer(highlighted, chip.key) }));
+  });
+
+  // The keys asked of the lookup and not answered yet, and how many lookups are waiting or running
+  private requested: TKey[] = [];
+  private readonly $lookups = signal(0);
   /**
    * A signal that indicates whether the values are currently being loaded.
    * This is called when the keys are manually changed.
    * Shows a loading indicator on the UI.
    */
-  protected readonly $isLoadingValues = signal<boolean>(false);
+  protected readonly $isLoadingValues = computed(() => this.$lookups() > 0);
   private loadChain = Promise.resolve();
-  private loadingKeys: TKey[] = [];
   private readonly keysChanged = effect(() => {
-    const keys = this.$keys();
-    const values = untracked(() => this.$values());
-    const comparer = untracked(() => this.$keyComparer());
-    const selectedChip = untracked(() => this.$highlightedChip());
-    // keys is the source of truth, so we need to update the values based on the keys
-
-    // remove all values that are not in the keys
-    const deleted: TKey[] = [];
-    for (const val of values.entries()) {
-      if (!keys.some(k => comparer(k, val[1].key))) {
-        values.splice(val[0], 1);
-        if (selectedChip !== undefined && comparer(selectedChip, val[1].key)) {
-          this.$highlightedChip.set(undefined); // unset highlighted chip if it was deleted
-        }
-        deleted.push(val[1].key);
+    const keys = this.$currentKeys();
+    const comparer = this.$keyComparer();
+    untracked(() => {
+      const has = (list: readonly TKey[], key: TKey) => list.some(k => comparer(k, key));
+      const known = this.$known();
+      if (known.some(k => !has(keys, k.key))) {
+        this.$known.set(known.filter(k => has(keys, k.key)));
       }
-    }
-    if (deleted.length > 0) {
-      this.$values.set([...values]);
-      for (const key of deleted) {
-        this.$chipRemoved.emit(key);
+      const highlighted = this.$highlightedChip();
+      if (highlighted !== undefined && !has(keys, highlighted)) {
+        this.$highlightedChip.set(undefined);
       }
-    }
-
-    this._onChange([...keys]); // notify form control of the change
-
-    // add all values that are in the keys but not in the values
-    // get which keys are not in the values
-    const missingKeys = keys.filter(k => !values.some(vk => comparer(vk.key, k)));
-
-    if (missingKeys.length === 0) {
-      return;
-    }
-    this.loadChain = this.loadChain.then(async () => {
-      const currentKeys = untracked(() => this.$keys());
-      const currentValues = untracked(() => this.$values());
-      const currentMissing = currentKeys.filter(k => !currentValues.some(vk => comparer(vk.key, k)));
-
-      if (currentMissing.length === 0) {
-        return;
+      const missing = keys.filter(key => !known.some(k => comparer(k.key, key)) && !has(this.requested, key));
+      if (missing.length > 0) {
+        this.requested = [...this.requested, ...missing];
+        this.$lookups.update(n => n + 1);
+        this.loadChain = this.loadChain.then(async () => this.load(missing));
       }
-      this.$isLoadingValues.set(true);
-      this.loadingKeys = [...currentMissing];
-      const results = await untracked(() => this.$getValuesByKeys())(currentMissing);
-      const newValues: ChipData<TKey, TValue>[] = [];
-      for (const result of results) {
-        if (result.value === undefined || currentValues.some(vk => comparer(vk.key, result.key))) {
-          continue; // skip if value is undefined or already exists
-        }
-        newValues.push(result);
-      }
-      this.$values.set([...currentValues, ...newValues]);
-
-      for (const newValue of newValues) {
-        this.$chipAdded.emit(newValue);
-      }
-      this.$isLoadingValues.set(false);
-      this.loadingKeys = [];
-      this._onChange([...keys]);
     });
   });
 
-  private readonly valuesChanged = effect(() => {
-    const values = this.$values();
-    const keys = untracked(() => this.$keys());
-    const comparer = untracked(() => this.$keyComparer());
-    const selectedChip = untracked(() => this.$highlightedChip());
-    // values is the source of truth, so we need to update the keys based on the values
-    // remove all keys that are not in the values
-    // also make sure that we track which keys are being loaded currently. they are not going to be in values yet.
+  // Looks up the keys still shown; the answer joins what is known, so the chips follow the keys as they are by then
+  private async load(keys: TKey[]) {
+    const comparer = this.$keyComparer();
+    const current = (key: TKey) => this.$currentKeys().some(k => comparer(k, key));
+    try {
+      const wanted = keys.filter(current);
+      if (wanted.length > 0) {
+        const results = await this.$getValuesByKeys()(wanted);
+        this.remember(results.filter(result => result.value !== undefined && current(result.key)));
+      }
+    } catch (error) {
+      // a failed lookup leaves its keys without chips, and the next one still runs
+      this.errorHandler.handleError(error);
+    } finally {
+      this.requested = this.requested.filter(r => !keys.some(k => comparer(k, r)));
+      this.$lookups.update(n => n - 1);
+    }
+  }
 
-    const deletedKeys: TKey[] = [];
-    for (const key of [...keys]) {
-      if (!values.some(v => comparer(v.key, key)) && !this.loadingKeys.some(loadingKey => comparer(loadingKey, key))) {
-        keys.splice(keys.indexOf(key), 1);
-        if (selectedChip !== undefined && comparer(selectedChip, key)) {
-          this.$highlightedChip.set(undefined); // unset highlighted chip if it was deleted
-        }
-        deletedKeys.push(key);
-      }
-    }
-    if (deletedKeys.length > 0) {
-      this.$keys.set([...keys]);
-      for (const key of deletedKeys) {
-        this.$chipRemoved.emit(key);
-      }
-    }
-    // add all keys that are in the values but not in the keys
-    const missing = values.filter(v => !keys.some(k => comparer(k, v.key)));
-    if (missing.length === 0) {
+  private remember(data: readonly ChipData<TKey, TValue>[]) {
+    if (data.length === 0) {
       return;
     }
-    this.$keys.set([...keys, ...missing.map(m => m.key)]);
-    for (const m of missing) {
-      this.$chipAdded.emit(m);
-    }
+    const comparer = this.$keyComparer();
+    this.$known.update(known => [...known.filter(k => !data.some(d => comparer(d.key, k.key))), ...data]);
+  }
+
+  // The values array this control last wrote, so its own write is told from the app's
+  private writtenValues: ChipData<TKey, TValue>[] = this.noValues;
+  private shownChips: ChipData<TKey, TValue>[] = [];
+  private readonly chipsChanged = effect(() => {
+    const chips = this.$chips();
+    untracked(() => {
+      const comparer = this.$keyComparer();
+      const before = this.shownChips;
+      this.shownChips = chips;
+      const values = this.$values() ?? [];
+      if (values.length !== chips.length || values.some((value, i) => value !== chips[i])) {
+        // a copy, so an app that changes the array it gets changes nothing here
+        this.writtenValues = [...chips];
+        this.$values.set(this.writtenValues);
+      }
+      for (const chip of before.filter(b => !chips.some(c => comparer(c.key, b.key)))) {
+        this.$chipRemoved.emit(chip.key);
+      }
+      for (const chip of chips.filter(c => !before.some(b => comparer(b.key, c.key)))) {
+        this.$chipAdded.emit(chip);
+      }
+    });
   });
+
+  // Values the app binds are chips to show: what they show is remembered, and their keys become the keys
+  private readonly valuesChanged = effect(() => {
+    const values = this.$values() ?? [];
+    untracked(() => {
+      if (values === this.writtenValues) {
+        return;
+      }
+      this.writtenValues = values;
+      this.remember(values);
+      const keys = values.map(v => v.key);
+      const current = this.$currentKeys();
+      if (keys.length !== current.length || keys.some((key, i) => !this.$keyComparer()(key, current[i]))) {
+        this.$keys.set(keys);
+      }
+    });
+  });
+
+  // A change the user makes, through the keyboard, a chip's remove button, add() or remove(): the form hears of it
+  private changeKeys(keys: TKey[]) {
+    this.$keys.set(keys);
+    this._onChange([...keys]);
+  }
 
   // #endregion keys/values change events
 
   // #region Focus & Selection
   protected readonly $focused = signal<boolean>(false);
   private readonly focusEffect = effect(() => {
-    const focused = this.$focused();
-    if (focused) {
-      this._onTouched();
-    }
-    this.$searchFocused.emit(focused);
+    this.$searchFocused.emit(this.$focused());
   });
+  // Touched when the user leaves the control, as Angular's own inputs are, which commits an updateOn: 'blur' change
+  protected onBlur() {
+    this.$focused.set(false);
+    this._onTouched();
+  }
 
   protected readonly $highlightedChip = signal<TKey | undefined>(undefined);
   protected chipClicked(key: TKey) {
@@ -276,7 +303,8 @@ export class ChipControlComponent<TKey, TValue> implements ControlValueAccessor 
       return; // Do not allow interaction if the control is disabled
     }
     // Prevent the click event from propagating to the host element
-    if (this.$highlightedChip() !== key) {
+    const highlighted = this.$highlightedChip();
+    if (highlighted === undefined || !this.$keyComparer()(highlighted, key)) {
       this.$highlightedChip.set(key);
     } else {
       this.$highlightedChip.set(undefined); // Unset highlighted chip if it was already selected
@@ -304,14 +332,14 @@ export class ChipControlComponent<TKey, TValue> implements ControlValueAccessor 
           // if there is a highlighted chip, remove it
           const highlightedChip = this.$highlightedChip();
           if (highlightedChip !== undefined) {
-            const index = this.$keys().findIndex(k => this.$keyComparer()(k, highlightedChip));
+            const index = this.$currentKeys().findIndex(k => this.$keyComparer()(k, highlightedChip));
             this.remove(highlightedChip);
             // select the previous chip if it exists
             if (index > 0) {
-              this.$highlightedChip.set(this.$keys()[index - 1]);
+              this.$highlightedChip.set(this.$currentKeys()[index - 1]);
             }
           } else {
-            this.$highlightedChip.set(this.$keys().length > 0 ? this.$keys()[this.$keys().length - 1] : undefined);
+            this.$highlightedChip.set(this.$currentKeys().length > 0 ? this.$currentKeys()[this.$currentKeys().length - 1] : undefined);
           }
         }
         return;
@@ -323,12 +351,12 @@ export class ChipControlComponent<TKey, TValue> implements ControlValueAccessor 
             return;
           }
           event.preventDefault();
-          const index = this.$keys().findIndex(k => this.$keyComparer()(k, highlightedChip));
+          const index = this.$currentKeys().findIndex(k => this.$keyComparer()(k, highlightedChip));
           this.remove(highlightedChip);
           // select the new chip at the same index if it exists
           window.requestAnimationFrame(() => {
-            if (index < this.$keys().length) {
-              this.$highlightedChip.set(this.$keys()[index]);
+            if (index < this.$currentKeys().length) {
+              this.$highlightedChip.set(this.$currentKeys()[index]);
             }
           });
         }
@@ -342,13 +370,13 @@ export class ChipControlComponent<TKey, TValue> implements ControlValueAccessor 
           event.preventDefault();
           const highlightedChip = this.$highlightedChip();
           if (highlightedChip !== undefined) {
-            const index = this.$keys().findIndex(k => this.$keyComparer()(k, highlightedChip));
+            const index = this.$currentKeys().findIndex(k => this.$keyComparer()(k, highlightedChip));
             if (index > 0) {
-              this.$highlightedChip.set(this.$keys()[index - 1]);
+              this.$highlightedChip.set(this.$currentKeys()[index - 1]);
             }
           } else {
             // if no chip is highlighted, highlight the last chip
-            const lastKey = this.$keys().length > 0 ? this.$keys()[this.$keys().length - 1] : undefined;
+            const lastKey = this.$currentKeys().length > 0 ? this.$currentKeys()[this.$currentKeys().length - 1] : undefined;
             this.$highlightedChip.set(lastKey);
           }
         }
@@ -360,9 +388,9 @@ export class ChipControlComponent<TKey, TValue> implements ControlValueAccessor 
             return;
           }
           event.preventDefault();
-          const index = this.$keys().findIndex(k => this.$keyComparer()(k, highlightedChip));
-          if (index < this.$keys().length - 1) {
-            this.$highlightedChip.set(this.$keys()[index + 1]);
+          const index = this.$currentKeys().findIndex(k => this.$keyComparer()(k, highlightedChip));
+          if (index < this.$currentKeys().length - 1) {
+            this.$highlightedChip.set(this.$currentKeys()[index + 1]);
           } else {
             this.$highlightedChip.set(undefined); // unset highlighted chip if it was the last one
           }
@@ -379,8 +407,9 @@ export class ChipControlComponent<TKey, TValue> implements ControlValueAccessor 
 
   // #region Form Integration
 
-  writeValue(val: TKey[]): void {
-    this.$keys.set(val);
+  // A copy, so the control never changes the array the form holds; null is no chips
+  writeValue(val: TKey[] | null): void {
+    this.$keys.set(val ? [...val] : []);
   }
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   private _onChange: (val: TKey[]) => void = () => {};

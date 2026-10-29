@@ -1,13 +1,13 @@
-@for (chip of $values(); track chip.key) {
-  <div class="chip" (mousedown)="chipClicked(chip.key)">
+@for (view of $chipViews(); track view.chip.key) {
+  <div class="chip" (mousedown)="chipClicked(view.chip.key)">
     <ng-container
       *ngTemplateOutlet="
         $chipTemplate().templateRef;
         context: {
           $implicit: {
-            data: chip,
+            data: view.chip,
             chipControl: self,
-            selected: $highlightedChip() === chip.key && !$disabled(),
+            selected: view.selected && !$disabled(),
             disabled: $disabled(),
             removable: !$disabled(),
           },
@@ -29,7 +29,7 @@
   class="search"
   [disabled]="$disabled()"
   (focus)="$focused.set(true)"
-  (blur)="$focused.set(false)"
+  (blur)="onBlur()"
   (keydown)="inputKeydown($event)"
   (click)="$searchClicked.emit($event)"
 />
