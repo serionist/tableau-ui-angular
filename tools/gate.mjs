@@ -264,7 +264,8 @@ function checkTests() {
 function checkCoverage({ ranges, problem }) {
   const summary = join(ROOT, COVERAGE_SUMMARY);
   if (!existsSync(summary)) return fail(`the tests wrote no ${COVERAGE_SUMMARY}`);
-  const measured = Number(JSON.parse(readFileSync(summary, 'utf8')).total?.lines?.pct);
+  const counts = JSON.parse(readFileSync(summary, 'utf8')).total?.lines ?? {};
+  const measured = Number(counts.pct);
   if (!Number.isFinite(measured)) return fail(`${COVERAGE_SUMMARY} has no total line coverage`);
   const file = join(ROOT, FLOOR_FILE);
   if (!existsSync(file)) return fail(`${FLOOR_FILE} is missing: it holds the library's line coverage floor`);
@@ -277,7 +278,9 @@ function checkCoverage({ ranges, problem }) {
   const { floor: baseFloor, problem: badBase } = atBase.ok ? readFloor(atBase.output, `${FLOOR_FILE} at ${base.slice(0, 10)}`) : {};
   if (badBase) return fail(badBase);
   const { ok, detail } = verdict({ measured, floor, baseFloor });
-  return ok ? pass(detail) : fail(detail);
+  // the counts too, so two runs that differ show where
+  const counted = `${detail} (${counts.covered} of ${counts.total} lines)`;
+  return ok ? pass(counted) : fail(counted);
 }
 
 function checkDemoBuild() {
