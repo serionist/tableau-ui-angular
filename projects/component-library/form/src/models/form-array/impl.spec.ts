@@ -3,6 +3,7 @@ import type { ValidatorFn } from '@angular/forms';
 import { Validators } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { FormArrayValuePipe } from '../../pipes/value/form-array-value.pipe';
+import { MetaImpl } from '../abstract-control/meta/impl';
 import { FB } from '../fb';
 import type { FG } from '../form-group/interfaces';
 
@@ -36,6 +37,46 @@ describe('FA', () => {
 
     // and the array given to fb.array is the caller's own
     expect(rows.length).toBe(1);
+  });
+
+  // A meta refresh walked the whole subtree and every descendant's change refreshed every ancestor, so
+  // markAllAsTouched on N rows cost N squared; a refresh now reads each child's current meta
+  it("refreshes an array from its rows' metas, without walking their subtrees", () => {
+    const array = fb.array(Array.from({ length: 50 }, (_, i) => row(`row ${i}`)));
+    const built = vi.spyOn(MetaImpl, 'fromControl');
+
+    array.metaFn.markAllAsTouched();
+
+    expect(array.$meta().childControls?.every(rowMeta => rowMeta.touched)).toBe(true);
+    // one for each of the array, its 50 rows and their 50 fields, and a few to spare
+    expect(built.mock.calls.length).toBeLessThan(110);
+    built.mockRestore();
+  });
+
+  // valueChange's controls are the rows its value holds: the FormArray changed, and emitted, before the child list did
+  it('gives valueChange the rows its value holds on push, insert and removeAt', () => {
+    const array = fb.array([row('a')]);
+    const seen: [number, number][] = [];
+    array.registerFn.valueChange((value, _old, controls) => seen.push([value.length, controls.length]));
+
+    array.push(row('c'));
+    array.insert(1, row('b'));
+    array.removeAt(0, true);
+
+    expect(seen).toEqual([
+      [1, 1],
+      [2, 2],
+      [3, 3],
+      [2, 2],
+    ]);
+  });
+
+  it('keeps the raw value in step when a row is pushed without an event', () => {
+    const array = fb.array([row('a')]);
+
+    array.push(row('b'), { emitEvent: false });
+
+    expect(array.$rawValue()).toEqual([{ name: 'a' }, { name: 'b' }]);
   });
 
   // F7: removeAt emitted the array's meta before its child list changed, so a removed row's error stayed

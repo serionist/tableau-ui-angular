@@ -21,11 +21,13 @@ export class MetaImpl implements Meta {
     public readonly childControls: readonly Meta[] | undefined,
   ) {}
 
+  /**
+   * The control's meta: its own flags from the Angular control, and its children's part, `childControls` and a group's
+   * or an array's `valueIsDefault`, from each child's current meta. It costs the direct children only.
+   */
   static fromControl(control: ACImpl<unknown>): Meta {
     const c = control.control;
-    // valueIsDefault is true if:
-    // - the control is a FC<any> and the value is equal to the default value
-    // - the control is an FG<any> and the value
+    const children = control.hierarchy.childList$.value.map(child => child.meta$.value);
     return new MetaImpl(
       c.untouched,
       c.touched,
@@ -34,10 +36,32 @@ export class MetaImpl implements Meta {
       c.dirty,
       c.enabled,
       c.disabled,
-      this.isValueDefault(control),
+      control instanceof FCImpl ? this.isValueDefault(c.value, control.defaultValue) : children.every(child => child.valueIsDefault),
       c.updateOn,
       c.errors,
-      control.hierarchy.childList$.value.map(ca => MetaImpl.fromControl(ca as ACImpl<unknown>)),
+      children,
+    );
+  }
+
+  /**
+   * `meta` with its children's part rebuilt from their current metas, and its own flags kept. A child's change refreshes
+   * a group or an array this way: Angular emits the parent's own event once it is done with the children, and only then
+   * do its own flags, such as `enabled`, change.
+   */
+  static withChildren(meta: Meta, control: ACImpl<unknown>): Meta {
+    const children = control.hierarchy.childList$.value.map(child => child.meta$.value);
+    return new MetaImpl(
+      meta.untouched,
+      meta.touched,
+      meta.validity,
+      meta.pristine,
+      meta.dirty,
+      meta.enabled,
+      meta.disabled,
+      children.every(child => child.valueIsDefault),
+      meta.updateOn,
+      meta.errors,
+      children,
     );
   }
 
@@ -79,6 +103,10 @@ export class MetaImpl implements Meta {
   }
 
   public static compare(a: Meta, b: Meta): boolean {
+    // a child's meta that didn't change is the same object, so comparing a parent stops there
+    if (a === b) {
+      return true;
+    }
     const baseEqual =
       a.untouched === b.untouched &&
       a.touched === b.touched &&
@@ -137,34 +165,12 @@ export class MetaImpl implements Meta {
     return true;
   }
 
-  private static isValueDefault(control: AC) {
-    // valueIsDefault is true if:
-    // - the control is a FC<any> and the value is equal to the default value. If value is an array, it checks if all items are in the default value array
-    if (control instanceof FCImpl) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      const val = control.control.value;
-      if (Array.isArray(val) && Array.isArray(control.defaultValue)) {
-        if (val.length !== control.defaultValue.length) {
-          return false;
-        }
-        for (const valItem of val) {
-          if (!control.defaultValue.includes(valItem)) {
-            return false;
-          }
-        }
-        return true;
-      } else {
-        return val === control.defaultValue;
-      }
-    } else {
-      // if the control is a non-FC control, we check if all child controls have their value equal to the default value
-      for (const child of control.hierarchy.$childList()) {
-        if (!this.isValueDefault(child)) {
-          return false;
-        }
-      }
-      return true;
+  /** Whether a control's value equals its default; an array value counts when it holds the same items */
+  private static isValueDefault(value: unknown, defaultValue: unknown): boolean {
+    if (Array.isArray(value) && Array.isArray(defaultValue)) {
+      return value.length === defaultValue.length && value.every(item => defaultValue.includes(item));
     }
+    return value === defaultValue;
   }
 }
 

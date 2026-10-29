@@ -36,6 +36,23 @@ describe('FG', () => {
     expect(group.controls.state.$value()).toBeNull();
   });
 
+  // A rule run on enable must see the group enabled after its children are: a child's meta made the group look enabled
+  // in the middle of Angular's enable(), so the rule disabled state before the loop enabled it again
+  it('runs an alsoRunOnEnabled rule after its group and all its children are enabled', () => {
+    const group = fb.group<Address>({ country: fb.control<string | null>(null), state: fb.control<string | null>(null) });
+    group.registerFn.childChange(
+      controls => controls.country,
+      (g, _control, country) => (country === null ? g.controls.state.metaFn.disable() : g.controls.state.metaFn.enable()),
+      true,
+    );
+    expect(group.controls.state.$meta().disabled).toBe(true);
+
+    group.metaFn.disable();
+    group.metaFn.enable();
+
+    expect(group.controls.state.$meta().disabled).toBe(true);
+  });
+
   // F7: markAllAsTouched emits the group's event before its children are touched, so the group's meta kept them untouched
   it("shows a child's error in the group's meta after markAllAsTouched", () => {
     const group = fb.group<{ name: string }>({ name: fb.control<string>('', Validators.required) });

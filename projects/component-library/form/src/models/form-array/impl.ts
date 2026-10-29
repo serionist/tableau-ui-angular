@@ -84,21 +84,15 @@ export class FAImpl<T extends Record<string, unknown>> extends ACImpl<T[]> imple
       }),
     );
     // The raw value changes with an edit as well as with the rows, as the group's does
-    const updateRawValue = () => {
-      const rawValue = control.getRawValue() as T[];
-      this.$_rawValue.set(rawValue);
-      this._rawValue$.next(rawValue);
-    };
     this.subscriptions.push(
       this._value$.subscribe(v => {
         this.$_value.set(v);
-        updateRawValue();
+        this.refreshRawValue();
       }),
     );
     this.subscriptions.push(
       this._controls$.subscribe(v => {
         this.$_controls.set(v);
-        updateRawValue();
       }),
     );
     this.submitted$ = this.control.events.pipe(
@@ -118,6 +112,14 @@ export class FAImpl<T extends Record<string, unknown>> extends ACImpl<T[]> imple
   private get formArray() {
     return this.control as FormArray<FormGroup<ControlsOf<T>>>;
   }
+  private refreshRawValue() {
+    const rawValue = this.control.getRawValue() as T[];
+    this.$_rawValue.set(rawValue);
+    this._rawValue$.next(rawValue);
+  }
+  // push, insert and removeAt change the child list first, as a new list so the signals over it notify, and then the
+  // FormArray, whose event then reaches valueChange with the rows its value holds. The raw value follows the FormArray
+  // even when it emits nothing.
   push(
     control: FG<T>,
     options?: {
@@ -125,18 +127,19 @@ export class FAImpl<T extends Record<string, unknown>> extends ACImpl<T[]> imple
     },
   ) {
     const c = (control as FGImpl<T>).control;
-    this.formArray.push(c as FormGroup<ControlsOf<T>>, options);
-    // A new list each time, so the signals over it notify
     this.hierarchy.childList$.next([...this.hierarchy.childList$.value, control]);
+    this.formArray.push(c as FormGroup<ControlsOf<T>>, options);
+    this.refreshRawValue();
   }
 
   removeAt(index: number, destroyControl: boolean, options?: { emitEvent?: boolean }) {
-    this.formArray.removeAt(index, options);
     const childList = this.hierarchy.childList$.value;
     // a negative index counts from the end, as FormArray's does
     const at = index < 0 ? index + childList.length : index;
     const control = childList[at];
     this.hierarchy.childList$.next(childList.filter((_, i) => i !== at));
+    this.formArray.removeAt(index, options);
+    this.refreshRawValue();
     if (control !== undefined && destroyControl) {
       control.destroy();
     }
@@ -150,19 +153,21 @@ export class FAImpl<T extends Record<string, unknown>> extends ACImpl<T[]> imple
   ) {
     const c = (control as FGImpl<T>).control;
 
-    this.formArray.insert(index, c as FormGroup<ControlsOf<T>>, options);
     const childList = this.hierarchy.childList$.value;
     this.hierarchy.childList$.next([...childList.slice(0, index), control, ...childList.slice(index)]);
+    this.formArray.insert(index, c as FormGroup<ControlsOf<T>>, options);
+    this.refreshRawValue();
   }
   clear(destroyControls: boolean, options?: { emitEvent?: boolean }) {
-    this.formArray.clear(options);
     const childList = this.hierarchy.childList$.value;
+    this.hierarchy.childList$.next([]);
+    this.formArray.clear(options);
+    this.refreshRawValue();
     if (destroyControls) {
       childList.forEach(child => {
         child.destroy();
       });
     }
-    this.hierarchy.childList$.next([]);
   }
   at(index: number): FG<T> | undefined {
     return this._controls$.value[index];

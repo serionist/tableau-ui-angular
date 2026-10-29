@@ -36,8 +36,9 @@ describe('alwaysDisabled', () => {
     expect(form.$value()).toEqual({ name: 'Ada' });
   });
 
-  // F10: the meta signal was set after the subject emitted, so a callback that changed the control left it stale
-  it('keeps $meta in step with meta$ when a meta callback changes the control', () => {
+  // F10: the meta signal was set after the subject emitted, so a callback that changed the control left it stale; and
+  // a later subscriber got the nested change first and the stale meta last
+  it('keeps $meta and every subscriber in step when a meta callback changes the control', () => {
     const fb = new FB();
     const control = fb.control('a', undefined, undefined, true);
     control.registerFn.metaChange(meta => {
@@ -45,10 +46,13 @@ describe('alwaysDisabled', () => {
         control.metaFn.disable();
       }
     });
+    const enabled: boolean[] = [];
+    control.registerFn.metaChange(meta => enabled.push(meta.enabled));
 
     control.metaFn.enable();
 
     expect(control.meta$.value.disabled).toBe(true);
     expect(control.$meta().disabled).toBe(true);
+    expect(enabled).toEqual([false, true, false]);
   });
 });

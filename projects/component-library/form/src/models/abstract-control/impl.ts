@@ -46,41 +46,49 @@ export abstract class ACImpl<TValue> implements AC {
     const initialMeta = MetaImpl.fromControl(this);
     this.meta$ = new BehaviorSubject<Meta>(initialMeta);
     this.$meta = signal<Meta>(initialMeta);
-    // A group's or an array's meta holds its children's, so it is recomputed when its child list or a child's meta
-    // changes too: Angular emits a parent's event before it touches the children (markAllAsTouched), and an array's
-    // removeAt before its child list changes.
+    // A group's or an array's meta holds its children's, so it follows their metas too: Angular emits the parent's
+    // event before it touches the children (markAllAsTouched). A child's change rebuilds only that part, and the
+    // parent's own flags wait for its own event, which Angular emits once the children are done: enable() makes the
+    // group enabled before it enables them, and a rule run on enable must not see that.
     const childMetaChanges$ = this.hierarchy.childList$.pipe(switchMap(children => merge(...children.map(child => child.meta$.pipe(skip(1))))));
     this.subscriptions.push(
-      merge(this.control.events, this.hierarchy.childList$.pipe(skip(1)), childMetaChanges$).subscribe(() => {
+      merge(this.control.events, this.hierarchy.childList$.pipe(skip(1))).subscribe(() => {
         this.refreshMeta();
+      }),
+      childMetaChanges$.subscribe(() => {
+        this.refreshMeta('children');
       }),
     );
   }
 
   private emittingMeta = false;
-  private metaChangedWhileEmitting = false;
+  private pendingMeta: 'all' | 'children' | undefined;
   /**
-   * Recomputes the meta and emits it when it changed: the signal first, so a subscriber that reads `$meta()` sees what
-   * it was given. A change a subscriber makes is emitted after every subscriber has the current meta, so none of them
-   * ends on a stale one. Subclasses call it once their constructor has set the default value.
+   * Recomputes the meta, all of it or only its children's part, and emits it when it changed: the signal first, so a
+   * subscriber that reads `$meta()` sees what it was given. A change a subscriber makes is emitted after every
+   * subscriber has the current meta, so none of them ends on a stale one. Subclasses call it once their constructor
+   * has set the default value.
    */
-  protected refreshMeta(): void {
+  protected refreshMeta(scope: 'all' | 'children' = 'all'): void {
     if (this.emittingMeta) {
-      this.metaChangedWhileEmitting = true;
+      this.pendingMeta = this.pendingMeta === 'all' || scope === 'all' ? 'all' : 'children';
       return;
     }
     this.emittingMeta = true;
     try {
-      do {
-        this.metaChangedWhileEmitting = false;
-        const meta = MetaImpl.fromControl(this);
+      let next: 'all' | 'children' | undefined = scope;
+      while (next) {
+        this.pendingMeta = undefined;
+        const meta = next === 'all' ? MetaImpl.fromControl(this) : MetaImpl.withChildren(this.meta$.value, this);
         if (!MetaImpl.compare(meta, this.meta$.value)) {
           this.$meta.set(meta);
           this.meta$.next(meta);
         }
-      } while (this.metaChangedWhileEmitting);
+        next = this.pendingMeta;
+      }
     } finally {
       this.emittingMeta = false;
+      this.pendingMeta = undefined;
     }
   }
 
