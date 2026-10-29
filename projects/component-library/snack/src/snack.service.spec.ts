@@ -171,7 +171,8 @@ describe('SnackService', () => {
     const ref = TestBed.inject(SnackService).openSnack('Saved');
 
     expect(document.querySelector('.tab-snacks')).toBeNull();
-    expect(timers).not.toHaveBeenCalled();
+    // the snack's own timers all wait; Angular's scheduler may set one with none
+    expect(timers.mock.calls.filter(([, ms]) => (ms ?? 0) > 0)).toEqual([]);
     const closed = vi.fn();
     ref.closed$.subscribe(closed);
     ref.close();

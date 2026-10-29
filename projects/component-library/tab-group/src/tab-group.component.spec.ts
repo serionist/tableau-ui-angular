@@ -41,12 +41,12 @@ describe('TabGroupComponent', () => {
     window.scrollTo(0, 0);
   });
 
-  // The server has no layout: selecting the first tab scrolled it into view and waited for an animation frame there
+  // The server has no layout: selecting the first tab scrolled it into view there, and told the tab it was active on the
+  // next animation frame
   it('renders on the server with its first tab selected', async () => {
     const scrolled = vi.spyOn(Element.prototype, 'scrollIntoView').mockImplementation(() => {
       throw new TypeError('scrollIntoView is not a function');
     });
-    const frames = vi.spyOn(window, 'requestAnimationFrame');
     const globals = globalThis as { ngServerMode?: boolean };
     // Angular's own flag for server rendering, which afterNextRender reads
     globals.ngServerMode = true;
@@ -56,11 +56,11 @@ describe('TabGroupComponent', () => {
       expect(shown()).toEqual(['General content']);
       expect(component.selected).toEqual(['General']);
       expect(scrolled).not.toHaveBeenCalled();
-      expect(frames).not.toHaveBeenCalled();
+      // the tab is told once its content is drawn, which the server never does
+      expect(component.activated).toEqual([]);
     } finally {
       delete globals.ngServerMode;
       scrolled.mockRestore();
-      frames.mockRestore();
     }
   });
 
