@@ -1,5 +1,7 @@
-import { ChangeDetectionStrategy, Component, PLATFORM_ID, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, PLATFORM_ID, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { TableauUiButtonToggleModule } from 'tableau-ui-angular/button-toggle';
+import { TableauUiCommonModule } from 'tableau-ui-angular/common';
 import type { Primitive } from 'tableau-ui-angular/types';
 import type { DataOptions, DataRowCss, DataSort } from 'tableau-ui-angular/virtualize';
 import { axeViolations } from '../../testing/axe';
@@ -51,6 +53,41 @@ class PeopleTableComponent {
   readonly table = viewChild.required<TableComponent<Person>>(TableComponent);
 }
 
+// An app that resets its table from an effect of its own when its filter changes, with a button toggle in a cell
+@Component({
+  imports: [TableauUiTableModule, TableauUiButtonToggleModule, TableauUiCommonModule],
+  template: `
+    <tab-table #table style="height: 300px" [dataOptions]="server.incremental" [selectionOptions]="$selection()" [(selectedRows)]="$selected">
+      <ng-container tabColumnDef="name">
+        <ng-template [tabHeaderDef]="table">Name</ng-template>
+        <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.name }}</ng-template>
+      </ng-container>
+      <ng-container tabColumnDef="priority" [sortable]="false">
+        <ng-template [tabHeaderDef]="table">Priority</ng-template>
+        <ng-template let-ctx [tabCellDef]="table" [textClamping]="false">
+          <tab-button-toggle selectedValue="low" (selectedValueChange)="priorities.push($event)">
+            <tab-option value="low" text="Low" />
+            <tab-option value="high" text="High" />
+          </tab-button-toggle>
+        </ng-template>
+      </ng-container>
+    </tab-table>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class FilteredTableComponent {
+  readonly server = new PeopleServer();
+  readonly $filter = signal('');
+  readonly $selection = signal<SelectionOptions>(new MultiSelectionOptions('none'));
+  readonly $selected = signal(new Map<Primitive, Person>());
+  readonly priorities: unknown[] = [];
+  readonly table = viewChild.required<TableComponent<Person>>(TableComponent);
+  readonly refilter = effect(() => {
+    this.$filter();
+    void this.table().reset();
+  });
+}
+
 describe('TableComponent', () => {
   // a pointer left over a cell would open its tooltip
   beforeEach(movePointerAway);
@@ -90,6 +127,59 @@ describe('TableComponent', () => {
     };
     return { fixture, component, host, server, rows, cell, names, header, selectedIds, settle, load, scrollTo };
   }
+
+  // An app's effect that calls reset() made the reset's own reads and writes of the blocks its own, so it ran again on
+  // each, and resets piled up; it also took the selection options as its input, so they reset the data again
+  describe('reset from an app effect', () => {
+    async function renderFiltered() {
+      const fixture = TestBed.createComponent(FilteredTableComponent);
+      fixture.autoDetectChanges();
+      await fixture.whenStable();
+      const component = fixture.componentInstance;
+      const host = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('tab-table')!;
+      const settle = async () => {
+        await new Promise(resolve => setTimeout(resolve));
+        await fixture.whenStable();
+      };
+      const loading = component.table().load();
+      await component.server.answerAll(settle);
+      await loading;
+      return { fixture, component, host, settle };
+    }
+
+    it('resets once for each change the effect sees', async () => {
+      const { component, settle } = await renderFiltered();
+      const { server } = component;
+      const requested = server.requests.length;
+
+      component.$filter.set('Person 1');
+      await settle();
+      await settle();
+
+      expect(server.requests.length - requested).toBe(1);
+      await server.answerAll(settle);
+      const answered = server.requests.length;
+
+      // the selection options are no input of the app's effect
+      component.$selection.set(new SingleSelectionOptions());
+      await settle();
+      await settle();
+      expect(server.requests).toHaveLength(answered);
+    });
+
+    // a button toggle's options have no role, so a click on one also replaced the row selection
+    it('leaves a click on a button toggle in a cell to the toggle', async () => {
+      const { component, host, settle } = await renderFiltered();
+      const row = host.querySelectorAll('.data-rows .row')[1];
+      const high = Array.from(row.querySelectorAll<HTMLElement>('tab-button-toggle .option')).find(option => option.textContent.trim() === 'High')!;
+
+      high.click();
+      await settle();
+
+      expect(component.priorities).toEqual(['high']);
+      expect([...component.$selected().keys()]).toEqual([]);
+    });
+  });
 
   // F3: the row metrics came from spreading getComputedStyle(), which copies no named property in Firefox, so the
   // height was undefined, load() threw and every table showed "No data available"
@@ -144,9 +234,12 @@ describe('TableComponent', () => {
     });
     await load();
     await scrollTo(600);
+    const requested = server.requests.length;
 
     void component.table().reset(true);
     await settle();
+    // one reset, though it cleared the sort, which a change to resets on its own
+    expect(server.requests.length - requested).toBe(1);
     // the rows go while the first block reloads, so the browser scrolls back up
     host.dispatchEvent(new Event('scroll'));
     await server.answerAll(settle);
@@ -417,6 +510,25 @@ describe('TableComponent', () => {
     component.$sort.set([]);
     await server.answerAll(settle);
     expect(selectedIds()).toEqual([]);
+  });
+
+  // the clamp took a height of 0 when the row's line height measured no pixels, as `normal` doesn't, which hid the text
+  it("shows a clamped cell's text when the row's line height is normal", async () => {
+    const warned = vi.spyOn(console, 'warn').mockImplementation(() => {
+      // recorded only
+    });
+    try {
+      const { host, load } = await render(c => {
+        c.$rowCss.set({ height: '20px', lineHeight: 'normal', padding: '0 8px' });
+      });
+      await load();
+
+      const clamp = host.querySelector<HTMLElement>('.cell[data-column-id="name"] .line-clamp')!;
+      expect(clamp.textContent.trim()).toBe('Person 1');
+      expect(clamp.getBoundingClientRect().height).toBeGreaterThan(0);
+    } finally {
+      warned.mockRestore();
+    }
   });
 
   // F104: the line clamp was worked out in reload() only, so a taller row from the app kept clamping to one line

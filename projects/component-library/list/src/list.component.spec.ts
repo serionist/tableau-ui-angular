@@ -104,14 +104,21 @@ describe('ListComponent', () => {
     expect(options(multi).map(option => option.getAttribute('aria-selected'))).toEqual(['true', 'true']);
   });
 
-  it('reads as disabled when its form control is', async () => {
-    const { fixture, multi, component } = await render();
+  // a click focused a disabled list, as a click focuses any element with a tabindex, and leaving it marked it touched,
+  // so a required list showed its error the moment it was enabled
+  it('reads as disabled when its form control is, and a click leaves it untouched', async () => {
+    const { fixture, host, multi, component } = await render();
 
     component.languages.disable();
     await fixture.whenStable();
 
     expect(multi.getAttribute('aria-disabled')).toBe('true');
     expect(multi.tabIndex).toBe(-1);
+    await userEvent.click(multi.querySelector('.option-wrapper')!, { force: true });
+    await userEvent.click(host.querySelector('button')!);
+    await fixture.whenStable();
+    expect(component.languages.touched).toBe(false);
+    expect(component.languages.value).toEqual(['hu']);
   });
 
   // F114: touched came with each pick, never on blur, so a required list the user tabbed past showed no error

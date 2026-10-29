@@ -1,5 +1,5 @@
 import type { ChangeDetectorRef, Signal } from '@angular/core';
-import { signal } from '@angular/core';
+import { signal, untracked } from '@angular/core';
 import type { DataSort } from './data-sort';
 import { DataBlock } from './data-block';
 import type { Primitive } from 'tableau-ui-angular/types';
@@ -36,6 +36,14 @@ export class DataManager<TData> {
   get allDataInfo(): AllDataInfo<TData> | undefined {
     return this.$_allDataInfo();
   }
+  // What reset() and the scroll read of their own state, untracked: an effect that calls them, an app's or a
+  // subclass's, must not take that state as its input, or each write would run it again
+  private get currentAllDataInfo() {
+    return untracked(this.$_allDataInfo);
+  }
+  private get currentBlocks() {
+    return untracked(this.$_blocks).blocks;
+  }
   private resetting = false;
   // Each reset and destroy() starts a generation; what an older one's loads answer after it is dropped, so a reset
   // that a newer one overtook writes nothing the newer one owns
@@ -52,7 +60,11 @@ export class DataManager<TData> {
     this.dataBlockHeightPx = dataRowHeightPx * this.blockRowCount;
     this._totalRowCount = 0;
 
-    this.$_allDataInfo()?.abort.abort();
+    // the full load this replaces is cancelled once the new state is set, as dropped blocks are
+    const previousAllDataInfo = this.currentAllDataInfo;
+    const cancelPrevious = () => {
+      previousAllDataInfo?.abort.abort();
+    };
     this.$_allDataInfo.set(undefined);
 
     if (!Number.isFinite(this.blockRowCount) || this.blockRowCount <= 0) {
@@ -61,6 +73,7 @@ export class DataManager<TData> {
         blocks: [],
         postPixels: 0,
       });
+      cancelPrevious();
       this.resetting = false;
       return;
     }
@@ -88,6 +101,7 @@ export class DataManager<TData> {
       this.$_allDataInfo.set(new AllDataInfo<TData>(allDataPromise, allDataAbort));
       initialBlock = this.getBlock(0);
     } else {
+      cancelPrevious();
       this.resetting = false;
       throw new Error('Unsupported data options type');
     }
@@ -98,6 +112,7 @@ export class DataManager<TData> {
       blocks: [initialBlock],
       postPixels: 0,
     });
+    cancelPrevious();
     this.cdr.markForCheck();
 
     try {
@@ -122,8 +137,8 @@ export class DataManager<TData> {
   /** Cancels every load and drops what they would answer; for a component that is destroyed */
   destroy() {
     this.generation++;
-    this.$_allDataInfo()?.abort.abort();
-    for (const block of this.$_blocks().blocks) {
+    this.currentAllDataInfo?.abort.abort();
+    for (const block of this.currentBlocks) {
       block.abort?.abort();
     }
   }
@@ -131,20 +146,21 @@ export class DataManager<TData> {
   private getBlock(blockId: number): DataBlock<TData> {
     const generation = this.generation;
     const options = this.dataOptions!;
-    const allDataInfo = this.$_allDataInfo();
+    const allDataInfo = this.currentAllDataInfo;
     if (allDataInfo) {
       // we are using full data
       const blockPromise = allDataInfo.promise.then(data => {
         return data.slice(blockId * this.blockRowCount, (blockId + 1) * this.blockRowCount);
       });
-      // aborted with the full load, so the block is cancelled, not failed, when a newer load replaces that one
+      // aborted with the full load, so the block is cancelled, not failed, when a newer load replaces that one; the
+      // block's own abort removes the listener, so the blocks scrolling drops leave none on the full load
       const blockAbort = new AbortController();
       allDataInfo.abort.signal.addEventListener(
         'abort',
         () => {
           blockAbort.abort();
         },
-        { once: true },
+        { once: true, signal: blockAbort.signal },
       );
       return new DataBlock<TData>(blockId, blockAbort, this.blockRowCount, options.getRowKey, blockPromise);
     } else {
@@ -210,7 +226,7 @@ export class DataManager<TData> {
       blockIdsToLoad.push(i);
     }
 
-    const blocks: DataBlock<TData>[] = this.$_blocks().blocks.filter(block => blockIdsToLoad.includes(block.id));
+    const blocks: DataBlock<TData>[] = this.currentBlocks.filter(block => blockIdsToLoad.includes(block.id));
     for (const blockId of blockIdsToLoad) {
       if (!blocks.some(b => b.id === blockId)) {
         blocks.push(this.getBlock(blockId));
@@ -234,7 +250,7 @@ export class DataManager<TData> {
   // A new object each time, so the view and any computed see the change; the blocks it drops are cancelled once it is
   // set, since a cancel can run change detection, which then reads the new blocks
   private showBlocks(next: BlocksInfo<TData>) {
-    const dropped = this.$_blocks().blocks.filter(block => !next.blocks.includes(block));
+    const dropped = this.currentBlocks.filter(block => !next.blocks.includes(block));
     this.$_blocks.set(next);
     for (const block of dropped) {
       block.abort?.abort();

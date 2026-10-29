@@ -51,6 +51,7 @@ export class VirtualizeComponent<TData> extends VirtualizeBaseComponent<TData> {
    * The height of the data window in pixels.
    * When undefined, the height will be calculated based on the container size.
    * If set, this will override the automatic height calculation.
+   * It is read by load() and reload(): call reload() after changing it.
    */
   readonly $dataWindowHeightPx = input<number | undefined>(undefined, {
     alias: 'dataWindowHeightPx',

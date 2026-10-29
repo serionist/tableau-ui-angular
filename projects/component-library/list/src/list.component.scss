@@ -83,4 +83,9 @@
       line-height: normal;
     }
   }
+
+  // a disabled list takes no click, which would focus it
+  &[aria-disabled='true'] .option-wrapper {
+    pointer-events: none;
+  }
 }

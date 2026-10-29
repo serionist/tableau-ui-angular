@@ -176,7 +176,10 @@ export abstract class ListBaseComponent<TOption extends Primitive, TValue extend
   onBlur() {
     this.$focused.set(false);
     this.$highlightedOption.set(undefined);
-    this.onTouched();
+    // a disabled list is never touched, though a click can still focus it
+    if (!this.$disabled()) {
+      this.onTouched();
+    }
   }
   onMouseOut() {
     this.$highlightedOption.set(undefined);

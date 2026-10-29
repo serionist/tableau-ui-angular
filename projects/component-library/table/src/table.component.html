@@ -274,7 +274,7 @@
                   @case ('success') {
                     @let cellDef = def.col.$cell();
                     @if (cellDef.$textClamping()) {
-                      <div class="line-clamp" [style.height]="$lineClampElementHeightPx()" [style.-webkit-line-clamp]="$lineClampRows()">
+                      <div class="line-clamp" [style.-webkit-line-clamp]="$lineClampRows()">
                         <ng-container [ngTemplateOutlet]="cellDef.templateRef" [ngTemplateOutletContext]="cellContext" />
                       </div>
                     } @else {

@@ -1,6 +1,4 @@
 // What the specs share; never published, since no entry point imports it.
-import { NgZone } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
 import type { DataSort, FullDataRequest, IncrementalDataRequest } from 'tableau-ui-angular/virtualize';
 import { FullDataOptions, IncrementalDataOptions } from 'tableau-ui-angular/virtualize';
 
@@ -81,14 +79,11 @@ export class PeopleServer {
           reject(new Error('The server failed'));
         },
       };
-      // outside Angular's zone, as fetch's own abort is: a listener in it would run change detection inside the abort
-      TestBed.inject(NgZone).runOutsideAngular(() => {
-        req.abort.addEventListener('abort', () => {
-          if (!this.ignoresAbort && !held.done) {
-            held.done = true;
-            reject(new DOMException('The request was aborted', 'AbortError'));
-          }
-        });
+      req.abort.addEventListener('abort', () => {
+        if (!this.ignoresAbort && !held.done) {
+          held.done = true;
+          reject(new DOMException('The request was aborted', 'AbortError'));
+        }
       });
       this.requests.push(held);
     });

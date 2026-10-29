@@ -91,6 +91,54 @@ describe('VirtualizeComponent', () => {
     expect(component.server.requests[0].count).toBe(10);
   });
 
+  // a row was measured when dataRowCss changed only, so reload() after a change of font kept the old row height
+  it('measures a row again on reload(), after the font changes', async () => {
+    const { component, server, settle, load } = await render(c => {
+      c.$fontSize.set('10px');
+      c.$rowCss.set({ height: '2em', lineHeight: '2em', padding: '0 8px' });
+    });
+    await load();
+    expect(server.requests[0].count).toBe(10);
+
+    component.$fontSize.set('20px');
+    await settle();
+    const requested = server.requests.length;
+    const reloading = component.list().reload();
+    await server.answerAll(settle);
+
+    expect(await reloading).toBe(true);
+    // 40 px rows, 5 to the window
+    expect(server.requests[requested].count).toBe(5);
+  });
+
+  // a full load's block listened on the full load for its cancel, and a block scrolling dropped kept that listener
+  it('keeps no listener on a full load for the blocks scrolling drops', async () => {
+    const { component, settle, load, scrollTo } = await render(c => {
+      c.$options.set(c.server.full);
+    });
+    await load();
+    for (const top of [400, 800, 1200, 1600]) {
+      await scrollTo(top);
+    }
+    // controllers cancelled a second time: a dropped block's, reached again through a listener it left
+    const again: AbortController[] = [];
+    const abort = AbortController.prototype.abort;
+    const cancels = vi.spyOn(AbortController.prototype, 'abort').mockImplementation(function (this: AbortController, reason?: unknown) {
+      if (this.signal.aborted) {
+        again.push(this);
+      }
+      abort.call(this, reason);
+    });
+    try {
+      void component.list().reset();
+      await settle();
+    } finally {
+      cancels.mockRestore();
+    }
+
+    expect(again).toEqual([]);
+  });
+
   // F92: load() let the inputs' changes through only once its first block came, so a sort set while it loaded was
   // dropped
   it('loads with the sort the app sets while it first loads', async () => {

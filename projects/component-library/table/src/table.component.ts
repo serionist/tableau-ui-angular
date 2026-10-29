@@ -418,8 +418,9 @@ export class TableComponent<TData> extends VirtualizeBaseComponent<TData> {
 
   // #region Line clamping
 
-  // The lines of text a cell holds, from the row's CSS, so a change to dataRowCss clamps to its rows
-  private readonly $lineClamp = computed(() => {
+  // The lines of text a cell holds, from the row's CSS, so a change to dataRowCss clamps to its rows; the clamp takes
+  // no height of its own, since -webkit-line-clamp clamps it, and a row's normal line height measures no pixels
+  protected readonly $lineClampRows = computed(() => {
     try {
       const cellStyle = this.$dataRowComputedStyle();
       const getPxValue = (prop: string, value: string) => {
@@ -436,17 +437,26 @@ export class TableComponent<TData> extends VirtualizeBaseComponent<TData> {
 
       const rowHeight = height - paddingTop - paddingBottom;
 
-      const rows = Math.max(Math.floor(rowHeight / lineHeight), 1);
-      return { rows, heightPx: lineHeight * rows };
+      return Math.max(Math.floor(rowHeight / lineHeight), 1);
     } catch (error: unknown) {
       console.warn('Failed to initialize line clamp:', error);
-      return { rows: 1, heightPx: 0 };
+      return 1;
     }
   });
-  protected readonly $lineClampRows = computed(() => this.$lineClamp().rows);
-  protected readonly $lineClampElementHeightPx = computed(() => this.$lineClamp().heightPx);
   // #endregion
 }
 
-// What a click in a cell can be meant for instead of the row
-const INTERACTIVE = 'a[href], button, input, select, textarea, label, summary, [contenteditable]:not([contenteditable="false"]), [role="button"], [role="link"], [role="checkbox"], [role="combobox"]';
+// What a click in a cell can be meant for instead of the row: native controls, the library's button toggle, whose
+// options have no role yet, and the WAI-ARIA widget roles
+const INTERACTIVE = [
+  'a[href]',
+  'button',
+  'input',
+  'select',
+  'textarea',
+  'label',
+  'summary',
+  '[contenteditable]:not([contenteditable="false"])',
+  'tab-button-toggle',
+  ...['button', 'link', 'checkbox', 'radio', 'switch', 'tab', 'option', 'menuitem', 'combobox', 'slider', 'spinbutton', 'textbox', 'searchbox'].map(role => `[role="${role}"]`),
+].join(', ');

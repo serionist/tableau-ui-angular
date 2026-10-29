@@ -85,12 +85,17 @@ export abstract class VirtualizeBaseComponent<TData> {
   private readonly document = inject(DOCUMENT);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
+  // reload() counts up, so the row is measured again: a font the app changed since shows in its em sizes
+  private readonly $measures = signal(0);
+
   /**
-   * A data row's computed style, measured inside the host, so its em sizes and inherited line height are the host's.
+   * A data row's computed style, measured inside the host, so its em sizes and inherited line height are the host's,
+   * when `dataRowCss` changes and on each `reload()`.
    * On the server, which lays nothing out, each value is `0px`.
    */
   protected readonly $dataRowComputedStyle: Signal<DataRowStyle> = computed(() => {
     const css = this.$dataRowCss();
+    this.$measures();
     if (!this.isBrowser) {
       return Object.fromEntries(ROW_STYLE_PROPERTIES.map(property => [property, '0px'])) as DataRowStyle;
     }
@@ -148,6 +153,9 @@ export abstract class VirtualizeBaseComponent<TData> {
   private lastReset: ResetInputs<TData> | undefined = undefined;
   private resets = 0;
 
+  // load(), reload() and reset() run untracked: an app may call them from an effect of its own, which must not take
+  // the signals a reset reads, and then writes, as its inputs, or it would run again on each and reset again
+
   /**
    * Loads the data. Only callable once: when the data is already loaded, this does nothing and returns false.
    * This measures the window the rows are shown in, and reset()s.
@@ -155,31 +163,17 @@ export abstract class VirtualizeBaseComponent<TData> {
    * On the server, which lays nothing out, nothing loads and this returns false.
    */
   async load(): Promise<boolean> {
-    if (this.loaded) {
-      return false;
-    }
-    return this.reload();
+    return untracked(async () => (this.loaded ? false : this.reloadNow()));
   }
 
   /**
    * Reloads the data.
-   * This measures the window the rows are shown in again, and reset()s.
-   * Use this to reload the data when the size changes.
+   * This measures the window the rows are shown in, and a row, again, and reset()s.
+   * Use this to reload the data when the size or the font changes.
    * On the server, which lays nothing out, nothing loads and this returns false.
    */
   async reload(): Promise<boolean> {
-    this.loaded = false;
-    if (!this.isBrowser) {
-      return false;
-    }
-    this.dataWindowHeightPx = this.measureDataWindowHeightPx();
-    const inputs = this.resetInputs();
-    if (!this.canReset(inputs)) {
-      return false;
-    }
-    // loaded before the first block comes, so a change to the inputs while it loads resets again
-    this.loaded = true;
-    return this.resetWith(inputs);
+    return untracked(async () => this.reloadNow());
   }
 
   /**
@@ -190,6 +184,26 @@ export abstract class VirtualizeBaseComponent<TData> {
    * @returns A promise that resolves to true if the reset was successful, false otherwise.
    */
   async reset(resetSort: boolean = false): Promise<boolean> {
+    return untracked(async () => this.resetNow(resetSort));
+  }
+
+  private async reloadNow(): Promise<boolean> {
+    this.loaded = false;
+    if (!this.isBrowser) {
+      return false;
+    }
+    this.$measures.update(measures => measures + 1);
+    this.dataWindowHeightPx = this.measureDataWindowHeightPx();
+    const inputs = this.resetInputs();
+    if (!this.canReset(inputs)) {
+      return false;
+    }
+    // loaded before the first block comes, so a change to the inputs while it loads resets again
+    this.loaded = true;
+    return this.resetWith(inputs);
+  }
+
+  private async resetNow(resetSort: boolean): Promise<boolean> {
     if (!this.loaded) {
       return false;
     }
@@ -225,8 +239,12 @@ export abstract class VirtualizeBaseComponent<TData> {
   private canReset(inputs: ResetInputs<TData>): boolean {
     // an app without strict templates can bind undefined
     const { sort, dataOptions } = inputs as Partial<ResetInputs<TData>>;
-    if (this.dataWindowHeightPx <= 0 || !sort || !dataOptions) {
-      console.warn('Container reset called with undefined parameters, ignoring');
+    if (this.dataWindowHeightPx <= 0) {
+      console.warn('Reset ignored: the window the rows are shown in measured 0 px, as in a hidden host. Call reload() once it is shown.');
+      return false;
+    }
+    if (!sort || !dataOptions) {
+      console.warn('Reset ignored: no sort or no data options');
       return false;
     }
     return true;
