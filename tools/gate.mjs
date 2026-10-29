@@ -271,7 +271,9 @@ function checkTests() {
   const runs = testRuns(JSON.parse(readFileSync(join(ROOT, 'angular.json'), 'utf8'))).map(args => node(NG, ...args));
   const output = runs.map(done => done.output).join('\n');
   const passed = [...output.matchAll(/^\s*Tests\s+(\d+) passed/gm)].reduce((sum, match) => sum + Number(match[1]), 0);
-  return runs.every(done => done.ok) ? pass(`${passed} passed, in Chromium and Firefox`) : fail('ng test failed', output);
+  // the failed runs' output alone, so the tail the gate prints is a failure's, not the next project's passing run
+  const failed = runs.filter(done => !done.ok).map(done => done.output);
+  return failed.length ? fail('ng test failed', failed.join('\n')) : pass(`${passed} passed, in Chromium and Firefox`);
 }
 
 function checkCoverage({ ranges, problem }) {
