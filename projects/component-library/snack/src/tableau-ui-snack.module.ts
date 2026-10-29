@@ -1,14 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { SnackComponent } from './snack.component';
-import { RouterModule } from '@angular/router';
 import { TableauUiIconModule } from 'tableau-ui-angular/icon';
-import { SnackService } from './snack.service';
 
+// SnackService is provided in root and only there: one for the app, whatever imports this module
 @NgModule({
-  imports: [CommonModule, TableauUiIconModule, RouterModule],
+  imports: [CommonModule, TableauUiIconModule],
   declarations: [SnackComponent],
-  providers: [SnackService],
   exports: [],
 })
 export class TableauUiSnackModule {}

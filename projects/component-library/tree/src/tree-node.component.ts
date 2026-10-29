@@ -1,11 +1,10 @@
 import type { InputSignal, OnDestroy, OnInit, Signal, TemplateRef, WritableSignal } from '@angular/core';
-import { ChangeDetectionStrategy, Component, computed, contentChild, forwardRef, inject, input, linkedSignal, output, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, contentChild, inject, input, linkedSignal, output, signal, viewChild } from '@angular/core';
 import { CollapsedContentDirective } from './collapsed-content.directive';
 import { ExpandedContentDirective } from './expanded-content.directive';
 import type { TreeNodeRegistry } from './tree-node-registry';
 import type { ExpandButtonTooltipParams } from './tree.component';
 import { TabTreeComponent } from './tree.component';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import type { TreeNodeInterface } from './tree-node-interface';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { generateRandomString } from 'tableau-ui-angular/utils';
@@ -15,13 +14,6 @@ import { generateRandomString } from 'tableau-ui-angular/utils';
   standalone: false,
   templateUrl: './tree-node.component.html',
   styleUrl: './tree-node.component.scss',
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => TabTreeNodeComponent),
-      multi: true,
-    },
-  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TabTreeNodeComponent implements OnInit, OnDestroy, TreeNodeInterface {

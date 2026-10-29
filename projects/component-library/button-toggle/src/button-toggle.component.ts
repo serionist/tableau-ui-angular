@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, contentChildren, effect, HostListener, input, model, untracked } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, contentChildren, HostListener, input, model, TemplateRef } from '@angular/core';
 import type { IOptionLineContext } from 'tableau-ui-angular/common';
 import { OptionComponent } from 'tableau-ui-angular/common';
 import type { Primitive } from 'tableau-ui-angular/types';
@@ -36,12 +36,12 @@ export class ButtonToggleComponent<T extends Primitive> {
 
   protected readonly $options = contentChildren(OptionComponent<T>);
 
-  readonly selectedValueChange = effect(() => {
-    const val = this.$selectedValue();
-    const option = untracked(() => this.$options()).find(opt => opt.$value() === val);
-    if (!option || this.$disabled() || option.$disabled()) {
-      this.$selectedValue.set(undefined);
-    }
+  // The option shown as selected: the one whose value is bound, once it is there. The toggle writes the bound value
+  // only on the user's pick, so a value set while it is disabled, on a disabled option or before the options come
+  // stays the app's
+  protected readonly $selectedOption = computed(() => {
+    const value = this.$selectedValue();
+    return this.$options().find(option => option.$value() === value);
   });
 
   protected readonly $optionRenderContext = computed<IOptionLineContext>(() => {
@@ -51,6 +51,11 @@ export class ButtonToggleComponent<T extends Primitive> {
       renderAsDisabled: this.$disabled(),
     };
   });
+
+  // a hint is text or a template
+  protected $isTemplate(hint: unknown): hint is TemplateRef<unknown> {
+    return hint instanceof TemplateRef;
+  }
 
   optionClicked(option: OptionComponent<T>): void {
     if (this.$disabled() || option.$disabled()) {

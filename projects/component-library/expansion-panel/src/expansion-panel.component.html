@@ -11,7 +11,7 @@
   } @else {
     <div><ng-content select="tab-expansion-panel-title" /></div>
   }
-  <button layout="icon" color="plain" [disabled]="$disabled()">
+  <button layout="icon" color="plain" [disabled]="$disabled()" [attr.aria-expanded]="$expanded()">
     <tab-icon [value]="$expanded() ? 'keyboard_arrow_up' : 'keyboard_arrow_down'" [label]="$expanded() ? 'Collapse' : 'Expand'" />
   </button>
 </div>

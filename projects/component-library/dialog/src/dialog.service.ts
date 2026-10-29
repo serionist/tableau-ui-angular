@@ -1,5 +1,6 @@
-import type { ComponentRef, EmbeddedViewRef, TemplateRef, Type, ViewRef } from '@angular/core';
-import { ApplicationRef, createComponent, EnvironmentInjector, inject, Injectable, Injector } from '@angular/core';
+import type { ComponentRef, EmbeddedViewRef, OnDestroy, TemplateRef, Type, ViewRef } from '@angular/core';
+import { ApplicationRef, createComponent, DOCUMENT, EnvironmentInjector, inject, Injectable, Injector, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import type { DialogRef, IDialogRef } from './dialog.ref';
 import { TAB_DIALOG_REF, DialogRefInternal } from './dialog.ref';
 import type { IConfirmationDialogArgs, IDialogArgs, IDialogPositionAndSizeArgs, IModalArgs } from './dialog.args';
@@ -17,10 +18,14 @@ import { GlobalStackOptions, LocalStackOptions } from './stack-options';
 @Injectable({
   providedIn: 'root', // This service is a singleton and should be provided in the root injector
 })
-export class DialogService {
+export class DialogService implements OnDestroy {
   injector = inject(Injector);
   appRef = inject(ApplicationRef);
   environmentInjector = inject(EnvironmentInjector);
+  private readonly document = inject(DOCUMENT);
+  // The server shows no dialog: it has no layout and no user, and a dialog rendered there would stay in the page as
+  // dead HTML, since the browser renders the app again
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   openModal<TComponent, TData, TResult>(component: Type<TComponent>, data: TData, args?: IModalArgs): DialogRef<TResult> {
     return this._openModal<TData, TResult>((injector: Injector) => this.createView(component, injector), data, args);
@@ -34,6 +39,8 @@ export class DialogService {
     const a = {
       width: args?.width ?? '300px',
       height: args?.height ?? 'fit-content',
+      minWidth: args?.minWidth,
+      minHeight: args?.minHeight,
       maxWidth: args?.maxWidth ?? 'calc(100vw - 100px)',
       maxHeight: args?.maxHeight ?? 'calc(80vh - 50px)',
       closeOnBackdropClick: args?.closeOnBackdropClick ?? true,
@@ -53,11 +60,12 @@ export class DialogService {
         flexDirection: 'column',
       },
 
+      // centred, but never above or left of the viewport, so a modal larger than the screen keeps its header on it
       left(actualWidth) {
-        return `calc(50vw - ${actualWidth / 2}px)`;
+        return `max(0px, calc(50vw - ${actualWidth / 2}px))`;
       },
-      top(actualHeight) {
-        return `calc(50vh - ${actualHeight / 2}px)`;
+      top(_actualWidth, actualHeight) {
+        return `max(0px, calc(50vh - ${actualHeight / 2}px))`;
       },
       header: args?.header,
       trapFocus: true,
@@ -147,6 +155,10 @@ export class DialogService {
     return this._openDialog<TData, TResult>((injector: Injector) => this.createView(component, injector), data, args, stackOptions);
   }
   private _openDialog<TData, TResult>(getViewRef: (injector: Injector) => ViewRef, data: TData, args: IDialogArgs = {}, stackOptions: StackOptions = new GlobalStackOptions()): DialogRef<TResult> {
+    if (!this.isBrowser) {
+      // a dialog that is never shown; closing it still tells its caller
+      return new DialogRefInternal<TResult>();
+    }
     let trappedFocus:
       | {
           elements: {
@@ -189,7 +201,7 @@ export class DialogService {
     this.appRef.attachView(componentView);
 
     // Create a container for the dialog
-    const dialogElement = this.createDialogElement(componentView, args, injector, dialogRef, zIndex);
+    const { dialogElement, headerIcon } = this.createDialogElement(componentView, args, injector, dialogRef, zIndex);
     dialogRef.dialogElement = dialogElement;
 
     // always insert element after the backdrop
@@ -198,7 +210,7 @@ export class DialogService {
     } else if (stackOptions instanceof LocalStackOptions) {
       stackOptions.insertAfterElement.insertAdjacentElement('afterend', dialogElement);
     } else {
-      document.body.appendChild(dialogElement);
+      this.document.body.appendChild(dialogElement);
     }
 
     // Handle container position and window resize event
@@ -215,6 +227,8 @@ export class DialogService {
       }
       this.appRef.detachView(componentView);
       componentView.destroy();
+      // the header's close icon is a view of its own, attached to the application
+      headerIcon?.destroy();
       dialogElement.remove();
 
       const dialogIndex = this.dialogStack.findIndex(d => d.zIndex === zIndex);
@@ -236,7 +250,7 @@ export class DialogService {
     if (args.skipCreatingBackdrop === true) {
       return undefined;
     }
-    const backdrop = document.createElement('div');
+    const backdrop = this.document.createElement('div');
     backdrop.classList.add('dialog-backdrop');
     backdrop.style.zIndex = (dialogZIndex - 1).toString();
     if (args.backdropCss) {
@@ -247,7 +261,7 @@ export class DialogService {
     if (stackOptions instanceof LocalStackOptions) {
       stackOptions.insertAfterElement.insertAdjacentElement('afterend', backdrop);
     } else {
-      document.body.appendChild(backdrop);
+      this.document.body.appendChild(backdrop);
     }
     if (args.closeOnBackdropClick === true) {
       backdrop.onclick = () => {
@@ -258,18 +272,33 @@ export class DialogService {
   }
 
   escapeSubscription: Subscription | null = null;
+
+  // An app destroyed with a dialog open, as a test's is, leaves no Escape listener on its document
+  ngOnDestroy(): void {
+    this.escapeSubscription?.unsubscribe();
+    this.escapeSubscription = null;
+  }
+
   private setEscapeHandler() {
     if (this.escapeSubscription) {
       this.escapeSubscription.unsubscribe();
       this.escapeSubscription = null;
     }
-    if (this.dialogStack.length <= 0) {
-      return;
+    // Escape closes the top dialog that closes on Escape. One above it with no backdrop that ignores Escape, such as a
+    // tooltip, lets the key through; one with a backdrop that ignores Escape keeps the ones below it open
+    let target: (typeof this.dialogStack)[number] | undefined = undefined;
+    for (const entry of [...this.dialogStack].reverse()) {
+      if (entry.args.closeOnEscape === true) {
+        target = entry;
+        break;
+      }
+      if (entry.args.skipCreatingBackdrop !== true) {
+        break;
+      }
     }
-    // get the dialog to set the escape for
-    const { dialogRef, args } = this.dialogStack[this.dialogStack.length - 1];
-    if (args.closeOnEscape === true) {
-      this.escapeSubscription = fromEvent(document, 'keydown')
+    if (target) {
+      const { dialogRef } = target;
+      this.escapeSubscription = fromEvent(this.document, 'keydown')
         .pipe(map(e => e as KeyboardEvent))
         .subscribe((e: KeyboardEvent) => {
           if (e.key === 'Escape') {
@@ -292,10 +321,17 @@ export class DialogService {
     return componentRef.hostView;
   }
 
-  private createDialogElement(viewRef: ViewRef, args: IDialogArgs, injector: Injector, dialogRef: IDialogRef, zIndex: number): HTMLElement {
+  private createDialogElement(
+    viewRef: ViewRef,
+    args: IDialogArgs,
+    injector: Injector,
+    dialogRef: IDialogRef,
+    zIndex: number,
+  ): { dialogElement: HTMLElement; headerIcon: ComponentRef<IconComponent> | undefined } {
     const embeddedViewRef = viewRef as EmbeddedViewRef<unknown>;
+    let headerIcon: ComponentRef<IconComponent> | undefined = undefined;
 
-    const dialogElement = document.createElement('div');
+    const dialogElement = this.document.createElement('div');
     dialogElement.classList.add('dialog-container');
     dialogElement.style.zIndex = zIndex.toString();
     for (const rootNode of embeddedViewRef.rootNodes) {
@@ -308,34 +344,34 @@ export class DialogService {
       });
     }
     if (args.header) {
-      const headerElement = document.createElement('div');
+      const headerElement = this.document.createElement('div');
       headerElement.classList.add('dialog-header');
-      const titleElement = document.createElement('div');
+      const titleElement = this.document.createElement('div');
       titleElement.classList.add('dialog-title');
       // the title is text: callers build it from their data, so it must never be parsed as HTML
       titleElement.textContent = args.header.title;
       headerElement.appendChild(titleElement);
       if (args.header.allowClose) {
         // A button, so a screen reader says what it is and Enter and Space press it; its labelled icon names it
-        const closeButton = document.createElement('button');
+        const closeButton = this.document.createElement('button');
         closeButton.type = 'button';
         closeButton.classList.add('dialog-close');
         closeButton.addEventListener('click', () => {
           dialogRef.close();
         });
-        const iconRef: ComponentRef<IconComponent> = createComponent(IconComponent, {
+        headerIcon = createComponent(IconComponent, {
           environmentInjector: this.environmentInjector,
           elementInjector: injector,
         });
-        iconRef.setInput('value', 'close');
-        iconRef.setInput('label', 'Close');
-        this.appRef.attachView(iconRef.hostView);
-        closeButton.appendChild((iconRef.hostView as EmbeddedViewRef<unknown>).rootNodes[0] as HTMLElement);
+        headerIcon.setInput('value', 'close');
+        headerIcon.setInput('label', 'Close');
+        this.appRef.attachView(headerIcon.hostView);
+        closeButton.appendChild(headerIcon.location.nativeElement as HTMLElement);
         headerElement.appendChild(closeButton);
       }
       dialogElement.insertBefore(headerElement, dialogElement.firstChild);
     }
-    return dialogElement;
+    return { dialogElement, headerIcon };
   }
 
   private static manageDialogPosition(dialogElement: HTMLElement, args: IDialogPositionAndSizeArgs, stackOptions: StackOptions): Subscription | null {
@@ -350,7 +386,7 @@ export class DialogService {
     let resizeSubscription: Subscription | null = null;
 
     // Handle window resize event
-    resizeSubscription = fromEvent(window, 'resize').subscribe(() => {
+    resizeSubscription = fromEvent(dialogElement.ownerDocument.defaultView!, 'resize').subscribe(() => {
       DialogService.calculateAndSetPosition(dialogElement, args, stackOptions);
     });
     // and any scroll, of the page or a container, which moves the element a dropdown or menu is placed from
@@ -432,12 +468,13 @@ export class DialogService {
     dialogElement.style.left = getTopLeft('left', args.left);
 
     // if dialog is higher than the available page height, set it to scroll
-    if (actualHeight + dialogElement.offsetTop > window.innerHeight) {
+    const view = dialogElement.ownerDocument.defaultView!;
+    if (actualHeight + dialogElement.offsetTop > view.innerHeight) {
       dialogElement.style.height = `calc(100vh - ${dialogElement.offsetTop}px)`;
       dialogElement.style.overflowY = 'auto';
     }
     // if dialog is wider than the available page width, set it to scroll
-    if (actualWidth + dialogElement.offsetLeft > window.innerWidth) {
+    if (actualWidth + dialogElement.offsetLeft > view.innerWidth) {
       dialogElement.style.width = `calc(100vw - ${dialogElement.offsetLeft}px)`;
       dialogElement.style.overflowX = 'auto';
     }
@@ -450,13 +487,13 @@ export class DialogService {
     }[];
     focusedElement: HTMLElement | null;
   } {
-    const tabbableElements = tabbable(document.body);
+    const tabbableElements = tabbable(this.document.body);
     const elementsTable = tabbableElements.map(e => ({
       element: e,
       originalTabIndex: e.tabIndex,
     }));
     elementsTable.forEach(e => (e.element.tabIndex = -1));
-    const focusedElement = document.activeElement as HTMLElement | null;
+    const focusedElement = this.document.activeElement as HTMLElement | null;
     if (focusedElement) {
       focusedElement.blur();
     }

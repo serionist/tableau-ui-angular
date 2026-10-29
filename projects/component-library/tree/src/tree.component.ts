@@ -1,5 +1,5 @@
-import type { AfterContentInit, InputSignal, OnDestroy, TemplateRef } from '@angular/core';
-import { ChangeDetectionStrategy, Component, computed, effect, ElementRef, inject, input } from '@angular/core';
+import type { InputSignal, OnDestroy, TemplateRef } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, Component, computed, DOCUMENT, effect, ElementRef, inject, input } from '@angular/core';
 import type { TabTreeNodeComponent, TreeNodeTemplate } from './tree-node.component';
 import { TreeNodeRegistry } from './tree-node-registry';
 @Component({
@@ -9,8 +9,11 @@ import { TreeNodeRegistry } from './tree-node-registry';
   styleUrl: './tree.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TabTreeComponent implements AfterContentInit, OnDestroy {
+export class TabTreeComponent implements OnDestroy {
   private readonly selfElementRef = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly document = inject(DOCUMENT);
+  // The grid lines are drawn from measuring the nodes, which only the browser can, once the tree is drawn
+  private rendered = false;
   readonly $showRootGridLines = input<boolean>(false, {
     alias: 'showRootGridLines',
   });
@@ -76,9 +79,17 @@ export class TabTreeComponent implements AfterContentInit, OnDestroy {
           this.hierarchyModeManualSetChildrenDepthAndId(child, this.$showRootGridLines() ? 1 : 0);
         }
       }
-      if (this.$gridLinesBorder() !== undefined) {
+      if (this.$gridLinesBorder() !== undefined && this.rendered) {
         this.redrawGridLines();
       }
+    });
+    // the observer's first call draws them
+    afterNextRender(() => {
+      this.rendered = true;
+      this.resizeObserver = new ResizeObserver(() => {
+        this.redrawGridLines();
+      });
+      this.resizeObserver.observe(this.selfElementRef.nativeElement);
     });
   }
 
@@ -124,12 +135,6 @@ export class TabTreeComponent implements AfterContentInit, OnDestroy {
   }
 
   private resizeObserver: ResizeObserver | undefined;
-  ngAfterContentInit(): void {
-    this.resizeObserver = new ResizeObserver(() => {
-      this.redrawGridLines();
-    });
-    this.resizeObserver.observe(this.selfElementRef.nativeElement);
-  }
   ngOnDestroy(): void {
     this.resizeObserver?.disconnect();
   }
@@ -159,7 +164,7 @@ export class TabTreeComponent implements AfterContentInit, OnDestroy {
         return;
       }
 
-      const headerButtonRect = document.getElementById(child.headerButtonId)?.getBoundingClientRect();
+      const headerButtonRect = this.document.getElementById(child.headerButtonId)?.getBoundingClientRect();
       // root gridlines
       if (this.$showRootGridLines() && !child.$parent()) {
         const selfRect = this.selfElementRef.nativeElement.getBoundingClientRect();
@@ -192,7 +197,7 @@ export class TabTreeComponent implements AfterContentInit, OnDestroy {
       }
 
       const selfRect = this.selfElementRef.nativeElement.getBoundingClientRect();
-      const parentButtonRect = document.getElementById(child.$parent()!.headerButtonId)?.getBoundingClientRect();
+      const parentButtonRect = this.document.getElementById(child.$parent()!.headerButtonId)?.getBoundingClientRect();
 
       if (!parentButtonRect) {
         continue;
@@ -234,7 +239,7 @@ export class TabTreeComponent implements AfterContentInit, OnDestroy {
       if (!l) {
         l = {
           id: line.id,
-          element: document.createElement('div'),
+          element: this.document.createElement('div'),
         };
         l.element.className = 'grid-line';
         l.element.style.position = 'absolute';

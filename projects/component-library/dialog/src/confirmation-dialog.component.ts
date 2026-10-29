@@ -10,7 +10,7 @@ import type { ButtonComponent } from 'tableau-ui-angular/button';
     <div class="dialog-content">
       @if (data.contentTemplate) {
         <div>
-          <ng-container *ngTemplateOutlet="data.contentTemplate" />
+          <ng-container *ngTemplateOutlet="data.contentTemplate; context: data.contentTemplateContext" />
         </div>
       } @else {
         <div>{{ data.content }}</div>
