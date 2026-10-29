@@ -29,4 +29,19 @@ describe('DialogService', () => {
 
     dialogRef.close();
   });
+
+  // The modal opens off screen, is measured, then placed; waiting for it keeps the coverage the same on a slow machine
+  it('places a modal on screen once it has measured it', async () => {
+    const dialogRef = TestBed.inject(DialogService).openModal(DialogContentComponent, undefined, {
+      header: { title: 'Placed', allowClose: true },
+    });
+
+    const container = document.querySelector<HTMLElement>('.dialog-container')!;
+    await vi.waitFor(() => {
+      expect(container.style.top).not.toBe('-9999px');
+    });
+    expect(container.style.left).not.toBe('-9999px');
+
+    dialogRef.close();
+  });
 });
