@@ -1,5 +1,5 @@
-import type { Signal } from '@angular/core';
-import { ChangeDetectionStrategy, Component, contentChild, forwardRef, input, linkedSignal, model } from '@angular/core';
+import type { InputSignal, Signal, WritableSignal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, contentChild, forwardRef, input, linkedSignal, model, output } from '@angular/core';
 import type { ControlValueAccessor } from '@angular/forms';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { ErrorComponent, HintComponent } from 'tableau-ui-angular/common';
@@ -20,8 +20,8 @@ import { generateRandomString } from 'tableau-ui-angular/utils';
   host: {
     class: 'checkbox',
     '[class.disabled]': '$disabled()',
-    '[class.checked]': '$checked() === true',
-    '[class.partial]': '$checked() === "partial"',
+    '[class.checked]': '$value() === true',
+    '[class.partial]': '$value() === "partial"',
     '[class.loading]': '$loading()',
   },
 })
@@ -39,14 +39,13 @@ export class CheckboxComponent implements ControlValueAccessor {
    * - `false`: Checkbox is unchecked
    * - `'partial'`: Checkbox is in a partial state (e.g., indeterminate)
    */
-  readonly $value = model<boolean | 'partial'>(false, {
+  readonly $valueInput: InputSignal<boolean | 'partial'> = input<boolean | 'partial'>(false, {
     alias: 'value',
   });
-  /**
-   * What the box shows: the value input, or what a form wrote last. A form's write sets only this, since setting the
-   * model would emit (valueChange) as if the user had toggled.
-   */
-  protected readonly $checked = linkedSignal(() => this.$value());
+  /** What the box shows: the value input, until a form writes or the user toggles */
+  readonly $value: WritableSignal<boolean | 'partial'> = linkedSignal(this.$valueInput);
+  /** Emits the value on each toggle by the user; a form's write emits nothing */
+  readonly valueChange = output<boolean | 'partial'>();
   /**
    * The loading state of the checkbox.
    * This can be used to indicate that the checkbox is in a loading state, e.g., when data is being fetched.
@@ -92,7 +91,7 @@ export class CheckboxComponent implements ControlValueAccessor {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   onTouched = () => {};
   writeValue(value: boolean | 'partial' | null | undefined): void {
-    this.$checked.set(value ?? false);
+    this.$value.set(value ?? false);
   }
   registerOnChange(fn: (value: boolean) => void): void {
     this.onChange = fn;
@@ -108,10 +107,10 @@ export class CheckboxComponent implements ControlValueAccessor {
     if (this.$disabled() || this.$loading()) {
       return;
     }
-    const checked = this.$checked();
+    const checked = this.$value();
     const value = checked === 'partial' ? this.$valueAfterPartial() : !checked;
-    this.$checked.set(value);
     this.$value.set(value);
+    this.valueChange.emit(value);
     this.onChange(value);
   }
 
@@ -127,7 +126,7 @@ export class CheckboxComponent implements ControlValueAccessor {
     this.toggleValue();
     // The browser toggled the input its own way (indeterminate to checked); show the value instead
     const element = e.target as HTMLInputElement;
-    const value = this.$checked();
+    const value = this.$value();
     element.checked = value === true;
     element.indeterminate = value === 'partial';
   }

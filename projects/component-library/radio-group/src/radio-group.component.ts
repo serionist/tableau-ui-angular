@@ -1,5 +1,5 @@
-import type { Signal } from '@angular/core';
-import { ChangeDetectionStrategy, Component, computed, contentChild, contentChildren, forwardRef, linkedSignal, model, signal } from '@angular/core';
+import type { InputSignal, Signal, WritableSignal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, contentChild, contentChildren, forwardRef, input, linkedSignal, output, signal } from '@angular/core';
 
 import type { ControlValueAccessor } from '@angular/forms';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
@@ -24,21 +24,21 @@ import { generateRandomString } from 'tableau-ui-angular/utils';
 })
 export class RadioGroupComponent<T extends Primitive> implements ControlValueAccessor {
   readonly $disabled = signal(false);
-  readonly $value = model<T | undefined>(undefined, {
+  /** The selected value */
+  readonly $valueInput: InputSignal<T | undefined> = input<T | undefined>(undefined, {
     alias: 'value',
   });
-  /**
-   * The selected value: the value input, or what a form wrote last. A form's write sets only this, since setting the
-   * model would emit (valueChange) as if the user had picked.
-   */
-  private readonly $selected = linkedSignal(() => this.$value());
+  /** The selected value: the value input, until a form writes or the user picks */
+  readonly $value: WritableSignal<T | undefined> = linkedSignal(this.$valueInput);
+  /** Emits the value on each pick by the user; a form's write emits nothing */
+  readonly valueChange = output<T | undefined>();
   readonly name = this.generateRandomGroupName();
   readonly $options = contentChildren<OptionComponent<T>>(OptionComponent<T>);
   // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
   readonly $errorElement: Signal<ErrorComponent | undefined> = contentChild(ErrorComponent);
   // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
   protected readonly $selectedOption: Signal<OptionComponent<T> | undefined> = computed(() => {
-    const selected = this.$selected();
+    const selected = this.$value();
     return this.$options().find(option => sameValue(option.$value(), selected));
   });
 
@@ -48,7 +48,7 @@ export class RadioGroupComponent<T extends Primitive> implements ControlValueAcc
   onTouched = () => {};
 
   writeValue(value: T | undefined): void {
-    this.$selected.set(value);
+    this.$value.set(value);
   }
 
   registerOnChange(fn: (value: T | undefined) => void): void {
@@ -66,8 +66,8 @@ export class RadioGroupComponent<T extends Primitive> implements ControlValueAcc
   selectValue(option: OptionComponent<T>) {
     if (!this.$disabled() && !option.$disabled() && this.$selectedOption() !== option) {
       const value = option.$value();
-      this.$selected.set(value);
       this.$value.set(value);
+      this.valueChange.emit(value);
       this.onChange(value);
     }
   }

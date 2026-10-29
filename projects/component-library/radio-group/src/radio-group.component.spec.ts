@@ -64,6 +64,20 @@ describe('RadioGroupComponent', () => {
     expect(changes).toEqual(['m']);
   });
 
+  // A form's write set only the selection, so picking the same option after a reset emitted nothing
+  it('emits valueChange for each pick, also the same option after a reset', async () => {
+    const { fixture, control, changes, radios } = await render();
+
+    radios[1].click();
+    control.reset(null);
+    await fixture.whenStable();
+    radios[1].click();
+    await fixture.whenStable();
+
+    expect(changes).toEqual(['m', 'm']);
+    expect(control.value).toBe('m');
+  });
+
   // F31: Date values compared by reference, so an equal date written by the form selected nothing
   it('selects the option equal to a written date', async () => {
     @Component({

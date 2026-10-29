@@ -103,6 +103,19 @@ describe('CheckboxComponent', () => {
     expect(changes).toEqual([true]);
   });
 
+  // A form's write set only what the box showed, so a model that already held the user's new value emitted nothing
+  it('emits valueChange when the user unchecks a box the form checked', async () => {
+    const { fixture, control, changes, input } = await render();
+    control.setValue(true);
+    await fixture.whenStable();
+
+    input.click();
+    await fixture.whenStable();
+
+    expect(changes).toEqual([false]);
+    expect(control.value).toBe(false);
+  });
+
   // F30: a click anywhere inside toggled, so opening the terms ticked the box
   it('does not toggle when a button in its text is clicked', async () => {
     const { fixture, host, control } = await render();
