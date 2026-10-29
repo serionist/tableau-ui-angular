@@ -1,5 +1,5 @@
-import type { AfterViewInit, InputSignal, OnDestroy, OutputRefSubscription, WritableSignal } from '@angular/core';
-import { ChangeDetectionStrategy, Component, contentChildren, effect, ElementRef, HostListener, inject, input, output, signal } from '@angular/core';
+import type { InputSignal, OnDestroy, OutputRefSubscription, WritableSignal } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, Component, computed, contentChildren, DOCUMENT, effect, ElementRef, HostListener, inject, input, output, signal } from '@angular/core';
 import { MenuButtonComponent } from './menu-button.component';
 import { generateRandomString } from 'tableau-ui-angular/utils';
 import { ButtonMenuDirective } from 'tableau-ui-angular/menu';
@@ -12,6 +12,8 @@ import { ButtonMenuDirective } from 'tableau-ui-angular/menu';
       <div
         class="menu-group"
         resizeWatcher
+        [attr.role]="entry[1].parentButton ? 'menu' : null"
+        [attr.aria-labelledby]="entry[1].parentButton?.id ?? null"
         [id]="entry[1].id"
         [style.position]="entry[1].$position()"
         [style.top]="entry[1].$top() + 'px'"
@@ -54,15 +56,20 @@ import { ButtonMenuDirective } from 'tableau-ui-angular/menu';
     `,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  // A menu (WAI-ARIA's pattern): focus stays on it, aria-activedescendant names the highlighted item, and each submenu
+  // is a menu named by the item that opened it
   host: {
+    role: 'menu',
     tabindex: '0',
+    '[attr.aria-activedescendant]': '$activeDescendant()',
     '[style.minHeight]': '$height() + "px"',
     '[style.minWidth]': '$width() + "px"',
   },
 })
-export class MenuButtonGroupComponent implements OnDestroy, AfterViewInit {
+export class MenuButtonGroupComponent implements OnDestroy {
   readonly nativeElement = inject<ElementRef<HTMLElement>>(ElementRef);
   readonly menu = inject(ButtonMenuDirective, { optional: true });
+  private readonly document = inject(DOCUMENT);
 
   // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
   readonly $hoverToOpenSubMenuMs: InputSignal<number | undefined> = input<number | undefined>(500, {
@@ -98,21 +105,43 @@ export class MenuButtonGroupComponent implements OnDestroy, AfterViewInit {
   readonly $menuGroupStack = signal<IMenuGroup[]>([], {
     equal: () => false,
   });
+  // The highlighted item, deepest submenu first
+  protected readonly $activeDescendant = computed(() => {
+    const stack = this.$menuGroupStack();
+    for (let i = stack.length - 1; i >= 0; i--) {
+      const highlighted = stack[i].buttons.find(b => b.$highlight());
+      if (highlighted) {
+        return highlighted.id;
+      }
+    }
+    return null;
+  });
 
   protected readonly $height = signal<number>(0);
   protected readonly $width = signal<number>(0);
 
   private viewInitialized = false;
   private readonly subs: OutputRefSubscription[] = [];
-  ngAfterViewInit(): void {
-    this.viewInitialized = true;
-    this.init();
-    this.nativeElement.nativeElement.focus();
+  constructor() {
     this.subs.push(
       this.buttonClicked.subscribe(() => {
         this.menu?.close();
       }),
     );
+    // once, and let go on destroy: the menu outlives the groups it opens
+    if (this.menu) {
+      this.subs.push(
+        this.menu.opened.subscribe(() => {
+          this.updateSizes();
+        }),
+      );
+    }
+    // Building and measuring the menus needs a browser: it starts after the first render, which never runs on the server
+    afterNextRender(() => {
+      this.viewInitialized = true;
+      this.init();
+      this.nativeElement.nativeElement.focus();
+    });
   }
   init() {
     if (!this.viewInitialized) {
@@ -120,11 +149,6 @@ export class MenuButtonGroupComponent implements OnDestroy, AfterViewInit {
     }
     this.destroyGroupsUntil();
     void this.addMenuGroup();
-    if (this.menu) {
-      this.menu.opened.subscribe(() => {
-        this.updateSizes();
-      });
-    }
   }
 
   ngOnDestroy(): void {
@@ -169,7 +193,7 @@ export class MenuButtonGroupComponent implements OnDestroy, AfterViewInit {
               return;
             }
             const g = this.addMenuGroup(c);
-            const firstButton = g?.buttons.find(b => !b.$disabled());
+            const firstButton = g?.buttons.find(b => !isDisabled(b));
             if (firstButton) {
               firstButton.$highlight.set(true);
             }
@@ -196,8 +220,9 @@ export class MenuButtonGroupComponent implements OnDestroy, AfterViewInit {
           }
         }),
       ),
-      parentButton: parentButton?.id !== undefined ? document.getElementById(parentButton.id) : null,
+      parentButton: parentButton?.id !== undefined ? this.document.getElementById(parentButton.id) : null,
     };
+    group.parentButton?.setAttribute('aria-expanded', 'true');
     this.$menuGroupStack.update(groups => {
       const newGroups = [...groups, group];
       return newGroups;
@@ -271,8 +296,10 @@ export class MenuButtonGroupComponent implements OnDestroy, AfterViewInit {
 
     const curIndex = groups.findIndex(g => g.id === id);
 
-    const removed = groups.splice(curIndex + 1);
+    // a new array: the template's pure pipe renders the stack again only for a new one
+    const removed = groups.slice(curIndex + 1);
     for (const group of removed) {
+      group.parentButton?.setAttribute('aria-expanded', 'false');
       group.mouseoverSubscriptions.forEach(s => {
         s.unsubscribe();
       });
@@ -291,15 +318,18 @@ export class MenuButtonGroupComponent implements OnDestroy, AfterViewInit {
       // group.element?.remove();
     }
     // this will also remove from DOM
-    this.$menuGroupStack.set(groups);
+    this.$menuGroupStack.set(groups.slice(0, curIndex + 1));
     this.updateSizes();
   }
   @HostListener('focusin')
   onFocusIn() {
-    // clear everything except the first group in the stack
-    const groupStack = this.$menuGroupStack().slice(0, 1);
+    // the first group in the stack, which a menu whose items are still loading has not got yet
+    const root = this.$menuGroupStack().at(0);
+    if (root === undefined) {
+      return;
+    }
     // highlight the first button in the group
-    const firstButton = groupStack[0].buttons.find(b => !b.$disabled());
+    const firstButton = root.buttons.find(b => !isDisabled(b));
     if (firstButton) {
       firstButton.$highlight.set(true);
     }
@@ -320,10 +350,18 @@ export class MenuButtonGroupComponent implements OnDestroy, AfterViewInit {
 
   @HostListener('keydown', ['$event'])
   onKeyDown(event: KeyboardEvent) {
+    // the menu's keys are its own, so the page does not scroll under it
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter', ' '].includes(event.key)) {
+      event.preventDefault();
+    }
     if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
       // we only handle navitation on top of the stack
       const stack = this.$menuGroupStack();
-      const buttons = stack[stack.length - 1]?.buttons;
+      const buttons = stack.at(-1)?.buttons;
+      // a menu whose items are still loading has none to move through
+      if (!buttons) {
+        return;
+      }
 
       let currentIndex = -1;
       currentIndex = buttons.findIndex(child => child.$highlight());
@@ -331,13 +369,13 @@ export class MenuButtonGroupComponent implements OnDestroy, AfterViewInit {
       if (event.key === 'ArrowDown') {
         if (currentIndex === -1) {
           // find the first non disabled option
-          nextIndex = buttons.findIndex(e => !e.$disabled());
+          nextIndex = buttons.findIndex(e => !isDisabled(e));
         } else {
           // find the next option that is not disabled
-          nextIndex = buttons.findIndex((o, i) => i > currentIndex && !o.$disabled());
+          nextIndex = buttons.findIndex((o, i) => i > currentIndex && !isDisabled(o));
           // if no option is found, find the next option that is not disabled before the current item
           if (nextIndex === -1) {
-            nextIndex = buttons.findIndex((o, i) => i < currentIndex && !o.$disabled());
+            nextIndex = buttons.findIndex((o, i) => i < currentIndex && !isDisabled(o));
           }
         }
       } else if (event.key === 'ArrowUp') {
@@ -346,17 +384,17 @@ export class MenuButtonGroupComponent implements OnDestroy, AfterViewInit {
           nextIndex = buttons
             .slice()
             .reverse()
-            .findIndex(o => !o.$disabled());
+            .findIndex(o => !isDisabled(o));
           if (nextIndex !== -1) {
             nextIndex = buttons.length - nextIndex - 1;
           }
         } else {
           const flippedCurrentIndex = buttons.length - currentIndex - 1;
           // find the next option that is not disabled
-          nextIndex = [...buttons].reverse().findIndex((o, i) => i > flippedCurrentIndex && !o.$disabled());
+          nextIndex = [...buttons].reverse().findIndex((o, i) => i > flippedCurrentIndex && !isDisabled(o));
           // if no option is found, find the next option that is not disabled before the current item
           if (nextIndex === -1) {
-            nextIndex = [...buttons].reverse().findIndex((o, i) => i < flippedCurrentIndex && !o.$disabled());
+            nextIndex = [...buttons].reverse().findIndex((o, i) => i < flippedCurrentIndex && !isDisabled(o));
           }
           if (nextIndex !== -1) {
             nextIndex = buttons.length - nextIndex - 1;
@@ -372,7 +410,7 @@ export class MenuButtonGroupComponent implements OnDestroy, AfterViewInit {
     }
     if (event.key === 'Enter' || event.key === ' ' || event.key === 'ArrowRight') {
       const highlightedButton = this.$menuGroupStack()[this.$menuGroupStack().length - 1]?.buttons?.find(b => b.$highlight());
-      if (!highlightedButton || highlightedButton.$disabled()) {
+      if (!highlightedButton || isDisabled(highlightedButton)) {
         return;
       }
       if (highlightedButton.$children().length > 0) {
@@ -388,6 +426,11 @@ export class MenuButtonGroupComponent implements OnDestroy, AfterViewInit {
       }
     }
   }
+}
+
+// An item still loading is disabled until it is done
+function isDisabled(button: MenuButtonComponent) {
+  return button.$disabled() || button.$loading();
 }
 
 interface IMenuGroup {

@@ -10,18 +10,22 @@ import { generateRandomString } from 'tableau-ui-angular/utils';
     <ng-template #template>
       <div
         class="menu-button"
-        role="button"
+        role="menuitem"
         type="button"
         tabindex="-1"
         [ngClass]="$color()"
         [class.loading]="$loading()"
         [class.highlight]="$highlight()"
         [attr.disabled]="$disabled() || $loading() ? true : false"
+        [attr.aria-disabled]="$disabled() || $loading() ? true : null"
+        [attr.aria-haspopup]="$children().length > 0 ? 'menu' : null"
+        [attr.aria-expanded]="$children().length > 0 ? 'false' : null"
         [id]="id"
         (mouseenter)="onMouseEnter()"
         (mouseleave)="onMouseLeave()"
         (mousedown)="onMouseDown($event)"
         (click)="onClick($event)"
+        (keydown)="onKeyDown($event)"
       >
         @if ($loading()) {
           <span class="loader-wrapper">
@@ -129,8 +133,9 @@ export class MenuButtonComponent implements OnDestroy {
     e.stopPropagation();
   }
 
+  // An item still loading is disabled until it is done
   onClick(e: Event) {
-    if (this.$disabled()) {
+    if (this.$disabled() || this.$loading()) {
       return;
     }
     if (this.$children().length > 0) {
@@ -139,6 +144,16 @@ export class MenuButtonComponent implements OnDestroy {
       e.stopPropagation();
     } else {
       this.click.emit(e);
+    }
+  }
+
+  // Enter or Space on an item that has focus itself, as a screen reader may give it, runs that item, not the
+  // highlighted one the menu would run
+  protected onKeyDown(e: KeyboardEvent) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      e.stopPropagation();
+      this.onClick(e);
     }
   }
 
