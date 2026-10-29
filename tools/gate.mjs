@@ -273,7 +273,10 @@ function checkTests() {
   const passed = [...output.matchAll(/^\s*Tests\s+(\d+) passed/gm)].reduce((sum, match) => sum + Number(match[1]), 0);
   // the failed runs' output alone, so the tail the gate prints is a failure's, not the next project's passing run
   const failed = runs.filter(done => !done.ok).map(done => done.output);
-  return failed.length ? fail('ng test failed', failed.join('\n')) : pass(`${passed} passed, in Chromium and Firefox`);
+  if (!failed.length) return pass(`${passed} passed, in Chromium and Firefox`);
+  // and each failed test's name and assertion last, since a stack trace alone fills the tail
+  const summary = lines(failed.join('\n')).filter(line => /^FAIL\b|AssertionError|^[+-]\s/.test(line));
+  return fail('ng test failed', [...failed, '', 'Failed tests:', ...summary].join('\n'));
 }
 
 function checkCoverage({ ranges, problem }) {
