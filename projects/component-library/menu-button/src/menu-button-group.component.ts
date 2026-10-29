@@ -236,6 +236,12 @@ export class MenuButtonGroupComponent implements OnDestroy {
 
   updateSizes() {
     const groups = this.$menuGroupStack();
+    // no menus, nothing to measure: as on teardown, and on the server, which has no layout
+    if (groups.length === 0) {
+      this.$height.set(0);
+      this.$width.set(0);
+      return;
+    }
     const currentRect = this.nativeElement.nativeElement.getBoundingClientRect();
 
     let minTop = 0;
@@ -321,8 +327,12 @@ export class MenuButtonGroupComponent implements OnDestroy {
     this.$menuGroupStack.set(groups.slice(0, curIndex + 1));
     this.updateSizes();
   }
-  @HostListener('focusin')
-  onFocusIn() {
+  // Focus moving within the menu, as a screen reader may move it onto an item, is neither entering nor leaving it
+  @HostListener('focusin', ['$event'])
+  onFocusIn(event?: FocusEvent) {
+    if (this.within(event)) {
+      return;
+    }
     // the first group in the stack, which a menu whose items are still loading has not got yet
     const root = this.$menuGroupStack().at(0);
     if (root === undefined) {
@@ -335,8 +345,11 @@ export class MenuButtonGroupComponent implements OnDestroy {
     }
   }
 
-  @HostListener('focusout')
-  onFocusOut() {
+  @HostListener('focusout', ['$event'])
+  onFocusOut(event?: FocusEvent) {
+    if (this.within(event)) {
+      return;
+    }
     // clear everything except the first group in the stack
     const groupStack = this.$menuGroupStack();
     if (groupStack.length > 0) {
@@ -346,6 +359,11 @@ export class MenuButtonGroupComponent implements OnDestroy {
         b.$highlight.set(false);
       }
     }
+  }
+
+  private within(event: FocusEvent | undefined) {
+    const other = event?.relatedTarget;
+    return other instanceof Node && this.nativeElement.nativeElement.contains(other);
   }
 
   @HostListener('keydown', ['$event'])

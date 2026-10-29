@@ -209,6 +209,36 @@ describe('MenuButtonGroupComponent', () => {
     expect(component.clicks).toEqual(['Save']);
   });
 
+  // Round 1, B4: focus moving onto a submenu's item counted as leaving the menu, which closed the submenu under it
+  it('runs a submenu item that has focus itself', async () => {
+    const { fixture, item, active, open, component } = await render(FileMenuComponent);
+    await open();
+    await userEvent.keyboard('{ArrowDown}');
+    await userEvent.keyboard('{ArrowDown}');
+    await userEvent.keyboard('{ArrowRight}');
+    await fixture.whenStable();
+    expect(active()).toBe('PDF');
+
+    item('PDF').focus();
+    await fixture.whenStable();
+    await userEvent.keyboard('{Enter}');
+    await fixture.whenStable();
+
+    expect(component.clicks).toEqual(['PDF']);
+  });
+
+  // An item that is loading takes no highlight from the mouse either
+  it('does not highlight a loading item under the mouse', async () => {
+    const { fixture, item, active, open, component } = await render(FileMenuComponent);
+    component.$saving.set(true);
+    await open();
+
+    item('Save').dispatchEvent(new MouseEvent('mouseenter'));
+    await fixture.whenStable();
+
+    expect(active()).toBe('New');
+  });
+
   // F61: a menu with no items yet threw on focus and on every arrow key
   it('opens a menu whose items are still loading', async () => {
     const { fixture, group, active, open, component } = await render(RecentMenuComponent);
@@ -225,8 +255,9 @@ describe('MenuButtonGroupComponent', () => {
     expect(active()).toBe('Report.twbx');
   });
 
-  // The server has no ResizeObserver and no layout: the group built and measured its menus after its view
-  it('renders on the server without building or measuring its menus', async () => {
+  // The server has no ResizeObserver and no layout: the group built and measured its menus after its view; and, round 1,
+  // B3, it measured on teardown too, which threw outside the render and stopped the prerender
+  it('renders and is destroyed on the server without building or measuring its menus', async () => {
     const created: string[] = [];
     vi.stubGlobal(
       'ResizeObserver',
@@ -242,16 +273,23 @@ describe('MenuButtonGroupComponent', () => {
         }
       },
     );
+    // the server's DOM has no layout
+    const measure = vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(() => {
+      throw new TypeError('getBoundingClientRect is not a function');
+    });
     const globals = globalThis as { ngServerMode?: boolean };
     // Angular's own flag for server rendering, which afterNextRender reads
     globals.ngServerMode = true;
     try {
-      const { host } = await render(StandaloneMenuComponent);
+      const { fixture, host } = await render(StandaloneMenuComponent);
 
       expect(created).toEqual([]);
       expect(host.querySelector('tab-menu-button-group')!.getAttribute('role')).toBe('menu');
+      fixture.destroy();
+      expect(measure).not.toHaveBeenCalled();
     } finally {
       delete globals.ngServerMode;
+      measure.mockRestore();
       vi.unstubAllGlobals();
     }
   });

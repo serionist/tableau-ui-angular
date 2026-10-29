@@ -98,8 +98,9 @@ export class MenuButtonComponent implements OnDestroy {
 
   hoverInterval: ReturnType<typeof setTimeout> | undefined = undefined;
   hoverstart = Date.now();
+  // An item that is loading is disabled until it is done
   onMouseEnter() {
-    if (!this.$disabled()) {
+    if (!this.$disabled() && !this.$loading()) {
       this.mouseoverChange.emit(true);
       const hoverMs = this.$actualHoverMs();
       if (hoverMs !== undefined && this.$children().length > 0) {
