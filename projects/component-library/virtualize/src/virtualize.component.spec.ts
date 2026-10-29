@@ -219,6 +219,12 @@ describe('VirtualizeComponent', () => {
     const logged = vi.spyOn(console, 'error').mockImplementation(() => {
       // recorded only
     });
+    // the failure is rethrown for the app's ErrorHandler; this test's listener takes it, as an app's would, where
+    // Vitest would count it as an error of the run
+    const expected = (event: PromiseRejectionEvent) => {
+      event.preventDefault();
+    };
+    window.addEventListener('unhandledrejection', expected);
     try {
       const { component, host, server, shown, settle } = await render();
       const loading = component.list().load();
@@ -235,7 +241,10 @@ describe('VirtualizeComponent', () => {
       expect(host.querySelectorAll('.item').length).toBe(50);
       // logged, and rethrown for the app's error handling, unlike a cancel
       expect(logged.mock.calls[0]).toEqual(['Error loading data block:', new Error('The server failed')]);
+      // the rethrown rejection is reported after the microtasks, while the listener still takes it
+      await new Promise(resolve => setTimeout(resolve, 100));
     } finally {
+      window.removeEventListener('unhandledrejection', expected);
       logged.mockRestore();
     }
   });
