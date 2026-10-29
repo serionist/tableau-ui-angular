@@ -41,6 +41,10 @@ async function loadMonacoFromNodeModules(): Promise<Monaco> {
 
 let documents = 0;
 
+// Monaco's word highlighter leaves a promise that rejects, unhandled, with "Canceled" when its editor is disposed while
+// a highlight waits, as each test's teardown does right after it types or moves the editor to another model
+const QUIET: MonacoConstructionOptions = { occurrencesHighlight: 'off' };
+
 @Component({
   imports: [ReactiveFormsModule, TableauUiMonacoModule],
   template: `
@@ -61,7 +65,7 @@ class EditorHostComponent {
   readonly control = new FormControl<string | null>('first');
   // Monaco keeps its models for the page, by URI, so each editor gets a document of its own
   readonly $uri = signal(`file:///spec/${++documents}.txt`);
-  readonly $options = signal<MonacoConstructionOptions>({});
+  readonly $options = signal<MonacoConstructionOptions>(QUIET);
   readonly $disposeModels = signal(true);
   readonly loaded: ICodeEditor[] = [];
 }
@@ -69,11 +73,12 @@ class EditorHostComponent {
 // An editor bound to the page's own text, not to a form
 @Component({
   imports: [TableauUiMonacoModule],
-  template: `<tab-monaco-editor [uri]="uri" language="plaintext" [value]="$text()" (valueChange)="changes.push($event)" (editorLoaded)="loaded.push($event)" style="height: 6rem" />`,
+  template: `<tab-monaco-editor [uri]="uri" language="plaintext" [options]="quiet" [value]="$text()" (valueChange)="changes.push($event)" (editorLoaded)="loaded.push($event)" style="height: 6rem" />`,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class BoundEditorComponent {
   readonly uri = `file:///spec/${++documents}.txt`;
+  readonly quiet = QUIET;
   readonly $text = signal('bound');
   readonly changes: string[] = [];
   readonly loaded: ICodeEditor[] = [];
@@ -199,7 +204,6 @@ describe('MonacoEditorComponent', () => {
       expect(control.touched).toBe(true);
     });
 
-    // F120: the text bound to the editor came back out of it, through valueChange, as if the user had typed it
     it("emits valueChange for the user's typing, not for a change of the bound value", async () => {
       const fixture = TestBed.createComponent(BoundEditorComponent);
       fixture.autoDetectChanges();
@@ -235,7 +239,7 @@ describe('MonacoEditorComponent', () => {
       expect(editor.getValue()).toBe('xfirst');
 
       // an editor its options make read-only stays so
-      fixture.componentInstance.$options.set({ readOnly: true });
+      fixture.componentInstance.$options.set({ ...QUIET, readOnly: true });
       control.disable();
       control.enable();
       await fixture.whenStable();
@@ -248,7 +252,7 @@ describe('MonacoEditorComponent', () => {
       const { fixture, control } = await render();
       const { loaded } = fixture.componentInstance;
 
-      fixture.componentInstance.$options.set({ lineNumbers: 'off' });
+      fixture.componentInstance.$options.set({ ...QUIET, lineNumbers: 'off' });
       await fixture.whenStable();
       expect(loaded.length).toBe(2);
 

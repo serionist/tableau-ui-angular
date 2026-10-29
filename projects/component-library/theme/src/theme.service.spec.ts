@@ -80,8 +80,9 @@ describe('ThemeService', () => {
   });
 
   // F128: a stored value that is no theme threw from the service's construction, so nothing that injects it rendered
-  it.each([['not json'], ['null'], ['"dark"'], [JSON.stringify({ fontSize: 14, mode: 'black' })]])('starts from the default when storage holds %s', stored => {
-    localStorage.setItem(KEY, stored);
+  const notThemes = ['not json', 'null', '"dark"', JSON.stringify({ fontSize: 14, mode: 'black' })];
+  it.each([KEY, 'theme-config'].flatMap(key => notThemes.map(stored => [key, stored])))('starts from the default when %s holds %s', (key, stored) => {
+    localStorage.setItem(key, stored);
 
     const theme = TestBed.inject(ThemeService);
 
