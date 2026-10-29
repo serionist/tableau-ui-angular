@@ -2,6 +2,9 @@
 /* stylelint-disable declaration-property-value-disallowed-list, function-disallowed-list */
 @use './color-vars' as color-vars;
 
+// The theme service sets the class on the root element and the body; the root's carries the page's own background,
+// its scrollbars and every variable read outside the body. The body's is for an app that sets the class itself.
+:root.dark-mode,
 body.dark-mode {
   @include color-vars.define-theme(
     (
