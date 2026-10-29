@@ -4,10 +4,17 @@ import type { ControlValueAccessor } from '@angular/forms';
 import type { IOptionGridContext } from 'tableau-ui-angular/common';
 import { OptionComponent } from 'tableau-ui-angular/common';
 import type { Primitive } from 'tableau-ui-angular/types';
+import { generateRandomString } from 'tableau-ui-angular/utils';
 import type { ListMultiSelectComponent } from './list-multi-select.component';
 
+// The host is a listbox (WAI-ARIA's listbox pattern): focus stays on it, and aria-activedescendant names the option
+// the keyboard or the pointer highlights
 export const LIST_COMPONENT_HOST = {
   class: 'tab-input',
+  role: 'listbox',
+  '[attr.aria-multiselectable]': '$isMultiSelect() ? true : null',
+  '[attr.aria-disabled]': '$disabled() ? true : null',
+  '[attr.aria-activedescendant]': '$activeDescendant()',
   '[class.silent-focus]': '$focusMode() === "silent"',
   '[tabindex]': '$disabled() || $focusMode() === "none" ? -1 : 0',
   '(keydown)': 'onKeyDown($event)',
@@ -20,6 +27,8 @@ export const LIST_COMPONENT_HOST = {
 export abstract class ListBaseComponent<TOption extends Primitive, TValue extends TOption | TOption[]> implements ControlValueAccessor {
   protected readonly $options = contentChildren<OptionComponent<TOption>>(OptionComponent<TOption>);
   private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
+  // the options' ids, `${listId}-${index}`
+  protected readonly listId = `list-${generateRandomString()}`;
   // #region Inputs
 
   protected $isMultiSelect(): this is ListMultiSelectComponent<TOption> {
@@ -124,7 +133,17 @@ export abstract class ListBaseComponent<TOption extends Primitive, TValue extend
   // #region Value selection
   // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
   protected readonly $highlightedOption: WritableSignal<OptionComponent<TOption> | undefined> = signal<OptionComponent<TOption> | undefined>(undefined);
+  // The highlighted option's id, which the listbox's aria-activedescendant names
+  protected readonly $activeDescendant = computed(() => {
+    const highlighted = this.$highlightedOption();
+    if (!highlighted) {
+      return null;
+    }
+    const index = this.$options().findIndex(o => o.$value() === highlighted.$value());
+    return index === -1 ? null : `${this.listId}-${index}`;
+  });
 
+  // The list is touched when focus leaves it, as Angular's own controls are on blur, not when an option is picked
   selectValue(option: OptionComponent<TOption>, event: MouseEvent) {
     event.preventDefault();
     event.stopPropagation();
@@ -133,7 +152,6 @@ export abstract class ListBaseComponent<TOption extends Primitive, TValue extend
       const optionValue = option.$value();
       this.selectValueInternal(value, optionValue);
       this.onChange(this.$value());
-      this.onTouched();
       if (this.elementRef.nativeElement.tabIndex !== -1) {
         this.elementRef.nativeElement.focus();
       }
@@ -148,7 +166,6 @@ export abstract class ListBaseComponent<TOption extends Primitive, TValue extend
     }
     this.clearValueInternal();
     this.onChange(this.$value());
-    this.onTouched();
   }
   protected abstract readonly clearValueInternal: () => void;
   // #region Focus management
@@ -159,6 +176,7 @@ export abstract class ListBaseComponent<TOption extends Primitive, TValue extend
   onBlur() {
     this.$focused.set(false);
     this.$highlightedOption.set(undefined);
+    this.onTouched();
   }
   onMouseOut() {
     this.$highlightedOption.set(undefined);

@@ -1,15 +1,20 @@
-@for (option of $options(); track option.$value()) {
+@for (option of $options(); track option.$value(); let i = $index) {
+  @let selected = $value() | isValueSelected: option.$value() : $isMultiSelect();
   <!-- eslint-disable-next-line  @angular-eslint/template/interactive-supports-focus, @angular-eslint/template/click-events-have-key-events -->
   <div
     class="option-wrapper"
+    role="option"
+    [id]="`${listId}-${i}`"
+    [attr.aria-selected]="selected"
+    [attr.aria-disabled]="option.$disabled() || $disabled() ? true : null"
     [class.disabled]="option.$disabled() || $disabled()"
     [class.highlight]="!!$highlightedOption() && $highlightedOption()!.$value() === option.$value()"
-    [class.selected]="($value() | isValueSelected: option.$value() : $isMultiSelect()) && $selectedItemHighlight()"
+    [class.selected]="selected && $selectedItemHighlight()"
     (click)="selectValue(option, $event)"
     (mouseenter)="$highlightedOption.set(option)"
   >
     <div class="check" [ngClass]="$selectedCheckIconLocation()">
-      @if ($value() | isValueSelected: option.$value() : $isMultiSelect()) {
+      @if (selected) {
         <tab-icon value="check" />
       }
     </div>
