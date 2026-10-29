@@ -16,9 +16,9 @@ describe('DialogService', () => {
     TestBed.configureTestingModule({ imports: [TableauUiDialogModule] });
   });
 
-  // F1: the title was set with innerHTML, so a title built from user data could run script. The header's close icon is
-  // focusable, so it is named, not hidden as a decorative icon is
-  it('shows a header title as text, with a named close icon', async () => {
+  // F1: the title was set with innerHTML, so a title built from user data could run script. The header's close control
+  // is a button named by its icon, not a focusable image
+  it('shows a header title as text, with a close button', async () => {
     const title = '<img src=x onerror="alert(1)">';
     const dialogRef = TestBed.inject(DialogService).openModal(DialogContentComponent, undefined, {
       header: { title, allowClose: true },
@@ -29,10 +29,16 @@ describe('DialogService', () => {
     expect(titleElement?.textContent).toBe(title);
     expect(titleElement?.querySelector('img')).toBeNull();
     TestBed.inject(ApplicationRef).tick();
-    expect(document.querySelector('.dialog-header tab-icon')?.getAttribute('aria-label')).toBe('Close');
+    const close = document.querySelector<HTMLButtonElement>('.dialog-header button')!;
+    expect(close.type).toBe('button');
+    expect(close.querySelector('tab-icon')?.getAttribute('aria-label')).toBe('Close');
+    expect(close.querySelector('[tabindex]')).toBeNull();
     expect(await axeViolations(document.querySelector('.dialog-container')!)).toEqual([]);
 
-    dialogRef.close();
+    const closed = vi.fn();
+    dialogRef.closed$.subscribe(closed);
+    close.click();
+    expect(closed).toHaveBeenCalled();
   });
 
   // The modal opens off screen, is measured, then placed; waiting for it keeps the coverage the same on a slow machine

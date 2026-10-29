@@ -45,12 +45,20 @@
       grid-column: 1;
     }
 
-    tab-icon {
-      font-size: 1.5em;
-      margin: 0;
+    .dialog-close {
       grid-column: 2;
-      margin-right: -0.5em;
+      margin: 0 -0.5em 0 0;
+      padding: 0;
+      border: none;
+      background: none;
+      color: inherit;
+      font: inherit;
+      line-height: 0;
       cursor: pointer;
+
+      tab-icon {
+        font-size: 1.5em;
+      }
     }
   }
 }
