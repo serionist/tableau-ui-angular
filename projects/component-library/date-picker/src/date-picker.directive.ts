@@ -1,8 +1,7 @@
 import type { InputSignal, WritableSignal } from '@angular/core';
-import { Directive, effect, ElementRef, forwardRef, HostListener, inject, input, linkedSignal, output } from '@angular/core';
+import { computed, Directive, effect, ElementRef, forwardRef, HostListener, inject, input, linkedSignal, output, untracked } from '@angular/core';
 import type { ControlValueAccessor } from '@angular/forms';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
-import { ThemeService } from 'tableau-ui-angular/theme';
 
 @Directive({
   selector: 'input[type=date],input[type=datetime-local],input[type=datetime],input[date-picker]',
@@ -16,21 +15,22 @@ import { ThemeService } from 'tableau-ui-angular/theme';
   ],
   host: {
     class: 'date-picker',
-    '[attr.type]': '$type() === "datetime" ? "datetime-local" : "date"',
+    '[attr.type]': '$dateTime() ? "datetime-local" : "date"',
   },
 })
 export class DatePickerDirective implements ControlValueAccessor {
   private readonly el = inject<ElementRef<HTMLInputElement>>(ElementRef);
-  private readonly themeService = inject(ThemeService);
 
   // type can only be set once. Cannot change between date and datetime
-  readonly $type = input.required<'date' | 'datetime'>({
+  readonly $type = input.required<'date' | 'datetime' | 'datetime-local'>({
     alias: 'type',
   });
-  private originalType: 'date' | 'datetime' | undefined;
+  // datetime and datetime-local both take a date and a time
+  protected readonly $dateTime = computed(() => this.$type() !== 'date');
+  private originalType: boolean | undefined;
   private readonly typeChanged = effect(() => {
-    this.originalType ??= this.$type();
-    if (this.$type() !== this.originalType) {
+    this.originalType ??= this.$dateTime();
+    if (this.$dateTime() !== this.originalType) {
       throw new Error('DatePickerDirective: type must be "date" or "datetime", can not be changed later');
     }
   });
@@ -41,47 +41,70 @@ export class DatePickerDirective implements ControlValueAccessor {
   readonly $value: WritableSignal<Date | undefined> = linkedSignal(this.$valueInput);
   readonly valueChange = output<Date | undefined>();
 
+  // What the user's last input made of the element's text: the element shows it already, and writing it back would
+  // clear a date the user is still typing
+  private typed: { value: Date | undefined } | undefined;
+  // The value, bound or set, is what the element shows
+  private readonly valueShown = effect(() => {
+    const value = this.$value();
+    untracked(() => {
+      if (this.typed === undefined || this.typed.value !== value) {
+        this.show(value);
+      }
+    });
+  });
+
   @HostListener('input')
   onInput() {
-    let val: Date | undefined = undefined;
-    if (!this.el.nativeElement.value) {
-      val = undefined;
-    } else {
-      const date = new Date(this.el.nativeElement.value);
-      if (isNaN(date.getTime())) {
-        val = undefined;
-      } else {
-        val = date;
-      }
-    }
+    const val = this.parse(this.el.nativeElement.value);
+    this.typed = { value: val };
     this.$value.set(val);
     this.valueChange.emit(val);
-    this._onTouched();
     this._onChange(val);
   }
-  @HostListener('focus')
-  onFocus() {
+  // Touched when the user leaves the input, as Angular's own inputs are, which commits an updateOn: 'blur' change
+  @HostListener('blur')
+  onBlur() {
     this._onTouched();
   }
 
-  writeValue(obj: Date): void {
-    if (obj instanceof Date && !isNaN(obj.getTime())) {
-      if (this.$type() === 'datetime') {
-        const year = obj.getFullYear();
-        const month = (obj.getMonth() + 1).toString().padStart(2, '0');
-        const day = obj.getDate().toString().padStart(2, '0');
-        const hours = obj.getHours().toString().padStart(2, '0');
-        const minutes = obj.getMinutes().toString().padStart(2, '0');
-        this.el.nativeElement.value = `${year}-${month}-${day}T${hours}:${minutes}`;
-      } else {
-        const year = obj.getFullYear();
-        const month = (obj.getMonth() + 1).toString().padStart(2, '0');
-        const day = obj.getDate().toString().padStart(2, '0');
-        this.el.nativeElement.value = `${year}-${month}-${day}`;
-      }
+  // A form's write always reaches the element, as Angular's own inputs do, so reset() clears a half-typed date too
+  writeValue(obj: Date | null | undefined): void {
+    const value = obj instanceof Date && !isNaN(obj.getTime()) ? obj : undefined;
+    this.typed = undefined;
+    this.$value.set(value);
+    this.show(value);
+  }
+
+  private show(value: Date | undefined) {
+    this.el.nativeElement.value = value ? this.format(value) : '';
+  }
+
+  private parse(text: string): Date | undefined {
+    // A date alone is that day at local midnight; new Date('2025-03-15') would be midnight UTC, the day before west of it
+    const day = /^(\d{4,})-(\d{2})-(\d{2})$/.exec(text);
+    let date: Date;
+    if (day) {
+      date = new Date(0);
+      date.setFullYear(Number(day[1]), Number(day[2]) - 1, Number(day[3]));
+      date.setHours(0, 0, 0, 0);
     } else {
-      this.el.nativeElement.value = '';
+      // a date and time with no offset, as datetime-local gives it, is local time
+      date = new Date(text);
     }
+    return text === '' || isNaN(date.getTime()) ? undefined : date;
+  }
+
+  private format(value: Date): string {
+    const year = value.getFullYear();
+    const month = (value.getMonth() + 1).toString().padStart(2, '0');
+    const day = value.getDate().toString().padStart(2, '0');
+    if (!this.$dateTime()) {
+      return `${year}-${month}-${day}`;
+    }
+    const hours = value.getHours().toString().padStart(2, '0');
+    const minutes = value.getMinutes().toString().padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
   }
   // eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
   private _onChange = (value: Date | undefined) => {};

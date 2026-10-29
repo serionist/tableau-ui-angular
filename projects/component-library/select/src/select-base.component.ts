@@ -1,8 +1,8 @@
-import type { AfterViewInit, InputSignal, OnDestroy, Signal, TemplateRef, WritableSignal } from '@angular/core';
-import { computed, contentChild, contentChildren, Directive, effect, ElementRef, inject, input, model, signal, viewChild } from '@angular/core';
+import type { InputSignal, OnDestroy, Signal, TemplateRef, WritableSignal } from '@angular/core';
+import { computed, contentChild, contentChildren, Directive, DOCUMENT, effect, ElementRef, inject, input, model, signal, viewChild } from '@angular/core';
 import type { ControlValueAccessor } from '@angular/forms';
 import type { Subscription } from 'rxjs';
-import { fromEvent, map } from 'rxjs';
+import { fromEvent } from 'rxjs';
 import type { Primitive } from 'tableau-ui-angular/types';
 import type { IOptionGridContext, IOptionLineContext } from 'tableau-ui-angular/common';
 import { OptionComponent, PrefixComponent, SuffixComponent } from 'tableau-ui-angular/common';
@@ -11,21 +11,29 @@ import { DialogService, LocalStackOptions } from 'tableau-ui-angular/dialog';
 import { generateRandomString } from 'tableau-ui-angular/utils';
 import type { MultiSelectComponent } from './multi-select.component';
 
+// The host is a select-only combobox (WAI-ARIA's combobox pattern): focus stays on it, and aria-activedescendant names
+// the option the keyboard highlights in the listbox it opens
 export const SELECT_COMPONENT_HOST = {
   class: 'tab-input',
+  role: 'combobox',
+  'aria-haspopup': 'listbox',
   '[attr.wrapping-mode]': '$selectedValueWrapMode()',
   '[tabindex]': '$disabled() ? -1 : 0',
+  '[attr.aria-expanded]': '$dropdownOpen()',
+  '[attr.aria-controls]': '$dropdownOpen() ? listboxId : null',
+  '[attr.aria-activedescendant]': '$activeDescendant()',
   '(click)': 'openDropdown()',
   '(keydown)': 'onKeyDown($event)',
+  '(focusout)': 'onFocusOut($event)',
   '[attr.disabled]': '$disabled() ? true : null',
-  '[aria-disabled]': '$disabled() ? true : null',
-  '[aria-hidden]': '$disabled() ? true : null',
+  '[attr.aria-disabled]': '$disabled() ? true : null',
   '[id]': 'selectId',
 };
 @Directive()
-export abstract class SelectBaseComponent<TOption extends Primitive, TValue extends TOption | TOption[]> implements ControlValueAccessor, AfterViewInit, OnDestroy {
+export abstract class SelectBaseComponent<TOption extends Primitive, TValue extends TOption | TOption[]> implements ControlValueAccessor, OnDestroy {
   protected readonly selectId: string;
   protected readonly dropdownId: string;
+  protected readonly listboxId: string;
   protected readonly $options = contentChildren<OptionComponent<TOption>>(OptionComponent<TOption>);
 
   protected $isMultiSelect(): this is MultiSelectComponent<TOption> {
@@ -52,6 +60,7 @@ export abstract class SelectBaseComponent<TOption extends Primitive, TValue exte
   // #region Imports
   private readonly dialogService = inject(DialogService);
   private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly document = inject(DOCUMENT);
   // #endregion
   // #region Inputs
   /**
@@ -187,13 +196,12 @@ export abstract class SelectBaseComponent<TOption extends Primitive, TValue exte
     const id = generateRandomString();
     this.selectId = `select-${id}`;
     this.dropdownId = `dropdown-${id}`;
-  }
-  ngAfterViewInit() {
-    this.registerFocusChange();
+    this.listboxId = `listbox-${id}`;
   }
 
+  // A dropdown open when the select goes, on a route change, goes with it, backdrop included
   ngOnDestroy() {
-    this.unregisterFocusChange();
+    this.closeDropdown();
   }
   // #endregion
   // #region Computed
@@ -267,9 +275,8 @@ export abstract class SelectBaseComponent<TOption extends Primitive, TValue exte
       this.selectValueInternal(value, optionValue);
 
       this.onChange(this.$value());
-      this.onTouched();
       if (!this.$isMultiSelect()) {
-        this.$dropdownReference()?.close();
+        this.closeDropdown();
       }
     }
   }
@@ -288,7 +295,8 @@ export abstract class SelectBaseComponent<TOption extends Primitive, TValue exte
     // }
     this.clearValueInternal();
     this.onChange(this.$value());
-    this.onTouched();
+    // the clear button goes with the value; focus stays on the select, which the user has not left
+    this.elementRef.nativeElement.focus();
   }
 
   protected abstract readonly clearValueInternal: () => void;
@@ -310,24 +318,47 @@ export abstract class SelectBaseComponent<TOption extends Primitive, TValue exte
   // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
   private readonly $dropdownReference: WritableSignal<DialogRef | undefined> = signal<DialogRef | undefined>(undefined);
   protected readonly $dropdownOpen = computed(() => this.$dropdownReference() !== undefined);
+  // The highlighted option's id, which the combobox's aria-activedescendant names while the listbox is open
+  protected readonly $activeDescendant = computed(() => {
+    const highlighted = this.$highlightedOption();
+    if (!this.$dropdownOpen() || !highlighted) {
+      return null;
+    }
+    const index = this.$options().findIndex(o => o.$value() === highlighted.$value());
+    return index === -1 ? null : `${this.listboxId}-${index}`;
+  });
+  // The listbox is named as the combobox is, by the label the form field or the app gives it
+  protected readonly $listboxName = signal<{ labelledBy: string | null; label: string | null }>({ labelledBy: null, label: null });
+
+  // Forgets the dropdown before closing it: closing removes it, which blurs a focused search box in it, and that focusout
+  // must not close it a second time
+  private closeDropdown() {
+    const ref = this.$dropdownReference();
+    if (ref) {
+      this.$dropdownReference.set(undefined);
+      ref.close();
+    }
+  }
 
   openDropdown() {
     if (this.$disabled()) {
       return;
     }
     this.$highlightedOption.set(undefined);
-    const elRect = this.elementRef.nativeElement.getBoundingClientRect();
+    const host = this.elementRef.nativeElement;
+    this.$listboxName.set({ labelledBy: host.getAttribute('aria-labelledby'), label: host.getAttribute('aria-label') });
     const ref = this.dialogService.openTemplateDialog(
       this.$dropdownTemplate()!,
       {
-        top(actualWidth, actualHeight) {
-          if (elRect.bottom + actualHeight > window.innerHeight && elRect.top - actualHeight > 0) {
-            return elRect.top - actualHeight + 'px';
+        // placed from the select's rect each time the dialog service places it, so it follows the select
+        top(actualWidth, actualHeight, rect) {
+          if (rect!.bottom + actualHeight > window.innerHeight && rect!.top - actualHeight > 0) {
+            return `${rect!.top - actualHeight}px`;
           }
-          return elRect.bottom + 'px';
+          return `${rect!.bottom}px`;
         },
-        left: elRect.left + 'px',
-        width: elRect.width + 'px',
+        left: (actualWidth, actualHeight, rect) => `${rect!.left}px`,
+        width: rect => `${rect.width}px`,
         closeOnEscape: true,
         closeOnBackdropClick: true,
       },
@@ -340,6 +371,12 @@ export abstract class SelectBaseComponent<TOption extends Primitive, TValue exte
       this.unregisterOptionKeyNavigation();
       if (this.$dropdownReference() === ref) {
         this.$dropdownReference.set(undefined);
+      }
+      // closing with focus in the dropdown, as on a search box in its prefix, gives focus back to the select, as the
+      // WAI-ARIA combobox pattern does; touched comes when the user leaves it
+      if (this.focusInDropdown) {
+        this.focusInDropdown = false;
+        this.elementRef.nativeElement.focus();
       }
     });
     this.$dropdownReference.set(ref);
@@ -367,7 +404,7 @@ export abstract class SelectBaseComponent<TOption extends Primitive, TValue exte
           this.selectValue(this.$highlightedOption()!);
         } else {
           // if an option is not highlighted, close the dropdown
-          ref.close();
+          this.closeDropdown();
         }
       }
       e.preventDefault();
@@ -445,7 +482,7 @@ export abstract class SelectBaseComponent<TOption extends Primitive, TValue exte
           this.$highlightedOption.set(this.$options()[nextIndex]);
           setTimeout(
             () =>
-              document.querySelector(`#${this.dropdownId} .option-wrapper.highlight`)?.scrollIntoView({
+              this.document.querySelector(`#${this.dropdownId} .option-wrapper.highlight`)?.scrollIntoView({
                 block: 'nearest',
               }),
             10,
@@ -468,11 +505,13 @@ export abstract class SelectBaseComponent<TOption extends Primitive, TValue exte
   optionKeyNavSubscription: Subscription | undefined;
   private registerOptionKeyNavigation() {
     this.unregisterOptionKeyNavigation();
-    this.optionKeyNavSubscription = fromEvent(document, 'keydown')
-      .pipe(map(e => e as KeyboardEvent))
-      .subscribe((e: KeyboardEvent) => {
-        this.onKeyDown(e);
-      });
+    this.optionKeyNavSubscription = fromEvent<KeyboardEvent>(this.document, 'keydown').subscribe(e => {
+      // a space typed in a text box in the dropdown, such as a search in its prefix, is the box's own
+      if (e.key === ' ' && isTextEntry(e.target)) {
+        return;
+      }
+      this.onKeyDown(e);
+    });
   }
   private unregisterOptionKeyNavigation() {
     if (this.optionKeyNavSubscription) {
@@ -482,27 +521,45 @@ export abstract class SelectBaseComponent<TOption extends Primitive, TValue exte
   }
   // #endregion
   // #region Focus management
-  focusChangeFn: ((event: FocusEvent) => void) | undefined;
-  registerFocusChange() {
-    this.focusChangeFn = this.checkFocus.bind(this);
-    document.addEventListener('focusout', this.focusChangeFn);
-  }
-  unregisterFocusChange() {
-    document.removeEventListener('focusout', this.focusChangeFn!);
-  }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  checkFocus(event: FocusEvent) {
-    setTimeout(() => {
-      const dropdownContainer = document.getElementById(this.dropdownId);
-
-      if (!this.elementRef.nativeElement.contains(document.activeElement) && dropdownContainer?.contains(document.activeElement) !== true) {
-        const ref = this.$dropdownReference();
-        if (ref) {
-          ref.close();
+  /**
+   * When focus leaves both the select and its dropdown, the dropdown closes and the select is touched, as Angular's
+   * own controls are on blur. Focus moving into the dropdown, such as to a search box in its prefix, keeps it open; a
+   * window losing focus changes nothing.
+   */
+  protected onFocusOut(event: FocusEvent) {
+    const next = event.relatedTarget;
+    if ((next instanceof Node && this.contains(next)) || !this.document.hasFocus()) {
+      return;
+    }
+    if (next === null && this.focusInDropdown) {
+      // focus fell from the dropdown to nothing: a click outside, or the dropdown closing around it, whose close gives
+      // focus back to the select; which one it was is known once the event is done
+      setTimeout(() => {
+        if (this.$dropdownReference()) {
+          this.leave();
         }
-      }
-    }, 100);
+      });
+      return;
+    }
+    this.leave();
+  }
+  // Whether focus is in the dropdown, which closing it removes, so focus would fall to the page
+  private focusInDropdown = false;
+  protected onDropdownFocusIn() {
+    this.focusInDropdown = true;
+  }
+  private leave() {
+    this.focusInDropdown = false;
+    this.closeDropdown();
+    this.onTouched();
+  }
+  private contains(node: Node) {
+    return this.elementRef.nativeElement.contains(node) || this.document.getElementById(this.dropdownId)?.contains(node) === true;
   }
 
   // #endregion
+}
+
+function isTextEntry(target: EventTarget | null) {
+  return target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || (target instanceof HTMLElement && target.isContentEditable);
 }

@@ -353,6 +353,10 @@ export class DialogService {
     resizeSubscription = fromEvent(window, 'resize').subscribe(() => {
       DialogService.calculateAndSetPosition(dialogElement, args, stackOptions);
     });
+    // and any scroll, of the page or a container, which moves the element a dropdown or menu is placed from
+    const scrollSubscription = fromEvent(dialogElement.ownerDocument, 'scroll', { capture: true, passive: true }).subscribe(() => {
+      DialogService.calculateAndSetPosition(dialogElement, args, stackOptions);
+    });
 
     // Monitor changes to the size of the dialog
     const resizeObserver = new ResizeObserver(() => {
@@ -375,6 +379,7 @@ export class DialogService {
     return new Subscription(() => {
       resizeObserver.disconnect();
       resizeSubscription?.unsubscribe();
+      scrollSubscription.unsubscribe();
       insertAfterResizeObserver.disconnect();
     });
   }

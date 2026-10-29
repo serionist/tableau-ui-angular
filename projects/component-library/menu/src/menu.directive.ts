@@ -1,4 +1,4 @@
-import type { ElementRef, ModelSignal, Signal, WritableSignal } from '@angular/core';
+import type { ElementRef, ModelSignal, OnDestroy, Signal, WritableSignal } from '@angular/core';
 import { Directive, inject, input, model, output, signal, TemplateRef } from '@angular/core';
 import type { DialogRef } from 'tableau-ui-angular/dialog';
 import { DialogService, LocalStackOptions } from 'tableau-ui-angular/dialog';
@@ -8,7 +8,7 @@ import { DialogService, LocalStackOptions } from 'tableau-ui-angular/dialog';
   standalone: false,
   exportAs: 'menu',
 })
-export class MenuDirective {
+export class MenuDirective implements OnDestroy {
   private readonly dialogService = inject(DialogService);
   readonly template = inject<TemplateRef<unknown>>(TemplateRef);
 
@@ -292,5 +292,10 @@ export class MenuDirective {
 
   close() {
     this.$_openDialog()?.close();
+  }
+
+  // A menu open when its owner goes, on a route change, goes with it, backdrop included
+  ngOnDestroy() {
+    this.close();
   }
 }
