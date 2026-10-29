@@ -53,10 +53,10 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
 - `FormFieldComponent` and `ArrowScrollComponent` have no `ngAfterViewInit`: their measuring and observers start after
   the first render in the browser, so they can render on the server. Code that called the method has nothing to call;
   the component does that work itself.
-- `tab-single-select`, `tab-multi-select`, `tab-chip-control` and the date picker mark their control touched when the
-  user leaves them, as Angular's own inputs do, not on focus, on each input or when an option is picked. An error shown
-  once the control is touched now shows when the user leaves it, or on `markAllAsTouched()` at submit; with
-  `updateOn: 'blur'` the last change is now committed.
+- `tab-single-select`, `tab-multi-select`, `tab-list-single-select`, `tab-list-multi-select`, `tab-chip-control` and
+  the date picker mark their control touched when the user leaves them, as Angular's own inputs do, not on focus, on
+  each input or when an option is picked. An error shown once the control is touched now shows when the user leaves
+  it, or on `markAllAsTouched()` at submit; with `updateOn: 'blur'` the last change is now committed.
 - `tab-chip-control` tells the form only of the user's changes: a chip's remove button, Delete or Backspace, `add()`
   and `remove()`. A form's write (on init, `setValue`, `reset`) no longer marks it dirty or emits `valueChanges` again,
   and the keys or values the app binds no longer reach the form. Code that set `[keys]` or `[values]` on a control bound
@@ -102,11 +102,15 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   tab whenever its tabs change, and the tree observes and measures after the first render in the browser, so both
   render on the server. A tab's `afterActivate` fires once its content is drawn, in the browser only, where it fired on
   the next animation frame. Code that called the methods has nothing to call.
+- `tab-table` has no `$selectionMultiHeaderCheckboxSelected` input nor `$selectionMultiHeaderCheckboxSelectedChange`
+  output: they were its header checkbox's own state, open to a binding by mistake, and the table overwrote what one
+  set. Remove such a binding; the header checkbox follows `selectedRows`.
 
 ### Added
 
 - `tab-virtualize`, in `tableau-ui-angular/virtualize`: a virtual-scroll container that loads its items in blocks, as
-  the table does, with the data manager the two share.
+  the table does, with the data manager the two share, and `VirtualizeBaseComponent`, their base for an app's own
+  virtual list, whose `load()`, `reload()` and `reset()` both use.
 - `tab-chip`, in `tableau-ui-angular/chip`, and `tab-chip-control`, in `tableau-ui-angular/chip-control`: chips, and
   a form control that edits a list of them.
 - `tab-icon`'s `label` input, the icon's name for screen readers.
@@ -202,6 +206,31 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   prerendered. A dialog or a snack opened there shows nothing, since the browser renders the page again, and
   `openConfirmationMessageDialog` and `openConfirmationTemplateDialog` resolve `false` at once, so a guard or a
   resolver that awaits one doesn't hold the render.
+- The table and `tab-virtualize` show their rows in Firefox. They read a row's size from a copy of its computed style,
+  which Firefox leaves empty, so every table and virtual list there showed "No data available".
+- A reset of the table or `tab-virtualize` that a newer one overtakes leaves the rows to the newer one: `reset(true)` on
+  a scrolled table, or two resets in a row, ended on "No data available", and an answer to a request the newer reset
+  replaced set the row count. A sort or other input changed while the first load runs is loaded; it was dropped, so a
+  header clicked then showed its arrow over rows in the old order.
+- Cancelling a load, as two quick sorts do, logs no error and reaches no `ErrorHandler`, and a destroyed table or
+  `tab-virtualize` cancels its loads.
+- With row selection, a click on a link, a button or a checkbox in a cell is that control's own: it works, and selects
+  no row. Each row's selection checkbox toggles; the table cancelled every click in a row, its checkbox's included.
+- The app's `getRowKey` and `cellClass` get only loaded rows, never a loading row's empty placeholder, and a click on a
+  loading row selects nothing. The table no longer changes the app's own sort objects, on a shift-click, nor its
+  `selectedRows` Map, on a checkbox or a ctrl-click: it emits new ones.
+- Under a border-box reset, such as Tailwind's or Bootstrap's, each table cell is as wide as its header; cells were
+  narrower by their padding, and the columns drifted apart.
+- A row is measured inside the table or `tab-virtualize`, so a row height in `em` follows the font size there; with
+  another font size in the table, its rows jumped as it scrolled. Text clamping follows `dataRowCss` when it changes.
+- Changing the table's `selectionOptions` no longer loads its data again. The header's select-all checkbox is checked
+  when the selection holds every row, once the full load answers; it stayed partial.
+- `tab-list-single-select` and `tab-list-multi-select` follow WAI-ARIA's listbox pattern: a listbox of options,
+  multi-selectable for the multi-select, each option with `aria-selected`, and `aria-activedescendant` naming the
+  option the keyboard or the pointer highlights, so a screen reader announces each one.
+- `tab-table` and `tab-virtualize` render on the server: `load()` and `reload()` measure and load in the browser only,
+  and return `false` on the server, and the table's column widths start observing after the first render, so a page
+  with them can be prerendered.
 
 ### Changed
 
