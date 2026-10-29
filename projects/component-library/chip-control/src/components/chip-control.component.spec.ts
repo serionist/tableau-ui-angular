@@ -264,14 +264,19 @@ class BoundTagsComponent {
 }
 
 describe('ChipControlComponent without a form', () => {
-  // The keys are the one state the control changes; values the app binds are chips to show, and set the keys
-  it('shows the values the app binds and keeps both bindings in step with the keys', async () => {
+  async function render(before?: (component: BoundTagsComponent) => void) {
     const fixture = TestBed.createComponent(BoundTagsComponent);
+    before?.(fixture.componentInstance);
     fixture.autoDetectChanges();
     await fixture.whenStable();
     const host = fixture.nativeElement as HTMLElement;
-    const component = fixture.componentInstance;
     const names = () => Array.from(host.querySelectorAll('.name'), name => name.textContent.trim());
+    return { fixture, component: fixture.componentInstance, names };
+  }
+
+  // The keys are the one state the control changes; values the app binds are chips to show, and set the keys
+  it('shows the values the app binds and keeps both bindings in step with the keys', async () => {
+    const { fixture, component, names } = await render();
 
     component.$values.set([{ key: { id: 'a' }, value: 'Alpha' }]);
     await fixture.whenStable();
@@ -287,5 +292,80 @@ describe('ChipControlComponent without a form', () => {
 
     expect(names()).toEqual(['Alpha', 'B']);
     expect(component.$values().map(chip => chip.value)).toEqual(['Alpha', 'B']);
+  });
+
+  // Round 1, A1: the effect that writes the chips back to the values ran first, and wrote [] over the app's values
+  it('shows the values the app binds on the first render, and values set with keys', async () => {
+    const { fixture, component, names } = await render(bound => bound.$values.set([{ key: { id: 'a' }, value: 'Alpha' }]));
+
+    expect(names()).toEqual(['Alpha']);
+    expect(ids(component.$keys())).toEqual(['a']);
+
+    component.$keys.set(tags('b'));
+    component.$values.set([{ key: { id: 'b' }, value: 'Beta' }]);
+    await fixture.whenStable();
+
+    expect(names()).toEqual(['Beta']);
+    expect(component.lookup.calls).toEqual([]);
+  });
+
+  // Round 1, A2: values set the keys, and dropped the keys still being looked up, so those chips never came
+  it('keeps the keys still being looked up when the app sets values', async () => {
+    const { fixture, component, names } = await render();
+    component.$keys.set(tags('a', 'b'));
+    await fixture.whenStable();
+    await component.lookup.made(0);
+
+    component.$values.set([...component.$values(), { key: { id: 'c' }, value: 'Charlie' }]);
+    await fixture.whenStable();
+    await component.lookup.answer(0);
+    await new Promise(resolve => setTimeout(resolve));
+    await fixture.whenStable();
+
+    expect(names()).toEqual(['A', 'B', 'Charlie']);
+    expect(ids(component.$keys())).toEqual(['a', 'b', 'c']);
+  });
+});
+
+@Component({
+  imports: [ReactiveFormsModule, TableauUiChipControlModule],
+  template: `
+    <tab-chip-control #chips [formControl]="control" [getValuesByKeys]="lookup.fn" [keyComparer]="sameTag" [keys]="$keys()" [values]="$values()">
+      <ng-template let-ctx [tabChipTemplate]="chips">
+        <span class="name">{{ ctx.data.value }}</span>
+      </ng-template>
+    </tab-chip-control>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class FormBoundTagsComponent {
+  readonly control = new FormControl<Tag[] | null>([]);
+  readonly lookup = new Lookup();
+  readonly sameTag = (a: Tag, b: Tag) => a.id === b.id;
+  readonly $keys = signal<Tag[]>([]);
+  readonly $values = signal<ChipData<Tag, string>[]>([]);
+}
+
+describe('ChipControlComponent with a form and bindings', () => {
+  // The form hears only the user's changes: keys or values the app binds are not the user's
+  it('leaves the form pristine when the app sets keys or values', async () => {
+    const fixture = TestBed.createComponent(FormBoundTagsComponent);
+    fixture.autoDetectChanges();
+    await fixture.whenStable();
+    const component = fixture.componentInstance;
+    const values: unknown[] = [];
+    component.control.valueChanges.subscribe(value => values.push(value));
+
+    component.$values.set([{ key: { id: 'a' }, value: 'Alpha' }]);
+    await fixture.whenStable();
+    component.$keys.set(tags('a', 'b'));
+    await fixture.whenStable();
+    await component.lookup.answer();
+    await new Promise(resolve => setTimeout(resolve));
+    await fixture.whenStable();
+
+    expect(Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('.name'), name => name.textContent.trim())).toEqual(['Alpha', 'B']);
+    expect(component.control.pristine).toBe(true);
+    expect(values).toEqual([]);
   });
 });

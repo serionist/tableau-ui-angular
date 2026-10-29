@@ -192,6 +192,10 @@ export class ChipControlComponent<TKey, TValue> implements ControlValueAccessor 
     const keys = this.$currentKeys();
     const comparer = this.$keyComparer();
     untracked(() => {
+      // values the app set and valuesChanged has not taken in yet bring their keys' data, and may set other keys
+      if (this.$values() !== this.writtenValues) {
+        return;
+      }
       const has = (list: readonly TKey[], key: TKey) => list.some(k => comparer(k, key));
       const known = this.$known();
       if (known.some(k => !has(keys, k.key))) {
@@ -247,7 +251,9 @@ export class ChipControlComponent<TKey, TValue> implements ControlValueAccessor 
       const before = this.shownChips;
       this.shownChips = chips;
       const values = this.$values() ?? [];
-      if (values.length !== chips.length || values.some((value, i) => value !== chips[i])) {
+      // values the app set and valuesChanged has not taken in yet are left to it, which sets the keys from them
+      const appWrite = this.$values() !== this.writtenValues;
+      if (!appWrite && (values.length !== chips.length || values.some((value, i) => value !== chips[i]))) {
         // a copy, so an app that changes the array it gets changes nothing here
         this.writtenValues = [...chips];
         this.$values.set(this.writtenValues);
@@ -270,9 +276,21 @@ export class ChipControlComponent<TKey, TValue> implements ControlValueAccessor 
       }
       this.writtenValues = values;
       this.remember(values);
+      const comparer = this.$keyComparer();
       const keys = values.map(v => v.key);
       const current = this.$currentKeys();
-      if (keys.length !== current.length || keys.some((key, i) => !this.$keyComparer()(key, current[i]))) {
+      // a key still being looked up has no chip in the values yet: it stays, after the key it followed
+      let at = 0;
+      for (const key of current) {
+        const index = keys.findIndex(k => comparer(k, key));
+        if (index !== -1) {
+          at = index + 1;
+        } else if (this.requested.some(r => comparer(r, key))) {
+          keys.splice(at, 0, key);
+          at++;
+        }
+      }
+      if (keys.length !== current.length || keys.some((key, i) => !comparer(key, current[i]))) {
         this.$keys.set(keys);
       }
     });
