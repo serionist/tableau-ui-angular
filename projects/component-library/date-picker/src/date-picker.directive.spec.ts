@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { cdp, server } from 'vitest/browser';
+import { cdp, server, userEvent } from 'vitest/browser';
 // cdp()'s send(), which the Playwright provider declares
 import type {} from '@vitest/browser-playwright';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
@@ -83,9 +83,10 @@ describe('DatePickerDirective', () => {
       await fixture.whenStable();
 
       expect(instance.control.value).toEqual(new Date(2025, 2, 15));
-      instance.control.setValue(instance.control.value);
+      // and a date the form writes shows as that day
+      instance.control.setValue(new Date(2025, 2, 16));
       await fixture.whenStable();
-      expect(inputs[0].value).toBe('2025-03-15');
+      expect(inputs[0].value).toBe('2025-03-16');
     } finally {
       if (server.browser === 'chromium') {
         await cdp().send('Emulation.setTimezoneOverride', { timezoneId: '' });
@@ -117,6 +118,33 @@ describe('DatePickerDirective', () => {
     await fixture.whenStable();
     expect(instance.control.value).toEqual(new Date(2025, 3, 1));
     expect(instance.control.dirty).toBe(true);
+  });
+
+  // Round 1, A3: a write of null skipped the element when it held no whole date, so a half-typed date outlived reset()
+  it('clears a half-typed date when the form is reset', async () => {
+    const { fixture, instance, inputs } = await render(StartDateComponent);
+    inputs[0].focus();
+    await userEvent.keyboard('03');
+    await fixture.whenStable();
+    expect(inputs[0].validity.badInput).toBe(true);
+
+    instance.control.reset();
+    await fixture.whenStable();
+
+    expect(inputs[0].validity.badInput).toBe(false);
+    expect(inputs[0].value).toBe('');
+  });
+
+  // The value the user's input produced is not written back: an empty one would clear the segments still typed
+  it('keeps what the user is typing when a bound date loses a segment', async () => {
+    const { fixture, instance, inputs } = await render(BoundDatesComponent);
+    inputs[0].focus();
+
+    await userEvent.keyboard('{Backspace}');
+    await fixture.whenStable();
+
+    expect(instance.changes).toEqual([undefined]);
+    expect(inputs[0].validity.badInput).toBe(true);
   });
 
   // F62: datetime-local was matched, then rewritten to type="date", so no time could be entered

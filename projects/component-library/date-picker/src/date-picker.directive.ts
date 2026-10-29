@@ -1,5 +1,5 @@
 import type { InputSignal, WritableSignal } from '@angular/core';
-import { computed, Directive, effect, ElementRef, forwardRef, HostListener, inject, input, linkedSignal, output } from '@angular/core';
+import { computed, Directive, effect, ElementRef, forwardRef, HostListener, inject, input, linkedSignal, output, untracked } from '@angular/core';
 import type { ControlValueAccessor } from '@angular/forms';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 
@@ -41,14 +41,23 @@ export class DatePickerDirective implements ControlValueAccessor {
   readonly $value: WritableSignal<Date | undefined> = linkedSignal(this.$valueInput);
   readonly valueChange = output<Date | undefined>();
 
+  // What the user's last input made of the element's text: the element shows it already, and writing it back would
+  // clear a date the user is still typing
+  private typed: { value: Date | undefined } | undefined;
   // The value, bound or set, is what the element shows
   private readonly valueShown = effect(() => {
-    this.show(this.$value());
+    const value = this.$value();
+    untracked(() => {
+      if (this.typed === undefined || this.typed.value !== value) {
+        this.show(value);
+      }
+    });
   });
 
   @HostListener('input')
   onInput() {
     const val = this.parse(this.el.nativeElement.value);
+    this.typed = { value: val };
     this.$value.set(val);
     this.valueChange.emit(val);
     this._onChange(val);
@@ -59,17 +68,15 @@ export class DatePickerDirective implements ControlValueAccessor {
     this._onTouched();
   }
 
+  // A form's write always reaches the element, as Angular's own inputs do, so reset() clears a half-typed date too
   writeValue(obj: Date | null | undefined): void {
     const value = obj instanceof Date && !isNaN(obj.getTime()) ? obj : undefined;
+    this.typed = undefined;
     this.$value.set(value);
     this.show(value);
   }
 
-  // Writes the value to the element, unless the element shows it already, so a date the user is still typing stays
   private show(value: Date | undefined) {
-    if (this.parse(this.el.nativeElement.value)?.getTime() === value?.getTime()) {
-      return;
-    }
     this.el.nativeElement.value = value ? this.format(value) : '';
   }
 
