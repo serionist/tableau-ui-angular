@@ -57,13 +57,18 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   user leaves them, as Angular's own inputs do, not on focus, on each input or when an option is picked. An error shown
   once the control is touched now shows when the user leaves it, or on `markAllAsTouched()` at submit; with
   `updateOn: 'blur'` the last change is now committed.
-- `tab-chip-control` tells the form only of the user's changes: a chip removed, a key or Backspace, `add()` and
-  `remove()`. A form's write (on init, `setValue`, `reset`) no longer marks it dirty or emits `valueChanges` again,
+- `tab-chip-control` tells the form only of the user's changes: a chip's remove button, Delete or Backspace, `add()`
+  and `remove()`. A form's write (on init, `setValue`, `reset`) no longer marks it dirty or emits `valueChanges` again,
   and the keys or values the app binds no longer reach the form. Code that set `[keys]` or `[values]` on a control bound
   to a form sets the form's value instead.
 - The date picker takes a typed date as that day at local midnight; it took midnight UTC, so west of UTC the form held
   the day before. East of UTC the `Date` is now earlier than it was, so `value.toISOString().slice(0, 10)` gives the day
-  before: read the day with `getFullYear()`, `getMonth()` and `getDate()`, as the date picker writes it.
+  before: read the day with `getFullYear()`, `getMonth()` and `getDate()`, as the date picker writes it. Build the
+  dates it is compared with, such as the bounds of `DateValidators.minDate` and `maxDate`, as
+  `new Date(y, m - 1, d)`, not `new Date('yyyy-mm-dd')`, in every time zone: a bound parsed from a string is midnight
+  UTC, so west of UTC the last allowed day fails `maxDate`, and east of it the first allowed day fails `minDate`.
+- `DatePickerDirective` has no `onFocus()`: the date picker is touched on blur. Code that called it has nothing to
+  call.
 - `SingleSelectComponent` and `MultiSelectComponent` have no `ngAfterViewInit`, `registerFocusChange`,
   `unregisterFocusChange`, `checkFocus` or `focusChangeFn`: the select listens for focus leaving on itself and its
   dropdown, not on the document, so it can render on the server. Code that called them has nothing to call.
@@ -117,23 +122,29 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   that it opens one (`aria-haspopup="menu"`).
 - `tab-single-select` marks the option of its value as selected; it marked none. After `reset()` it shows no clear
   button, and a disabled select reads as disabled, not hidden.
-- A select's dropdown follows the select when the page scrolls or resizes, closes when the select is destroyed, as on a
-  route change, and a search box in it takes spaces; a space closed it.
+- A select's dropdown closes when the select is destroyed, as on a route change, and a search box in it takes spaces;
+  a space closed it. When the dropdown closes with focus in it, on Escape, Enter or a pick from its search box, focus
+  goes back to the select, as it does after the clear button, so the select is touched only when the user leaves it.
+- A dropdown, the autocomplete's suggestions and a menu follow the element they open from when the page or a container
+  scrolls, as they did on a resize.
 - `tab-chip-control`: a `null` write (a new `FormControl`, `reset()`) is no chips; it threw and lost every later
   chip. A form's first write keeps its chips, removing chips removes them all, a change made while `getValuesByKeys`
   waits is kept, and Backspace shows the chip it highlights when its key is an object `keyComparer` matches. A failed
   `getValuesByKeys` goes to the app's `ErrorHandler` and stops the spinner, and the next one still runs. The control no
-  longer changes the arrays it is given.
+  longer changes the arrays it is given. Values bound on the first render, or set with the keys, show; and values set
+  while keys are being looked up keep those keys, whose chips come when the lookup answers.
 - The date picker shows the `value` bound to it, and its form's value in `$value()`; it never wrote `[value]` to the
-  element. `<input type="datetime-local">` stays a date and time input, and `type="datetime-local"` type-checks;
-  it became a date input.
+  element. A form's `reset()` clears a half-typed date. `<input type="datetime-local">` stays a date and time input,
+  and `type="datetime-local"` type-checks; it became a date input.
 - The autocomplete writes a pick into the input its suggestions are open for, not every input that shares it, and lets
   go of a removed input. Enter with no suggestion highlighted closes them and goes on, so a search form submits; a
-  read-only input gets no suggestions; and they follow the input when it moves.
+  read-only input gets no suggestions; they follow the input when it moves; each opening starts with nothing
+  highlighted; and a label with no id, or one around the input, names the listbox too.
 - The menus: a closed submenu leaves the screen; a group no longer adds a subscription to its menu on each open; the
-  arrows, Enter and Space no longer scroll the page under a menu; an item that is loading is disabled; a menu whose
-  items are still loading no longer throws; a menu closes when its owner is destroyed; `autoOpenClose` can be turned
-  off.
+  arrows, Enter and Space no longer scroll the page under a menu; an item that is loading is disabled, for the mouse
+  too; a menu whose items are still loading no longer throws; a menu closes when its owner is destroyed;
+  `autoOpenClose` can be turned off; and focus moving onto an item, as a screen reader may move it, no longer closes
+  the submenu that holds it.
 - The select, the chip control, the date picker and the menus render on the server, so a page with them can be
   prerendered.
 
