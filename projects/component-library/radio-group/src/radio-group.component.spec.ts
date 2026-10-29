@@ -69,8 +69,11 @@ describe('RadioGroupComponent', () => {
     const { fixture, control, changes, radios } = await render();
 
     radios[1].click();
+    // a render between the pick and the reset, as an app has, so the radio's checked binding sees both
+    await fixture.whenStable();
     control.reset(null);
     await fixture.whenStable();
+    expect(radios[1].checked).toBe(false);
     radios[1].click();
     await fixture.whenStable();
 
