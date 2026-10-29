@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, PLATFORM_ID, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, PLATFORM_ID, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { axeViolations } from '../../testing/axe';
 import type { Person } from '../../testing/people';
@@ -31,6 +31,29 @@ class PeopleListComponent {
   readonly $fontSize = signal<string | null>(null);
   readonly $customLoader = signal(false);
   readonly list = viewChild.required<VirtualizeComponent<Person>>(VirtualizeComponent);
+}
+
+// An app that reloads its list from an effect of its own whenever the list is shown, as a tab's content may
+@Component({
+  imports: [TableauUiVirtualizeModule],
+  template: `
+    <tab-virtualize #list style="height: 200px" [dataOptions]="server.incremental" [(dataSort)]="$sort" [dataRowCss]="rowCss">
+      <ng-template let-ctx [tabItemTemplate]="list">{{ ctx.item.name }}</ng-template>
+    </tab-virtualize>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class ShownListComponent {
+  readonly server = new PeopleServer();
+  readonly $sort = signal<DataSort[]>([]);
+  readonly $shown = signal(false);
+  readonly rowCss: DataRowCss = { height: '20px', lineHeight: '20px', padding: '0 8px' };
+  readonly list = viewChild.required<VirtualizeComponent<Person>>(VirtualizeComponent);
+  readonly reloadWhenShown = effect(() => {
+    if (this.$shown()) {
+      void this.list().reload();
+    }
+  });
 }
 
 describe('VirtualizeComponent', () => {
@@ -89,6 +112,29 @@ describe('VirtualizeComponent', () => {
     expect(host.querySelector<HTMLElement>('.item')!.getBoundingClientRect().height).toBe(20);
     expect(host.scrollHeight).toBe(2000);
     expect(component.server.requests[0].count).toBe(10);
+  });
+
+  // an app's effect that called reload() took the sort the reload read as its own input, so a sort change ran it
+  // again, and the data loaded twice
+  it('loads once for a sort change after an app effect reloaded it', async () => {
+    const fixture = TestBed.createComponent(ShownListComponent);
+    fixture.autoDetectChanges();
+    await fixture.whenStable();
+    const component = fixture.componentInstance;
+    const settle = async () => {
+      await new Promise(resolve => setTimeout(resolve));
+      await fixture.whenStable();
+    };
+    component.$shown.set(true);
+    await component.server.answerAll(settle);
+    const requested = component.server.requests.length;
+    expect(requested).toBeGreaterThan(0);
+
+    component.$sort.set([{ property: 'id', direction: 'desc' }]);
+    await settle();
+    await settle();
+
+    expect(component.server.requests.length - requested).toBe(1);
   });
 
   // a row was measured when dataRowCss changed only, so reload() after a change of font kept the old row height

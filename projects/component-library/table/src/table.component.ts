@@ -439,10 +439,15 @@ export class TableComponent<TData> extends VirtualizeBaseComponent<TData> {
 
       return Math.max(Math.floor(rowHeight / lineHeight), 1);
     } catch (error: unknown) {
-      console.warn('Failed to initialize line clamp:', error);
+      // once: the clamp holds one line then, and each reload() would say it again
+      if (!this.lineClampWarned) {
+        this.lineClampWarned = true;
+        console.warn('Failed to initialize line clamp:', error);
+      }
       return 1;
     }
   });
+  private lineClampWarned = false;
   // #endregion
 }
 

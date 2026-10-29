@@ -518,7 +518,7 @@ describe('TableComponent', () => {
       // recorded only
     });
     try {
-      const { host, load } = await render(c => {
+      const { component, host, server, settle, load } = await render(c => {
         c.$rowCss.set({ height: '20px', lineHeight: 'normal', padding: '0 8px' });
       });
       await load();
@@ -526,6 +526,14 @@ describe('TableComponent', () => {
       const clamp = host.querySelector<HTMLElement>('.cell[data-column-id="name"] .line-clamp')!;
       expect(clamp.textContent.trim()).toBe('Person 1');
       expect(clamp.getBoundingClientRect().height).toBeGreaterThan(0);
+
+      // the clamp holds one line then, which it says once, not on each reload()
+      for (const reload of [1, 2]) {
+        const reloading = component.table().reload();
+        await server.answerAll(settle);
+        expect(await reloading, `reload ${reload}`).toBe(true);
+      }
+      expect(warned.mock.calls.filter(([message]) => message === 'Failed to initialize line clamp:')).toHaveLength(1);
     } finally {
       warned.mockRestore();
     }

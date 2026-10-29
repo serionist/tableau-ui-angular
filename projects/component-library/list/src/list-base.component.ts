@@ -16,7 +16,8 @@ export const LIST_COMPONENT_HOST = {
   '[attr.aria-disabled]': '$disabled() ? true : null',
   '[attr.aria-activedescendant]': '$activeDescendant()',
   '[class.silent-focus]': '$focusMode() === "silent"',
-  '[tabindex]': '$disabled() || $focusMode() === "none" ? -1 : 0',
+  // a disabled list has no tabindex, so not even a click focuses it; its options still take the pointer and the wheel
+  '[attr.tabindex]': '$disabled() ? null : $focusMode() === "none" ? -1 : 0',
   '(keydown)': 'onKeyDown($event)',
   '(blur)': 'onBlur()',
   '(focus)': 'onFocus()',

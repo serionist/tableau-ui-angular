@@ -32,6 +32,23 @@ class TravelComponent {
   readonly languages = new FormControl<string[] | null>(['hu']);
 }
 
+// A list longer than the box an app's layout gives it, which scrolls
+@Component({
+  imports: [ReactiveFormsModule, TableauUiListModule, TableauUiCommonModule],
+  template: `
+    <tab-list-multi-select aria-label="Countries" style="display: block; height: 80px" [formControl]="countries">
+      @for (name of names; track name) {
+        <tab-option [value]="name" [text]="name" />
+      }
+    </tab-list-multi-select>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class LongListComponent {
+  readonly names = Array.from({ length: 20 }, (_, i) => `Country ${i + 1}`);
+  readonly countries = new FormControl<string[] | null>([]);
+}
+
 describe('ListComponent', () => {
   // a pointer left over an option would highlight it
   beforeEach(movePointerAway);
@@ -104,21 +121,60 @@ describe('ListComponent', () => {
     expect(options(multi).map(option => option.getAttribute('aria-selected'))).toEqual(['true', 'true']);
   });
 
-  // a click focused a disabled list, as a click focuses any element with a tabindex, and leaving it marked it touched,
-  // so a required list showed its error the moment it was enabled
-  it('reads as disabled when its form control is, and a click leaves it untouched', async () => {
-    const { fixture, host, multi, component } = await render();
+  it('reads as disabled when its form control is', async () => {
+    const { fixture, multi, component } = await render();
 
     component.languages.disable();
     await fixture.whenStable();
 
     expect(multi.getAttribute('aria-disabled')).toBe('true');
-    expect(multi.tabIndex).toBe(-1);
-    await userEvent.click(multi.querySelector('.option-wrapper')!, { force: true });
-    await userEvent.click(host.querySelector('button')!);
+    expect(multi.getAttribute('tabindex')).toBeNull();
+  });
+
+  // a click focused a disabled list, as a click focuses any element with a tabindex
+  it('takes no focus from a click while disabled', async () => {
+    const { fixture, multi, component } = await render();
+    component.languages.disable();
     await fixture.whenStable();
-    expect(component.languages.touched).toBe(false);
+
+    // forced, since Playwright clicks no element that says it is disabled; a user's pointer does
+    await userEvent.click(multi.querySelector('.option-wrapper')!, { force: true });
+    await fixture.whenStable();
+
+    expect(document.activeElement).not.toBe(multi);
     expect(component.languages.value).toEqual(['hu']);
+  });
+
+  // leaving a disabled list marked it touched, so a required list showed its error the moment it was enabled
+  it('stays untouched when it loses focus while disabled', async () => {
+    const { fixture, multi, component } = await render();
+    multi.focus();
+    component.languages.disable();
+    await fixture.whenStable();
+
+    multi.blur();
+    await fixture.whenStable();
+
+    expect(document.activeElement).not.toBe(multi);
+    expect(component.languages.touched).toBe(false);
+  });
+
+  // a disabled list's options let the pointer through, and its host does too, so the wheel scrolled something else
+  it("lets the pointer and the wheel reach a disabled list's options", async () => {
+    const fixture = TestBed.createComponent(LongListComponent);
+    fixture.autoDetectChanges();
+    await fixture.whenStable();
+    fixture.componentInstance.countries.disable();
+    await fixture.whenStable();
+    const list = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('tab-list-multi-select')!;
+    const option = list.querySelectorAll<HTMLElement>('.option-wrapper')[1];
+    const box = option.getBoundingClientRect();
+
+    expect(document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2)?.closest('.option-wrapper')).toBe(option);
+    await userEvent.wheel(option, { delta: { y: 100 } });
+    await vi.waitFor(() => {
+      expect(list.scrollTop).toBeGreaterThan(0);
+    });
   });
 
   // F114: touched came with each pick, never on blur, so a required list the user tabbed past showed no error
