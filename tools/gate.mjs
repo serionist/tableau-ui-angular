@@ -23,7 +23,8 @@
 // to an export, a selector, an input or an output fails it until `npm run api:update` writes the files again, and the
 // PR names the change.
 //
-// Checks still to come, each with the work it guards: the docs site's prerender, with the docs site.
+// The docs site is the demo app: its prerender is the demo build's check, and each sample's source is checked by the
+// demo app's tests (docs-pages.spec.ts), which the tests check runs.
 //
 // It prints a line per check, then the tail of each failed check's output, and exits 1 when any failed. Node only, no
 // dependencies: each tool runs from node_modules through node itself, the same on Windows and Linux; only npm, a .cmd
