@@ -104,7 +104,7 @@ export class FAImpl<T extends Record<string, unknown>> extends ACImpl<T[]> imple
       map(() => this._value$.value),
     );
     this.registerFn = new FaRegisterFnsImpl<T>(this, this.subscriptions);
-    this.validatorFn = new ValidatorFnsImpl<FA<T>>(this.control);
+    this.validatorFn = new ValidatorFnsImpl<FA<T>>(this.control, this);
     this.metaFn = new MetaFnsImpl<FA<T>>(this.control, this);
     this.refreshMeta();
   }

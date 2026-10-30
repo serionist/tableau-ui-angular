@@ -1,5 +1,5 @@
 import type { Type } from '@angular/core';
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { TableauUiChipControlModule } from 'tableau-ui-angular/chip-control';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
@@ -161,6 +161,55 @@ describe('FormFieldComponent', () => {
   it('passes axe', async () => {
     const { host } = await render(NameFieldComponent);
 
+    expect(await axeViolations(host)).toEqual([]);
+  });
+
+  @Component({
+    imports,
+    template: `
+      <tab-form-field style="width: 300px">
+        <tab-label>Price</tab-label>
+        <tab-prefix><span style="display: inline-block; width: 30px">$</span></tab-prefix>
+        <input type="text" />
+        <tab-suffix><span style="display: inline-block; width: 50px">USD</span></tab-suffix>
+        <tab-hint [showOnError]="$hintOnError()">Before tax</tab-hint>
+        @if ($invalid()) {
+          <tab-error>Too high</tab-error>
+        }
+      </tab-form-field>
+    `,
+    changeDetection: ChangeDetectionStrategy.OnPush,
+  })
+  class PriceFieldComponent {
+    readonly $invalid = signal(false);
+    readonly $hintOnError = signal(false);
+  }
+
+  it('keeps the text in its input clear of the prefix and the suffix', async () => {
+    const { host } = await render(PriceFieldComponent);
+    const input = host.querySelector('input')!;
+    const box = (selector: string) => host.querySelector(selector)!.getBoundingClientRect();
+
+    await vi.waitFor(() => {
+      const style = getComputedStyle(input);
+      expect(box('input').left + parseFloat(style.paddingLeft)).toBeGreaterThanOrEqual(box('tab-prefix span').right);
+      expect(box('input').right - parseFloat(style.paddingRight)).toBeLessThanOrEqual(box('tab-suffix span').left);
+    });
+  });
+
+  it('shows the error in place of the hint, and with it when the hint shows on error', async () => {
+    const { fixture, host } = await render(PriceFieldComponent);
+    const price = fixture.componentInstance as PriceFieldComponent;
+    const shown = () => Array.from(host.querySelectorAll('.form-extra-info > *'), element => element.textContent.trim());
+    expect(shown()).toEqual(['Before tax']);
+
+    price.$invalid.set(true);
+    await fixture.whenStable();
+    expect(shown()).toEqual(['Too high']);
+
+    price.$hintOnError.set(true);
+    await fixture.whenStable();
+    expect(shown()).toEqual(['Before tax', 'Too high']);
     expect(await axeViolations(host)).toEqual([]);
   });
 });

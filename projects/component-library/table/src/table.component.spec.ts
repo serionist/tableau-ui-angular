@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, effect, PLATFORM_ID, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { userEvent } from 'vitest/browser';
 import { TableauUiButtonToggleModule } from 'tableau-ui-angular/button-toggle';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
 import type { Primitive } from 'tableau-ui-angular/types';
@@ -595,5 +596,129 @@ describe('TableComponent', () => {
 
     // the header row has no row role (#64)
     expect(await axeViolations(fixture.nativeElement as HTMLElement, { 'aria-required-children': '#64', 'aria-required-parent': '#64' })).toEqual([]);
+  });
+});
+
+// A table whose id column has tooltips of its own, whose bio column clamps a long text, and whose name column is fixed
+@Component({
+  imports: [TableauUiTableModule],
+  template: `
+    <tab-table #table style="height: 200px; width: 500px" sortMode="multi" [dataOptions]="server.incremental" [dataRowCss]="{ height: '20px', lineHeight: '20px', padding: '0 8px' }" [(sort)]="$sort">
+      <ng-container tabColumnDef="id" width="100px">
+        <ng-template [tabHeaderDef]="table">Id</ng-template>
+        <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.id }}</ng-template>
+        <ng-template [tabHeaderTooltipDef]="table">Unique per person</ng-template>
+        <ng-template let-ctx [tabCellTooltipDef]="table" [showTooltip]="evenOnly">Person number {{ ctx.row.id }}</ng-template>
+      </ng-container>
+      <ng-container tabColumnDef="bio" width="80px" minWidth="40px" [sortable]="false">
+        <ng-template [tabHeaderDef]="table">Bio</ng-template>
+        <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.name }} likes long walks</ng-template>
+      </ng-container>
+      <ng-container tabColumnDef="name" [resizable]="false">
+        <ng-template [tabHeaderDef]="table">Name</ng-template>
+        <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.name }}</ng-template>
+      </ng-container>
+    </tab-table>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class NotesTableComponent {
+  readonly server = new PeopleServer();
+  readonly $sort = signal<DataSort[]>([]);
+  readonly evenOnly = (ctx: CellContext<Person>) => ctx.row.id % 2 === 0;
+  readonly table = viewChild.required<TableComponent<Person>>(TableComponent);
+}
+
+describe('TableComponent tooltips and column widths', () => {
+  // what the library's stylesheet (styles/_dialog.service.scss) gives every tooltip, which a test doesn't load
+  const stylesheet = document.createElement('style');
+  stylesheet.textContent = '.dialog-container { position: fixed; }';
+
+  beforeEach(async () => {
+    document.head.appendChild(stylesheet);
+    await movePointerAway();
+  });
+
+  afterEach(() => {
+    stylesheet.remove();
+  });
+
+  async function render() {
+    const fixture = TestBed.createComponent(NotesTableComponent);
+    fixture.autoDetectChanges();
+    await fixture.whenStable();
+    const component = fixture.componentInstance;
+    const host = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('tab-table')!;
+    const settle = async () => {
+      await new Promise(resolve => setTimeout(resolve));
+      await fixture.whenStable();
+    };
+    const loading = component.table().load();
+    await component.server.answerAll(settle);
+    await loading;
+    const header = (column: string) => host.querySelector<HTMLElement>(`.column-header[data-column-id="${column}"]`)!;
+    const cell = (row: number, column: string) => host.querySelectorAll<HTMLElement>(`.data-rows .row`)[row].querySelector<HTMLElement>(`.cell[data-column-id="${column}"]`)!;
+    // as the user reads it, a line per block; a tooltip is in the page as soon as the pointer comes in, its text at the
+    // next render
+    const tooltip = () => document.querySelector<HTMLElement>('tab-tooltip')?.innerText.replace(/\s+/g, ' ').trim();
+    const shows = async (text: string) => {
+      await vi.waitFor(() => {
+        expect(tooltip()).toBe(text);
+      });
+    };
+    return { fixture, component, host, header, cell, tooltip, shows, settle };
+  }
+
+  it("shows a column's own tooltips, a cell's with its row, where its showTooltip says so", async () => {
+    const { header, cell, tooltip, shows } = await render();
+
+    await userEvent.hover(header('id').querySelector('.header-button')!);
+    await shows('Unique per person');
+
+    // the first row is person 1, the second person 2
+    await userEvent.hover(cell(1, 'id'));
+    await shows('Person number 2');
+    await userEvent.hover(cell(0, 'id'));
+    expect(tooltip()).toBeUndefined();
+  });
+
+  it("shows a clamped cell's whole text, and the default header tooltip with what a click does", async () => {
+    const { fixture, component, header, cell, tooltip, shows } = await render();
+
+    await userEvent.hover(cell(0, 'bio'));
+    await shows('Person 1 likes long walks');
+    await userEvent.hover(cell(0, 'name'));
+    expect(tooltip()).toBeUndefined();
+
+    await userEvent.hover(header('name').querySelector('.header-button')!);
+    await shows('Name Click to sort in Ascending order.');
+
+    await movePointerAway();
+    component.$sort.set([{ property: 'id', direction: 'asc' }]);
+    await fixture.whenStable();
+    await userEvent.hover(header('name').querySelector('.header-button')!);
+    await shows('Name Shift + Click to add to multi-sort in Ascending order. Click to sort in Ascending order.');
+  });
+
+  it('widens a column by the distance its edge is dragged, and its cells with it', async () => {
+    const { header, cell, host } = await render();
+    const resizer = header('id').querySelector<HTMLElement>('.resizer')!;
+    const start = header('id').getBoundingClientRect().width;
+    const x = resizer.getBoundingClientRect().left + 1;
+
+    resizer.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, clientX: x }));
+    document.dispatchEvent(new MouseEvent('mousemove', { bubbles: true, clientX: x + 40 }));
+    document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, clientX: x + 40 }));
+
+    expect(header('id').getBoundingClientRect().width).toBe(start + 40);
+    await vi.waitFor(() => {
+      expect(cell(0, 'id').getBoundingClientRect().width).toBe(start + 40);
+    });
+    // a later move, with the button up, changes nothing
+    document.dispatchEvent(new MouseEvent('mousemove', { bubbles: true, clientX: x + 100 }));
+    expect(header('id').getBoundingClientRect().width).toBe(start + 40);
+    // a column that is not resizable has no edge to drag
+    expect(header('name').querySelector('.resizer')).toBeNull();
+    expect(host.querySelectorAll('.resizer').length).toBe(2);
   });
 });

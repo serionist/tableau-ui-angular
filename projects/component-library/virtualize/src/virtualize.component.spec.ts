@@ -16,6 +16,9 @@ import { VirtualizeComponent } from './virtualize.component';
       @if ($customLoader()) {
         <ng-template tabCustomLoader>Loading people</ng-template>
       }
+      @if ($rowLoader()) {
+        <ng-template let-meta tabItemLoadingTemplate>Loading row {{ meta.index + 1 }}</ng-template>
+      }
       <ng-template tabItemErrorTemplate>Not loaded</ng-template>
       <ng-template let-ctx [tabItemTemplate]="list">{{ ctx.item.name }}</ng-template>
     </tab-virtualize>
@@ -23,6 +26,7 @@ import { VirtualizeComponent } from './virtualize.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class PeopleListComponent {
+  readonly $rowLoader = signal(false);
   readonly server = new PeopleServer();
   readonly $options = signal<DataOptions<Person>>(this.server.incremental);
   readonly $sort = signal<DataSort[]>([]);
@@ -97,6 +101,20 @@ describe('VirtualizeComponent', () => {
     expect(host.textContent).not.toContain('No data available');
     // 100 rows of 20 px: the rows shown and the space for the rest
     expect(host.scrollHeight).toBe(2000);
+  });
+
+  it("shows the app's loading template in each row still loading, with the row's place", async () => {
+    const { component, shown, settle, server } = await render(c => {
+      c.$rowLoader.set(true);
+    });
+
+    const loading = component.list().load();
+    await settle();
+    expect(shown().slice(0, 3)).toEqual(['Loading row 1', 'Loading row 2', 'Loading row 3']);
+
+    await server.answerAll(settle);
+    await loading;
+    expect(shown().slice(0, 3)).toEqual(['Person 1', 'Person 2', 'Person 3']);
   });
 
   // F109: a row was measured on the body, so with another font size in the list its em height was wrong, and the

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ElementRef, HostListener, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, HostListener, inject, input, Renderer2 } from '@angular/core';
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
@@ -11,6 +11,8 @@ import { ChangeDetectionStrategy, Component, ElementRef, HostListener, inject, i
     '[attr.type]': '$type()',
     '[class]': '`${$color()} ${$kind()}`',
     '[attr.disabled]': '$disabled() || $loading() ? true : null',
+    // `disabled` means nothing on an <a>, so a screen reader would read it as enabled
+    '[attr.aria-disabled]': 'isLink && ($disabled() || $loading()) ? "true" : null',
     '[class.loading]': '$loading()',
     '[attr.tabindex]': '$disabled() ? "-1": $tabindex()',
     role: 'button',
@@ -21,6 +23,26 @@ import { ChangeDetectionStrategy, Component, ElementRef, HostListener, inject, i
 })
 export class ButtonComponent {
   readonly $nativeElement = inject<ElementRef<HTMLElement>>(ElementRef);
+  protected readonly isLink = this.$nativeElement.nativeElement.tagName === 'A';
+
+  constructor() {
+    // A disabled <button> gets no click; an <a> does, from a screen reader or its keys, so it stops here, in the
+    // capture phase, before any (click) of the app's on the element, and before its href is followed
+    if (this.isLink) {
+      const unlisten = inject(Renderer2).listen(
+        this.$nativeElement.nativeElement,
+        'click',
+        (event: Event) => {
+          if (this.$disabled() || this.$loading()) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+          }
+        },
+        { capture: true },
+      );
+      inject(DestroyRef).onDestroy(unlisten);
+    }
+  }
   readonly $disabled = input(false, {
     alias: 'disabled',
   });
@@ -56,7 +78,8 @@ export class ButtonComponent {
   handleKeydown(event: KeyboardEvent) {
     const el = this.$nativeElement.nativeElement;
     this.clickFromKeyboard = true; // set flag to indicate click from keyboard
-    if ((el instanceof HTMLLinkElement && event.code === 'Enter') || event.code === 'Space') {
+    // an <a> with an href follows it on Enter itself, Ctrl + Enter to a new tab included; one without does nothing
+    if ((this.isLink && !el.hasAttribute('href') && event.key === 'Enter') || event.code === 'Space') {
       event.preventDefault(); // stop scroll or native behavior
 
       el.click(); // trigger click manually

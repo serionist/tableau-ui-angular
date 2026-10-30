@@ -94,7 +94,8 @@ export class MetaImpl implements Meta {
     if (meta.childControls) {
       for (const c of meta.childControls) {
         const value = this._getErrorValue(c, errorCode, requireTouched);
-        if (value !== undefined) {
+        // a child without the error gives null, and the next one may have it
+        if (value !== null) {
           return value;
         }
       }
