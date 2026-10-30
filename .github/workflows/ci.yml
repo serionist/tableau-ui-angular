@@ -83,7 +83,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build:component-library
-      # The same compare as the gate's, so a line ending or a path that differs on Windows fails here
+      # The same compare as the gate's: the file printed from Windows' build must be the one committed from Linux
       - name: Compare the public API file with the built typings
         run: node tools/api.mjs check
       # Apps run these two from node_modules/tableau-ui-angular/ (AGENTS.md, One-way doors).

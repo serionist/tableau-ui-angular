@@ -76,6 +76,9 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
 - `SingleSelectComponent` and `MultiSelectComponent` have no `ngAfterViewInit`, `registerFocusChange`,
   `unregisterFocusChange`, `checkFocus` or `focusChangeFn`: the select listens for focus leaving on itself and its
   dropdown, not on the document, so it can render on the server. Code that called them has nothing to call.
+- `tab-single-select` has no `$multipleSelectionMaxItemsListed` input. It was there only for the template it shares
+  with `tab-multi-select`, and a single select never read it. Remove a `[$multipleSelectionMaxItemsListed]` binding
+  from a `tab-single-select`; `tab-multi-select`'s `multipleSelectionMaxItemsListed` is unchanged.
 - `MenuButtonGroupComponent` has no `ngAfterViewInit`: it builds, measures and focuses its menus after the first render
   in the browser. Code that called the method has nothing to call.
 - The `tableau-ui-angular/stepper` entry point is gone: its `tab-stepper` and `tab-step` rendered only a placeholder
@@ -119,6 +122,19 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   `HTTPS_PROXY`, as `axios` did for an app that had it. Behind a proxy, set `NODE_USE_ENV_PROXY=1` beside
   `HTTPS_PROXY`, which Node 22 and 24 read in the versions this package supports, or set a mirror the network reaches
   in `TABLEAU_UI_ICONS_CSS_URL`.
+- These say they can be `undefined` or `null` now, as they always could at run time: 0.1.129's typings and older
+  lost `| undefined` and `| null`. Strict code that took them as always set no longer compiles (TS2322, TS2532):
+  - `$value` and `valueChange` of `tab-single-select`, `tab-multi-select`, `tab-list-single-select`,
+    `tab-list-multi-select` and `tab-radio-group`; `ButtonToggleComponent.$selectedValue` and `selectedValueChange`;
+    `TooltipDirective.$tooltipContext` and `tooltipContextChange`; `DatePickerDirective.valueChange`;
+  - what `MenuDirective.open()`, `AutoCompleteComponent.openDropdown()` and `MenuButtonGroupComponent.addMenuGroup()`
+    return, `MenuButtonGroupComponent.menu` (`null` when no button menu holds the group), and the validators from
+    `DateValidators.minDate()` and `maxDate()` (`null` for a valid date);
+  - `DrawerContainerComponent.$leftDrawer` and `$rightDrawer`, and `ColumnDefDirective.$header`, `$headerTooltip` and
+    `$cellTooltip`.
+
+  Handle the empty case where code reads one (`menu.open()?.close()`, `select.$value() ?? fallback`), or widen the
+  field or the handler parameter it goes into (`string | undefined`).
 
 ### Added
 

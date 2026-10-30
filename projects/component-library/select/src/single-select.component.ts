@@ -1,7 +1,7 @@
 import type { Primitive } from 'tableau-ui-angular/types';
 import { SELECT_COMPONENT_HOST, SelectBaseComponent } from './select-base.component';
-import type { InputSignal, Signal } from '@angular/core';
-import { ChangeDetectionStrategy, Component, computed, forwardRef, input } from '@angular/core';
+import type { Signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, forwardRef } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
@@ -20,8 +20,6 @@ import { NG_VALUE_ACCESSOR } from '@angular/forms';
   host: SELECT_COMPONENT_HOST,
 })
 export class SingleSelectComponent<T extends Primitive> extends SelectBaseComponent<T, T> {
-  protected readonly $multipleSelectionMaxItemsListed: InputSignal<number> = input(2);
-
   // null is no value: a form's reset() writes it
   override readonly $hasValue: Signal<boolean> = computed(() => {
     const value = this.$value();

@@ -1,6 +1,7 @@
-// The public API file's tests: private and protected members are left out, a changed input in a component's
-// declaration makes the compare fail with a diff, and the text is the same whatever the comments, the order of the
-// statements or the line endings. Run with `npm run test:tools`.
+// The public API file's tests: private and protected members are left out, but not a protected input or output, nor an
+// exported abstract class's protected ones; a changed input in a component's declaration, protected or not, makes the
+// compare fail with a diff; and the text is the same whatever the comments, the order of the statements or the line
+// endings. Run with `npm run test:tools`.
 
 import assert from 'node:assert/strict';
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
@@ -13,8 +14,9 @@ import { API_DIR, apiFile, buildApi, compareApi, entryPoints, publicDeclarations
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const CHIP = { name: 'chip', path: 'tableau-ui-angular/chip', types: './types/tableau-ui-angular-chip.d.ts' };
 
-// Typings as ng-packagr writes them: a component with Angular's declarations, and a base class apps extend
-const chipTypings = ({ alias = 'value', type = 'string' } = {}) => `import * as i0 from "@angular/core";
+// Typings as ng-packagr writes them: a component and a directive with Angular's declarations, and a base class apps
+// extend
+const chipTypings = ({ alias = 'value', type = 'string', size = 'number' } = {}) => `import * as i0 from "@angular/core";
 /**
  * A chip.
  */
@@ -26,8 +28,15 @@ export declare class ChipComponent {
   #private;
   protected readonly $label: i0.Signal<string>;
   protected remove(): void;
+  protected readonly $size: i0.InputSignal<${size}>;
+  protected readonly closed: i0.OutputEmitterRef<string>;
   static ɵfac: i0.ɵɵFactoryDeclaration<ChipComponent, never>;
-  static ɵcmp: i0.ɵɵComponentDeclaration<ChipComponent, "tab-chip", never, { "$value": { "alias": "${alias}"; "required": true; "isSignal": true; }; }, { "removed": "removed"; }, never, never, true, never>;
+  static ɵcmp: i0.ɵɵComponentDeclaration<ChipComponent, "tab-chip", never, { "$value": { "alias": "${alias}"; "required": true; "isSignal": true; }; "$size": { "alias": "size"; "required": false; "isSignal": true; }; }, { "removed": "removed"; "closed": "closed"; }, never, never, true, never>;
+}
+export declare class ChipFocusDirective {
+  protected readonly $focusDelay: i0.InputSignal<number>;
+  protected readonly $hidden: i0.Signal<boolean>;
+  static ɵdir: i0.ɵɵDirectiveDeclaration<ChipFocusDirective, "[tabChipFocus]", never, { "$focusDelay": { "alias": "focusDelay"; "required": false; "isSignal": true; }; }, {}, never, never, true, never>;
 }
 export declare abstract class ChipBaseComponent {
   abstract $label: i0.Signal<string>;
@@ -62,6 +71,15 @@ describe('the public declarations', () => {
     assert.match(base, /protected abstract measure\(\): number;/);
     assert.match(base, /protected readonly \$loading/);
     assert.doesNotMatch(base, /loader/);
+  });
+
+  test('keep a protected input or output, since a parent binds it and Angular checks the binding against its type', () => {
+    const chip = /class ChipComponent \{[^}]*/.exec(text)[0];
+    assert.match(chip, /protected readonly \$size: i0\.InputSignal<number>;/);
+    assert.match(chip, /protected readonly closed: i0\.OutputEmitterRef<string>;/);
+    const focus = /class ChipFocusDirective \{[^}]*/.exec(text)[0];
+    assert.match(focus, /protected readonly \$focusDelay: i0\.InputSignal<number>;/);
+    assert.doesNotMatch(focus, /\$hidden/);
   });
 
   test('keep a constructor whatever its modifier, since it says how apps may create the class', () => {
@@ -126,6 +144,7 @@ describe('the compare', () => {
   for (const [what, change, lines] of [
     ["an input's public name", { alias: 'text' }, ["-        alias: 'value';", "+        alias: 'text';"]],
     ["an input's type", { type: 'number' }, ['-  readonly $value: i0.InputSignal<string>;', '+  readonly $value: i0.InputSignal<number>;']],
+    ["a protected input's type", { size: 'string' }, ['-  protected readonly $size: i0.InputSignal<number>;', '+  protected readonly $size: i0.InputSignal<string>;']],
   ]) {
     test(`fails on a change to ${what} in the component's declaration, and shows it in a diff`, async () => {
       const name = Object.values(change)[0];
@@ -150,12 +169,11 @@ describe('the compare', () => {
     assert.match(diff, /--- \/dev\/null\n\+\+\+ b\/projects\/component-library\/api\/menu\.d\.ts\n@@ -0,0 \+1,1 @@\n\+b\n$/);
   });
 
-  test("reads a committed file with a checkout's CRLF line endings as the same, but fails a built one with them", () => {
+  test("reads a committed file with a checkout's CRLF line endings as the same", () => {
     const dir = join(temp, 'crlf');
     mkdirSync(dir);
     writeFileSync(join(dir, 'chip.d.ts'), 'a\r\nb\r\n');
     assert.deepEqual(compareApi(readApi(dir), new Map([['chip.d.ts', 'a\nb\n']])).changed, []);
-    assert.deepEqual(compareApi(new Map([['chip.d.ts', 'a\nb\n']]), readApi(dir)).changed, ['chip.d.ts']);
   });
 
   test('update writes one file per entry point, and removes one whose entry point went', async () => {

@@ -163,23 +163,7 @@ declare abstract class SelectBaseComponent<TOption extends Primitive, TValue ext
 export declare class SingleSelectComponent<T extends Primitive> extends SelectBaseComponent<T, T> {
   readonly $hasValue: Signal<boolean>;
   static ɵfac: i0.ɵɵFactoryDeclaration<SingleSelectComponent<any>, never>;
-  static ɵcmp: i0.ɵɵComponentDeclaration<
-    SingleSelectComponent<any>,
-    'tab-single-select',
-    never,
-    {
-      $multipleSelectionMaxItemsListed: {
-        alias: '$multipleSelectionMaxItemsListed';
-        required: false;
-        isSignal: true;
-      };
-    },
-    {},
-    never,
-    ['tab-prefix', 'tab-suffix'],
-    false,
-    never
-  >;
+  static ɵcmp: i0.ɵɵComponentDeclaration<SingleSelectComponent<any>, 'tab-single-select', never, {}, {}, never, ['tab-prefix', 'tab-suffix'], false, never>;
 }
 
 export declare class TableauUiSelectModule {

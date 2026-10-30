@@ -10,8 +10,10 @@
 // unified diff of each difference and exits 1 on one. The gate's full lane runs check after its library build.
 //
 // The files are the same on every machine and OS: each is printed by the TypeScript compiler from its syntax tree,
-// with no comments and its top-level statements sorted, then formatted by Prettier with the repo's settings, with LF.
-// An exported abstract class keeps its protected members, since an app that extends it implements and calls them.
+// with no comments and its top-level statements sorted, then formatted by Prettier with the repo's settings, with LF
+// whatever line endings the build's typings had. An exported abstract class keeps its protected members, since an app
+// that extends it implements and calls them; so does a protected input or output, since a parent binds it and Angular
+// checks the binding against the member's type.
 
 import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -57,14 +59,33 @@ function exportedNames(file) {
   return names;
 }
 
+const memberName = member => (member.name && (ts.isIdentifier(member.name) || ts.isStringLiteral(member.name)) ? member.name.text : null);
+
 /**
- * Whether a class member is left out: a private one (`private x`, `#private`), and a protected one unless `keepProtected`.
- * A constructor stays whatever its modifier, since a private or protected one says how apps may create the class.
+ * The members a class's Angular declaration (`ɵcmp`, `ɵdir`) names as inputs or outputs: the keys of its type
+ * arguments 3 and 4. A parent may bind a protected one, and Angular checks the binding against the member's type.
  */
-function isHidden(member, keepProtected) {
+function boundMembers(node) {
+  const names = new Set();
+  for (const member of node.members) {
+    if (!['ɵcmp', 'ɵdir'].includes(memberName(member)) || !member.type || !ts.isTypeReferenceNode(member.type)) continue;
+    for (const literal of (member.type.typeArguments ?? []).slice(3, 5).filter(ts.isTypeLiteralNode)) {
+      for (const key of literal.members) if (memberName(key)) names.add(memberName(key));
+    }
+  }
+  return names;
+}
+
+/**
+ * Whether a class member is left out: a private one (`private x`, `#private`), and a protected one unless `keepProtected`
+ * or it is an input or an output, which `bound` names. A constructor stays whatever its modifier, since a private or
+ * protected one says how apps may create the class.
+ */
+function isHidden(member, keepProtected, bound) {
   if (ts.isConstructorDeclaration(member)) return false;
   if (member.name && ts.isPrivateIdentifier(member.name)) return true;
-  return hasModifier(member, ts.SyntaxKind.PrivateKeyword) || (!keepProtected && hasModifier(member, ts.SyntaxKind.ProtectedKeyword));
+  if (hasModifier(member, ts.SyntaxKind.PrivateKeyword)) return true;
+  return hasModifier(member, ts.SyntaxKind.ProtectedKeyword) && !keepProtected && !bound.has(memberName(member));
 }
 
 /** Where a top-level statement sorts: imports first, by module, then declarations by name, then export lists. */
@@ -78,8 +99,9 @@ function sortKey(statement, printed) {
 
 /**
  * A typings file's public declarations as text, before formatting: every statement, each class without its private
- * and protected members (an exported abstract class keeps its protected ones), no comments, the top-level statements
- * in a stable order. Declaration order means nothing in a typings file, so the sort changes no meaning.
+ * and protected members (an exported abstract class keeps its protected ones, and a protected input or output stays),
+ * no comments, the top-level statements in a stable order. Declaration order means nothing in a typings file, so the
+ * sort changes no meaning.
  */
 export function publicDeclarations(text) {
   const file = ts.createSourceFile('api.d.ts', text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
@@ -88,7 +110,8 @@ export function publicDeclarations(text) {
     const visit = node => {
       if (!ts.isClassDeclaration(node)) return ts.visitEachChild(node, visit, context);
       const keepProtected = hasModifier(node, ts.SyntaxKind.AbstractKeyword) && Boolean(node.name && exported.has(node.name.text));
-      const members = node.members.filter(member => !isHidden(member, keepProtected));
+      const bound = boundMembers(node);
+      const members = node.members.filter(member => !isHidden(member, keepProtected, bound));
       return ts.factory.updateClassDeclaration(node, node.modifiers, node.name, node.typeParameters, node.heritageClauses, members);
     };
     return root => ts.visitNode(root, visit);
@@ -188,7 +211,6 @@ export function unifiedDiff(name, before, after) {
   const range = (first, count) => `${count ? first + 1 : first},${count}`;
   const out = [`--- ${before === null ? '/dev/null' : `a/${name}`}`, `+++ ${after === null ? '/dev/null' : `b/${name}`}`];
   if (!hunks.length) out.push('\\ the files differ only in the newline at their end');
-  if (after?.includes('\r') && !before?.includes('\r')) out.push('\\ the new file has CRLF line endings, where the API file has LF');
   for (const [from, to] of hunks) {
     const lines = ops.slice(from, to);
     const countA = lines.filter(([kind]) => kind !== '+').length;
@@ -200,8 +222,8 @@ export function unifiedDiff(name, before, after) {
 
 /**
  * How the `built` API files differ from the `committed` ones: the names of those that differ, and their diff. A
- * committed file is read with LF line endings, whatever the checkout wrote; a built one as it is, so a CRLF the build
- * wrote on one OS fails the compare there.
+ * committed file is read with LF line endings, whatever the checkout wrote; a built one is this tool's own output,
+ * printed with LF whatever line endings the build's typings had.
  */
 export function compareApi(committed, built) {
   const names = [...new Set([...committed.keys(), ...built.keys()])].sort(compareText);
