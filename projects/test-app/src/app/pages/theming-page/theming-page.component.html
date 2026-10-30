@@ -1,0 +1,114 @@
+<div class="page">
+  <div class="title">
+    <h1>Theming</h1>
+    <div class="text-light text-large">The theme service sets the colour mode and the font size; CSS custom properties set the rest.</div>
+  </div>
+  <tab-separator />
+  <div class="content">
+    <div class="section">
+      <h3>Start the theme</h3>
+      <p>
+        Call
+        <code>ThemeService.initialize()</code>
+        once, when the app starts. It applies the stored theme, follows the system's mode, and stores each change. Until then the page stays light at the default size; on the server it does nothing.
+        This is the docs site's own
+        <code>app.config.ts</code>:
+      </p>
+      <app-docs-code label="app.config.ts" [source]="appConfigTs" />
+    </div>
+
+    <div class="section">
+      <h3>Dark mode and font size</h3>
+      <p>
+        <code>setColorMode()</code>
+        takes
+        <code>light</code>,
+        <code>dark</code>
+        or
+        <code>auto</code>, which follows the system; the service puts the
+        <code>dark-mode</code>
+        class on the root element and the body.
+        <code>setFontSize()</code>
+        sets the base size, which the library's other sizes follow, and
+        <code>reset()</code>
+        goes back to the default.
+        <code>$theme</code>
+        and
+        <code>$appliedThemeMode</code>
+        give the current choice as signals, and
+        <code>theme$</code>
+        and
+        <code>appliedThemeMode$</code>
+        as observables.
+      </p>
+      <app-docs-example [example]="examples.switcher" />
+    </div>
+
+    <div class="section">
+      <h3>CSS custom properties</h3>
+      <p>
+        Every colour, font and size is a custom property, set on
+        <code>:root</code>
+        and, for dark mode, on
+        <code>:root.dark-mode</code>. Set one on an element to change it inside that element, or on those two selectors in
+        <code>styles.scss</code>
+        to change it for the app.
+      </p>
+      <app-docs-example [example]="examples.override" />
+
+      <h4>Colours</h4>
+      <table class="docs-table">
+        <thead>
+          <tr>
+            <th scope="col">Property</th>
+            <th scope="col">Now</th>
+            <th scope="col">Light</th>
+            <th scope="col">Dark</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (color of colors; track color.name) {
+            <tr>
+              <td>
+                <code>{{ color.name }}</code>
+              </td>
+              <td>
+                @if (color.swatch) {
+                  <span class="swatch" [style.background]="`var(${color.name})`"></span>
+                }
+              </td>
+              <td>
+                <code>{{ color.light }}</code>
+              </td>
+              <td>
+                <code>{{ color.dark }}</code>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      <h4>Fonts, sizes, menus and inputs</h4>
+      <table class="docs-table">
+        <thead>
+          <tr>
+            <th scope="col">Property</th>
+            <th scope="col">Default</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (property of others; track property.name) {
+            <tr>
+              <td>
+                <code>{{ property.name }}</code>
+              </td>
+              <td>
+                <code>{{ property.value }}</code>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

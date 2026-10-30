@@ -1,0 +1,11 @@
+<div class="preview">
+  <ng-container *ngComponentOutlet="$example().component" />
+</div>
+<tab-group class="source" headerPadding="0.25rem 1rem">
+  @for (file of $files(); track file.label) {
+    <tab [key]="file.label">
+      <span tab-header>{{ file.label }}</span>
+      <app-docs-code [label]="file.label" [source]="file.source" />
+    </tab>
+  }
+</tab-group>

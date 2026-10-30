@@ -39,11 +39,8 @@ export class AppComponent {
     map(() => this.findRouteData(this.route.root, 'page')),
   );
 
+  // app.config.ts initializes it
   readonly themeService = inject(ThemeService);
-
-  constructor() {
-    this.themeService.initialize();
-  }
 
   version = LibVersion;
   // Recursive function to search route tree for specified data key

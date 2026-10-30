@@ -1,0 +1,9 @@
+<!-- The colour styles the accept button; without autofocus neither button takes focus -->
+<div class="buttons">
+  <button color="primary" (click)="confirm('primary')">Primary, no autofocus</button>
+  <button (click)="confirm('secondary')">Secondary, no autofocus</button>
+  <button color="error" (click)="confirm('error')">Error, no autofocus</button>
+
+  <button (click)="confirm('secondary', 'accept')">Focus on accept</button>
+  <button color="error" (click)="confirm('error', 'cancel')">Focus on cancel</button>
+</div>

@@ -3,7 +3,7 @@ import { TableauUiButtonToggleModule } from 'tableau-ui-angular/button-toggle';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
 import type { DataSort, FullDataRequest, IncrementalDataRequest } from 'tableau-ui-angular/virtualize';
 import { FullDataOptions, IncrementalDataOptions, TableauUiVirtualizeModule, VirtualizeComponent } from 'tableau-ui-angular/virtualize';
-import type { DataType } from '../table-page/table-page.component';
+import type { DataType } from '../table-page/table-data-sample';
 import { data } from '../table-page/table-data-sample';
 import { TableauUiExpansionPanelModule } from 'tableau-ui-angular/expansion-panel';
 import { TableauUiCheckboxModule } from 'tableau-ui-angular/checkbox';

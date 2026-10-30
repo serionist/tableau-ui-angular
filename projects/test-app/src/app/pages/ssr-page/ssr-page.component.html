@@ -1,0 +1,130 @@
+<div class="page">
+  <div class="title">
+    <h1>Server-side rendering</h1>
+    <div class="text-light text-large">Every component renders on the server; what needs a screen waits for the browser.</div>
+  </div>
+  <tab-separator />
+  <div class="content">
+    <div class="section">
+      <h3>The components render on the server</h3>
+      <p>
+        No component touches
+        <code>window</code>
+        or
+        <code>document</code>
+        while it renders, so an app can render its pages on a server or prerender them at build time. This site prerenders every page, with the components on it, and its build fails when a page throws
+        while it renders. These are its own server files:
+      </p>
+      <app-docs-code label="app.config.server.ts" [source]="appConfigServerTs" />
+      <app-docs-code label="app.routes.server.ts" [source]="appRoutesServerTs" />
+    </div>
+
+    <div class="section">
+      <h3>What waits for the browser</h3>
+      <p>The server has no layout and no user, so what measures, observes or asks the browser starts after the first render there.</p>
+      <table class="docs-table">
+        <thead>
+          <tr>
+            <th scope="col">What</th>
+            <th scope="col">On the server</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>The table and <code>tab-virtualize</code></td>
+            <td>
+              They render without rows:
+              <code>load()</code>
+              and
+              <code>reload()</code>
+              measure first, so on the server they load nothing and resolve
+              <code>false</code>. Call
+              <code>load()</code>
+              once the view is drawn, as the table page does.
+            </td>
+          </tr>
+          <tr>
+            <td>The Monaco editor</td>
+            <td>Monaco loads, and the editor is created, after the first render in the browser.</td>
+          </tr>
+          <tr>
+            <td>
+              <code>ThemeService.initialize()</code>
+            </td>
+            <td>It does nothing, so the server's page is light at the default font size; the browser then applies the user's stored theme.</td>
+          </tr>
+          <tr>
+            <td>The form field, the arrow scroll, the tab group, the tree, the menu button group, the resize watcher</td>
+            <td>They measure and observe after the first render, in the browser only.</td>
+          </tr>
+          <tr>
+            <td>
+              <code>ClipboardService</code>
+            </td>
+            <td>
+              It uses
+              <code>navigator.clipboard</code>: call it from what the user does, such as a click, never while rendering.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <h3>Dialogs and snacks on the server</h3>
+      <p>Their services show nothing on the server, and answer so that code waiting on them goes on.</p>
+      <table class="docs-table">
+        <thead>
+          <tr>
+            <th scope="col">Method</th>
+            <th scope="col">On the server</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <code>DialogService</code>'s <code>openModal()</code>, <code>openTemplateModal()</code>, <code>openDialog()</code>,
+              <code>openTemplateDialog()</code>
+            </td>
+            <td>
+              A
+              <code>DialogRef</code>
+              for a dialog that is never shown; closing it still emits
+              <code>closed$</code>.
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <code>openConfirmationMessageDialog()</code>,
+              <code>openConfirmationTemplateDialog()</code>
+            </td>
+            <td>
+              They resolve
+              <code>false</code>
+              at once, so a guard or a resolver that awaits one doesn't hold the render.
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <code>SnackService</code>'s <code>openSnack()</code>, <code>openSnackWithAction()</code>, <code>openSnackFromTemplate()</code>,
+              <code>openSnackComponent()</code>
+            </td>
+            <td>
+              A
+              <code>SnackRef</code>
+              for a snack that is never shown.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <h3>Hydration</h3>
+      <p>
+        Hydration isn't wired yet. The library isn't tested with it, and this site doesn't call
+        <code>provideClientHydration()</code>, so the browser renders each page again over the server's HTML.
+      </p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,23 @@
+.options {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.options-container {
+  padding: 0 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  tab-button-toggle {
+    width: 100%;
+  }
+}
+
+// The table scrolls inside the height it gets, and draws only the rows that show; it is at least 300px tall
+tab-table {
+  height: 30rem;
+}

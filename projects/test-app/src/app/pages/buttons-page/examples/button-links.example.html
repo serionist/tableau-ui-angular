@@ -1,0 +1,24 @@
+<!-- An <a button> looks like a button and follows its link; while disabled or loading it doesn't -->
+<tab-checkbox class="loading" [(value)]="$loading">Show the links loading</tab-checkbox>
+
+<div class="buttons">
+  <a button color="plain" target="_blank" [href]="repo" [loading]="$loading()">Plain</a>
+  <a button color="secondary" target="_blank" [href]="repo" [loading]="$loading()">Secondary</a>
+  <a button color="primary" target="_blank" [href]="repo" [loading]="$loading()">Primary</a>
+  <a button color="error" target="_blank" [href]="repo" [loading]="$loading()">Error</a>
+
+  <a button color="plain" target="_blank" [disabled]="true" [href]="repo">Plain disabled</a>
+  <a button color="secondary" target="_blank" [disabled]="true" [href]="repo">Secondary disabled</a>
+  <a button color="primary" target="_blank" [disabled]="true" [href]="repo">Primary disabled</a>
+  <a button color="error" target="_blank" [disabled]="true" [href]="repo">Error disabled</a>
+
+  <a button kind="raised" color="plain" target="_blank" [href]="repo" [loading]="$loading()">Plain</a>
+  <a button kind="raised" color="secondary" target="_blank" [href]="repo" [loading]="$loading()">Secondary</a>
+  <a button kind="raised" color="primary" target="_blank" [href]="repo" [loading]="$loading()">Primary</a>
+  <a button kind="raised" color="error" target="_blank" [href]="repo" [loading]="$loading()">Error</a>
+
+  <a button kind="raised" color="plain" target="_blank" [disabled]="true" [href]="repo">Plain disabled</a>
+  <a button kind="raised" color="secondary" target="_blank" [disabled]="true" [href]="repo">Secondary disabled</a>
+  <a button kind="raised" color="primary" target="_blank" [disabled]="true" [href]="repo">Primary disabled</a>
+  <a button kind="raised" color="error" target="_blank" [disabled]="true" [href]="repo">Error disabled</a>
+</div>

@@ -1,0 +1,37 @@
+<tab-form-field>
+  <tab-label>A search inside the dropdown</tab-label>
+  <tab-multi-select
+    placeholder="Select users"
+    selectedValueWrapMode="truncate"
+    multipleSelectionNumberSelectedTemplate="{number} users selected"
+    [allowClear]="true"
+    [dropdownOptionsContainerCss]="{ 'max-height': '80px' }"
+    [formControl]="users"
+    [multipleSelectionMaxItemsListed]="2"
+  >
+    <tab-prefix>
+      <tab-form-field class="search">
+        <input type="text" placeholder="Search for users" aria-label="Search for users" [value]="$search()" (input)="input($event)" />
+        <tab-prefix>
+          <tab-icon value="search" />
+        </tab-prefix>
+      </tab-form-field>
+      @if ($searching()) {
+        <tab-loading-gif />
+      }
+    </tab-prefix>
+    @if (!$searching()) {
+      @for (user of $results(); track user.id) {
+        <tab-option [text]="user.name" [value]="user.id" />
+      }
+    }
+    <!-- a block of its own, with one element, so it goes to the suffix -->
+    @if (!$searching()) {
+      <tab-suffix>
+        <tab-separator class="separator" />
+        <tab-hint class="count">{{ $count() }} results found</tab-hint>
+      </tab-suffix>
+    }
+  </tab-multi-select>
+  <tab-hint>The prefix holds the search box; the options are what it finds</tab-hint>
+</tab-form-field>

@@ -1,0 +1,26 @@
+<tab-form-field>
+  <tab-label>A textbox with suggestions</tab-label>
+  <input type="text" [tabAutoComplete]="autocomplete" [value]="$search()" (input)="input($event)" />
+  <tab-autocomplete #autocomplete>
+    <tab-prefix>
+      <div class="heading">
+        <tab-icon value="search" />
+        Suggestions
+      </div>
+      <tab-separator />
+    </tab-prefix>
+    @if ($searching()) {
+      <tab-prefix>
+        <tab-loading-gif />
+      </tab-prefix>
+    } @else {
+      @for (name of $results(); track name) {
+        <tab-option [text]="name" [value]="name" />
+      }
+    }
+    <tab-suffix>
+      <tab-separator />
+      <tab-hint class="count">{{ $count() }} suggestions</tab-hint>
+    </tab-suffix>
+  </tab-autocomplete>
+</tab-form-field>

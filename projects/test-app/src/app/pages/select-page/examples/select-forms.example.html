@@ -1,0 +1,105 @@
+<div class="fields">
+  <tab-form-field>
+    <tab-label>Wrap, icons shown, no check, selected item highlight</tab-label>
+    <tab-single-select placeholder="Select any value" [allowClear]="true" [formControl]="wrap | formControl">
+      @for (option of options; track option.value) {
+        <tab-option [disabled]="option.disabled ?? false" [hint]="option.hint" [icon]="option.icon" [text]="option.text" [value]="option.value" />
+      }
+    </tab-single-select>
+    <tab-hint>The selected value wraps and makes the control taller; its icon shows in it</tab-hint>
+    @if (wrap | formMeta | async | formHasError: 'required') {
+      <tab-error>Required</tab-error>
+    }
+    @if (wrap | formMeta | async | formHasError: 'min') {
+      <tab-error>The lowest value is 1</tab-error>
+    }
+    @if (wrap | formMeta | async | formHasError: 'max') {
+      <tab-error>The highest value is 3, so the last option is an error</tab-error>
+    }
+  </tab-form-field>
+
+  <tab-form-field>
+    <tab-label>Truncate, only text, check on the right</tab-label>
+    <tab-single-select
+      placeholder="Select any value"
+      selectedValueWrapMode="truncate"
+      selectedCheckIconLocation="right"
+      [allowClear]="true"
+      [formControl]="truncate | formControl"
+      [selectedItemHighlight]="false"
+      [selectedValueTemplateContext]="onlyText"
+    >
+      @for (option of options; track option.value) {
+        <tab-option [disabled]="option.disabled ?? false" [hint]="option.hint" [icon]="option.icon" [text]="option.text" [value]="option.value" />
+      }
+    </tab-single-select>
+    <tab-hint>The selected value is cut short and shows only its text</tab-hint>
+    @if (truncate | formMeta | async | formHasError: 'required') {
+      <tab-error>Required</tab-error>
+    }
+    @if (truncate | formMeta | async | formHasError: 'min') {
+      <tab-error>The lowest value is 1</tab-error>
+    }
+    @if (truncate | formMeta | async | formHasError: 'max') {
+      <tab-error>The highest value is 3, so the last option is an error</tab-error>
+    }
+  </tab-form-field>
+
+  <tab-form-field>
+    <tab-label>Disabled</tab-label>
+    <tab-single-select
+      placeholder="Select any value"
+      selectedValueWrapMode="truncate"
+      selectedCheckIconLocation="right"
+      [allowClear]="true"
+      [formControl]="disabled | formControl"
+      [selectedValueTemplateContext]="onlyText"
+    >
+      @for (option of options; track option.value) {
+        <tab-option [disabled]="option.disabled ?? false" [hint]="option.hint" [icon]="option.icon" [text]="option.text" [value]="option.value" />
+      }
+    </tab-single-select>
+    <tab-hint>A disabled control disables the select</tab-hint>
+    @if (disabled | formMeta | async | formHasError: 'required') {
+      <tab-error>Required</tab-error>
+    }
+    @if (disabled | formMeta | async | formHasError: 'min') {
+      <tab-error>The lowest value is 1</tab-error>
+    }
+    @if (disabled | formMeta | async | formHasError: 'max') {
+      <tab-error>The highest value is 3, so the last option is an error</tab-error>
+    }
+  </tab-form-field>
+
+  <tab-form-field>
+    <tab-label>Prefix and suffix, truncate, no chevron, no clear, no check, selected item highlight</tab-label>
+    <tab-single-select
+      placeholder="Select any value"
+      selectedValueWrapMode="truncate"
+      selectedCheckIconLocation="none"
+      [allowClear]="false"
+      [formControl]="noChevron | formControl"
+      [selectedItemHighlight]="true"
+      [selectedValueTemplateContext]="onlyText"
+      [showChevron]="false"
+    >
+      @for (option of options; track option.value) {
+        <tab-option [disabled]="option.disabled ?? false" [hint]="option.hint" [icon]="option.icon" [text]="option.text" [value]="option.value" />
+      }
+    </tab-single-select>
+    <tab-prefix>
+      <tab-icon value="search" />
+    </tab-prefix>
+    <tab-suffix>A suffix</tab-suffix>
+    <tab-hint>No chevron, and the value can't be cleared</tab-hint>
+    @if (noChevron | formMeta | async | formHasError: 'required') {
+      <tab-error>Required</tab-error>
+    }
+    @if (noChevron | formMeta | async | formHasError: 'min') {
+      <tab-error>The lowest value is 1</tab-error>
+    }
+    @if (noChevron | formMeta | async | formHasError: 'max') {
+      <tab-error>The highest value is 3, so the last option is an error</tab-error>
+    }
+  </tab-form-field>
+</div>

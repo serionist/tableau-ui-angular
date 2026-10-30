@@ -44,5 +44,7 @@ export class Icons extends UsedIcons {
     'side_navigation',
     'variables',
     'receipt',
+    'rocket_launch',
+    'dns',
   ];
 }

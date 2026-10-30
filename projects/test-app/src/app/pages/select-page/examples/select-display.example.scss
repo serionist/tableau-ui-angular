@@ -1,0 +1,5 @@
+.fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 31rem));
+  gap: 1rem;
+}

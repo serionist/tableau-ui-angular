@@ -39,9 +39,9 @@ npm run gate -- full
 ## Open the pull request
 
 1. Fork, and branch from `main` as `<issue>-<slug>`, such as `42-select-keyboard`.
-2. Make the change with its tests and docs: a behaviour test that fails without it, the component's demo page,
-   `README.md`, a line in [CHANGELOG.md](CHANGELOG.md) when apps notice it, AGENTS.md when a path, a command or a rule
-   changes.
+2. Make the change with its tests and docs: a behaviour test that fails without it, a sample on the component's docs
+   page (AGENTS.md, What this is), `README.md`, a line in [CHANGELOG.md](CHANGELOG.md) when apps notice it, AGENTS.md
+   when a path, a command or a rule changes.
 3. Commit with a plain imperative subject that says what changed, and a body that says why. No AI co-author
    trailers, "Generated with" lines or session links: `commit-msg` refuses them.
 4. Open the PR with [the template](.github/pull_request_template.md) filled in, ending `Closes #<issue>`, or

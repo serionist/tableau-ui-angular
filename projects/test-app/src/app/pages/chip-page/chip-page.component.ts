@@ -4,7 +4,7 @@ import { TableauUiCommonModule } from 'tableau-ui-angular/common';
 import { TableauUiIconModule } from 'tableau-ui-angular/icon';
 import { TableauUiChipControlModule } from '../../../../../component-library/chip-control/src/tableau-ui-chip-control.module';
 import { data } from '../table-page/table-data-sample';
-import type { DataType } from '../table-page/table-page.component';
+import type { DataType } from '../table-page/table-data-sample';
 import { TableauUiButtonModule } from 'tableau-ui-angular/button';
 import type { ChipData } from 'tableau-ui-angular/chip-control';
 import { TableauUiButtonToggleModule } from '../../../../../component-library/button-toggle/src/tableau-ui-button-toggle.module';

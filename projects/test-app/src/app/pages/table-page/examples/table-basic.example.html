@@ -1,0 +1,14 @@
+<tab-table #table [dataOptions]="dataOptions">
+  <ng-container tabColumnDef="id">
+    <ng-template let-ctx [tabHeaderDef]="table">Id</ng-template>
+    <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.id }}</ng-template>
+  </ng-container>
+  <ng-container tabColumnDef="name">
+    <ng-template let-ctx [tabHeaderDef]="table">Name</ng-template>
+    <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.name }}</ng-template>
+  </ng-container>
+  <ng-container tabColumnDef="city">
+    <ng-template let-ctx [tabHeaderDef]="table">City</ng-template>
+    <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.city }}</ng-template>
+  </ng-container>
+</tab-table>

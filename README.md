@@ -1,96 +1,82 @@
-# Tableau UI Angular
+# tableau-ui-angular
 
-Tableau UI Angular is a third-party component library that brings Tableau-style components to Angular 22.
+Tableau-style components for Angular 22: buttons, form controls, selects, a virtual table, dialogs, snacks, menus and
+more, one entry point per folder.
 
-## Getting started
+Not affiliated with or endorsed by Tableau or Salesforce.
 
-To install the library, run the following command:
+## Install
+
+The package is on npm; an Angular 22 app already has every peer but Monaco.
 
 ```bash
 npm install tableau-ui-angular
 ```
 
-## Components & Samples
+| Peer                                                                    | Range                                           |
+| ----------------------------------------------------------------------- | ----------------------------------------------- |
+| `@angular/common`, `@angular/core`, `@angular/forms`, `@angular/router` | `^22.0.0`                                       |
+| `rxjs`                                                                  | `^7.4.0`                                        |
+| `monaco-editor`                                                         | `^0.52.2`, only for `tableau-ui-angular/monaco` |
 
-A web app containing all components, guides, and samples is hosted [on GitHub Pages](https://serionist.github.io/tableau-ui-angular/). Note that the web app does not display the underlying usage code. To understand how to use the components, you will need to browse the source code.
+## A first button
 
-To explore the code locally:
+Use the styles once, in the app's `styles.scss`, then import a component folder's module where you use it. The styles
+are SCSS: an app made with CSS renames `src/styles.css` to `src/styles.scss`, there and in `angular.json`.
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/serionist/tableau-ui-angular.git
-   ```
-2. Install dependencies
-   ```bash
-   npm install
-   ```
-3. Start the app:
-   ```bash
-   npm start
-   ```
-
-Requires Node 22.
-
-The hosted version of this sample app does not use the official Tableau font (**Benton Sans Book**), as its proprietary. If you host your own version of it and you own a Tableau Server, you can import the Tableau fonts by running:
-
-```
-node projects/component-library/styles/fonts/downloadFonts.js https://[your-tableau-server].com projects/test-app/public/font
+```scss
+@use 'tableau-ui-angular/styles/lib-styles';
 ```
 
-If you don't do this step, the sample site will fall back to Roboto or Arial fonts (the hosted sample site is also using these fonts).
+```ts
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { TableauUiButtonModule } from 'tableau-ui-angular/button';
 
-## Using Tableau UI Angular
+@Component({
+  selector: 'app-first-button',
+  imports: [TableauUiButtonModule],
+  template: `<button color="primary" (click)="$count.set($count() + 1)">Clicked {{ $count() }} times</button>`,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class FirstButtonComponent {
+  protected readonly $count = signal(0);
+}
+```
 
-Follow this example to add a Tableau button to your site (using SCSS stylesheets):
+- Each folder is an entry point, `tableau-ui-angular/<folder>`. A component folder has a module for its components,
+  such as `TableauUiButtonModule` in `tableau-ui-angular/button`. The root, `tableau-ui-angular`, exports nothing.
+- The fonts, Roboto or Tableau's Benton Sans, and the icons are on the docs site's getting started page.
 
-1. Install the package
-   ```bash
-   npm install tableau-ui-angular
-   ```
-2. In `styles.scss`, import the library styles:
-   ```scss
-   @import 'tableau-ui-angular/styles/lib-styles';
-   ```
-3. (Optional) If you own a license for the Tableau font (**Benton Sans**), follow [this guide](Add-Benton-Sans.md) to import it.
-4. (Optional) To use `Roboto` as a fallback font, add this line to your `styles.scss`:
-   ```
-   @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
-   ```
-5. Update your `app.component.ts`, import `TableauUiButtonModule`:
+## Docs
 
-   ```
-   import { Component } from '@angular/core';
-   import { RouterOutlet } from '@angular/router';
-   import { TableauUiButtonModule } from 'tableau-ui-angular';
+The docs site, [serionist.github.io/tableau-ui-angular](https://serionist.github.io/tableau-ui-angular/), shows the
+components running.
 
-   @Component({
-   selector: 'app-root',
-   standalone: true,
-   imports: [RouterOutlet, TableauUiButtonModule],
-   templateUrl: './app.component.html',
-   styleUrl: './app.component.scss'
-   })
-   export class AppComponent {
-   title = 'tableau-ui-angular-sample';
-   }
+- Getting started: install, the modules, the styles, the fonts and the icons.
+- Theming, server-side rendering, and a page per component.
+- The buttons, checkbox, select, form fields, table and dialogs pages show each sample's source; the other pages are
+  next.
 
-   ```
+## Support
 
-   **Note:** You can use the `TableauUiAllModule` to import all components.
+The package follows Angular's majors.
 
-6. In `app.component.html`,add the button:
-   ```
-   <button color="primary" [loading]="false" type="button" [disabled]="false">This is a primary Tableau Button</button>
-   ```
-   **NOTE:** the `color`, `loading`, `type` and `disabled` attributes are optional.
+|            |                                                                                                          |
+| ---------- | -------------------------------------------------------------------------------------------------------- |
+| Angular    | 22: the peers are `^22.0.0`                                                                              |
+| Node       | Angular 22's range, `^22.22.3 \|\| ^24.15.0 \|\| >=26.0.0`, to build the app and run the shipped scripts |
+| Angular 20 | `0.1.129`, the last 0.1 release, which gets no more fixes                                                |
 
-## Host locally using npm linking
+## Licence
 
-1. Run `npm run dev:link` from the root project folder
-2. Go to your consuming project (which already has `tableau-ui-angular` installed probably) and run:
-   - `npm unlink tableau-ui-angular` (to be safe)
-   - `npm link tableau-ui-angular`
-   - `cd node_modules/tableau_ui_angular`
-   - `npm install` to install required linked packages
-   - `cd ../..`
-3. It will replace the package files from npm from the ones you are hosting locally with `npm run dev:link`
+AGPL-3.0, in [LICENSE](https://github.com/serionist/tableau-ui-angular/blob/main/LICENSE). The project means to move to
+MIT.
+
+## Contributing
+
+Issues and pull requests are welcome.
+
+- [CONTRIBUTING.md](https://github.com/serionist/tableau-ui-angular/blob/main/CONTRIBUTING.md): how to build, test
+  and open a pull request.
+- [SECURITY.md](https://github.com/serionist/tableau-ui-angular/blob/main/SECURITY.md): how to report a vulnerability
+  privately.

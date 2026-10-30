@@ -14,6 +14,18 @@
       <tab-icon value="home" />
     </tab-nav-bar-button>
 
+    <tab-nav-bar-button text="Getting started" link="/getting-started" [isActive]="(page$ | async) === 'getting-started'">
+      <tab-icon value="rocket_launch" />
+    </tab-nav-bar-button>
+
+    <tab-nav-bar-button text="Theming" link="/theming" [isActive]="(page$ | async) === 'theming'">
+      <tab-icon value="palette" />
+    </tab-nav-bar-button>
+
+    <tab-nav-bar-button text="Server-side rendering" link="/ssr" [isActive]="(page$ | async) === 'ssr'">
+      <tab-icon value="dns" />
+    </tab-nav-bar-button>
+
     <tab-nav-bar-button text="CSS & Fonts" link="/css" [isActive]="(page$ | async) === 'css'">
       <tab-icon value="css" />
     </tab-nav-bar-button>
@@ -109,7 +121,7 @@
       <tab-icon value="home" />
     </tab-nav-bar-button>
   </tab-nav-bar>
-  <div>
+  <div class="page-column">
     <button class="palette-button" color="plain" layout="icon" [attachedMenu]="paletteMenu">
       <tab-icon value="palette" label="Theme" />
     </button>
@@ -131,6 +143,12 @@
         </tab-form-field>
       </div>
     </ng-template>
-    <router-outlet />
+    <main class="page-host">
+      <router-outlet />
+    </main>
+    <footer class="site-footer">
+      <span>Not affiliated with or endorsed by Tableau or Salesforce.</span>
+      <a href="https://github.com/serionist/tableau-ui-angular" target="_blank">The source on GitHub</a>
+    </footer>
   </div>
 </div>

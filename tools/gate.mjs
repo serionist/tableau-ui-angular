@@ -23,7 +23,8 @@
 // to an export, a selector, an input or an output fails it until `npm run api:update` writes the files again, and the
 // PR names the change.
 //
-// Checks still to come, each with the work it guards: the docs site's prerender, with the docs site.
+// The docs site is the demo app: its prerender is the demo build's check, and each sample's source is checked by the
+// demo app's tests (docs-pages.spec.ts), which the tests check runs.
 //
 // It prints a line per check, then the tail of each failed check's output, and exits 1 when any failed. Node only, no
 // dependencies: each tool runs from node_modules through node itself, the same on Windows and Linux; only npm, a .cmd
@@ -58,7 +59,9 @@ function run(command, args, { shell = false } = {}) {
     maxBuffer: 256 * 1024 * 1024,
     shell,
     windowsHide: true,
-    env: { ...process.env, NO_COLOR: '1', FORCE_COLOR: '0', NG_CLI_ANALYTICS: 'false' },
+    // CI=1 turns Angular's disk cache off, as on CI: in a worktree that cache is the main checkout's .angular/cache,
+    // which a gate run must not write to, and an entry left there can fail a build the code has fixed
+    env: { ...process.env, NO_COLOR: '1', FORCE_COLOR: '0', NG_CLI_ANALYTICS: 'false', CI: '1' },
   });
   const output = `${done.stdout ?? ''}${done.stderr ?? ''}${done.error ? `\n${done.error.message}` : ''}`.replace(ANSI, '').trim();
   return { ok: done.status === 0, missing: done.error?.code === 'ENOENT', output };

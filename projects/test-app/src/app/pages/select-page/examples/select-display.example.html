@@ -1,0 +1,63 @@
+<div class="fields">
+  <tab-form-field>
+    <tab-label>Truncate, only text, check on the right, no highlight</tab-label>
+    <tab-single-select
+      placeholder="Select any value"
+      selectedValueWrapMode="truncate"
+      selectedCheckIconLocation="right"
+      [allowClear]="true"
+      [selectedItemHighlight]="false"
+      [selectedValueTemplateContext]="onlyText"
+      [value]="$value()"
+      (valueChange)="changed($event)"
+    >
+      @for (option of options; track option.value) {
+        <tab-option [disabled]="option.disabled ?? false" [hint]="option.hint" [icon]="option.icon" [text]="option.text" [value]="option.value" />
+      }
+    </tab-single-select>
+    <tab-hint>The selected value is cut short, shows only its text, and is checked on the right</tab-hint>
+  </tab-form-field>
+
+  <tab-form-field>
+    <tab-label>Disabled</tab-label>
+    <tab-single-select
+      placeholder="Select any value"
+      selectedValueWrapMode="truncate"
+      selectedCheckIconLocation="right"
+      [allowClear]="true"
+      [disabled]="true"
+      [selectedValueTemplateContext]="onlyText"
+      [value]="$value()"
+      (valueChange)="changed($event)"
+    >
+      @for (option of options; track option.value) {
+        <tab-option [disabled]="option.disabled ?? false" [hint]="option.hint" [icon]="option.icon" [text]="option.text" [value]="option.value" />
+      }
+    </tab-single-select>
+    <tab-hint>It shows the value and opens no dropdown</tab-hint>
+  </tab-form-field>
+
+  <tab-form-field>
+    <tab-label>Prefix and suffix, truncate, no chevron, no clear, check on the left</tab-label>
+    <tab-single-select
+      placeholder="Select any value"
+      selectedValueWrapMode="truncate"
+      selectedCheckIconLocation="left"
+      [allowClear]="false"
+      [selectedItemHighlight]="false"
+      [selectedValueTemplateContext]="onlyText"
+      [showChevron]="false"
+      [value]="$value()"
+      (valueChange)="changed($event)"
+    >
+      @for (option of options; track option.value) {
+        <tab-option [disabled]="option.disabled ?? false" [hint]="option.hint" [icon]="option.icon" [text]="option.text" [value]="option.value" />
+      }
+    </tab-single-select>
+    <tab-prefix>
+      <tab-icon value="search" />
+    </tab-prefix>
+    <tab-suffix>A suffix</tab-suffix>
+    <tab-hint>No chevron, and the value can't be cleared</tab-hint>
+  </tab-form-field>
+</div>

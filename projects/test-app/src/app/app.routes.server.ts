@@ -5,6 +5,9 @@ export const serverRoutes: ServerRoute[] = [
   // Every page is prerendered: its components render on the server. A path the app has no page for renders on the
   // client, from the shell.
   { path: '', renderMode: RenderMode.Prerender },
+  { path: 'getting-started', renderMode: RenderMode.Prerender },
+  { path: 'theming', renderMode: RenderMode.Prerender },
+  { path: 'ssr', renderMode: RenderMode.Prerender },
   { path: 'local-development', renderMode: RenderMode.Prerender },
   { path: 'checkbox', renderMode: RenderMode.Prerender },
   { path: 'radios', renderMode: RenderMode.Prerender },

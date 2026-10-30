@@ -1,0 +1,13 @@
+<div class="checkboxes">
+  <tab-checkbox [(value)]="$simple" (valueChange)="changed('Simple checkbox', $event)">A simple checkbox</tab-checkbox>
+
+  <tab-checkbox [(value)]="$withHint" (valueChange)="changed('Checkbox with a hint', $event)">
+    A checkbox with a hint
+    <tab-hint>A hint for the value above</tab-hint>
+  </tab-checkbox>
+
+  <tab-checkbox [loading]="$loading()" [(value)]="$loadingValue" (valueChange)="load($event)">
+    A checkbox that loads when clicked
+    <tab-hint>It shows a spinner for two seconds</tab-hint>
+  </tab-checkbox>
+</div>

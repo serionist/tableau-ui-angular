@@ -1,0 +1,51 @@
+<div class="fields">
+  <tab-form-field>
+    <tab-label>Wrap, icons shown, check on the left, at most 2 listed</tab-label>
+    <tab-multi-select
+      placeholder="Select values"
+      multipleSelectionNumberSelectedTemplate="{number} items selected"
+      selectedValueWrapMode="wrap"
+      selectedCheckIconLocation="left"
+      [allowClear]="true"
+      [formControl]="values | formControl"
+      [multipleSelectionMaxItemsListed]="2"
+      [selectedItemHighlight]="false"
+    >
+      <tab-option text="This is a looooooooooooooooong option, given as values" icon="home" hint="There are 2 ways to create tab-options: by values and by templates" [value]="1" />
+      <tab-option text="Disabled value" hint="with a hint" [value]="2" [disabled]="true" />
+      <tab-option text="Option 3" icon="home" hint="with a hint" [value]="3" />
+      <tab-option text="Option 4" icon="home" [value]="4" />
+    </tab-multi-select>
+    <tab-hint>With more than 2 picked, it says how many</tab-hint>
+    @if (values | formMeta | async | formHasError: 'required') {
+      <tab-error>Required</tab-error>
+    }
+  </tab-form-field>
+
+  <tab-form-field>
+    <tab-label>Truncate, no check, at most 2 listed, a dropdown 80 pixels tall</tab-label>
+    <tab-multi-select
+      placeholder="Select values"
+      multipleSelectionNumberSelectedTemplate="{number} items selected"
+      selectedValueWrapMode="truncate"
+      [allowClear]="true"
+      [dropdownOptionsContainerCss]="{ 'max-height': '80px' }"
+      [formControl]="values | formControl"
+      [multipleSelectionMaxItemsListed]="2"
+    >
+      <tab-option
+        text="This is a looooooooooooooooooooooooooooooooooooooooooooooong option, given as values"
+        icon="home"
+        hint="There are 2 ways to create tab-options: by values and by templates"
+        [value]="1"
+      />
+      <tab-option text="Disabled value" hint="with a hint" [value]="2" [disabled]="true" />
+      <tab-option text="Option 3" icon="home" hint="with a hint" [value]="3" />
+      <tab-option text="Option 4" icon="home" [value]="4" />
+    </tab-multi-select>
+    <tab-hint>The selected values are cut short; the dropdown scrolls</tab-hint>
+    @if (values | formMeta | async | formHasError: 'required') {
+      <tab-error>Required</tab-error>
+    }
+  </tab-form-field>
+</div>

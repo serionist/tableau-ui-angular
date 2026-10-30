@@ -103,7 +103,7 @@
               },
               { "glob": "**/*", "input": "node_modules/monaco-editor/min", "output": "/monaco-edit" }
             ],
-            "styles": ["projects/test-app/src/styles.scss"],
+            "styles": ["projects/test-app/src/styles.scss", "projects/test-app/src/docs.scss"],
             "scripts": []
           },
           "configurations": {

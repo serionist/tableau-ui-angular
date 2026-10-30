@@ -1,59 +1,56 @@
 <div class="page">
   <div class="title">
     <h1>Dialogs</h1>
-    <div class="text-light text-large">Dialogs are used to display information or request input from the user.</div>
+    <div class="text-light text-large">A dialog shows information or asks the user to decide, above the page.</div>
   </div>
   <tab-separator />
   <div class="content">
     <div class="section">
-      <h3>Module</h3>
-      <p>To use the component, import one of the following modules into your module/component:</p>
-
-      <ul>
-        <li>
-          <code>TableauUiDialogModule</code>
-          - for granular import
-        </li>
-        <li>
-          <code>TableauUiAllModule</code>
-          - to import all components from this library
-        </li>
-      </ul>
+      <h3>Import</h3>
+      <p>
+        Inject
+        <code>DialogService</code>
+        from
+        <code>tableau-ui-angular/dialog</code>: one for the app, so Escape closes the top dialog. On the server it shows nothing, and a confirmation resolves
+        <code>false</code>
+        at once.
+      </p>
     </div>
+
     <div class="section">
-      <h3>Examples</h3>
-      <div class="two">
-        <div class="spacer">
-          <button color="primary" (click)="openConfirmationDialog('primary')">Confirmation Dialog with message</button>
-          <button (click)="openConfirmationDialog()">Confirmation Dialog with message</button>
-          <button color="error" (click)="openConfirmationDialog('error')">Confirmation Dialog with message</button>
+      <h3>Confirmation with a message</h3>
+      <p>
+        <code>openConfirmationMessageDialog()</code>
+        resolves
+        <code>true</code>
+        when the user accepts. Its colour styles the accept button, and
+        <code>autofocus</code>
+        focuses accept, cancel or neither.
+      </p>
+      <app-docs-example [example]="examples.confirm" />
+    </div>
 
-          <button color="primary" (click)="openConfirmationDialog('primary', undefined)">Confirmation Dialog, no autofocus</button>
-          <button (click)="openConfirmationDialog(undefined, 'accept')">Confirmation Dialog, focus accept</button>
-          <button color="error" (click)="openConfirmationDialog('error', 'cancel')">Confirmation Dialog, focus cancel</button>
-        </div>
-        <div class="spacer">
-          <ng-template #confirmationDialogTemplate>
-            <tab-icon value="error" [fill]="true" />
-            <span>This is a random template</span>
-            <tab-checkbox [value]="true">Checkbox</tab-checkbox>
-          </ng-template>
-          <button color="primary" (click)="openConfirmationTemplateDialog(confirmationDialogTemplate, 'primary', 'accept', 'Custom Accept', 'Custom Cancel')">
-            Confirmation Dialog with template, focus accept, custom button texts
-          </button>
-          <button (click)="openConfirmationTemplateDialog(confirmationDialogTemplate, 'secondary', 'accept', 'Custom Accept', 'Custom Cancel')">
-            Confirmation Dialog with template, focus accept, custom button texts
-          </button>
-          <button color="error" (click)="openConfirmationTemplateDialog(confirmationDialogTemplate, 'error', 'accept', 'Custom Accept', 'Custom Cancel')">
-            Confirmation Dialog with template, focus accept, custom button texts
-          </button>
+    <div class="section">
+      <h3>Confirmation with a template</h3>
+      <p>
+        <code>openConfirmationTemplateDialog()</code>
+        shows a template as the content, and takes the buttons' texts.
+      </p>
+      <app-docs-example [example]="examples.template" />
+    </div>
 
-          <div>
-            <button color="primary" (click)="openDialog()">Fully custom dialog content component</button>
-            <div>This allows you to pass any custom component into the dialog body. No default buttons are rendered.</div>
-          </div>
-        </div>
-      </div>
+    <div class="section">
+      <h3>A component of its own</h3>
+      <p>
+        <code>openModal()</code>
+        shows any component, with no buttons of its own. The component reads its data with
+        <code>injectDialogData()</code>
+        and closes with
+        <code>injectDialogRef()</code>;
+        <code>closed$</code>
+        gives the result.
+      </p>
+      <app-docs-example [example]="examples.custom" />
     </div>
   </div>
 </div>

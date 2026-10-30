@@ -6,10 +6,12 @@ other agents read it directly, and the gate keeps it within 150 lines. What the 
 
 ## What this is
 
-Tableau-style Angular components, published to npm as `tableau-ui-angular`, and the demo app that shows them.
+Tableau-style Angular components, published to npm as `tableau-ui-angular`, and the docs site that shows them.
 
 - The library, `projects/component-library/`: one secondary entry point per folder, `tableau-ui-angular/<folder>`.
-- The demo app, `projects/test-app/`: a page per component, built for the server and prerendered, on GitHub Pages.
+- The docs site, `projects/test-app/`: getting started, theming, SSR and a page per component, prerendered, on GitHub
+  Pages. A sample is a standalone component in its page's `examples/`, which `<page>.examples.ts` lists with its files'
+  text and `app-docs-example` shows; `docs-pages.spec.ts` checks each listed page. A new library feature gets one.
 - Angular 22, TypeScript 6, Vitest in browser mode on Chromium and Firefox; Node `^22.22.3 || ^24.15.0 || >=26.0.0`.
 - Where the work stands: `docs/plans/2026-10-28-modernization.md` takes the repo to 0.2.0; read its progress log first.
 
@@ -26,7 +28,7 @@ Every top-level file and folder, and the library's own; a new one adds its row i
 | `projects/component-library/used-icons/`                                  | the icon list entry point, and `scripts/update-icons.js`, which apps run                                                                                              |
 | `projects/component-library/testing/`                                     | what the specs share, such as `axeViolations`, the axe check every component test runs; never published                                                               |
 | `projects/component-library/package.json`, `ng-package.json`              | what is published: the one version, the peers, the shipped assets                                                                                                     |
-| `projects/test-app/`                                                      | the demo app: `src/app/pages/`, `app.routes.server.ts` (what prerenders), its own `package.json`                                                                      |
+| `projects/test-app/`                                                      | the docs site: `src/app/pages/`, `src/app/docs/` (the sample and code views), `app.routes.server.ts` (what prerenders)                                                |
 | `docs/plans/`, `docs/reviews/`                                            | plans, with the template in `README.md`; review records. Dated, never current truth                                                                                   |
 | `tools/`                                                                  | `gate.mjs` with `coverage.mjs`, `angular.mjs` and `api.mjs`, `hooks.mjs` and `attribution.mjs` (`.githooks/`), `pr-text.mjs`, `setup.mjs`, `shipped-scripts.mjs`      |
 | `.githooks/`                                                              | `commit-msg` refuses tool attribution; `pre-push` runs the gate's quick lane                                                                                          |
@@ -53,7 +55,7 @@ Run from the repo root. `ng` is the repo's own CLI: `npx ng` when it is not on P
 | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
 | once per clone and worktree | `npm ci`, then `npm run setup` (the hooks, `git blame` skipping reformats)                                                                         |
 | the library                 | `npm run build:component-library`, into `dist/component-library`                                                                                   |
-| the demo app                | `ng build test-app` (prints "Prerendered N static routes", N above 0); `npm start` serves it on port 4201                                          |
+| the docs site               | `ng build test-app` (prints "Prerendered N static routes", N above 0); `npm start` serves it on port 4201                                          |
 | tests                       | `ng test --watch=false`: both projects, in Chromium and Firefox (`npx playwright install chromium firefox`)                                        |
 | lint and format             | `ng lint`, `npm run lint:scss`; `npm run pretty` formats everything the gate's Prettier check reads                                                |
 | the tools' tests            | `npm run test:tools`: the hooks, the gate's verdicts, the API file, the shipped scripts against local stubs                                        |
@@ -128,9 +130,10 @@ What this repo already paid for, and the guard.
 | `{ ...getComputedStyle(el) }` copies no named property in Firefox, so every table and virtual list was empty                                        | Read each property by name (`style.height`); the tests run in Firefox                       |
 | ng-packagr 22 publishes the package as `"type": "module"`, so a CommonJS shipped script threw `require is not defined`                              | Every shipped `.js` script is an ES module; run it from `dist/` once                        |
 | Angular 22 type-checks host bindings, so a `private` member one reads fails the build                                                               | Members a template or host binding reads are `protected`                                    |
-| `ng update` sees only the root `package.json`; the demo app's Angular packages are in `projects/test-app/package.json`                              | Move them by hand to the same versions, then `npm install`                                  |
+| `ng update` sees only the root `package.json`; the docs site's Angular packages are in `projects/test-app/package.json`                             | Move them by hand to the same versions, then `npm install`                                  |
 | A worktree whose `node_modules` linked to another checkout's built and tested that checkout's library                                               | `npm ci` in each worktree; never a link or a copy                                           |
 | A worktree inside the main checkout resolved what its own `node_modules` lacks from the main checkout's: zone.js loaded in its specs, never in CI's | Keep the main checkout's install current (`npm ci` there); CI's run, zoneless, is the judge |
+| `ng build` in a worktree keeps its cache in the main checkout's `.angular/cache`, and a stale entry there failed a build the code had fixed         | The gate sets `CI=1`, which turns the cache off; by hand, `CI=1 npx ng build test-app`      |
 
 ## Look up APIs first
 

@@ -1,0 +1,35 @@
+<form class="checkboxes" [formGroup]="form">
+  <tab-checkbox formControlName="byName" (valueChange)="changed('Reactive checkbox 1', $event)">
+    A checkbox bound to
+    <b>formControlName</b>
+  </tab-checkbox>
+
+  <tab-checkbox [formControl]="form.controls.byControl" (valueChange)="changed('Reactive checkbox 2', $event)">
+    A checkbox
+    <tab-hint>
+      bound to
+      <b>formControl</b>
+    </tab-hint>
+  </tab-checkbox>
+
+  <tab-checkbox formControlName="disabled" (valueChange)="changed('Disabled checkbox', $event)">
+    A disabled checkbox
+    <tab-hint>It can't be clicked</tab-hint>
+  </tab-checkbox>
+
+  <tab-checkbox formControlName="required" (valueChange)="changed('Validated checkbox', $event, $event !== true)">
+    A checkbox with validation
+    <tab-hint>It must be checked</tab-hint>
+    @if (form.controls.required.invalid) {
+      <tab-error>Check it to go on</tab-error>
+    }
+  </tab-checkbox>
+
+  <tab-checkbox formControlName="disabledRequired" (valueChange)="changed('Disabled validated checkbox', $event)">
+    A disabled checkbox with validation
+    <tab-hint>It must be checked</tab-hint>
+    @if (form.controls.disabledRequired.invalid) {
+      <tab-error>Check it to go on</tab-error>
+    }
+  </tab-checkbox>
+</form>

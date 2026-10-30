@@ -1,0 +1,11 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(9, max-content);
+  gap: 0.5rem 1rem;
+  align-items: center;
+}
+
+[layout='icon'] {
+  min-height: 1.5rem;
+  min-width: 1.5rem;
+}

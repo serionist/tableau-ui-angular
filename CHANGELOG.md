@@ -321,10 +321,16 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   updated the ancestors whatever the arguments said, and marked nothing. The declared type was already the control's,
   so an app's code compiles as before.
 - The table's header tooltip says "Shift + Click to add to multi-sort"; it said "add add".
+- The README's example compiles: it imports `TableauUiButtonModule` from `tableau-ui-angular/button`. It imported
+  from the root, which exports nothing, and named a `TableauUiAllModule` that doesn't exist.
+- `Add-Benton-Sans.md` runs the font script from `node_modules/tableau-ui-angular/styles/fonts/`, where the package
+  has it, lists the Light files `font-import` loads, and uses the styles as `libStyles` for `font-import`.
 
 ### Changed
 
 - The menu button and the form group pipe no longer write debug logs to the console, which they did in production.
+- The package's description says it is not affiliated with or endorsed by Tableau or Salesforce, as the README now
+  does. The README is short: install, a first button, the docs site, support, the licence.
 - The package declares no `engines`, so Yarn classic installs it on every Node version Angular 22 supports.
 - `ThemeService` stores the theme under `tableau-ui-angular:theme`, so it neither reads nor overwrites another
   script's `theme-config`. It reads `theme-config`, its key before, when the new one holds nothing, so a user keeps the

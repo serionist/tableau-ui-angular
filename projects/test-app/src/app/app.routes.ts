@@ -9,6 +9,30 @@ export const routes: Routes = [
     },
   },
   {
+    path: 'getting-started',
+    loadComponent: async () => import('./pages/getting-started-page/getting-started-page.component').then(m => m.GettingStartedPageComponent),
+    title: 'Getting started',
+    data: {
+      page: 'getting-started',
+    },
+  },
+  {
+    path: 'theming',
+    loadComponent: async () => import('./pages/theming-page/theming-page.component').then(m => m.ThemingPageComponent),
+    title: 'Theming',
+    data: {
+      page: 'theming',
+    },
+  },
+  {
+    path: 'ssr',
+    loadComponent: async () => import('./pages/ssr-page/ssr-page.component').then(m => m.SsrPageComponent),
+    title: 'Server-side rendering',
+    data: {
+      page: 'ssr',
+    },
+  },
+  {
     path: 'local-development',
     loadComponent: async () => import('./pages/local-development/local-development.component').then(m => m.LocalDevelopmentComponent),
 

@@ -1,0 +1,20 @@
+<div class="controls">
+  <div>
+    <tab-label>Colour mode</tab-label>
+    <tab-button-toggle [selectedValue]="$mode()" (selectedValueChange)="setMode($event)">
+      <tab-option value="light" icon="light_mode" text="Light" />
+      <tab-option value="dark" icon="dark_mode" text="Dark" />
+      <tab-option value="auto" icon="night_sight_auto" text="The system's" />
+    </tab-button-toggle>
+  </div>
+
+  <tab-form-field class="font-size">
+    <tab-label>Base font size</tab-label>
+    <input type="number" min="10" max="24" [value]="$fontSize()" (input)="setFontSize($event)" />
+    <tab-suffix>px</tab-suffix>
+  </tab-form-field>
+
+  <button (click)="theme.reset()">Reset</button>
+</div>
+
+<p>Showing the {{ theme.$appliedThemeMode() }} mode at {{ theme.$theme().fontSize }}. The choice is stored in the browser for the next visit.</p>
