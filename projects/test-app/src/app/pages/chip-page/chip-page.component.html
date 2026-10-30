@@ -1,93 +1,89 @@
 <div class="page">
   <div class="title">
     <h1>Chips</h1>
-    <div class="text-light text-large">
-      Chips are a custom component that can be used to display small blocks of information, such as tags or categories. They can be used in various contexts, such as in a list or as standalone
-      elements.
-      <br />
-      Chip control can be used to display a chip selector control
-    </div>
+    <div class="text-light text-large">A chip shows a short piece of information, such as a tag; the chip control holds a list of chips as its value.</div>
   </div>
   <tab-separator />
   <div class="content">
     <div class="section">
-      <h3>Basic Chips</h3>
-      <p>To use the component, import <code>TableauUiChipModule</code></p>
-      <h3>Examples</h3>
-
-      <div class="simple-chips">
-        <tab-chip>
-          <tab-icon value="search" />
-          <span>Simple Chip with icon</span>
-        </tab-chip>
-        <tab-chip [selected]="true" [style.font-size]="'1.5rem'">
-          <tab-icon value="search" />
-          <span>Larger highlighted Chip with icon</span>
-        </tab-chip>
-        <tab-chip [allowRemove]="true">
-          <tab-icon value="search" />
-          <span>Simple Chip with close</span>
-        </tab-chip>
-        <tab-chip [allowRemove]="true" [removeTooltip]="{ template: 'Close this chip', context: undefined }">
-          <tab-icon value="search" />
-          <span>Simple Chip with close tooltip</span>
-        </tab-chip>
-      </div>
+      <h3>Import</h3>
+      <p>
+        Import
+        <code>TableauUiChipModule</code>
+        from
+        <code>tableau-ui-angular/chip</code>, and
+        <code>TableauUiChipControlModule</code>
+        and the
+        <code>ChipData</code>
+        type from
+        <code>tableau-ui-angular/chip-control</code>.
+      </p>
     </div>
+
     <div class="section">
-      <h3>Chip Control</h3>
-      <p>To use the component, import <code>TableauUiChipControlModule</code></p>
-      <h3>Examples</h3>
-      <div>Different chip control examples below</div>
+      <h3>Chips</h3>
+      <p>
+        <code>tab-chip</code>
+        shows its content.
+        <code>[selected]</code>
+        highlights it, and its font size sets its size.
+        <code>[allowRemove]</code>
+        adds a remove button, with
+        <code>[removeTooltip]</code>
+        for its tooltip. The button emits
+        <code>(removed)</code>, and the app takes the chip away.
+      </p>
+      <app-docs-example [example]="examples.basic" />
+    </div>
 
-      <h4>Simple Chip Control</h4>
-      <div class="example">
-        <div>This is the simplest form of chip control; no form integration, no autocomplete, just pure code management</div>
-        <div class="options-container">
-          <button color="secondary" (click)="addKeys()">Add 2 chips by key</button>
-          <button color="secondary" (click)="addValues()">Add 2 chips by value</button>
-          <button color="secondary" (click)="removeRandomKey()">Remove a random chip by key</button>
-          <button color="secondary" (click)="removeRandomValue()">Remove a random chip by value</button>
-          <tab-button-toggle [style.width]="'15rem'" [(selectedValue)]="$disabled">
-            <tab-option text="Enabled" [value]="false" />
-            <tab-option text="Disabled" [value]="true" />
-          </tab-button-toggle>
-        </div>
-        <tab-chip-control #chipControl [getValuesByKeys]="getValuesByKeys" [disabled]="$disabled()" [(keys)]="$selectedKeys" [(values)]="$selectedValues">
-          <ng-template let-ctx [tabChipTemplate]="chipControl">
-            <tab-chip [allowRemove]="ctx.removable" [selected]="ctx.selected" [disabled]="ctx.disabled" (removed)="ctx.chipControl.remove(ctx.data.key)">{{ ctx.data.value.name }}</tab-chip>
-          </ng-template>
-        </tab-chip-control>
-      </div>
+    <div class="section">
+      <h3>Chip control</h3>
+      <p>
+        <code>tab-chip-control</code>
+        shows a chip for each key, drawn by the template marked
+        <code>tabChipTemplate</code>. The template's context has the chip's data, whether it is selected, removable or disabled, and the control, whose
+        <code>remove()</code>
+        takes a chip away.
+      </p>
+      <table class="docs-table">
+        <thead>
+          <tr>
+            <th scope="col">Input</th>
+            <th scope="col">What it does</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>[(keys)]</code></td>
+            <td>The chips' keys, which identify them</td>
+          </tr>
+          <tr>
+            <td><code>[(values)]</code></td>
+            <td>Each chip's key and the value it shows, as <code>ChipData</code>; setting the values sets the keys, and the other way round</td>
+          </tr>
+          <tr>
+            <td><code>getValuesByKeys</code></td>
+            <td>Required. Looks up the values of keys set without them; a spinner shows until it answers</td>
+          </tr>
+          <tr>
+            <td><code>[disabled]</code></td>
+            <td>Disables the control and its chips</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>From the control's text box, Backspace and the left arrow select a chip, and Backspace or Delete removes it.</p>
+      <app-docs-example [example]="examples.control" />
+    </div>
 
-      <h4>Chip Control with Forms integration + Form Field</h4>
-      <div class="example">
-        <div>This is a chip control in a Form Field with Form Integration. It is validated as well, can not contain 0 or more than 5 values</div>
-        <div class="options-container">
-          <button color="secondary" (click)="addFormKeys()">Add 2 chips by key</button>
-          <button color="secondary" (click)="addFormValues()">Add 2 chips by value</button>
-          <button color="secondary" (click)="removeRandomFormKey()">Remove a random chip by key</button>
-          <button color="secondary" (click)="removeRandomFormValue()">Remove a random chip by value</button>
-          <tab-button-toggle [style.width]="'15rem'" [selectedValue]="(fc | formMeta | async)!.disabled" (selectedValueChange)="$event ? fc.metaFn.disable() : fc.metaFn.enable()">
-            <tab-option text="Enabled" [value]="false" />
-            <tab-option text="Disabled" [value]="true" />
-          </tab-button-toggle>
-        </div>
-        <tab-form-field>
-          <tab-label>Chip Control with Forms</tab-label>
-          <tab-chip-control #chipControl [getValuesByKeys]="getValuesByKeys" [formControl]="fc | formControl">
-            <ng-template let-ctx [tabChipTemplate]="chipControl">
-              <tab-chip [allowRemove]="ctx.removable" [selected]="ctx.selected" [disabled]="ctx.disabled" (removed)="ctx.chipControl.remove(ctx.data.key)">{{ ctx.data.value.name }}</tab-chip>
-            </ng-template>
-          </tab-chip-control>
-          @if (fc | formMeta | async | formHasError: 'required') {
-            <tab-error>At least one chip is required</tab-error>
-          }
-          @if (fc | formMeta | async | formHasError: 'maxlength') {
-            <tab-error>Max 5 chips are allowed</tab-error>
-          }
-        </tab-form-field>
-      </div>
+    <div class="section">
+      <h3>Reactive forms</h3>
+      <p>
+        Bind
+        <code>[formControl]</code>
+        or
+        <code>formControlName</code>: the form's value is the keys, and the control looks up what each one shows. The control is touched when the user leaves it, and a disabled control disables it.
+      </p>
+      <app-docs-example [example]="examples.forms" />
     </div>
   </div>
 </div>

@@ -1,0 +1,15 @@
+.toggles {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.report {
+  height: 15rem;
+  border: 1px solid var(--twc-color-border-light);
+}
+
+p,
+h4 {
+  margin: 0 0 0.5rem;
+}

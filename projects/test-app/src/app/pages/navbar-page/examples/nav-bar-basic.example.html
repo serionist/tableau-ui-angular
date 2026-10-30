@@ -1,0 +1,29 @@
+<div class="app">
+  <tab-nav-bar [(expanded)]="$expanded">
+    <!-- The header and the footer show what fits the bar's width -->
+    <tab-nav-bar-header>
+      <div class="brand">{{ $expanded() ? 'My app' : 'MA' }}</div>
+    </tab-nav-bar-header>
+
+    @for (page of pages; track page.key) {
+      <tab-nav-bar-button [text]="page.text" [isActive]="$active() === page.key" (click)="$active.set(page.key)">
+        <tab-icon [value]="page.icon" />
+      </tab-nav-bar-button>
+    }
+    <tab-separator />
+    <tab-nav-bar-button text="Servers, not set up" [disabled]="true">
+      <tab-icon value="dns" />
+    </tab-nav-bar-button>
+
+    @if ($expanded()) {
+      <tab-nav-bar-footer>
+        <div class="version">Version 1.0</div>
+      </tab-nav-bar-footer>
+    }
+  </tab-nav-bar>
+
+  <div class="page">
+    <h4>{{ $title() }}</h4>
+    <p>The bar is {{ $expanded() ? 'open' : 'closed' }}: its arrow button opens and closes it.</p>
+  </div>
+</div>

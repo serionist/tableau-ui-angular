@@ -1,0 +1,21 @@
+.panels {
+  display: grid;
+  gap: 0.5rem;
+  max-width: 40rem;
+}
+
+p {
+  margin: 0;
+}
+
+.large-title {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.25rem;
+  width: 100%;
+
+  p {
+    grid-column: 1 / 4;
+  }
+}

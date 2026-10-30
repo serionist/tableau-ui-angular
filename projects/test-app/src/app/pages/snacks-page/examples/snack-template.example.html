@@ -1,0 +1,15 @@
+<div class="buttons">
+  <button color="primary" (click)="open(upload, 'info')">An info snack from a template</button>
+  <button color="error" (click)="open(upload, 'error')">An error snack from a template</button>
+  <button color="primary" (click)="open(upload, 'success')">A success snack from a template</button>
+</div>
+
+<ng-template #upload let-file="file">
+  <div class="upload">
+    <span>
+      Uploaded
+      <b>{{ file }}</b>
+    </span>
+    <tab-checkbox [value]="true">Share it with the team</tab-checkbox>
+  </div>
+</ng-template>

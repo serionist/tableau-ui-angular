@@ -2,10 +2,12 @@ import type { Type } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
+import { projects } from '../../../../../angular.json';
 import { engines } from '../../../../../package.json';
 import addBentonSans from '../../../../../Add-Benton-Sans.md?source' with { loader: 'text' };
 import readme from '../../../../../README.md?source' with { loader: 'text' };
 import { assets } from '../../../../component-library/ng-package.json';
+import monacoEditorTs from '../../../../component-library/monaco/src/monaco-editor.component.ts?source' with { loader: 'text' };
 import { peerDependencies } from '../../../../component-library/package.json';
 // The scripts the package ships, read where the commands say they are: a moved script fails the build
 import fontsScript from '../../../../component-library/styles/fonts/downloadFonts.js?source' with { loader: 'text' };
@@ -15,15 +17,36 @@ import { BUTTONS_EXAMPLES } from '../pages/buttons-page/buttons.examples';
 import { ButtonsPageComponent } from '../pages/buttons-page/buttons-page.component';
 import { CHECKBOX_EXAMPLES } from '../pages/checkbox-page/checkbox.examples';
 import { CheckboxPageComponent } from '../pages/checkbox-page/checkbox-page.component';
+import { CHIP_EXAMPLES } from '../pages/chip-page/chip.examples';
+import { ChipPageComponent } from '../pages/chip-page/chip-page.component';
+import { CLIPBOARD_EXAMPLES } from '../pages/clipboard-page/clipboard.examples';
+import { ClipboardPageComponent } from '../pages/clipboard-page/clipboard-page.component';
+import { DATE_PICKER_EXAMPLES } from '../pages/date-picker-page/date-picker.examples';
+import { DatePickerPageComponent } from '../pages/date-picker-page/date-picker-page.component';
 import { DIALOGS_EXAMPLES } from '../pages/dialogs-page/dialogs.examples';
 import { DialogsPageComponent } from '../pages/dialogs-page/dialogs-page.component';
+import { DRAWER_EXAMPLES } from '../pages/drawer-page/drawer.examples';
+import { DrawerPageComponent } from '../pages/drawer-page/drawer-page.component';
+import { EXPANSION_PANEL_EXAMPLES } from '../pages/expansion-page/expansion-panel.examples';
+import { ExpansionPageComponent } from '../pages/expansion-page/expansion-page.component';
 import { FORM_FIELDS_EXAMPLES } from '../pages/form-fields-page/form-fields.examples';
 import { FormFieldsPageComponent } from '../pages/form-fields-page/form-fields-page.component';
 import { FONTS_COMMAND, FONTS_SCRIPT, ICONS_SCRIPT, ICONS_SCRIPTS } from '../pages/getting-started-page/commands';
 import { GETTING_STARTED_EXAMPLES } from '../pages/getting-started-page/getting-started.examples';
 import { GettingStartedPageComponent } from '../pages/getting-started-page/getting-started-page.component';
+import { MENU_EXAMPLES } from '../pages/menu-page/menu.examples';
+import { MenuPageComponent } from '../pages/menu-page/menu-page.component';
+import { MONACO_EXAMPLES } from '../pages/monaco-page/monaco.examples';
+import { MonacoPageComponent } from '../pages/monaco-page/monaco-page.component';
+import { MONACO_ASSET } from '../pages/monaco-page/setup';
+import { NAVBAR_EXAMPLES } from '../pages/navbar-page/navbar.examples';
+import { NavbarPageComponent } from '../pages/navbar-page/navbar-page.component';
+import { RADIO_BUTTONS_EXAMPLES } from '../pages/radio-buttons-page/radio-buttons.examples';
+import { RadioButtonsPageComponent } from '../pages/radio-buttons-page/radio-buttons-page.component';
 import { SELECT_EXAMPLES } from '../pages/select-page/select.examples';
 import { SelectPageComponent } from '../pages/select-page/select-page.component';
+import { SNACKS_EXAMPLES } from '../pages/snacks-page/snacks.examples';
+import { SnacksPageComponent } from '../pages/snacks-page/snacks-page.component';
 import { TABLE_EXAMPLES } from '../pages/table-page/table.examples';
 import { TablePageComponent } from '../pages/table-page/table-page.component';
 import { colorProperties, otherProperties } from '../pages/theming-page/theme-properties';
@@ -42,6 +65,16 @@ const PAGES: { name: string; page: Type<unknown>; examples: Record<string, DocsE
   { name: 'form fields', page: FormFieldsPageComponent, examples: FORM_FIELDS_EXAMPLES },
   { name: 'table', page: TablePageComponent, examples: TABLE_EXAMPLES },
   { name: 'dialogs', page: DialogsPageComponent, examples: DIALOGS_EXAMPLES },
+  { name: 'chips', page: ChipPageComponent, examples: CHIP_EXAMPLES },
+  { name: 'clipboard', page: ClipboardPageComponent, examples: CLIPBOARD_EXAMPLES },
+  { name: 'date picker', page: DatePickerPageComponent, examples: DATE_PICKER_EXAMPLES },
+  { name: 'drawer', page: DrawerPageComponent, examples: DRAWER_EXAMPLES },
+  { name: 'expansion panel', page: ExpansionPageComponent, examples: EXPANSION_PANEL_EXAMPLES },
+  { name: 'menu', page: MenuPageComponent, examples: MENU_EXAMPLES },
+  { name: 'Monaco', page: MonacoPageComponent, examples: MONACO_EXAMPLES },
+  { name: 'nav bar', page: NavbarPageComponent, examples: NAVBAR_EXAMPLES },
+  { name: 'radio groups', page: RadioButtonsPageComponent, examples: RADIO_BUTTONS_EXAMPLES },
+  { name: 'snackbar', page: SnacksPageComponent, examples: SNACKS_EXAMPLES },
 ];
 
 describe('The docs pages', () => {
@@ -119,5 +152,10 @@ describe('The docs pages', () => {
     expect(FONTS_COMMAND).toContain(`node node_modules/tableau-ui-angular/${FONTS_SCRIPT} `);
     expect(ICONS_SCRIPTS).toContain(`node node_modules/tableau-ui-angular/${ICONS_SCRIPT} `);
     expect(addBentonSans).toContain(FONTS_COMMAND);
+  });
+
+  it("serves Monaco's files where the editor loads them, with the angular.json entry the Monaco page shows", () => {
+    expect(monacoEditorTs).toContain("+ 'monaco-edit/vs'");
+    expect(projects['test-app'].architect.build.options.assets).toContainEqual(JSON.parse(MONACO_ASSET));
   });
 });

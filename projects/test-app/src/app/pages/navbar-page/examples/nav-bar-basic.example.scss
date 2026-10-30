@@ -1,0 +1,24 @@
+.app {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  height: 20rem;
+  border: 1px solid var(--twc-color-border-light);
+}
+
+// Closed, the bar is 3.5rem wide; open, as wide as the app sets
+tab-nav-bar[expanded='true'] {
+  width: 14rem;
+}
+
+.brand {
+  padding: 0 1rem;
+  font-size: var(--twc-font-size-body-large);
+}
+
+.version {
+  padding: 0.5rem 1rem;
+}
+
+.page {
+  padding: 1rem;
+}

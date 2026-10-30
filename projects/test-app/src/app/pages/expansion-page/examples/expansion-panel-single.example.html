@@ -1,0 +1,65 @@
+<div class="panels">
+  <tab-expansion-panel>
+    <tab-expansion-panel-title>
+      <tab-icon value="info" />
+      <span>A panel</span>
+    </tab-expansion-panel-title>
+    <p>The content shows while the panel is open.</p>
+  </tab-expansion-panel>
+
+  <tab-expansion-panel [disabled]="true">
+    <tab-expansion-panel-title>
+      <tab-icon value="info" />
+      <span>A disabled panel</span>
+    </tab-expansion-panel-title>
+    <p>The content of a panel that stays closed.</p>
+  </tab-expansion-panel>
+
+  <tab-expansion-panel>
+    <tab-expansion-panel-title collapsed>
+      <tab-icon value="info" />
+      <span>A title of its own while closed</span>
+    </tab-expansion-panel-title>
+    <tab-expansion-panel-title>
+      <tab-icon value="info" />
+      <span>The usual title, shown while open</span>
+    </tab-expansion-panel-title>
+    <p>The closed title is gone while the panel is open.</p>
+  </tab-expansion-panel>
+
+  <tab-expansion-panel>
+    <tab-expansion-panel-title expanded>
+      <tab-icon value="info" />
+      <span>A title of its own while open</span>
+    </tab-expansion-panel-title>
+    <tab-expansion-panel-title>
+      <tab-icon value="info" />
+      <span>The usual title, shown while closed</span>
+    </tab-expansion-panel-title>
+    <p>The open title shows while the panel is open.</p>
+  </tab-expansion-panel>
+
+  <tab-expansion-panel>
+    <tab-expansion-panel-title expanded>
+      <tab-icon value="info" />
+      <span>Open, with its open title</span>
+    </tab-expansion-panel-title>
+    <tab-expansion-panel-title collapsed>
+      <tab-icon value="info" />
+      <span>Closed, with its closed title</span>
+    </tab-expansion-panel-title>
+    <p>Each state has a title of its own.</p>
+  </tab-expansion-panel>
+
+  <tab-expansion-panel [noHeaderHover]="true">
+    <tab-expansion-panel-title>
+      <div class="large-title">
+        <tab-icon value="info" />
+        <span>A large title with a button, and no hover colour</span>
+        <button (click)="run($event)">Run</button>
+        <p>A second line in the title</p>
+      </div>
+    </tab-expansion-panel-title>
+    <p>The title holds any content.</p>
+  </tab-expansion-panel>
+</div>

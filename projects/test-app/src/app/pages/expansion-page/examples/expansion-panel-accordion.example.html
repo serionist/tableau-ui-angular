@@ -1,0 +1,54 @@
+<!-- Opening a panel closes the others -->
+<tab-accordion class="order">
+  <tab-expansion-panel>
+    <tab-expansion-panel-title>
+      <tab-icon value="home" />
+      <span>Shipping</span>
+    </tab-expansion-panel-title>
+    <p>Two to four working days.</p>
+  </tab-expansion-panel>
+
+  <tab-expansion-panel [disabled]="true">
+    <tab-expansion-panel-title>
+      <tab-icon value="info" />
+      <span>Gift wrap, not offered for this order</span>
+    </tab-expansion-panel-title>
+    <p>Gift wrap details.</p>
+  </tab-expansion-panel>
+
+  <tab-expansion-panel>
+    <tab-expansion-panel-title collapsed>
+      <tab-icon value="info" />
+      <span>Billing: open it to see the card</span>
+    </tab-expansion-panel-title>
+    <tab-expansion-panel-title>
+      <tab-icon value="info" />
+      <span>Billing</span>
+    </tab-expansion-panel-title>
+    <p>The card ending in 4242.</p>
+  </tab-expansion-panel>
+
+  <tab-expansion-panel>
+    <tab-expansion-panel-title expanded>
+      <tab-icon value="info" />
+      <span>Returns, within 30 days</span>
+    </tab-expansion-panel-title>
+    <tab-expansion-panel-title collapsed>
+      <tab-icon value="info" />
+      <span>Returns</span>
+    </tab-expansion-panel-title>
+    <p>Send the parcel back with its label.</p>
+  </tab-expansion-panel>
+
+  <tab-expansion-panel [noHeaderHover]="true">
+    <tab-expansion-panel-title>
+      <div class="large-title">
+        <tab-icon value="info" />
+        <span>Order 1024</span>
+        <button (click)="track($event)">Track</button>
+        <p>Shipped on Monday</p>
+      </div>
+    </tab-expansion-panel-title>
+    <p>Three items, in one parcel.</p>
+  </tab-expansion-panel>
+</tab-accordion>

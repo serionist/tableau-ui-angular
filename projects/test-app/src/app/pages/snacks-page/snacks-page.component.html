@@ -1,76 +1,88 @@
 <div class="page">
   <div class="title">
     <h1>Snackbar</h1>
-    <div class="text-light text-large">Snackbars are used to display messages to the user.</div>
+    <div class="text-light text-large">A snack shows a short message above the page, at the top or the bottom of the window, for a while or until the user closes it.</div>
   </div>
   <tab-separator />
   <div class="content">
     <div class="section">
-      <h3>Module</h3>
-      <p>To use the component, import one of the following modules into your module/component:</p>
-
-      <ul>
-        <li>
-          <code>TableauUiSnackModule</code>
-          - for granular import
-        </li>
-        <li>
-          <code>TableauUiAllModule</code>
-          - to import all components from this library
-        </li>
-      </ul>
+      <h3>Import</h3>
+      <p>
+        Inject
+        <code>SnackService</code>
+        from
+        <code>tableau-ui-angular/snack</code>: one for the app, with no module to import. On the server it shows nothing.
+      </p>
+      <table class="docs-table">
+        <thead>
+          <tr>
+            <th scope="col">Method</th>
+            <th scope="col">What the snack shows</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>openSnack(message)</code></td>
+            <td>A message</td>
+          </tr>
+          <tr>
+            <td><code>openSnackWithAction(message, label, action)</code></td>
+            <td>A message and a button that runs the action</td>
+          </tr>
+          <tr>
+            <td><code>openSnackFromTemplate(template, context)</code></td>
+            <td>A template, with its context</td>
+          </tr>
+          <tr>
+            <td><code>openSnackComponent(component, data)</code></td>
+            <td>A component, with its data</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        Each then takes the duration in milliseconds, 5000 by default and 0 for until the user closes it; the type,
+        <code>info</code>,
+        <code>error</code>
+        or
+        <code>success</code>; and the location,
+        <code>top</code>
+        or
+        <code>bottom</code>. A timed snack waits while the pointer or focus is on it, and screen readers announce each one. Each method returns a <code>SnackRef</code>:
+        <code>close()</code>
+        closes the snack, and
+        <code>closed$</code>
+        gives its result.
+      </p>
     </div>
+
     <div class="section">
-      <h3>Examples</h3>
-      <div class="two">
-        <div class="spacer">
-          <button color="primary" (click)="snackService.openSnack('This is a simple snack forever', 0)">Simple Snack from top, forever</button>
-          <button color="error" (click)="snackService.openSnack('This is a simple snack forever', 0, 'error')">Simple Snack from top, forever</button>
-          <button color="primary" (click)="snackService.openSnackWithAction('This is a simple snack forever', 'Click me', snackAction.bind(this), 0, 'success')">
-            Simple Success Snack from top with a link, forever
-          </button>
+      <h3>A message</h3>
+      <app-docs-example [example]="examples.message" />
+    </div>
 
-          <button color="primary" (click)="snackService.openSnack('This is a simple snack forever', 0, 'info', 'bottom')">Simple Snack from bottom, forever</button>
-          <button color="error" (click)="snackService.openSnack('This is a simple snack forever', 0, 'error', 'bottom')">Simple Snack from bottom, forever</button>
-          <button color="primary" (click)="snackService.openSnackWithAction('This is a simple snack forever', 'Click me', snackAction.bind(this), 0, 'success', 'bottom')">
-            Simple Success Snack from bottom with a link, forever
-          </button>
+    <div class="section">
+      <h3>An action</h3>
+      <p>The action gets the snack, which stays open until the action closes it.</p>
+      <app-docs-example [example]="examples.action" />
+    </div>
 
-          <button color="primary" (click)="snackService.openSnack('This is a simple snack for 5 seconds', 5000)">Simple Snack from top, 5 secs</button>
-          <button color="error" (click)="snackService.openSnack('This is a simple snack for 5 seconds', 5000, 'error')">Simple Snack from top, 5 secs</button>
-          <button color="primary" (click)="snackService.openSnackWithAction('This is a simple snack forever', 'Click me', snackAction.bind(this), 5000, 'success')">
-            Simple Success Snack from top with a link, 5 secs
-          </button>
+    <div class="section">
+      <h3>A template</h3>
+      <p>
+        The context is the template's, which its
+        <code>let-</code>
+        variables read.
+      </p>
+      <app-docs-example [example]="examples.template" />
+    </div>
 
-          <button color="primary" (click)="snackService.openSnack('This is a simple snack for 5 seconds', 5000, 'info', 'bottom')">Simple Snack from bottom, 5 secs</button>
-          <button color="error" (click)="snackService.openSnack('This is a simple snack for 5 seconds', 5000, 'error', 'bottom')">Simple Snack from bottom, 5 secs</button>
-          <button color="primary" (click)="snackService.openSnackWithAction('This is a simple snack forever', 'Click me', snackAction.bind(this), 5000, 'success', 'bottom')">
-            Simple Success Snack from top with a link, 5 secs
-          </button>
-        </div>
-        <div class="spacer">
-          <ng-template #snackTemplate let-text="text">
-            <span>This is a random template</span>
-            <span>{{ text }}</span>
-            <tab-checkbox [value]="true">Checkbox</tab-checkbox>
-          </ng-template>
-          <button color="primary" (click)="snackService.openSnackFromTemplate(snackTemplate, { text: '1' }, 5000)">Templated Snack from top, 5 secs</button>
-          <button color="error" (click)="snackService.openSnackFromTemplate(snackTemplate, { text: '2' }, 5000, 'error')">Templated Snack from top, 5 secs</button>
-          <button color="primary" (click)="snackService.openSnackFromTemplate(snackTemplate, { text: '2' }, 5000, 'success')">Templated Success Snack from top, 5 secs</button>
-
-          <button color="primary" (click)="snackService.openSnackFromTemplate(snackTemplate, { text: '3' }, 5000, 'info', 'bottom')">Templated Snack from bottom, 5 secs</button>
-          <button color="error" (click)="snackService.openSnackFromTemplate(snackTemplate, { text: '4' }, 5000, 'error', 'bottom')">Templated Snack from bottom, 5 secs</button>
-          <button color="primary" (click)="snackService.openSnackFromTemplate(snackTemplate, { text: '3' }, 5000, 'success', 'bottom')">Templated Success Snack from bottom, 5 secs</button>
-
-          <button color="primary" (click)="openCustomSnack(5000)">Custom Component Snack from top, 5 secs</button>
-          <button color="error" (click)="openCustomSnack(5000, 'error')">Custom Component Snack from top, 5 secs</button>
-          <button color="primary" (click)="openCustomSnack(5000, 'success')">Custom Success Component Snack from top, 5 secs</button>
-
-          <button color="primary" (click)="openCustomSnack(5000, 'info', 'bottom')">Custom Component Snack from bottom, 5 secs</button>
-          <button color="error" (click)="openCustomSnack(5000, 'error', 'bottom')">Custom Component Snack from bottom, 5 secs</button>
-          <button color="primary" (click)="openCustomSnack(5000, 'success', 'bottom')">Custom Success Component Snack from bottom, 5 secs</button>
-        </div>
-      </div>
+    <div class="section">
+      <h3>A component</h3>
+      <p>
+        The component reads its data with
+        <code>injectSnackData()</code>, and closes the snack with a result through <code>injectSnackRef()</code>.
+      </p>
+      <app-docs-example [example]="examples.component" />
     </div>
   </div>
 </div>

@@ -1,32 +1,60 @@
 <div class="page">
   <div class="title">
     <h1>Nav Bar</h1>
-    <div class="text-light text-large">Nav bars are used to display a list of links to navigate between pages.</div>
+    <div class="text-light text-large">A nav bar lists an app's pages down its side, and closes to a column of icons.</div>
   </div>
   <tab-separator />
   <div class="content">
     <div class="section">
-      <h3>Module</h3>
-      <p>To use the component, import one of the following modules into your module/component:</p>
-
-      <ul>
-        <li>
-          <code>TableauUiNavBarModule</code>
-          - for granular import
-        </li>
-        <li>
-          <code>TableauUiAllModule</code>
-          - to import all components from this library
-        </li>
-      </ul>
+      <h3>Import</h3>
+      <p>
+        Import
+        <code>TableauUiNavBarModule</code>
+        from
+        <code>tableau-ui-angular/nav-bar</code>.
+      </p>
     </div>
+
     <div class="section">
-      <h3>Example</h3>
-      <div>
-        Take a look at the Nav Bar for this test app on the left contained in
-        <code>app.component.html</code>
-        .
-      </div>
+      <h3>A nav bar</h3>
+      <p>
+        <code>tab-nav-bar</code>
+        holds a
+        <code>tab-nav-bar-header</code>, its buttons and a <code>tab-nav-bar-footer</code>.
+        <code>[(expanded)]</code>
+        binds whether it is open; closed, it shows each button's icon, with its text as a tooltip and as its name for screen readers.
+      </p>
+      <table class="docs-table">
+        <thead>
+          <tr>
+            <th scope="col">Button input</th>
+            <th scope="col">What it does</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>text</code></td>
+            <td>Required. The button's text</td>
+          </tr>
+          <tr>
+            <td><code>link</code></td>
+            <td>A router link, as <code>routerLink</code> takes it, through the app's router. Without one, the button is a button, and the app handles its click</td>
+          </tr>
+          <tr>
+            <td><code>[isActive]</code></td>
+            <td>Marks the current page</td>
+          </tr>
+          <tr>
+            <td><code>[disabled]</code></td>
+            <td>Stops the link or the click</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        This site's nav bar, on the left, uses links: its source is
+        <a href="https://github.com/serionist/tableau-ui-angular/blob/main/projects/test-app/src/app/app.component.html" target="_blank">app.component.html</a>.
+      </p>
+      <app-docs-example [example]="examples.basic" />
     </div>
   </div>
 </div>

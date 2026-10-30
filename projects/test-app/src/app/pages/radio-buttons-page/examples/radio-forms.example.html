@@ -1,0 +1,16 @@
+<tab-radio-group [formControl]="size | formControl">
+  <tab-option text="Small" hint="Below the minimum, so an error" [value]="1" />
+  <tab-option text="Medium, out of stock" hint="Disabled" [value]="2" [disabled]="true" />
+  <tab-option text="Large" hint="The one valid choice" [value]="3" />
+  <tab-option text="Extra large" hint="Above the maximum, so an error" [value]="4" />
+  @if (size | formMeta | async | formHasError: 'required') {
+    <tab-error>Pick a size</tab-error>
+  }
+  @if (size | formMeta | async | formHasError: 'min') {
+    <tab-error>The smallest size is Medium</tab-error>
+  }
+  @if (size | formMeta | async | formHasError: 'max') {
+    <tab-error>The largest size is Large</tab-error>
+  }
+</tab-radio-group>
+<output>The control: {{ size.$value() ?? 'no value' }}, {{ size.$meta().validity === 'VALID' ? 'valid' : 'invalid' }}, {{ size.$meta().touched ? 'touched' : 'untouched' }}</output>

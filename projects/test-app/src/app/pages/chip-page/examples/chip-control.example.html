@@ -1,0 +1,17 @@
+<div class="actions">
+  <button color="secondary" (click)="addByKey()">Add 2 chips by key</button>
+  <button color="secondary" (click)="addByValue()">Add 2 chips by value</button>
+  <button color="secondary" (click)="removeFirstByKey()">Remove the first chip by key</button>
+  <button color="secondary" (click)="removeLastByValue()">Remove the last chip by value</button>
+  <tab-checkbox [(value)]="$disabled">Disabled</tab-checkbox>
+</div>
+
+<tab-form-field>
+  <tab-label>Cities</tab-label>
+  <tab-chip-control #cities [getValuesByKeys]="getValuesByKeys" [disabled]="$disabled()" [(keys)]="$keys" [(values)]="$values">
+    <ng-template let-chip [tabChipTemplate]="cities">
+      <tab-chip [allowRemove]="chip.removable" [selected]="chip.selected" [disabled]="chip.disabled" (removed)="chip.chipControl.remove(chip.data.key)">{{ chip.data.value.name }}</tab-chip>
+    </ng-template>
+  </tab-chip-control>
+  <tab-hint>Keys: {{ $keysText() }}</tab-hint>
+</tab-form-field>

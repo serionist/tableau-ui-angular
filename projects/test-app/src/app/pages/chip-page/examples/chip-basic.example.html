@@ -1,0 +1,29 @@
+<div class="chips">
+  <tab-chip>
+    <tab-icon value="search" />
+    <span>A chip with an icon</span>
+  </tab-chip>
+
+  <tab-chip class="large" [selected]="true">
+    <tab-icon value="search" />
+    <span>A larger, selected chip</span>
+  </tab-chip>
+
+  @if ($removable()) {
+    <tab-chip [allowRemove]="true" (removed)="$removable.set(false)">
+      <tab-icon value="search" />
+      <span>A chip the user can remove</span>
+    </tab-chip>
+  }
+
+  @if ($withTooltip()) {
+    <tab-chip [allowRemove]="true" [removeTooltip]="removeTooltip" (removed)="$withTooltip.set(false)">
+      <tab-icon value="search" />
+      <span>A remove button with a tooltip</span>
+    </tab-chip>
+  }
+</div>
+
+@if (!$removable() || !$withTooltip()) {
+  <button (click)="reset()">Bring the chips back</button>
+}

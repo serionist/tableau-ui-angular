@@ -54,8 +54,8 @@ components running.
 
 - Getting started: install, the modules, the styles, the fonts and the icons.
 - Theming, server-side rendering, and a page per component.
-- The buttons, checkbox, select, form fields, table and dialogs pages show each sample's source; the other pages are
-  next.
+- The buttons, checkbox, chips, clipboard, date picker, dialogs, drawer, expansion panel, form fields, menu, Monaco,
+  nav bar, radio groups, select, snackbar and table pages show each sample's source; the other pages are next.
 
 ## Support
 

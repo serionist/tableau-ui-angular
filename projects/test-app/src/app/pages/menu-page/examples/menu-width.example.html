@@ -1,0 +1,21 @@
+<div class="buttons">
+  <button color="secondary" [attachedMenu]="asWide">A menu at least as wide as this button</button>
+  <button color="secondary" [attachedMenu]="asItems">A menu as wide as its items</button>
+</div>
+
+<!-- A button menu's minWidth is parentWidth unless it says otherwise -->
+<ng-template #asWide="buttonMenu" buttonMenu>
+  <tab-menu-button-group>
+    <tab-menu-button (clicked)="sort('name')">Name</tab-menu-button>
+    <tab-menu-button (clicked)="sort('date')">Date</tab-menu-button>
+    <tab-menu-button (clicked)="sort('size')">Size</tab-menu-button>
+  </tab-menu-button-group>
+</ng-template>
+
+<ng-template #asItems="buttonMenu" buttonMenu minWidth="fit-content">
+  <tab-menu-button-group>
+    <tab-menu-button (clicked)="sort('name')">Name</tab-menu-button>
+    <tab-menu-button (clicked)="sort('date')">Date</tab-menu-button>
+    <tab-menu-button (clicked)="sort('size')">Size</tab-menu-button>
+  </tab-menu-button-group>
+</ng-template>

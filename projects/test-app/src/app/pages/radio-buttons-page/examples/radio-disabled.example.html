@@ -1,0 +1,5 @@
+<!-- The app can set a disabled option as the value; the user can't pick it again once they leave it -->
+<tab-radio-group [value]="2">
+  <tab-option text="An option the user can pick" [value]="1" />
+  <tab-option text="A disabled option, selected" hint="As the app set it" [value]="2" [disabled]="true" />
+</tab-radio-group>

@@ -1,0 +1,21 @@
+<div class="actions">
+  <button color="secondary" (click)="addTwo()">Add 2 chips</button>
+  <button color="secondary" (click)="removeFirst()">Remove the first chip</button>
+  <tab-checkbox [value]="cities.$meta().disabled" (valueChange)="setDisabled($event)">Disabled</tab-checkbox>
+</div>
+
+<tab-form-field>
+  <tab-label>Cities to visit</tab-label>
+  <tab-chip-control #chips [getValuesByKeys]="getValuesByKeys" [formControl]="cities | formControl">
+    <ng-template let-chip [tabChipTemplate]="chips">
+      <tab-chip [allowRemove]="chip.removable" [selected]="chip.selected" [disabled]="chip.disabled" (removed)="chip.chipControl.remove(chip.data.key)">{{ chip.data.value.name }}</tab-chip>
+    </ng-template>
+  </tab-chip-control>
+  @if (cities | formMeta | async | formHasError: 'required') {
+    <tab-error>Pick at least one city</tab-error>
+  }
+  @if (cities | formMeta | async | formHasError: 'maxlength') {
+    <tab-error>Pick five cities at most</tab-error>
+  }
+</tab-form-field>
+<output>The form's value: [{{ $keysText() }}]</output>

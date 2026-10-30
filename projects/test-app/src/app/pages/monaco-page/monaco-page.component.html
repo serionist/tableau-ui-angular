@@ -1,88 +1,97 @@
 <div class="page">
   <div class="title">
     <h1>Monaco Editor</h1>
-    <div class="text-light text-large">
-      <p>This page explains how to use built-in Monaco Editor</p>
-    </div>
+    <div class="text-light text-large">The Monaco editor, the code editor of VS Code, as a form control or with a value binding.</div>
   </div>
   <tab-separator />
   <div class="content">
     <div class="section">
-      <h3>Using Monaco Editor</h3>
+      <h3>Set up</h3>
       <ol>
+        <li>Install <code>monaco-editor</code>, an optional peer that only this entry point needs:</li>
+      </ol>
+      <app-docs-code label="command" [source]="install" />
+      <ol start="2">
         <li>
-          Update your projects
-          <code>angular.json</code>
-          to include the Monaco Editor assets: :
-          <div class="monaco-container">
-            <tab-monaco-editor uri="file://monaco-page/angularjson" language="json" [value]="angularjson" [style.height]="'290px'" [style.width]="'800px'" [options]="options" />
-          </div>
-        </li>
-        <li>
-          Import the
-          <code>TableauUiMonacoModule</code>
-          in your component/module
-        </li>
-        <li>
-          Use the
-          <code>tab-monaco-editor</code>
-          component.
+          Serve its files at
+          <code>monaco-edit</code>, where the editor loads them from, in the app's build options in <code>angular.json</code>:
         </li>
       </ol>
+      <app-docs-code label="angular.json" [source]="assets" />
+      <ol start="3">
+        <li>
+          Import
+          <code>TableauUiMonacoModule</code>
+          from
+          <code>tableau-ui-angular/monaco</code>.
+        </li>
+      </ol>
+      <p>Monaco loads in the browser only, once, after the first render; on the server the editor is an empty element.</p>
     </div>
+
     <div class="section">
-      <h3>Parameters</h3>
-      <div>
-        The
+      <h3>Value binding</h3>
+      <p>
         <code>tab-monaco-editor</code>
-        component accepts the following parameters:
-        <ul>
-          <li>
-            <code>options</code>
-            : Configures monaco. Adds line numbering, scrollbars, etc
-          </li>
-          <li>
-            <code>uri</code>
-            : The URI of the file to be edited. Used to uniquely identify the file
-          </li>
-          <li>
-            <code>language</code>
-            : The language of the file to be edited. Used to set the syntax highlighting
-          </li>
-          <li>
-            <code>value</code>
-            : The value of the file to be edited. This supports two-way binding
-          </li>
-          <li>
-            <code>theme</code>
-            : The theme of Monaco Editor. Keep it on
-            <code>auto</code>
-            to swap between light/dark configuration of
-            <code>ThemeService</code>
-            . Monaco has one theme for the whole page, so give every editor on a page the same theme
-          </li>
-          <li>
-            <code>onMonacoLoad</code>
-            : You can define a function here that gets called when Monaco Editor loads. You can use it to set JsonOptions, etc.
-          </li>
-          <li>
-            <code>disposeModelOnDestroy</code>
-            : true by default. Destroys the document model when the component is destroyed. Set it to false if you want to load the document later from another editor. Models are kept globally by
-            Monaco Editor using their URIs
-          </li>
-          <li>
-            <code>editorLoaded</code>
-            : output function that gets called after the Editor is online
-          </li>
-        </ul>
-        You can also use the
-        <code>monaco-editor</code>
-        with Reactive Forms (
+        fills its element, which needs a height.
+      </p>
+      <table class="docs-table">
+        <thead>
+          <tr>
+            <th scope="col">Input or output</th>
+            <th scope="col">What it does</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>uri</code></td>
+            <td>Required. Names the document: Monaco keeps one per URI, so each editor on a page needs its own</td>
+          </tr>
+          <tr>
+            <td><code>language</code></td>
+            <td>Required. The language that colours the text, such as <code>json</code> or <code>sql</code></td>
+          </tr>
+          <tr>
+            <td><code>[(value)]</code></td>
+            <td>The text</td>
+          </tr>
+          <tr>
+            <td><code>options</code></td>
+            <td>Monaco's editor options, such as <code>minimap</code>, <code>readOnly</code> or <code>ariaLabel</code>; a change starts the editor again</td>
+          </tr>
+          <tr>
+            <td><code>theme</code></td>
+            <td>
+              <code>auto</code>, the default, follows the theme service's light or dark mode; or one of Monaco's, such as <code>vs-dark</code>. Monaco has one theme for the whole page, so give every
+              editor on a page the same
+            </td>
+          </tr>
+          <tr>
+            <td><code>onMonacoLoad</code></td>
+            <td>A function that gets Monaco before the editor starts, such as to set a language's diagnostics</td>
+          </tr>
+          <tr>
+            <td><code>disposeModelOnDestroy</code></td>
+            <td>On by default: the document goes with the editor. Off, Monaco keeps it by its URI for another editor</td>
+          </tr>
+          <tr>
+            <td><code>(editorLoaded)</code></td>
+            <td>Emits Monaco's editor once it runs</td>
+          </tr>
+        </tbody>
+      </table>
+      <app-docs-example [example]="examples.value" />
+    </div>
+
+    <div class="section">
+      <h3>Reactive forms</h3>
+      <p>
+        Bind
         <code>[formControl]</code>
         or
-        <code>formControlName</code>
-        ). A disabled control makes the editor read-only.
-      </div>
+        <code>formControlName</code>. The control is touched when the editor loses focus, and a disabled control makes the editor read-only.
+      </p>
+      <app-docs-example [example]="examples.forms" />
     </div>
   </div>
 </div>

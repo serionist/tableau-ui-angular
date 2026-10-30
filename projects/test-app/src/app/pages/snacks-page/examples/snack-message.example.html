@@ -1,0 +1,9 @@
+<div class="options">
+  <tab-checkbox [(value)]="$bottom">At the bottom of the window</tab-checkbox>
+  <tab-checkbox [(value)]="$untilClosed">Until the user closes it</tab-checkbox>
+</div>
+<div class="buttons">
+  <button color="primary" (click)="open('info')">An info snack</button>
+  <button color="error" (click)="open('error')">An error snack</button>
+  <button color="primary" (click)="open('success')">A success snack</button>
+</div>

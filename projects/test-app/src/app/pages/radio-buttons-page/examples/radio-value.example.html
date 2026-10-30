@@ -1,0 +1,22 @@
+<tab-radio-group [(value)]="$plan" (valueChange)="changed($event)">
+  <tab-option text="An option given as values" icon="home" hint="Its text, hint and icon are inputs" [value]="1" />
+  <tab-option text="A disabled option" hint="It can't be picked" [value]="2" [disabled]="true" />
+  <tab-option icon="home" [value]="3" [iconParams]="{ fill: true, color: 'success' }" [text]="templateText" [hint]="templateHint" />
+  <tab-option icon="home" hint="A hint given as a value" [value]="4" [text]="mixedText" />
+</tab-radio-group>
+<output>The value: {{ $plan() }}</output>
+
+<ng-template #templateText>
+  An option given as a
+  <b>template</b>
+</ng-template>
+<ng-template #templateHint>
+  Its hint is a
+  <b>template</b>
+  too, and its icon filled and coloured
+</ng-template>
+<ng-template #mixedText>
+  An option with a
+  <b>template</b>
+  for its text
+</ng-template>

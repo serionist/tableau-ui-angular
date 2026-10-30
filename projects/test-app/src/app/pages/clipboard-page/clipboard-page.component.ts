@@ -1,34 +1,14 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { ClipboardService, TableauUiClipboardModule } from 'tableau-ui-angular/clipboard';
-import { SnackService, TableauUiSnackModule } from 'tableau-ui-angular/snack';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
+import { DocsExampleComponent } from '../../docs/docs-example.component';
+import { CLIPBOARD_EXAMPLES } from './clipboard.examples';
 
 @Component({
   selector: 'app-clipboard-page',
-  imports: [TableauUiCommonModule, TableauUiClipboardModule, TableauUiSnackModule],
-  standalone: true,
+  imports: [TableauUiCommonModule, DocsExampleComponent],
   templateUrl: './clipboard-page.component.html',
-  styleUrl: './clipboard-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ClipboardPageComponent {
-  clipboardService = inject(ClipboardService);
-  snackService = inject(SnackService);
-
-  async writeText(text: string) {
-    await this.clipboardService.writeText(text);
-    this.snackService.openSnack('Text copied to clipboard', 2000);
-  }
-  readText(): void {
-    this.clipboardService
-      .readText()
-      .then(text => {
-        alert('Read text: ' + text);
-        console.log('Read text:', text);
-      })
-      .catch((error: unknown) => {
-        console.error('Failed to read clipboard text:', error);
-        alert('Failed to read clipboard text');
-      });
-  }
+  protected readonly examples = CLIPBOARD_EXAMPLES;
 }

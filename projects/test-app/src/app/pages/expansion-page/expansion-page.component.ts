@@ -1,24 +1,14 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
-
-import { TableauUiExpansionPanelModule } from 'tableau-ui-angular/expansion-panel';
-import { TableauUiIconModule } from 'tableau-ui-angular/icon';
-import { SnackService, TableauUiSnackModule } from 'tableau-ui-angular/snack';
+import { DocsExampleComponent } from '../../docs/docs-example.component';
+import { EXPANSION_PANEL_EXAMPLES } from './expansion-panel.examples';
 
 @Component({
-  selector: 'app-buttons-page',
-  imports: [TableauUiSnackModule, TableauUiCommonModule, TableauUiExpansionPanelModule, TableauUiIconModule],
-  standalone: true,
+  selector: 'app-expansion-page',
+  imports: [TableauUiCommonModule, DocsExampleComponent],
   templateUrl: './expansion-page.component.html',
-  styleUrl: './expansion-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExpansionPageComponent {
-  snack = inject(SnackService);
-
-  specialButtonClick(e: Event) {
-    e.stopPropagation();
-    e.preventDefault();
-    this.snack.openSnack('Button clicked', 5000);
-  }
+  protected readonly examples = EXPANSION_PANEL_EXAMPLES;
 }
