@@ -2,8 +2,14 @@ import type { Type } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
+import { engines } from '../../../../../package.json';
+import addBentonSans from '../../../../../Add-Benton-Sans.md?source' with { loader: 'text' };
 import readme from '../../../../../README.md?source' with { loader: 'text' };
+import { assets } from '../../../../component-library/ng-package.json';
 import { peerDependencies } from '../../../../component-library/package.json';
+// The scripts the package ships, read where the commands say they are: a moved script fails the build
+import fontsScript from '../../../../component-library/styles/fonts/downloadFonts.js?source' with { loader: 'text' };
+import iconsScript from '../../../../component-library/used-icons/scripts/update-icons.js?source' with { loader: 'text' };
 import stylesScss from '../../styles.scss?source' with { loader: 'text' };
 import { BUTTONS_EXAMPLES } from '../pages/buttons-page/buttons.examples';
 import { ButtonsPageComponent } from '../pages/buttons-page/buttons-page.component';
@@ -13,6 +19,7 @@ import { DIALOGS_EXAMPLES } from '../pages/dialogs-page/dialogs.examples';
 import { DialogsPageComponent } from '../pages/dialogs-page/dialogs-page.component';
 import { FORM_FIELDS_EXAMPLES } from '../pages/form-fields-page/form-fields.examples';
 import { FormFieldsPageComponent } from '../pages/form-fields-page/form-fields-page.component';
+import { FONTS_COMMAND, FONTS_SCRIPT, ICONS_SCRIPT, ICONS_SCRIPTS } from '../pages/getting-started-page/commands';
 import { GETTING_STARTED_EXAMPLES } from '../pages/getting-started-page/getting-started.examples';
 import { GettingStartedPageComponent } from '../pages/getting-started-page/getting-started-page.component';
 import { SELECT_EXAMPLES } from '../pages/select-page/select.examples';
@@ -92,10 +99,25 @@ describe('The docs pages', () => {
     expect(readme).toContain(stylesImport);
   });
 
-  it("has the README name each peer with the package's range", () => {
+  it("has the README name each peer with the package's range, and the Node range the repo builds on", () => {
     for (const [name, range] of Object.entries(peerDependencies)) {
       expect(readme).toContain(`\`${name}\``);
       expect(readme).toContain(`\`${range}\``);
     }
+    // a table cell escapes the range's pipes
+    expect(readme).toContain(`\`${engines.node.replaceAll('|', '\\|')}\``);
+  });
+
+  it('runs each shipped script by its path in the package, on the getting started page and in Add-Benton-Sans.md', () => {
+    expect(fontsScript).toContain('function downloadFonts');
+    expect(iconsScript).toContain('function updateIcons');
+    // read above at these paths in the library, which the package ships each script's folder at
+    expect([FONTS_SCRIPT, ICONS_SCRIPT]).toEqual(['styles/fonts/downloadFonts.js', 'used-icons/scripts/update-icons.js']);
+    for (const script of [FONTS_SCRIPT, ICONS_SCRIPT]) {
+      expect(assets.some(asset => asset.input === asset.output && script.startsWith(`${asset.output.replace(/^\.\//, '')}/`))).toBe(true);
+    }
+    expect(FONTS_COMMAND).toContain(`node node_modules/tableau-ui-angular/${FONTS_SCRIPT} `);
+    expect(ICONS_SCRIPTS).toContain(`node node_modules/tableau-ui-angular/${ICONS_SCRIPT} `);
+    expect(addBentonSans).toContain(FONTS_COMMAND);
   });
 });

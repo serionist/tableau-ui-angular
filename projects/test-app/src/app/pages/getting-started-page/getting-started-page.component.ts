@@ -5,6 +5,7 @@ import { peerDependencies, peerDependenciesMeta } from '../../../../../component
 import stylesScss from '../../../styles.scss?source' with { loader: 'text' };
 import { DocsCodeComponent } from '../../docs/docs-code.component';
 import { DocsExampleComponent } from '../../docs/docs-example.component';
+import { FONTS_COMMAND, ICONS_SCRIPTS } from './commands';
 import { GETTING_STARTED_EXAMPLES } from './getting-started.examples';
 import { Icons } from './snippets/icons';
 import iconsTs from './snippets/icons.ts?source' with { loader: 'text' };
@@ -32,11 +33,6 @@ export class GettingStartedPageComponent {
   protected readonly iconsTs = iconsTs;
   protected readonly iconCount = new Icons().getAllIcons().length;
 
-  protected readonly fontsCommand = 'node node_modules/tableau-ui-angular/styles/fonts/downloadFonts.js https://your-tableau-server public/fonts';
-  protected readonly iconsScripts = `{
-  "scripts": {
-    "icons": "node node_modules/tableau-ui-angular/used-icons/scripts/update-icons.js src/icons.ts public/icons",
-    "prebuild": "npm run icons"
-  }
-}`;
+  protected readonly fontsCommand = FONTS_COMMAND;
+  protected readonly iconsScripts = ICONS_SCRIPTS;
 }
