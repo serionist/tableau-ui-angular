@@ -7,9 +7,10 @@
 //   150 lines, each skill's name and description, no coverage ignore comment in the library, no tool attribution in the
 //   commits' messages, and gitleaks on those commits when gitleaks is on PATH (a line says when it was skipped;
 //   GATE_REQUIRE_GITLEAKS=1, as CI sets it, makes that a failure).
-// full: quick, then the library build, the tools' tests, the tests of every angular.json project in Chromium and
-//   Firefox (ng test --watch=false, the library's with coverage), the library's line coverage against the floor in
-//   tools/coverage.json, and the demo app's build with its prerender, which must prerender a route and log no error.
+// full: quick, then the library build, the public API file compared with the built typings (tools/api.mjs), the
+//   tools' tests, the tests of every angular.json project in Chromium and Firefox (ng test --watch=false, the library's
+//   with coverage), the library's line coverage against the floor in tools/coverage.json, and the demo app's build with
+//   its prerender, which must prerender a route and log no error.
 //
 // The coverage floor is a whole percent that only rises: the gate fails when the library's line coverage is below it,
 // or when it is below the floor at the base commit (origin/main's by default), and says when it can rise.
@@ -18,8 +19,11 @@
 // hook passes each pushed range with --range instead; then the working tree's checks run only when every range ends at
 // HEAD and the tree is clean, and are skipped, with the reason, when it is not what is pushed.
 //
-// Checks still to come, each with the work it guards: the public API file compared with the built typings, with the
-// API file; the docs site's prerender, with the docs site.
+// The API check fails on any difference between projects/component-library/api/ and the API the build has: a change
+// to an export, a selector, an input or an output fails it until `npm run api:update` writes the files again, and the
+// PR names the change.
+//
+// Checks still to come, each with the work it guards: the docs site's prerender, with the docs site.
 //
 // It prints a line per check, then the tail of each failed check's output, and exits 1 when any failed. Node only, no
 // dependencies: each tool runs from node_modules through node itself, the same on Windows and Linux; only npm, a .cmd
@@ -255,6 +259,18 @@ function checkLibraryBuild() {
   return done.ok ? pass(built?.replace(/^\W+/, '') ?? 'dist/component-library') : fail('the library build failed', done.output);
 }
 
+function checkApi() {
+  // tools/api.mjs, which needs typescript and prettier, runs in a process of its own: it prints the diff, then what it
+  // found on a line that starts with "API: "
+  const done = node('tools/api.mjs', 'check');
+  const said = lines(done.output)
+    .filter(line => line.startsWith('API: '))
+    .at(-1)
+    ?.slice('API: '.length);
+  if (done.ok) return pass(said ?? 'projects/component-library/api matches the build');
+  return fail(said ?? 'node tools/api.mjs check failed', `${done.output}\n\nThe whole diff: node tools/api.mjs check`);
+}
+
 function checkToolTests() {
   const done = node('--test', '--test-reporter=tap', 'tools/*.test.mjs');
   if (!done.ok) return fail("the tools' tests failed", done.output);
@@ -322,6 +338,7 @@ const QUICK = [
 ];
 const FULL = [
   ['library build', checkLibraryBuild, true],
+  ['API file', checkApi, true],
   ["tools' tests", checkToolTests, true],
   ['tests', checkTests, true],
   ['coverage', checkCoverage, true],

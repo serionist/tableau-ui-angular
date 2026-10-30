@@ -36,6 +36,26 @@ class TravelComponent {
   readonly $shown = signal(true);
 }
 
+// The two selects share a template, whose summary of the picked values only the multi select has
+@Component({
+  imports: [ReactiveFormsModule, TableauUiSelectModule, TableauUiCommonModule],
+  template: `
+    <tab-single-select aria-label="Country" [formControl]="country">
+      <tab-option value="hu" text="Hungary" />
+    </tab-single-select>
+    <tab-multi-select aria-label="Languages" [formControl]="languages" [multipleSelectionMaxItemsListed]="2">
+      <tab-option value="en" text="English" />
+      <tab-option value="hu" text="Hungarian" />
+      <tab-option value="de" text="German" />
+    </tab-multi-select>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class SummaryComponent {
+  readonly country = new FormControl<string | null>('hu');
+  readonly languages = new FormControl<string[] | null>(['en', 'hu']);
+}
+
 describe('SelectComponent', () => {
   // a pointer left over an opening dropdown or menu would move its highlight
   beforeEach(movePointerAway);
@@ -311,6 +331,22 @@ describe('SelectComponent', () => {
 
     expect(select.getAttribute('aria-disabled')).toBe('true');
     expect(select.getAttribute('aria-hidden')).toBeNull();
+  });
+
+  it('lists the picked values up to multipleSelectionMaxItemsListed, then says how many; a single select shows its value', async () => {
+    const fixture = TestBed.createComponent(SummaryComponent);
+    fixture.autoDetectChanges();
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+    const shown = (selector: string) => host.querySelector(`${selector} .content-display`)!.textContent.replace(/\s+/g, ' ').trim();
+
+    expect(shown('tab-single-select')).toBe('Hungary');
+    expect(shown('tab-multi-select')).toBe('English , Hungarian');
+
+    fixture.componentInstance.languages.setValue(['en', 'hu', 'de']);
+    await fixture.whenStable();
+
+    expect(shown('tab-multi-select')).toBe('3 items selected');
   });
 
   it('passes axe, closed and open', async () => {

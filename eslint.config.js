@@ -5,6 +5,8 @@ const angular = require('angular-eslint');
 const template = require('@angular-eslint/eslint-plugin-template');
 
 module.exports = tseslint.config(
+  // The public API file is the built typings, which tools/api.mjs writes and the gate compares with the build
+  { ignores: ['projects/component-library/api/'] },
   angular.configs.tsRecommended,
   {
     files: ['**/*.ts'],
