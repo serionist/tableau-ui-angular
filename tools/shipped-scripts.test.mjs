@@ -3,7 +3,8 @@
 // Run with `npm run test:tools`.
 
 import assert from 'node:assert/strict';
-import { copyFileSync, existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { afterEach, beforeEach, describe, test } from 'node:test';
@@ -61,6 +62,8 @@ describe('update-icons.js', () => {
   test('says how to install typescript in an app without it', async () => {
     copyFileSync(join(PACKAGE, ICON_SCRIPT), join(app, 'update-icons.js'));
     writeFileSync(join(app, 'package.json'), '{ "type": "module" }\n');
+    // a node_modules with typescript above the temp folder would decide this test for the wrong reason
+    assert.throws(() => createRequire(join(app, 'update-icons.js')).resolve('typescript'), { code: 'MODULE_NOT_FOUND' });
 
     const { code, output } = await runScript(join(app, 'update-icons.js'), ['icons.ts', 'out'], { cwd: app });
 
@@ -92,5 +95,71 @@ describe('downloadFonts.js', () => {
     } finally {
       await stub.close();
     }
+  });
+
+  // The file was truncated as its answer started and deleted when the answer broke off, so a run that failed there
+  // lost the copy the folder had from the run before
+  test('keeps the copy the folder had when its download breaks off on a later run', async () => {
+    const certs = testCertificates();
+    writeFileSync(join(app, 'ca.pem'), certs.ca);
+    const broken = 'BentonSans-Medium.woff2';
+    const run = async options => {
+      const stub = await startFontServer(certs, options);
+      try {
+        return await runScript(join(PACKAGE, FONT_SCRIPT), [stub.url, 'fonts'], { cwd: app, env: { NODE_EXTRA_CA_CERTS: join(app, 'ca.pem') } });
+      } finally {
+        await stub.close();
+      }
+    };
+
+    assert.equal((await run({ tag: 'first' })).code, 0);
+    const second = await run({ tag: 'second', broken: [broken] });
+
+    assert.equal(second.code, 1, second.output);
+    assert.deepEqual(readdirSync(join(app, 'fonts')).sort(), [...FONT_FILES].sort());
+    for (const file of FONT_FILES) assert.ok(readFileSync(join(app, 'fonts', file)).equals(servedBytes(`/img/${file}`, file === broken ? 'first' : 'second')), file);
+  });
+});
+
+// The checks CI runs on the tarball must fail a script that exits 0 without writing what the stubs served
+describe('the checks', () => {
+  function fakePackage({ icons, fonts }) {
+    // CommonJS, which needs no package.json
+    const dir = join(app, 'package');
+    for (const script of [ICON_SCRIPT, FONT_SCRIPT]) mkdirSync(dirname(join(dir, script)), { recursive: true });
+    writeFileSync(join(dir, ICON_SCRIPT), icons);
+    writeFileSync(join(dir, FONT_SCRIPT), fonts);
+    return dir;
+  }
+  // a script that writes `files`, each holding "wrong", into the folder its second argument names
+  const writes = files => `const fs = require('fs');
+const path = require('path');
+const out = path.resolve(process.argv[3]);
+fs.mkdirSync(out, { recursive: true });
+for (const file of ${JSON.stringify(files)}) fs.writeFileSync(path.join(out, file), 'wrong');
+`;
+
+  test('fail scripts that exit 0 and write nothing', async () => {
+    copyUsedIcons(app);
+    const packageDir = fakePackage({ icons: '// writes nothing\n', fonts: '// writes nothing\n' });
+
+    assert.match((await checkIconScript({ packageDir, appDir: app, usedIconsImport: './used-icons' })).join('\n'), /update-icons\.js wrote \[\]/);
+    assert.match((await checkFontScript({ packageDir, appDir: app })).join('\n'), /downloadFonts\.js wrote \[\]/);
+  });
+
+  test('fail scripts that write the files with the wrong bytes', async () => {
+    copyUsedIcons(app);
+    const packageDir = fakePackage({
+      icons: writes(['material-icons.css', 'material-symbols-outlined.woff2', 'material-symbols-rounded.woff2']),
+      fonts: writes(FONT_FILES),
+    });
+
+    const icons = (await checkIconScript({ packageDir, appDir: app, usedIconsImport: './used-icons' })).join('\n');
+    assert.match(icons, /asked the CSS API for \[\]/);
+    assert.match(icons, /material-symbols-outlined\.woff2 is not the font the stub served/);
+    assert.match(icons, /material-icons\.css has no @font-face for Material Symbols Outlined/);
+    const fonts = await checkFontScript({ packageDir, appDir: app });
+    assert.equal(fonts.length, FONT_FILES.length);
+    assert.match(fonts[0], /is not the file the stub served/);
   });
 });

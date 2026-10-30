@@ -127,8 +127,8 @@ async function close(server) {
   await new Promise(done => server.close(done));
 }
 
-/** The bytes a stub serves for a path, so a check can tell each file from the others. */
-export const servedBytes = path => Buffer.from(`stub bytes of ${path}\n`);
+/** The bytes a stub serves for a path, so a check can tell each file from the others, and one run's from another's by its tag. */
+export const servedBytes = (path, tag = '') => Buffer.from(`stub bytes of ${path}${tag ? ` (${tag})` : ''}\n`);
 
 /**
  * Google Fonts' CSS API: GET <url>/css2?family=<font>:<axes>&icon_names=... answers a @font-face for the font, whose
@@ -160,19 +160,19 @@ export async function startIconServer({ cssStatus = 200 } = {}) {
 
 /**
  * A Tableau Server's fonts over HTTPS, with the certificate from testCertificates(): GET /img/<file>. A file in
- * `missing` answers 404; one in `broken` breaks off after its first bytes.
+ * `missing` answers 404; one in `broken` breaks off after its first bytes. `tag` marks the bytes this server serves.
  */
-export async function startFontServer({ key, cert }, { missing = [], broken = [] } = {}) {
+export async function startFontServer({ key, cert }, { missing = [], broken = [], tag = '' } = {}) {
   const server = createHttpsServer({ key, cert }, (request, response) => {
     const file = decodeURIComponent(new URL(request.url, 'https://127.0.0.1').pathname.replace(/^\/img\//, ''));
     if (!FONT_FILES.includes(file) || missing.includes(file)) {
       response.writeHead(404).end();
     } else if (broken.includes(file)) {
       response.writeHead(200, { 'Content-Length': 1000 });
-      response.write(servedBytes(request.url));
+      response.write(servedBytes(request.url, tag));
       setTimeout(() => response.socket?.destroy(), 50);
     } else {
-      response.writeHead(200, { 'Content-Type': 'font/woff2' }).end(servedBytes(request.url));
+      response.writeHead(200, { 'Content-Type': 'font/woff2' }).end(servedBytes(request.url, tag));
     }
   });
   const port = await listen(server);

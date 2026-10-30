@@ -20,8 +20,8 @@ const fontFiles = [
   'BentonSans-Light.woff2',
 ];
 
-// Helper function to download a single file. The file is written only from a 200 answer, and a download that fails
-// on the way leaves no part of it behind.
+// Helper function to download a single file. It is written beside its destination and moved there once complete, so
+// a download that fails leaves the copy the folder had, and no part of the new one.
 async function downloadFile(url, destination) {
   const response = await new Promise((resolve, reject) => {
     https.get(url, resolve).on('error', reject);
@@ -30,11 +30,13 @@ async function downloadFile(url, destination) {
     response.resume();
     throw new Error(`Failed to download file ${url}: ${response.statusCode}`);
   }
+  const part = `${destination}.part`;
   try {
     // pipeline closes the file, and fails when the answer breaks off
-    await pipeline(response, fs.createWriteStream(destination));
+    await pipeline(response, fs.createWriteStream(part));
+    fs.renameSync(part, destination);
   } catch (error) {
-    fs.rmSync(destination, { force: true });
+    fs.rmSync(part, { force: true });
     throw error;
   }
 }
