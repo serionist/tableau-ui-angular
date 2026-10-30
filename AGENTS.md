@@ -27,7 +27,7 @@ Every top-level file and folder, and the library's own; a new one adds its row i
 | `projects/component-library/package.json`, `ng-package.json`              | what is published: the one version, the peers, the shipped assets                                                                                     |
 | `projects/test-app/`                                                      | the demo app: `src/app/pages/`, `app.routes.server.ts` (what prerenders), its own `package.json`                                                      |
 | `docs/plans/`, `docs/reviews/`                                            | plans, with the template in `README.md`; review records. Dated, never current truth                                                                   |
-| `tools/`                                                                  | `gate.mjs` with `coverage.mjs` and `angular.mjs`, `hooks.mjs` and `attribution.mjs` (behind `.githooks/`), `pr-text.mjs`, `setup.mjs`, the tests      |
+| `tools/`                                                                  | `gate.mjs` with `coverage.mjs` and `angular.mjs`, `hooks.mjs` and `attribution.mjs` (`.githooks/`), `pr-text.mjs`, `setup.mjs`, `shipped-scripts.mjs` |
 | `.githooks/`                                                              | `commit-msg` refuses tool attribution; `pre-push` runs the gate's quick lane                                                                          |
 | `.claude/`                                                                | `CLAUDE.md` (imports this file), `settings.json` (no attribution; whole-command allows, asks, denies: `REVIEW.md`, Permissions), `skills/`            |
 | `.mcp.json`                                                               | the Angular CLI's MCP server and Context7; `.claude/settings.local.json.example` turns them on                                                        |
@@ -36,7 +36,7 @@ Every top-level file and folder, and the library's own; a new one adds its row i
 | `eslint.config.js`, `.stylelintrc.json`, `.prettierrc`                    | ESLint with angular-eslint, stylelint for SCSS, Prettier                                                                                              |
 | `.gitleaks.toml`                                                          | the secret scan: gitleaks' own rules, and any exception with its reason                                                                               |
 | `.editorconfig`, `.gitattributes`, `.gitignore`, `.git-blame-ignore-revs` | UTF-8, LF, two spaces; what git ignores; reformats blame skips                                                                                        |
-| `.github/workflows/`                                                      | `ci.yml` (the full lane on Linux, the pack on Windows, the `CI` check), `pr-text.yml` (the `PR text` check), `codeql.yml`, `pages.yml` (the demo app) |
+| `.github/workflows/`                                                      | `ci.yml` (Linux: the full lane; Windows: the pack, its scripts; the `CI` check), `pr-text.yml` (`PR text`), `codeql.yml`, `pages.yml` (the demo app)  |
 | `.github/`                                                                | `dependabot.yml`, `ISSUE_TEMPLATE/` (the bug and feature forms), `pull_request_template.md`, `CODEOWNERS`                                             |
 | `scripts/link-info.js`                                                    | what `npm run dev:link` prints: how to link the built library into another app                                                                        |
 | `package.json`, `package-lock.json`                                       | the npm workspace, its scripts and dev tools pinned exactly; the lock `npm ci` installs                                                               |
@@ -55,7 +55,7 @@ Run from the repo root. `ng` is the repo's own CLI: `npx ng` when it is not on P
 | the demo app                | `ng build test-app` (prints "Prerendered N static routes", N above 0); `npm start` serves it on port 4201                                          |
 | tests                       | `ng test --watch=false`: both projects, in Chromium and Firefox (`npx playwright install chromium firefox`)                                        |
 | lint and format             | `ng lint`, `npm run lint:scss`; `npm run pretty` formats everything the gate's Prettier check reads                                                |
-| the hooks' tests            | `npm run test:tools`                                                                                                                               |
+| the tools' tests            | `npm run test:tools`: the hooks, the gate's verdicts, the shipped scripts against local stubs                                                      |
 | the gate                    | `npm run gate -- quick` (lock, ESLint, stylelint, Prettier, AGENTS.md, skills, attribution, gitleaks); `full` adds the builds, the tests, coverage |
 
 - The quick lane runs before every push, on what the push sends. gitleaks runs when it is on PATH; without it the gate
@@ -108,7 +108,8 @@ maintainer agrees in its issue; in 0.x a minor may break one, under CHANGELOG's 
 - the npm name `tableau-ui-angular`, and its entry point paths, `tableau-ui-angular/<folder>`;
 - every selector, input, output and exported symbol;
 - the SCSS import paths under `tableau-ui-angular/styles`, and the theme's CSS custom properties;
-- the shipped scripts' paths and arguments: `styles/fonts/downloadFonts.js`, `used-icons/scripts/update-icons.js`;
+- the shipped scripts' paths, arguments and environment variables: `styles/fonts/downloadFonts.js`,
+  `used-icons/scripts/update-icons.js` and its `TABLEAU_UI_ICONS_CSS_URL`;
 - the peer range: `@angular/*` `^22.0.0`, `rxjs` `^7.4.0`, `monaco-editor` optional.
 
 ## Traps

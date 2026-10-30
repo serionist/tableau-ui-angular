@@ -1,5 +1,5 @@
-import type { AfterViewInit, OnDestroy } from '@angular/core';
-import { ElementRef } from '@angular/core';
+import type { OnDestroy } from '@angular/core';
+import { afterNextRender, DOCUMENT, ElementRef, ErrorHandler, signal } from '@angular/core';
 import { ChangeDetectionStrategy, Component, effect, forwardRef, inject, input, model, output, untracked } from '@angular/core';
 import type { ControlValueAccessor } from '@angular/forms';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
@@ -9,7 +9,116 @@ import { ThemeService } from 'tableau-ui-angular/theme';
 type Monaco = typeof MonacoNamespace;
 declare let monaco: Monaco;
 
+// Monaco's AMD loader, as loader.js defines it
+interface AmdRequire {
+  (modules: string[], onLoad: () => void, onError: (error: unknown) => void): void;
+  config?: (config: { paths: Record<string, string> }) => void;
+  // A fresh module manager: one whose module failed keeps it failed, and answers each later require with that error
+  reset?: () => void;
+}
+type MonacoWindow = Window & { monaco?: unknown; require?: AmdRequire; monacoAmdRequire?: AmdRequire };
+
+// One load for the page, which every editor waits for. A load that fails is reported once, by the editor that started
+// it, and forgotten, so the next editor tries again.
 let monacoLoadPromise: Promise<void> | undefined = undefined;
+// Whether the AMD loader on the page is the one the editor put there: then the editor may reset it after a failure.
+// An app's own loader is the app's.
+let loaderInstalled = false;
+
+async function loadMonaco(document: Document, errorHandler: ErrorHandler): Promise<void> {
+  monacoLoadPromise ??= startMonacoLoad(document).catch((error: unknown) => {
+    monacoLoadPromise = undefined;
+    errorHandler.handleError(error);
+    throw error;
+  });
+  return monacoLoadPromise;
+}
+
+async function startMonacoLoad(document: Document): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    const view = document.defaultView as MonacoWindow | null;
+    if (!view) {
+      reject(new Error('Monaco needs a window to load in'));
+      return;
+    }
+    if (typeof view.monaco === 'object') {
+      resolve();
+      return;
+    }
+    const baseUrl = (document.head.getElementsByTagName('base').item(0)?.href ?? view.location.origin + '/') + 'monaco-edit/vs';
+    const failed = (what: string, cause?: unknown) => {
+      reject(new Error(`Monaco failed to load: ${what}. Is node_modules/monaco-editor/min served at monaco-edit?`, { cause }));
+    };
+    const onGotAmdLoader = (amdRequire = view.require) => {
+      if (typeof amdRequire?.config !== 'function') {
+        failed(`${baseUrl}/loader.js defined no AMD loader`);
+        return;
+      }
+      amdRequire.config({ paths: { vs: baseUrl } });
+      amdRequire(
+        ['vs/editor/editor.main'],
+        () => {
+          resolve();
+        },
+        (error: unknown) => {
+          // so the next editor's load fetches editor.main again, where the loader would answer with this failure
+          if (loaderInstalled) {
+            amdRequire.reset?.();
+          }
+          failed(`${baseUrl}/editor/editor.main.js`, error);
+        },
+      );
+    };
+
+    if (!view.require) {
+      const loaderScript: HTMLScriptElement = document.createElement('script');
+      loaderScript.type = 'text/javascript';
+      loaderScript.src = `${baseUrl}/loader.js`;
+      loaderScript.addEventListener('load', () => {
+        loaderInstalled = true;
+        onGotAmdLoader();
+      });
+      loaderScript.addEventListener('error', () => {
+        failed(loaderScript.src);
+      });
+      document.body.appendChild(loaderScript);
+      // Load AMD loader without over-riding node's require
+    } else if (!view.require.config) {
+      const src = `${baseUrl}/loader.js`;
+
+      const loaderRequest = new XMLHttpRequest();
+      loaderRequest.addEventListener('load', () => {
+        // a file: URL, as a packaged Electron app's, answers status 0 when it loaded; a failed request fires error
+        if (loaderRequest.status !== 0 && (loaderRequest.status < 200 || loaderRequest.status >= 300)) {
+          failed(`${src} answered ${loaderRequest.status}`);
+          return;
+        }
+        const scriptElem = document.createElement('script');
+        scriptElem.type = 'text/javascript';
+        scriptElem.text = [
+          // Monaco uses a custom amd loader that over-rides node's require.
+          // Keep a reference to node's require so we can restore it after executing the amd loader file.
+          'var nodeRequire = require;',
+          loaderRequest.responseText.replace('"use strict";', ''),
+          // Save Monaco's amd require and restore Node's require
+          'var monacoAmdRequire = require;',
+          'require = nodeRequire;',
+          'require.nodeRequire = require;',
+        ].join('\n');
+        document.body.appendChild(scriptElem);
+        loaderInstalled = true;
+        onGotAmdLoader(view.monacoAmdRequire);
+      });
+      loaderRequest.addEventListener('error', () => {
+        failed(src);
+      });
+      loaderRequest.open('GET', src);
+      loaderRequest.send();
+    } else {
+      onGotAmdLoader();
+    }
+  });
+}
 
 @Component({
   selector: 'tab-monaco-editor',
@@ -29,9 +138,17 @@ let monacoLoadPromise: Promise<void> | undefined = undefined;
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MonacoEditorComponent implements AfterViewInit, OnDestroy, ControlValueAccessor {
+export class MonacoEditorComponent implements OnDestroy, ControlValueAccessor {
   private _editor: ICodeEditor | undefined;
   private readonly themeService = inject(ThemeService);
+  private readonly document = inject(DOCUMENT);
+  private readonly errorHandler = inject(ErrorHandler);
+  // Set by the form: a disabled editor is read-only
+  private readonly $disabled = signal(false);
+  // Monaco's first load can end after the editor is gone, which then must not be created
+  private destroyed = false;
+  // True while the editor's text is set from the app or the form, so the change Monaco reports for it is not the user's
+  private settingText = false;
 
   // #region Inputs and Outputs
   /**
@@ -72,6 +189,9 @@ export class MonacoEditorComponent implements AfterViewInit, OnDestroy, ControlV
    * The theme of the monaco editor.
    * Can be 'auto', 'vs', 'vs-dark', 'hc-black', or 'hc-light'.
    * 'auto' will use the current library palette theme.
+   *
+   * Monaco has one theme for the whole page: the editor that sets it last sets it for every editor. Give the editors
+   * on a page the same theme.
    * @default 'auto'
    */
   readonly $theme = input<'auto' | 'vs' | 'vs-dark' | 'hc-black' | 'hc-light'>('auto', {
@@ -88,7 +208,7 @@ export class MonacoEditorComponent implements AfterViewInit, OnDestroy, ControlV
   });
 
   /**
-   * If true, the model will be disposed when the component is destroyed.
+   * If true, the model will be disposed when the component is destroyed, and the old one when `uri` changes.
    * This is useful to avoid memory leaks when the editor is not used anymore.
    * @default true
    */
@@ -104,16 +224,35 @@ export class MonacoEditorComponent implements AfterViewInit, OnDestroy, ControlV
   // #endregion Inputs and Outputs
   readonly editorContainer = inject<ElementRef<HTMLElement>>(ElementRef);
 
+  constructor() {
+    // Monaco loads, and the editor lays out, in the browser only, after the first render, so the page with the editor
+    // can be rendered on the server
+    afterNextRender(() => {
+      loadMonaco(this.document, this.errorHandler).then(
+        () => {
+          if (!this.destroyed) {
+            this.initEditor();
+          }
+        },
+        () => {
+          // the load reported its failure itself; the editor stays empty
+        },
+      );
+    });
+  }
+
   // #region Effects
   // When the option changes, re-initialize the entire editor
   readonly optionsChanged = effect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const options = this.$options(); // need this for the effect to trigger
-    if (this._editor) {
-      this._editor.dispose();
-      this._editor = undefined;
-      this.initEditor();
-    }
+    this.$options();
+    // untracked: the new editor reads the value and the other inputs, and a keystroke must not rebuild it
+    untracked(() => {
+      if (this._editor) {
+        this._editor.dispose();
+        this._editor = undefined;
+        this.initEditor();
+      }
+    });
   });
   // When the URI changes, update the editor to use the new URI if it's initialized
   readonly uriChanged = effect(() => {
@@ -121,9 +260,14 @@ export class MonacoEditorComponent implements AfterViewInit, OnDestroy, ControlV
     const language = untracked(() => this.$language());
     const value = untracked(() => this.$value());
     if (this._editor) {
+      const previousModel = this._editor.getModel();
       // update or create the model with the new URI
       const editorModel = this.updateOrCreateModel(monaco.Uri.parse(uri), language, value);
       this._editor.setModel(editorModel);
+      // The editor no longer shows the old document: it goes, as on destroy, unless the app keeps its models
+      if (previousModel && previousModel !== editorModel && untracked(() => this.$disposeModelOnDestroy())) {
+        previousModel.dispose();
+      }
     }
   });
   // When the language changes, update the editor to use the new language if it's initialized
@@ -152,7 +296,7 @@ export class MonacoEditorComponent implements AfterViewInit, OnDestroy, ControlV
         console.warn('Can not update value. Monaco editor model not found for URI:', uri);
       } else if (editorModel.getValue() !== value) {
         // setValue clears the undo stack and moves the cursor to the start, so skip it for the text the user just typed
-        editorModel.setValue(value);
+        this.setText(editorModel, value);
       }
     }
   });
@@ -165,80 +309,15 @@ export class MonacoEditorComponent implements AfterViewInit, OnDestroy, ControlV
       monaco.editor.setTheme(theme);
     }
   });
+  // A disabled form control is read-only, its text box too, and so is an editor whose options say so
+  private readonly readOnlyChanged = effect(() => {
+    const readOnly = this.readOnlyOptions();
+    untracked(() => {
+      this._editor?.updateOptions(readOnly);
+    });
+  });
 
   // #endregion Effects
-  ngAfterViewInit(): void {
-    // if monaco already started loading, init the editor when it is loaded
-    if (monacoLoadPromise) {
-      void monacoLoadPromise.then(() => {
-        this.initEditor();
-      });
-      return;
-    }
-    monacoLoadPromise = new Promise<void>(resolve => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
-      if (typeof (window as any).monaco === 'object') {
-        this.initEditor();
-        resolve();
-        return;
-      }
-      const baseUrl = (document.head.getElementsByTagName('base').item(0)?.href ?? window.location.origin + '/') + 'monaco-edit/vs';
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const onGotAmdLoader = (require?: any) => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
-        const usedRequire = require ?? (window as any).require;
-
-        const requireConfig = { paths: { vs: baseUrl } };
-
-        // Load monaco
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-        usedRequire.config(requireConfig);
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        usedRequire([`vs/editor/editor.main`], () => {
-          this.initEditor();
-          resolve();
-        });
-      };
-
-      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
-      if (!(window as any).require) {
-        const loaderScript: HTMLScriptElement = document.createElement('script');
-        loaderScript.type = 'text/javascript';
-        loaderScript.src = `${baseUrl}/loader.js`;
-        loaderScript.addEventListener('load', () => {
-          onGotAmdLoader();
-        });
-        document.body.appendChild(loaderScript);
-        // Load AMD loader without over-riding node's require
-        // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
-      } else if (!(window as any).require.config) {
-        const src = `${baseUrl}/loader.js`;
-
-        const loaderRequest = new XMLHttpRequest();
-        loaderRequest.addEventListener('load', () => {
-          const scriptElem = document.createElement('script');
-          scriptElem.type = 'text/javascript';
-          scriptElem.text = [
-            // Monaco uses a custom amd loader that over-rides node's require.
-            // Keep a reference to node's require so we can restore it after executing the amd loader file.
-            'var nodeRequire = require;',
-            loaderRequest.responseText.replace('"use strict";', ''),
-            // Save Monaco's amd require and restore Node's require
-            'var monacoAmdRequire = require;',
-            'require = nodeRequire;',
-            'require.nodeRequire = require;',
-          ].join('\n');
-          document.body.appendChild(scriptElem);
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
-          onGotAmdLoader((window as any).monacoAmdRequire);
-        });
-        loaderRequest.open('GET', src);
-        loaderRequest.send();
-      } else {
-        onGotAmdLoader();
-      }
-    });
-  }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   private onPropagateChange: (val: string) => void = () => {};
@@ -256,6 +335,9 @@ export class MonacoEditorComponent implements AfterViewInit, OnDestroy, ControlV
   registerOnTouched(fn: () => void): void {
     this.onPropagateTouched = fn;
   }
+  setDisabledState(isDisabled: boolean): void {
+    this.$disabled.set(isDisabled);
+  }
   // #endregion ControlValueAccessor
 
   private resizeObserver: ResizeObserver | undefined;
@@ -268,12 +350,12 @@ export class MonacoEditorComponent implements AfterViewInit, OnDestroy, ControlV
 
     // update or create the model
     const editorModel = this.updateOrCreateModel(monaco.Uri.parse(this.$uri()), this.$language(), this.$value());
-    this._editor = monaco.editor.create(this.editorContainer.nativeElement, { ...this.$options(), model: editorModel });
+    this._editor = monaco.editor.create(this.editorContainer.nativeElement, { ...this.$options(), ...this.readOnlyOptions(), model: editorModel });
     monaco.editor.setTheme(this.getMonacoTheme(this.$theme(), this.themeService.$appliedThemeMode()));
-    // this._editor.setValue(this._value);
 
     this._editor.onDidChangeModelContent(() => {
-      if (!this._editor) {
+      // a change the app or the form made is theirs already: neither the value nor the form hears of it again
+      if (!this._editor || this.settingText) {
         return;
       }
       const value = this._editor.getValue() ?? '';
@@ -300,7 +382,10 @@ export class MonacoEditorComponent implements AfterViewInit, OnDestroy, ControlV
   private updateOrCreateModel(uri: MonacoNamespace.Uri, language: string, value: string) {
     let editorModel = monaco.editor.getModel(uri);
     if (editorModel) {
-      editorModel.setValue(value);
+      // the same text is left alone: setValue would clear its undo history
+      if (editorModel.getValue() !== value) {
+        this.setText(editorModel, value);
+      }
       if (editorModel.getLanguageId() !== language) {
         monaco.editor.setModelLanguage(editorModel, language);
       }
@@ -308,6 +393,23 @@ export class MonacoEditorComponent implements AfterViewInit, OnDestroy, ControlV
       editorModel = monaco.editor.createModel(value, language, uri);
     }
     return editorModel;
+  }
+
+  // The text from the app or the form, which Monaco reports as a change of content like a keystroke
+  private setText(editorModel: MonacoNamespace.editor.ITextModel, value: string) {
+    this.settingText = true;
+    try {
+      editorModel.setValue(value);
+    } finally {
+      this.settingText = false;
+    }
+  }
+
+  // domReadOnly makes the text box itself read-only, which a screen reader announces
+  private readOnlyOptions() {
+    const options = this.$options();
+    const disabled = this.$disabled();
+    return { readOnly: disabled || options.readOnly === true, domReadOnly: disabled || options.domReadOnly === true };
   }
 
   private getMonacoTheme(themeInput: 'auto' | 'vs' | 'vs-dark' | 'hc-black' | 'hc-light', systemTheme: 'light' | 'dark') {
@@ -324,6 +426,7 @@ export class MonacoEditorComponent implements AfterViewInit, OnDestroy, ControlV
     }
   }
   ngOnDestroy(): void {
+    this.destroyed = true;
     this.destroyResizeObserver();
     if (this._editor) {
       const editorModel = this._editor.getModel();

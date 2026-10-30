@@ -203,10 +203,11 @@
       </p>
       <ol>
         <li>
-          Install axios as a dev dependency:
-          <div class="monaco-container">
-            <tab-monaco-editor uri="file://icons-page/axios" language="shell" value="npm install --save-dev axios" [style.height]="'20px'" [style.width]="'220px'" [options]="options" />
-          </div>
+          The download script compiles your
+          <code>icons.ts</code>
+          with your app's own
+          <code>typescript</code>
+          , which an Angular app has, and needs no other package.
         </li>
         <li>
           Create an
@@ -238,6 +239,24 @@
           </div>
           <div class="monaco-container">
             <tab-monaco-editor uri="file://icons-page/local-download" language="json" [value]="iconsDownloadContent" [style.height]="'140px'" [style.width]="'935px'" [options]="options" />
+          </div>
+          <div>
+            The script asks Google Fonts' CSS API,
+            <code>https://fonts.googleapis.com/css2</code>
+            . To ask a mirror instead, set the mirror's URL in
+            <code>TABLEAU_UI_ICONS_CSS_URL</code>
+            .
+          </div>
+          <div>
+            Behind a proxy, Node's
+            <code>fetch</code>
+            , which the script downloads with, uses
+            <code>HTTPS_PROXY</code>
+            only when
+            <code>NODE_USE_ENV_PROXY=1</code>
+            is set too. Or set a mirror your network reaches in
+            <code>TABLEAU_UI_ICONS_CSS_URL</code>
+            .
           </div>
         </li>
         <li>

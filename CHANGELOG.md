@@ -105,6 +105,16 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
 - `tab-table` has no `$selectionMultiHeaderCheckboxSelected` input nor `$selectionMultiHeaderCheckboxSelectedChange`
   output: they were its header checkbox's own state, open to a binding by mistake, and the table overwrote what one
   set. Remove such a binding; the header checkbox follows `selectedRows`.
+- `MonacoEditorComponent` has no `ngAfterViewInit`: Monaco loads, and the editor is created, after the first render in
+  the browser, so a page with an editor can render on the server. Code that called the method has nothing to call.
+- `ThemeService` no longer sets `--twc-font-size` on the root element, which no style read. Read
+  `--twc-font-size-body`, which holds the same font size.
+- The empty `styles/_lib-mixins.scss` and `styles/_tooltips.scss` are gone. Remove a
+  `@use 'tableau-ui-angular/styles/lib-mixins'` or `@use 'tableau-ui-angular/styles/tooltips'`; neither held anything.
+- `used-icons/scripts/update-icons.js` downloads with Node's own `fetch`, which on its own doesn't use `HTTP_PROXY` or
+  `HTTPS_PROXY`, as `axios` did for an app that had it. Behind a proxy, set `NODE_USE_ENV_PROXY=1` beside
+  `HTTPS_PROXY`, which Node 22 and 24 read in the versions this package supports, or set a mirror the network reaches
+  in `TABLEAU_UI_ICONS_CSS_URL`.
 
 ### Added
 
@@ -117,6 +127,8 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
 - The typed forms' `registerFn` callbacks (`valueChange`, `childChange`, `childGroupChange`, `metaChange`,
   `enableChange`) take an optional `DestroyRef` last, which releases the callback when it is destroyed, such as a
   component's; without one a callback lives as long as the form.
+- `used-icons/scripts/update-icons.js` reads the CSS API to ask from `TABLEAU_UI_ICONS_CSS_URL`, such as a mirror's;
+  Google Fonts' `https://fonts.googleapis.com/css2` stays the default.
 
 ### Fixed
 
@@ -238,11 +250,52 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
 - `tab-table` and `tab-virtualize` render on the server: `load()` and `reload()` measure and load in the browser only,
   and return `false` on the server, and the table's column widths start observing after the first render, so a page
   with them can be prerendered.
+- A form's write to `tab-monaco-editor` (`setValue`, `patchValue`, `reset()`) no longer comes back as the user's
+  change: the form stays pristine and emits `valueChanges` once, where Monaco's report of the new text marked it dirty
+  and emitted it again.
+- `tab-monaco-editor` is read-only while its form control is disabled, and so is its text box, which a screen reader
+  reads; it took typing.
+- After a change of the Monaco editor's `options`, typing no longer rebuilds the editor on each keystroke, which lost
+  the cursor and the undo history, and the one rebuild keeps the undo history.
+- A change of the Monaco editor's `uri` disposes the old document's model, as destroying the editor does, unless
+  `disposeModelOnDestroy` is `false`; each one stayed in Monaco's models for the page.
+- An editor destroyed while Monaco still loads is not created once it has loaded; it was, with a model that leaked.
+- When Monaco fails to load, its `loader.js` or its `editor.main`, as when the app serves nothing at `monaco-edit/vs`,
+  the editor that started the load reports it to the app's `ErrorHandler`, once, and the next editor fetches it again.
+  Every editor stayed blank, and nothing said why.
+- `tab-monaco-editor` renders on the server: it loads Monaco after the first render, in the browser only, so a page with
+  an editor can be prerendered.
+- `ThemeService.$theme`, and a `computed` that reads it, update on `setColorMode()` and `setFontSize()`, and `reset()`
+  goes back to the default after a change. The setters changed the theme object in place, so nothing that read
+  `$theme()` updated, and with nothing stored they changed the default too.
+- A stored theme that is not JSON or not a theme, or storage the browser blocks, gives the default theme. It threw, and
+  every component that injects `ThemeService`, the date picker and the Monaco editor among them, failed.
+- Dark mode reaches the page's own background, its scrollbars and the variables read outside the body:
+  `ThemeService` sets `dark-mode` and `color-scheme` on the root element as well as the body, and the dark theme's
+  variables are set on `:root.dark-mode`, where they were set on `body.dark-mode` alone. An app that sets the class on
+  the body itself keeps the dark theme there.
+- Screens of 120 dpi or less get the low-DPI font. The rule read `var(twc-low-dpi-font-family)`, without its dashes,
+  which browsers drop.
+- `ClipboardService` copies and pastes in Firefox and Safari. Their permission query rejects the clipboard's names, and
+  that failed every copy and paste; a query that fails now counts as unknown, and the clipboard call itself decides.
+- A denied clipboard read says so; it showed the message for a denied write.
+- `used-icons/scripts/update-icons.js` runs in an app without `axios`, which it required but the package never
+  declared: it downloads with Node's own `fetch`. In an app without `typescript` it says how to install it.
+- `styles/fonts/downloadFonts.js` exits 1 when a font file fails to download, names the files that failed, and keeps
+  the copy the folder had of each, with no empty or partial file: it writes `<file>.part` and moves it in place once
+  complete. It left a 0-byte file and reported success, and an answer that broke off stopped it.
 
 ### Changed
 
 - The menu button and the form group pipe no longer write debug logs to the console, which they did in production.
 - The package declares no `engines`, so Yarn classic installs it on every Node version Angular 22 supports.
+- `ThemeService` stores the theme under `tableau-ui-angular:theme`, so it neither reads nor overwrites another
+  script's `theme-config`. It reads `theme-config`, its key before, when the new one holds nothing, so a user keeps the
+  theme they chose.
+- `ThemeService`'s docs say to call `initialize()` once when the app starts, and what it does; until then the page
+  keeps the light theme at the default font size.
+- `ClipboardService` is one for the app (`providedIn: 'root'`), and `TableauUiClipboardModule` no longer provides it:
+  it was `providedIn: 'any'`, one per lazy route or page that injected it. It holds no state, so nothing else changes.
 
 ## 0.1.129 (2026-10-28)
 

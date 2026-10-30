@@ -2,6 +2,7 @@
 import fs from 'fs';
 import https from 'https';
 import path from 'path';
+import { pipeline } from 'stream/promises';
 
 // The list of font files to download
 const fontFiles = [
@@ -19,29 +20,30 @@ const fontFiles = [
   'BentonSans-Light.woff2',
 ];
 
-// Helper function to download a single file
-function downloadFile(url, destination) {
-  return new Promise((resolve, reject) => {
-    const file = fs.createWriteStream(destination);
-    https
-      .get(url, response => {
-        if (response.statusCode === 200) {
-          response.pipe(file);
-          file.on('finish', () => {
-            file.close(resolve);
-          });
-        } else {
-          reject(new Error(`Failed to download file ${url}: ${response.statusCode}`));
-        }
-      })
-      .on('error', err => {
-        fs.unlink(destination, () => reject(err));
-      });
+// Helper function to download a single file. It is written beside its destination and moved there once complete, so
+// a download that fails leaves the copy the folder had, and no part of the new one.
+async function downloadFile(url, destination) {
+  const response = await new Promise((resolve, reject) => {
+    https.get(url, resolve).on('error', reject);
   });
+  if (response.statusCode !== 200) {
+    response.resume();
+    throw new Error(`Failed to download file ${url}: ${response.statusCode}`);
+  }
+  const part = `${destination}.part`;
+  try {
+    // pipeline closes the file, and fails when the answer breaks off
+    await pipeline(response, fs.createWriteStream(part));
+    fs.renameSync(part, destination);
+  } catch (error) {
+    fs.rmSync(part, { force: true });
+    throw error;
+  }
 }
 
-// Function to download all font files
+// Function to download all font files; it gives the names of those that failed
 async function downloadFonts(serverUrl, downloadDir) {
+  const failed = [];
   for (const fontFile of fontFiles) {
     const fileUrl = `${serverUrl}/img/${fontFile}`;
     const destination = path.join(downloadDir, fontFile); // Save file in the specified download folder
@@ -51,8 +53,10 @@ async function downloadFonts(serverUrl, downloadDir) {
       console.log(`${fontFile} downloaded successfully.`);
     } catch (error) {
       console.error(`Error downloading ${fontFile}:`, error);
+      failed.push(fontFile);
     }
   }
+  return failed;
 }
 
 // Validate and parse CLI arguments
@@ -71,11 +75,17 @@ if (!fs.existsSync(downloadDir)) {
   fs.mkdirSync(downloadDir, { recursive: true });
 }
 
-// Start downloading fonts
+// Start downloading fonts; any that failed make the exit code 1, so a build that runs this stops
 downloadFonts(serverUrl, downloadDir)
-  .then(() => {
-    console.log('All fonts downloaded successfully.');
+  .then(failed => {
+    if (failed.length) {
+      console.error(`${failed.length} of ${fontFiles.length} font files failed to download: ${failed.join(', ')}`);
+      process.exitCode = 1;
+    } else {
+      console.log('All fonts downloaded successfully.');
+    }
   })
   .catch(error => {
     console.error('Error downloading fonts:', error);
+    process.exitCode = 1;
   });

@@ -10,7 +10,7 @@ html {
 
 @media (resolution <= 120dpi) {
   body {
-    font-family: var(twc-low-dpi-font-family);
+    font-family: var(--twc-low-dpi-font-family);
   }
 }
 

@@ -2,8 +2,10 @@ import type { ServerRoute } from '@angular/ssr';
 import { RenderMode } from '@angular/ssr';
 
 export const serverRoutes: ServerRoute[] = [
-  // The pages whose components render on the server are prerendered; the rest join as their components become safe
-  // to render there, and render on the client until then.
+  // Every page is prerendered: its components render on the server. A path the app has no page for renders on the
+  // client, from the shell.
+  { path: '', renderMode: RenderMode.Prerender },
+  { path: 'local-development', renderMode: RenderMode.Prerender },
   { path: 'checkbox', renderMode: RenderMode.Prerender },
   { path: 'radios', renderMode: RenderMode.Prerender },
   { path: 'form-fields', renderMode: RenderMode.Prerender },
@@ -24,5 +26,9 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'scroller', renderMode: RenderMode.Prerender },
   { path: 'table', renderMode: RenderMode.Prerender },
   { path: 'virtualize', renderMode: RenderMode.Prerender },
+  { path: 'monaco', renderMode: RenderMode.Prerender },
+  { path: 'css', renderMode: RenderMode.Prerender },
+  { path: 'icons', renderMode: RenderMode.Prerender },
+  { path: 'clipboard', renderMode: RenderMode.Prerender },
   { path: '**', renderMode: RenderMode.Client },
 ];
