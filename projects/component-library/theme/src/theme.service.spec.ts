@@ -118,6 +118,13 @@ describe('ThemeService', () => {
     expect(JSON.parse(localStorage.getItem('theme-config')!)).toEqual({ fontSize: '14px', mode: 'dark' });
   });
 
+  it("reads the library's key over the old one when both hold a theme", () => {
+    localStorage.setItem('theme-config', JSON.stringify({ fontSize: '14px', mode: 'dark' }));
+    localStorage.setItem(KEY, JSON.stringify({ fontSize: '16px', mode: 'light' }));
+
+    expect(TestBed.inject(ThemeService).$theme()).toEqual({ fontSize: '16px', mode: 'light' });
+  });
+
   // F130: dark mode was set on the body alone, so the page's own background, its scrollbars and the variables on
   // :root stayed light
   it('sets dark mode on the root element, whose background the styles then make dark', async () => {
@@ -136,6 +143,19 @@ describe('ThemeService', () => {
     fixture.destroy();
     // the styles leave the page with the component, so no other spec runs under them
     expect(getComputedStyle(root).getPropertyValue('--twc-color-base')).toBe('');
+  });
+
+  it('takes dark mode off the root element and the body when the mode turns light', () => {
+    const theme = TestBed.inject(ThemeService);
+    theme.initialize();
+    theme.setColorMode('dark');
+
+    theme.setColorMode('light');
+
+    for (const element of [document.documentElement, document.body]) {
+      expect(element.classList.contains('dark-mode')).toBe(false);
+      expect(element.style.colorScheme).toBe('light');
+    }
   });
 
   // F131: the rule read var(twc-low-dpi-font-family), without the dashes, which the browser drops as invalid
