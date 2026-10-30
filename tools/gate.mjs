@@ -59,7 +59,9 @@ function run(command, args, { shell = false } = {}) {
     maxBuffer: 256 * 1024 * 1024,
     shell,
     windowsHide: true,
-    env: { ...process.env, NO_COLOR: '1', FORCE_COLOR: '0', NG_CLI_ANALYTICS: 'false' },
+    // CI=1 turns Angular's disk cache off, as on CI: in a worktree that cache is the main checkout's .angular/cache,
+    // which a gate run must not write to, and an entry left there can fail a build the code has fixed
+    env: { ...process.env, NO_COLOR: '1', FORCE_COLOR: '0', NG_CLI_ANALYTICS: 'false', CI: '1' },
   });
   const output = `${done.stdout ?? ''}${done.stderr ?? ''}${done.error ? `\n${done.error.message}` : ''}`.replace(ANSI, '').trim();
   return { ok: done.status === 0, missing: done.error?.code === 'ENOENT', output };

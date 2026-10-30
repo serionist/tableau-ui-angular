@@ -133,7 +133,7 @@ What this repo already paid for, and the guard.
 | `ng update` sees only the root `package.json`; the docs site's Angular packages are in `projects/test-app/package.json`                             | Move them by hand to the same versions, then `npm install`                                  |
 | A worktree whose `node_modules` linked to another checkout's built and tested that checkout's library                                               | `npm ci` in each worktree; never a link or a copy                                           |
 | A worktree inside the main checkout resolved what its own `node_modules` lacks from the main checkout's: zone.js loaded in its specs, never in CI's | Keep the main checkout's install current (`npm ci` there); CI's run, zoneless, is the judge |
-| `ng build` in a worktree keeps its cache in the main checkout's `.angular/cache`, and a stale entry there failed a build the code had fixed         | `CI=1` turns the cache off: `CI=1 npx ng build test-app` in a worktree                      |
+| `ng build` in a worktree keeps its cache in the main checkout's `.angular/cache`, and a stale entry there failed a build the code had fixed         | The gate sets `CI=1`, which turns the cache off; by hand, `CI=1 npx ng build test-app`      |
 
 ## Look up APIs first
 
