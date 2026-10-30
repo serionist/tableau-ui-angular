@@ -1,3 +1,27 @@
+// A row of the table page's sample data
+export interface DataType {
+  id: number;
+  name: string;
+  age: number;
+  gender: string;
+  country: string;
+  city: string;
+  email: string;
+  phone: string;
+  address: string;
+  zipCode: string;
+  username: string;
+  birthdate: string;
+  joinDate: string;
+  isActive: boolean;
+  score: number;
+  role: string;
+  department: string;
+  employeeId: string;
+  language: string;
+  notes: string;
+}
+
 export const small_data = [
   {
     id: 1,

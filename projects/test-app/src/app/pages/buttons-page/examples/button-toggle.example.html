@@ -1,0 +1,23 @@
+<p>Icons only</p>
+<tab-button-toggle [(selectedValue)]="$alignment" (selectedValueChange)="changed($event)">
+  <tab-option value="left" icon="format_align_left" hint="Left" [disabled]="true" />
+  <tab-option value="center" icon="format_align_center" hint="Center" />
+  <tab-option value="right" icon="format_align_right" hint="Right" />
+  <tab-option value="justify" icon="format_align_justify" hint="Justify" />
+</tab-button-toggle>
+
+<p>Icon and text, the full width</p>
+<tab-button-toggle class="full-width" [(selectedValue)]="$alignment" (selectedValueChange)="changed($event)">
+  <tab-option value="left" icon="format_align_left" text="Left" [disabled]="true" />
+  <tab-option value="center" icon="format_align_center" text="Center" />
+  <tab-option value="right" icon="format_align_right" text="Right" />
+  <tab-option value="justify" icon="format_align_justify" text="Justify" />
+</tab-button-toggle>
+
+<p>Disabled</p>
+<tab-button-toggle selectedValue="left" [disabled]="true">
+  <tab-option value="left" icon="format_align_left" text="Left" [disabled]="true" />
+  <tab-option value="center" icon="format_align_center" text="Center" />
+  <tab-option value="right" icon="format_align_right" text="Right" />
+  <tab-option value="justify" icon="format_align_justify" text="Justify" />
+</tab-button-toggle>

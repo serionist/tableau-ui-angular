@@ -1,0 +1,29 @@
+<tab-form-field>
+  <tab-label>Single value, wrap, icons shown, no check, selected item highlight</tab-label>
+  <tab-single-select placeholder="Select any value" [allowClear]="true" [value]="$value()" (valueChange)="changed($event)">
+    <!-- An option's text, hint and icon as values -->
+    <tab-option text="This is a looooooooooooooooong option, given as values" icon="home" hint="There are 2 ways to create tab-options: by values and by templates" [value]="1" />
+    <tab-option text="Disabled value" hint="with a hint" [value]="2" [disabled]="true" />
+
+    <!-- Or as templates, and the icon's parameters -->
+    <ng-template #textRef>
+      This option is given as a
+      <b>template</b>
+    </ng-template>
+    <ng-template #hintRef>
+      <tab-hint>There are 2 ways to create tab-options: by values and by templates</tab-hint>
+    </ng-template>
+    <tab-option icon="home" [value]="3" [iconParams]="{ fill: true, color: 'success' }" [text]="textRef" [hint]="hintRef" />
+
+    <!-- Or both: a template for the text, and a hint as content -->
+    <ng-template #combinationRef>
+      This option is given as a
+      <b>combination</b>
+      of text and template
+    </ng-template>
+    <tab-option icon="home" hint="with a hint" [value]="4" [text]="combinationRef">
+      <tab-hint>with a hint</tab-hint>
+    </tab-option>
+  </tab-single-select>
+  <tab-hint>The selected value wraps and makes the control taller; its icon shows in it</tab-hint>
+</tab-form-field>

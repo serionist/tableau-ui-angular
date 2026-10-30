@@ -1,0 +1,55 @@
+<form class="fields" [formGroup]="form | formGroup">
+  <tab-form-field>
+    <tab-label>Simple textbox</tab-label>
+    <input type="text" formControlName="simple" />
+  </tab-form-field>
+
+  <tab-form-field>
+    <tab-label>Placeholder textbox</tab-label>
+    <input type="text" placeholder="Enter any text here" formControlName="placeholder" />
+  </tab-form-field>
+
+  <tab-form-field>
+    <tab-label>Decorated textbox</tab-label>
+    <input type="text" placeholder="Enter any text here" formControlName="decorated" />
+    <tab-hint>Hint on the left side</tab-hint>
+    <tab-hint type="suffix">Hint on the right side</tab-hint>
+    <tab-prefix>
+      <tab-icon value="search" />
+    </tab-prefix>
+    <tab-suffix>Suffix</tab-suffix>
+  </tab-form-field>
+
+  <tab-form-field>
+    <tab-label>Disabled textbox</tab-label>
+    <input type="text" placeholder="Enter any text here" formControlName="disabled" />
+    <tab-hint>Hint on the left side</tab-hint>
+    <tab-hint type="suffix">Hint on the right side</tab-hint>
+    <tab-prefix>
+      <tab-icon value="search" />
+    </tab-prefix>
+    <tab-suffix>Suffix</tab-suffix>
+  </tab-form-field>
+
+  <tab-form-field>
+    <tab-label>Password box</tab-label>
+    <input type="password" placeholder="Enter any text here" formControlName="password" />
+    <tab-hint>Hint on the left side</tab-hint>
+    <tab-hint type="suffix">Hint on the right side</tab-hint>
+    <tab-prefix>
+      <tab-icon value="search" />
+    </tab-prefix>
+    <tab-suffix>Suffix</tab-suffix>
+  </tab-form-field>
+
+  <tab-form-field>
+    <tab-label>Text area</tab-label>
+    <textarea placeholder="Enter any text here" rows="1" formControlName="textarea"></textarea>
+    <tab-hint>
+      Set
+      <b>rows</b>
+      to make it taller from the start
+    </tab-hint>
+    <tab-hint type="suffix">Hint on the right side</tab-hint>
+  </tab-form-field>
+</form>

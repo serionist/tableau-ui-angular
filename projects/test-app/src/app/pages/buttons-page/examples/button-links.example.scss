@@ -1,0 +1,10 @@
+.loading {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.buttons {
+  display: grid;
+  grid-template-columns: repeat(4, max-content);
+  gap: 0.5rem;
+}

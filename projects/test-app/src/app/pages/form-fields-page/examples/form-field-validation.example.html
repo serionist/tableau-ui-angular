@@ -1,0 +1,35 @@
+<!-- An error shows once the control is touched: when the user leaves the field -->
+<form class="fields" [formGroup]="form | formGroup">
+  <tab-form-field>
+    <tab-label>Validated textbox</tab-label>
+    <input type="text" placeholder="Enter any text here" formControlName="required" />
+    <tab-hint>Hint on the left side</tab-hint>
+    <tab-hint type="suffix">Hint on the right side</tab-hint>
+    <tab-prefix>
+      <tab-icon value="search" />
+    </tab-prefix>
+    <tab-suffix>Suffix</tab-suffix>
+    @if (form | formMeta: 'required' | async | formHasError) {
+      <tab-error>This field is required</tab-error>
+    }
+  </tab-form-field>
+
+  <tab-form-field>
+    <tab-label>Number box</tab-label>
+    <input type="number" placeholder="Enter any text here" formControlName="number" />
+    <tab-hint>Enter -1 for two errors at once</tab-hint>
+    <tab-prefix>
+      <tab-icon value="search" />
+    </tab-prefix>
+    <tab-suffix>Suffix</tab-suffix>
+    @if (form | formMeta: 'number' | async | formHasError: 'required') {
+      <tab-error>This field is required</tab-error>
+    }
+    @if (form | formMeta: 'number' | async | formHasError: 'min') {
+      <tab-error>The value must be 0 or more</tab-error>
+    }
+    @if (form | formMeta: 'number' | async | formHasError: 'pattern') {
+      <tab-error>The value must be a whole number</tab-error>
+    }
+  </tab-form-field>
+</form>

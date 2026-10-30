@@ -1,0 +1,25 @@
+<!-- An icon that is a button's only content names the button: give the icon a label. A link loads with its row's buttons -->
+<div class="grid">
+  <span></span>
+  <span>Stroked</span>
+  <span>Disabled</span>
+  <span>Link</span>
+  <span>Link disabled</span>
+  <span>Raised</span>
+  <span>Disabled</span>
+  <span>Link</span>
+  <span>Link disabled</span>
+  @for (layout of layouts; track layout) {
+    @for (color of colors; track color) {
+      <code>{{ layout }}, {{ color }}</code>
+      <button [color]="color" [layout]="layout" [loading]="$loading()[color]" (click)="work(color)"><tab-icon value="home" label="Home" /></button>
+      <button [color]="color" [disabled]="true" [layout]="layout" (click)="work(color)"><tab-icon value="home" label="Home" /></button>
+      <a button target="_blank" [color]="color" [href]="repo" [layout]="layout" [loading]="$loading()[color]"><tab-icon value="code" label="The repository" /></a>
+      <a button target="_blank" [color]="color" [disabled]="true" [href]="repo" [layout]="layout"><tab-icon value="code" label="The repository" /></a>
+      <button kind="raised" [color]="color" [layout]="layout" [loading]="$loading()[color]" (click)="work(color)"><tab-icon value="home" label="Home" /></button>
+      <button kind="raised" [color]="color" [disabled]="true" [layout]="layout" (click)="work(color)"><tab-icon value="home" label="Home" /></button>
+      <a button kind="raised" target="_blank" [color]="color" [href]="repo" [layout]="layout" [loading]="$loading()[color]"><tab-icon value="code" label="The repository" /></a>
+      <a button kind="raised" target="_blank" [color]="color" [disabled]="true" [href]="repo" [layout]="layout"><tab-icon value="code" label="The repository" /></a>
+    }
+  }
+</div>

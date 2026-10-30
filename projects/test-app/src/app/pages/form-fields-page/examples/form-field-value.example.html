@@ -1,0 +1,18 @@
+<div class="fields">
+  <tab-form-field>
+    <tab-label>Simple textbox</tab-label>
+    <input type="text" value="" (change)="changed($event)" (input)="input($event)" />
+    <tab-hint>Typed: {{ $typed() || 'nothing yet' }}</tab-hint>
+  </tab-form-field>
+
+  <tab-form-field>
+    <tab-label>Disabled textbox</tab-label>
+    <input type="text" placeholder="Enter any text here" disabled value="" />
+    <tab-hint>Hint on the left side</tab-hint>
+    <tab-hint type="suffix">Hint on the right side</tab-hint>
+    <tab-prefix>
+      <tab-icon value="search" />
+    </tab-prefix>
+    <tab-suffix>Suffix</tab-suffix>
+  </tab-form-field>
+</div>

@@ -1,0 +1,26 @@
+:host {
+  display: block;
+  position: relative;
+  border: 1px solid var(--twc-color-border-light);
+  background: var(--twc-color-base-highlight);
+}
+
+pre {
+  margin: 0;
+  padding: 0.75rem 5rem 0.75rem 1rem;
+  max-height: 30rem;
+  overflow: auto;
+  font-family: Consolas, Menlo, 'Courier New', monospace;
+  font-size: 0.95em;
+  line-height: 1.5;
+
+  &:focus-visible {
+    outline: var(--twc-menu-highlight-outline);
+  }
+}
+
+.copy {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+}

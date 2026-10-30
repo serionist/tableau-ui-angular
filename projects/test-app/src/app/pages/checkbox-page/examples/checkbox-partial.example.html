@@ -1,0 +1,15 @@
+<div class="row">
+  <tab-checkbox [(value)]="$toFalse" (valueChange)="changed('Partial checkbox', $event)">
+    A checkbox that starts partial
+    <tab-hint>Only code sets partial; a click sets it to false</tab-hint>
+  </tab-checkbox>
+  <button (click)="$toFalse.set('partial')">Reset to partial</button>
+</div>
+
+<div class="row">
+  <tab-checkbox [valueAfterPartial]="true" [(value)]="$toTrue" (valueChange)="changed('Partial checkbox 2', $event)">
+    A checkbox that starts partial
+    <tab-hint>Only code sets partial; a click sets it to true</tab-hint>
+  </tab-checkbox>
+  <button (click)="$toTrue.set('partial')">Reset to partial</button>
+</div>

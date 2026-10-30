@@ -16,3 +16,8 @@
     width: 100%;
   }
 }
+
+// The table scrolls inside its own height, and draws only the rows that show
+tab-table {
+  max-height: 19rem;
+}

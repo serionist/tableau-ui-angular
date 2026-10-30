@@ -53,7 +53,9 @@
     "moduleResolution": "bundler",
     "importHelpers": true,
     "target": "ES2022",
-    "module": "ES2022"
+    // A new Angular workspace's setting, and what TypeScript needs for import attributes, which the docs site's samples use
+    // (projects/test-app/src/source.d.ts); the library builds the same as with ES2022
+    "module": "preserve"
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

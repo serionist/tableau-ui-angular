@@ -1,0 +1,11 @@
+p {
+  margin: 1rem 0 0.5rem;
+
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
+.full-width {
+  width: 100%;
+}

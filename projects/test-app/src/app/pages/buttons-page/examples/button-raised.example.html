@@ -1,0 +1,11 @@
+<div class="buttons">
+  <button kind="raised" color="plain" [loading]="$loading().plain" (click)="work('plain')">Plain</button>
+  <button kind="raised" color="secondary" [loading]="$loading().secondary" (click)="work('secondary')">Secondary</button>
+  <button kind="raised" color="primary" [loading]="$loading().primary" (click)="work('primary')">Primary</button>
+  <button kind="raised" color="error" [loading]="$loading().error" (click)="work('error')">Error</button>
+
+  <button kind="raised" color="plain" [disabled]="true" (click)="work('plain')">Plain disabled</button>
+  <button kind="raised" color="secondary" [disabled]="true" (click)="work('secondary')">Secondary disabled</button>
+  <button kind="raised" color="primary" [disabled]="true" (click)="work('primary')">Primary disabled</button>
+  <button kind="raised" color="error" [disabled]="true" (click)="work('error')">Error disabled</button>
+</div>

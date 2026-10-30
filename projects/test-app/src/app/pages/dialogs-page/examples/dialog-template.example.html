@@ -1,0 +1,13 @@
+<ng-template #content>
+  <div class="content">
+    <tab-icon value="error" [fill]="true" />
+    <span>This content is a template</span>
+    <tab-checkbox [value]="true">A checkbox in it</tab-checkbox>
+  </div>
+</ng-template>
+
+<div class="buttons">
+  <button color="primary" (click)="confirm(content, 'primary')">Primary</button>
+  <button (click)="confirm(content, 'secondary')">Secondary</button>
+  <button color="error" (click)="confirm(content, 'error')">Error</button>
+</div>
