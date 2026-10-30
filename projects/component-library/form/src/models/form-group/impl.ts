@@ -93,7 +93,7 @@ export class FGImpl<T extends Record<string, unknown>> extends ACImpl<T> impleme
       map(() => this._value$.value),
     );
     this.registerFn = new FgRegisterFnsImpl<T>(this, this.subscriptions);
-    this.validatorFn = new ValidatorFnsImpl<FG<T>>(this.control);
+    this.validatorFn = new ValidatorFnsImpl<FG<T>>(this.control, this);
     this.metaFn = new MetaFnsImpl<FG<T>>(this.control, this);
     this.refreshMeta();
   }

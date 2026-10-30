@@ -57,6 +57,24 @@ class ShortShellComponent {
   readonly pages = Array.from({ length: 40 }, (_, i) => `page-${i + 1}`);
 }
 
+// A shell with a logo above the buttons and a version below them, the footer only while the bar is expanded
+@Component({
+  imports: [TableauUiNavBarModule, TableauUiIconModule],
+  template: `
+    <tab-nav-bar #bar>
+      @if (bar.$expanded()) {
+        <tab-nav-bar-footer><span class="version">v1.2.3</span></tab-nav-bar-footer>
+      }
+      <tab-nav-bar-header><span class="logo">Logo</span></tab-nav-bar-header>
+      <tab-nav-bar-button text="Home" link="/home">
+        <tab-icon value="home" />
+      </tab-nav-bar-button>
+    </tab-nav-bar>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class BrandedShellComponent {}
+
 describe('NavBarComponent', () => {
   beforeEach(() => {
     // any path navigates, so a link's click lands somewhere
@@ -167,5 +185,21 @@ describe('NavBarComponent', () => {
 
     expect((fixture.nativeElement as HTMLElement).querySelectorAll('tab-nav-bar-button span.collapsed').length).toBe(40);
     expect(document.documentElement.scrollHeight).toBe(expanded);
+  });
+
+  it('shows its header above the buttons and its footer below them, wherever they sit in its content', async () => {
+    const fixture = TestBed.createComponent(BrandedShellComponent);
+    fixture.autoDetectChanges();
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+    const top = (selector: string) => host.querySelector(selector)!.getBoundingClientRect().top;
+
+    expect(top('.logo')).toBeLessThan(top('tab-nav-bar-button'));
+    expect(top('.version')).toBeGreaterThan(top('tab-nav-bar-button'));
+
+    host.querySelector<HTMLButtonElement>('.menu-toggle-button button')!.click();
+    await fixture.whenStable();
+    expect(host.querySelector('.version')).toBeNull();
+    expect(host.querySelector('.logo')).not.toBeNull();
   });
 });

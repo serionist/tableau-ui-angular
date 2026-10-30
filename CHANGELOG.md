@@ -284,6 +284,20 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
 - `styles/fonts/downloadFonts.js` exits 1 when a font file fails to download, names the files that failed, and keeps
   the copy the folder had of each, with no empty or partial file: it writes `<file>.part` and moves it in place once
   complete. It left a 0-byte file and reported success, and an answer that broke off stopped it.
+- An `<a button>` runs its click on Enter, as on Space; the browser does nothing on Enter for an `<a>` without an
+  `href`, so a keyboard user could only use Space.
+- A disabled or loading `<a button>` runs no click, from a screen reader, the keyboard or code, and says it is
+  disabled (`aria-disabled`). `disabled` means nothing on an `<a>`: it read as an enabled button and ran the app's
+  `(click)`.
+- The `resizeWatcher` directive renders on the server: it observes after the first render, in the browser only. It
+  created its `ResizeObserver` while rendering, which the server lacks, so a page with it could not prerender.
+- The `formArrayControls` pipe takes a typed form array (`FA<T>`) and gives its rows as `FG<T>`. With strict
+  templates, Angular's default, `form.controls.rows | formArrayControls` failed to compile.
+- The `formError` pipe on a group or an array finds the error on whichever child has it. It looked at the first
+  child only, and gave `null` when that child had no such error.
+- A control's `validatorFn` functions return the control, as `metaFn`'s do, so calls chain. They returned Angular's
+  own control, so a call after them, such as `.metaFn.markAsTouched()`, threw.
+- The table's header tooltip says "Shift + Click to add to multi-sort"; it said "add add".
 
 ### Changed
 

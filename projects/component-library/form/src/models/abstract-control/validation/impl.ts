@@ -1,8 +1,13 @@
 import type { AbstractControl } from '@angular/forms';
+import type { AC } from '../interfaces';
 import type { AsyncValidatorFn, ValidatorFn, ValidatorFns } from './interfaces';
 
 export class ValidatorFnsImpl<TChild> implements ValidatorFns<TChild> {
-  constructor(private readonly control: AbstractControl) {}
+  // each function returns ctrl, the control the app holds, as MetaFnsImpl does, so its calls chain
+  constructor(
+    private readonly control: AbstractControl,
+    private readonly ctrl: AC,
+  ) {}
   /**
    * Returns the function that is used to determine the validity of this control synchronously.
    * If multiple validators have been added, this will be a single composed function.
@@ -46,7 +51,7 @@ export class ValidatorFnsImpl<TChild> implements ValidatorFns<TChild> {
    */
   setValidators(validators: ValidatorFn | ValidatorFn[] | null): TChild {
     this.control.setValidators(validators);
-    return this.control as unknown as TChild;
+    return this.ctrl as unknown as TChild;
   }
   /**
    * Sets the asynchronous validators that are active on this control. Calling this
@@ -60,7 +65,7 @@ export class ValidatorFnsImpl<TChild> implements ValidatorFns<TChild> {
    */
   setAsyncValidators(validators: AsyncValidatorFn | AsyncValidatorFn[] | null): TChild {
     this.control.setAsyncValidators(validators);
-    return this.control as unknown as TChild;
+    return this.ctrl as unknown as TChild;
   }
   /**
    * Add a synchronous validator or validators to this control, without affecting other validators.
@@ -76,7 +81,7 @@ export class ValidatorFnsImpl<TChild> implements ValidatorFns<TChild> {
    */
   addValidators(validators: ValidatorFn | ValidatorFn[]): TChild {
     this.control.addValidators(validators);
-    return this.control as unknown as TChild;
+    return this.ctrl as unknown as TChild;
   }
   /**
    * Add an asynchronous validator or validators to this control, without affecting other
@@ -91,7 +96,7 @@ export class ValidatorFnsImpl<TChild> implements ValidatorFns<TChild> {
    */
   addAsyncValidators(validators: AsyncValidatorFn | AsyncValidatorFn[]): TChild {
     this.control.addAsyncValidators(validators);
-    return this.control as unknown as TChild;
+    return this.ctrl as unknown as TChild;
   }
   /**
    * Remove a synchronous validator from this control, without affecting other validators.
@@ -124,7 +129,7 @@ export class ValidatorFnsImpl<TChild> implements ValidatorFns<TChild> {
    */
   removeValidators(validators: ValidatorFn | ValidatorFn[]): TChild {
     this.control.removeValidators(validators);
-    return this.control as unknown as TChild;
+    return this.ctrl as unknown as TChild;
   }
   /**
    * Remove an asynchronous validator from this control, without affecting other validators.
@@ -139,7 +144,7 @@ export class ValidatorFnsImpl<TChild> implements ValidatorFns<TChild> {
    */
   removeAsyncValidators(validators: AsyncValidatorFn | AsyncValidatorFn[]): TChild {
     this.control.removeAsyncValidators(validators);
-    return this.control as unknown as TChild;
+    return this.ctrl as unknown as TChild;
   }
   /**
    * Check whether a synchronous validator function is present on this control. The provided
@@ -187,7 +192,7 @@ export class ValidatorFnsImpl<TChild> implements ValidatorFns<TChild> {
    */
   clearValidators(): TChild {
     this.control.clearValidators();
-    return this.control as unknown as TChild;
+    return this.ctrl as unknown as TChild;
   }
   /**
    * Empties out the async validator list.
@@ -198,6 +203,6 @@ export class ValidatorFnsImpl<TChild> implements ValidatorFns<TChild> {
    */
   clearAsyncValidators(): TChild {
     this.control.clearAsyncValidators();
-    return this.control as unknown as TChild;
+    return this.ctrl as unknown as TChild;
   }
 }

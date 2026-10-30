@@ -1,3 +1,4 @@
+import { Validators } from '@angular/forms';
 import { FB } from '../fb';
 
 describe('FC', () => {
@@ -63,5 +64,18 @@ describe('FC', () => {
 
     expect(control.$meta().valueIsDefault).toBe(true);
     expect(control.meta$.value.valueIsDefault).toBe(true);
+  });
+
+  // The validator functions returned Angular's own control, typed as this one, so a chained call after them threw
+  it('returns itself from its validator functions, so calls chain', () => {
+    const control = fb.control<string>('');
+
+    expect(control.validatorFn.setValidators(Validators.required)).toBe(control);
+    control.validatorFn.addValidators(Validators.minLength(3)).validatorFn.removeValidators(Validators.required).metaFn.markAsTouched();
+    control.setValue('ab');
+
+    expect(control.$meta().errors).toEqual({ minlength: { requiredLength: 3, actualLength: 2 } });
+    expect(control.$meta().touched).toBe(true);
+    expect(control.validatorFn.clearValidators()).toBe(control);
   });
 });

@@ -86,7 +86,7 @@ export class FCImpl<T extends PrimitiveWithUndefined | PrimitiveWithUndefined[]>
       map(() => this._value$.value),
     );
     this.registerFn = new FcRegisterFnsImpl<T>(this, this.subscriptions);
-    this.validatorFn = new ValidatorFnsImpl<FC<T>>(this.control);
+    this.validatorFn = new ValidatorFnsImpl<FC<T>>(this.control, this);
     this.metaFn = new MetaFnsImpl<FC<T>>(this.control, this);
     this.refreshMeta();
   }
