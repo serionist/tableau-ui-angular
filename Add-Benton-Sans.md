@@ -1,43 +1,39 @@
-# Adding Benton Sans (Tableau) font
+# Adding Benton Sans, the Tableau font
 
-Before adding Tableau font (**Benton Sans Book**), ensure you own a valid license, as it is proprietary.
+Benton Sans is Tableau's font, which needs a licence. Without it the text falls back to Roboto, when the app loads it,
+then Arial.
 
-Designate a public folder to host your webfonts, e.g., `public/fonts` (`/fonts` URL).
+1. Put its webfont files in a public folder, such as `public/fonts`, which the app serves at `/fonts`.
+2. Load them from `styles.scss`, after the library's styles.
 
-1. Add the Benton Sans webfont files into the `public/fonts` folder:
+## 1. The files
 
-   #### If you own a Tableau Server
+A Tableau Server you own has them. Run the script the package ships, from the app's root, with the server's address
+and the folder:
 
-   Run the following script from the root of your project:
+```bash
+node node_modules/tableau-ui-angular/styles/fonts/downloadFonts.js https://your-tableau-server public/fonts
+```
 
-   ```
-   node tableau-ui-angular/styles/fonts/downloadFonts.js https://[your-tableau-server].com public/fonts
-   ```
+Without a server, put these 12 files in the folder yourself:
 
-   This will download all the required fonts from the Tableau Server
+| Weight          | Files                                                                 |
+| --------------- | --------------------------------------------------------------------- |
+| Light           | `BentonSans-Light.woff`, `BentonSans-Light.woff2`                     |
+| Book            | `BentonSans-Book.woff`, `BentonSans-Book.woff2`                       |
+| Book italic     | `BentonSans-Book_Italic.woff`, `BentonSans-Book_Italic.woff2`         |
+| Medium          | `BentonSans-Medium.woff`, `BentonSans-Medium.woff2`                   |
+| SemiDemi        | `BentonSans-SemiDemi.woff`, `BentonSans-SemiDemi.woff2`               |
+| SemiDemi italic | `BentonSans-SemiDemi_Italic.woff`, `BentonSans-SemiDemi_Italic.woff2` |
 
-   #### If you don't own a Tableau Server
+## 2. The styles
 
-   Manually place the following files into the `public/fonts` folder:
+`font-import` takes the URL the folder is served at, `/fonts` for `public/fonts`:
 
-   - BentonSans-Book.woff
-   - BentonSans-Book.woff2
-   - BentonSans-Book_Italic.woff
-   - BentonSans-Book_Italic.woff2
-   - BentonSans-Medium.woff
-   - BentonSans-Medium.woff2
-   - BentonSans-SemiDemi.woff
-   - BentonSans-SemiDemi.woff2
-   - BentonSans-SemiDemi_Italic.woff
-   - BentonSans-SemiDemi_Italic.woff2
+```scss
+@use 'tableau-ui-angular/styles/lib-styles' as libStyles;
 
-2. Add the following line into your `styles.scss` file:
+@include libStyles.font-import('/fonts');
+```
 
-   ```
-   # You should already have this line
-   @import 'tableau-ui-angular/styles/lib-styles';
-   # Add this line to import the Benton Sans font from the /fonts URL
-   @include font-import('/fonts');
-   ```
-
-   This sets up the application to pull the Benton Sans font files from the `/fonts` URL, which corresponds to your `public/fonts` folder.
+The docs site's getting started page shows the whole `styles.scss`, with the Roboto fallback and the icons.
