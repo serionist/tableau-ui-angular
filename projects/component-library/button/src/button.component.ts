@@ -76,7 +76,8 @@ export class ButtonComponent {
   handleKeydown(event: KeyboardEvent) {
     const el = this.$nativeElement.nativeElement;
     this.clickFromKeyboard = true; // set flag to indicate click from keyboard
-    if ((this.isLink && event.code === 'Enter') || event.code === 'Space') {
+    // an <a> with an href follows it on Enter itself, Ctrl + Enter to a new tab included; one without does nothing
+    if ((this.isLink && !el.hasAttribute('href') && event.key === 'Enter') || event.code === 'Space') {
       event.preventDefault(); // stop scroll or native behavior
 
       el.click(); // trigger click manually

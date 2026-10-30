@@ -284,8 +284,8 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
 - `styles/fonts/downloadFonts.js` exits 1 when a font file fails to download, names the files that failed, and keeps
   the copy the folder had of each, with no empty or partial file: it writes `<file>.part` and moves it in place once
   complete. It left a 0-byte file and reported success, and an answer that broke off stopped it.
-- An `<a button>` runs its click on Enter, as on Space; the browser does nothing on Enter for an `<a>` without an
-  `href`, so a keyboard user could only use Space.
+- An `<a button>` without an `href` runs its click on Enter, as on Space. The browser does nothing on Enter for an
+  `<a>` without one, so a keyboard user could only use Space; one with an `href` still follows it as a link does.
 - A disabled or loading `<a button>` runs no click, from a screen reader, the keyboard or code, and says it is
   disabled (`aria-disabled`). `disabled` means nothing on an `<a>`: it read as an enabled button and ran the app's
   `(click)`.
