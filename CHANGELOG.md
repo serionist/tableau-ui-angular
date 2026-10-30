@@ -111,6 +111,10 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   `--twc-font-size-body`, which holds the same font size.
 - The empty `styles/_lib-mixins.scss` and `styles/_tooltips.scss` are gone. Remove a
   `@use 'tableau-ui-angular/styles/lib-mixins'` or `@use 'tableau-ui-angular/styles/tooltips'`; neither held anything.
+- `used-icons/scripts/update-icons.js` downloads with Node's own `fetch`, which on its own doesn't use `HTTP_PROXY` or
+  `HTTPS_PROXY`, as `axios` did for an app that had it. Behind a proxy, set `NODE_USE_ENV_PROXY=1` beside
+  `HTTPS_PROXY`, which Node 22 and 24 read in the versions this package supports, or set a mirror the network reaches
+  in `TABLEAU_UI_ICONS_CSS_URL`.
 
 ### Added
 
@@ -249,15 +253,16 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
 - A form's write to `tab-monaco-editor` (`setValue`, `patchValue`, `reset()`) no longer comes back as the user's
   change: the form stays pristine and emits `valueChanges` once, where Monaco's report of the new text marked it dirty
   and emitted it again.
-- `tab-monaco-editor` is read-only while its form control is disabled; it took typing.
+- `tab-monaco-editor` is read-only while its form control is disabled, and so is its text box, which a screen reader
+  reads; it took typing.
 - After a change of the Monaco editor's `options`, typing no longer rebuilds the editor on each keystroke, which lost
-  the cursor and the undo history.
+  the cursor and the undo history, and the one rebuild keeps the undo history.
 - A change of the Monaco editor's `uri` disposes the old document's model, as destroying the editor does, unless
   `disposeModelOnDestroy` is `false`; each one stayed in Monaco's models for the page.
 - An editor destroyed while Monaco still loads is not created once it has loaded; it was, with a model that leaked.
-- When Monaco fails to load, as when the app serves nothing at `monaco-edit/vs`, the editor that started the load
-  reports it to the app's `ErrorHandler`, once, and the next editor tries again. Every editor stayed blank, and
-  nothing said why.
+- When Monaco fails to load, its `loader.js` or its `editor.main`, as when the app serves nothing at `monaco-edit/vs`,
+  the editor that started the load reports it to the app's `ErrorHandler`, once, and the next editor fetches it again.
+  Every editor stayed blank, and nothing said why.
 - `tab-monaco-editor` renders on the server: it loads Monaco after the first render, in the browser only, so a page with
   an editor can be prerendered.
 - `ThemeService.$theme`, and a `computed` that reads it, update on `setColorMode()` and `setFontSize()`, and `reset()`
@@ -276,9 +281,9 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
 - A denied clipboard read says so; it showed the message for a denied write.
 - `used-icons/scripts/update-icons.js` runs in an app without `axios`, which it required but the package never
   declared: it downloads with Node's own `fetch`. In an app without `typescript` it says how to install it.
-- `styles/fonts/downloadFonts.js` exits 1 when a font file fails to download, names the files that failed, and leaves
-  no empty or partial file for them. It left a 0-byte file and reported success, and an answer that broke off stopped
-  it.
+- `styles/fonts/downloadFonts.js` exits 1 when a font file fails to download, names the files that failed, and keeps
+  the copy the folder had of each, with no empty or partial file: it writes `<file>.part` and moves it in place once
+  complete. It left a 0-byte file and reported success, and an answer that broke off stopped it.
 
 ### Changed
 
