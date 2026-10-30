@@ -296,7 +296,10 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
 - The `formError` pipe on a group or an array finds the error on whichever child has it. It looked at the first
   child only, and gave `null` when that child had no such error.
 - A control's `validatorFn` functions return the control, as `metaFn`'s do, so calls chain. They returned Angular's
-  own control, so a call after them, such as `.metaFn.markAsTouched()`, threw.
+  own control, so a call after them, such as `.metaFn.markAsTouched()`, threw. A call chained after them now runs the
+  control's own `updateValueAndValidity(...)` and `reset(...)`, which honour their arguments: before, Angular's ran,
+  updated the ancestors whatever the arguments said, and marked nothing. The declared type was already the control's,
+  so an app's code compiles as before.
 - The table's header tooltip says "Shift + Click to add to multi-sort"; it said "add add".
 
 ### Changed

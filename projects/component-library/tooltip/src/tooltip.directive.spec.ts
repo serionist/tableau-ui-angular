@@ -59,7 +59,13 @@ describe('TooltipDirective', () => {
     return { fixture, host, component: fixture.componentInstance, button };
   }
 
+  // the tooltips open now; each is in the page as soon as the pointer comes in, its text at the next render
   const tooltips = () => Array.from(document.querySelectorAll('tab-tooltip'), tooltip => tooltip.textContent.trim());
+  const shows = async (texts: string[]) => {
+    await vi.waitFor(() => {
+      expect(tooltips()).toEqual(texts);
+    });
+  };
   // the open tooltip's box, once it is placed: it opens off screen to be measured
   const placed = async () => {
     const container = document.querySelector<HTMLElement>('.dialog-container')!;
@@ -73,7 +79,7 @@ describe('TooltipDirective', () => {
     const { button } = await render();
 
     await userEvent.hover(button('text'));
-    expect(tooltips()).toEqual(['Save changes']);
+    await shows(['Save changes']);
 
     await movePointerAway();
     expect(tooltips()).toEqual([]);
@@ -84,7 +90,7 @@ describe('TooltipDirective', () => {
 
     await userEvent.hover(button('template'));
 
-    expect(tooltips()).toEqual(['Hello Ada']);
+    await shows(['Hello Ada']);
   });
 
   it('shows nothing for a null tooltip, nor when the pointer comes in with a button held, as in a drag', async () => {
@@ -135,12 +141,12 @@ describe('TooltipDirective', () => {
     const { component, button } = await render();
 
     await userEvent.hover(button('full'));
-    expect(tooltips()).toEqual(['Whole']);
+    await shows(['Whole']);
     expect((await placed()).top).toBeGreaterThanOrEqual(button('full').getBoundingClientRect().bottom);
     await movePointerAway();
 
     await userEvent.hover(button('lazy'));
-    expect(tooltips()).toEqual(['Lazy 1']);
+    await shows(['Lazy 1']);
     await movePointerAway();
     component.lazyText = undefined;
     await userEvent.hover(button('lazy'));
@@ -154,7 +160,7 @@ describe('TooltipDirective', () => {
 
     component.$text.set('Saved');
     await fixture.whenStable();
-    expect(tooltips()).toEqual(['Saved']);
+    await shows(['Saved']);
 
     component.$shown.set(false);
     await fixture.whenStable();

@@ -27,19 +27,21 @@ export class ButtonComponent {
 
   constructor() {
     // A disabled <button> gets no click; an <a> does, from a screen reader or its keys, so it stops here, in the
-    // capture phase, before any (click) of the app's on the element
-    const unlisten = inject(Renderer2).listen(
-      this.$nativeElement.nativeElement,
-      'click',
-      (event: Event) => {
-        if (this.isLink && (this.$disabled() || this.$loading())) {
-          event.preventDefault();
-          event.stopImmediatePropagation();
-        }
-      },
-      { capture: true },
-    );
-    inject(DestroyRef).onDestroy(unlisten);
+    // capture phase, before any (click) of the app's on the element, and before its href is followed
+    if (this.isLink) {
+      const unlisten = inject(Renderer2).listen(
+        this.$nativeElement.nativeElement,
+        'click',
+        (event: Event) => {
+          if (this.$disabled() || this.$loading()) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+          }
+        },
+        { capture: true },
+      );
+      inject(DestroyRef).onDestroy(unlisten);
+    }
   }
   readonly $disabled = input(false, {
     alias: 'disabled',

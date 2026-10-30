@@ -13,6 +13,7 @@ import { TableauUiButtonModule } from './tableau-ui-buttons.module';
       <button type="submit">Send</button>
     </form>
     <a button [disabled]="$disabled()" [loading]="$loading()" (click)="clicks.push('open')">Open</a>
+    <a button href="#next" [disabled]="$disabled()" (click)="followed($event)">Next</a>
     <button layout="icon" [loading]="$loading()" (click)="clicks.push('close')"><tab-icon value="close" label="Close" /></button>
     <button [noFocusOnClick]="false" (click)="clicks.push('keep')">Keep focus</button>
   `,
@@ -23,6 +24,14 @@ class ButtonsComponent {
   readonly $loading = signal(false);
   readonly clicks: string[] = [];
   readonly submits: string[] = [];
+
+  // the app keeps Ctrl + click and Ctrl + Enter to itself, so the test opens no tab
+  followed(event: MouseEvent) {
+    this.clicks.push(event.ctrlKey ? 'next with Ctrl' : 'next');
+    if (event.ctrlKey) {
+      event.preventDefault();
+    }
+  }
 }
 
 describe('ButtonComponent', () => {
@@ -39,6 +48,7 @@ describe('ButtonComponent', () => {
       save: byText('Save'),
       send: byText('Send'),
       open: byText('Open'),
+      next: byText('Next'),
       close: host.querySelector<HTMLElement>('[layout="icon"]')!,
       keep: byText('Keep focus'),
     };
@@ -95,6 +105,44 @@ describe('ButtonComponent', () => {
 
     expect(component.clicks).toEqual(['open', 'open']);
     expect(document.activeElement).toBe(open);
+  });
+
+  // A disabled <a button> stops the app's (click), and must stop the browser following its href too; an enabled one
+  // leaves Enter to the link, so Ctrl + Enter keeps its Ctrl, which a click from code would drop
+  it('follows its href while enabled, never while disabled, and leaves Enter to a link', async () => {
+    const { fixture, component, next } = await render();
+    const start = location.href;
+    // the fragments the page went to, in order: Firefox follows a link a task after its click
+    const visited: string[] = [];
+    const record = (event: HashChangeEvent) => visited.push(new URL(event.newURL).hash);
+    window.addEventListener('hashchange', record);
+    try {
+      component.$disabled.set(true);
+      await fixture.whenStable();
+      next.click();
+      expect(component.clicks).toEqual([]);
+
+      component.$disabled.set(false);
+      await fixture.whenStable();
+      next.focus();
+      await userEvent.keyboard('{Control>}{Enter}{/Control}');
+      expect(component.clicks).toEqual(['next with Ctrl']);
+
+      // a fragment of the test's own, after which neither click above can still land
+      location.hash = 'checked';
+      await vi.waitFor(() => {
+        expect(visited).toEqual(['#checked']);
+      });
+
+      next.click();
+      await vi.waitFor(() => {
+        expect(visited).toEqual(['#checked', '#next']);
+      });
+      expect(component.clicks).toEqual(['next with Ctrl', 'next']);
+    } finally {
+      window.removeEventListener('hashchange', record);
+      history.replaceState(history.state, '', start);
+    }
   });
 
   it('gives focus up after a mouse click, unless noFocusOnClick is false', async () => {

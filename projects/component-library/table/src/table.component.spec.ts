@@ -658,40 +658,46 @@ describe('TableComponent tooltips and column widths', () => {
     await loading;
     const header = (column: string) => host.querySelector<HTMLElement>(`.column-header[data-column-id="${column}"]`)!;
     const cell = (row: number, column: string) => host.querySelectorAll<HTMLElement>(`.data-rows .row`)[row].querySelector<HTMLElement>(`.cell[data-column-id="${column}"]`)!;
-    // as the user reads it, a line per block
+    // as the user reads it, a line per block; a tooltip is in the page as soon as the pointer comes in, its text at the
+    // next render
     const tooltip = () => document.querySelector<HTMLElement>('tab-tooltip')?.innerText.replace(/\s+/g, ' ').trim();
-    return { fixture, component, host, header, cell, tooltip, settle };
+    const shows = async (text: string) => {
+      await vi.waitFor(() => {
+        expect(tooltip()).toBe(text);
+      });
+    };
+    return { fixture, component, host, header, cell, tooltip, shows, settle };
   }
 
   it("shows a column's own tooltips, a cell's with its row, where its showTooltip says so", async () => {
-    const { header, cell, tooltip } = await render();
+    const { header, cell, tooltip, shows } = await render();
 
     await userEvent.hover(header('id').querySelector('.header-button')!);
-    expect(tooltip()).toBe('Unique per person');
+    await shows('Unique per person');
 
     // the first row is person 1, the second person 2
     await userEvent.hover(cell(1, 'id'));
-    expect(tooltip()).toBe('Person number 2');
+    await shows('Person number 2');
     await userEvent.hover(cell(0, 'id'));
     expect(tooltip()).toBeUndefined();
   });
 
   it("shows a clamped cell's whole text, and the default header tooltip with what a click does", async () => {
-    const { fixture, component, header, cell, tooltip } = await render();
+    const { fixture, component, header, cell, tooltip, shows } = await render();
 
     await userEvent.hover(cell(0, 'bio'));
-    expect(tooltip()).toBe('Person 1 likes long walks');
+    await shows('Person 1 likes long walks');
     await userEvent.hover(cell(0, 'name'));
     expect(tooltip()).toBeUndefined();
 
     await userEvent.hover(header('name').querySelector('.header-button')!);
-    expect(tooltip()).toBe('Name Click to sort in Ascending order.');
+    await shows('Name Click to sort in Ascending order.');
 
     await movePointerAway();
     component.$sort.set([{ property: 'id', direction: 'asc' }]);
     await fixture.whenStable();
     await userEvent.hover(header('name').querySelector('.header-button')!);
-    expect(tooltip()).toBe('Name Shift + Click to add to multi-sort in Ascending order. Click to sort in Ascending order.');
+    await shows('Name Shift + Click to add to multi-sort in Ascending order. Click to sort in Ascending order.');
   });
 
   it('widens a column by the distance its edge is dragged, and its cells with it', async () => {
