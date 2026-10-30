@@ -7,7 +7,7 @@
 //   150 lines, each skill's name and description, no coverage ignore comment in the library, no tool attribution in the
 //   commits' messages, and gitleaks on those commits when gitleaks is on PATH (a line says when it was skipped;
 //   GATE_REQUIRE_GITLEAKS=1, as CI sets it, makes that a failure).
-// full: quick, then the library build, the hooks' tests, the tests of every angular.json project in Chromium and
+// full: quick, then the library build, the tools' tests, the tests of every angular.json project in Chromium and
 //   Firefox (ng test --watch=false, the library's with coverage), the library's line coverage against the floor in
 //   tools/coverage.json, and the demo app's build with its prerender, which must prerender a route and log no error.
 //
@@ -255,14 +255,14 @@ function checkLibraryBuild() {
   return done.ok ? pass(built?.replace(/^\W+/, '') ?? 'dist/component-library') : fail('the library build failed', done.output);
 }
 
-function checkHookTests() {
+function checkToolTests() {
   const done = node('--test', '--test-reporter=tap', 'tools/*.test.mjs');
-  if (!done.ok) return fail("the hooks' tests failed", done.output);
+  if (!done.ok) return fail("the tools' tests failed", done.output);
   // A test file with no tests passes as one test named after the file, so only a test with a name of its own, neither
   // skipped nor a todo, shows that a test ran.
   const ran = [...done.output.matchAll(/^\s*ok \d+ - (.*)$/gm)].filter(([, name]) => !/\.test\.mjs$|#\s*(?:SKIP|TODO)\b/i.test(name.trim())).length;
   const count = Number(/^# pass (\d+)/m.exec(done.output)?.[1] ?? 0);
-  return ran && count ? pass(`${count} tests pass`) : fail("no hooks' test ran: tools/*.test.mjs holds no test", done.output);
+  return ran && count ? pass(`${count} tests pass`) : fail("no tools' test ran: tools/*.test.mjs holds no test", done.output);
 }
 
 function checkTests() {
@@ -322,7 +322,7 @@ const QUICK = [
 ];
 const FULL = [
   ['library build', checkLibraryBuild, true],
-  ['hook tests', checkHookTests, true],
+  ["tools' tests", checkToolTests, true],
   ['tests', checkTests, true],
   ['coverage', checkCoverage, true],
   ['demo build', checkDemoBuild, true],

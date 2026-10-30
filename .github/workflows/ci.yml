@@ -1,5 +1,5 @@
 # The gate on every pull request and every push to main. Linux runs the gate's full lane on Node 22 and 24: lint,
-# format, the harness, no tool attribution and no secrets in the commits, the library build, the hooks' tests, the
+# format, the harness, no tool attribution and no secrets in the commits, the library build, the tools' tests, the
 # component tests in Chromium and Firefox, the library's line coverage against its floor, and the demo app's build and
 # prerender. Windows builds the package on Node 24 and packs it, installs the tarball into an empty app and runs there
 # the two scripts apps run, against local stubs. The CI job needs every leg; it and pr-text.yml's PR text are the

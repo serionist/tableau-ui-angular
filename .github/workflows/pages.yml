@@ -5,8 +5,8 @@
 # never shows a commit CI hasn't passed. When main has moved on, the newer commit's own CI run deploys it.
 #
 # The icons are downloaded again for the build, which needs the network. Each route the build prerenders has its own
-# index.html in its folder. The build's shell, index.csr.html, serves the rest: it is published as 404.html, which
-# GitHub Pages serves for every other path, so a deep link opens its page, and as index.html until / prerenders.
+# index.html in its folder, / included. The build's shell, index.csr.html, serves the rest: it is published as
+# 404.html, which GitHub Pages serves for every other path, so a deep link opens its page.
 name: Pages
 
 on:
@@ -56,7 +56,7 @@ jobs:
         working-directory: dist/test-app/browser
         run: |
           test -f index.csr.html
-          # Once / prerenders, its index.html is the page, and only 404.html takes the shell.
+          # / prerenders, so its index.html is the page; the shell takes its place only in a build where it doesn't.
           [ -f index.html ] || cp index.csr.html index.html
           cp index.csr.html 404.html
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
