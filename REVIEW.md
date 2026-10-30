@@ -36,6 +36,8 @@ Each is a yes or no, and a "no" is a finding.
    head?
 2. Does the change do what its issue and plan say, and nothing nobody asked for?
 3. Does it leave the one-way doors in `AGENTS.md` alone, or name the one it changes and link the maintainer's agreement?
+   A diff in `projects/component-library/api/` is a change to an export, a selector, an input or an output: the PR
+   names each.
 4. Does each form control keep the forms contract: `writeValue` with `null` and before init, no `onChange` or dirty
    from a programmatic write, touched on blur, `setDisabledState` honoured?
 5. Can a keyboard user and a screen-reader user operate what changed: focus order and return, the WAI-ARIA pattern's
@@ -55,6 +57,8 @@ These files decide how every other change is checked:
 - `AGENTS.md`, `REVIEW.md`, `.claude/` (`CLAUDE.md`, the settings, the skills), `.mcp.json`;
 - `tools/`, `.githooks/`, `.gitleaks.toml`, and `.github/` (the workflows, `dependabot.yml`, CODEOWNERS, the
   templates);
+- `projects/component-library/api/`, the public API file `tools/api.mjs` writes and the full lane compares with the
+  build;
 - `eslint.config.js`, `.stylelintrc.json`, `.prettierrc`, the tsconfigs, `angular.json`'s test and lint targets, and
   the `package.json` scripts the gate runs.
 

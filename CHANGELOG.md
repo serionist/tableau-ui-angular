@@ -24,6 +24,10 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
 - The table's `dataRowHeight` and `dataPadding` inputs become one `dataRowCss` input, which needs `height`,
   `lineHeight` and `padding`: for `dataRowHeight="2em"` and `dataPadding="0 1em"`, bind
   `[dataRowCss]="{ height: '2em', lineHeight: 'inherit', padding: '0 1em' }"`.
+- `TableComponent.dataManager` is protected: the table extends `VirtualizeBaseComponent`, which keeps its data manager
+  for itself and the components that extend it. `load()`, `reload()` and `reset()` stay public. Code that read
+  `table.dataManager` for the row count or the loaded rows keeps what the table's `dataOptions` loader answers
+  (`total`, `data`), and reads the selection from `[(selectedRows)]`.
 - `DatePickerDirective.$value` and `TabTreeNodeComponent.$expanded` are writable signals, no longer models, and their
   inputs' class members are `$valueInput` and `$expandedInput`. `[(value)]` and `[(expanded)]` bind as before, and
   `()` reads as before. `.set()` changes what the control shows and no longer emits `valueChange` or `expandedChange`,
