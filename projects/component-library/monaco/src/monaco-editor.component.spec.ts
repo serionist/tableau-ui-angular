@@ -10,6 +10,7 @@ type Monaco = typeof MonacoNamespace;
 interface AmdRequire {
   (modules: string[], onLoad: () => void, onError?: (error: unknown) => void): void;
   config?: (config: { paths: Record<string, string> }) => void;
+  reset?: () => void;
 }
 // The page's globals Monaco's AMD build defines; Node's types give require another type
 interface MonacoGlobals {
@@ -117,35 +118,122 @@ describe('MonacoEditorComponent', () => {
       });
     });
 
-    // F127: an editor destroyed while Monaco was still loading was created once it loaded, and its model leaked
-    it('creates no editor for one destroyed while Monaco loads', async () => {
+    // Electron or NW.js with Node's require on the page: the editor fetches loader.js and runs it beside Node's
+    // require. A file: URL, as a packaged app's, answers a request that loaded with status 0
+    it('runs a loader.js its request fetched with status 0, as from a file: URL', async () => {
       expect(page.monaco).toBeUndefined();
-      // Monaco's AMD loader already on the page, holding editor.main until the test lets it go
-      let finishLoad: (() => void) | undefined;
+      const handleError = vi.fn();
+      TestBed.configureTestingModule({ providers: [{ provide: ErrorHandler, useValue: { handleError } }] });
       const configure = vi.fn();
-      page.require = Object.assign(
-        (_modules: string[], onLoad: () => void) => {
-          finishLoad = onLoad;
+      const globals = window as unknown as Record<string, unknown>;
+      // the AMD loader the fetched loader.js defines, which has no editor.main to give
+      globals['testAmdLoader'] = Object.assign(
+        (_modules: string[], _onLoad: () => void, onError: (error: unknown) => void) => {
+          onError(new Error('no editor.main here'));
         },
         { config: configure },
       );
-      const fixture = create();
-      const uri = fixture.componentInstance.$uri();
-      await vi.waitFor(() => {
-        expect(finishLoad).toBeDefined();
+      // Node's require, which has no config
+      page.require = (() => undefined) as AmdRequire;
+      class FileRequest extends EventTarget {
+        readonly status = 0;
+        readonly responseText = 'require = window.testAmdLoader;';
+        open() {
+          // the request is answered on send
+        }
+        send() {
+          setTimeout(() => this.dispatchEvent(new Event('load')));
+        }
+      }
+      vi.stubGlobal('XMLHttpRequest', FileRequest);
+      try {
+        create();
+        await vi.waitFor(() => {
+          expect(handleError).toHaveBeenCalledTimes(1);
+        });
+
+        expect(configure).toHaveBeenCalledWith({ paths: { vs: `${location.origin}/monaco-edit/vs` } });
+        expect(String(handleError.mock.calls[0][0])).toContain('/monaco-edit/vs/editor/editor.main.js');
+      } finally {
+        vi.unstubAllGlobals();
+        delete globals['require'];
+        delete globals['testAmdLoader'];
+        // the fetched script's own globals, declared with var, which can't be deleted
+        globals['monacoAmdRequire'] = undefined;
+        globals['nodeRequire'] = undefined;
+      }
+    });
+
+    // Monaco's AMD loader keeps a module that failed as failed, so after editor.main failed once every later editor
+    // got that failure at once and stayed blank until a reload. F127: an editor destroyed while Monaco was still
+    // loading was created once it loaded, and its model leaked
+    it('fetches editor.main again after it failed, and creates no editor for one destroyed while it loads', { timeout: 30_000 }, async () => {
+      expect(page.monaco).toBeUndefined();
+      const handleError = vi.fn();
+      TestBed.configureTestingModule({ providers: [{ provide: ErrorHandler, useValue: { handleError } }] });
+      // Monaco's AMD loader as loader.js defines it: editor.main fails the first time, and a module that failed answers
+      // with that failure until reset(); after that it loads when the test lets it go
+      let failed = false;
+      let attempts = 0;
+      let finishLoad: (() => void) | undefined;
+      const reset = vi.fn(() => {
+        failed = false;
       });
-      expect(configure).toHaveBeenCalledWith({ paths: { vs: `${location.origin}/monaco-edit/vs` } });
+      const loader: AmdRequire = Object.assign(
+        (_modules: string[], onLoad: () => void, onError?: (error: unknown) => void) => {
+          if (failed) {
+            onError?.(new Error('editor.main failed before'));
+          } else if (++attempts === 1) {
+            failed = true;
+            onError?.(new Error('editor.main.js answered 404'));
+          } else {
+            finishLoad = onLoad;
+          }
+        },
+        { config: vi.fn(), reset },
+      );
+      // the loader.js the editor adds to the page, which the test server doesn't have, defines the loader above
+      const append = document.body.appendChild.bind(document.body);
+      const appended = vi.spyOn(document.body, 'appendChild').mockImplementation(<T extends Node>(node: T): T => {
+        if (node instanceof HTMLScriptElement && node.src.endsWith('/monaco-edit/vs/loader.js')) {
+          page.require = loader;
+          queueMicrotask(() => node.dispatchEvent(new Event('load')));
+          return node;
+        }
+        return append(node);
+      });
+      try {
+        const first = create();
+        await vi.waitFor(() => {
+          expect(handleError).toHaveBeenCalledTimes(1);
+        });
+        expect(reset).toHaveBeenCalledTimes(1);
+        expect(first.componentInstance.loaded).toEqual([]);
 
-      fixture.destroy();
-      delete page.require;
-      const monaco = await loadMonacoFromNodeModules();
-      const editors = monaco.editor.getEditors().length;
-      finishLoad!();
-      await new Promise(resolve => setTimeout(resolve));
+        // the next editor's load reaches editor.main again, and holds there
+        const destroyed = create();
+        const uri = destroyed.componentInstance.$uri();
+        await vi.waitFor(() => {
+          expect(finishLoad).toBeDefined();
+        });
+        destroyed.destroy();
+        const waiting = create();
+        appended.mockRestore();
+        delete page.require;
+        const monaco = await loadMonacoFromNodeModules();
+        const editors = monaco.editor.getEditors().length;
+        finishLoad!();
+        await vi.waitFor(() => {
+          expect(waiting.componentInstance.loaded.length).toBe(1);
+        });
 
-      expect(monaco.editor.getEditors().length).toBe(editors);
-      expect(monaco.editor.getModel(monaco.Uri.parse(uri))).toBeNull();
-      expect(fixture.componentInstance.loaded).toEqual([]);
+        expect(monaco.editor.getEditors().length).toBe(editors + 1);
+        expect(monaco.editor.getModel(monaco.Uri.parse(uri))).toBeNull();
+        expect(destroyed.componentInstance.loaded).toEqual([]);
+        expect(handleError).toHaveBeenCalledTimes(1);
+      } finally {
+        appended.mockRestore();
+      }
     });
   });
 
@@ -206,6 +294,12 @@ describe('MonacoEditorComponent', () => {
       expect(values).toEqual(['afirst', 'abfirst', 'abcfirst']);
       expect(control.dirty).toBe(true);
       expect(control.touched).toBe(true);
+
+      // F2: setting the text the user had just typed cleared the undo history
+      editor.trigger('keyboard', 'undo', null);
+      await fixture.whenStable();
+      expect(editor.getValue()).toBe('first');
+      expect(control.value).toBe('first');
     });
 
     it("emits valueChange for the user's typing, not for a change of the bound value", async () => {
@@ -226,19 +320,23 @@ describe('MonacoEditorComponent', () => {
     });
 
     // F123: the editor had no setDisabledState, so a disabled control's editor still took typing
-    it('is read-only while its control is disabled', async () => {
-      const { fixture, control, editor } = await render();
+    it('is read-only while its control is disabled, its text box too', async () => {
+      const { fixture, control, editor, host } = await render();
       const readOnly = () => editor.getOption(monaco.editor.EditorOption.readOnly);
+      // the text box a screen reader reads, read-only as a disabled control's
+      const textBox = () => host.querySelector('textarea')!;
 
       control.disable();
       await fixture.whenStable();
       expect(readOnly()).toBe(true);
+      expect(textBox().readOnly).toBe(true);
       type(editor, 'x');
       expect(editor.getValue()).toBe('first');
 
       control.enable();
       await fixture.whenStable();
       expect(readOnly()).toBe(false);
+      expect(textBox().readOnly).toBe(false);
       type(editor, 'x');
       expect(editor.getValue()).toBe('xfirst');
 
@@ -268,6 +366,21 @@ describe('MonacoEditorComponent', () => {
       expect(loaded.length).toBe(2);
       expect(loaded[1].getValue()).toBe('xyfirst');
       expect(control.value).toBe('xyfirst');
+    });
+
+    // The rebuilt editor set its model's text again, the same text, which cleared the undo history
+    it('keeps the undo history across a change of options', async () => {
+      const { fixture } = await render();
+      const { loaded } = fixture.componentInstance;
+      type(loaded[0], 'x');
+      await fixture.whenStable();
+
+      fixture.componentInstance.$options.set({ ...QUIET, lineNumbers: 'off' });
+      await fixture.whenStable();
+      expect(loaded.length).toBe(2);
+      loaded[1].trigger('keyboard', 'undo', null);
+
+      expect(loaded[1].getValue()).toBe('first');
     });
 
     // F126: the old document stayed in Monaco's models for the page after the editor moved to another URI

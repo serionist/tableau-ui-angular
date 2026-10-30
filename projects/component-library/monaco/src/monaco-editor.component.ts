@@ -13,12 +13,17 @@ declare let monaco: Monaco;
 interface AmdRequire {
   (modules: string[], onLoad: () => void, onError: (error: unknown) => void): void;
   config?: (config: { paths: Record<string, string> }) => void;
+  // A fresh module manager: one whose module failed keeps it failed, and answers each later require with that error
+  reset?: () => void;
 }
 type MonacoWindow = Window & { monaco?: unknown; require?: AmdRequire; monacoAmdRequire?: AmdRequire };
 
 // One load for the page, which every editor waits for. A load that fails is reported once, by the editor that started
 // it, and forgotten, so the next editor tries again.
 let monacoLoadPromise: Promise<void> | undefined = undefined;
+// Whether the AMD loader on the page is the one the editor put there: then the editor may reset it after a failure.
+// An app's own loader is the app's.
+let loaderInstalled = false;
 
 async function loadMonaco(document: Document, errorHandler: ErrorHandler): Promise<void> {
   monacoLoadPromise ??= startMonacoLoad(document).catch((error: unknown) => {
@@ -56,6 +61,10 @@ async function startMonacoLoad(document: Document): Promise<void> {
           resolve();
         },
         (error: unknown) => {
+          // so the next editor's load fetches editor.main again, where the loader would answer with this failure
+          if (loaderInstalled) {
+            amdRequire.reset?.();
+          }
           failed(`${baseUrl}/editor/editor.main.js`, error);
         },
       );
@@ -66,6 +75,7 @@ async function startMonacoLoad(document: Document): Promise<void> {
       loaderScript.type = 'text/javascript';
       loaderScript.src = `${baseUrl}/loader.js`;
       loaderScript.addEventListener('load', () => {
+        loaderInstalled = true;
         onGotAmdLoader();
       });
       loaderScript.addEventListener('error', () => {
@@ -78,7 +88,8 @@ async function startMonacoLoad(document: Document): Promise<void> {
 
       const loaderRequest = new XMLHttpRequest();
       loaderRequest.addEventListener('load', () => {
-        if (loaderRequest.status < 200 || loaderRequest.status >= 300) {
+        // a file: URL, as a packaged Electron app's, answers status 0 when it loaded; a failed request fires error
+        if (loaderRequest.status !== 0 && (loaderRequest.status < 200 || loaderRequest.status >= 300)) {
           failed(`${src} answered ${loaderRequest.status}`);
           return;
         }
@@ -95,6 +106,7 @@ async function startMonacoLoad(document: Document): Promise<void> {
           'require.nodeRequire = require;',
         ].join('\n');
         document.body.appendChild(scriptElem);
+        loaderInstalled = true;
         onGotAmdLoader(view.monacoAmdRequire);
       });
       loaderRequest.addEventListener('error', () => {
@@ -297,11 +309,11 @@ export class MonacoEditorComponent implements OnDestroy, ControlValueAccessor {
       monaco.editor.setTheme(theme);
     }
   });
-  // A disabled form control is read-only, and so is an editor whose options say so
+  // A disabled form control is read-only, its text box too, and so is an editor whose options say so
   private readonly readOnlyChanged = effect(() => {
-    const readOnly = this.isReadOnly();
+    const readOnly = this.readOnlyOptions();
     untracked(() => {
-      this._editor?.updateOptions({ readOnly });
+      this._editor?.updateOptions(readOnly);
     });
   });
 
@@ -338,7 +350,7 @@ export class MonacoEditorComponent implements OnDestroy, ControlValueAccessor {
 
     // update or create the model
     const editorModel = this.updateOrCreateModel(monaco.Uri.parse(this.$uri()), this.$language(), this.$value());
-    this._editor = monaco.editor.create(this.editorContainer.nativeElement, { ...this.$options(), readOnly: this.isReadOnly(), model: editorModel });
+    this._editor = monaco.editor.create(this.editorContainer.nativeElement, { ...this.$options(), ...this.readOnlyOptions(), model: editorModel });
     monaco.editor.setTheme(this.getMonacoTheme(this.$theme(), this.themeService.$appliedThemeMode()));
 
     this._editor.onDidChangeModelContent(() => {
@@ -370,7 +382,10 @@ export class MonacoEditorComponent implements OnDestroy, ControlValueAccessor {
   private updateOrCreateModel(uri: MonacoNamespace.Uri, language: string, value: string) {
     let editorModel = monaco.editor.getModel(uri);
     if (editorModel) {
-      this.setText(editorModel, value);
+      // the same text is left alone: setValue would clear its undo history
+      if (editorModel.getValue() !== value) {
+        this.setText(editorModel, value);
+      }
       if (editorModel.getLanguageId() !== language) {
         monaco.editor.setModelLanguage(editorModel, language);
       }
@@ -390,8 +405,11 @@ export class MonacoEditorComponent implements OnDestroy, ControlValueAccessor {
     }
   }
 
-  private isReadOnly() {
-    return this.$disabled() || this.$options().readOnly === true;
+  // domReadOnly makes the text box itself read-only, which a screen reader announces
+  private readOnlyOptions() {
+    const options = this.$options();
+    const disabled = this.$disabled();
+    return { readOnly: disabled || options.readOnly === true, domReadOnly: disabled || options.domReadOnly === true };
   }
 
   private getMonacoTheme(themeInput: 'auto' | 'vs' | 'vs-dark' | 'hc-black' | 'hc-light', systemTheme: 'light' | 'dark') {
