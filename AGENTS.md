@@ -21,7 +21,7 @@ Every top-level file and folder, and the library's own; a new one adds its row i
 | ------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `projects/component-library/<folder>/`                                    | an entry point: `ng-package.json`, `src/public_api.ts`, the components, their specs                                                                                   |
 | `projects/component-library/public-api.ts`                                | the root entry point, `tableau-ui-angular`, which exports nothing: apps import each folder                                                                            |
-| `projects/component-library/api/`                                         | the public API file: each entry point's built typings without private and protected members, `<entry>.d.ts`; `npm run api:update` writes it                           |
+| `projects/component-library/api/`                                         | the public API file, `<entry>.d.ts`: the built typings without private members, nor protected ones except inputs, outputs and an exported abstract class's            |
 | `projects/component-library/styles/`                                      | the SCSS apps import (`tableau-ui-angular/styles/lib-styles`), the theme, `fonts/downloadFonts.js`                                                                    |
 | `projects/component-library/used-icons/`                                  | the icon list entry point, and `scripts/update-icons.js`, which apps run                                                                                              |
 | `projects/component-library/testing/`                                     | what the specs share, such as `axeViolations`, the axe check every component test runs; never published                                                               |
@@ -68,6 +68,8 @@ Run from the repo root. `ng` is the repo's own CLI: `npx ng` when it is not on P
   `ng test component-library --watch=false --coverage` measures it; the quick lane refuses an ignore comment for it.
 - The full lane compares the build's typings with `projects/component-library/api/` and prints the diff: an export, a
   selector, an input or an output that changed fails it. Run `npm run api:update` and name the change in the PR.
+  An Angular, TypeScript or Prettier minor or patch can change how the file prints, which stops Dependabot's grouped
+  PR: run `npm run api:update` on its branch, and say in the PR that only the printing changed.
 - A component's spec runs `axeViolations` (`projects/component-library/testing/`); a rule it turns off names the open
   issue that will fix it, and that list only shrinks. The prerender must log no error: a page that throws is a failure.
 
