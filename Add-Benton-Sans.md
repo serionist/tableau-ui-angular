@@ -36,4 +36,6 @@ Without a server, put these 12 files in the folder yourself:
 @include libStyles.font-import('/fonts');
 ```
 
-The docs site's getting started page shows the whole `styles.scss`, with the Roboto fallback and the icons.
+The docs site's getting started page,
+[serionist.github.io/tableau-ui-angular/getting-started](https://serionist.github.io/tableau-ui-angular/getting-started),
+shows the whole `styles.scss`, with the Roboto fallback and the icons.

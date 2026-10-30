@@ -21,7 +21,8 @@ npm install tableau-ui-angular
 
 ## A first button
 
-Use the styles once, in the app's `styles.scss`, then import a folder's module where you use it.
+Use the styles once, in the app's `styles.scss`, then import a component folder's module where you use it. The styles
+are SCSS: an app made with CSS renames `src/styles.css` to `src/styles.scss`, there and in `angular.json`.
 
 ```scss
 @use 'tableau-ui-angular/styles/lib-styles';
@@ -42,17 +43,19 @@ export class FirstButtonComponent {
 }
 ```
 
-- Each folder is an entry point, `tableau-ui-angular/<folder>`, with a module named after it. The root,
-  `tableau-ui-angular`, exports nothing.
+- Each folder is an entry point, `tableau-ui-angular/<folder>`. A component folder has a module for its components,
+  such as `TableauUiButtonModule` in `tableau-ui-angular/button`. The root, `tableau-ui-angular`, exports nothing.
 - The fonts, Roboto or Tableau's Benton Sans, and the icons are on the docs site's getting started page.
 
 ## Docs
 
-The docs site, [serionist.github.io/tableau-ui-angular](https://serionist.github.io/tableau-ui-angular/), shows each
-sample running with its source.
+The docs site, [serionist.github.io/tableau-ui-angular](https://serionist.github.io/tableau-ui-angular/), shows the
+components running.
 
 - Getting started: install, the modules, the styles, the fonts and the icons.
 - Theming, server-side rendering, and a page per component.
+- The buttons, checkbox, select, form fields, table and dialogs pages show each sample's source; the other pages are
+  next.
 
 ## Support
 

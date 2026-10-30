@@ -39,23 +39,16 @@
       <app-docs-code label="command" [source]="monacoInstall" />
       <p>
         The app builds on the Node versions Angular 22 supports:
-        <code>{{ node }}</code>
-        .
+        <code>{{ node }}</code
+        >.
       </p>
     </div>
 
     <div class="section">
       <h3>Import a module</h3>
       <p>
-        Each folder of the library is an entry point,
-        <code>tableau-ui-angular/&lt;folder&gt;</code>
-        , with a module named after it: the button is
-        <code>TableauUiButtonModule</code>
-        from
-        <code>tableau-ui-angular/button</code>
-        . A standalone component imports the modules it uses. The root,
-        <code>tableau-ui-angular</code>
-        , exports nothing.
+        Each folder of the library is an entry point, <code>tableau-ui-angular/&lt;folder&gt;</code>. A component folder has a module for its components, such as <code>TableauUiButtonModule</code> in
+        <code>tableau-ui-angular/button</code>; each component page names its own. A standalone component imports the modules it uses. The root, <code>tableau-ui-angular</code>, exports nothing.
       </p>
       <app-docs-example [example]="examples.firstButton" />
     </div>
@@ -63,9 +56,8 @@
     <div class="section">
       <h3>Import the styles</h3>
       <p>
-        The app's global stylesheet uses the library's styles once. This is the docs site's own
-        <code>styles.scss</code>
-        , with the icons and fonts the next sections set up.
+        The app's global stylesheet uses the library's styles once. They are SCSS: an app made with CSS renames <code>src/styles.css</code> to <code>src/styles.scss</code>, there and in
+        <code>angular.json</code>. This is the docs site's own <code>styles.scss</code>, with the icons and fonts the next sections set up.
       </p>
       <app-docs-code label="styles.scss" [source]="stylesScss" />
     </div>
@@ -76,8 +68,7 @@
       <ul>
         <li>
           Benton Sans, Tableau's font, which needs a licence. With its files in
-          <code>public/fonts</code>
-          ,
+          <code>public/fonts</code>,
           <code>libStyles.font-import('/fonts')</code>
           loads them.
           <a href="https://github.com/serionist/tableau-ui-angular/blob/main/Add-Benton-Sans.md" target="_blank">Add-Benton-Sans.md</a>
@@ -100,10 +91,7 @@
       <ol>
         <li>
           List them in a class that extends
-          <code>UsedIcons</code>
-          , from
-          <code>tableau-ui-angular/used-icons</code>
-          . This list, with the library's own, comes to {{ iconCount }} icons.
+          <code>UsedIcons</code>, from <code>tableau-ui-angular/used-icons</code>. This list, with the library's own, comes to {{ iconCount }} icons.
         </li>
       </ol>
       <app-docs-code label="src/icons.ts" [source]="iconsTs" />
@@ -114,8 +102,7 @@
       <ol start="3">
         <li>
           Use the CSS it writes,
-          <code>public/icons/material-icons.css</code>
-          , in styles.scss, as above. The commented lines there use the
+          <code>public/icons/material-icons.css</code>, in styles.scss, as above. The commented lines there use the
           <code>material-symbols</code>
           package instead, which holds every icon, several megabytes.
         </li>

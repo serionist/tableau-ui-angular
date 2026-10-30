@@ -12,8 +12,7 @@
         <code>ThemeService.initialize()</code>
         once, when the app starts. It applies the stored theme, follows the system's mode, and stores each change. Until then the page stays light at the default size; on the server it does nothing.
         This is the docs site's own
-        <code>app.config.ts</code>
-        :
+        <code>app.config.ts</code>:
       </p>
       <app-docs-code label="app.config.ts" [source]="appConfigTs" />
     </div>
@@ -23,12 +22,10 @@
       <p>
         <code>setColorMode()</code>
         takes
-        <code>light</code>
-        ,
+        <code>light</code>,
         <code>dark</code>
         or
-        <code>auto</code>
-        , which follows the system; the service puts the
+        <code>auto</code>, which follows the system; the service puts the
         <code>dark-mode</code>
         class on the root element and the body.
         <code>setFontSize()</code>
@@ -53,8 +50,7 @@
         Every colour, font and size is a custom property, set on
         <code>:root</code>
         and, for dark mode, on
-        <code>:root.dark-mode</code>
-        . Set one on an element to change it inside that element, or on those two selectors in
+        <code>:root.dark-mode</code>. Set one on an element to change it inside that element, or on those two selectors in
         <code>styles.scss</code>
         to change it for the app.
       </p>
