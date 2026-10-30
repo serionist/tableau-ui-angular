@@ -2,6 +2,9 @@
   display: grid;
   height: 100vh; // stylelint-disable-line declaration-property-unit-disallowed-list
   grid-template-columns: auto 1fr;
+
+  // one row, the window's height, which a long page doesn't stretch
+  grid-template-rows: minmax(0, 1fr);
 }
 
 .logo {
@@ -41,4 +44,24 @@ tab-nav-bar {
   tab-form-field {
     width: 7rem;
   }
+}
+
+// The page scrolls inside its own content, above the footer
+.page-column {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  min-width: 0;
+}
+
+.page-host {
+  min-height: 0;
+}
+
+.site-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  padding: 0.5rem 2rem;
+  border-top: 1px solid var(--twc-color-border-light);
+  color: var(--twc-color-text-light);
 }

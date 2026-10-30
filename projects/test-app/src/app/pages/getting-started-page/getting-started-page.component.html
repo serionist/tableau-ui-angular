@@ -1,0 +1,125 @@
+<div class="page">
+  <div class="title">
+    <h1>Getting started</h1>
+    <div class="text-light text-large">Install the package, import a folder's module, import the styles once, and pick the fonts and icons.</div>
+  </div>
+  <tab-separator />
+  <div class="content">
+    <div class="section">
+      <h3>Install</h3>
+      <p>The package is on npm; an Angular 22 app has every peer but Monaco already.</p>
+      <app-docs-code label="Terminal" source="npm install tableau-ui-angular" />
+      <table class="docs-table">
+        <thead>
+          <tr>
+            <th scope="col">Peer</th>
+            <th scope="col">Range</th>
+            <th scope="col">Needed</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (peer of peers; track peer.name) {
+            <tr>
+              <td>
+                <code>{{ peer.name }}</code>
+              </td>
+              <td>
+                <code>{{ peer.range }}</code>
+              </td>
+              <td>{{ peer.optional ? 'Only for tableau-ui-angular/monaco' : 'Yes' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+      <p>
+        The Monaco editor's entry point needs
+        <code>monaco-editor</code>
+        installed by the app:
+      </p>
+      <app-docs-code label="Terminal" [source]="monacoInstall" />
+      <p>
+        The app builds on the Node versions Angular 22 supports:
+        <code>{{ node }}</code>
+        .
+      </p>
+    </div>
+
+    <div class="section">
+      <h3>Import a module</h3>
+      <p>
+        Each folder of the library is an entry point,
+        <code>tableau-ui-angular/&lt;folder&gt;</code>
+        , with a module named after it: the button is
+        <code>TableauUiButtonModule</code>
+        from
+        <code>tableau-ui-angular/button</code>
+        . A standalone component imports the modules it uses. The root,
+        <code>tableau-ui-angular</code>
+        , exports nothing.
+      </p>
+      <app-docs-example [example]="examples.firstButton" />
+    </div>
+
+    <div class="section">
+      <h3>Import the styles</h3>
+      <p>
+        The app's global stylesheet uses the library's styles once. This is the docs site's own
+        <code>styles.scss</code>
+        , with the icons and fonts the next sections set up.
+      </p>
+      <app-docs-code label="styles.scss" [source]="stylesScss" />
+    </div>
+
+    <div class="section">
+      <h3>Fonts</h3>
+      <p>The text uses the first of these fonts the browser has.</p>
+      <ul>
+        <li>
+          Benton Sans, Tableau's font, which needs a licence. With its files in
+          <code>public/fonts</code>
+          ,
+          <code>libStyles.font-import('/fonts')</code>
+          loads them.
+          <a href="https://github.com/serionist/tableau-ui-angular/blob/main/Add-Benton-Sans.md" target="_blank">Add-Benton-Sans.md</a>
+          lists the files, and a Tableau Server you own can give them:
+        </li>
+      </ul>
+      <app-docs-code label="Terminal" [source]="fontsCommand" />
+      <ul>
+        <li>Roboto, Google's open font, which the Roboto import in styles.scss loads; this site uses it.</li>
+        <li>Arial, then Helvetica, then the browser's sans-serif, with nothing to load.</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h3>Icons</h3>
+      <p>
+        <code>tab-icon</code>
+        shows a Material Symbols icon by name. The used-icons script downloads only the icons the app lists, a few kilobytes, into a folder styles.scss uses.
+      </p>
+      <ol>
+        <li>
+          List them in a class that extends
+          <code>UsedIcons</code>
+          , from
+          <code>tableau-ui-angular/used-icons</code>
+          . This list, with the library's own, comes to {{ iconCount }} icons.
+        </li>
+      </ol>
+      <app-docs-code label="src/icons.ts" [source]="iconsTs" />
+      <ol start="2">
+        <li>Run the script before each build, from the app's package.json, and again when the list changes:</li>
+      </ol>
+      <app-docs-code label="package.json" [source]="iconsScripts" />
+      <ol start="3">
+        <li>
+          Use the CSS it writes,
+          <code>public/icons/material-icons.css</code>
+          , in styles.scss, as above. The commented lines there use the
+          <code>material-symbols</code>
+          package instead, which holds every icon, several megabytes.
+        </li>
+      </ol>
+    </div>
+  </div>
+</div>

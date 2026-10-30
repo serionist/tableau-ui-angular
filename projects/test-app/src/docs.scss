@@ -1,0 +1,78 @@
+// The docs site's own styles: its pages' layout. styles.scss holds what an app sets up, as the getting started page shows
+
+// The routed page fills the space above the footer; router-outlet is the empty element before it
+.page-host > :not(router-outlet) {
+  display: block;
+  height: 100%;
+}
+
+.page {
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+
+  .title {
+    margin: 2em 2em 1em;
+  }
+
+  .content {
+    overflow: auto;
+    grid-row: 3;
+  }
+
+  .section {
+    padding: 1em 2em 0;
+
+    p {
+      margin-bottom: 0.5em;
+    }
+
+    .spacer {
+      display: grid;
+      row-gap: 0.5rem;
+    }
+
+    .two {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      column-gap: 1rem;
+    }
+  }
+}
+
+code {
+  padding: 0 0.25em;
+  background: var(--twc-color-highlight);
+}
+
+// A code block shows its text as it is
+pre code {
+  padding: 0;
+  background: none;
+}
+
+.monaco-container {
+  border: solid 1px var(--twc-color-border-light);
+  padding: 0.5rem;
+  width: fit-content;
+  margin: 0.25rem 0;
+}
+
+// A table of facts on a docs page, such as the peers or the CSS custom properties
+.docs-table {
+  border-collapse: collapse;
+  margin: 0.5rem 0 1rem;
+
+  th,
+  td {
+    text-align: left;
+    padding: 0.25rem 1rem 0.25rem 0;
+    border-bottom: 1px solid var(--twc-color-border-light);
+    vertical-align: top;
+  }
+}
+
+// Code on a page, apart from a sample's tabs
+app-docs-code {
+  margin: 0.5rem 0;
+}
