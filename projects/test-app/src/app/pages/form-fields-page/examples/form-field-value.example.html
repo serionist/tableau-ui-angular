@@ -1,7 +1,7 @@
 <div class="fields">
   <tab-form-field>
     <tab-label>Simple textbox</tab-label>
-    <input type="text" value="" (change)="changed($event)" (input)="input($event)" />
+    <input type="text" [value]="$typed()" (change)="changed($event)" (input)="input($event)" />
     <tab-hint>Typed: {{ $typed() || 'nothing yet' }}</tab-hint>
   </tab-form-field>
 

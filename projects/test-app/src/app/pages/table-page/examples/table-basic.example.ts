@@ -35,7 +35,7 @@ export class TableBasicExampleComponent implements AfterViewInit {
         }
         return 0;
       });
-      return Promise.resolve({ total: rows.length, data: rows });
+      return Promise.resolve({ data: rows });
     },
   );
 

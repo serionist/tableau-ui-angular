@@ -1,4 +1,3 @@
-import type { OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TableauUiCheckboxModule } from 'tableau-ui-angular/checkbox';
@@ -12,7 +11,7 @@ import { SnackService } from 'tableau-ui-angular/snack';
   styleUrl: './checkbox-forms.example.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CheckboxFormsExampleComponent implements OnInit {
+export class CheckboxFormsExampleComponent {
   private readonly snacks = inject(SnackService);
 
   protected readonly form = new FormGroup({
@@ -23,12 +22,7 @@ export class CheckboxFormsExampleComponent implements OnInit {
     disabledRequired: new FormControl({ value: true, disabled: true }, Validators.requiredTrue),
   });
 
-  ngOnInit(): void {
-    // Touched, so the error shows before the user leaves the checkbox
-    this.form.controls.required.markAsTouched();
-    this.form.controls.disabledRequired.markAsTouched();
-  }
-
+  // valueChange fires before the form has the new value, so the form's state is read from the value itself
   protected changed(name: string, value: boolean | 'partial', invalid = false) {
     this.snacks.openSnack(`${name} set to: ${value}`, 3000, invalid ? 'error' : 'info');
   }

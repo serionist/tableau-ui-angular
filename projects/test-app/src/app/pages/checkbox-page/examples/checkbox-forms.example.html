@@ -17,7 +17,7 @@
     <tab-hint>It can't be clicked</tab-hint>
   </tab-checkbox>
 
-  <tab-checkbox formControlName="required" (valueChange)="changed('Validated checkbox', $event, form.controls.required.invalid)">
+  <tab-checkbox formControlName="required" (valueChange)="changed('Validated checkbox', $event, $event !== true)">
     A checkbox with validation
     <tab-hint>It must be checked</tab-hint>
     @if (form.controls.required.invalid) {

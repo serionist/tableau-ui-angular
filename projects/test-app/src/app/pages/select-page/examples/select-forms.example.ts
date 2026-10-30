@@ -34,7 +34,8 @@ export class SelectFormsExampleComponent {
 
   protected readonly onlyText: IOptionLineContext = { renderIcon: false, renderText: true };
 
-  // Each starts at 4, above Validators.max(3), so its error shows at once
+  // Each starts at 4, above Validators.max(3): its error shows once the user leaves the select, as formHasError waits
+  // for the control to be touched
   private readonly validators = [Validators.required, Validators.min(1), Validators.max(3)];
   protected readonly wrap = this.fb.control<number | null>(4, this.validators);
   protected readonly truncate = this.fb.control<number | null>(4, this.validators);

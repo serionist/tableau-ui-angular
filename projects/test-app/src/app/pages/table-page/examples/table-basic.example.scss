@@ -1,4 +1,4 @@
-// The table scrolls inside its own height, and draws only the rows that show
+// The table scrolls inside the height it gets, and draws only the rows that show; it is at least 300px tall
 tab-table {
-  max-height: 18rem;
+  height: 30rem;
 }
