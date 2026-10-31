@@ -1,5 +1,8 @@
+<tab-checkbox class="from-code" [(value)]="$firstOpen">The first panel is open</tab-checkbox>
+
 <div class="panels">
-  <tab-expansion-panel>
+  <!-- [(expanded)] opens it from code, and follows the user's clicks -->
+  <tab-expansion-panel [(expanded)]="$firstOpen">
     <tab-expansion-panel-title>
       <tab-icon value="info" />
       <span>A panel</span>

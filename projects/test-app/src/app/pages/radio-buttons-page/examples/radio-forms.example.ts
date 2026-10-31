@@ -19,8 +19,8 @@ export class RadioFormsExampleComponent {
   private readonly fb = inject(FB);
   private readonly snacks = inject(SnackService);
 
-  // Only 3 is valid: 1 is below the minimum, 2 is disabled, 4 is above the maximum. Each error shows once the user
-  // leaves the group, as formHasError waits for it to be touched
+  // Only 3 is valid: 1 is below the minimum, 2 is disabled, 4 is above the maximum. Each error waits for the control
+  // to be touched, as formHasError does: once an option loses focus, at the second pick or on leaving the group
   protected readonly size = this.fb.control<number | null>(null, [Validators.required, Validators.min(2), Validators.max(3)]);
 
   constructor() {

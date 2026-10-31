@@ -14,7 +14,11 @@
       <ol start="2">
         <li>
           Serve its files at
-          <code>monaco-edit</code>, where the editor loads them from, in the app's build options in <code>angular.json</code>:
+          <code>monaco-edit</code>, where the editor loads them from: add the second entry here to the
+          <code>assets</code>
+          of the app's build options in <code>angular.json</code>, after the app's own, such as the
+          <code>public</code>
+          folder a new app has.
         </li>
       </ol>
       <app-docs-code label="angular.json" [source]="assets" />

@@ -6,6 +6,7 @@ import { CheckboxFormsExampleComponent } from '../pages/checkbox-page/examples/c
 import { ChipControlExampleComponent } from '../pages/chip-page/examples/chip-control.example';
 import { DatePickerFormsExampleComponent } from '../pages/date-picker-page/examples/date-picker-forms.example';
 import { DatePickerValueExampleComponent } from '../pages/date-picker-page/examples/date-picker-value.example';
+import { ExpansionPanelSingleExampleComponent } from '../pages/expansion-page/examples/expansion-panel-single.example';
 import { RadioFormsExampleComponent } from '../pages/radio-buttons-page/examples/radio-forms.example';
 import { SnackMessageExampleComponent } from '../pages/snacks-page/examples/snack-message.example';
 import { TableBasicExampleComponent } from '../pages/table-page/examples/table-basic.example';
@@ -15,6 +16,13 @@ import { TableOptionsExampleComponent } from '../pages/table-page/examples/table
 async function click(fixture: ComponentFixture<unknown>, text: string) {
   const button = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('button')).find(element => element.textContent.trim() === text)!;
   button.click();
+  await fixture.whenStable();
+}
+
+// Clicks the checkbox with this text in the sample
+async function check(fixture: ComponentFixture<unknown>, text: string) {
+  const checkbox = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('tab-checkbox')).find(element => element.textContent.trim() === text)!;
+  checkbox.querySelector<HTMLInputElement>('input[type="checkbox"]')!.click();
   await fixture.whenStable();
 }
 
@@ -85,12 +93,35 @@ describe('The samples', () => {
     await click(fixture, 'An error snack');
     expect(snack).toHaveBeenLastCalledWith('A snack of type error', 5000, 'error', 'top');
 
-    for (const box of (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLInputElement>('input[type="checkbox"]')) {
-      box.click();
-    }
-    await fixture.whenStable();
+    await check(fixture, 'At the bottom of the window');
+    await click(fixture, 'An info snack');
+    expect(snack).toHaveBeenLastCalledWith('A snack of type info', 5000, 'info', 'bottom');
+
+    await check(fixture, 'Until the user closes it');
     await click(fixture, 'A success snack');
     expect(snack).toHaveBeenLastCalledWith('A snack of type success', 0, 'success', 'bottom');
+    fixture.destroy();
+  });
+
+  it('opens the first single panel from its checkbox, and checks the box when the user opens the panel', async () => {
+    const fixture = TestBed.createComponent(ExpansionPanelSingleExampleComponent);
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+    const panel = host.querySelector('tab-expansion-panel')!;
+    const box = host.querySelector<HTMLInputElement>('tab-checkbox input[type="checkbox"]')!;
+
+    await check(fixture, 'The first panel is open');
+    expect(panel.hasAttribute('expanded')).toBe(true);
+    expect(panel.textContent).toContain('The content shows while the panel is open.');
+
+    panel.querySelector<HTMLElement>('.header')!.click();
+    await fixture.whenStable();
+    expect(panel.hasAttribute('expanded')).toBe(false);
+    expect(box.checked).toBe(false);
+
+    panel.querySelector<HTMLElement>('.header')!.click();
+    await fixture.whenStable();
+    expect(box.checked).toBe(true);
     fixture.destroy();
   });
 
@@ -135,6 +166,28 @@ describe('The samples', () => {
     radios[2].click();
     await fixture.whenStable();
     expect(snack).toHaveBeenLastCalledWith('Size set to: 3', 3000, 'info');
+    fixture.destroy();
+  });
+
+  // Each radio input touches the control when it loses focus, so the error waits for the second pick, not for the
+  // user to leave the group
+  it("shows the radio forms sample's error at the second pick, while focus is still in the group", async () => {
+    const fixture = TestBed.createComponent(RadioFormsExampleComponent);
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+    const radios = host.querySelectorAll<HTMLInputElement>('input[type="radio"]');
+    const errors = () => Array.from(host.querySelectorAll('tab-error'), element => element.textContent.trim());
+
+    radios[0].focus();
+    radios[0].click();
+    await fixture.whenStable();
+    expect(errors()).toEqual([]);
+
+    radios[3].focus();
+    radios[3].click();
+    await fixture.whenStable();
+    expect(host.contains(document.activeElement)).toBe(true);
+    expect(errors()).toEqual(['The largest size is Large']);
     fixture.destroy();
   });
 

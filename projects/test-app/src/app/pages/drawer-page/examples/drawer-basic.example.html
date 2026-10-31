@@ -5,7 +5,7 @@
 
 <!-- The container is as tall as its parent, unless it has a height of its own -->
 <tab-drawer-container class="report">
-  <!-- padding is the gap between the drawer and the content -->
+  <!-- the content keeps twice the padding from the drawer -->
   <tab-drawer width="15rem" padding="1rem" [isOpen]="$leftOpen()">
     <h4>Filters</h4>
     @for (line of lines; track line) {

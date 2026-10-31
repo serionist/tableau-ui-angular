@@ -4,7 +4,7 @@ import { peerDependencies } from '../../../../../component-library/package.json'
 import { DocsCodeComponent } from '../../docs/docs-code.component';
 import { DocsExampleComponent } from '../../docs/docs-example.component';
 import { MONACO_EXAMPLES } from './monaco.examples';
-import { MONACO_ASSET } from './setup';
+import { MONACO_ASSETS } from './setup';
 
 @Component({
   selector: 'app-monaco-page',
@@ -17,5 +17,5 @@ export class MonacoPageComponent {
 
   // The peer's range as the package declares it
   protected readonly install = `npm install monaco-editor@${peerDependencies['monaco-editor']}`;
-  protected readonly assets = `"assets": [\n  ${MONACO_ASSET}\n]`;
+  protected readonly assets = MONACO_ASSETS;
 }

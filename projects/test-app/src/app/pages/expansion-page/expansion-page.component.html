@@ -1,7 +1,7 @@
 <div class="page">
   <div class="title">
     <h1>Expansion Panel</h1>
-    <div class="text-light text-large">An expansion panel shows its content when the user opens it; in an accordion, one panel is open at a time.</div>
+    <div class="text-light text-large">An expansion panel shows its content when the user opens it; in an accordion, at most one panel is open.</div>
   </div>
   <tab-separator />
   <div class="content">
@@ -28,7 +28,7 @@
       <ul>
         <li>
           <code>[(expanded)]</code>
-          binds whether the panel is open.
+          binds whether the panel is open, as the checkbox here does for the first one.
         </li>
         <li>
           <code>[disabled]</code>
@@ -47,7 +47,7 @@
       <h3>Accordion</h3>
       <p>
         <code>tab-accordion</code>
-        holds panels and keeps one of them open: opening a panel closes the others.
+        holds panels, and at most one is open: opening a panel closes the others.
       </p>
       <app-docs-example [example]="examples.accordion" />
     </div>

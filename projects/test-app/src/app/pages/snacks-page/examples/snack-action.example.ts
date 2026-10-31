@@ -24,7 +24,7 @@ export class SnackActionExampleComponent {
     );
   }
 
-  // The action gets the snack, which stays open until the action closes it
+  // Running the action doesn't close the snack: the action closes it, as here. The duration still applies
   private undo(snack: SnackRef<boolean>) {
     snack.close();
     this.snacks.openSnack('Restored the report', 3000, 'info');

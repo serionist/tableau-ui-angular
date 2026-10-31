@@ -155,7 +155,9 @@ describe('The docs pages', () => {
   });
 
   it("serves Monaco's files where the editor loads them, with the angular.json entry the Monaco page shows", () => {
-    expect(monacoEditorTs).toContain("+ 'monaco-edit/vs'");
-    expect(projects['test-app'].architect.build.options.assets).toContainEqual(JSON.parse(MONACO_ASSET));
+    const asset = JSON.parse(MONACO_ASSET) as { glob: string; input: string; output: string };
+    expect(asset.input).toBe('node_modules/monaco-editor/min');
+    expect(monacoEditorTs).toContain(`+ '${asset.output.replace(/^\//, '')}/vs'`);
+    expect(projects['test-app'].architect.build.options.assets).toContainEqual(asset);
   });
 });

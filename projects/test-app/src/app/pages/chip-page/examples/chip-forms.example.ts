@@ -29,8 +29,8 @@ const CITIES: readonly City[] = ['Amsterdam', 'Berlin', 'Budapest', 'Copenhagen'
 export class ChipFormsExampleComponent {
   private readonly fb = inject(FB);
 
-  // The form holds the keys. At least one chip and at most five: each error shows once the user leaves the control,
-  // as formHasError waits for it to be touched
+  // The form holds the keys. At least one chip and at most five: each error waits for the control to be touched, as
+  // formHasError does, once its text box loses focus
   protected readonly cities = this.fb.control<number[]>([1, 2], [Validators.required, Validators.maxLength(5)]);
   protected readonly $keysText = computed(() => this.cities.$value().join(', '));
 

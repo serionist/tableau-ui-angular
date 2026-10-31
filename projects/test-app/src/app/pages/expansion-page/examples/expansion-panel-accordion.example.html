@@ -1,4 +1,4 @@
-<!-- Opening a panel closes the others -->
+<!-- At most one panel is open: opening a panel closes the others -->
 <tab-accordion class="order">
   <tab-expansion-panel>
     <tab-expansion-panel-title>
@@ -26,6 +26,18 @@
       <span>Billing</span>
     </tab-expansion-panel-title>
     <p>The card ending in 4242.</p>
+  </tab-expansion-panel>
+
+  <tab-expansion-panel>
+    <tab-expansion-panel-title expanded>
+      <tab-icon value="info" />
+      <span>Delivery notes, which the driver sees</span>
+    </tab-expansion-panel-title>
+    <tab-expansion-panel-title>
+      <tab-icon value="info" />
+      <span>Delivery notes</span>
+    </tab-expansion-panel-title>
+    <p>Leave it with the neighbour.</p>
   </tab-expansion-panel>
 
   <tab-expansion-panel>

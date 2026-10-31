@@ -61,8 +61,8 @@
         or
         <code>formControlName</code>. A
         <code>tab-error</code>
-        in the group shows under its options. The control is touched when the user leaves the group, and a disabled control disables it. Each change here shows a snack, an error one while the value is
-        invalid.
+        in the group shows under its options. The control is touched once an option loses focus, at the second pick or on leaving the group, and each error waits for that; a disabled control disables
+        the group. Each change here shows a snack, an error one while the value is invalid.
       </p>
       <app-docs-example [example]="examples.forms" />
     </div>
