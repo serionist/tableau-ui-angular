@@ -7,9 +7,10 @@
   grid-template-rows: minmax(0, 1fr);
 }
 
-.logo {
-  width: calc(100% - 2em);
+.title {
   margin: 0 1em;
+  font-size: 1.25em;
+  font-weight: 600;
 }
 
 .version {
