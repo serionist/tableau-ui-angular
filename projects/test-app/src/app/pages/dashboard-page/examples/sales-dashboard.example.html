@@ -8,7 +8,7 @@
     <ul class="chips" aria-label="Filters in use">
       @for (chip of $chips(); track chip.key) {
         <li>
-          <tab-chip [allowRemove]="true" (removed)="clearFilter(chip.key)">{{ chip.text }}</tab-chip>
+          <tab-chip [allowRemove]="true" (removed)="removeChip(chip.key, $index)">{{ chip.text }}</tab-chip>
         </li>
       }
     </ul>
@@ -25,13 +25,13 @@
     (drawerOpened)="drawerOpened($event)"
   >
     <ng-template headerBeforeSelect>
-      <button [attachedMenu]="actions">
+      <button #actionsButton [attachedMenu]="actions">
         <tab-icon value="more_vert" />
         Actions
       </button>
       <ng-template #actions="buttonMenu" buttonMenu>
         <tab-menu-button-group>
-          <tab-menu-button (clicked)="copyOrders(false)">Copy all {{ $count() }} orders to the clipboard</tab-menu-button>
+          <tab-menu-button [disabled]="$orders().length === 0" (clicked)="copyOrders(false)">{{ $copyAllText() }}</tab-menu-button>
           <tab-menu-button [disabled]="$chips().length === 0" (clicked)="resetFilters()">Reset the filters</tab-menu-button>
         </tab-menu-button-group>
       </ng-template>
@@ -109,7 +109,7 @@
           <div class="kpi" tooltipPosition="bottom" [tooltip]="kpi.about">
             <span class="label">{{ kpi.label }}</span>
             <span class="value" [class.loss]="kpi.loss">{{ kpi.value }}</span>
-            <svg class="spark" viewBox="0 0 110 30" preserveAspectRatio="none" aria-hidden="true"><polyline [attr.points]="kpi.points" /></svg>
+            <svg class="spark" viewBox="0 0 110 30" preserveAspectRatio="none" role="img" [attr.aria-label]="kpi.description"><path [attr.d]="kpi.points" /></svg>
             <span class="note">{{ kpi.note }}</span>
           </div>
         }
@@ -138,13 +138,14 @@
                     }
                     <line class="average" x1="0" x2="120" [attr.y1]="100 - chart.average" [attr.y2]="100 - chart.average" />
                   </svg>
-                  <span class="average-label" [style.bottom.%]="chart.average">{{ chart.averageText }}</span>
                 </div>
                 <div class="months" aria-hidden="true">
                   @for (column of chart.columns; track column.label) {
                     <span>{{ column.label }}</span>
                   }
                 </div>
+                <!-- The reference line's legend, under the months, where it hides no column -->
+                <p class="legend"><span class="swatch"></span>{{ chart.averageText }}</p>
               </figure>
 
               <div class="side">
@@ -220,7 +221,7 @@
           </tab-table>
           <p class="status">
             @if ($selected().size > 0) {
-              {{ $selected().size }} selected, {{ $selectedSales() }} in sales. The actions copy only these.
+              {{ $selectionText() }}, {{ $selectedSales() }} in sales: the selection button's menu copies them.
             } @else {
               Select orders to copy only those; the button by an order's number opens its details.
             }

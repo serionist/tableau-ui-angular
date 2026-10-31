@@ -347,6 +347,7 @@ describe('The samples', () => {
 
   describe('the dashboard sample', () => {
     const layoutKey = 'enhanced-table-layout-garden-shop-orders';
+    const columns = ['id', 'date', 'customer', 'region', 'product', 'quantity', 'sales', 'profit'];
 
     afterEach(() => {
       // a menu, a select's options or a dialog a test left open, and a layout a test saved
@@ -377,21 +378,23 @@ describe('The samples', () => {
             .startsWith(text),
         )!;
       const tab = (text: string) => Array.from(host.querySelectorAll<HTMLElement>('.tab')).find(element => element.textContent.trim() === text)!;
+      const item = (text: string) => Array.from(document.querySelectorAll<HTMLElement>('.menu-button')).find(element => element.querySelector('.button-content')!.textContent.trim() === text)!;
       // clicks a header row button, then the item with this text in the menu it opens
       const menu = async (opener: string, text: string) => {
         button(opener).click();
         await fixture.whenStable();
-        Array.from(document.querySelectorAll<HTMLElement>('.menu-button'))
-          .find(item => item.querySelector('.button-content')!.textContent.trim() === text)!
-          .click();
+        item(text).click();
         await fixture.whenStable();
       };
+      // a column's row in the layout panel, and a button in the panel by its text
+      const column = (id: string) => Array.from(host.querySelectorAll<HTMLElement>('.columns .column')).find(element => element.querySelector(`[data-handle="${id}"]`))!;
+      const panelButton = (text: string) => Array.from(host.querySelectorAll<HTMLButtonElement>('.panel button')).find(element => element.textContent.trim() === text)!;
 
       tab('Orders').click();
       await fixture.whenStable();
       // a row still loading has no checkbox
       await vi.waitFor(() => expect(rows()[2]?.querySelector('tab-checkbox')).toBeTruthy());
-      return { fixture, host, kpi, rows, cells, headers, button, tab, menu };
+      return { fixture, host, kpi, rows, cells, headers, button, tab, item, menu, column, panelButton };
     }
 
     it('changes the KPIs and the orders when the user picks a region, and counts the filters in use on the Filters button', async () => {
@@ -424,7 +427,7 @@ describe('The samples', () => {
     });
 
     it('keeps the search out of the Filters count, and Clear all filters leaves it', async () => {
-      const { fixture, host, kpi, cells, button } = await render();
+      const { fixture, host, kpi, cells, button, item } = await render();
       const search = host.querySelector<HTMLInputElement>('.header-row input')!;
 
       await type(fixture, search, 'fern');
@@ -445,6 +448,19 @@ describe('The samples', () => {
       expect(button('Filters').querySelector('.count')).toBeNull();
       expect(kpi('Orders')).not.toBe(discounted);
       expect(search.value).toBe('fern');
+
+      // the clear button goes with the text, and the focus goes back to the search
+      host.querySelector<HTMLButtonElement>('.header-row tab-suffix button')!.click();
+      await fixture.whenStable();
+      expect(search.value).toBe('');
+      expect(document.activeElement).toBe(search);
+
+      // with no order left, the Actions menu has nothing to copy
+      await type(fixture, search, 'no such product');
+      expect(kpi('Orders')).toBe('0');
+      button('Actions').click();
+      await fixture.whenStable();
+      expect(item('Copy 0 orders to the clipboard').getAttribute('aria-disabled')).toBe('true');
       fixture.destroy();
     });
 
@@ -478,10 +494,11 @@ describe('The samples', () => {
       expect(button('2 orders selected')).toBeUndefined();
 
       // the third row first: the copy keeps the table's order, not the order they were picked in
-      for (const index of [2, 0]) {
-        rows()[index].querySelector<HTMLInputElement>('tab-checkbox input[type="checkbox"]')!.click();
-        await fixture.whenStable();
-      }
+      rows()[2].querySelector<HTMLInputElement>('tab-checkbox input[type="checkbox"]')!.click();
+      await fixture.whenStable();
+      expect(button('1 order selected')).toBeDefined();
+      rows()[0].querySelector<HTMLInputElement>('tab-checkbox input[type="checkbox"]')!.click();
+      await fixture.whenStable();
       await menu('2 orders selected', 'Copy them to the clipboard');
 
       await vi.waitFor(() => expect(snack).toHaveBeenLastCalledWith('Copied 2 orders to the clipboard', 3000, 'success'));
@@ -489,8 +506,10 @@ describe('The samples', () => {
       expect(lines[0]).toBe('Order\tDate\tCustomer\tRegion\tChannel\tProduct\tCategory\tQuantity\tSales\tProfit');
       expect(lines.slice(1).map(line => parseInt(line, 10))).toEqual([ids[0], ids[2]]);
 
+      // the selection button goes with the selection, and the focus goes to the Actions button
       await menu('2 orders selected', 'Clear the selection');
       expect(button('2 orders selected')).toBeUndefined();
+      await vi.waitFor(() => expect(document.activeElement).toBe(button('Actions')));
       fixture.destroy();
     });
 
@@ -525,8 +544,13 @@ describe('The samples', () => {
     });
 
     it('shows the Orders tab with the layout panel, which hides a column, and moves one with the arrow keys on its handle', async () => {
-      const { fixture, host, headers, button, tab } = await render();
-      const column = (id: string) => Array.from(host.querySelectorAll<HTMLElement>('.columns .column')).find(element => element.querySelector(`[data-handle="${id}"]`))!;
+      const { fixture, host, headers, button, tab, column } = await render();
+      const moveUp = async (id: string) => {
+        const handle = column(id).querySelector<HTMLButtonElement>('[data-handle]')!;
+        handle.focus();
+        handle.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }));
+        await fixture.whenStable();
+      };
       tab('Overview').click();
       await fixture.whenStable();
 
@@ -539,13 +563,14 @@ describe('The samples', () => {
       await fixture.whenStable();
       expect(headers()).toEqual(['id', 'date', 'customer', 'product', 'quantity', 'sales', 'profit']);
 
-      const handle = column('customer').querySelector<HTMLButtonElement>('[data-handle]')!;
-      handle.focus();
-      handle.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }));
-      await fixture.whenStable();
+      await moveUp('customer');
       expect(headers()).toEqual(['id', 'customer', 'date', 'product', 'quantity', 'sales', 'profit']);
       expect(document.activeElement).toBe(column('customer').querySelector('[data-handle]'));
-      expect(host.querySelector('[aria-live]')!.textContent.trim()).toBe('Moved to place 2 of 8');
+      expect(host.querySelector('[aria-live]')!.textContent.trim()).toBe('Customer moved to place 2 of 8');
+
+      await moveUp('date');
+      expect(headers()).toEqual(['id', 'date', 'customer', 'product', 'quantity', 'sales', 'profit']);
+      expect(host.querySelector('[aria-live]')!.textContent.trim()).toBe('Date moved to place 2 of 8');
       fixture.destroy();
     });
 
@@ -557,7 +582,7 @@ describe('The samples', () => {
       region.querySelector<HTMLInputElement>('tab-checkbox input[type="checkbox"]')!.click();
       await first.fixture.whenStable();
       await click(first.fixture, 'Save');
-      expect((JSON.parse(localStorage.getItem(layoutKey)!) as { displayedColumns: string[] }).displayedColumns).not.toContain('region');
+      expect((JSON.parse(localStorage.getItem(layoutKey)!) as { hidden: string[] }).hidden).toEqual(['region']);
       first.fixture.destroy();
 
       const { fixture, headers, button } = await render();
@@ -572,6 +597,132 @@ describe('The samples', () => {
         .click();
       await vi.waitFor(() => expect(headers()).toContain('region'));
       expect(localStorage.getItem(layoutKey)).toBeNull();
+      fixture.destroy();
+    });
+
+    it('pins a column to the left and unpins it, turns Save on after a change, and goes back to the saved layout', async () => {
+      const { fixture, host, headers, button, item, column, panelButton } = await render();
+      button('Layout & Sorting').click();
+      await fixture.whenStable();
+      const save = panelButton('Save');
+      expect(save.disabled).toBe(true);
+
+      const sales = column('sales');
+      const [left, right] = [sales.querySelector<HTMLButtonElement>('.pin.left')!, sales.querySelector<HTMLButtonElement>('.pin.right')!];
+      left.click();
+      await fixture.whenStable();
+      expect(headers()[0]).toBe('sales');
+      expect(left.getAttribute('aria-pressed')).toBe('true');
+      expect([right.disabled, sales.querySelector<HTMLButtonElement>('[data-handle]')!.disabled]).toEqual([true, true]);
+      expect(save.disabled).toBe(false);
+
+      left.click();
+      await fixture.whenStable();
+      expect(headers()).toEqual(columns);
+      expect(left.getAttribute('aria-pressed')).toBe('false');
+      expect(save.disabled).toBe(true);
+
+      // saved with striped rows, then a column hidden: Reset to the saved layout brings the column back, striped
+      host.querySelector<HTMLInputElement>('.panel > tab-checkbox input[type="checkbox"]')!.click();
+      await fixture.whenStable();
+      expect(save.disabled).toBe(false);
+      save.click();
+      await fixture.whenStable();
+      expect(save.disabled).toBe(true);
+      column('region').querySelector<HTMLInputElement>('tab-checkbox input[type="checkbox"]')!.click();
+      await fixture.whenStable();
+      expect(headers()).not.toContain('region');
+
+      panelButton('Reset').click();
+      await fixture.whenStable();
+      item('Reset to the saved layout').click();
+      await fixture.whenStable();
+      await vi.waitFor(() => expect(headers()).toEqual(columns));
+      expect(host.querySelector('.data-rows')!.classList).toContain('striped');
+      fixture.destroy();
+    });
+
+    // A layout another version saved, or one edited by hand, must not break the page
+    it.each([
+      ['text that is not JSON', 'not a layout'],
+      ['a list', '["gone"]'],
+      ['fields of the wrong type', '{"sort":null,"order":5,"hidden":null,"striped":"yes","pinnedLeftColumn":7}'],
+      ['columns the table does not have', '{"order":["gone"],"hidden":["gone"],"pinnedLeftColumn":"gone","sort":[{"property":"gone","direction":"asc"}]}'],
+      ['every column hidden', JSON.stringify({ hidden: columns })],
+    ])('starts from the default layout when the saved one is %s', async (_, saved) => {
+      localStorage.setItem(layoutKey, saved);
+      const { fixture, host, headers } = await render();
+
+      expect(headers()).toEqual(columns);
+      expect(host.querySelector('.column-header[data-column-id="date"] .sort-indicator tab-icon')!.textContent.trim()).toBe('arrow_downward');
+      fixture.destroy();
+    });
+
+    it("averages the months the dates cover, and names each month of a KPI's line", async () => {
+      const { fixture, host, kpi, button } = await render();
+      const compact = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', notation: 'compact', maximumFractionDigits: 1 });
+      const line = (index: number) => host.querySelectorAll('.kpi svg')[index].getAttribute('aria-label')!;
+      button('Filters').click();
+      await fixture.whenStable();
+      const [from, to] = Array.from(host.querySelectorAll<HTMLInputElement>('input[type="date"]'));
+
+      await type(fixture, from, '2025-04-01');
+      await type(fixture, to, '2025-06-30');
+
+      const sales = Number(kpi('Sales').replace(/[$,]/g, ''));
+      expect(host.querySelector('.legend')!.textContent.trim()).toBe(`Monthly average ${compact.format(sales / 3)}`);
+      expect(line(0)).toMatch(/^Sales by month: Jan \$0, Feb \$0, Mar \$0, Apr \$[\d,]+, /);
+      // a month with no orders has no average order
+      expect(line(3)).toMatch(/^Average order by month: Jan no orders, Feb no orders, Mar no orders, Apr \$\d+, /);
+      fixture.destroy();
+    });
+
+    // From the keyboard, as the user who would otherwise tab through the table's rows to reach the panel: Space on a
+    // focused button clicks it, and a mouse's click would blur it afterwards
+    it("puts the focus in the drawer's panel when it opens, and back on its button when Escape closes it", async () => {
+      const { fixture, host, button } = await render();
+      const panel = host.querySelector('.panel')!;
+      const press = async (text: string) => {
+        button(text).focus();
+        button(text).dispatchEvent(new KeyboardEvent('keydown', { key: ' ', code: 'Space', bubbles: true }));
+        await fixture.whenStable();
+      };
+
+      await press('Layout & Sorting');
+      await vi.waitFor(() => expect(document.activeElement!.textContent.trim()).toBe('Layout'));
+      expect(panel.contains(document.activeElement)).toBe(true);
+
+      await press('Filters');
+      await vi.waitFor(() => expect(document.activeElement!.textContent.trim()).toBe('Filters'));
+      expect(panel.contains(document.activeElement)).toBe(true);
+
+      document.activeElement!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      await fixture.whenStable();
+      expect(button('Filters').getAttribute('aria-expanded')).toBe('false');
+      expect(document.activeElement).toBe(button('Filters'));
+      fixture.destroy();
+    });
+
+    it("moves the focus to the next chip's remove button when a chip goes, and to the Filters button after the last", async () => {
+      const { fixture, host, button } = await render();
+      const removers = () => Array.from(host.querySelectorAll<HTMLButtonElement>('.chips button'));
+      const chips = () => Array.from(host.querySelectorAll('.chips tab-chip'), chip => chip.textContent.replace(chip.querySelector('button')!.textContent, '').trim());
+      button('Filters').click();
+      await fixture.whenStable();
+      await check(fixture, 'Only discounted orders');
+      await check(fixture, 'Include returned orders');
+      expect(chips()).toEqual(['Discounted only', 'No returns']);
+
+      removers()[0].focus();
+      removers()[0].click();
+      await fixture.whenStable();
+      expect(chips()).toEqual(['No returns']);
+      await vi.waitFor(() => expect(document.activeElement).toBe(removers()[0]));
+
+      removers()[0].click();
+      await fixture.whenStable();
+      expect(host.querySelector('.chips')).toBeNull();
+      await vi.waitFor(() => expect(document.activeElement).toBe(button('Filters')));
       fixture.destroy();
     });
 

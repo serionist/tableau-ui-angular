@@ -1,6 +1,6 @@
 import { CurrencyPipe, DatePipe, PercentPipe } from '@angular/common';
 import type { TemplateRef } from '@angular/core';
-import { ChangeDetectionStrategy, Component, computed, inject, linkedSignal, signal, viewChild } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, Component, computed, ElementRef, inject, Injector, linkedSignal, signal, viewChild } from '@angular/core';
 import { TableauUiAutoCompleteModule } from 'tableau-ui-angular/autocomplete';
 import { TableauUiButtonModule } from 'tableau-ui-angular/button';
 import { TableauUiButtonToggleModule } from 'tableau-ui-angular/button-toggle';
@@ -124,6 +124,8 @@ const MONEY = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD
 const SHORT_MONEY = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', notation: 'compact', maximumFractionDigits: 1 });
 const PERCENT = new Intl.NumberFormat('en-US', { style: 'percent', maximumFractionDigits: 1 });
 const COUNT = new Intl.NumberFormat('en-US');
+// A count and its noun: 1 order, 1,652 orders
+const plural = (count: number, noun: string) => `${COUNT.format(count)} ${count === 1 ? noun : `${noun}s`}`;
 const DAY = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 // A day as YYYY-MM-DD, in local time as the orders' dates are
 const isoDay = (date: Date) => [date.getFullYear(), date.getMonth() + 1, date.getDate()].map(part => String(part).padStart(2, '0')).join('-');
@@ -135,10 +137,18 @@ function niceCeiling(value: number) {
   return [1, 2, 2.5, 5, 10].map(factor => factor * step).find(top => top >= value) ?? value;
 }
 
-// A sparkline's points in a 110 by 30 box, a month every 10
-function sparkline(values: number[]) {
-  const [low, high] = [Math.min(...values), Math.max(...values)];
-  return values.map((value, index) => `${index * 10},${28 - ((value - low) / (high - low || 1)) * 26}`).join(' ');
+// A sparkline's path in a 110 by 30 box, a month every 10; a month with no value is a gap
+function sparkline(values: (number | undefined)[]) {
+  const known = values.filter(value => value !== undefined);
+  const [low, high] = [Math.min(...known), Math.max(...known)];
+  return values
+    .map((value, index) => (value === undefined ? '' : `${index === 0 || values[index - 1] === undefined ? 'M' : 'L'}${index * 10},${28 - ((value - low) / (high - low || 1)) * 26}`))
+    .join(' ');
+}
+
+// What a sparkline shows, for a screen reader
+function monthByMonth(label: string, values: (number | undefined)[], format: (value: number) => string) {
+  return `${label} by month: ${values.map((value, index) => `${MONTHS[index]} ${value === undefined ? 'no orders' : format(value)}`).join(', ')}`;
 }
 
 // Sorted in the browser, as the table asks; a server would sort them for the request
@@ -196,6 +206,10 @@ export class SalesDashboardExampleComponent {
   private readonly table = viewChild.required<TableComponent<Order>>('table');
   private readonly details = viewChild.required<TemplateRef<{ $implicit: Order }>>('details');
   private readonly tabs = viewChild.required(TabGroupComponent);
+  private readonly frame = viewChild.required<EnhancedTableComponent<Order>>(EnhancedTableComponent);
+  private readonly actionsButton = viewChild<unknown, ElementRef<HTMLElement>>('actionsButton', { read: ElementRef });
+  private readonly injector = inject(Injector);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
 
   protected readonly regions = REGIONS;
   protected readonly categories = CATEGORIES;
@@ -302,6 +316,23 @@ export class SalesDashboardExampleComponent {
     }
   }
 
+  // A chip's remove button goes with it, so focus goes to the next chip's, else the one before, else the Filters button
+  protected removeChip(key: Filter, index: number) {
+    this.clearFilter(key);
+    afterNextRender(
+      () => {
+        const buttons = Array.from(this.host.querySelectorAll<HTMLElement>('.chips button'));
+        const next = buttons.at(index) ?? (index > 0 ? buttons.at(index - 1) : undefined);
+        if (next !== undefined) {
+          next.focus();
+        } else {
+          this.frame().focusToggle('filter');
+        }
+      },
+      { injector: this.injector },
+    );
+  }
+
   // Clear all filters, in the panel, leaves the search; Reset the filters, in the Actions menu, clears it too
   protected clearFilters() {
     for (const { key } of this.$chips().filter(chip => chip.key !== 'search')) {
@@ -340,53 +371,74 @@ export class SalesDashboardExampleComponent {
     const [orders, months] = [this.$orders(), this.$months()];
     const sales = sum(orders, order => order.sales);
     const profit = sum(orders, order => order.profit);
+    // a month with no orders has no average order, rather than one of $0
+    const averages = months.map(month => (month.orders === 0 ? undefined : month.sales / month.orders));
+    const tile = (label: string, value: string, note: string, about: string, series: (number | undefined)[], format: (value: number) => string, loss = false) => ({
+      label,
+      value,
+      note,
+      about,
+      points: sparkline(series),
+      description: monthByMonth(label, series, format),
+      loss,
+    });
     return [
-      {
-        label: 'Sales',
-        value: MONEY.format(sales),
-        note: `${PERCENT.format(sales / TOTAL_SALES)} of the year's sales`,
-        about: 'What customers paid, after discounts',
-        points: sparkline(months.map(month => month.sales)),
-        loss: false,
-      },
-      {
-        label: 'Profit',
-        value: MONEY.format(profit),
-        note: `${PERCENT.format(sales === 0 ? 0 : profit / sales)} margin`,
-        about: 'Sales less what the goods cost; a deep discount sells at a loss',
-        points: sparkline(months.map(month => month.profit)),
-        loss: profit < 0,
-      },
-      {
-        label: 'Orders',
-        value: COUNT.format(orders.length),
-        note: `${COUNT.format(sum(orders, order => order.quantity))} items`,
-        about: 'Each order is one product, in any quantity',
-        points: sparkline(months.map(month => month.orders)),
-        loss: false,
-      },
-      {
-        label: 'Average order',
-        value: MONEY.format(orders.length === 0 ? 0 : sales / orders.length),
-        note: `${new Set(orders.map(order => order.customer)).size} customers`,
-        about: 'Sales divided by orders',
-        points: sparkline(months.map(month => (month.orders === 0 ? 0 : month.sales / month.orders))),
-        loss: false,
-      },
+      tile(
+        'Sales',
+        MONEY.format(sales),
+        `${PERCENT.format(sales / TOTAL_SALES)} of the year's sales`,
+        'What customers paid, after discounts',
+        months.map(month => month.sales),
+        value => MONEY.format(value),
+      ),
+      tile(
+        'Profit',
+        MONEY.format(profit),
+        `${PERCENT.format(sales === 0 ? 0 : profit / sales)} margin`,
+        'Sales less what the goods cost; a deep discount sells at a loss',
+        months.map(month => month.profit),
+        value => MONEY.format(value),
+        profit < 0,
+      ),
+      tile(
+        'Orders',
+        COUNT.format(orders.length),
+        plural(
+          sum(orders, order => order.quantity),
+          'item',
+        ),
+        'Each order is one product, in any quantity',
+        months.map(month => month.orders),
+        value => COUNT.format(value),
+      ),
+      tile(
+        'Average order',
+        MONEY.format(orders.length === 0 ? 0 : sales / orders.length),
+        plural(new Set(orders.map(order => order.customer)).size, 'customer'),
+        'Sales divided by orders',
+        averages,
+        value => MONEY.format(value),
+      ),
     ];
   });
 
-  // Columns in a 120 by 100 box, a month every 10, under the top line; the average as a reference line
+  // The months the date filters cover, of which the monthly average is the mean
+  private readonly $coveredMonths = computed(() => {
+    const [from, to] = [this.$from()?.getTime() ?? -Infinity, this.$to()?.getTime() ?? Infinity];
+    return MONTHS.filter((_, month) => new Date(2025, month + 1, 0).getTime() >= from && new Date(2025, month, 1).getTime() <= to).length;
+  });
+
+  // Columns in a 120 by 100 box, a month every 10, under the top line; the monthly average as a reference line
   protected readonly $monthChart = computed(() => {
     const months = this.$months();
     const top = niceCeiling(Math.max(...months.map(month => month.sales), 1));
-    const average = sum(months, month => month.sales) / months.length;
+    const average = sum(months, month => month.sales) / Math.max(this.$coveredMonths(), 1);
     return {
       top: SHORT_MONEY.format(top),
       half: SHORT_MONEY.format(top / 2),
       columns: months.map((month, index) => ({ label: MONTHS[index], x: index * 10 + 2, height: (month.sales / top) * 100 })),
       average: (average / top) * 100,
-      averageText: `Average ${SHORT_MONEY.format(average)}`,
+      averageText: `Monthly average ${SHORT_MONEY.format(average)}`,
       description: `Sales by month: ${months.map((month, index) => `${MONTHS[index]} ${MONEY.format(month.sales)}`).join(', ')}`,
     };
   });
@@ -456,10 +508,18 @@ export class SalesDashboardExampleComponent {
   protected readonly $selected = linkedSignal<Order[], Map<number, Order>>({ source: this.$orders, computation: () => new Map() });
 
   protected readonly $selectedSales = computed(() => MONEY.format(sum([...this.$selected().values()], order => order.sales)));
-  protected readonly $selectionText = computed(() => `${COUNT.format(this.$selected().size)} ${this.$selected().size === 1 ? 'order' : 'orders'} selected`);
+  protected readonly $selectionText = computed(() => `${plural(this.$selected().size, 'order')} selected`);
+  protected readonly $copyAllText = computed(() => `Copy ${plural(this.$orders().length, 'order')} to the clipboard`);
 
+  // The selection button goes with the selection, so focus goes to the Actions button beside it
   protected clearSelection() {
     this.$selected.set(new Map());
+    afterNextRender(
+      () => {
+        this.actionsButton()?.nativeElement.focus();
+      },
+      { injector: this.injector },
+    );
   }
 
   // The table measures the rows it has room for, so it loads once its tab shows
@@ -478,7 +538,7 @@ export class SalesDashboardExampleComponent {
     const lines = orders.map(order => [order.id, isoDay(order.date), order.customer, order.region, order.channel, order.product, order.category, order.quantity, order.sales, order.profit].join('\t'));
     try {
       await this.clipboard.writeText(['Order\tDate\tCustomer\tRegion\tChannel\tProduct\tCategory\tQuantity\tSales\tProfit', ...lines].join('\n'));
-      this.snacks.openSnack(`Copied ${COUNT.format(orders.length)} orders to the clipboard`, 3000, 'success');
+      this.snacks.openSnack(`Copied ${plural(orders.length, 'order')} to the clipboard`, 3000, 'success');
     } catch {
       // the clipboard service showed why in a snack of its own
     }

@@ -19,5 +19,6 @@ export const ENHANCED_TABLE_FILES: DocsFile[] = [
   { label: 'enhanced-table.component.scss', source: tableScss },
 ];
 
-// The command that installs what the enhanced table moves columns with
-export const CDK_INSTALL = 'npm install @angular/cdk';
+// The command that installs what the enhanced table moves columns with, at the Angular major the library's peers name:
+// the latest would be a CDK for a later Angular
+export const CDK_INSTALL = 'npm install @angular/cdk@22';

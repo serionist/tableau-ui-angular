@@ -67,6 +67,12 @@ h4 {
   line-height: 1.3;
 }
 
+// The heading the focus goes to when the drawer opens
+h3:focus-visible {
+  outline: 2px solid var(--twc-color-focused-input);
+  outline-offset: 2px;
+}
+
 .columns {
   display: grid;
   gap: 0.25rem;

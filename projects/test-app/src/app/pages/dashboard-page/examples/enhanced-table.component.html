@@ -14,17 +14,24 @@
   <div class="group">
     @if ($searchLabel(); as label) {
       <tab-form-field class="search">
-        <input type="text" [placeholder]="label" [attr.aria-label]="label" [value]="$search()" (input)="searchInput($event)" />
+        <input #searchField type="text" [placeholder]="label" [attr.aria-label]="label" [value]="$search()" (input)="searchInput($event)" />
         <tab-prefix><tab-icon value="search" /></tab-prefix>
         @if ($search()) {
           <tab-suffix>
-            <button layout="small-icon" color="plain" (click)="$search.set('')"><tab-icon value="close" label="Clear the search" /></button>
+            <button layout="small-icon" color="plain" (click)="clearSearch()"><tab-icon value="close" label="Clear the search" /></button>
           </tab-suffix>
         }
       </tab-form-field>
     }
     @let filtersOpen = $drawerOpen() && $drawerMode() === 'filter';
-    <button class="toggle" [attr.aria-expanded]="filtersOpen" [kind]="filtersOpen ? 'raised' : 'stroked'" [color]="filtersOpen ? 'primary' : 'secondary'" (click)="toggleDrawer('filter')">
+    <button
+      #filterToggle
+      class="toggle"
+      [attr.aria-expanded]="filtersOpen"
+      [kind]="filtersOpen ? 'raised' : 'stroked'"
+      [color]="filtersOpen ? 'primary' : 'secondary'"
+      (click)="toggleDrawer('filter')"
+    >
       <tab-icon value="filter_alt" />
       Filters
       @if ($activeFilters() > 0) {
@@ -32,7 +39,7 @@
       }
     </button>
     @let layoutOpen = $drawerOpen() && $drawerMode() === 'layout';
-    <button class="toggle" [attr.aria-expanded]="layoutOpen" [kind]="layoutOpen ? 'raised' : 'stroked'" [color]="layoutOpen ? 'primary' : 'secondary'" (click)="toggleDrawer('layout')">
+    <button #layoutToggle class="toggle" [attr.aria-expanded]="layoutOpen" [kind]="layoutOpen ? 'raised' : 'stroked'" [color]="layoutOpen ? 'primary' : 'secondary'" (click)="toggleDrawer('layout')">
       <tab-icon value="table" />
       Layout & Sorting
     </button>
@@ -40,12 +47,13 @@
 </div>
 
 <tab-drawer-container>
-  <!-- Closed, the drawer is inert, so the keyboard skips it; on a narrow table it covers the content, which is then inert -->
+  <!-- Closed, the drawer is inert, so the keyboard skips it; on a narrow table it covers the content, which is then inert.
+       Escape in it closes it -->
   <tab-drawer position="right" padding="0" [width]="$wide() ? $drawerWidth() : '100%'" [isOpen]="$drawerOpen()">
     <div class="panel" [attr.inert]="$drawerOpen() ? null : ''">
       @if ($drawerMode() === 'filter') {
         <div class="panel-header">
-          <h3>Filters</h3>
+          <h3 #panelHeading tabindex="-1">Filters</h3>
           <button color="error" [disabled]="$activeFilters() === 0" (click)="clearFilters.emit()">Clear all filters</button>
         </div>
         @if ($filterPanel(); as filters) {
@@ -53,7 +61,7 @@
         }
       } @else {
         <div class="panel-header">
-          <h3>Layout</h3>
+          <h3 #panelHeading tabindex="-1">Layout</h3>
           <div class="group">
             <button color="primary" [disabled]="!$layoutChanged()" (click)="saveLayout()">Save</button>
             @if ($savedLayout()) {

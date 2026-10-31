@@ -171,7 +171,8 @@ describe('The docs pages', () => {
 
     // what it moves columns with, which the page says to install, and the site has
     expect(ts).toContain("from '@angular/cdk/drag-drop'");
-    expect(CDK_INSTALL).toBe('npm install @angular/cdk');
+    // at the Angular major the library's peers name: the latest CDK would be a later Angular's
+    expect(CDK_INSTALL).toBe(`npm install @angular/cdk@${/\d+/.exec(peerDependencies['@angular/core'])![0]}`);
     expect(Object.keys(dependencies)).toContain('@angular/cdk');
 
     TestBed.configureTestingModule({ providers: [provideRouter([])] });

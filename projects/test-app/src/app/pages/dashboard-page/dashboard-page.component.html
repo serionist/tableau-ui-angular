@@ -1,7 +1,7 @@
 <div class="page">
   <div class="title">
     <h1>Dashboard</h1>
-    <div class="text-light text-large">A Tableau-style sales dashboard, made only of the library's components, with its source below it.</div>
+    <div class="text-light text-large">A Tableau-style sales dashboard of the library's components, which moves its table's columns with the Angular CDK, and its source.</div>
   </div>
   <tab-separator />
   <div class="content">
@@ -33,7 +33,8 @@
       <p>
         <code>app-enhanced-table</code>
         frames a table, which it finds anywhere in its content. Layout & Sorting stripes the rows, and shows, hides, moves and pins the columns; Save keeps the layout and the sort in the viewer's
-        browser, and Reset goes back to the saved layout or the default. A column moves by its handle, dragged, or focused and moved with the up and down arrows.
+        browser, and Reset goes back to the saved layout or the default. A column moves by its handle, dragged, or focused and moved with the up and down arrows. Opening a panel puts the focus in it;
+        Escape in it closes it, and the focus goes back to its button.
       </p>
       <table class="docs-table">
         <thead>
@@ -83,7 +84,7 @@
       </table>
       <p>
         It moves columns with
-        <code>&#64;angular/cdk/drag-drop</code>, so an app that copies it installs the package at its Angular version:
+        <code>&#64;angular/cdk/drag-drop</code>, so an app that copies it installs the package at its Angular major:
       </p>
       <app-docs-code label="command" [source]="cdkInstall" />
       <tab-group headerPadding="0.25rem 1rem">
