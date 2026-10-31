@@ -137,13 +137,24 @@ function niceCeiling(value: number) {
   return [1, 2, 2.5, 5, 10].map(factor => factor * step).find(top => top >= value) ?? value;
 }
 
-// A sparkline's path in a 110 by 30 box, a month every 10; a month with no value is a gap
+// A sparkline in a 110 by 30 box, a month every 10: its line, and a dot for a month with gaps on both sides, which a
+// line can't draw; a month with no value is a gap
 function sparkline(values: (number | undefined)[]) {
   const known = values.filter(value => value !== undefined);
   const [low, high] = [Math.min(...known), Math.max(...known)];
-  return values
-    .map((value, index) => (value === undefined ? '' : `${index === 0 || values[index - 1] === undefined ? 'M' : 'L'}${index * 10},${28 - ((value - low) / (high - low || 1)) * 26}`))
-    .join(' ');
+  const point = (value: number, index: number) => `${index * 10},${28 - ((value - low) / (high - low || 1)) * 26}`;
+  const alone = (index: number) => values[index - 1] === undefined && values[index + 1] === undefined;
+  return {
+    line: values
+      .map((value, index) => (value === undefined || alone(index) ? '' : `${index === 0 || values[index - 1] === undefined ? 'M' : 'L'}${point(value, index)}`))
+      .filter(part => part !== '')
+      .join(' '),
+    // a line of no length, which round caps draw as a dot
+    dots: values
+      .map((value, index) => (value !== undefined && alone(index) ? `M${point(value, index)} h0.01` : ''))
+      .filter(part => part !== '')
+      .join(' '),
+  };
 }
 
 // What a sparkline shows, for a screen reader
@@ -378,7 +389,7 @@ export class SalesDashboardExampleComponent {
       value,
       note,
       about,
-      points: sparkline(series),
+      ...sparkline(series),
       description: monthByMonth(label, series, format),
       loss,
     });

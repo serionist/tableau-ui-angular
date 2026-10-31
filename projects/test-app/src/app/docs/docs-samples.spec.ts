@@ -681,6 +681,48 @@ describe('The samples', () => {
       fixture.destroy();
     });
 
+    // A month with gaps on both sides is a dot: a path that only moves to its point paints nothing
+    it("draws a mark on each KPI's line when the dates keep one month", async () => {
+      const { fixture, host, button } = await render();
+      button('Filters').click();
+      await fixture.whenStable();
+      const [from, to] = Array.from(host.querySelectorAll<HTMLInputElement>('input[type="date"]'));
+
+      await type(fixture, from, '2025-04-01');
+      await type(fixture, to, '2025-04-30');
+
+      const lengths = Array.from(host.querySelectorAll('.kpi svg'), svg =>
+        Array.from(svg.querySelectorAll<SVGPathElement>('path'))
+          .filter(path => (path.getAttribute('d') ?? '').trim() !== '')
+          .reduce((length, path) => length + path.getTotalLength(), 0),
+      );
+      expect(lengths).toHaveLength(4);
+      expect(lengths.every(length => length > 0)).toBe(true);
+      // Average order has April alone, drawn as a dot by the round caps
+      const dot = host.querySelectorAll('.kpi')[3].querySelector<SVGPathElement>('path.dot')!;
+      expect(dot.getAttribute('d')).toMatch(/^M30,[\d.]+ h0\.01$/);
+      expect(getComputedStyle(dot).strokeLinecap).toBe('round');
+      fixture.destroy();
+    });
+
+    // The browser's picker for a date closes on Escape, and the key can reach the page as the picker shuts
+    it('keeps the drawer open on Escape from a date input, and closes it on Escape from the panel', async () => {
+      const { fixture, host, button } = await render();
+      button('Filters').click();
+      await fixture.whenStable();
+      const from = host.querySelector<HTMLInputElement>('.panel input[type="date"]')!;
+
+      from.focus();
+      from.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      await fixture.whenStable();
+      expect(button('Filters').getAttribute('aria-expanded')).toBe('true');
+
+      host.querySelector('.panel h3')!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      await fixture.whenStable();
+      expect(button('Filters').getAttribute('aria-expanded')).toBe('false');
+      fixture.destroy();
+    });
+
     // From the keyboard, as the user who would otherwise tab through the table's rows to reach the panel: Space on a
     // focused button clicks it, and a mouse's click would blur it afterwards
     it("puts the focus in the drawer's panel when it opens, and back on its button when Escape closes it", async () => {

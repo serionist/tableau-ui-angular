@@ -109,7 +109,10 @@
           <div class="kpi" tooltipPosition="bottom" [tooltip]="kpi.about">
             <span class="label">{{ kpi.label }}</span>
             <span class="value" [class.loss]="kpi.loss">{{ kpi.value }}</span>
-            <svg class="spark" viewBox="0 0 110 30" preserveAspectRatio="none" role="img" [attr.aria-label]="kpi.description"><path [attr.d]="kpi.points" /></svg>
+            <svg class="spark" viewBox="0 0 110 30" preserveAspectRatio="none" role="img" [attr.aria-label]="kpi.description">
+              <path [attr.d]="kpi.line" />
+              <path class="dot" [attr.d]="kpi.dots" />
+            </svg>
             <span class="note">{{ kpi.note }}</span>
           </div>
         }

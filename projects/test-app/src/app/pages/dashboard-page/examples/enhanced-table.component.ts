@@ -121,6 +121,9 @@ function readLayout(text: string, defaults: LayoutState): LayoutState | undefine
   };
 }
 
+// The inputs whose picker the browser opens, and closes on Escape
+const PICKERS = ['date', 'datetime-local', 'month', 'time', 'week'];
+
 let instances = 0;
 
 /**
@@ -163,6 +166,7 @@ export class EnhancedTableComponent<TData> implements AfterContentInit {
   protected readonly $table = contentChild.required<TableComponent<TData>>(TableComponent);
   private readonly filterToggle = viewChild.required<unknown, ElementRef<HTMLElement>>('filterToggle', { read: ElementRef });
   private readonly layoutToggle = viewChild.required<unknown, ElementRef<HTMLElement>>('layoutToggle', { read: ElementRef });
+  private readonly panel = viewChild.required<ElementRef<HTMLElement>>('panel');
   private readonly panelHeading = viewChild<ElementRef<HTMLElement>>('panelHeading');
   private readonly searchField = viewChild<ElementRef<HTMLInputElement>>('searchField');
   // #endregion
@@ -230,13 +234,17 @@ export class EnhancedTableComponent<TData> implements AfterContentInit {
     this.focusToggle(this.$drawerMode());
   }
 
-  // Escape in the panel closes it, unless a select's options or a menu over it are open: Escape closes those first
+  // Escape in the panel closes it, unless a select's options or a menu over it are open, or it comes from a date or
+  // time input, whose own picker Escape closes: the key can reach the page with the picker already shut
   @HostListener('keydown.escape', ['$event'])
   protected escape(event: Event) {
     if (this.dialogs.dialogStack.some(entry => entry.args.closeOnEscape === true)) {
       return;
     }
-    if (this.$drawerOpen() && event.target instanceof Node && this.host.querySelector('.panel')?.contains(event.target) === true) {
+    if (event.target instanceof HTMLInputElement && PICKERS.includes(event.target.type)) {
+      return;
+    }
+    if (this.$drawerOpen() && event.target instanceof Node && this.panel().nativeElement.contains(event.target)) {
       this.closeDrawer();
     }
   }

@@ -50,7 +50,7 @@
   <!-- Closed, the drawer is inert, so the keyboard skips it; on a narrow table it covers the content, which is then inert.
        Escape in it closes it -->
   <tab-drawer position="right" padding="0" [width]="$wide() ? $drawerWidth() : '100%'" [isOpen]="$drawerOpen()">
-    <div class="panel" [attr.inert]="$drawerOpen() ? null : ''">
+    <div #panel class="panel" [attr.inert]="$drawerOpen() ? null : ''">
       @if ($drawerMode() === 'filter') {
         <div class="panel-header">
           <h3 #panelHeading tabindex="-1">Filters</h3>
