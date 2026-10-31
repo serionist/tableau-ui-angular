@@ -77,7 +77,9 @@ export function changelogProblems(text, version) {
   if (found.length > 1) return [`${CHANGELOG_FILE} has ${found.length} sections for ${version}: keep one`];
   const [{ heading, body }] = found;
   const problems = [];
-  const date = new RegExp(`^## ${version.replace(/\./g, '\\.')} \\((\\d{4}-\\d{2}-\\d{2})\\)$`).exec(heading)?.[1];
+  // a fixed pattern, and the version compared as text, so nothing in it is read as a pattern
+  const dated = /^## (\S+) \((\d{4}-\d{2}-\d{2})\)$/.exec(heading);
+  const date = dated?.[1] === version ? dated[2] : null;
   if (!date) problems.push(`${CHANGELOG_FILE}'s heading for ${version} is "${heading}"; a release's reads ${wanted}`);
   else if (!isDate(date)) problems.push(`${CHANGELOG_FILE}'s heading for ${version} has ${date}, which is no date`);
   if (!body) problems.push(`${CHANGELOG_FILE}'s section for ${version} is empty, and its lines are the release's notes`);

@@ -798,9 +798,10 @@ and review record hold the same calls with more detail.
 - 2026-10-31, S13's first half (#88): `release.yml` on `v*` tags checks the tag (on `main`, the package's
   version, a dated CHANGELOG section, not on npm), waits for `main`'s `ci.yml` on the commit, runs the full lane, packs,
   then publishes that tarball in the `npm` environment through trusted publishing with provenance, and creates the
-  GitHub release with the CHANGELOG section as notes; no secret. The checks are `tools/release.mjs`, 95 tests, each
-  check's removal failing at least one (32 mutations); actionlint clean. `docs/releasing.md` is the runbook. No old
-  publish workflow was left: `deploy-lib.yaml` went in S6. The `0.2.0` version PR and its tag follow.
+  GitHub release with the CHANGELOG section as notes; no secret. The checks are `tools/release.mjs`, 96 tests, each
+  check's removal failing at least one (31 mutations); actionlint clean. CodeQL's first run flagged the changelog
+  check's pattern built from the version, now a fixed one. `docs/releasing.md` is the runbook. No old publish
+  workflow was left: `deploy-lib.yaml` went in S6. The `0.2.0` version PR and its tag follow.
 
 ## For the maintainers
 

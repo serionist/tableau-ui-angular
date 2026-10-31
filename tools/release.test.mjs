@@ -61,7 +61,7 @@ describe("CHANGELOG.md's section", () => {
 
   test('only Unreleased is refused', () => assert.match(changelogProblems(changelog('### Added', '- A thing.'), '0.2.0').join('\n'), /no section for 0\.2\.0/));
 
-  for (const heading of ['## 0.2.0', '## [0.2.0] - 2026-11-02', '## 0.2.0 - 2026-11-02', '## 0.2.0 (unreleased)', '## 0.2.0 (2026-11-2)', '## 0.2.0 (2026-11-02) draft']) {
+  for (const heading of ['## 0.2.0', '## [0.2.0] - 2026-11-02', '## [0.2.0] (2026-11-02)', '## 0.2.0 - 2026-11-02', '## 0.2.0 (unreleased)', '## 0.2.0 (2026-11-2)', '## 0.2.0 (2026-11-02) draft']) {
     test(`"${heading}" is refused: a release's heading is ## <version> (YYYY-MM-DD)`, () => {
       assert.deepEqual(changelogProblems(changelog(heading), '0.2.0'), [`CHANGELOG.md's heading for 0.2.0 is "${heading}"; a release's reads ## 0.2.0 (YYYY-MM-DD)`]);
     });
