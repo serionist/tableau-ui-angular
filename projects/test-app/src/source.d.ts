@@ -6,3 +6,10 @@ declare module '*?source' {
   const source: string;
   export default source;
 }
+
+// A file's bytes, for a spec that reads a binary file such as a PNG: the import ends in `?bytes` and says
+// `with { loader: 'binary' }`.
+declare module '*?bytes' {
+  const bytes: Uint8Array;
+  export default bytes;
+}

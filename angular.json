@@ -101,6 +101,7 @@
                 "glob": "**/*",
                 "input": "projects/test-app/public"
               },
+              { "glob": "mark.svg", "input": "docs/assets", "output": "/" },
               { "glob": "**/*", "input": "node_modules/monaco-editor/min", "output": "/monaco-edit" }
             ],
             "styles": ["projects/test-app/src/styles.scss", "projects/test-app/src/docs.scss"],

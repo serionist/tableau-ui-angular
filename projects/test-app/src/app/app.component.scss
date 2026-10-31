@@ -7,8 +7,31 @@
   grid-template-rows: minmax(0, 1fr);
 }
 
+// The mark lines up with the nav bar's icons, and stays in the middle of the closed bar
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 0.75rem;
+}
+
+// The bars solid, the tiles around them a tint: the light theme's blue, and the dark theme's brighter one
+.mark {
+  flex: none;
+  width: 2rem;
+  height: 2rem;
+  fill: var(--twc-color-primary);
+
+  .tile {
+    fill-opacity: 0.5;
+  }
+
+  :host-context(.dark-mode) & {
+    fill: var(--twc-color-primary-dark);
+  }
+}
+
 .title {
-  margin: 0 1em;
   font-size: 1.25em;
   font-weight: 600;
 }

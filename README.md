@@ -1,9 +1,27 @@
-# tableau-ui-angular
+<h1>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/serionist/tableau-ui-angular/main/docs/assets/logo-dark.svg" />
+    <img src="https://raw.githubusercontent.com/serionist/tableau-ui-angular/main/docs/assets/logo-light.svg" alt="tableau-ui-angular" width="412" height="64" />
+  </picture>
+</h1>
 
 Tableau-style components for Angular 22: buttons, form controls, selects, a virtual table, dialogs, snacks, menus and
 more, one entry point per folder.
 
 Not affiliated with or endorsed by Tableau or Salesforce.
+
+[![npm version](https://img.shields.io/npm/v/tableau-ui-angular)](https://www.npmjs.com/package/tableau-ui-angular)
+[![CI on main](https://github.com/serionist/tableau-ui-angular/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/serionist/tableau-ui-angular/actions/workflows/ci.yml?query=branch%3Amain)
+[![Licence: MIT](https://img.shields.io/npm/l/tableau-ui-angular?label=licence)](https://github.com/serionist/tableau-ui-angular/blob/main/LICENSE)
+[![npm downloads a month](https://img.shields.io/npm/dm/tableau-ui-angular)](https://www.npmjs.com/package/tableau-ui-angular)
+[![The docs site](https://img.shields.io/badge/docs-serionist.github.io-05628a)](https://serionist.github.io/tableau-ui-angular/)
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/serionist/tableau-ui-angular/main/docs/assets/dashboard-dark.png" />
+  <img src="https://raw.githubusercontent.com/serionist/tableau-ui-angular/main/docs/assets/dashboard-light.png" alt="A garden shop's sales dashboard, built with the library's components" />
+</picture>
+
+A dashboard built with the components, [running on the docs site](https://serionist.github.io/tableau-ui-angular/).
 
 ## Install
 
