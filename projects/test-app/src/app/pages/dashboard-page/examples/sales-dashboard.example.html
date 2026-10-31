@@ -1,0 +1,277 @@
+<section class="dashboard" [class.dark]="$dark()">
+  <header class="heading">
+    <h2>Garden shop sales, 2025</h2>
+    <span class="subtitle">{{ $count() }} of {{ orderCount }} orders</span>
+  </header>
+
+  @if ($chips().length > 0) {
+    <ul class="chips" aria-label="Filters in use">
+      @for (chip of $chips(); track chip.key) {
+        <li>
+          <tab-chip [allowRemove]="true" (removed)="removeChip(chip.key, $index)">{{ chip.text }}</tab-chip>
+        </li>
+      }
+    </ul>
+  }
+
+  <!-- The table's frame holds the whole dashboard, since the filters in its drawer drive the KPIs and charts too -->
+  <app-enhanced-table
+    uniqueId="garden-shop-orders"
+    searchLabel="Search products"
+    [selectionButtonText]="$selectionText()"
+    [activeFilters]="$filterCount()"
+    [(search)]="$search"
+    (clearFilters)="clearFilters()"
+    (drawerOpened)="drawerOpened($event)"
+  >
+    <ng-template headerBeforeSelect>
+      <button #actionsButton [attachedMenu]="actions">
+        <tab-icon value="more_vert" />
+        Actions
+      </button>
+      <ng-template #actions="buttonMenu" buttonMenu>
+        <tab-menu-button-group>
+          <tab-menu-button [disabled]="$orders().length === 0" (clicked)="copyOrders(false)">{{ $copyAllText() }}</tab-menu-button>
+          <tab-menu-button [disabled]="$chips().length === 0" (clicked)="resetFilters()">Reset the filters</tab-menu-button>
+        </tab-menu-button-group>
+      </ng-template>
+    </ng-template>
+
+    <!-- The selection button's menu: its items act on the selected orders -->
+    <ng-template buttonMenu selectMenuButtons>
+      <tab-menu-button-group>
+        <tab-menu-button (clicked)="copyOrders(true)">Copy them to the clipboard</tab-menu-button>
+        <tab-menu-button (clicked)="clearSelection()">Clear the selection</tab-menu-button>
+      </tab-menu-button-group>
+    </ng-template>
+
+    <ng-template filterPanel>
+      <tab-form-field>
+        <tab-label>Region</tab-label>
+        <tab-multi-select placeholder="All regions" [allowClear]="true" [multipleSelectionMaxItemsListed]="3" [(value)]="$regions">
+          @for (region of regions; track region) {
+            <tab-option [text]="region" [value]="region" />
+          }
+        </tab-multi-select>
+      </tab-form-field>
+
+      <tab-form-field>
+        <tab-label>Category</tab-label>
+        <tab-single-select placeholder="All categories" [allowClear]="true" [(value)]="$category">
+          @for (category of categories; track category) {
+            <tab-option [text]="category" [value]="category" />
+          }
+        </tab-single-select>
+      </tab-form-field>
+
+      <fieldset>
+        <legend>Channel</legend>
+        <tab-button-toggle [(selectedValue)]="$channel">
+          <tab-option text="All" value="All" />
+          <tab-option text="Online" value="Online" />
+          <tab-option text="In store" value="In store" />
+        </tab-button-toggle>
+      </fieldset>
+
+      <fieldset>
+        <legend>Order date</legend>
+        <tab-form-field>
+          <tab-label>From</tab-label>
+          <input type="date" min="2025-01-01" max="2025-12-31" [(value)]="$from" />
+        </tab-form-field>
+        <tab-form-field>
+          <tab-label>To</tab-label>
+          <input type="date" min="2025-01-01" max="2025-12-31" [(value)]="$to" />
+        </tab-form-field>
+      </fieldset>
+
+      <tab-form-field>
+        <tab-label>Customer</tab-label>
+        <input type="text" [tabAutoComplete]="suggestions" [value]="$customer()" (input)="customerInput($event)" />
+        <tab-autocomplete #suggestions>
+          @for (name of $suggestions(); track name) {
+            <tab-option [text]="name" [value]="name" />
+          }
+        </tab-autocomplete>
+      </tab-form-field>
+
+      <fieldset>
+        <legend>Orders</legend>
+        <tab-checkbox [(value)]="$discountedOnly">Only discounted orders</tab-checkbox>
+        <tab-checkbox [(value)]="$withReturns">Include returned orders</tab-checkbox>
+      </fieldset>
+    </ng-template>
+
+    <div class="main">
+      <!-- Each KPI's tooltip says how it is counted; nothing the dashboard needs is only there -->
+      <div class="kpis">
+        @for (kpi of $kpis(); track kpi.label) {
+          <div class="kpi" tooltipPosition="bottom" [tooltip]="kpi.about">
+            <span class="label">{{ kpi.label }}</span>
+            <span class="value" [class.loss]="kpi.loss">{{ kpi.value }}</span>
+            <svg class="spark" viewBox="0 0 110 30" preserveAspectRatio="none" role="img" [attr.aria-label]="kpi.description">
+              <path [attr.d]="kpi.line" />
+              <path class="dot" [attr.d]="kpi.dots" />
+            </svg>
+            <span class="note">{{ kpi.note }}</span>
+          </div>
+        }
+      </div>
+
+      <tab-group class="sheets">
+        <tab key="overview">
+          <span tab-header>Overview</span>
+          @if ($orders().length === 0) {
+            <p class="empty">
+              No orders match these filters.
+              <button color="primary" (click)="resetFilters()">Reset the filters</button>
+            </p>
+          } @else {
+            <div class="overview">
+              @let chart = $monthChart();
+              <figure>
+                <figcaption>Sales by month</figcaption>
+                <div class="plot">
+                  <span class="axis top">{{ chart.top }}</span>
+                  <span class="axis half">{{ chart.half }}</span>
+                  <svg viewBox="0 0 120 100" preserveAspectRatio="none" role="img" [attr.aria-label]="chart.description">
+                    <line class="grid" x1="0" x2="120" y1="50" y2="50" />
+                    @for (column of chart.columns; track column.label) {
+                      <rect width="6" [attr.x]="column.x" [attr.y]="100 - column.height" [attr.height]="column.height" />
+                    }
+                    <line class="average" x1="0" x2="120" [attr.y1]="100 - chart.average" [attr.y2]="100 - chart.average" />
+                  </svg>
+                </div>
+                <div class="months" aria-hidden="true">
+                  @for (column of chart.columns; track column.label) {
+                    <span>{{ column.label }}</span>
+                  }
+                </div>
+                <!-- The reference line's legend, under the months, where it hides no column -->
+                <p class="legend"><span class="swatch"></span>{{ chart.averageText }}</p>
+              </figure>
+
+              <div class="side">
+                <figure>
+                  <figcaption>Sales by region</figcaption>
+                  <div class="bars">
+                    @for (bar of $regionBars(); track bar.label) {
+                      <span>{{ bar.label }}</span>
+                      <svg viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"><rect height="10" [attr.width]="bar.width" /></svg>
+                      <span class="number">{{ bar.value }}</span>
+                    }
+                  </div>
+                </figure>
+
+                <figure>
+                  <figcaption>Profit by category</figcaption>
+                  <div class="bars">
+                    @for (bar of $categoryBars(); track bar.label) {
+                      <span>{{ bar.label }}</span>
+                      <svg viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"><rect height="10" [attr.width]="bar.width" [class.loss]="bar.loss" /></svg>
+                      <span class="number" [class.loss]="bar.loss">{{ bar.value }}</span>
+                    }
+                  </div>
+                </figure>
+              </div>
+            </div>
+          }
+        </tab>
+
+        <tab key="orders" (afterActivate)="loadOrders()">
+          <span tab-header>Orders</span>
+          <!-- Each column has a width of its own: a flexible one keeps its width when the table narrows, as the drawer opens -->
+          <tab-table #table sortMode="single" [dataOptions]="$dataOptions()" [selectionOptions]="selectionOptions" [(sort)]="$sort" [(selectedRows)]="$selected">
+            <ng-container tabColumnDef="id" width="7rem">
+              <ng-template let-ctx [tabHeaderDef]="table">Order</ng-template>
+              <ng-template let-ctx [tabCellDef]="table">
+                <span class="order">
+                  {{ ctx.row.id }}
+                  <button color="plain" layout="small-icon" (click)="openOrder(ctx.row)"><tab-icon value="info" [label]="`Details of order ${ctx.row.id}`" /></button>
+                </span>
+              </ng-template>
+            </ng-container>
+            <ng-container tabColumnDef="date" width="8rem">
+              <ng-template let-ctx [tabHeaderDef]="table">Date</ng-template>
+              <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.date | date: 'mediumDate' }}</ng-template>
+            </ng-container>
+            <ng-container tabColumnDef="customer" width="10rem">
+              <ng-template let-ctx [tabHeaderDef]="table">Customer</ng-template>
+              <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.customer }}</ng-template>
+            </ng-container>
+            <ng-container tabColumnDef="region" width="6.5rem">
+              <ng-template let-ctx [tabHeaderDef]="table">Region</ng-template>
+              <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.region }}</ng-template>
+            </ng-container>
+            <ng-container tabColumnDef="product" width="11rem">
+              <ng-template let-ctx [tabHeaderDef]="table">Product</ng-template>
+              <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.product }}</ng-template>
+            </ng-container>
+            <ng-container tabColumnDef="quantity" width="5rem">
+              <ng-template let-ctx [tabHeaderDef]="table">Qty</ng-template>
+              <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.quantity }}</ng-template>
+            </ng-container>
+            <ng-container tabColumnDef="sales" width="7.5rem">
+              <ng-template let-ctx [tabHeaderDef]="table">Sales</ng-template>
+              <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.sales | currency: 'USD' }}</ng-template>
+            </ng-container>
+            <ng-container tabColumnDef="profit" width="7.5rem">
+              <ng-template let-ctx [tabHeaderDef]="table">Profit</ng-template>
+              <ng-template let-ctx [tabCellDef]="table">
+                <span [class.loss]="ctx.row.profit < 0">{{ ctx.row.profit | currency: 'USD' }}</span>
+              </ng-template>
+            </ng-container>
+          </tab-table>
+          <p class="status">
+            @if ($selected().size > 0) {
+              {{ $selectionText() }}, {{ $selectedSales() }} in sales: the selection button's menu copies them.
+            } @else {
+              Select orders to copy only those; the button by an order's number opens its details.
+            }
+          </p>
+        </tab>
+
+        <tab key="products">
+          <span tab-header>Products</span>
+          @for (group of $productGroups(); track group.category) {
+            <tab-expansion-panel [expanded]="$first">
+              <tab-expansion-panel-title>
+                <span>{{ group.category }}</span>
+                <span class="number">{{ group.sales }}</span>
+              </tab-expansion-panel-title>
+              <div class="bars products">
+                @for (product of group.products; track product.label) {
+                  <span>{{ product.label }}</span>
+                  <span class="number units">{{ product.units }} sold</span>
+                  <svg viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"><rect height="10" [attr.width]="product.width" /></svg>
+                  <span class="number">{{ product.value }}</span>
+                }
+              </div>
+            </tab-expansion-panel>
+          }
+        </tab>
+      </tab-group>
+    </div>
+  </app-enhanced-table>
+</section>
+
+<ng-template #details let-order>
+  <dl class="details">
+    <dt>Date</dt>
+    <dd>{{ order.date | date: 'fullDate' }}</dd>
+    <dt>Customer</dt>
+    <dd>{{ order.customer }}, {{ order.region }}</dd>
+    <dt>Channel</dt>
+    <dd>{{ order.channel }}</dd>
+    <dt>Product</dt>
+    <dd>{{ order.quantity }} × {{ order.product }} ({{ order.category }})</dd>
+    <dt>Discount</dt>
+    <dd>{{ order.discount === 0 ? 'None' : (order.discount | percent) }}</dd>
+    <dt>Sales</dt>
+    <dd>{{ order.sales | currency: 'USD' }}</dd>
+    <dt>Profit</dt>
+    <dd [class.loss]="order.profit < 0">{{ order.profit | currency: 'USD' }}</dd>
+    <dt>Returned</dt>
+    <dd>{{ order.returned ? 'Yes' : 'No' }}</dd>
+  </dl>
+</ng-template>

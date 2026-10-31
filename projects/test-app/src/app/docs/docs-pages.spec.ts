@@ -39,6 +39,9 @@ import { ClipboardPageComponent } from '../pages/clipboard-page/clipboard-page.c
 import { CSS_EXAMPLES } from '../pages/css-page/css.examples';
 import { CssPageComponent } from '../pages/css-page/css-page.component';
 import { FONT_IMPORT, fontFaces, ROBOTO_IMPORT, STYLES_USE } from '../pages/css-page/styles';
+import { CDK_INSTALL, DASHBOARD_EXAMPLES, ENHANCED_TABLE_FILES } from '../pages/dashboard-page/dashboard.examples';
+import { DashboardPageComponent } from '../pages/dashboard-page/dashboard-page.component';
+import { EnhancedTableComponent } from '../pages/dashboard-page/examples/enhanced-table.component';
 import { DATE_PICKER_EXAMPLES } from '../pages/date-picker-page/date-picker.examples';
 import { DatePickerPageComponent } from '../pages/date-picker-page/date-picker-page.component';
 import { DIALOGS_EXAMPLES } from '../pages/dialogs-page/dialogs.examples';
@@ -86,6 +89,7 @@ import { TREE_EXAMPLES } from '../pages/tree-page/tree.examples';
 import { TreePageComponent } from '../pages/tree-page/tree-page.component';
 import { VIRTUALIZE_EXAMPLES } from '../pages/virtualize-page/virtualize.examples';
 import { VirtualizePageComponent } from '../pages/virtualize-page/virtualize-page.component';
+import { DocsCodeComponent } from './docs-code.component';
 import { codeLanguage } from './docs-code-colours';
 import type { DocsExample } from './docs-example';
 import { DocsExampleComponent } from './docs-example.component';
@@ -94,6 +98,7 @@ import { MONACO_VS_PATH } from './docs-monaco.service';
 // Each page with samples, which show their source, and the list of its samples. A new page with samples joins it
 const PAGES: { name: string; page: Type<unknown>; examples: Record<string, DocsExample> }[] = [
   { name: 'getting started', page: GettingStartedPageComponent, examples: GETTING_STARTED_EXAMPLES },
+  { name: 'dashboard', page: DashboardPageComponent, examples: DASHBOARD_EXAMPLES },
   { name: 'theming', page: ThemingPageComponent, examples: THEMING_EXAMPLES },
   { name: 'buttons', page: ButtonsPageComponent, examples: BUTTONS_EXAMPLES },
   { name: 'checkbox', page: CheckboxPageComponent, examples: CHECKBOX_EXAMPLES },
@@ -158,6 +163,32 @@ describe('The docs pages', () => {
       }
       fixture.destroy();
     });
+  });
+
+  // The dashboard imports the enhanced table from its folder, so a copied dashboard needs its files
+  it("shows the enhanced table's files on the dashboard page, every file the dashboard imports from its folder", async () => {
+    const local = (ts: string) => [...ts.matchAll(/from '\.\/([^']+)'/g)].map(([, file]) => file);
+    expect(local(DASHBOARD_EXAMPLES.dashboard.ts)).toEqual(['enhanced-table.component']);
+    const [ts, html, scss] = ENHANCED_TABLE_FILES.map(file => file.source);
+    expect(ENHANCED_TABLE_FILES.map(file => file.label)).toEqual(['enhanced-table.component.ts', 'enhanced-table.component.html', 'enhanced-table.component.scss']);
+    expect(ts).toContain(`export class ${EnhancedTableComponent.name.replace(/^_/, '')}<`);
+    expect(ts).toContain("templateUrl: './enhanced-table.component.html'");
+    expect(ts).toContain("styleUrl: './enhanced-table.component.scss'");
+    expect([html.trim(), scss.trim()].every(text => text.length > 0)).toBe(true);
+    expect(local(ts)).toEqual([]);
+
+    // what it moves columns with, which the page says to install, and the site has
+    expect(ts).toContain("from '@angular/cdk/drag-drop'");
+    // at the Angular major the library's peers name: the latest CDK would be a later Angular's
+    expect(CDK_INSTALL).toBe(`npm install @angular/cdk@${/\d+/.exec(peerDependencies['@angular/core'])![0]}`);
+    expect(Object.keys(dependencies)).toContain('@angular/cdk');
+
+    TestBed.configureTestingModule({ providers: [provideRouter([])] });
+    const fixture = TestBed.createComponent(DashboardPageComponent);
+    await fixture.whenStable();
+    const shown = fixture.debugElement.queryAll(By.directive(DocsCodeComponent)).map(element => (element.componentInstance as DocsCodeComponent).$source());
+    expect(shown).toEqual(expect.arrayContaining([CDK_INSTALL, ts, html, scss]));
+    fixture.destroy();
   });
 
   it("lists every one of the theme's colours, and the other custom properties, from the library's SCSS", () => {

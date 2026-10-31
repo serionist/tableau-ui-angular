@@ -341,7 +341,7 @@ describe('SelectComponent', () => {
     const shown = (selector: string) => host.querySelector(`${selector} .content-display`)!.textContent.replace(/\s+/g, ' ').trim();
 
     expect(shown('tab-single-select')).toBe('Hungary');
-    expect(shown('tab-multi-select')).toBe('English , Hungarian');
+    expect(shown('tab-multi-select')).toBe('English, Hungarian');
 
     fixture.componentInstance.languages.setValue(['en', 'hu', 'de']);
     await fixture.whenStable();
