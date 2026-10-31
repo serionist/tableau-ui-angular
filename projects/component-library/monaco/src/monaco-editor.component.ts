@@ -1,6 +1,6 @@
-import type { OnDestroy } from '@angular/core';
-import { afterNextRender, DOCUMENT, ElementRef, ErrorHandler, signal } from '@angular/core';
-import { ChangeDetectionStrategy, Component, effect, forwardRef, inject, input, model, output, untracked } from '@angular/core';
+import type { InputSignal, OnDestroy, WritableSignal } from '@angular/core';
+import { afterNextRender, DOCUMENT, ElementRef, ErrorHandler, linkedSignal, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, forwardRef, inject, input, output, untracked } from '@angular/core';
 import type { ControlValueAccessor } from '@angular/forms';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import type { ICodeEditor, MonacoConstructionOptions } from './types';
@@ -179,11 +179,15 @@ export class MonacoEditorComponent implements OnDestroy, ControlValueAccessor {
 
   /**
    * The value of the current document.
-   * This can do two-way binding with the editor.
+   * This can do two-way binding with the editor: `[(value)]`.
    */
-  readonly $value = model<string>('', {
+  readonly $valueInput: InputSignal<string> = input<string>('', {
     alias: 'value',
   });
+  /** What the editor shows: the value input, until a form writes or the user types */
+  readonly $value: WritableSignal<string> = linkedSignal(this.$valueInput);
+  /** Emits the text on each edit by the user; a form's write, the value input and `$value.set()` emit nothing */
+  readonly valueChange = output<string>();
 
   /**
    * The theme of the monaco editor.
@@ -354,12 +358,13 @@ export class MonacoEditorComponent implements OnDestroy, ControlValueAccessor {
     monaco.editor.setTheme(this.getMonacoTheme(this.$theme(), this.themeService.$appliedThemeMode()));
 
     this._editor.onDidChangeModelContent(() => {
-      // a change the app or the form made is theirs already: neither the value nor the form hears of it again
+      // a change the app or the form made is theirs already: neither the value, valueChange nor the form hears of it again
       if (!this._editor || this.settingText) {
         return;
       }
       const value = this._editor.getValue() ?? '';
       this.$value.set(value);
+      this.valueChange.emit(value);
       this.onPropagateChange(value);
     });
 

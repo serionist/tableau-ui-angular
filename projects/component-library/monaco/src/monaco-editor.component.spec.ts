@@ -1,8 +1,9 @@
-import { ChangeDetectionStrategy, Component, ErrorHandler, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ErrorHandler, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import type MonacoNamespace from 'monaco-editor';
 import { axeViolations } from '../../testing/axe';
+import { MonacoEditorComponent } from './monaco-editor.component';
 import { TableauUiMonacoModule } from './tableau-ui-monaco.module';
 import type { ICodeEditor, MonacoConstructionOptions } from './types';
 
@@ -59,6 +60,7 @@ const QUIET: MonacoConstructionOptions = { occurrencesHighlight: 'off' };
       language="plaintext"
       [options]="$options()"
       [disposeModelOnDestroy]="$disposeModels()"
+      (valueChange)="changes.push($event)"
       (editorLoaded)="loaded.push($event)"
       style="height: 6rem"
     />
@@ -72,6 +74,7 @@ class EditorHostComponent {
   readonly $uri = signal(`file:///spec/${++documents}.txt`);
   readonly $options = signal<MonacoConstructionOptions>(QUIET);
   readonly $disposeModels = signal(true);
+  readonly changes: string[] = [];
   readonly loaded: ICodeEditor[] = [];
 }
 
@@ -87,6 +90,21 @@ class BoundEditorComponent {
   readonly $text = signal('bound');
   readonly changes: string[] = [];
   readonly loaded: ICodeEditor[] = [];
+}
+
+// An editor two-way bound to the page's own text, which also listens to valueChange
+@Component({
+  imports: [TableauUiMonacoModule],
+  template: `<tab-monaco-editor [uri]="uri" language="plaintext" [options]="quiet" [(value)]="$text" (valueChange)="changes.push($event)" (editorLoaded)="loaded.push($event)" style="height: 6rem" />`,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class TwoWayEditorComponent {
+  readonly uri = `file:///spec/${++documents}.txt`;
+  readonly quiet = QUIET;
+  readonly $text = signal('two-way');
+  readonly changes: string[] = [];
+  readonly loaded: ICodeEditor[] = [];
+  readonly $editor = viewChild.required(MonacoEditorComponent);
 }
 
 function create() {
@@ -247,10 +265,20 @@ describe('MonacoEditorComponent', () => {
       await vi.waitFor(() => {
         expect(fixture.componentInstance.loaded.length).toBe(1);
       });
-      const { control, loaded } = fixture.componentInstance;
+      const { control, loaded, changes } = fixture.componentInstance;
       const values: (string | null)[] = [];
       control.valueChanges.subscribe(value => values.push(value));
-      return { fixture, control, values, editor: loaded[0], host: fixture.nativeElement as HTMLElement };
+      return { fixture, control, values, changes, editor: loaded[0], host: fixture.nativeElement as HTMLElement };
+    }
+
+    async function renderTwoWay() {
+      const fixture = TestBed.createComponent(TwoWayEditorComponent);
+      fixture.autoDetectChanges();
+      const { loaded, changes, $text, $editor } = fixture.componentInstance;
+      await vi.waitFor(() => {
+        expect(loaded.length).toBe(1);
+      });
+      return { fixture, changes, $text, editor: loaded[0], component: $editor() };
     }
 
     const type = (editor: ICodeEditor, text: string) => {
@@ -300,6 +328,86 @@ describe('MonacoEditorComponent', () => {
       await fixture.whenStable();
       expect(editor.getValue()).toBe('first');
       expect(control.value).toBe('first');
+    });
+
+    // #72: writeValue set a model, so each of a form's writes emitted valueChange, which an app heard as the user's edit
+    it("emits no valueChange for a form's first value, setValue, patchValue or reset(), and the control stays pristine", async () => {
+      const { fixture, control, changes, editor } = await render();
+      expect(editor.getValue()).toBe('first');
+
+      control.setValue('second');
+      await fixture.whenStable();
+      expect(editor.getValue()).toBe('second');
+
+      control.patchValue('third');
+      await fixture.whenStable();
+      expect(editor.getValue()).toBe('third');
+
+      control.reset();
+      await fixture.whenStable();
+      expect(editor.getValue()).toBe('');
+
+      expect(changes).toEqual([]);
+      expect(control.pristine).toBe(true);
+    });
+
+    it('emits valueChange once for each change the user types, with the new text, and the form gets each', async () => {
+      const { fixture, control, values, changes, editor } = await render();
+
+      editor.focus();
+      for (const key of ['a', 'b', 'c']) {
+        type(editor, key);
+        await fixture.whenStable();
+      }
+
+      expect(changes).toEqual(['afirst', 'abfirst', 'abcfirst']);
+      expect(values).toEqual(changes);
+      expect(control.value).toBe('abcfirst');
+      expect(control.dirty).toBe(true);
+    });
+
+    it("binds [(value)] both ways: the bound value reaches the editor without emitting, and the user's typing comes back", async () => {
+      const { fixture, changes, $text, editor } = await renderTwoWay();
+      expect(editor.getValue()).toBe('two-way');
+
+      $text.set('changed');
+      await fixture.whenStable();
+      expect(editor.getValue()).toBe('changed');
+      expect(changes).toEqual([]);
+
+      type(editor, 'x');
+      await fixture.whenStable();
+      expect($text()).toBe('xchanged');
+      expect(changes).toEqual(['xchanged']);
+
+      // the text that came back through the binding is the editor's already, so its undo history stays
+      editor.trigger('keyboard', 'undo', null);
+      await fixture.whenStable();
+      expect(editor.getValue()).toBe('changed');
+      expect($text()).toBe('changed');
+    });
+
+    it("changes the editor's text for $value.set() without emitting, and the next bound value replaces it", async () => {
+      const { fixture, changes, $text, editor, component } = await renderTwoWay();
+
+      component.$value.set('from code');
+      await fixture.whenStable();
+      expect(editor.getValue()).toBe('from code');
+      expect(component.$value()).toBe('from code');
+      expect(changes).toEqual([]);
+      expect($text()).toBe('two-way');
+
+      // the user's typing starts from the text the code set
+      type(editor, 'x');
+      await fixture.whenStable();
+      expect(changes).toEqual(['xfrom code']);
+      expect($text()).toBe('xfrom code');
+
+      $text.set('bound again');
+      await fixture.whenStable();
+      expect(editor.getValue()).toBe('bound again');
+      expect(component.$value()).toBe('bound again');
+      expect(changes).toEqual(['xfrom code']);
     });
 
     it("emits valueChange for the user's typing, not for a change of the bound value", async () => {
