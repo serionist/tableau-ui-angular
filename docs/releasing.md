@@ -25,8 +25,8 @@ One PR, one tag, one approval.
    ```
 
 4. Approve the deployment: the run's page, Review deployments, `npm`, Approve and deploy.
-5. Check it: `npm view tableau-ui-angular@0.2.0` prints the version, and the version's page on npmjs.com shows
-   Provenance, linked to the run. The GitHub release holds the CHANGELOG section and the tarball.
+5. Check it: `npm view tableau-ui-angular@0.2.0 dist.attestations.provenance` prints the provenance, and the
+   version's page on npmjs.com shows it, linked to the run. The GitHub release holds the CHANGELOG section and the tarball.
 
 A version with a pre-release part, such as `0.3.0-rc.1`, publishes under npm's `next` tag, so `npm install` keeps
 the latest release, and makes a GitHub pre-release. It needs a dated section of its own too.
@@ -51,13 +51,15 @@ Five jobs; nothing reaches npm until the first three pass and you approve.
 
 Before Publish nothing is on npm, so the tag can move; after it, the version is taken for good.
 
-| What failed                                        | What to do                                                                                                                      |
-| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| A check, the build, or you rejected the deployment | Delete the tag (`git push origin --delete v0.2.0`, `git tag -d v0.2.0`), fix `main` in a PR, and tag again                      |
-| `main`'s CI on the commit, from a flaky test       | Re-run its failed jobs on its page, then the release run's failed jobs; the tag stays                                           |
-| Publish, with `ENEEDAUTH` or `E404`                | The trusted publisher doesn't match the run: check its fields below, then re-run the failed jobs                                |
-| The GitHub release                                 | Re-run that job; the package is on npm already                                                                                  |
-| Something in the published package                 | npm never takes a version twice, even after `npm unpublish`: fix it and release the next patch. `npm deprecate` warns its users |
+| What failed                                                                                                  | What to do                                                                                                                      |
+| ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
+| A check names a problem in the commit: the version, CHANGELOG, not on `main`; or you rejected the deployment | Delete the tag (`git push origin --delete v0.2.0`, `git tag -d v0.2.0`), fix `main` in a PR, and tag again                      |
+| No answer from npm or GitHub, a flaky test in the build, or the CI wait ran out                              | Re-run the failed jobs; the tag stays                                                                                           |
+| No `ci.yml` run on `main` for the commit, as for a Dependabot merge                                          | Delete the tag and tag the version PR's merge commit, which `main`'s push ran CI on                                             |
+| `main`'s CI on the commit, from a flaky test                                                                 | Re-run its failed jobs on its page, then the release run's failed jobs; the tag stays                                           |
+| Publish, with `ENEEDAUTH` or `E404`                                                                          | The trusted publisher doesn't match the run: check its fields below, then re-run the failed jobs                                |
+| The GitHub release                                                                                           | Re-run that job; the package is on npm already                                                                                  |
+| Something in the published package                                                                           | npm never takes a version twice, even after `npm unpublish`: fix it and release the next patch. `npm deprecate` warns its users |
 
 ## One-time setup
 

@@ -29,7 +29,7 @@ Every top-level file and folder, and the library's own; a new one adds its row i
 | `projects/component-library/testing/`                                     | what the specs share, such as `axeViolations`, the axe check every component test runs; never published                                                               |
 | `projects/component-library/package.json`, `ng-package.json`              | what is published: the one version, the peers, the shipped assets                                                                                                     |
 | `projects/test-app/`                                                      | the docs site: `src/app/pages/`, `src/app/docs/` (the sample and code views), `app.routes.server.ts` (what prerenders)                                                |
-| `docs/plans/`, `docs/reviews/`, `docs/releasing.md`                       | plans, with the template in `README.md`; review records. Dated, never current truth. How to release                                                                   |
+| `docs/plans/`, `docs/reviews/`, `docs/releasing.md`                       | plans, with the template in `README.md`; review records, dated, never current truth; the release runbook                                                              |
 | `tools/`                                                                  | `gate.mjs` with `coverage.mjs`, `angular.mjs`, `api.mjs`; `hooks.mjs` with `attribution.mjs`; `pr-text.mjs`, `release.mjs`, `setup.mjs`, `shipped-scripts.mjs`        |
 | `.githooks/`                                                              | `commit-msg` refuses tool attribution; `pre-push` runs the gate's quick lane; both run `tools/hooks.mjs`                                                              |
 | `.claude/`                                                                | `CLAUDE.md` (imports this file), `settings.json` (no attribution; whole-command allows, asks, denies: `REVIEW.md`, Permissions), `skills/`                            |
@@ -58,7 +58,7 @@ Run from the repo root. `ng` is the repo's own CLI: `npx ng` when it is not on P
 | the docs site               | `ng build test-app` (prints "Prerendered N static routes", N above 0); `npm start` serves it on port 4201                                          |
 | tests                       | `ng test --watch=false`: both projects, in Chromium and Firefox (`npx playwright install chromium firefox`)                                        |
 | lint and format             | `ng lint`, `npm run lint:scss`; `npm run pretty` formats everything the gate's Prettier check reads                                                |
-| the tools' tests            | `npm run test:tools`: the hooks, the gate's verdicts, the API file, the shipped scripts against local stubs                                        |
+| the tools' tests            | `npm run test:tools`: the hooks, the gate's verdicts, the API file, the release checks, the shipped scripts against local stubs                    |
 | the public API file         | `npm run api:update`: builds the library and writes `projects/component-library/api/` from its typings                                             |
 | the gate                    | `npm run gate -- quick` (lock, ESLint, stylelint, Prettier, AGENTS.md, skills, attribution, gitleaks); `full` adds builds, API, tests and coverage |
 
