@@ -93,9 +93,13 @@ describe('DocsCodeComponent', () => {
       const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
       const host = await render(['TS', 'HTML', 'SCSS'], { vs: '/missing/vs' });
 
-      await vi.waitFor(() => {
-        expect(warn).toHaveBeenCalledTimes(1);
-      });
+      // the observer's answer and the server's 404, which take a while when the browsers run side by side
+      await vi.waitFor(
+        () => {
+          expect(warn).toHaveBeenCalledTimes(1);
+        },
+        { timeout: 10000 },
+      );
       await fixture.whenStable();
 
       expect(String(warn.mock.calls[0][1])).toContain('/missing/vs/loader.js did not load');
