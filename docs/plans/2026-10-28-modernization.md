@@ -217,7 +217,7 @@ Each step is one PR, buildable and testable on its own.
 | S10b-2 | Done in #85: the icons, list, local development, scroller, tabs, tooltips, tree, virtualize and CSS & Fonts pages as samples or their files and commands; five named `TableauUiAllModule`; the icons page's root import              | Every page shows its samples with their source; no page names `TableauUiAllModule` or imports from `tableau-ui-angular` itself                                     |
 | S11    | Presentation: a logo, a social preview, badges, screenshots from the docs site                                                                                                                                                       | The README renders on GitHub in light and dark                                                                                                                     |
 | S12    | Done in #86: MIT; LICENSE, the package, README, CONTRIBUTING and CHANGELOG                                                                                                                                                           | LICENSE and `package.json` say MIT                                                                                                                                 |
-| S13    | `release.yml` and `docs/releasing.md`, done in #88; the `0.2.0` version PR, #<pr>, and its tag                                                                                                                                       | `npm view tableau-ui-angular@0.2.0 dist.attestations.provenance` prints it                                                                                         |
+| S13    | `release.yml` and `docs/releasing.md`, done in #88; the `0.2.0` version PR, #89, and its tag                                                                                                                                         | `npm view tableau-ui-angular@0.2.0 dist.attestations.provenance` prints it                                                                                         |
 | S14    | Announce: the awesome-angular list, the release on GitHub                                                                                                                                                                            | The entry is merged                                                                                                                                                |
 
 S1 and S2 come before the plan's merge: they don't depend on it, and S1 shouldn't wait.
@@ -809,7 +809,7 @@ API; the rows after it stay proposed.
 - 2026-10-31, S13 review round 1 (#88, one reviewer, deep tier, at `46f8bd1`): clean, one minor: the runbook sent every
   failure before Publish to a new tag, and now splits a problem in the commit from a transient one and from a commit
   with no `ci.yml` run. AGENTS.md's rows and the provenance check (`dist.attestations.provenance`) were improved.
-- 2026-10-31, S13: the `0.2.0` version PR (#<pr>): the package's version is `0.2.0`, CHANGELOG's Unreleased section
+- 2026-10-31, S13: the `0.2.0` version PR (#89): the package's version is `0.2.0`, CHANGELOG's Unreleased section
   is `0.2.0 (2026-10-31)`, and SECURITY.md names 0.2.0 as the first release for Angular 22. The maintainer approved
   every Decided-without-asking row through S10b-1 (#81), now marked approved. The tag `v0.2.0` follows the merge.
 
