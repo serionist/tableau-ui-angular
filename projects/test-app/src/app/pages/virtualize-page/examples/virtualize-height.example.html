@@ -1,0 +1,18 @@
+<div class="buttons">
+  <button (click)="show(0)">No rows</button>
+  <button (click)="show(2)">2 rows</button>
+  <button (click)="show(10000)">10,000 rows</button>
+</div>
+
+<!-- No height: the list is as tall as its rows, up to 300px, so it loads blocks for a window of 300px -->
+<tab-virtualize #list class="list" [dataOptions]="dataOptions" [dataSort]="[]" [dataWindowHeightPx]="300" [noDataTemplate]="noRows">
+  <!-- Shown in place of the rows while the first block loads -->
+  <ng-template tabCustomLoader>
+    <tab-loading-gif />
+  </ng-template>
+  <ng-template let-ctx [tabItemTemplate]="list">{{ ctx.item.name }}</ng-template>
+</tab-virtualize>
+
+<ng-template #noRows>
+  <p class="no-rows">No rows to show</p>
+</ng-template>

@@ -1,0 +1,6 @@
+<!-- Larger arrows, half a rem from the content -->
+<tab-arrow-scroll class="box" scrollType="arrow" scrollDirection="vertical" buttonsGap="0.5rem" [iconParams]="{ fontSize: '2rem' }">
+  @for (line of lines; track line) {
+    <p>{{ line }}</p>
+  }
+</tab-arrow-scroll>

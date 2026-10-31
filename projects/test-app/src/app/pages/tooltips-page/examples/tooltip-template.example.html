@@ -1,0 +1,20 @@
+<!-- The context's $implicit is the template's let-place -->
+<ng-template #tip let-place> From a <b>template</b>, {{ place }} </ng-template>
+
+<div class="buttons">
+  <button [tooltip]="tip" [tooltipContext]="{ $implicit: 'on top' }">Top</button>
+  <button tooltipPosition="left" [tooltip]="tip" [tooltipContext]="{ $implicit: 'on the left' }">Left</button>
+  <button tooltipPosition="right" [tooltip]="tip" [tooltipContext]="{ $implicit: 'on the right' }">Right</button>
+
+  <!-- Full mode takes every argument, the padding too, from tooltipFullArgs; the tooltip attribute applies the directive -->
+  <button
+    tooltipArgsMode="full"
+    [tooltip]="tip"
+    [tooltipFullArgs]="{ template: tip, context: { $implicit: 'on the left, 10px away, padded 2rem' }, position: 'left', margin: '10px', padding: '2rem' }"
+  >
+    Left, 10px away, padded 2rem
+  </button>
+  <button tooltipArgsMode="full" [tooltip]="tip" [tooltipFullArgs]="{ template: tip, context: { $implicit: 'below, 2em away, padded 2rem' }, position: 'bottom', margin: '2em', padding: '2rem' }">
+    Bottom, 2em away, padded 2rem
+  </button>
+</div>

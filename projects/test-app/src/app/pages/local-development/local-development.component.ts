@@ -1,44 +1,19 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { MonacoHelper } from '../../helpers/monaco.helper';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
-import { TableauUiMonacoModule } from 'tableau-ui-angular/monaco';
+import { DocsCodeComponent } from '../../docs/docs-code.component';
+import { ANGULAR_JSON, DEV_LINK, LINK_COMMAND, LINK_INSTALL, TSCONFIG_JSON, UNLINK } from './link-steps';
 
 @Component({
   selector: 'app-local-development',
-  imports: [TableauUiCommonModule, TableauUiMonacoModule],
-  standalone: true,
+  imports: [TableauUiCommonModule, DocsCodeComponent],
   templateUrl: './local-development.component.html',
-  styleUrl: './local-development.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LocalDevelopmentComponent {
-  options = MonacoHelper.options();
-
-  angularJsonContent = `"projects": {
-         "[your-app]": {
-              "architect": {
-                "build": {
-                     "options": {
-                          "preserveSymlinks": true
-                     }
-                },
-                "serve": {
-                     "options": {
-                          "prebundle": {
-                               "exclude": [
-                                    "tableau-ui-angular"
-                               ]
-                          }
-                     }
-                }
-              }
-         }
-}`;
-  tsconfigJsonContent = `  "compilerOptions": {
-        "paths": {
-          "tableau-ui-angular": [
-          "./node_modules/tableau-ui-angular"
-          ]
-     }
-    }`;
+  protected readonly devLink = DEV_LINK;
+  protected readonly angularJson = ANGULAR_JSON;
+  protected readonly tsconfigJson = TSCONFIG_JSON;
+  protected readonly linkInstall = LINK_INSTALL;
+  protected readonly linkCommand = LINK_COMMAND;
+  protected readonly unlink = UNLINK;
 }

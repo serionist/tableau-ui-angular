@@ -1,0 +1,64 @@
+<div class="fields">
+  <tab-form-field>
+    <tab-label>A single value</tab-label>
+    <tab-list-single-select [formControl]="single | formControl">
+      @for (option of options; track option.value) {
+        <tab-option [disabled]="option.disabled ?? false" [hint]="option.hint" [icon]="option.icon" [text]="option.text" [value]="option.value" />
+      }
+    </tab-list-single-select>
+    @if (single | formMeta | async | formHasError: 'required') {
+      <tab-error>Required</tab-error>
+    }
+    @if (single | formMeta | async | formHasError: 'min') {
+      <tab-error>The lowest value is 1</tab-error>
+    }
+    @if (single | formMeta | async | formHasError: 'max') {
+      <tab-error>The highest value is 3, so the last option is an error</tab-error>
+    }
+  </tab-form-field>
+
+  <tab-form-field>
+    <tab-label>Disabled</tab-label>
+    <tab-list-single-select selectedCheckIconLocation="right" [formControl]="disabled | formControl">
+      @for (option of options; track option.value) {
+        <tab-option [disabled]="option.disabled ?? false" [hint]="option.hint" [icon]="option.icon" [text]="option.text" [value]="option.value" />
+      }
+    </tab-list-single-select>
+    <tab-hint>A disabled control disables the list</tab-hint>
+  </tab-form-field>
+
+  <tab-form-field>
+    <tab-label>A prefix and a suffix, silent focus</tab-label>
+    <tab-list-single-select focusMode="silent" [formControl]="prefixed | formControl">
+      @for (option of options; track option.value) {
+        <tab-option [disabled]="option.disabled ?? false" [hint]="option.hint" [icon]="option.icon" [text]="option.text" [value]="option.value" />
+      }
+    </tab-list-single-select>
+    <tab-prefix>
+      <tab-icon value="search" />
+    </tab-prefix>
+    <tab-suffix>A suffix</tab-suffix>
+    @if (prefixed | formMeta | async | formHasError: 'required') {
+      <tab-error>Required</tab-error>
+    }
+    @if (prefixed | formMeta | async | formHasError: 'min') {
+      <tab-error>The lowest value is 1</tab-error>
+    }
+    @if (prefixed | formMeta | async | formHasError: 'max') {
+      <tab-error>The highest value is 3, so the last option is an error</tab-error>
+    }
+  </tab-form-field>
+
+  <tab-form-field>
+    <tab-label>Multiple values, the check on the left, no highlight</tab-label>
+    <tab-list-multi-select selectedCheckIconLocation="left" [formControl]="multi | formControl" [selectedItemHighlight]="false">
+      @for (option of options; track option.value) {
+        <tab-option [disabled]="option.disabled ?? false" [hint]="option.hint" [icon]="option.icon" [text]="option.text" [value]="option.value" />
+      }
+    </tab-list-multi-select>
+    <tab-hint>Value: {{ $multiValue() }}</tab-hint>
+    @if (multi | formMeta | async | formHasError: 'required') {
+      <tab-error>Pick at least one</tab-error>
+    }
+  </tab-form-field>
+</div>

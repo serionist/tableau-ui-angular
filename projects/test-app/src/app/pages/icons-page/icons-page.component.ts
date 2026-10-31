@@ -1,95 +1,34 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { MonacoHelper } from '../../helpers/monaco.helper';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
-import { TableauUiIconModule } from 'tableau-ui-angular/icon';
-import { TableauUiMonacoModule } from 'tableau-ui-angular/monaco';
+import { DocsCodeComponent } from '../../docs/docs-code.component';
+import { DocsExampleComponent } from '../../docs/docs-example.component';
+import { ICONS_EXAMPLES } from './icons.examples';
+import { ICONS_CLASS, ICONS_CSS_API, ICONS_CSS_FILE, ICONS_CSS_URL_VARIABLE, ICONS_CSS_USE, ICONS_SCRIPTS, ICONS_TOOLS_INSTALL, MATERIAL_SYMBOLS_INSTALL, MATERIAL_SYMBOLS_USES } from './setup';
+import { Icons } from './snippets/icons';
+import iconsTs from './snippets/icons.ts?source' with { loader: 'text' };
 
 @Component({
   selector: 'app-icons-page',
-  imports: [TableauUiCommonModule, TableauUiIconModule, TableauUiMonacoModule],
-  standalone: true,
+  imports: [TableauUiCommonModule, DocsCodeComponent, DocsExampleComponent],
   templateUrl: './icons-page.component.html',
-  styleUrl: './icons-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IconsPageComponent {
-  options = MonacoHelper.options();
+  protected readonly examples = ICONS_EXAMPLES;
 
-  localModuleCode = `import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { TableauUiIconModule } from 'tableau-ui-angular';
+  protected readonly iconsTs = iconsTs;
+  protected readonly iconsClass = ICONS_CLASS;
+  // What the list above downloads: its icons with the library's own, in its fonts
+  protected readonly iconCount = new Icons().getAllIcons().length;
+  protected readonly fontCount = new Icons().fonts.length;
 
-@Component({
-selector: 'app-root',
-standalone: true,
-imports: [RouterOutlet, TableauUiIconModule],
-templateUrl: './app.component.html',
-styleUrl: './app.component.scss'
-})
-export class AppComponent {
-}`;
+  protected readonly iconsScripts = ICONS_SCRIPTS;
+  protected readonly toolsInstall = ICONS_TOOLS_INSTALL;
+  protected readonly cssUse = ICONS_CSS_USE;
+  protected readonly cssFile = ICONS_CSS_FILE;
+  protected readonly cssUrlVariable = ICONS_CSS_URL_VARIABLE;
+  protected readonly cssApi = ICONS_CSS_API;
 
-  fullConfigExample = `<tab-icon value="home" color="primary" type="Material Symbols Outlined"
-[fill]="true" [weight]="100" [grade]="200" [opticalSizePx]="48"></tab-icon>`;
-  localImportCode = `@use 'material-symbols/rounded'; // if you used icons with type: Material Symbols Rounded
-@use 'material-symbols/outlined'; // if you used icons with type: Material Symbols Outlined
-@use 'material-symbols/sharp'; // if you used icons with type: Material Symbols Sharp`;
-
-  iconsTsCode = `import { UsedIcons } from "tableau-ui-angular/used-icons";
-
-export class Icons extends UsedIcons {
-    // Only override this, if you also use other fonts than the default 'Material Symbols Rounded'
-    // In this example, we use all three fonts
-    override fonts: ("Material Symbols Outlined" | "Material Symbols Rounded" | "Material Symbols Sharp")[] = [
-        "Material Symbols Outlined", "Material Symbols Rounded", "Material Symbols Sharp"
-    ]
-    // Only override this, if any of your icons uses another weight than the default 400.
-    // In this example, we use 100 and 700 weights in our consuming project
-    override weights: (100 | 200 | 300 | 400 | 500 | 600 | 700)[] = [100,700];
-    // Only override this, if any of your icons uses another grade than the default 0.
-    // In this example, we use -25, 0 and 200 grades in our consuming project
-    override grades: (-25 | 0 | 200)[] = [-25, 0, 200];
-    // Only override this, if any of your icons uses another optical size than the default 24.
-    // In this example, we use 20, 24 and 48 optical sizes in our consuming project
-    override opticalSizes: (20 | 24 | 40 | 48)[] = [20, 24, 48];
-    // Only override this, if any of your icons are filled. (Default is false)
-    // In this example, we have both filled and outlined icons in our consuming project
-    override fills: boolean[] = [false, true];
-
-    // Add all icons you use in your consuming project here
-    override usedIcons: string[] = [
-        'add_circle',
-        'do_not_disturb_on'
-    ];
-
-}`;
-
-  iconsDownloadContent = `{
-  ...
-  "scripts": {
-    ...
-    "icons:download": "node node_modules/tableau-ui-angular/used-icons/scripts/update-icons.js src/icons.ts public/icons"
-  }
-}`;
-  iconsWatchContent = `{
-  ...
-  "scripts": {
-    ...
-    "icons:watch": "npm run icons:download && npx chokidar \\"src/icons.ts\\" -c \\"npm run icons:download\\""
-  }
-}`;
-  npmInstallContent = `{
-  ...
-  "scripts": {
-    ...
-    "build": "npm run icons:download && ng build"
-  }
-}`;
-  ngServeContent = `{
-  ...
-  "scripts": {
-    ...
-    "start": "concurrently \\"ng serve\\" \\"npm run icons:watch\\""
-  }
-}`;
+  protected readonly packageInstall = MATERIAL_SYMBOLS_INSTALL;
+  protected readonly packageUses = MATERIAL_SYMBOLS_USES.join('\n');
 }

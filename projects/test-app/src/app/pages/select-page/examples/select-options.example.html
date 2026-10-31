@@ -10,20 +10,16 @@
       This option is given as a
       <b>template</b>
     </ng-template>
-    <ng-template #hintRef>
-      <tab-hint>There are 2 ways to create tab-options: by values and by templates</tab-hint>
-    </ng-template>
+    <ng-template #hintRef>There are 2 ways to create tab-options: by values and by templates</ng-template>
     <tab-option icon="home" [value]="3" [iconParams]="{ fill: true, color: 'success' }" [text]="textRef" [hint]="hintRef" />
 
-    <!-- Or both: a template for the text, and a hint as content -->
+    <!-- Or both: a template for the text, and a hint as a value -->
     <ng-template #combinationRef>
       This option is given as a
       <b>combination</b>
       of text and template
     </ng-template>
-    <tab-option icon="home" hint="with a hint" [value]="4" [text]="combinationRef">
-      <tab-hint>with a hint</tab-hint>
-    </tab-option>
+    <tab-option icon="home" hint="with a hint" [value]="4" [text]="combinationRef" />
   </tab-single-select>
   <tab-hint>The selected value wraps and makes the control taller; its icon shows in it</tab-hint>
 </tab-form-field>

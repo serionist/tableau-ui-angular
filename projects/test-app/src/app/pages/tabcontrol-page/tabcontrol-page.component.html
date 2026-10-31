@@ -1,146 +1,68 @@
-<!-- eslint-disable  @angular-eslint/template/no-inline-styles -->
 <div class="page">
   <div class="title">
     <h1>Tabs</h1>
-    <div class="text-light text-large">Tabs are used to display multiple sections of content in a single container.</div>
+    <div class="text-light text-large">A tab group shows one tab's content at a time, under a strip of the tabs' headers.</div>
   </div>
   <tab-separator />
   <div class="content">
     <div class="section">
-      <h3>Module</h3>
-      <p>To use the component, import one of the following modules into your module/component:</p>
-
-      <ul>
-        <li>
-          <code>TableauUiTabgroupModule</code>
-          - for granular import
-        </li>
-        <li>
-          <code>TableauUiAllModule</code>
-          - to import all components from this library
-        </li>
-      </ul>
+      <h3>Import</h3>
+      <p>Import <code>TableauUiTabgroupModule</code> from <code>tableau-ui-angular/tab-group</code>.</p>
     </div>
+
     <div class="section">
-      <h3>Example</h3>
-      <p>Simple Tab Group</p>
-      <tab-group>
-        <tab [disabled]="true">
-          <div tab-header>First tab</div>
-          <div>
-            <p>This is the first tab. It is disabled.</p>
-          </div>
-        </tab>
-        <tab (afterActivate)="tabInit('Second tab')">
-          <div tab-header>Second tab</div>
-          <div>
-            <p>This is the second tab.</p>
-          </div>
-        </tab>
-        <tab [disabled]="true">
-          <div tab-header>Third tab</div>
-          <div>
-            <p>This is the third tab.</p>
-          </div>
-        </tab>
+      <h3>A tab group</h3>
+      <p>
+        A <code>tab-group</code> holds <code>tab</code> elements. In each, the element marked <code>tab-header</code> is its header, and the rest is its content. The group starts on the first enabled
+        tab. Each header is in the Tab order, and Enter or Space selects it. Every tab's content stays in the page, hidden while another tab is selected.
+      </p>
+      <table class="docs-table">
+        <thead>
+          <tr>
+            <th scope="col">Input or output</th>
+            <th scope="col">What it does</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>[disabled]</code>, on a tab</td>
+            <td>Keeps the tab from being selected, and its header out of the Tab order</td>
+          </tr>
+          <tr>
+            <td><code>key</code>, on a tab</td>
+            <td>A name for <code>selectTabByKey()</code></td>
+          </tr>
+          <tr>
+            <td><code>(afterActivate)</code>, on a tab</td>
+            <td>Emitted each time the tab is selected, once its content shows; in the browser only</td>
+          </tr>
+          <tr>
+            <td><code>(tabSelected)</code></td>
+            <td>Emitted each time a tab is selected, with its index, its key and the tab</td>
+          </tr>
+          <tr>
+            <td><code>[autoSelectFirstTab]</code></td>
+            <td>Starts on the first enabled tab; <code>true</code> by default</td>
+          </tr>
+        </tbody>
+      </table>
+      <p><code>selectTabByIndex()</code> and <code>selectTabByKey()</code> select a tab from code, and <code>$selectedIndex</code> and <code>$selectedTab</code> give the selection as signals.</p>
+      <app-docs-example [example]="examples.basic" />
+    </div>
 
-        <tab (afterActivate)="tabInit('Fourth tab')">
-          <div tab-header>Fourth tab</div>
-          <div>
-            <p>This is the fourth tab.</p>
-          </div>
-        </tab>
-      </tab-group>
-      <p>Tab group with larger text and no header padding</p>
-      <tab-group class="large" headerPadding="0">
-        <tab [disabled]="true">
-          <div tab-header>First tab</div>
-          <div>
-            <p>This is the first tab. It is disabled.</p>
-          </div>
-        </tab>
-        <tab>
-          <div tab-header>Second tab</div>
-          <div>
-            <p>This is the second tab.</p>
-          </div>
-        </tab>
-        <tab [disabled]="true">
-          <div tab-header>Third tab</div>
-          <div>
-            <p>This is the third tab.</p>
-          </div>
-        </tab>
+    <div class="section">
+      <h3>The headers</h3>
+      <p><code>headerPadding</code> sets the headers' padding, <code>0.25rem 1.5rem</code> by default. The header's own element takes any style, such as a larger font.</p>
+      <app-docs-example [example]="examples.header" />
+    </div>
 
-        <tab>
-          <div tab-header>Fourth tab</div>
-          <div>
-            <p>This is the fourth tab.</p>
-          </div>
-        </tab>
-      </tab-group>
-
-      <p>Tab group that is too narrow, needs horizontal scrolling</p>
-      <div style="width: 300px">
-        <tab-group>
-          <tab [disabled]="true">
-            <div tab-header>First tab</div>
-            <div>
-              <p>This is the first tab. It is disabled.</p>
-            </div>
-          </tab>
-          <tab>
-            <div tab-header>Second tab</div>
-            <div>
-              <p>This is the second tab.</p>
-            </div>
-          </tab>
-          <tab [disabled]="true">
-            <div tab-header>Third tab</div>
-            <div>
-              <p>This is the third tab.</p>
-            </div>
-          </tab>
-
-          <tab>
-            <div tab-header>Fourth tab</div>
-            <div>
-              <p>This is the fourth tab.</p>
-            </div>
-          </tab>
-        </tab-group>
-      </div>
-
-      <p>Tab group that is too narrow with larger text, needs horizontal scrolling. Scroll arrows are larger</p>
-      <div style="width: 300px">
-        <tab-group class="large" scrollArrowsIconSize="2rem">
-          <tab [disabled]="true">
-            <div tab-header>First tab</div>
-            <div>
-              <p>This is the first tab. It is disabled.</p>
-            </div>
-          </tab>
-          <tab>
-            <div tab-header>Second tab</div>
-            <div>
-              <p>This is the second tab.</p>
-            </div>
-          </tab>
-          <tab [disabled]="true">
-            <div tab-header>Third tab</div>
-            <div>
-              <p>This is the third tab.</p>
-            </div>
-          </tab>
-
-          <tab>
-            <div tab-header>Fourth tab</div>
-            <div>
-              <p>This is the fourth tab.</p>
-            </div>
-          </tab>
-        </tab-group>
-      </div>
+    <div class="section">
+      <h3>A narrow group</h3>
+      <p>
+        When the headers don't fit, arrows at each end of the strip scroll it, and selecting a tab scrolls its header into view. <code>scrollArrowsIconSize</code> sets the arrows' size,
+        <code>1.5rem</code> by default.
+      </p>
+      <app-docs-example [example]="examples.narrow" />
     </div>
   </div>
 </div>

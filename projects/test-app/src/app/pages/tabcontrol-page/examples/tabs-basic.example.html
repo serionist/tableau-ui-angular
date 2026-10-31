@@ -1,0 +1,19 @@
+<tab-group>
+  <tab [disabled]="true">
+    <span tab-header>First tab</span>
+    <p>The first tab is disabled.</p>
+  </tab>
+  <tab (afterActivate)="$activated.set('Second tab')">
+    <span tab-header>Second tab</span>
+    <p>The second tab, the first one enabled, so the group shows it first.</p>
+  </tab>
+  <tab [disabled]="true">
+    <span tab-header>Third tab</span>
+    <p>The third tab is disabled.</p>
+  </tab>
+  <tab (afterActivate)="$activated.set('Fourth tab')">
+    <span tab-header>Fourth tab</span>
+    <p>The fourth tab.</p>
+  </tab>
+</tab-group>
+<output>Activated last: {{ $activated() }}</output>

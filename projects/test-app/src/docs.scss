@@ -26,17 +26,6 @@
     p {
       margin-bottom: 0.5em;
     }
-
-    .spacer {
-      display: grid;
-      row-gap: 0.5rem;
-    }
-
-    .two {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      column-gap: 1rem;
-    }
   }
 }
 
@@ -49,13 +38,6 @@ code {
 pre code {
   padding: 0;
   background: none;
-}
-
-.monaco-container {
-  border: solid 1px var(--twc-color-border-light);
-  padding: 0.5rem;
-  width: fit-content;
-  margin: 0.25rem 0;
 }
 
 // A table of facts on a docs page, such as the peers or the CSS custom properties

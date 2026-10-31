@@ -1,0 +1,12 @@
+.narrow {
+  width: 25rem;
+  max-width: 100%;
+}
+
+.narrow + .narrow {
+  margin-top: 1.5rem;
+}
+
+.large [tab-header] {
+  font-size: 1.2rem;
+}

@@ -1,14 +1,14 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { TableauUiButtonModule } from 'tableau-ui-angular/button';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
-import { TableauUiTooltipModule } from 'tableau-ui-angular/tooltip';
+import { DocsExampleComponent } from '../../docs/docs-example.component';
+import { TOOLTIPS_EXAMPLES } from './tooltips.examples';
 
 @Component({
   selector: 'app-tooltips-page',
-  imports: [TableauUiTooltipModule, TableauUiButtonModule, TableauUiCommonModule],
-  standalone: true,
+  imports: [TableauUiCommonModule, DocsExampleComponent],
   templateUrl: './tooltips-page.component.html',
-  styleUrl: './tooltips-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TooltipsPageComponent {}
+export class TooltipsPageComponent {
+  protected readonly examples = TOOLTIPS_EXAMPLES;
+}

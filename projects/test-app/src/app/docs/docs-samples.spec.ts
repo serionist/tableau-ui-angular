@@ -7,10 +7,18 @@ import { ChipControlExampleComponent } from '../pages/chip-page/examples/chip-co
 import { DatePickerFormsExampleComponent } from '../pages/date-picker-page/examples/date-picker-forms.example';
 import { DatePickerValueExampleComponent } from '../pages/date-picker-page/examples/date-picker-value.example';
 import { ExpansionPanelSingleExampleComponent } from '../pages/expansion-page/examples/expansion-panel-single.example';
+import { ListDisplayExampleComponent } from '../pages/list-page/examples/list-display.example';
+import { ListFormsExampleComponent } from '../pages/list-page/examples/list-forms.example';
 import { RadioFormsExampleComponent } from '../pages/radio-buttons-page/examples/radio-forms.example';
+import { ScrollerVerticalExampleComponent } from '../pages/scroller-page/examples/scroller-vertical.example';
 import { SnackMessageExampleComponent } from '../pages/snacks-page/examples/snack-message.example';
+import { TabsBasicExampleComponent } from '../pages/tabcontrol-page/examples/tabs-basic.example';
 import { TableBasicExampleComponent } from '../pages/table-page/examples/table-basic.example';
 import { TableOptionsExampleComponent } from '../pages/table-page/examples/table-options.example';
+import { TooltipTemplateExampleComponent } from '../pages/tooltips-page/examples/tooltip-template.example';
+import { TreeComponentExampleComponent } from '../pages/tree-page/examples/tree-component.example';
+import { TreeFlatExampleComponent } from '../pages/tree-page/examples/tree-flat.example';
+import { VirtualizeDataExampleComponent } from '../pages/virtualize-page/examples/virtualize-data.example';
 
 // Clicks the button with this text in the sample
 async function click(fixture: ComponentFixture<unknown>, text: string) {
@@ -203,6 +211,150 @@ describe('The samples', () => {
     await type(fixture, field.querySelector('input')!, day);
 
     expect(Array.from(field.querySelectorAll('tab-error'), element => element.textContent.trim())).toEqual([error]);
+    fixture.destroy();
+  });
+
+  it('starts the tabs sample on its first enabled tab, and shows each tab afterActivate reports, never a disabled one', async () => {
+    const fixture = TestBed.createComponent(TabsBasicExampleComponent);
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+    const activated = () => host.querySelector('output')!.textContent.trim();
+    const header = (text: string) => Array.from(host.querySelectorAll<HTMLElement>('.tab')).find(tab => tab.textContent.trim() === text)!;
+    const selected = () => host.querySelector('.tab.active')!.textContent.trim();
+    const shown = () => Array.from(host.querySelectorAll<HTMLElement>('.tab-content'), content => (content.style.display === 'block' ? content.textContent.trim() : '')).join('');
+
+    expect(activated()).toBe('Activated last: Second tab');
+
+    // a disabled tab can't be selected: the second one stays, its content shown
+    header('Third tab').click();
+    await fixture.whenStable();
+    expect(selected()).toBe('Second tab');
+    expect(shown()).toBe('The second tab, the first one enabled, so the group shows it first.');
+    expect(activated()).toBe('Activated last: Second tab');
+
+    header('Fourth tab').click();
+    await fixture.whenStable();
+    expect(activated()).toBe('Activated last: Fourth tab');
+    fixture.destroy();
+  });
+
+  // The box's height makes the lines overflow, which the arrows need
+  it("shows the vertical scroller sample's arrows, the back one disabled at the start", async () => {
+    const fixture = TestBed.createComponent(ScrollerVerticalExampleComponent);
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+
+    expect(host.querySelector<HTMLButtonElement>('button.back')?.disabled).toBe(true);
+    expect(host.querySelector<HTMLButtonElement>('button.forward')?.disabled).toBe(false);
+    fixture.destroy();
+  });
+
+  // The padding goes through tooltipFullArgs: tooltipPadding sets none
+  it("opens the tooltip template sample's tooltips with their context, and the padded ones with their 2rem", async () => {
+    const fixture = TestBed.createComponent(TooltipTemplateExampleComponent);
+    await fixture.whenStable();
+    const buttons = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('button'));
+    const hover = async (text: string) => {
+      const button = buttons.find(element => element.textContent.trim() === text)!;
+      button.dispatchEvent(new MouseEvent('mouseenter'));
+      await fixture.whenStable();
+      const tooltip = document.querySelector('tab-tooltip')!;
+      const shown = { text: tooltip.textContent.trim(), padding: getComputedStyle(tooltip.parentElement!).paddingTop };
+      button.dispatchEvent(new MouseEvent('mouseleave'));
+      await fixture.whenStable();
+      return shown;
+    };
+    const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
+
+    expect((await hover('Left')).text).toBe('From a template, on the left');
+    expect(await hover('Left, 10px away, padded 2rem')).toEqual({ text: 'From a template, on the left, 10px away, padded 2rem', padding: `${2 * rem}px` });
+    expect(await hover('Bottom, 2em away, padded 2rem')).toEqual({ text: 'From a template, below, 2em away, padded 2rem', padding: `${2 * rem}px` });
+    fixture.destroy();
+  });
+
+  it("orders the flat tree sample's nodes by their order, then by their place in the template, under the parent each names", async () => {
+    const fixture = TestBed.createComponent(TreeFlatExampleComponent);
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+    const rows = () => Array.from(host.querySelectorAll('.header-content'), row => row.textContent.trim());
+
+    expect(rows()).toEqual(['Node 1', 'Node 2', 'Node 3, last by its order']);
+
+    host.querySelector<HTMLButtonElement>('.header-button')!.click();
+    await fixture.whenStable();
+    expect(rows()).toEqual(['Node 1', 'Subnode 1.1', 'Subnode 1.2', 'Subnode 1.3', 'Subnode 1.4, last in Node 1 by its order', 'Node 2', 'Node 3, last by its order']);
+    fixture.destroy();
+  });
+
+  it("shows the tree component sample's nodes, which its folder components hold", async () => {
+    const fixture = TestBed.createComponent(TreeComponentExampleComponent);
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+    const rows = () => Array.from(host.querySelectorAll('.header-content'), row => row.textContent.trim());
+
+    expect(rows()).toEqual(['Documents', 'Pictures', 'Music']);
+
+    host.querySelector<HTMLButtonElement>('.header-button')!.click();
+    await fixture.whenStable();
+    expect(rows()).toEqual(['Documents', 'Budget.xlsx', 'Plan.docx', 'Pictures', 'Music']);
+    fixture.destroy();
+  });
+
+  it("shares the list display sample's value between its lists, and the disabled list picks nothing", async () => {
+    const fixture = TestBed.createComponent(ListDisplayExampleComponent);
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+    const lists = host.querySelectorAll('tab-list-single-select');
+    const option = (list: number, text: string) => Array.from(lists[list].querySelectorAll<HTMLElement>('[role="option"]')).find(element => element.textContent.includes(text))!;
+
+    option(1, 'Option 4').click();
+    await fixture.whenStable();
+    expect(host.querySelector('output')!.textContent.trim()).toBe('Value: 4');
+    expect(option(0, 'Option 4').getAttribute('aria-selected')).toBe('true');
+
+    option(3, 'Option 1').click();
+    await fixture.whenStable();
+    expect(host.querySelector('output')!.textContent.trim()).toBe('Value: 4');
+    fixture.destroy();
+  });
+
+  it("shows the list forms sample's multiple values as the user picks them, and the single list's error once it is left", async () => {
+    const fixture = TestBed.createComponent(ListFormsExampleComponent);
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+    const [single, , , multi] = Array.from(host.querySelectorAll('tab-form-field'));
+    const option = (field: Element, text: string) => Array.from(field.querySelectorAll<HTMLElement>('[role="option"]')).find(element => element.textContent.includes(text))!;
+    const hint = () => multi.querySelector('tab-hint')!.textContent.trim();
+
+    expect(hint()).toBe('Value: 1, 3');
+    option(multi, 'Option 4').click();
+    await fixture.whenStable();
+    expect(hint()).toBe('Value: 1, 3, 4');
+    option(multi, 'Option 1').click();
+    await fixture.whenStable();
+    expect(hint()).toBe('Value: 3, 4');
+
+    // it starts above the maximum, untouched
+    expect(single.querySelector('tab-error')).toBeNull();
+    single.querySelector('tab-list-single-select')!.dispatchEvent(new Event('blur'));
+    await fixture.whenStable();
+    expect(single.querySelector('tab-error')?.textContent.trim()).toBe('The highest value is 3, so the last option is an error');
+    fixture.destroy();
+  });
+
+  // The loader answers after a second
+  it("loads the virtualize data sample's rows from its loader, shows the last request, and loads again on a button", async () => {
+    const fixture = TestBed.createComponent(VirtualizeDataExampleComponent);
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+    const rows = () => Array.from(host.querySelectorAll('tab-virtualize .item'), item => item.textContent.trim());
+
+    await vi.waitFor(() => expect(rows().slice(0, 2)).toEqual(['Row 1', 'Row 2']), { timeout: 5000 });
+    expect(rows().length).toBeGreaterThan(2);
+    expect(host.querySelector('output')!.textContent.trim()).toMatch(/^The last request asked for rows \d+ to \d+$/);
+
+    await click(fixture, '2 rows');
+    await vi.waitFor(() => expect(rows()).toEqual(['Row 1', 'Row 2']), { timeout: 5000 });
     fixture.destroy();
   });
 });

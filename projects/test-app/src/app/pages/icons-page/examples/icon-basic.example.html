@@ -1,0 +1,29 @@
+<!-- Without a label an icon is decorative: the text beside it says what it means -->
+<p class="row">
+  <tab-icon value="home" />
+  Home, sized by the text
+</p>
+<p class="row large">
+  <tab-icon value="home" />
+  A larger font, a larger icon
+</p>
+<p class="row">
+  <tab-icon value="home" fontSize="2rem" />
+  A size of its own, from fontSize
+</p>
+
+<p class="row">
+  <tab-icon value="info" color="primary" />
+  <tab-icon value="add_circle" color="success" [fill]="true" />
+  <tab-icon value="do_not_disturb_on" color="error" [fill]="true" />
+  <tab-icon class="custom" value="palette" />
+  The theme's primary, success and error colours, and a CSS colour
+</p>
+
+<!-- The only content of a button: the label names the button -->
+<p class="row">
+  <button layout="icon" (click)="$searches.set($searches() + 1)">
+    <tab-icon value="search" label="Search" />
+  </button>
+  <output>Searches: {{ $searches() }}</output>
+</p>

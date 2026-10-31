@@ -1,17 +1,14 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
-import { TableauUiTabgroupModule } from 'tableau-ui-angular/tab-group';
+import { DocsExampleComponent } from '../../docs/docs-example.component';
+import { TABCONTROL_EXAMPLES } from './tabcontrol.examples';
 
 @Component({
   selector: 'app-tabcontrol-page',
-  imports: [TableauUiCommonModule, TableauUiTabgroupModule],
-  standalone: true,
+  imports: [TableauUiCommonModule, DocsExampleComponent],
   templateUrl: './tabcontrol-page.component.html',
-  styleUrl: './tabcontrol-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TabcontrolPageComponent {
-  tabInit(id: string): void {
-    console.log(`${id} activated`);
-  }
+  protected readonly examples = TABCONTROL_EXAMPLES;
 }

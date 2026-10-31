@@ -1,0 +1,19 @@
+// The fieldset groups the options under their legend, without a border
+fieldset {
+  border: none;
+  padding: 0;
+  margin: 0 0 1rem;
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+// The list's height is the window it loads blocks for
+.list {
+  height: 20rem;
+  border: 1px solid var(--twc-color-border-light);
+}

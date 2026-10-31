@@ -1,107 +1,72 @@
 <div class="page">
   <div class="title">
     <h1>CSS & Fonts</h1>
-    <div class="text-light text-large">This page demonstrates the use of CSS and fonts in the component library.</div>
+    <div class="text-light text-large">The library's styles, which an app uses once, and the fonts its text is set in.</div>
   </div>
   <tab-separator />
-
-  <div class="content section">
-    <h3>Importing Tableau UI CSS</h3>
-    <div>
-      Put the following line in the
-      <code>styles.scss</code>
-      file in your project:
+  <div class="content">
+    <div class="section">
+      <h3>The styles</h3>
+      <p>
+        Use them once, in the app's global stylesheet. They are SCSS: an app made with CSS renames <code>src/styles.css</code> to <code>src/styles.scss</code>, there and in <code>angular.json</code>.
+        <code>as libStyles</code> names them for <code>font-import</code>, below.
+      </p>
+      <app-docs-code label="styles.scss" [source]="stylesUse" />
+      <p>
+        They hold the theme's custom properties, which <a routerLink="/theming">Theming</a> lists, and the components' shared styles. They also style the page: its font, size and colours, the headings
+        <code>h1</code> to <code>h4</code>, links, scrollbars, and a few text classes.
+      </p>
+      <app-docs-example [example]="examples.text" />
     </div>
-    <div class="monaco-container">
-      <tab-monaco-editor uri="file://css-page/setup" language="scss" [value]="code" [style.height]="'20px'" [style.width]="'450px'" [options]="options" />
-    </div>
 
-    <h3>Importing Fonts</h3>
-    <div>Tableau UI supports the following fonts in this priority order:</div>
-    <ul>
-      <li>
-        <strong>Benton Sans</strong>
-        , a proprietary font.
-        <strong>NOTE: You must have a license to use it.</strong>
-      </li>
-      <li>
-        <strong>Roboto</strong>
-        , an open source Google Font
-      </li>
-      <li>
-        <strong>Arial</strong>
-        , a free font already included in your browser
-      </li>
-    </ul>
+    <div class="section">
+      <h3>Fonts</h3>
+      <p>
+        The text is set in the first of these fonts the browser has, from <code>--twc-font-family</code>: <code>{{ fontFamily }}</code
+        >. On a screen of 120 dpi or less, it is <code>{{ lowDpiFontFamily }}</code
+        >.
+      </p>
 
-    <div class="indent">
-      <h4>To use Benton Sans</h4>
-      <div>You must have a license to use it. If you do not have a license, you can use Roboto or Arial.</div>
-      <ol>
-        <li>
-          Place the following
-          <strong>Benton Sans</strong>
-          fonts into a public (web hosted) directory:
-          <ul>
-            <li><code>BentonSans-Book.woff</code></li>
-            <li><code>BentonSans-Book.woff2</code></li>
-            <li><code>BentonSans-Book_Italic.woff</code></li>
-            <li><code>BentonSans-Book_Italic.woff2</code></li>
-            <li><code>BentonSans-Medium.woff</code></li>
-            <li><code>BentonSans-Medium.woff2</code></li>
-            <li><code>BentonSans-SemiDemi.woff</code></li>
-            <li><code>BentonSans-SemiDemi.woff2</code></li>
-            <li><code>BentonSans-SemiDemi_Italic.woff</code></li>
-            <li><code>BentonSans-SemiDemi_Italic.woff2</code></li>
-            <li><code>BentonSans-Light.woff</code></li>
-            <li><code>BentonSans-Light.woff2</code></li>
-          </ul>
-          Suggested directory:
-          <code>public/fonts</code>
-          <br />
-          Alternatively, you can download these fonts from a Tableau Server that you own, by running:
-          <div class="monaco-container">
-            <tab-monaco-editor
-              uri="file://css-page/download"
-              language="shell"
-              value="node node_modules/tableau-ui-angular/styles/fonts/downloadFonts.js https://your-tableau-server.com public/fonts"
-              [style.height]="'20px'"
-              [style.width]="'860px'"
-              [options]="options"
-            />
-          </div>
-        </li>
-        <li>
-          Import the fonts into your app by adding this line to your
-          <code>styles.scss</code>
-          file (in addition to the Tableau UI CSS import above):
-          <div class="monaco-container">
-            <tab-monaco-editor uri="file://css-page/import" language="scss" value="@include libStyles.font-import('/fonts');" [style.height]="'20px'" [style.width]="'320px'" [options]="options" />
-          </div>
+      <h4>Benton Sans</h4>
+      <p>
+        Tableau's font, which needs a licence. <code>font-import</code> declares its faces, given the URL the app serves its files at: <code>/fonts</code> for <code>public/fonts</code>. Each face
+        loads its file's WOFF2, or else its WOFF.
+      </p>
+      <app-docs-code label="styles.scss" [source]="fontImport" />
+      <table class="docs-table">
+        <thead>
+          <tr>
+            <th scope="col">Family</th>
+            <th scope="col">Weight</th>
+            <th scope="col">Style</th>
+            <th scope="col">File</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (face of faces; track $index) {
+            <tr>
+              <td>{{ face.family }}</td>
+              <td>{{ face.weight }}</td>
+              <td>{{ face.style }}</td>
+              <td>
+                <code>{{ face.file }}</code>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+      <p>
+        A Tableau Server you own has the files, and the script the package ships downloads them into the folder.
+        <a href="https://github.com/serionist/tableau-ui-angular/blob/main/Add-Benton-Sans.md" target="_blank">Add-Benton-Sans.md</a> has the steps.
+      </p>
+      <app-docs-code label="command" [source]="fontsCommand" />
 
-          (Replace
-          <code>/fonts</code>
-          with the path to your font files)
-        </li>
-      </ol>
-      <h4>To use Roboto</h4>
-      <div>
-        Roboto is an open source Google Font. You can use it without a license. To import it, add this to your
-        <code>styles.scss</code>
-        file:
-      </div>
-      <div class="monaco-container">
-        <tab-monaco-editor
-          uri="file://css-page/roboto"
-          language="scss"
-          value="@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');"
-          [style.height]="'20px'"
-          [style.width]="'1230px'"
-          [options]="options"
-        />
-      </div>
-      <h4>To use Arial</h4>
-      <div>Arial is a free font that is already included in your browser. You do not need to import it.</div>
+      <h4>Roboto</h4>
+      <p>Google's open font, which this site loads in its <code>styles.scss</code>:</p>
+      <app-docs-code label="styles.scss" [source]="robotoImport" />
+
+      <h4>Arial and Helvetica</h4>
+      <p>Then Arial, Helvetica and the browser's sans-serif, with nothing to load.</p>
     </div>
   </div>
 </div>

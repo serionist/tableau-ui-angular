@@ -1,85 +1,72 @@
 <div class="page">
   <div class="title">
     <h1>Virtualization</h1>
-    <div class="text-light text-large">
-      Virtualization is a technique used to improve performance by rendering only the visible items in a list or grid. This is particularly useful for large datasets where rendering all items at once
-      can lead to performance issues.
-      <br />
-      The Tableau UI library provides a <code>tableau-ui-angular/virtualize</code> entry point that contains classes related to virtualization
-    </div>
+    <div class="text-light text-large">A virtual list draws only the rows near the view, so it holds thousands of rows; the app's loader gives it the data.</div>
   </div>
   <tab-separator />
   <div class="content">
     <div class="section">
-      <h3>Custom Virtualization</h3>
-
-      <p>
-        A custom <code>VirtualizeBaseComponent</code> abstract class is provided to build your own virtualization mechanism.<br />
-        It contains inputs related to data row height and a DataManager class which can be used to load windowed data based on the scroll position.
-      </p>
+      <h3>Import</h3>
+      <p>Import <code>TableauUiVirtualizeModule</code> from <code>tableau-ui-angular/virtualize</code>, which also has the data options.</p>
     </div>
+
     <div class="section">
-      <h3>Virtualize Component</h3>
+      <h3>Loading the data</h3>
       <p>
-        A basic <code>VirtualizeComponent</code> is also provided.<br />
-        To use the component, import <code>TableauUiChipModule</code>
+        <code>tab-virtualize</code> asks its <code>[dataOptions]</code> for rows, a block at a time. A block is as many rows as the list's height holds, and the list keeps
+        <code>[dataBlockWindow]</code> blocks, 3 by default, loaded on each side of the ones in view.
       </p>
-      <h4>Example</h4>
-      <div class="example">
-        <tab-expansion-panel>
-          <tab-expansion-panel-title>Data Load options</tab-expansion-panel-title>
-          <div class="options-container">
-            <tab-button-toggle [(selectedValue)]="$dataMode">
-              <tab-option text="Incremental Data Mode" value="incremental" hint="Data is loaded on-demand as the user scrolls. HTML rendering is virtualized." />
-              <tab-option
-                text="Full Data Mode"
-                value="full"
-                hint="Data is loaded entirely in the background. HTML rendering is still virtualized. Required when SelectAll option is needed for MultiSelect."
-              />
-            </tab-button-toggle>
-            <div class="options">
-              <button color="primary" (click)="reset(true, false, false)">Show data</button>
-              <button color="primary" (click)="reset(false, false, false)">Show no data</button>
-              <button color="primary" (click)="reset(true, false, true)">Show 2 rows</button>
-              <button color="primary" (click)="reset(true, true, false)">
-                Throw error
-                @if ($dataMode() === 'incremental') {
-                  on any block load after 20 offset
-                } @else {
-                  on data load
-                }
-              </button>
-            </div>
-          </div>
-        </tab-expansion-panel>
-        <tab-checkbox [(value)]="$customNoDataTemplate">CustomNoDataTemplate</tab-checkbox>
-        <tab-radio-group [(value)]="$mode">
-          <tab-option value="fixed" text="Fixed mode" hint="The virtualize container will is of fixed height. The data window height (pixels) is calculated automatically" />
-          <tab-option
-            value="expand"
-            text="Dynamic mode"
-            hint="The virtualize container has a height of 0, maxHeight of 300px. The data window height is provided manually. When loading, the height is 0"
-          />
-        </tab-radio-group>
-        <ng-template #customnodatatemplate>Custom No Data Template</ng-template>
-        <tab-virtualize
-          #virtualize
-          [dataOptions]="$dataOptions()"
-          [dataSort]="[{ property: 'id', direction: 'asc' }]"
-          [noDataTemplate]="$customNoDataTemplate() ? customnodatatemplate : 'default'"
-          [style.height]="$mode() === 'fixed' ? '300px' : 'auto'"
-          [style.maxHeight]="'300px'"
-        >
-          @if ($mode() === 'expand') {
-            <ng-template tabCustomLoader>
-              <tab-loading-gif />
-            </ng-template>
-          }
-          <ng-template let-ctx [tabItemTemplate]="virtualize">
-            {{ ctx.item.name }}
-          </ng-template>
-        </tab-virtualize>
-      </div>
+      <table class="docs-table">
+        <thead>
+          <tr>
+            <th scope="col">Data options</th>
+            <th scope="col">What the loader is asked</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>IncrementalDataOptions</code></td>
+            <td>For a block, by its <code>offset</code> and <code>count</code>, as the user scrolls to it; it answers the block's rows and the <code>total</code></td>
+          </tr>
+          <tr>
+            <td><code>FullDataOptions</code></td>
+            <td>For every row, once; the list still draws them a block at a time</td>
+          </tr>
+        </tbody>
+      </table>
+      <ul>
+        <li>Both take a function that gives a row's key first.</li>
+        <li><code>[dataSort]</code> is required: the sort each request carries, <code>[]</code> for none. The list loads again when it, or the data options, change.</li>
+        <li>A request's <code>abort</code> signal fires once the list no longer needs its rows: after a reset, when the user scrolls a block far from view, or when the list goes.</li>
+        <li><code>[dataRowCss]</code> gives every row the same height, line height and padding: <code>1.5em</code>, <code>inherit</code> and <code>0em 0.5em</code> by default.</li>
+      </ul>
+      <p>
+        The list measures its height and its rows to size a block, so it loads in the browser only: call <code>load()</code> once it is drawn, and <code>reload()</code> when its height changes.
+        <code>reset()</code> loads it again from the first block. A row whose block is loading shows a pulsing bar, and one whose block failed a red bar; <code>tabItemLoadingTemplate</code> and
+        <code>tabItemErrorTemplate</code> replace them.
+      </p>
+      <app-docs-example [example]="examples.data" />
+    </div>
+
+    <div class="section">
+      <h3>A list as tall as its rows</h3>
+      <p>
+        The list's own styles give it a <code>max-height</code> of 300px. Without a height, it is as tall as its rows, up to that; before it loads it shows only the no-data template, so
+        <code>[dataWindowHeightPx]</code> gives it the height to size its blocks for in place of measuring.
+      </p>
+      <ul>
+        <li><code>tabCustomLoader</code> marks a template that shows in place of the rows while a load waits for its first block.</li>
+        <li><code>[noDataTemplate]</code> shows while there are no rows, before the first load too: a template, or a message; "No data available" by default.</li>
+      </ul>
+      <app-docs-example [example]="examples.height" />
+    </div>
+
+    <div class="section">
+      <h3>A virtual component of your own</h3>
+      <p>
+        The list and the table extend <code>VirtualizeBaseComponent</code>, which holds the loading and <code>load()</code>, <code>reload()</code> and <code>reset()</code>. A component that extends it
+        gives its data options, its row CSS, its block window and its sort, and measures its window's height.
+      </p>
     </div>
   </div>
 </div>
