@@ -14,7 +14,13 @@ import fontsScript from '../../../../component-library/styles/fonts/downloadFont
 import iconsScript from '../../../../component-library/used-icons/scripts/update-icons.js?source' with { loader: 'text' };
 // What npm run dev:link prints, the steps the local development page shows
 import linkInfo from '../../../../../scripts/link-info.js?source' with { loader: 'text' };
-import { dependencies } from '../../../package.json';
+import { dependencies, devDependencies } from '../../../package.json';
+// The dev tools the icons page's scripts run, and the package's styles it uses
+import { bin as chokidarBin } from '../../../../../node_modules/chokidar-cli/package.json';
+import { bin as concurrentlyBin } from '../../../../../node_modules/concurrently/package.json';
+import outlinedScss from '../../../../../node_modules/material-symbols/outlined.scss?source' with { loader: 'text' };
+import roundedScss from '../../../../../node_modules/material-symbols/rounded.scss?source' with { loader: 'text' };
+import sharpScss from '../../../../../node_modules/material-symbols/sharp.scss?source' with { loader: 'text' };
 import stylesScss from '../../styles.scss?source' with { loader: 'text' };
 import { BUTTONS_EXAMPLES } from '../pages/buttons-page/buttons.examples';
 import { ButtonsPageComponent } from '../pages/buttons-page/buttons-page.component';
@@ -191,22 +197,45 @@ describe('The docs pages', () => {
     expect(projects['test-app'].architect.build.options.assets).toContainEqual(asset);
   });
 
-  it('runs the used-icons script on the icons page as on the getting started page, with what the script reads', () => {
-    const command = `node node_modules/tableau-ui-angular/${ICONS_SCRIPT} src/icons.ts public/icons`;
-    expect((JSON.parse(iconsSetup.ICONS_SCRIPTS) as { scripts: Record<string, string> }).scripts['icons']).toBe(command);
-    expect((JSON.parse(ICONS_SCRIPTS) as { scripts: Record<string, string> }).scripts['icons']).toBe(command);
-    // the class the page says the script reads, the variable it says to set, the API the script asks without it, and
-    // the CSS file it writes
-    expect(iconsScript).toContain('const { Icons } = loadTypeScriptFile(');
+  it('runs the used-icons script on the icons page as on the getting started page and the site, with what the script reads', () => {
+    const pageScripts = (JSON.parse(iconsSetup.ICONS_SCRIPTS) as { scripts: Record<string, string> }).scripts;
+    const startedScripts = (JSON.parse(ICONS_SCRIPTS) as { scripts: Record<string, string> }).scripts;
+    const output = 'public/icons';
+    const command = `node node_modules/tableau-ui-angular/${ICONS_SCRIPT} src/icons.ts ${output}`;
+    expect(pageScripts['icons']).toBe(command);
+    expect(startedScripts['icons']).toBe(command);
+    expect(pageScripts['prebuild']).toBe(startedScripts['prebuild']);
+    expect(pageScripts['prebuild']).toBe('npm run icons');
+
+    // the dev tools: the command installs the ones the site has, and the scripts run their binaries as the site's own do
+    const [install, tools] = [iconsSetup.ICONS_TOOLS_INSTALL.slice(0, 23), iconsSetup.ICONS_TOOLS_INSTALL.slice(23).split(' ')];
+    expect(install).toBe('npm install --save-dev ');
+    expect(tools).toEqual(['chokidar-cli', 'concurrently']);
+    expect(Object.keys(devDependencies)).toEqual(expect.arrayContaining(tools));
+    const [chokidar, concurrently] = [Object.keys(chokidarBin)[0], Object.keys(concurrentlyBin)[0]];
+    expect(pageScripts['icons:watch']).toBe(`npm run icons && ${chokidar} src/icons.ts -c "npm run icons"`);
+    expect(scripts['test-app:watch-icons']).toMatch(new RegExp(` ${chokidar} "[^"]+" -c "npm run [\\w:-]+"$`));
+    expect(pageScripts['start']).toBe(`${concurrently} "ng serve" "npm run icons:watch"`);
+    expect(scripts.start).toMatch(new RegExp(`^${concurrently} "`));
+
+    // the class the page names, which the script reads, the variable it says to set, the API the script asks without
+    // it, and the CSS file it writes into the output folder, which the site's styles.scss uses
+    expect(iconsSetup.ICONS_CLASS).toMatch(/^\w+$/);
+    expect(iconsScript).toContain(`const { ${iconsSetup.ICONS_CLASS} } = loadTypeScriptFile(`);
     expect(iconsScript).toContain(`process.env.${iconsSetup.ICONS_CSS_URL_VARIABLE} || '${iconsSetup.ICONS_CSS_API}'`);
-    expect(iconsScript).toContain("path.join(outputFolder, 'material-icons.css')");
-    // the site loads that file as the page says, and has the package's lines, commented, and the package
+    expect(iconsScript).toContain(`path.join(outputFolder, '${iconsSetup.ICONS_CSS_FILE}')`);
+    expect(iconsSetup.ICONS_CSS_USE).toBe(`@use '../${output}/${iconsSetup.ICONS_CSS_FILE}';`);
     expect(stylesScss).toContain(iconsSetup.ICONS_CSS_USE);
-    for (const use of iconsSetup.MATERIAL_SYMBOLS_USES) {
-      expect(stylesScss).toContain(`// ${use}`);
-    }
+
+    // the package: the site has it, and its lines, commented; each style's file declares the font of its icon type
     expect(iconsSetup.MATERIAL_SYMBOLS_INSTALL).toBe('npm install material-symbols');
     expect(Object.keys(dependencies)).toContain('material-symbols');
+    const styles: Record<string, string> = { rounded: roundedScss, outlined: outlinedScss, sharp: sharpScss };
+    expect(iconsSetup.MATERIAL_SYMBOLS_USES.map(use => /^@use 'material-symbols\/(\w+)';$/.exec(use)?.[1])).toEqual(Object.keys(styles));
+    for (const [style, scss] of Object.entries(styles)) {
+      expect(stylesScss).toContain(`// @use 'material-symbols/${style}';`);
+      expect(scss).toContain(`material-symbols-font('Material Symbols ${style[0].toUpperCase()}${style.slice(1)}')`);
+    }
   });
 
   it("loads the styles and fonts on the CSS & Fonts page as the site's styles.scss does, and the font script downloads each file font-import loads", () => {

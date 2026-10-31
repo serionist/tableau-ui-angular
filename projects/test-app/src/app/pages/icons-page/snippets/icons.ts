@@ -10,5 +10,5 @@ export class Icons extends UsedIcons {
   override opticalSizes: (20 | 24 | 40 | 48)[] = [24, 48];
   override fills: boolean[] = [false, true];
 
-  override usedIcons: string[] = ['add_circle', 'do_not_disturb_on', 'home', 'search'];
+  override usedIcons: string[] = ['add_circle', 'do_not_disturb_on', 'home', 'palette', 'search'];
 }

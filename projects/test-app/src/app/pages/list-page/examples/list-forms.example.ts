@@ -41,5 +41,8 @@ export class ListFormsExampleComponent {
 
   // A multi-select list's value is an array; a click adds an option, or takes it out
   protected readonly multi = this.fb.control<number[] | null>([1, 3], [Validators.required]);
-  protected readonly $multiValue = computed(() => this.multi.$value()?.join(', ') ?? 'none');
+  protected readonly $multiValue = computed(() => {
+    const values = this.multi.$value() ?? [];
+    return values.length > 0 ? values.join(', ') : 'none';
+  });
 }

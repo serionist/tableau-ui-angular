@@ -95,8 +95,9 @@
       </p>
       <ol>
         <li>
-          List the icons in <code>src/icons.ts</code>, in a class named <code>Icons</code>, which the script reads, that extends <code>UsedIcons</code> from <code>tableau-ui-angular/used-icons</code>.
-          With the library's own, this list downloads {{ iconCount }} icons in {{ fontCount }} fonts.
+          List the icons in <code>src/icons.ts</code>, in a class named <code>{{ iconsClass }}</code
+          >, which the script reads, that extends <code>UsedIcons</code> from <code>tableau-ui-angular/used-icons</code>. With the library's own, this list downloads {{ iconCount }} icons in
+          {{ fontCount }} fonts.
         </li>
       </ol>
       <app-docs-code label="src/icons.ts" [source]="iconsTs" />
@@ -110,7 +111,10 @@
       <p>The watch and the start use two dev tools:</p>
       <app-docs-code label="command" [source]="toolsInstall" />
       <ol start="3">
-        <li>Use the CSS the script writes, <code>material-icons.css</code>, in <code>styles.scss</code>:</li>
+        <li>
+          Use the CSS the script writes, <code>{{ cssFile }}</code
+          >, in <code>styles.scss</code>:
+        </li>
       </ol>
       <app-docs-code label="styles.scss" [source]="cssUse" />
       <p>

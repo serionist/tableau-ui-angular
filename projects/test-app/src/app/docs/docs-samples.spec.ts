@@ -220,11 +220,16 @@ describe('The samples', () => {
     const host = fixture.nativeElement as HTMLElement;
     const activated = () => host.querySelector('output')!.textContent.trim();
     const header = (text: string) => Array.from(host.querySelectorAll<HTMLElement>('.tab')).find(tab => tab.textContent.trim() === text)!;
+    const selected = () => host.querySelector('.tab.active')!.textContent.trim();
+    const shown = () => Array.from(host.querySelectorAll<HTMLElement>('.tab-content'), content => (content.style.display === 'block' ? content.textContent.trim() : '')).join('');
 
     expect(activated()).toBe('Activated last: Second tab');
 
+    // a disabled tab can't be selected: the second one stays, its content shown
     header('Third tab').click();
     await fixture.whenStable();
+    expect(selected()).toBe('Second tab');
+    expect(shown()).toBe('The second tab, the first one enabled, so the group shows it first.');
     expect(activated()).toBe('Activated last: Second tab');
 
     header('Fourth tab').click();
@@ -245,7 +250,7 @@ describe('The samples', () => {
   });
 
   // The padding goes through tooltipFullArgs: tooltipPadding sets none
-  it("opens the tooltip template sample's tooltips with their context, and the padded one with its 2rem", async () => {
+  it("opens the tooltip template sample's tooltips with their context, and the padded ones with their 2rem", async () => {
     const fixture = TestBed.createComponent(TooltipTemplateExampleComponent);
     await fixture.whenStable();
     const buttons = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('button'));
@@ -263,6 +268,7 @@ describe('The samples', () => {
 
     expect((await hover('Left')).text).toBe('From a template, on the left');
     expect(await hover('Left, 10px away, padded 2rem')).toEqual({ text: 'From a template, on the left, 10px away, padded 2rem', padding: `${2 * rem}px` });
+    expect(await hover('Bottom, 2em away, padded 2rem')).toEqual({ text: 'From a template, below, 2em away, padded 2rem', padding: `${2 * rem}px` });
     fixture.destroy();
   });
 
