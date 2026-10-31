@@ -6,7 +6,7 @@
     </div>
     } @if (renderText && $textType() !== 'none') {
     <div class="content">
-      @if ($textType() === 'string') { {{ $textString() }} } @else if ($textType() === 'template') {
+      @if ($textType() === 'string') {<span>{{ $textString() }}</span>} @else if ($textType() === 'template') {
       <ng-container *ngTemplateOutlet="$textTemplate()" />
       }
     </div>
@@ -27,7 +27,7 @@
     </span>
     } @if (renderText && $textType() !== 'none') {
     <span class="content">
-      @if ($textType() === 'string') { {{ $textString() }} } @else if ($textType() === 'template') {
+      @if ($textType() === 'string') {<span>{{ $textString() }}</span>} @else if ($textType() === 'template') {
       <ng-container *ngTemplateOutlet="$textTemplate()" />
       }
     </span>
