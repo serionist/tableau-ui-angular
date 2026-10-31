@@ -68,8 +68,7 @@ The package follows Angular's majors.
 
 ## Licence
 
-AGPL-3.0, in [LICENSE](https://github.com/serionist/tableau-ui-angular/blob/main/LICENSE). The project means to move to
-MIT.
+MIT, in [LICENSE](https://github.com/serionist/tableau-ui-angular/blob/main/LICENSE). 0.1.129 and earlier are AGPL-3.0-only.
 
 ## Contributing
 
