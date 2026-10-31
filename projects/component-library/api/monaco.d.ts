@@ -2,7 +2,7 @@
 
 import * as i2 from '@angular/common';
 import * as i0 from '@angular/core';
-import { ElementRef, OnDestroy } from '@angular/core';
+import { ElementRef, InputSignal, OnDestroy, WritableSignal } from '@angular/core';
 import { ControlValueAccessor } from '@angular/forms';
 import MonacoNamespace from 'monaco-editor';
 
@@ -13,13 +13,15 @@ type Monaco = typeof MonacoNamespace;
 type MonacoConstructionOptions = Omit<MonacoNamespace.editor.IStandaloneEditorConstructionOptions, 'value' | 'model' | 'language' | 'theme'> & MonacoNamespace.editor.ITextModelUpdateOptions;
 
 export declare class MonacoEditorComponent implements OnDestroy, ControlValueAccessor {
-  readonly $options: import('@angular/core').InputSignal<MonacoConstructionOptions>;
-  readonly $uri: import('@angular/core').InputSignal<string>;
-  readonly $language: import('@angular/core').InputSignal<string>;
-  readonly $value: import('@angular/core').ModelSignal<string>;
-  readonly $theme: import('@angular/core').InputSignal<'auto' | 'vs' | 'vs-dark' | 'hc-black' | 'hc-light'>;
-  readonly $onMonacoLoad: import('@angular/core').InputSignal<((monaco: Monaco) => void) | undefined>;
-  readonly $disposeModelOnDestroy: import('@angular/core').InputSignal<boolean>;
+  readonly $options: InputSignal<MonacoConstructionOptions>;
+  readonly $uri: InputSignal<string>;
+  readonly $language: InputSignal<string>;
+  readonly $valueInput: InputSignal<string>;
+  readonly $value: WritableSignal<string>;
+  readonly valueChange: import('@angular/core').OutputEmitterRef<string>;
+  readonly $theme: InputSignal<'auto' | 'vs' | 'vs-dark' | 'hc-black' | 'hc-light'>;
+  readonly $onMonacoLoad: InputSignal<((monaco: Monaco) => void) | undefined>;
+  readonly $disposeModelOnDestroy: InputSignal<boolean>;
   readonly editorLoaded: import('@angular/core').OutputEmitterRef<MonacoNamespace.editor.ICodeEditor>;
   readonly editorContainer: ElementRef<HTMLElement>;
   constructor();
@@ -54,7 +56,7 @@ export declare class MonacoEditorComponent implements OnDestroy, ControlValueAcc
         required: true;
         isSignal: true;
       };
-      $value: {
+      $valueInput: {
         alias: 'value';
         required: false;
         isSignal: true;
@@ -76,7 +78,7 @@ export declare class MonacoEditorComponent implements OnDestroy, ControlValueAcc
       };
     },
     {
-      $value: 'valueChange';
+      valueChange: 'valueChange';
       editorLoaded: 'editorLoaded';
     },
     never,
