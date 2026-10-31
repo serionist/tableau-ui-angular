@@ -1,0 +1,18 @@
+<!-- A node inside another is its child -->
+<tab-tree>
+  @for (node of nodes; track node.name) {
+    <tab-tree-node>
+      <span>{{ node.name }}</span>
+      @for (child of node.children; track child.name) {
+        <tab-tree-node>
+          <span>{{ child.name }}</span>
+          @for (grandchild of child.children; track grandchild.name) {
+            <tab-tree-node>
+              <span>{{ grandchild.name }}</span>
+            </tab-tree-node>
+          }
+        </tab-tree-node>
+      }
+    </tab-tree-node>
+  }
+</tab-tree>

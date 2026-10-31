@@ -1,382 +1,131 @@
-<!-- eslint-disable  @angular-eslint/template/no-inline-styles -->
 <div class="page">
   <div class="title">
     <h1>Icons</h1>
-    <div class="text-light text-large">This page demonstrates the use of Material Icons in the component library.</div>
+    <div class="text-light text-large">An icon shows a Material Symbols icon by its name, in the style, weight and fill the app picks.</div>
   </div>
   <tab-separator />
-
   <div class="content">
     <div class="section">
-      <h3>Getting started</h3>
-      <p>
-        <a href="https://fonts.google.com/icons" target="_blank"><b>Material Design Icons</b></a>
-        is an established icon set that is widely used in web development.
-        <br />
-        The component library provides a wrapper around these icons to make them easier to use.
-        <br />
-        There are two major ways that material icons can be added into your project:
-      </p>
+      <h3>Import</h3>
+      <p>Import <code>TableauUiIconModule</code> from <code>tableau-ui-angular/icon</code>, for <code>tab-icon</code>.</p>
+    </div>
+
+    <div class="section">
+      <h3>An icon</h3>
       <ul>
-        <li>
-          <b>Locally Hosted icons</b>
-          , imported via the Material Icons NPM Package:
-          <div class="info">
-            <tab-icon value="add_circle" color="success" [fill]="true" />
-            <span>All the icons are hosted locally</span>
-          </div>
-          <div class="info">
-            <tab-icon value="add_circle" color="success" [fill]="true" />
-            <span>Simple installation and usage</span>
-          </div>
-          <div class="info">
-            <tab-icon value="do_not_disturb_on" color="error" [fill]="true" />
-            <span>Large size. Browser downloads at least ~4.5MB+ (uncompressed) to make icons available. May be a lot more if multiple icon styles are used (outlined/rounded/sharp)</span>
-          </div>
-        </li>
-        <li style="margin-top: 0.5em">
-          <b>Dynamic Icons</b>
-          . Only the used icons are downloaded at build-time:
-          <div class="info">
-            <tab-icon value="add_circle" color="success" [fill]="true" />
-            <span>Only loads the used icons, small download size (a few kilobytes, depending on the number of icons used)</span>
-          </div>
-
-          <div class="info">
-            <tab-icon value="do_not_disturb_on" color="error" [fill]="true" />
-            <span>Harder to set up and use. Each used icon needs to be recorded by the developer.</span>
-          </div>
-        </li>
+        <li><code>value</code> is the icon's name on <a href="https://fonts.google.com/icons" target="_blank">Google Fonts' Material Symbols</a> page, such as <code>home</code>.</li>
+        <li><code>label</code> names an icon that means something alone, such as the only content of a button. Without one, an icon is decorative, and hidden from screen readers.</li>
+        <li>An icon is 1.2 times the font size around it, so the font sizes it; <code>fontSize</code> gives it a size of its own.</li>
+        <li><code>color</code> is <code>primary</code>, <code>success</code> or <code>error</code>, the theme's colours; the CSS <code>color</code> gives any other.</li>
       </ul>
-      <p>This sample app uses Dynamic Icons, but contains commented code to use Locally Hosted icons as well.</p>
+      <app-docs-example [example]="examples.basic" />
     </div>
+
     <div class="section">
-      <h3>Usage</h3>
+      <h3>Style</h3>
+      <p>The inputs pick the icon's font and its variable axes. An app that downloads its icons lists each one it uses, below.</p>
+      <table class="docs-table">
+        <thead>
+          <tr>
+            <th scope="col">Input</th>
+            <th scope="col">Values</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>type</code></td>
+            <td><code>Material Symbols Rounded</code>, the default, <code>Material Symbols Outlined</code> or <code>Material Symbols Sharp</code></td>
+          </tr>
+          <tr>
+            <td><code>[fill]</code></td>
+            <td><code>true</code> fills the icon; <code>false</code> by default</td>
+          </tr>
+          <tr>
+            <td><code>[weight]</code></td>
+            <td>100 to 700, in hundreds; 400 by default</td>
+          </tr>
+          <tr>
+            <td><code>[grade]</code></td>
+            <td>-25, 0, the default, or 200</td>
+          </tr>
+          <tr>
+            <td><code>[opticalSizePx]</code></td>
+            <td>20, 24, the default, 40 or 48</td>
+          </tr>
+          <tr>
+            <td><code>[params]</code></td>
+            <td>Any of them, with <code>color</code> and <code>fontSize</code>, in one object; each one it sets wins over its own input</td>
+          </tr>
+        </tbody>
+      </table>
+      <app-docs-example [example]="examples.style" />
+    </div>
+
+    <div class="section">
+      <h3>Loading the icons</h3>
+      <p>The app loads the icons' fonts in its <code>styles.scss</code>, in one of two ways; this site uses the script.</p>
+      <table class="docs-table">
+        <thead>
+          <tr>
+            <th scope="col">Way</th>
+            <th scope="col">What the browser downloads</th>
+            <th scope="col">What the app keeps</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>The used-icons script</td>
+            <td>Only the icons the app lists, in the styles it lists: kilobytes</td>
+            <td>The list, in <code>src/icons.ts</code></td>
+          </tr>
+          <tr>
+            <td>The <code>material-symbols</code> package</td>
+            <td>Every icon, in every weight, grade, optical size and fill: several megabytes per style</td>
+            <td>Nothing</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <h3>The used-icons script</h3>
       <p>
-        To add an icon to your app, use the
-        <code>&lt;tab-icon&gt;</code>
-        component and set the
-        <code>value</code>
-        attribute to the name of the icon you want to use.
-      </p>
-      <div>
-        <div class="monaco-container">
-          <tab-monaco-editor
-            uri="file://icons-page/sample"
-            language="html"
-            value='&lt;tab-icon value="home"&gt;&lt;/tab-icon&gt;'
-            [style.height]="'20px'"
-            [style.width]="'280px'"
-            [options]="options"
-          />
-        </div>
-
-        <span>This will render:</span>
-        <tab-icon value="home" style="font-size: 18px; vertical-align: middle" />
-      </div>
-      <ul>
-        <li>
-          You can search for icons on
-          <a href="https://fonts.google.com/icons" target="_blank"><b>Material Design Icons</b></a>
-          . Use the icon name as it appears in the
-          <i>Inserting the icon</i>
-          section on the right side panel after an icon is selected.
-        </li>
-        <li>
-          Add
-          <code>label="Delete"</code>
-          to name the icon for screen readers. Without a label the icon is decorative, and hidden from them. An icon that is the only content of a button needs one, or the button has no name.
-        </li>
-        <li>
-          The size of the icon is
-          <code>1em</code>
-          by default. Changing the
-          <code>font-size</code>
-          CSS property resizes the icon. No need to update
-          <code>width</code>
-          and
-          <code>height</code>
-          .
-        </li>
-        <li>
-          Icons can be colored using the
-          <code>color</code>
-          attribute. Possible values:
-          <code>primary</code>
-          ,
-          <code>error</code>
-          ,
-          <code>success</code>
-          . For any custom color, the
-          <code>color</code>
-          CSS property can be used.
-        </li>
-        <li>
-          Add
-          <code>type="Material Symbols Outlined"</code>
-          to change the type of the fonts. Avaialble types:
-          <ul>
-            <li>
-              <code>Material Symbols Rounded</code>
-              - default
-            </li>
-            <li><code>Material Symbols Outlined</code></li>
-            <li><code>Material Symbols Sharp</code></li>
-          </ul>
-        </li>
-        <li>
-          Add
-          <code>[fill]="true"</code>
-          to make the icon filled.
-        </li>
-        <li>
-          Add
-          <code>[weight]="100"</code>
-          to change the weight of the icon. The default weight is 400, possible values are: 100, 200, 300, 400, 500, 600, 700.
-        </li>
-        <li>
-          Add
-          <code>[grade]="200"</code>
-          to change the grade of the icon. The default grade is 0, possible values are: -25, 0, 200.
-        </li>
-        <li>
-          Add
-          <code>[opticalSizePx]="40"</code>
-          to change the optical size of the icon. The default optical size is 24, possible values are: 20, 24, 40, 48.
-        </li>
-      </ul>
-      <div>Full configuration example:</div>
-      <div class="monaco-container">
-        <tab-monaco-editor uri="file://icons-page/samplefull" language="html" [value]="fullConfigExample" [style.height]="'45px'" [style.width]="'590px'" [options]="options" />
-      </div>
-    </div>
-
-    <div class="section">
-      <h3>Installing Locally Hosted Icons</h3>
-      <ol>
-        <li>
-          Install the Icons Package by running:
-          <div class="monaco-container">
-            <tab-monaco-editor uri="file://icons-page/install" language="shell" value="npm install material-symbols" [style.height]="'20px'" [style.width]="'230px'" [options]="options" />
-          </div>
-        </li>
-        <li>
-          Import the rounded icons by updating your
-          <code>style.scss</code>
-          :
-          <div class="monaco-container">
-            <tab-monaco-editor uri="file://icons-page/localimport" language="scss" [value]="localImportCode" [style.height]="'65px'" [style.width]="'720px'" [options]="options" />
-          </div>
-        </li>
-        <li>
-          Add the
-          <code>TableauUiIconModule</code>
-          to your module/component imports:
-          <div class="monaco-container">
-            <tab-monaco-editor uri="file://icons-page/localmodule" language="typescript" [value]="localModuleCode" [style.height]="'250px'" [style.width]="'450px'" [options]="options" />
-          </div>
-        </li>
-        <li>Use the Icon as it's shown in the Usage section</li>
-      </ol>
-    </div>
-
-    <div class="section">
-      <h3>Installing Dynamic Icons</h3>
-      <p>
-        Dynamic Icons work by only downloading the
-        <b>used icons</b>
-        with
-        <b>used icon properties</b>
-        at build-time.
-        <br />
-        The icons are still served locally by the
-        <b>consuming app</b>
-        , no web access is needed for end-users.
-        <br />
-        This requires the developer to manually specify the icons that are used in the application in a special
-        <b>icons.ts</b>
-        file.
-        <br />
-        The
-        <b>consuming app</b>
-        also needs to be configured to load the icons dynamically.
+        The script ships with the package. It compiles the list with the app's own <code>typescript</code>, which an Angular app has, and downloads the icons' fonts and their CSS into a folder of the
+        app.
       </p>
       <ol>
         <li>
-          The download script compiles your
-          <code>icons.ts</code>
-          with your app's own
-          <code>typescript</code>
-          , which an Angular app has, and needs no other package.
-        </li>
-        <li>
-          Create an
-          <code>icons.ts</code>
-          and inherit the
-          <code>UsedIcons</code>
-          class that is coming from this library.
-          <br />
-          <code>src/icons.ts</code>
-          :
-          <div class="monaco-container">
-            <tab-monaco-editor uri="file://icons-page/localts" language="typescript" [value]="iconsTsCode" [style.height]="'535px'" [style.width]="'870px'" [options]="options" />
-          </div>
-        </li>
-
-        <li>
-          <div>Let's prepare a script to extract which icons and properties you use in your project and download them as static assets.</div>
-          <div>
-            In this example, our fonts are stored in
-            <code>src/fonts.ts</code>
-            and we are downloading into our
-            <code>public/icons</code>
-            folder, which our application serves as static content.
-          </div>
-          <div>
-            Update your
-            <code>package.json</code>
-            , and add the following script:
-          </div>
-          <div class="monaco-container">
-            <tab-monaco-editor uri="file://icons-page/local-download" language="json" [value]="iconsDownloadContent" [style.height]="'140px'" [style.width]="'935px'" [options]="options" />
-          </div>
-          <div>
-            The script asks Google Fonts' CSS API,
-            <code>https://fonts.googleapis.com/css2</code>
-            . To ask a mirror instead, set the mirror's URL in
-            <code>TABLEAU_UI_ICONS_CSS_URL</code>
-            .
-          </div>
-          <div>
-            Behind a proxy, Node's
-            <code>fetch</code>
-            , which the script downloads with, uses
-            <code>HTTPS_PROXY</code>
-            only when
-            <code>NODE_USE_ENV_PROXY=1</code>
-            is set too. Or set a mirror your network reaches in
-            <code>TABLEAU_UI_ICONS_CSS_URL</code>
-            .
-          </div>
-        </li>
-        <li>
-          <div>
-            Let's modify our
-            <code>styles.scss</code>
-            to pull in the css file downloaded by our script.
-          </div>
-          <div>
-            In this example, we downloaded the css file into
-            <code>public/icons</code>
-            . The CSS file is called
-            <b>material-icons.css</b>
-          </div>
-          <div>
-            Update your
-            <code>styles.scss</code>
-            , and add the following line:
-          </div>
-          <div class="monaco-container">
-            <tab-monaco-editor
-              uri="file://icons-page/local-scss"
-              language="scss"
-              value="@use '../public/icons/material-icons.css';"
-              [style.height]="'20px'"
-              [style.width]="'330px'"
-              [options]="options"
-            />
-          </div>
-          <div>
-            <i>NOTE:</i>
-            You can also import this .css file in any way you want, even from the HTML directly
-          </div>
-        </li>
-        <li>
-          <div>
-            Let's prepare a script to automatically watch the changes to the
-            <code>icons.ts</code>
-            file and re-download icons on changes (also download the changes when watching is started)
-          </div>
-          <div>
-            For this, we use
-            <code>chokidar</code>
-            , which you need to install as a dev dependency:
-          </div>
-          <div class="monaco-container">
-            <tab-monaco-editor uri="file://icons-page/chokidar" language="shell" value="npm install --save-dev chokidar-cli" [style.height]="'20px'" [style.width]="'280px'" [options]="options" />
-          </div>
-
-          <div>
-            Update your
-            <code>package.json</code>
-            , and add the following script:
-          </div>
-          <div class="monaco-container">
-            <tab-monaco-editor uri="file://icons-page/local-watch" language="json" [value]="iconsWatchContent" [style.height]="'140px'" [style.width]="'870px'" [options]="options" />
-          </div>
-        </li>
-        <li>
-          <div>Let's modify our build process - we want to download the icons before our build begins.</div>
-          <div>
-            This example assumes that your original build script was a simple
-            <code>ng build</code>
-            - you can append this before any existing script
-          </div>
-          <div>
-            Update your
-            <code>angular.json</code>
-            file, and add the following configuration:
-          </div>
-          <div class="monaco-container">
-            <tab-monaco-editor uri="file://icons-page/local-install" language="json" [value]="npmInstallContent" [style.height]="'140px'" [style.width]="'870px'" [options]="options" />
-          </div>
-        </li>
-        <li>
-          <div>
-            Let's modify our development serve process - we want our dev version to automatically monitor and download icons when doing
-            <code>ng serve</code>
-          </div>
-          <div>
-            For this, we use
-            <code>concurrently</code>
-            , which you need to install as a dev dependency:
-          </div>
-          <div class="monaco-container">
-            <tab-monaco-editor uri="file://icons-page/concurrently" language="shell" value="npm install --save-dev concurrently" [style.height]="'20px'" [style.width]="'280px'" [options]="options" />
-          </div>
-
-          <div>
-            Update your
-            <code>package.json</code>
-            , and add the following script:
-          </div>
-          <div class="monaco-container">
-            <tab-monaco-editor uri="file://icons-page/local-serve" language="json" [value]="ngServeContent" [style.height]="'140px'" [style.width]="'510px'" [options]="options" />
-          </div>
+          List the icons in <code>src/icons.ts</code>, in a class named <code>Icons</code>, which the script reads, that extends <code>UsedIcons</code> from <code>tableau-ui-angular/used-icons</code>.
+          With the library's own, this list downloads {{ iconCount }} icons in {{ fontCount }} fonts.
         </li>
       </ol>
+      <app-docs-code label="src/icons.ts" [source]="iconsTs" />
+      <ol start="2">
+        <li>
+          Run the script from the app's <code>package.json</code>: <code>prebuild</code> runs it before <code>npm run build</code>, and <code>icons:watch</code> runs it again whenever
+          <code>src/icons.ts</code> changes, while <code>npm start</code> serves the app.
+        </li>
+      </ol>
+      <app-docs-code label="package.json" [source]="iconsScripts" />
+      <p>The watch and the start use two dev tools:</p>
+      <app-docs-code label="command" [source]="toolsInstall" />
+      <ol start="3">
+        <li>Use the CSS the script writes, <code>material-icons.css</code>, in <code>styles.scss</code>:</li>
+      </ol>
+      <app-docs-code label="styles.scss" [source]="cssUse" />
       <p>
-        Once you've done all these steps, your
-        <code>npm build</code>
-        and
-        <code>npm start</code>
-        should automatically download and update the icons that you use in your project - and even monitor the changes!
+        The script asks Google Fonts' CSS API, <code>{{ cssApi }}</code
+        >; set another URL, such as a mirror's, in <code>{{ cssUrlVariable }}</code
+        >. Behind a proxy, Node's <code>fetch</code>, which the script downloads with, uses <code>HTTPS_PROXY</code> only when <code>NODE_USE_ENV_PROXY=1</code> is set too.
       </p>
-      <p>
-        All that's left is to make sure that you record any used icon into your
-        <code>icons.ts</code>
-        . Also make sure that if you use non-default
-        <code>font type</code>
-        ,
-        <code>fill</code>
-        ,
-        <code>weight</code>
-        ,
-        <code>grade</code>
-        ,
-        <code>opticalSizePx</code>
-        , also record the values that you used.
-      </p>
+    </div>
+
+    <div class="section">
+      <h3>The material-symbols package</h3>
+      <p>Install the package:</p>
+      <app-docs-code label="command" [source]="packageInstall" />
+      <p>Then use, in <code>styles.scss</code>, each style the app's icons show in: <code>rounded</code> for the default type, <code>outlined</code> and <code>sharp</code> for the others.</p>
+      <app-docs-code label="styles.scss" [source]="packageUses" />
     </div>
   </div>
 </div>

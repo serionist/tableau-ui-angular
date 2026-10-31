@@ -1,0 +1,43 @@
+<div class="styles">
+  @for (type of types; track type) {
+    <figure>
+      <tab-icon value="home" [type]="type" />
+      <figcaption>{{ type }}</figcaption>
+    </figure>
+  }
+
+  <figure>
+    <tab-icon value="home" [fill]="true" />
+    <figcaption>Filled</figcaption>
+  </figure>
+
+  @for (weight of weights; track weight) {
+    <figure>
+      <tab-icon value="home" [weight]="weight" />
+      <figcaption>Weight {{ weight }}</figcaption>
+    </figure>
+  }
+
+  @for (grade of grades; track grade) {
+    <figure>
+      <tab-icon value="home" [grade]="grade" />
+      <figcaption>Grade {{ grade }}</figcaption>
+    </figure>
+  }
+
+  @for (size of opticalSizes; track size) {
+    <figure>
+      <tab-icon value="home" [opticalSizePx]="size" />
+      <figcaption>Optical size {{ size }}</figcaption>
+    </figure>
+  }
+
+  <figure>
+    <tab-icon value="home" color="primary" type="Material Symbols Outlined" [fill]="true" [weight]="100" [grade]="200" [opticalSizePx]="48" />
+    <figcaption>Each input</figcaption>
+  </figure>
+  <figure>
+    <tab-icon value="home" [params]="params" />
+    <figcaption>The same, from params</figcaption>
+  </figure>
+</div>

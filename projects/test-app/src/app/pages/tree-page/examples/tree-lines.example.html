@@ -1,0 +1,19 @@
+<!-- Nodes without children start where their button would be -->
+<tab-tree gridLinesBorder="1px solid var(--twc-color-border)" expandButtonAlign="center" [keepButtonOffsetOnNoChildren]="false">
+  <!-- The first node starts open, to show its lines -->
+  @for (node of nodes; track node.name) {
+    <tab-tree-node [expanded]="$first">
+      <span>{{ node.name }}</span>
+      @for (child of node.children; track child.name) {
+        <tab-tree-node>
+          <span>{{ child.name }}</span>
+          @for (grandchild of child.children; track grandchild.name) {
+            <tab-tree-node>
+              <span>{{ grandchild.name }}</span>
+            </tab-tree-node>
+          }
+        </tab-tree-node>
+      }
+    </tab-tree-node>
+  }
+</tab-tree>

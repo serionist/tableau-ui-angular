@@ -1,0 +1,25 @@
+<tab-form-field>
+  <tab-label>A list</tab-label>
+  <tab-list-single-select [(value)]="$value">
+    <!-- An option's text, hint and icon as values -->
+    <tab-option text="This is a looooooooooooooooong option, given as values" icon="home" hint="There are 2 ways to create tab-options: by values and by templates" [value]="1" />
+    <tab-option text="Disabled value" hint="with a hint" [value]="2" [disabled]="true" />
+
+    <!-- Or as templates, and the icon's parameters -->
+    <ng-template #textRef>
+      This option is given as a
+      <b>template</b>
+    </ng-template>
+    <ng-template #hintRef>There are 2 ways to create tab-options: by values and by templates</ng-template>
+    <tab-option icon="home" [value]="3" [iconParams]="{ fill: true, color: 'success' }" [text]="textRef" [hint]="hintRef" />
+
+    <!-- Or both: a template for the text, and a hint as a value -->
+    <ng-template #combinationRef>
+      This option is given as a
+      <b>combination</b>
+      of a template and values
+    </ng-template>
+    <tab-option icon="home" hint="with a hint" [value]="4" [text]="combinationRef" />
+  </tab-list-single-select>
+  <tab-hint>Value: {{ $value() ?? 'none' }}</tab-hint>
+</tab-form-field>

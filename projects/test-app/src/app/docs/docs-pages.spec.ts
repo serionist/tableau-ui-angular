@@ -3,15 +3,18 @@ import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 import { projects } from '../../../../../angular.json';
-import { engines } from '../../../../../package.json';
+import { engines, scripts } from '../../../../../package.json';
 import addBentonSans from '../../../../../Add-Benton-Sans.md?source' with { loader: 'text' };
 import readme from '../../../../../README.md?source' with { loader: 'text' };
-import { assets } from '../../../../component-library/ng-package.json';
+import { assets, dest } from '../../../../component-library/ng-package.json';
 import monacoEditorTs from '../../../../component-library/monaco/src/monaco-editor.component.ts?source' with { loader: 'text' };
 import { peerDependencies } from '../../../../component-library/package.json';
 // The scripts the package ships, read where the commands say they are: a moved script fails the build
 import fontsScript from '../../../../component-library/styles/fonts/downloadFonts.js?source' with { loader: 'text' };
 import iconsScript from '../../../../component-library/used-icons/scripts/update-icons.js?source' with { loader: 'text' };
+// What npm run dev:link prints, the steps the local development page shows
+import linkInfo from '../../../../../scripts/link-info.js?source' with { loader: 'text' };
+import { dependencies } from '../../../package.json';
 import stylesScss from '../../styles.scss?source' with { loader: 'text' };
 import { BUTTONS_EXAMPLES } from '../pages/buttons-page/buttons.examples';
 import { ButtonsPageComponent } from '../pages/buttons-page/buttons-page.component';
@@ -21,6 +24,9 @@ import { CHIP_EXAMPLES } from '../pages/chip-page/chip.examples';
 import { ChipPageComponent } from '../pages/chip-page/chip-page.component';
 import { CLIPBOARD_EXAMPLES } from '../pages/clipboard-page/clipboard.examples';
 import { ClipboardPageComponent } from '../pages/clipboard-page/clipboard-page.component';
+import { CSS_EXAMPLES } from '../pages/css-page/css.examples';
+import { CssPageComponent } from '../pages/css-page/css-page.component';
+import { FONT_IMPORT, fontFaces, ROBOTO_IMPORT, STYLES_USE } from '../pages/css-page/styles';
 import { DATE_PICKER_EXAMPLES } from '../pages/date-picker-page/date-picker.examples';
 import { DatePickerPageComponent } from '../pages/date-picker-page/date-picker-page.component';
 import { DIALOGS_EXAMPLES } from '../pages/dialogs-page/dialogs.examples';
@@ -34,6 +40,12 @@ import { FormFieldsPageComponent } from '../pages/form-fields-page/form-fields-p
 import { FONTS_COMMAND, FONTS_SCRIPT, ICONS_SCRIPT, ICONS_SCRIPTS } from '../pages/getting-started-page/commands';
 import { GETTING_STARTED_EXAMPLES } from '../pages/getting-started-page/getting-started.examples';
 import { GettingStartedPageComponent } from '../pages/getting-started-page/getting-started-page.component';
+import { ICONS_EXAMPLES } from '../pages/icons-page/icons.examples';
+import { IconsPageComponent } from '../pages/icons-page/icons-page.component';
+import * as iconsSetup from '../pages/icons-page/setup';
+import { LIST_EXAMPLES } from '../pages/list-page/list.examples';
+import { ListPageComponent } from '../pages/list-page/list-page.component';
+import * as linkSteps from '../pages/local-development/link-steps';
 import { MENU_EXAMPLES } from '../pages/menu-page/menu.examples';
 import { MenuPageComponent } from '../pages/menu-page/menu-page.component';
 import { MONACO_EXAMPLES } from '../pages/monaco-page/monaco.examples';
@@ -43,19 +55,29 @@ import { NAVBAR_EXAMPLES } from '../pages/navbar-page/navbar.examples';
 import { NavbarPageComponent } from '../pages/navbar-page/navbar-page.component';
 import { RADIO_BUTTONS_EXAMPLES } from '../pages/radio-buttons-page/radio-buttons.examples';
 import { RadioButtonsPageComponent } from '../pages/radio-buttons-page/radio-buttons-page.component';
+import { SCROLLER_EXAMPLES } from '../pages/scroller-page/scroller.examples';
+import { ScrollerPageComponent } from '../pages/scroller-page/scroller-page.component';
 import { SELECT_EXAMPLES } from '../pages/select-page/select.examples';
 import { SelectPageComponent } from '../pages/select-page/select-page.component';
 import { SNACKS_EXAMPLES } from '../pages/snacks-page/snacks.examples';
 import { SnacksPageComponent } from '../pages/snacks-page/snacks-page.component';
+import { TABCONTROL_EXAMPLES } from '../pages/tabcontrol-page/tabcontrol.examples';
+import { TabcontrolPageComponent } from '../pages/tabcontrol-page/tabcontrol-page.component';
 import { TABLE_EXAMPLES } from '../pages/table-page/table.examples';
 import { TablePageComponent } from '../pages/table-page/table-page.component';
 import { colorProperties, otherProperties } from '../pages/theming-page/theme-properties';
 import { THEMING_EXAMPLES } from '../pages/theming-page/theming.examples';
 import { ThemingPageComponent } from '../pages/theming-page/theming-page.component';
+import { TOOLTIPS_EXAMPLES } from '../pages/tooltips-page/tooltips.examples';
+import { TooltipsPageComponent } from '../pages/tooltips-page/tooltips-page.component';
+import { TREE_EXAMPLES } from '../pages/tree-page/tree.examples';
+import { TreePageComponent } from '../pages/tree-page/tree-page.component';
+import { VIRTUALIZE_EXAMPLES } from '../pages/virtualize-page/virtualize.examples';
+import { VirtualizePageComponent } from '../pages/virtualize-page/virtualize-page.component';
 import type { DocsExample } from './docs-example';
 import { DocsExampleComponent } from './docs-example.component';
 
-// Each page whose samples show their source, with the list of its samples. A page converted to samples joins it
+// Each page with samples, which show their source, and the list of its samples. A new page with samples joins it
 const PAGES: { name: string; page: Type<unknown>; examples: Record<string, DocsExample> }[] = [
   { name: 'getting started', page: GettingStartedPageComponent, examples: GETTING_STARTED_EXAMPLES },
   { name: 'theming', page: ThemingPageComponent, examples: THEMING_EXAMPLES },
@@ -75,6 +97,14 @@ const PAGES: { name: string; page: Type<unknown>; examples: Record<string, DocsE
   { name: 'nav bar', page: NavbarPageComponent, examples: NAVBAR_EXAMPLES },
   { name: 'radio groups', page: RadioButtonsPageComponent, examples: RADIO_BUTTONS_EXAMPLES },
   { name: 'snackbar', page: SnacksPageComponent, examples: SNACKS_EXAMPLES },
+  { name: 'CSS & Fonts', page: CssPageComponent, examples: CSS_EXAMPLES },
+  { name: 'icons', page: IconsPageComponent, examples: ICONS_EXAMPLES },
+  { name: 'list', page: ListPageComponent, examples: LIST_EXAMPLES },
+  { name: 'arrow scroller', page: ScrollerPageComponent, examples: SCROLLER_EXAMPLES },
+  { name: 'tabs', page: TabcontrolPageComponent, examples: TABCONTROL_EXAMPLES },
+  { name: 'tooltips', page: TooltipsPageComponent, examples: TOOLTIPS_EXAMPLES },
+  { name: 'tree', page: TreePageComponent, examples: TREE_EXAMPLES },
+  { name: 'virtualization', page: VirtualizePageComponent, examples: VIRTUALIZE_EXAMPLES },
 ];
 
 describe('The docs pages', () => {
@@ -159,5 +189,51 @@ describe('The docs pages', () => {
     expect(asset.input).toBe('node_modules/monaco-editor/min');
     expect(monacoEditorTs).toContain(`+ '${asset.output.replace(/^\//, '')}/vs'`);
     expect(projects['test-app'].architect.build.options.assets).toContainEqual(asset);
+  });
+
+  it('runs the used-icons script on the icons page as on the getting started page, with what the script reads', () => {
+    const command = `node node_modules/tableau-ui-angular/${ICONS_SCRIPT} src/icons.ts public/icons`;
+    expect((JSON.parse(iconsSetup.ICONS_SCRIPTS) as { scripts: Record<string, string> }).scripts['icons']).toBe(command);
+    expect((JSON.parse(ICONS_SCRIPTS) as { scripts: Record<string, string> }).scripts['icons']).toBe(command);
+    // the class the page says the script reads, the variable it says to set, the API the script asks without it, and
+    // the CSS file it writes
+    expect(iconsScript).toContain('const { Icons } = loadTypeScriptFile(');
+    expect(iconsScript).toContain(`process.env.${iconsSetup.ICONS_CSS_URL_VARIABLE} || '${iconsSetup.ICONS_CSS_API}'`);
+    expect(iconsScript).toContain("path.join(outputFolder, 'material-icons.css')");
+    // the site loads that file as the page says, and has the package's lines, commented, and the package
+    expect(stylesScss).toContain(iconsSetup.ICONS_CSS_USE);
+    for (const use of iconsSetup.MATERIAL_SYMBOLS_USES) {
+      expect(stylesScss).toContain(`// ${use}`);
+    }
+    expect(iconsSetup.MATERIAL_SYMBOLS_INSTALL).toBe('npm install material-symbols');
+    expect(Object.keys(dependencies)).toContain('material-symbols');
+  });
+
+  it("loads the styles and fonts on the CSS & Fonts page as the site's styles.scss does, and the font script downloads each file font-import loads", () => {
+    for (const line of [STYLES_USE, FONT_IMPORT, ROBOTO_IMPORT]) {
+      expect(stylesScss).toContain(line);
+    }
+    const faces = fontFaces();
+    expect(faces.length).toBe(7);
+    expect(faces.every(face => face.family && face.weight && face.style && face.file)).toBe(true);
+    const loaded = new Set(faces.flatMap(face => [`${face.file}.woff2`, `${face.file}.woff`]));
+    const downloaded = new Set([...fontsScript.matchAll(/'(BentonSans-[\w-]+\.woff2?)'/g)].map(([, file]) => file));
+    expect(downloaded).toEqual(loaded);
+  });
+
+  it('shows the steps npm run dev:link prints on the local development page', () => {
+    expect(linkSteps.DEV_LINK).toBe('npm run dev:link');
+    expect(scripts['dev:link']).toContain('node scripts/link-info.js');
+    // the JSON the page shows is in what the script prints, whitespace aside
+    const squash = (text: string) => text.replace(/\s+/g, '');
+    const { architect } = (JSON.parse(linkSteps.ANGULAR_JSON) as { projects: Record<string, { architect: unknown }> }).projects['[your-app]'];
+    expect(squash(linkInfo)).toContain(JSON.stringify({ architect }).slice(1, -1));
+    expect(squash(linkInfo)).toContain(JSON.stringify(JSON.parse(linkSteps.TSCONFIG_JSON)).slice(1, -1));
+    expect(linkInfo).toContain(linkSteps.LINK_INSTALL);
+    // the npx link line: the checkout's packages, then the library's build, where ng-package.json puts it
+    expect(linkInfo).toContain(`npx link ${linkSteps.LINKED_PACKAGES.map(name => `\${modulePath("${name}")}`).join(' ')} \${distPath}`);
+    expect(linkInfo).toContain("path.resolve(__dirname, '..', 'dist', 'component-library')");
+    expect(dest).toBe('../../dist/component-library');
+    expect(linkInfo).toMatch(new RegExp(`run:\\s+${linkSteps.UNLINK}\\s`));
   });
 });

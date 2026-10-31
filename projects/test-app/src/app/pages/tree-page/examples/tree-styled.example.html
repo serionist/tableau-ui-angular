@@ -1,0 +1,27 @@
+<tab-tree
+  gridLinesBorder="1px solid var(--twc-color-border)"
+  gridLinesBorderRadius="10px"
+  expandButtonColor="var(--twc-color-success)"
+  expandButtonGap="1rem"
+  expandButtonAlign="start"
+  childrenIndent="1.5rem"
+  [showRootGridLines]="true"
+  [expandButtonTooltip]="{ expand: 'Expand', collapse: 'Collapse', position: 'top', margin: '5px' }"
+>
+  <!-- The first node starts open, to show its lines -->
+  @for (node of nodes; track node.name) {
+    <tab-tree-node [expanded]="$first">
+      <span>{{ node.name }}</span>
+      @for (child of node.children; track child.name) {
+        <tab-tree-node>
+          <span>{{ child.name }}</span>
+          @for (grandchild of child.children; track grandchild.name) {
+            <tab-tree-node>
+              <span>{{ grandchild.name }}</span>
+            </tab-tree-node>
+          }
+        </tab-tree-node>
+      }
+    </tab-tree-node>
+  }
+</tab-tree>

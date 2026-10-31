@@ -1,0 +1,27 @@
+<tab-tree>
+  <!-- Open at the start; one text while it is open, another while it is closed -->
+  <tab-tree-node [expanded]="true">
+    <span expandedContent>Node 1, open</span>
+    <span collapsedContent>Node 1, closed</span>
+    <tab-tree-node [expanded]="true">
+      <!-- The unmarked text shows whether it is open or closed -->
+      <span expandedContent>Open:&nbsp;</span>
+      <span>Subnode 1.1</span>
+      <tab-tree-node>
+        <span>Subnode 1.1.1</span>
+      </tab-tree-node>
+      <tab-tree-node>
+        <span>Subnode 1.1.2</span>
+      </tab-tree-node>
+    </tab-tree-node>
+    <tab-tree-node>
+      <span>Subnode 1.2</span>
+    </tab-tree-node>
+  </tab-tree-node>
+  <tab-tree-node>
+    <span>Node 2</span>
+    <tab-tree-node>
+      <span>Subnode 2.1</span>
+    </tab-tree-node>
+  </tab-tree-node>
+</tab-tree>

@@ -1,0 +1,14 @@
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.list {
+  border: 1px solid var(--twc-color-border-light);
+}
+
+.no-rows {
+  margin: 0.5rem;
+}

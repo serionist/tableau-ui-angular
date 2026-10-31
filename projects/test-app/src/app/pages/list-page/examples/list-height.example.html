@@ -1,0 +1,22 @@
+<div class="fields">
+  <!-- The form field's height: the list fills what its label and hint leave -->
+  <tab-form-field class="short">
+    <tab-label>12rem tall</tab-label>
+    <tab-list-single-select [(value)]="$value">
+      @for (option of options; track option.value) {
+        <tab-option [text]="option.text" [value]="option.value" />
+      }
+    </tab-list-single-select>
+    <tab-hint>The options scroll inside the list</tab-hint>
+  </tab-form-field>
+
+  <tab-form-field class="tall">
+    <tab-label>25rem tall</tab-label>
+    <tab-list-single-select [(value)]="$value">
+      @for (option of options; track option.value) {
+        <tab-option [text]="option.text" [value]="option.value" />
+      }
+    </tab-list-single-select>
+    <tab-hint>The list is taller than its options</tab-hint>
+  </tab-form-field>
+</div>

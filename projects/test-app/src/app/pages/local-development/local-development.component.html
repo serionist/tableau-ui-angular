@@ -1,97 +1,42 @@
 <div class="page">
   <div class="title">
     <h1>Local Development</h1>
-    <div class="text-light text-large">
-      <p>This page explains how to set up local development of this library by linking it into a consuming project locally instead of importing from NPM.</p>
-    </div>
+    <div class="text-light text-large">Link the library's build into an app, to try a change to the library in the app before it is published.</div>
   </div>
   <tab-separator />
   <div class="content">
     <div class="section">
-      <h3>Purpose</h3>
-      <p>
-        When using this library, you sometimes want to host it locally instead of pulling it from NPM.
-        <br />
-        This way, if you make any changes to the library, they are instantly visible in your consuming application, enabling a seamless developer experience.
-        <br />
-        When you commit/publish your app, make sure that you update the library on NPM as well, and update your app to use the NPM version.
-      </p>
-    </div>
-    <div class="section">
-      <h3>Linking the source code of this library into the consuming project</h3>
+      <h3>Link</h3>
+      <p>Open the library's checkout and the app side by side; the steps below are the ones <code>dev:link</code> prints, with the paths on your machine.</p>
       <ol>
-        <li>Open both the source code of this library and the consuming project in an editor (such as VSCode)</li>
+        <li>In the library's checkout, run the script. It builds the library, prints the steps, waits for Enter, and then builds the library again on each change.</li>
+      </ol>
+      <app-docs-code label="command" [source]="devLink" />
+      <ol start="2">
+        <li>In the app's <code>angular.json</code>, preserve symlinks in the build, and leave the library out of the dev server's prebundling:</li>
+      </ol>
+      <app-docs-code label="angular.json" [source]="angularJson" />
+      <ol start="3">
+        <li>In the app's <code>tsconfig.json</code>, add a path for the package:</li>
+      </ol>
+      <app-docs-code label="tsconfig.json" [source]="tsconfigJson" />
+      <ol start="4">
+        <li>In the app, install <code>link</code>:</li>
+      </ol>
+      <app-docs-code label="command" [source]="linkInstall" />
+      <ol start="5">
         <li>
-          Run the following command from the root of
-          <b>this library</b>
-          :
-          <div class="monaco-container">
-            <tab-monaco-editor uri="file://dev-page/link" language="shell" value="npm run dev:link" [style.height]="'20px'" [style.width]="'140px'" [options]="options" />
-          </div>
-        </li>
-        <li>
-          Update the
-          <code>angular.json</code>
-          file of the
-          <b>consuming project</b>
-          to preserve symlinks and skip pre-bundle caching of vite:
-          <div class="monaco-container">
-            <tab-monaco-editor uri="file://dev-page/angularjson" language="json" [value]="angularJsonContent" [style.height]="'380px'" [style.width]="'440px'" [options]="options" />
-          </div>
-        </li>
-        <li>
-          Update the
-          <code>tsconfig.json</code>
-          file of the
-          <b>consuming project</b>
-          to add paths for this library. This is required for
-          <code>ng serve</code>
-          to detect code live changes and recompile:
-          <div class="monaco-container">
-            <tab-monaco-editor uri="file://dev-page/tsconfig" language="json" [value]="tsconfigJsonContent" [style.height]="'135px'" [style.width]="'400px'" [options]="options" />
-          </div>
-        </li>
-        <li>
-          Run the following command from the root of the
-          <b>consuming project</b>
-          to install
-          <code>npx link</code>
-          . We use this instead if
-          <code>npm link</code>
-          since its much safer:
-          <div class="monaco-container">
-            <tab-monaco-editor uri="file://dev-page/savelink" language="shell" value="npm install --save-dev link" [style.height]="'20px'" [style.width]="'210px'" [options]="options" />
-          </div>
-        </li>
-        <li>
-          Run the following command from the root of the
-          <b>consuming project</b>
-          to link the library:
-          <div class="monaco-container">
-            <tab-monaco-editor
-              uri="file://dev-page/dolink"
-              language="shell"
-              value="npx link [path-to-this-library]/dist/component-library"
-              [style.height]="'20px'"
-              [style.width]="'420px'"
-              [options]="options"
-            />
-          </div>
+          In the app, run the <code>npx link</code> line the script printed. It links the library's build, and Angular's packages and Monaco from the library's checkout; here
+          <code>&lt;library&gt;</code> stands for the checkout's path.
         </li>
       </ol>
+      <app-docs-code label="command" [source]="linkCommand" />
     </div>
+
     <div class="section">
-      <h3>Unlinking the library</h3>
-      <div>
-        When you've finished development or want to commit the source code of the
-        <b>consuming project</b>
-        , you need to
-        <code>unlink</code>
-        this library by running:
-      </div>
-      <div class="monaco-container">
-        <tab-monaco-editor uri="file://dev-page/reset" language="shell" value="npm install" [style.height]="'20px'" [style.width]="'90px'" [options]="options" />
-      </div>
+      <h3>Unlink</h3>
+      <p>When you are done, or before you commit the app, run this in the app, as the script says:</p>
+      <app-docs-code label="command" [source]="unlink" />
     </div>
   </div>
 </div>

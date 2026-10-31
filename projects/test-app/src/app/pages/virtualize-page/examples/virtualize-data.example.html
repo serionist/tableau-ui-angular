@@ -1,0 +1,18 @@
+<fieldset>
+  <legend>Load</legend>
+  <tab-radio-group [(value)]="$mode">
+    <tab-option value="incremental" text="A block at a time" hint="IncrementalDataOptions: the list asks for each block of rows as the user scrolls to it" />
+    <tab-option value="full" text="Every row at once" hint="FullDataOptions: the list asks for every row, and shows them a block at a time" />
+  </tab-radio-group>
+</fieldset>
+<div class="buttons">
+  <button (click)="show('rows')">10,000 rows</button>
+  <button (click)="show('none')">No rows</button>
+  <button (click)="show('two')">2 rows</button>
+  <button color="error" (click)="show('error')">A failed load</button>
+</div>
+
+<tab-virtualize #list class="list" [dataOptions]="$dataOptions()" [dataSort]="[]">
+  <ng-template let-ctx [tabItemTemplate]="list">{{ ctx.item.name }}</ng-template>
+</tab-virtualize>
+<output>The last request asked for {{ $lastRequest() }}</output>

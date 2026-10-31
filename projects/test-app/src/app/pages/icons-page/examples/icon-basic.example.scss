@@ -1,0 +1,14 @@
+.row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+}
+
+.large {
+  font-size: 2rem;
+}
+
+.custom {
+  color: var(--twc-color-text-light);
+}

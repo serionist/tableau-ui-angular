@@ -1,0 +1,42 @@
+<div class="fields">
+  <tab-form-field>
+    <tab-label>Strong focus, the default; no check; the selected option highlighted</tab-label>
+    <tab-list-single-select [(value)]="$value">
+      @for (option of options; track option.value) {
+        <tab-option [disabled]="option.disabled ?? false" [hint]="option.hint" [icon]="option.icon" [text]="option.text" [value]="option.value" />
+      }
+    </tab-list-single-select>
+    <tab-hint>Tab focuses it, with a strong focus ring</tab-hint>
+  </tab-form-field>
+
+  <tab-form-field>
+    <tab-label>No focus, only the text, the check on the right, no highlight</tab-label>
+    <tab-list-single-select focusMode="none" selectedCheckIconLocation="right" [itemTemplateContext]="onlyText" [selectedItemHighlight]="false" [(value)]="$value">
+      @for (option of options; track option.value) {
+        <tab-option [disabled]="option.disabled ?? false" [hint]="option.hint" [icon]="option.icon" [text]="option.text" [value]="option.value" />
+      }
+    </tab-list-single-select>
+    <tab-hint>Tab passes it by</tab-hint>
+  </tab-form-field>
+
+  <tab-form-field>
+    <tab-label>Silent focus, the check on the left, no highlight</tab-label>
+    <tab-list-single-select focusMode="silent" selectedCheckIconLocation="left" [selectedItemHighlight]="false" [(value)]="$value">
+      @for (option of options; track option.value) {
+        <tab-option [disabled]="option.disabled ?? false" [hint]="option.hint" [icon]="option.icon" [text]="option.text" [value]="option.value" />
+      }
+    </tab-list-single-select>
+    <tab-hint>Tab focuses it, with a faint focus ring</tab-hint>
+  </tab-form-field>
+
+  <tab-form-field>
+    <tab-label>Disabled, the check on the right</tab-label>
+    <tab-list-single-select selectedCheckIconLocation="right" [disabled]="true" [(value)]="$value">
+      @for (option of options; track option.value) {
+        <tab-option [disabled]="option.disabled ?? false" [hint]="option.hint" [icon]="option.icon" [text]="option.text" [value]="option.value" />
+      }
+    </tab-list-single-select>
+    <tab-hint>Nothing can be picked, and Tab passes it by</tab-hint>
+  </tab-form-field>
+</div>
+<output>Value: {{ $value() ?? 'none' }}</output>

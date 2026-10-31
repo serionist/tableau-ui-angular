@@ -1,0 +1,17 @@
+<!-- Each node names its parent; where it sits in the template doesn't matter -->
+<tab-tree hierarchyMode="manual" gridLinesBorder="1px solid var(--twc-color-border)">
+  <tab-tree-node hierarchyId="3" [order]="5">Node 3, last by its order</tab-tree-node>
+  <tab-tree-node hierarchyId="1.4" hierarchyParentId="1" [order]="5">Subnode 1.4, last in Node 1 by its order</tab-tree-node>
+  <tab-tree-node hierarchyId="1">Node 1</tab-tree-node>
+  <tab-tree-node hierarchyId="1.1" hierarchyParentId="1">Subnode 1.1</tab-tree-node>
+  <tab-tree-node hierarchyId="1.1.1" hierarchyParentId="1.1">Subnode 1.1.1</tab-tree-node>
+  <tab-tree-node hierarchyId="1.1.2" hierarchyParentId="1.1">Subnode 1.1.2</tab-tree-node>
+  <!-- Subnode 1.2's children come before it -->
+  <tab-tree-node hierarchyId="1.2.1" hierarchyParentId="1.2">Subnode 1.2.1</tab-tree-node>
+  <tab-tree-node hierarchyId="1.2.2" hierarchyParentId="1.2">Subnode 1.2.2</tab-tree-node>
+  <tab-tree-node hierarchyId="1.2" hierarchyParentId="1">Subnode 1.2</tab-tree-node>
+  <tab-tree-node hierarchyId="1.3" hierarchyParentId="1">Subnode 1.3</tab-tree-node>
+  <tab-tree-node hierarchyId="2">Node 2</tab-tree-node>
+  <tab-tree-node hierarchyId="2.1" hierarchyParentId="2">Subnode 2.1</tab-tree-node>
+  <tab-tree-node hierarchyId="2.1.1" hierarchyParentId="2.1">Subnode 2.1.1</tab-tree-node>
+</tab-tree>

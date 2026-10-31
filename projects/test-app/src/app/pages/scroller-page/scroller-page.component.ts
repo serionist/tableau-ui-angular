@@ -1,13 +1,14 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { TableauUiArrowScrollModule } from 'tableau-ui-angular/arrow-scroll';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
-import { TableauUiIconModule } from 'tableau-ui-angular/icon';
+import { DocsExampleComponent } from '../../docs/docs-example.component';
+import { SCROLLER_EXAMPLES } from './scroller.examples';
+
 @Component({
   selector: 'app-scroller-page',
-  imports: [TableauUiArrowScrollModule, TableauUiIconModule, TableauUiCommonModule],
-  standalone: true,
+  imports: [TableauUiCommonModule, DocsExampleComponent],
   templateUrl: './scroller-page.component.html',
-  styleUrl: './scroller-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ScrollerPageComponent {}
+export class ScrollerPageComponent {
+  protected readonly examples = SCROLLER_EXAMPLES;
+}

@@ -1,0 +1,8 @@
+<!-- Each arrow scrolls 300 pixels; the mouse wheel scrolls it sideways -->
+<tab-arrow-scroll class="strip" scrollType="arrow" scrollDirection="horizontal" buttonsGap="0.5rem" [buttonScrollAmount]="300">
+  <div class="items">
+    @for (item of items; track item) {
+      <span class="item">{{ item }}</span>
+    }
+  </div>
+</tab-arrow-scroll>
