@@ -453,13 +453,20 @@ describe('The samples', () => {
       const sales = () => cells('sales').map(text => Number(text.replace(/[$,]/g, '')));
       const header = host.querySelector<HTMLElement>('.column-header[data-column-id="sales"] .header-button')!;
 
+      // until the reset's rows have loaded: the rows still loading read as $0, which looks sorted
       header.click();
-      await vi.waitFor(() => expect(sales()).toEqual([...sales()].sort((a, b) => a - b)));
-      expect(sales()[0]).toBeLessThan(sales().at(-1)!);
+      await vi.waitFor(() => {
+        const values = sales();
+        expect(values[0]).toBeLessThan(values.at(-1)!);
+        expect(values).toEqual([...values].sort((a, b) => a - b));
+      });
 
       header.click();
-      await vi.waitFor(() => expect(sales()).toEqual([...sales()].sort((a, b) => b - a)));
-      expect(sales()[0]).toBeGreaterThan(sales().at(-1)!);
+      await vi.waitFor(() => {
+        const values = sales();
+        expect(values[0]).toBeGreaterThan(values.at(-1)!);
+        expect(values).toEqual([...values].sort((a, b) => b - a));
+      });
       fixture.destroy();
     });
 
