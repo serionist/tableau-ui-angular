@@ -33,8 +33,7 @@ published package.
 | 0.1.129            | Angular 20 apps | None after 0.2.0, with no backports: move the app to Angular 22 and update |
 | Before 0.1.129     |                 | None: update to 0.1.129 at least                                           |
 
-0.1.129 is the latest release until 0.2.0, the first for Angular 22, ships. Before 1.0, only the latest release gets
-fixes.
+0.2.0 is the first release for Angular 22. Before 1.0, only the latest release gets fixes.
 
 [advisory]: https://github.com/serionist/tableau-ui-angular/security/advisories/GHSA-pf6h-4mjg-cmrw
 [report]: https://github.com/serionist/tableau-ui-angular/security/advisories/new
