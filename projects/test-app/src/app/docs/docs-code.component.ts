@@ -52,9 +52,13 @@ export class DocsCodeComponent {
   constructor() {
     const block = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
     const destroyRef = inject(DestroyRef);
-    // in the browser only: Monaco loads once a block is near the screen
+    // in the browser only: Monaco loads once a block is near the screen. A command, a line of shell, is coloured once
+    // another block has loaded it, but never loads it itself: a page whose only code is a command doesn't fetch Monaco
     afterNextRender(() => {
-      destroyRef.onDestroy(this.monaco.watch(block));
+      const language = codeLanguage(this.$label());
+      if (language !== undefined && language !== 'shell') {
+        destroyRef.onDestroy(this.monaco.watch(block));
+      }
     });
   }
 

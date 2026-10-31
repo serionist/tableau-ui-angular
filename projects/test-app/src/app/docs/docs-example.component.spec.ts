@@ -104,7 +104,8 @@ describe('DocsExampleComponent', () => {
   });
 
   // Monaco loads for the tab in view, and colours the tabs not shown as well, so a tab the user picks is coloured
-  it('colours every source tab once Monaco loads, the ones not shown too, with their text as it was', async () => {
+  // Monaco loads in seconds the first time: the test gets more than browser mode's 15
+  it('colours every source tab once Monaco loads, the ones not shown too, with their text as it was', { timeout: 30_000 }, async () => {
     const host = await render(SAMPLE);
 
     await vi.waitFor(

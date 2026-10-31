@@ -9,8 +9,12 @@ type Monaco = typeof MonacoNamespace;
 interface AmdRequire {
   (modules: string[], onLoad: () => void, onError: (error: unknown) => void): void;
   config?: (config: { paths: Record<string, string> }) => void;
+  // A fresh module manager: one whose module failed keeps it failed, and answers each later require with that error
+  reset?: () => void;
 }
 type MonacoWindow = Window & { monaco?: Monaco; require?: AmdRequire };
+// A call an editor makes while the blocks' loader.js is on its way: the path of Monaco's files, or a module it needs
+type LoaderCall = { config: { paths: Record<string, string> } } | { modules: string[]; onLoad: () => void; onError: (error: unknown) => void };
 
 /** Where the site serves Monaco's AMD build, under its base href: the `monaco-edit` asset in angular.json */
 export const MONACO_VS_PATH = 'monaco-edit/vs';
@@ -27,7 +31,8 @@ async function loadMonaco(view: MonacoWindow, vs: string): Promise<Monaco> {
       resolve(view.monaco);
       return;
     }
-    const loadEditor = () => {
+    // installed: the blocks put the loader on the page, so a failed load is theirs to clear, as the editor clears its own
+    const loadEditor = (installed: boolean) => {
       const amdRequire = view.require;
       if (typeof amdRequire?.config !== 'function') {
         reject(new Error(`${vs}/loader.js defined no AMD loader`));
@@ -43,33 +48,87 @@ async function loadMonaco(view: MonacoWindow, vs: string): Promise<Monaco> {
             reject(new Error(`${vs}/editor/editor.main.js defined no monaco`));
           }
         },
-        reject,
+        (error: unknown) => {
+          // the loader keeps the failure, and the editor clears only a loader it put there: a fresh one lets the Monaco
+          // page's editor load Monaco again, after a dropped connection
+          if (installed) {
+            amdRequire.reset?.();
+          }
+          reject(new Error(`${vs}/editor/editor.main.js did not load`, { cause: error }));
+        },
       );
     };
     if (typeof view.require?.config === 'function') {
-      loadEditor();
+      loadEditor(false);
       return;
     }
     const src = `${vs}/loader.js`;
     // with no AMD loader yet, a loader script on the page has not run: the editor's, on its way, which this waits for,
     // or one that failed, after which the blocks stay plain
     const onItsWay = Array.from(view.document.scripts).find(element => element.src === src);
-    const script = onItsWay ?? view.document.createElement('script');
-    script.addEventListener('load', loadEditor);
-    script.addEventListener('error', () => {
-      reject(new Error(`${src} did not load`));
-    });
-    if (!onItsWay) {
-      script.src = src;
-      view.document.body.appendChild(script);
+    if (onItsWay) {
+      onItsWay.addEventListener('load', () => {
+        loadEditor(false);
+      });
+      onItsWay.addEventListener('error', () => {
+        reject(new Error(`${src} did not load`));
+      });
+      return;
     }
+
+    // Until this loader.js has run, a stand-in takes an editor's calls, so an editor that starts meanwhile, on the
+    // Monaco page, adds no loader.js of its own; the loader then takes them, in order, or they fail with it
+    const calls: LoaderCall[] = [];
+    const standIn: AmdRequire = Object.assign(
+      (modules: string[], onLoad: () => void, onError: (error: unknown) => void) => {
+        calls.push({ modules, onLoad, onError });
+      },
+      {
+        config: (config: { paths: Record<string, string> }) => {
+          calls.push({ config });
+        },
+      },
+    );
+    const fail = (error: Error) => {
+      if (view.require === standIn) {
+        delete view.require;
+      }
+      for (const call of calls) {
+        if ('onError' in call) {
+          call.onError(error);
+        }
+      }
+      reject(error);
+    };
+    const script = view.document.createElement('script');
+    script.addEventListener('load', () => {
+      const amdRequire = view.require;
+      if (amdRequire === standIn || amdRequire === undefined) {
+        fail(new Error(`${src} defined no AMD loader`));
+        return;
+      }
+      for (const call of calls) {
+        if ('config' in call) {
+          amdRequire.config?.(call.config);
+        } else {
+          amdRequire(call.modules, call.onLoad, call.onError);
+        }
+      }
+      loadEditor(true);
+    });
+    script.addEventListener('error', () => {
+      fail(new Error(`${src} did not load`));
+    });
+    script.src = src;
+    view.require = standIn;
+    view.document.body.appendChild(script);
   });
 }
 
 /**
  * Monaco for the docs site's code blocks, which colour their text with its tokens. It loads once for the page, in the
- * browser, when the first block comes within a screen of the viewport, so a page whose code is further down loads it
- * only when the reader gets there. If it fails to load, the blocks stay plain text.
+ * browser, when the first block that watches comes within a screen of the viewport, so a page whose code is further
+ * down loads it only when the reader gets there; a command doesn't watch. If it fails to load, the blocks stay plain.
  */
 @Injectable({ providedIn: 'root' })
 export class DocsMonacoService {

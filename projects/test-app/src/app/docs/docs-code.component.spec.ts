@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DOCUMENT, Injector, input } from '@angular/core';
 import type { ComponentFixture } from '@angular/core/testing';
 import { TestBed } from '@angular/core/testing';
 import { ClipboardService } from 'tableau-ui-angular/clipboard';
@@ -6,7 +6,7 @@ import { ThemeService } from 'tableau-ui-angular/theme';
 import { axeViolations } from '../../../../component-library/testing/axe';
 import { CODE_COLOURS } from './docs-code-colours';
 import { DocsCodeComponent } from './docs-code.component';
-import { DOCS_MONACO_VS, DocsMonacoService } from './docs-monaco.service';
+import { DOCS_MONACO_VS, DocsMonacoService, MONACO_VS_PATH } from './docs-monaco.service';
 
 // The globals Monaco's AMD build puts on the page, which the specs share: one spec file that loads it loads it for all
 const MONACO_GLOBALS = ['monaco', 'require', 'define'];
@@ -41,8 +41,99 @@ class BlocksComponent {
 const shown = (label: string) => BLOCKS[label].replace(/\n$/, '');
 const rgb = (colour: string) => `rgb(${[1, 3, 5].map(i => parseInt(colour.slice(i, i + 2), 16)).join(', ')})`;
 
-describe('DocsCodeComponent', () => {
+const loaderScripts = (document: Document) => document.querySelectorAll('script[src$="/vs/loader.js"]').length;
+
+// Monaco's AMD loader, as its loader.js defines it
+interface AmdRequire {
+  (modules: string[], onLoad: () => void, onError: (error: unknown) => void): void;
+  config?: (config: { paths: Record<string, string> }) => void;
+}
+interface FramePage {
+  frame: HTMLIFrameElement;
+  view: Window & { monaco?: unknown; require?: AmdRequire };
+  block: HTMLElement;
+  // what a script threw in the frame
+  errors: string[];
+  service: DocsMonacoService;
+  vs: string;
+}
+
+// A page of its own, in a frame no spec has loaded Monaco into: loader.js runs once a page, so a spec of how the
+// blocks and an editor share a fresh loader needs one. Its base is this page's, as the site has its base href, and
+// its service is the site's, for that page
+async function framePage(): Promise<FramePage> {
+  const frame = document.createElement('iframe');
+  frame.style.cssText = 'width: 600px; height: 300px; border: 0';
+  frame.srcdoc = `<!doctype html><html><head><base href="${location.origin}/"></head><body><pre>const code = 1;</pre></body></html>`;
+  await new Promise(resolve => {
+    frame.addEventListener('load', resolve, { once: true });
+    document.body.appendChild(frame);
+  });
+  const view = frame.contentWindow as FramePage['view'];
+  const errors: string[] = [];
+  view.addEventListener('error', event => errors.push(event.message));
+  const injector = Injector.create({
+    providers: [{ provide: DOCUMENT, useValue: view.document }, { provide: DOCS_MONACO_VS, useValue: MONACO_VS_PATH }, { provide: DocsMonacoService }],
+  });
+  return { frame, view, block: view.document.querySelector('pre')!, errors, service: injector.get(DocsMonacoService), vs: `${location.origin}/${MONACO_VS_PATH}` };
+}
+
+// The editor's load, as monaco-editor.component.ts makes it: Monaco on the page is used; with no require, it adds a
+// loader.js of its own; with a require that has config, it sets the path and asks for editor.main
+async function editorLoad({ view, vs }: FramePage): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    if (typeof view.monaco === 'object') {
+      resolve();
+      return;
+    }
+    const load = () => {
+      view.require!.config!({ paths: { vs } });
+      view.require!(['vs/editor/editor.main'], resolve, reject);
+    };
+    if (!view.require) {
+      const script = view.document.createElement('script');
+      script.src = `${vs}/loader.js`;
+      script.addEventListener('load', load);
+      script.addEventListener('error', reject);
+      view.document.body.appendChild(script);
+    } else if (typeof view.require.config === 'function') {
+      load();
+    } else {
+      reject(new Error('a require with no config, beside which the editor fetches loader.js'));
+    }
+  });
+}
+
+// Monaco loads in seconds the first time: a test that waits for it gets more than browser mode's 15
+describe('DocsCodeComponent', { timeout: 30_000 }, () => {
   let fixture: ComponentFixture<BlocksComponent>;
+
+  // Each observer the blocks make answers once, after its callback has run: a test waits for those answers, so what a
+  // callback started has started, and what none started never will
+  const NativeObserver = window.IntersectionObserver;
+  let answers: Promise<void>[] = [];
+  class AnsweringObserver extends NativeObserver {
+    constructor(callback: IntersectionObserverCallback, options?: IntersectionObserverInit) {
+      let answer = () => undefined as void;
+      answers.push(
+        new Promise<void>(resolve => {
+          answer = resolve;
+        }),
+      );
+      super((entries, observer) => {
+        callback(entries, observer);
+        answer();
+      }, options);
+    }
+  }
+  async function blocksObserved() {
+    await Promise.all(answers);
+    await Promise.resolve();
+  }
+  beforeEach(() => {
+    answers = [];
+    window.IntersectionObserver = AnsweringObserver;
+  });
 
   // The site's own monaco-edit/vs, which the test server serves as the build does, unless a spec gives another path
   async function render(labels: string[], options: { vs?: string; spacer?: string } = {}) {
@@ -76,6 +167,7 @@ describe('DocsCodeComponent', () => {
   }
 
   afterEach(() => {
+    window.IntersectionObserver = NativeObserver;
     vi.restoreAllMocks();
     for (const element of [document.documentElement, document.body]) {
       element.classList.remove('dark-mode');
@@ -153,16 +245,110 @@ describe('DocsCodeComponent', () => {
   });
 
   it('leaves a block further down than a screen plain, and loads Monaco once it comes near', async () => {
+    const scripts = loaderScripts(document);
     const host = await render(['TS'], { spacer: '300vh' });
-    // the observer's first answer, for a block that is not near
-    await new Promise(resolve => setTimeout(resolve, 200));
+    await blocksObserved();
 
     expect(TestBed.inject(DocsMonacoService).$monaco()).toBeUndefined();
+    expect(loaderScripts(document)).toBe(scripts);
     expect(coloured(block(host, 'TS'))).toEqual([]);
 
     block(host, 'TS').scrollIntoView();
     await whenColoured(block(host, 'TS'));
     expect(block(host, 'TS').textContent).toBe(shown('TS'));
+  });
+
+  // A page whose only code is a command, as the home page: a line of shell isn't worth Monaco's download
+  it('never loads Monaco for a command, and colours it once another block has', async () => {
+    const scripts = loaderScripts(document);
+    const host = await render(['command']);
+    await blocksObserved();
+
+    expect(TestBed.inject(DocsMonacoService).$monaco()).toBeUndefined();
+    expect(loaderScripts(document)).toBe(scripts);
+    expect(coloured(block(host, 'command'))).toEqual([]);
+
+    fixture.componentRef.setInput(
+      'blocks',
+      ['command', 'TS'].map(label => ({ label, source: BLOCKS[label] })),
+    );
+    await whenColoured(block(host, 'command'));
+    expect(colourOf(block(host, 'command'), 'npm')).toBe(rgb(CODE_COLOURS['type'].light));
+    expect(block(host, 'command').textContent).toBe(shown('command'));
+  });
+
+  // A dropped connection: the editor clears a failed load only from a loader it put on the page itself
+  it("clears a failed load from the loader it put on the page, so the Monaco page's editor loads Monaco again", async () => {
+    const page = await framePage();
+    try {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      const head = page.view.document.head;
+      const append = head.appendChild.bind(head);
+      let dropped = false;
+      vi.spyOn(head, 'appendChild').mockImplementation(<T extends Node>(node: T): T => {
+        const script = node as unknown as HTMLScriptElement;
+        if (!dropped && node.nodeName === 'SCRIPT' && script.src.endsWith('/editor/editor.main.js')) {
+          dropped = true;
+          script.src = script.src.replace('editor.main.js', 'editor.main.dropped.js');
+        }
+        return append(node);
+      });
+
+      page.service.watch(page.block);
+      await vi.waitFor(
+        () => {
+          expect(warn).toHaveBeenCalledTimes(1);
+        },
+        { timeout: 10000 },
+      );
+      expect(dropped).toBe(true);
+      expect(page.service.$monaco()).toBeUndefined();
+
+      await editorLoad(page);
+      expect(typeof page.view.monaco).toBe('object');
+      expect(page.errors).toEqual([]);
+    } finally {
+      page.frame.remove();
+    }
+  });
+
+  // A reader who opens the Monaco page while the blocks' loader.js still downloads: a second loader.js would throw
+  it("lets an editor that starts while the blocks' loader.js downloads use it, and add no loader.js of its own", async () => {
+    const page = await framePage();
+    try {
+      const body = page.view.document.body;
+      const append = body.appendChild.bind(body);
+      let held: Node | undefined;
+      vi.spyOn(body, 'appendChild').mockImplementation(<T extends Node>(node: T): T => {
+        if (held === undefined && node.nodeName === 'SCRIPT') {
+          held = node;
+          return node;
+        }
+        return append(node);
+      });
+
+      page.service.watch(page.block);
+      await vi.waitFor(
+        () => {
+          expect(held).toBeDefined();
+        },
+        { timeout: 10000 },
+      );
+      const editor = editorLoad(page);
+      append(held!);
+      await editor;
+      await vi.waitFor(
+        () => {
+          expect(page.service.$monaco()).toBeDefined();
+        },
+        { timeout: 20000 },
+      );
+
+      expect(loaderScripts(page.view.document)).toBe(1);
+      expect(page.errors).toEqual([]);
+    } finally {
+      page.frame.remove();
+    }
   });
 
   it("follows the site's mode: the colours change to dark and back, the text the same", async () => {
