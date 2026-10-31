@@ -6,6 +6,11 @@ import { projects } from '../../../../../angular.json';
 import { engines, scripts } from '../../../../../package.json';
 import addBentonSans from '../../../../../Add-Benton-Sans.md?source' with { loader: 'text' };
 import readme from '../../../../../README.md?source' with { loader: 'text' };
+// The README's images, which it names by their URLs on main
+import dashboardDarkPng from '../../../../../docs/assets/dashboard-dark.png?bytes' with { loader: 'binary' };
+import dashboardLightPng from '../../../../../docs/assets/dashboard-light.png?bytes' with { loader: 'binary' };
+import logoDarkSvg from '../../../../../docs/assets/logo-dark.svg?source' with { loader: 'text' };
+import logoLightSvg from '../../../../../docs/assets/logo-light.svg?source' with { loader: 'text' };
 import { assets, dest } from '../../../../component-library/ng-package.json';
 import monacoEditorTs from '../../../../component-library/monaco/src/monaco-editor.component.ts?source' with { loader: 'text' };
 import { peerDependencies } from '../../../../component-library/package.json';
@@ -209,6 +214,23 @@ describe('The docs pages', () => {
     }
     // a table cell escapes the range's pipes
     expect(readme).toContain(`\`${engines.node.replaceAll('|', '\\|')}\``);
+  });
+
+  // npm shows the README too, so its images are absolute URLs: the files in docs/assets, on main
+  it('shows the logo and the dashboard in the README, light and dark, from docs/assets', () => {
+    const assets = 'https://raw.githubusercontent.com/serionist/tableau-ui-angular/main/docs/assets/';
+    const images = Array.from(readme.matchAll(/(?:src|srcset)="([^"]+)"/g), match => match[1]);
+    expect(images).toEqual(['logo-dark.svg', 'logo-light.svg', 'dashboard-dark.png', 'dashboard-light.png'].map(file => assets + file));
+    // the logos draw the name as outlines, so no font is needed
+    for (const svg of [logoDarkSvg, logoLightSvg]) {
+      expect(svg).toMatch(/^<svg /);
+      expect(svg).not.toMatch(/<text|font-family|@font-face/);
+    }
+    // the screenshots: 1600 pixels wide, the width in a PNG's header, and under 300 kB
+    for (const png of [dashboardDarkPng, dashboardLightPng]) {
+      expect(new DataView(png.buffer, png.byteOffset).getUint32(16)).toBe(1600);
+      expect(png.byteLength).toBeLessThan(300_000);
+    }
   });
 
   it('runs each shipped script by its path in the package, on the getting started page and in Add-Benton-Sans.md', () => {

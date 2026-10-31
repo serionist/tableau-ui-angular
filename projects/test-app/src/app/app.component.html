@@ -5,11 +5,22 @@
         <div class="version">v{{ version }}</div>
       </tab-nav-bar-footer>
     }
-    @if (navBar.$expanded()) {
-      <tab-nav-bar-header>
-        <div class="title">Tableau UI for Angular</div>
-      </tab-nav-bar-header>
-    }
+    <!-- The project's mark, docs/assets/mark.svg, in the theme's blue; the site's name beside it while the bar is open -->
+    <tab-nav-bar-header>
+      <div class="brand">
+        <svg class="mark" viewBox="0 0 16 16" aria-hidden="true">
+          <rect class="tile" x="0" y="0" width="11" height="3" rx="0.5" />
+          <rect class="tile" x="12" y="0" width="4" height="7" rx="0.5" />
+          <rect class="tile" x="12" y="8" width="4" height="8" rx="0.5" />
+          <rect x="0" y="9" width="3" height="7" rx="0.5" />
+          <rect x="4" y="4" width="3" height="12" rx="0.5" />
+          <rect x="8" y="7" width="3" height="9" rx="0.5" />
+        </svg>
+        @if (navBar.$expanded()) {
+          <div class="title">Tableau UI for Angular</div>
+        }
+      </div>
+    </tab-nav-bar-header>
 
     <tab-nav-bar-button text="Home" link="/" [isActive]="(page$ | async) === 'home'">
       <tab-icon value="home" />
