@@ -328,6 +328,7 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
 
 ### Changed
 
+- The licence is MIT. 0.1.129 and earlier stay AGPL-3.0-only.
 - The menu button and the form group pipe no longer write debug logs to the console, which they did in production.
 - The package's description says it is not affiliated with or endorsed by Tableau or Salesforce, as the README now
   does. The README is short: install, a first button, the docs site, support, the licence.
