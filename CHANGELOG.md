@@ -41,6 +41,13 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   reads as before. `.set()` changes what the control shows and no longer emits `valueChange`, nor updates a
   `[(value)]` binding: set the bound value instead. Code that typed them as `ModelSignal` or subscribed to them types
   them as `WritableSignal` and listens to `valueChange`.
+- `tab-monaco-editor` emits `(valueChange)` only for the user's edits, never when a form writes its value (on init,
+  `setValue`, `patchValue`, `reset`). `MonacoEditorComponent.$value` is a writable signal, no longer a model; its
+  input's class member is `$valueInput`, and `valueChange` is an output of its own. `[(value)]` binds as before, and
+  `$value()` reads as before. `$value.set()` changes what the editor shows and no longer emits `valueChange`, nor
+  updates a `[(value)]` binding: set the bound value instead. Code that typed it as `ModelSignal` or subscribed to it
+  types it as `WritableSignal` and listens to `valueChange`; code that followed the form's value through
+  `(valueChange)` subscribes to the control's `valueChanges` instead.
 - `tab-checkbox` and `tab-radio-group` mark their control touched on blur, as Angular's own checkbox and radio buttons
   do, not when the user toggles or picks. An error shown once the control is touched now shows when the user leaves it,
   or on `markAllAsTouched()` at submit.
