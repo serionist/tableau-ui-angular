@@ -642,19 +642,23 @@ describe('The samples', () => {
       fixture.destroy();
     });
 
-    // A layout another version saved, or one edited by hand, must not break the page
+    // A layout another version saved, or one edited by hand, must not break the page: one wrong field at a time
     it.each([
       ['text that is not JSON', 'not a layout'],
       ['a list', '["gone"]'],
-      ['fields of the wrong type', '{"sort":null,"order":5,"hidden":null,"striped":"yes","pinnedLeftColumn":7}'],
+      ['a sort that is not a list', '{"sort":null}'],
+      ['an order that is not a list', '{"order":5}'],
+      ['hidden columns that are not a list', '{"hidden":"region"}'],
+      ['striped rows that are not a boolean', '{"striped":"yes"}'],
       ['columns the table does not have', '{"order":["gone"],"hidden":["gone"],"pinnedLeftColumn":"gone","sort":[{"property":"gone","direction":"asc"}]}'],
       ['every column hidden', JSON.stringify({ hidden: columns })],
-    ])('starts from the default layout when the saved one is %s', async (_, saved) => {
+    ])('starts from the default layout when the saved one has %s', async (_, saved) => {
       localStorage.setItem(layoutKey, saved);
       const { fixture, host, headers } = await render();
 
       expect(headers()).toEqual(columns);
       expect(host.querySelector('.column-header[data-column-id="date"] .sort-indicator tab-icon')!.textContent.trim()).toBe('arrow_downward');
+      expect(host.querySelector('.data-rows')!.classList).not.toContain('striped');
       fixture.destroy();
     });
 
