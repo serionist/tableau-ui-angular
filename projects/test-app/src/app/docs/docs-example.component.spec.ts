@@ -102,4 +102,18 @@ describe('DocsExampleComponent', () => {
     await new Promise(resolve => setTimeout(resolve));
     expect(snack).not.toHaveBeenCalled();
   });
+
+  // Monaco loads for the tab in view, and colours the tabs not shown as well, so a tab the user picks is coloured
+  it('colours every source tab once Monaco loads, the ones not shown too, with their text as it was', async () => {
+    const host = await render(SAMPLE);
+
+    await vi.waitFor(
+      () => {
+        expect(panes(host).map(pane => Array.from(pane.querySelectorAll<HTMLElement>('pre span')).some(span => span.style.color !== ''))).toEqual([true, true, true]);
+      },
+      { timeout: 20000 },
+    );
+    expect(panes(host).map(pane => pane.style.display)).toEqual(['block', 'none', 'none']);
+    expect(panes(host).map(pane => pane.querySelector('pre')?.textContent)).toEqual([SAMPLE.ts, SAMPLE.html, SAMPLE.scss].map(text => text?.replace(/\n$/, '')));
+  });
 });

@@ -1,3 +1,3 @@
-<!-- focusable, so a keyboard scrolls a long file; a group, so it has a name to announce -->
-<pre role="group" tabindex="0" [attr.aria-label]="$label()"><code>{{ $text() }}</code></pre>
+<!-- focusable, so a keyboard scrolls a long file; a group, so it has a name to announce. No space inside the pre, which would show -->
+<pre role="group" tabindex="0" [attr.aria-label]="$label()"><code>@for (run of $runs(); track $index) {<span [style.color]="run.colour">{{ run.text }}</span>}</code></pre>
 <button class="copy" color="plain" [attr.aria-label]="`Copy the ${$label()}`" (click)="copy()">Copy</button>
