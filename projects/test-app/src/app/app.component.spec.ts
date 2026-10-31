@@ -54,9 +54,11 @@ describe('AppComponent', () => {
   it('uses the mark as the favicon, with an .ico for a browser that takes no SVG', () => {
     expect(projects['test-app'].architect.build.options.assets).toContainEqual({ glob: 'mark.svg', input: 'docs/assets', output: '/' });
     const icons = new DOMParser().parseFromString(indexHtml, 'text/html').querySelectorAll('link[rel="icon"]');
-    expect(Array.from(icons, link => [link.getAttribute('href'), link.getAttribute('type')])).toEqual([
-      ['favicon.ico', null],
-      ['mark.svg', 'image/svg+xml'],
+    // The .ico names 32x32 alone: Chromium keeps an .ico whose sizes cover 16 and 32 over the SVG, so a dark browser
+    // would show the light .ico, never the mark's dark colours. The SVG names no size, so it fits every one.
+    expect(Array.from(icons, link => [link.getAttribute('href'), link.getAttribute('type'), link.getAttribute('sizes')])).toEqual([
+      ['favicon.ico', null, '32x32'],
+      ['mark.svg', 'image/svg+xml', null],
     ]);
   });
 
