@@ -9,7 +9,7 @@
         @for (v of $selectedValueTemplates(); track v.value; let last = $last) {
           <ng-container [ngTemplateOutlet]="v.template" [ngTemplateOutletContext]="$selectedValueTemplateContext()" />
           @if (!last) {
-            <span>,</span>
+            <span class="separator">, </span>
           }
         }
       }

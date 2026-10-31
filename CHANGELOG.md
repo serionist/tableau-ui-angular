@@ -6,6 +6,10 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
 
 ## Unreleased
 
+### Fixed
+
+- A multi select lists its picked values as "English, Hungarian", where it showed a space before each comma.
+
 ## 0.2.0 (2026-10-31)
 
 ### Breaking
