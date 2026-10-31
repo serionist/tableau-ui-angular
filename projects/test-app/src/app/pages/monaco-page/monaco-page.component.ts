@@ -1,32 +1,21 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { MonacoHelper } from '../../helpers/monaco.helper';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
-import { TableauUiMonacoModule } from 'tableau-ui-angular/monaco';
+import { peerDependencies } from '../../../../../component-library/package.json';
+import { DocsCodeComponent } from '../../docs/docs-code.component';
+import { DocsExampleComponent } from '../../docs/docs-example.component';
+import { MONACO_EXAMPLES } from './monaco.examples';
+import { MONACO_ASSETS } from './setup';
 
 @Component({
   selector: 'app-monaco-page',
-  imports: [TableauUiCommonModule, TableauUiMonacoModule],
-  standalone: true,
+  imports: [TableauUiCommonModule, DocsCodeComponent, DocsExampleComponent],
   templateUrl: './monaco-page.component.html',
-  styleUrl: './monaco-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MonacoPageComponent {
-  options = MonacoHelper.options();
+  protected readonly examples = MONACO_EXAMPLES;
 
-  angularjson = `{
-  "projects": {
-    "[my-project]": {
-      "architect": {
-        "build": {
-          "options": {
-            "assets": [
-              { "glob": "**/*", "input": "node_modules/monaco-editor/min", "output": "/monaco-edit" }
-            ]
-          }
-        }
-      }
-    }
-  }
-}`;
+  // The peer's range as the package declares it
+  protected readonly install = `npm install monaco-editor@${peerDependencies['monaco-editor']}`;
+  protected readonly assets = MONACO_ASSETS;
 }

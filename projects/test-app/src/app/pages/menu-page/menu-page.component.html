@@ -1,95 +1,111 @@
 <div class="page">
   <div class="title">
     <h1>Menu</h1>
-    <div class="text-light text-large">Menu component is a custom component that can be used to provide a floating menu to any HTML element</div>
+    <div class="text-light text-large">A menu opens from an element on a click: any content, or a list of items with submenus.</div>
   </div>
   <tab-separator />
   <div class="content">
     <div class="section">
-      <h3>Module</h3>
-      <p>To use the component, import one of the following modules into your module/component:</p>
+      <h3>Import</h3>
+      <p>
+        Import
+        <code>TableauUiMenuModule</code>
+        from
+        <code>tableau-ui-angular/menu</code>, and for a list of items
+        <code>TableauUiMenuButtonModule</code>
+        from
+        <code>tableau-ui-angular/menu-button</code>.
+      </p>
+    </div>
 
+    <div class="section">
+      <h3>A menu</h3>
+      <p>
+        A template marked
+        <code>menu</code>
+        holds the content, and
+        <code>[attachedMenu]</code>
+        opens it from an element on a click. The element says whether the menu is open, through
+        <code>aria-expanded</code>.
+      </p>
+      <table class="docs-table">
+        <thead>
+          <tr>
+            <th scope="col">Input or output</th>
+            <th scope="col">What it does</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>menuLocation</code></td>
+            <td><code>bottom</code>, the default, <code>top</code>, <code>left</code> or <code>right</code>; the menu moves to the other side when it would leave the window</td>
+          </tr>
+          <tr>
+            <td><code>width</code>, <code>minWidth</code>, <code>maxWidth</code></td>
+            <td>CSS widths, or <code>parentWidth</code> for the element's width</td>
+          </tr>
+          <tr>
+            <td><code>height</code>, <code>minHeight</code>, <code>maxHeight</code></td>
+            <td>CSS heights</td>
+          </tr>
+          <tr>
+            <td><code>closeOnBackdropClick</code>, <code>closeOnEscape</code></td>
+            <td>Close the menu on a click outside it, and on Escape; both on by default</td>
+          </tr>
+          <tr>
+            <td><code>(opened)</code>, <code>(closed)</code></td>
+            <td>Emitted as the menu opens and closes; <code>open()</code> and <code>close()</code> do it from code</td>
+          </tr>
+        </tbody>
+      </table>
+      <app-docs-example [example]="examples.simple" />
+    </div>
+
+    <div class="section">
+      <h3>Menu items</h3>
+      <p>
+        A template marked
+        <code>buttonMenu</code>
+        holds a
+        <code>tab-menu-button-group</code>
+        of
+        <code>tab-menu-button</code>
+        items. An item that holds items opens them as a submenu; any other emits
+        <code>(clicked)</code>
+        and closes the menu. The arrow keys move through the items, and Enter or Space runs one.
+      </p>
       <ul>
         <li>
-          <code>TableauUiMenuModule</code>
-          - for granular import
+          <code>color</code>
+          is
+          <code>secondary</code>, the default, <code>plain</code>,
+          <code>primary</code>
+          or
+          <code>error</code>.
         </li>
         <li>
-          <code>TableauUiAllModule</code>
-          - to import all components from this library
+          <code>[disabled]</code>
+          and
+          <code>[loading]</code>
+          keep an item from running.
         </li>
       </ul>
+      <app-docs-example [example]="examples.buttons" />
     </div>
-    <div class="section">
-      <h3>Examples</h3>
-      <p>The following examples demonstrate the usage of the menu component.</p>
-      <div class="spacer">
-        <button color="primary" [attachedMenu]="simpleMenu">Click me to show a simple menu</button>
 
-        <ng-template #simpleMenu="menu" menu>I have simple content</ng-template>
-        <button color="secondary" [attachedMenu]="menu1">Button menu</button>
-        <ng-template #menu1="buttonMenu" buttonMenu>
-          <tab-menu-button-group #group>
-            <tab-menu-button color="secondary" (clicked)="snack.openSnack('haha clicked', 3000)">haha</tab-menu-button>
-            <tab-menu-button color="primary" tab-menu-button (clicked)="snack.openSnack('This is a much longer text clicked', 3000)">
-              This is a much longer text
-              <tab-menu-button color="secondary" (clicked)="snack.openSnack('haha clicked', 3000)">haha</tab-menu-button>
-              <tab-menu-button color="primary" tab-menu-button (clicked)="snack.openSnack('This is a much longer text clicked', 3000)">This is a much longer text</tab-menu-button>
-              <tab-menu-button tab-menu-button color="secondary" [disabled]="true" (clicked)="snack.openSnack('Disabled clicked', 3000)">Disabled</tab-menu-button>
-              <tab-menu-button color="error" tab-menu-button (clicked)="snack.openSnack('stuff clicked', 3000)">
-                stuff
-                <tab-menu-button color="secondary">haha</tab-menu-button>
-                <tab-menu-button color="primary" tab-menu-button (clicked)="snack.openSnack('This is a much longer text clicked', 3000)">This is a much longer text</tab-menu-button>
-                <tab-menu-button tab-menu-button color="secondary" [disabled]="true" (clicked)="snack.openSnack('Disabled clicked', 3000)">Disabled</tab-menu-button>
-                <tab-menu-button color="error" tab-menu-button (clicked)="snack.openSnack('stuff clicked', 3000)">
-                  stuff
-                  <tab-menu-button color="secondary" (clicked)="snack.openSnack('haha clicked', 3000)">haha</tab-menu-button>
-                  <tab-menu-button color="primary" tab-menu-button (clicked)="snack.openSnack('This is a much longer text clicked', 3000)">This is a much longer text</tab-menu-button>
-                  <tab-menu-button tab-menu-button color="secondary" [disabled]="true" (clicked)="snack.openSnack('Disabled clicked', 3000)">Disabled</tab-menu-button>
-                  <tab-menu-button color="error" tab-menu-button (clicked)="snack.openSnack('stuff clicked', 3000)">stuff</tab-menu-button>
-                  <tab-menu-button color="primary" tab-menu-button [disabled]="true" (clicked)="snack.openSnack('Disabled primary clicked', 3000)">Disabled primary</tab-menu-button>
-                </tab-menu-button>
-                <tab-menu-button color="primary" tab-menu-button [disabled]="true" (clicked)="snack.openSnack('Disabled primary clicked', 3000)">Disabled primary</tab-menu-button>
-              </tab-menu-button>
-              <tab-menu-button color="primary" tab-menu-button [disabled]="true" (clicked)="snack.openSnack('Disabled primary clicked', 3000)">Disabled primary</tab-menu-button>
-            </tab-menu-button>
-            <tab-menu-button tab-menu-button color="secondary" [disabled]="true" (clicked)="snack.openSnack('Disabled clicked', 3000)">Disabled</tab-menu-button>
-            <tab-menu-button color="error" tab-menu-button (clicked)="snack.openSnack('stuff clicked', 3000)">stuff</tab-menu-button>
-            <tab-menu-button color="primary" tab-menu-button [disabled]="true" (clicked)="snack.openSnack('Disabled primary clicked', 3000)">Disabled primary</tab-menu-button>
-          </tab-menu-button-group>
-        </ng-template>
-        <button color="secondary" [attachedMenu]="menu2">Button menu that initially fits the width of the button</button>
-        <ng-template #menu2="buttonMenu" buttonMenu minWidth="parentWidth">
-          <tab-menu-button-group #group>
-            <tab-menu-button color="secondary" (clicked)="snack.openSnack('haha clicked', 3000)">haha</tab-menu-button>
-            <tab-menu-button color="primary" tab-menu-button (clicked)="snack.openSnack('This is a much longer text clicked', 3000)">
-              This is a much longer text
-              <tab-menu-button color="secondary" (clicked)="snack.openSnack('haha clicked', 3000)">haha</tab-menu-button>
-              <tab-menu-button color="primary" tab-menu-button (clicked)="snack.openSnack('This is a much longer text clicked', 3000)">This is a much longer text</tab-menu-button>
-              <tab-menu-button tab-menu-button color="secondary" [disabled]="true" (clicked)="snack.openSnack('Disabled clicked', 3000)">Disabled</tab-menu-button>
-              <tab-menu-button color="error" tab-menu-button (clicked)="snack.openSnack('stuff clicked', 3000)">
-                stuff
-                <tab-menu-button color="secondary">haha</tab-menu-button>
-                <tab-menu-button color="primary" tab-menu-button (clicked)="snack.openSnack('This is a much longer text clicked', 3000)">This is a much longer text</tab-menu-button>
-                <tab-menu-button tab-menu-button color="secondary" [disabled]="true" (clicked)="snack.openSnack('Disabled clicked', 3000)">Disabled</tab-menu-button>
-                <tab-menu-button color="error" tab-menu-button (clicked)="snack.openSnack('stuff clicked', 3000)">
-                  stuff
-                  <tab-menu-button color="secondary" (clicked)="snack.openSnack('haha clicked', 3000)">haha</tab-menu-button>
-                  <tab-menu-button color="primary" tab-menu-button (clicked)="snack.openSnack('This is a much longer text clicked', 3000)">This is a much longer text</tab-menu-button>
-                  <tab-menu-button tab-menu-button color="secondary" [disabled]="true" (clicked)="snack.openSnack('Disabled clicked', 3000)">Disabled</tab-menu-button>
-                  <tab-menu-button color="error" tab-menu-button (clicked)="snack.openSnack('stuff clicked', 3000)">stuff</tab-menu-button>
-                  <tab-menu-button color="primary" tab-menu-button [disabled]="true" (clicked)="snack.openSnack('Disabled primary clicked', 3000)">Disabled primary</tab-menu-button>
-                </tab-menu-button>
-                <tab-menu-button color="primary" tab-menu-button [disabled]="true" (clicked)="snack.openSnack('Disabled primary clicked', 3000)">Disabled primary</tab-menu-button>
-              </tab-menu-button>
-              <tab-menu-button color="primary" tab-menu-button [disabled]="true" (clicked)="snack.openSnack('Disabled primary clicked', 3000)">Disabled primary</tab-menu-button>
-            </tab-menu-button>
-            <tab-menu-button tab-menu-button color="secondary" [disabled]="true" (clicked)="snack.openSnack('Disabled clicked', 3000)">Disabled</tab-menu-button>
-            <tab-menu-button color="error" tab-menu-button (clicked)="snack.openSnack('stuff clicked', 3000)">stuff</tab-menu-button>
-            <tab-menu-button color="primary" tab-menu-button [disabled]="true" (clicked)="snack.openSnack('Disabled primary clicked', 3000)">Disabled primary</tab-menu-button>
-          </tab-menu-button-group>
-        </ng-template>
-      </div>
+    <div class="section">
+      <h3>Width</h3>
+      <p>
+        A
+        <code>buttonMenu</code>
+        is at least as wide as its element, as its
+        <code>minWidth</code>
+        is
+        <code>parentWidth</code>
+        by default. Another
+        <code>minWidth</code>, such as <code>fit-content</code>, lets it fit its items.
+      </p>
+      <app-docs-example [example]="examples.width" />
     </div>
   </div>
 </div>

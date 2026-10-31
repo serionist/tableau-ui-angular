@@ -1,0 +1,23 @@
+<button color="secondary" [attachedMenu]="actions">Actions</button>
+
+<!-- An item that holds items opens them as a submenu -->
+<ng-template #actions="buttonMenu" buttonMenu>
+  <tab-menu-button-group>
+    <tab-menu-button (clicked)="run('Open')">Open</tab-menu-button>
+    <tab-menu-button color="primary">
+      Share
+      <tab-menu-button (clicked)="run('Copy the link')">Copy the link</tab-menu-button>
+      <tab-menu-button color="primary" (clicked)="run('Send by email')">Send by email</tab-menu-button>
+      <tab-menu-button [disabled]="true" (clicked)="run('Post')">Post, not set up</tab-menu-button>
+      <tab-menu-button color="error">
+        Stop sharing
+        <tab-menu-button (clicked)="run('Stop sharing with the team')">With the team</tab-menu-button>
+        <tab-menu-button color="error" (clicked)="run('Stop sharing with everyone')">With everyone</tab-menu-button>
+        <tab-menu-button color="primary" [disabled]="true" (clicked)="run('Stop sharing with a group')">With a group, none yet</tab-menu-button>
+      </tab-menu-button>
+    </tab-menu-button>
+    <tab-menu-button [disabled]="true" (clicked)="run('Rename')">Rename</tab-menu-button>
+    <tab-menu-button color="primary" [disabled]="true" (clicked)="run('Publish')">Publish</tab-menu-button>
+    <tab-menu-button color="error" (clicked)="run('Delete')">Delete</tab-menu-button>
+  </tab-menu-button-group>
+</ng-template>

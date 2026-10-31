@@ -1,0 +1,5 @@
+<div class="buttons">
+  <button (click)="copy()">Copy a text</button>
+  <button (click)="read()">Read the clipboard</button>
+</div>
+<output>The clipboard holds: {{ $read() ?? 'not read yet' }}</output>

@@ -1,0 +1,31 @@
+<div class="fields">
+  <tab-form-field>
+    <tab-label>Start day</tab-label>
+    <input type="date" min="2000-01-01" max="2030-12-31" [formControl]="day | formControl" />
+    <tab-hint>Type a year after 2030 to see an error</tab-hint>
+    @if (day | formMeta | async | formHasError: 'required') {
+      <tab-error>Required</tab-error>
+    }
+    @if (day | formMeta | async | formHasError: 'minDate') {
+      <tab-error>The earliest day is 2000-01-01</tab-error>
+    }
+    @if (day | formMeta | async | formHasError: 'maxDate') {
+      <tab-error>The latest day is 2030-12-31</tab-error>
+    }
+  </tab-form-field>
+
+  <tab-form-field>
+    <tab-label>Meeting</tab-label>
+    <input type="datetime-local" min="2000-01-01T00:00" max="2030-12-31T23:59" [formControl]="meeting | formControl" />
+    <tab-hint>Shown in local time</tab-hint>
+    @if (meeting | formMeta | async | formHasError: 'required') {
+      <tab-error>Required</tab-error>
+    }
+    @if (meeting | formMeta | async | formHasError: 'minDate') {
+      <tab-error>The earliest time is 2000-01-01 00:00</tab-error>
+    }
+    @if (meeting | formMeta | async | formHasError: 'maxDate') {
+      <tab-error>The latest time is 2030-12-31 23:59</tab-error>
+    }
+  </tab-form-field>
+</div>

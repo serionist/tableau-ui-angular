@@ -1,18 +1,14 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { TableauUiButtonModule } from 'tableau-ui-angular/button';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
-import { TableauUiMenuModule } from 'tableau-ui-angular/menu';
-import { TableauUiMenuButtonModule } from 'tableau-ui-angular/menu-button';
-import { SnackService, TableauUiSnackModule } from 'tableau-ui-angular/snack';
+import { DocsExampleComponent } from '../../docs/docs-example.component';
+import { MENU_EXAMPLES } from './menu.examples';
 
 @Component({
   selector: 'app-menu-page',
-  imports: [TableauUiSnackModule, TableauUiCommonModule, TableauUiMenuModule, TableauUiButtonModule, TableauUiMenuButtonModule],
-  standalone: true,
+  imports: [TableauUiCommonModule, DocsExampleComponent],
   templateUrl: './menu-page.component.html',
-  styleUrl: './menu-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MenuPageComponent {
-  snack = inject(SnackService);
+  protected readonly examples = MENU_EXAMPLES;
 }

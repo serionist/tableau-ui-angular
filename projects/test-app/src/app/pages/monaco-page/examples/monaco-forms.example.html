@@ -1,0 +1,3 @@
+<tab-checkbox [value]="query.$meta().disabled" (valueChange)="setReadOnly($event)">Read-only, through a disabled control</tab-checkbox>
+<tab-monaco-editor class="editor" uri="file:///samples/query.sql" language="sql" [options]="options" [formControl]="query | formControl" />
+<output>The control is {{ query.$meta().dirty ? 'dirty' : 'pristine' }} and {{ query.$meta().touched ? 'touched' : 'untouched' }}.</output>

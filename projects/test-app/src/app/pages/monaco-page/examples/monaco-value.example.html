@@ -1,0 +1,3 @@
+<!-- Each editor on a page has a uri of its own: Monaco keeps a document per uri -->
+<tab-monaco-editor class="editor" uri="file:///samples/package.json" language="json" [options]="options" [(value)]="$json" />
+<output>{{ $valid() ? 'Valid JSON' : 'Not valid JSON' }}, {{ $json().length }} characters</output>

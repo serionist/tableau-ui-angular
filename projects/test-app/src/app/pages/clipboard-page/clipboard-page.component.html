@@ -1,54 +1,55 @@
 <div class="page">
   <div class="title">
     <h1>Clipboard</h1>
-    <div class="text-light text-large">The clipboard component is used to copy text to the clipboard.</div>
+    <div class="text-light text-large">The clipboard service copies text to the clipboard and reads it back.</div>
   </div>
   <tab-separator />
   <div class="content">
     <div class="section">
-      <h3>Module</h3>
-      <p>To use the component, import one of the following modules into your module/component:</p>
-
-      <ul>
-        <li>
-          <code>TableauUiClipboardModule</code>
-          - for granular import
-        </li>
-        <li>
-          <code>TableauUiAllModule</code>
-          - to import all components from this library
-        </li>
-      </ul>
-    </div>
-    <div class="section">
-      <h3>Usage</h3>
+      <h3>Import</h3>
       <p>
-        You can use the ClipboardService to read from and write to the Clipboard.
-        <br />
-        It automatically asks for browser permission to access the clipboard.
-        <br />
-        If browser permission is not given, it will either handle the error by showing an error snack or it will let you handle it.
+        Inject
+        <code>ClipboardService</code>
+        from
+        <code>tableau-ui-angular/clipboard</code>: one for the app, with no module to import.
       </p>
-      <p>It is recommended to play around browser permissions for this site and see how the below buttons behave</p>
     </div>
+
     <div class="section">
-      <h3>Example</h3>
+      <h3>Copy and read</h3>
+      <table class="docs-table">
+        <thead>
+          <tr>
+            <th scope="col">Method</th>
+            <th scope="col">What it does</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>writeText(text)</code></td>
+            <td>Copies the text</td>
+          </tr>
+          <tr>
+            <td><code>readText()</code></td>
+            <td>Resolves the clipboard's text; the browser may ask the user first</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        When the browser refuses, or has no clipboard, as on a page that isn't https or localhost, the call rejects with an error that says why, and the service shows it in an error snack. Block this
+        site's clipboard permission in the browser to see it.
+      </p>
+      <app-docs-example [example]="examples.basic" />
+    </div>
 
-      <div class="two spacer">
-        <div>
-          <button (click)="writeText('This was copied from the Tableau UI sample app.')">Copy text to clipboard</button>
-          <div>This copies a sample text to the clipboard and shows an alert snack if browser permission is not given.</div>
-        </div>
-
-        <div>
-          <button (click)="readText()">Read text from clipboard</button>
-          <div>
-            This reads the text from the clipboard and shows an alert with the text.
-            <br />
-            Shows an alert snack if browser permission is not given.
-          </div>
-        </div>
-      </div>
+    <div class="section">
+      <h3>Handle the error yourself</h3>
+      <p>
+        With
+        <code>false</code>
+        as the last argument, the service shows no snack, and the app says what went wrong.
+      </p>
+      <app-docs-example [example]="examples.errors" />
     </div>
   </div>
 </div>

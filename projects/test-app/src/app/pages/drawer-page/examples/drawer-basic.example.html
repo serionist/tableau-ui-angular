@@ -1,0 +1,27 @@
+<div class="toggles">
+  <tab-checkbox [(value)]="$leftOpen">The left drawer is open</tab-checkbox>
+  <tab-checkbox [(value)]="$rightOpen">The right drawer is open</tab-checkbox>
+</div>
+
+<!-- The container is as tall as its parent, unless it has a height of its own -->
+<tab-drawer-container class="report">
+  <!-- the content keeps twice the padding from the drawer -->
+  <tab-drawer width="15rem" padding="1rem" [isOpen]="$leftOpen()">
+    <h4>Filters</h4>
+    @for (line of lines; track line) {
+      <p>Filter {{ line }}</p>
+    }
+  </tab-drawer>
+
+  <tab-drawer position="right" width="15rem" [isOpen]="$rightOpen()">
+    <h4>Details</h4>
+    @for (line of lines; track line) {
+      <p>Detail {{ line }}</p>
+    }
+  </tab-drawer>
+
+  <h4>Report</h4>
+  @for (line of lines; track line) {
+    <p>Line {{ line }} of the report, which moves aside for each drawer that opens.</p>
+  }
+</tab-drawer-container>

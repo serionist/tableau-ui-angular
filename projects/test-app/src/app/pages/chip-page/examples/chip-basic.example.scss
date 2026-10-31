@@ -1,0 +1,12 @@
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+// A chip's size follows its font size
+.large {
+  font-size: 1.5rem;
+}
