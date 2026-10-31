@@ -21,7 +21,7 @@ Not affiliated with or endorsed by Tableau or Salesforce.
   <img src="https://raw.githubusercontent.com/serionist/tableau-ui-angular/main/docs/assets/dashboard-light.png" alt="A garden shop's sales dashboard, built with the library's components" />
 </picture>
 
-A dashboard built with the components, [running on the docs site](https://serionist.github.io/tableau-ui-angular/).
+A dashboard built with the components, [running on the docs site](https://serionist.github.io/tableau-ui-angular/dashboard).
 
 ## Install
 
