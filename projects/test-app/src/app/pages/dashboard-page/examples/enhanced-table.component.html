@@ -1,0 +1,157 @@
+@let table = $table();
+<div class="header-row">
+  <div class="group">
+    @if ($headerBeforeSelect(); as before) {
+      <ng-container [ngTemplateOutlet]="before.template" />
+    }
+    @if (table.$selectedRows().size > 0 && $selectMenuButtons(); as select) {
+      <button [attachedMenu]="select.menu">{{ $selectionButtonText() }}</button>
+    }
+    @if ($headerAfterSelect(); as after) {
+      <ng-container [ngTemplateOutlet]="after.template" />
+    }
+  </div>
+  <div class="group">
+    @if ($searchLabel(); as label) {
+      <tab-form-field class="search">
+        <input #searchField type="text" [placeholder]="label" [attr.aria-label]="label" [value]="$search()" (input)="searchInput($event)" />
+        <tab-prefix><tab-icon value="search" /></tab-prefix>
+        @if ($search()) {
+          <tab-suffix>
+            <button layout="small-icon" color="plain" (click)="clearSearch()"><tab-icon value="close" label="Clear the search" /></button>
+          </tab-suffix>
+        }
+      </tab-form-field>
+    }
+    @let filtersOpen = $drawerOpen() && $drawerMode() === 'filter';
+    <button
+      #filterToggle
+      class="toggle"
+      [attr.aria-expanded]="filtersOpen"
+      [kind]="filtersOpen ? 'raised' : 'stroked'"
+      [color]="filtersOpen ? 'primary' : 'secondary'"
+      (click)="toggleDrawer('filter')"
+    >
+      <tab-icon value="filter_alt" />
+      Filters
+      @if ($activeFilters() > 0) {
+        <span class="count">{{ $activeFilters() }}</span>
+      }
+    </button>
+    @let layoutOpen = $drawerOpen() && $drawerMode() === 'layout';
+    <button #layoutToggle class="toggle" [attr.aria-expanded]="layoutOpen" [kind]="layoutOpen ? 'raised' : 'stroked'" [color]="layoutOpen ? 'primary' : 'secondary'" (click)="toggleDrawer('layout')">
+      <tab-icon value="table" />
+      Layout & Sorting
+    </button>
+  </div>
+</div>
+
+<tab-drawer-container>
+  <!-- Closed, the drawer is inert, so the keyboard skips it; on a narrow table it covers the content, which is then inert.
+       Escape in it closes it -->
+  <tab-drawer position="right" padding="0" [width]="$wide() ? $drawerWidth() : '100%'" [isOpen]="$drawerOpen()">
+    <div #panel class="panel" [attr.inert]="$drawerOpen() ? null : ''">
+      @if ($drawerMode() === 'filter') {
+        <div class="panel-header">
+          <h3 #panelHeading tabindex="-1">Filters</h3>
+          <button color="error" [disabled]="$activeFilters() === 0" (click)="clearFilters.emit()">Clear all filters</button>
+        </div>
+        @if ($filterPanel(); as filters) {
+          <ng-container [ngTemplateOutlet]="filters.template" />
+        }
+      } @else {
+        <div class="panel-header">
+          <h3 #panelHeading tabindex="-1">Layout</h3>
+          <div class="group">
+            <button color="primary" [disabled]="!$layoutChanged()" (click)="saveLayout()">Save</button>
+            @if ($savedLayout()) {
+              <button color="error" [attachedMenu]="resetMenu">Reset</button>
+              <ng-template #resetMenu="buttonMenu" buttonMenu>
+                <tab-menu-button-group>
+                  <tab-menu-button (clicked)="resetLayout()">Reset to the saved layout</tab-menu-button>
+                  <tab-menu-button (clicked)="resetToDefault()">Reset to the default layout</tab-menu-button>
+                </tab-menu-button-group>
+              </ng-template>
+            } @else {
+              <button color="error" (click)="resetLayout()">Reset</button>
+            }
+          </div>
+        </div>
+
+        <tab-checkbox [(value)]="table.$striped">
+          Striped rows
+          <tab-hint>Easier to read across</tab-hint>
+        </tab-checkbox>
+
+        <div>
+          <h4>Columns</h4>
+          <tab-hint>Show, hide, move and pin the columns: drag a column by its handle, or focus the handle and press the up or down arrow. A click on a column's header sorts by it.</tab-hint>
+        </div>
+
+        <span class="hidden" [id]="`${id}-move`">Move</span>
+        <span class="hidden" [id]="`${id}-left`">Pin to the left:</span>
+        <span class="hidden" [id]="`${id}-right`">Pin to the right:</span>
+        <span class="hidden" aria-live="polite">{{ $moved() }}</span>
+        <div class="columns" cdkDropList (cdkDropListDropped)="columnDropped($event)">
+          @for (column of $orderedColumns(); track column.id; let index = $index) {
+            @let left = table.$pinnedLeftColumn() === column.id;
+            @let right = table.$pinnedRightColumn() === column.id;
+            @let name = `${id}-${column.id}`;
+            <!-- A pinned column keeps to its edge, so it doesn't move -->
+            <div class="column" cdkDrag cdkDragPreviewClass="column-preview" [cdkDragDisabled]="left || right">
+              <button
+                cdkDragHandle
+                color="plain"
+                layout="small-icon"
+                [attr.data-handle]="column.id"
+                [attr.aria-labelledby]="`${id}-move ${name}`"
+                [disabled]="left || right"
+                (keydown)="moveByKey($event, index)"
+              >
+                <tab-icon value="drag_indicator" />
+              </button>
+              <tab-checkbox [(value)]="column.$isShowing">
+                <span [id]="name"><ng-container *ngTemplateOutlet="column.template ?? null; context: { $implicit: column.headerContext }" /></span>
+              </tab-checkbox>
+              @let sort = table.$sort() | sortInfo: column.id : column.propertyName;
+              <span class="sort">
+                @if (sort) {
+                  <tab-icon [value]="sort.info.direction === 'asc' ? 'arrow_upward' : 'arrow_downward'" [label]="sort.info.direction === 'asc' ? 'Sorted ascending' : 'Sorted descending'" />
+                }
+              </span>
+              <button
+                class="pin left"
+                layout="icon"
+                [tooltip]="left ? 'Unpin from the left' : 'Pin to the left'"
+                [attr.aria-labelledby]="`${id}-left ${name}`"
+                [attr.aria-pressed]="left"
+                [disabled]="right"
+                [color]="left ? 'primary' : 'plain'"
+                [kind]="left ? 'raised' : 'stroked'"
+                (click)="togglePin('left', column.id)"
+              >
+                <tab-icon value="keep" />
+              </button>
+              <button
+                class="pin right"
+                layout="icon"
+                [tooltip]="right ? 'Unpin from the right' : 'Pin to the right'"
+                [attr.aria-labelledby]="`${id}-right ${name}`"
+                [attr.aria-pressed]="right"
+                [disabled]="left"
+                [color]="right ? 'primary' : 'plain'"
+                [kind]="right ? 'raised' : 'stroked'"
+                (click)="togglePin('right', column.id)"
+              >
+                <tab-icon value="keep" />
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </tab-drawer>
+  <div class="content" [attr.inert]="$drawerOpen() && !$wide() ? '' : null">
+    <ng-content />
+  </div>
+</tab-drawer-container>

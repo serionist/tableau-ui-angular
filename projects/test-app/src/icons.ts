@@ -46,5 +46,9 @@ export class Icons extends UsedIcons {
     'receipt',
     'rocket_launch',
     'dns',
+    'dashboard',
+    'filter_alt',
+    'drag_indicator',
+    'keep',
   ];
 }

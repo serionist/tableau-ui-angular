@@ -53,6 +53,8 @@ The docs site, [serionist.github.io/tableau-ui-angular](https://serionist.github
 components running.
 
 - Getting started: install, the modules, the styles, the fonts and the icons.
+- A dashboard of the components, its filters driving its KPIs, charts and virtual table, with its source; it moves its
+  table's columns with the Angular CDK.
 - Theming, server-side rendering, and a page per component.
 - Each component page shows its samples running, with their source under them and a copy button.
 
