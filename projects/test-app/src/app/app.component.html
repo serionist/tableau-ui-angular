@@ -19,6 +19,10 @@
       <tab-icon value="rocket_launch" />
     </tab-nav-bar-button>
 
+    <tab-nav-bar-button text="Dashboard" link="/dashboard" [isActive]="(page$ | async) === 'dashboard'">
+      <tab-icon value="dashboard" />
+    </tab-nav-bar-button>
+
     <tab-nav-bar-button text="Theming" link="/theming" [isActive]="(page$ | async) === 'theming'">
       <tab-icon value="palette" />
     </tab-nav-bar-button>

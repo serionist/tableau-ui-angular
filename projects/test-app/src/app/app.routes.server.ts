@@ -6,6 +6,7 @@ export const serverRoutes: ServerRoute[] = [
   // client, from the shell.
   { path: '', renderMode: RenderMode.Prerender },
   { path: 'getting-started', renderMode: RenderMode.Prerender },
+  { path: 'dashboard', renderMode: RenderMode.Prerender },
   { path: 'theming', renderMode: RenderMode.Prerender },
   { path: 'ssr', renderMode: RenderMode.Prerender },
   { path: 'local-development', renderMode: RenderMode.Prerender },

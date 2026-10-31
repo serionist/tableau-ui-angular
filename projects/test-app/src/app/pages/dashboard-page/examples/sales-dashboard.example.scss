@@ -1,0 +1,300 @@
+// The theme's custom properties only, so the dashboard follows light and dark; figures line up in columns
+:host {
+  display: block;
+  font-variant-numeric: tabular-nums;
+}
+
+.dashboard {
+  // The marks' colour: the theme's blue, and on dark its brighter shade, which keeps them 3:1 against the background
+  --mark: var(--twc-color-primary);
+
+  border: 1px solid var(--twc-color-border-light);
+  background: var(--twc-color-base);
+
+  &.dark {
+    --mark: var(--twc-color-primary-dark);
+  }
+}
+
+.heading {
+  display: grid;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--twc-color-border-light);
+}
+
+h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.subtitle,
+.label,
+.note,
+.axis,
+.months,
+.units,
+.status,
+legend,
+dt {
+  color: var(--twc-color-text-light);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0.5rem 1rem;
+  list-style: none;
+  border-bottom: 1px solid var(--twc-color-border-light);
+}
+
+// The frame's drawer and content scroll on their own, in the height it gets
+app-enhanced-table {
+  height: 48rem;
+}
+
+// The filters, which show in the frame's drawer
+fieldset {
+  display: grid;
+  gap: 0.5rem;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+legend {
+  padding: 0 0 0.25rem;
+}
+
+tab-button-toggle {
+  width: 100%;
+}
+
+.main {
+  padding: 1rem;
+  container-type: inline-size;
+}
+
+// The KPIs, each with its month by month line
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  border-top: 1px solid var(--twc-color-border-light);
+  border-left: 1px solid var(--twc-color-border-light);
+}
+
+.kpi {
+  display: grid;
+  padding: 0.75rem 1rem;
+  border-right: 1px solid var(--twc-color-border-light);
+  border-bottom: 1px solid var(--twc-color-border-light);
+}
+
+.value {
+  font-size: 2.25rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+// Two to a row on a narrow dashboard
+@container (width < 30rem) {
+  .kpis {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .kpi {
+    padding: 0.5rem;
+  }
+
+  .value {
+    font-size: 1.5rem;
+  }
+}
+
+.spark {
+  width: 100%;
+  height: 2rem;
+  margin: 0.25rem 0;
+
+  polyline {
+    fill: none;
+    stroke: var(--mark);
+    stroke-width: 1.5;
+    vector-effect: non-scaling-stroke;
+  }
+}
+
+.loss {
+  color: var(--twc-color-error);
+}
+
+.sheets {
+  margin-top: 1rem;
+}
+
+.overview {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.5rem 2rem;
+  padding-top: 1rem;
+}
+
+@container (width >= 44rem) {
+  .overview {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  }
+}
+
+figure {
+  margin: 0;
+}
+
+figcaption {
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+}
+
+// The columns' box, with the axis' labels left of it
+.plot {
+  position: relative;
+  height: 20rem;
+  margin-left: 4rem;
+  border-bottom: 1px solid var(--twc-color-border);
+
+  svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  rect {
+    fill: var(--mark);
+  }
+
+  line {
+    vector-effect: non-scaling-stroke;
+  }
+}
+
+.grid {
+  stroke: var(--twc-color-border-light);
+}
+
+.average {
+  stroke: var(--twc-color-text);
+  stroke-dasharray: 4 3;
+}
+
+.axis {
+  position: absolute;
+  top: 0;
+  right: calc(100% + 0.5rem);
+  transform: translateY(-50%);
+
+  &.half {
+    top: 50%;
+  }
+}
+
+.average-label {
+  position: absolute;
+  right: 0;
+  padding: 0 0.25rem;
+  background: var(--twc-color-base);
+}
+
+.months {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  margin-left: 4rem;
+  text-align: center;
+}
+
+@container (width < 28rem) {
+  .months span:nth-child(even) {
+    visibility: hidden;
+  }
+}
+
+// A label, the bar, and its value; the products also say how many sold
+.bars {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.5rem 0.75rem;
+  align-items: center;
+
+  &.products {
+    grid-template-columns: minmax(6rem, auto) auto 1fr auto;
+    padding: 0.5rem 1rem 1rem;
+  }
+
+  svg {
+    width: 100%;
+    height: 1rem;
+  }
+
+  rect {
+    fill: var(--mark);
+
+    &.loss {
+      fill: var(--twc-color-error);
+    }
+  }
+}
+
+.side {
+  display: grid;
+  gap: 2rem;
+  align-content: start;
+}
+
+.number {
+  text-align: right;
+}
+
+.order {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+// The table draws only the rows that show, in the height it gets; it is at least 300px tall
+tab-table {
+  height: 26rem;
+}
+
+.status {
+  margin: 0.5rem 0 0;
+}
+
+.empty {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+}
+
+tab-expansion-panel-title {
+  display: flex;
+  flex: 1;
+  justify-content: space-between;
+  font-weight: 600;
+}
+
+// A row's details, in its dialog
+.details {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.25rem 1rem;
+  margin: 0;
+  padding: 1rem;
+
+  dd {
+    margin: 0;
+  }
+}

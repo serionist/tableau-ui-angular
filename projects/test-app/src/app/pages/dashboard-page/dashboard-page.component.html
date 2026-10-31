@@ -1,0 +1,99 @@
+<div class="page">
+  <div class="title">
+    <h1>Dashboard</h1>
+    <div class="text-light text-large">A Tableau-style sales dashboard, made only of the library's components, with its source below it.</div>
+  </div>
+  <tab-separator />
+  <div class="content">
+    <div class="section">
+      <ul>
+        <li>
+          Its frame is the enhanced table, below: a header row with an Actions menu, the selection button, a product search, Filters with the number in use, and Layout & Sorting, which open a drawer.
+        </li>
+        <li>
+          The filters: a multi select, a single select, a button toggle, two date pickers, a customer search with suggestions and two checkboxes. Each filter in use shows as a chip, which clears it.
+        </li>
+        <li>The KPIs, the charts, the orders and the products follow the filters and the search. A KPI's tooltip says how it is counted.</li>
+        <li>
+          The Orders tab holds 3,000 orders, made in the code, in the virtual table: a header sorts them, the checkboxes select them, and the button by an order's number opens its details in a dialog.
+          The Products tab has a panel per category.
+        </li>
+        <li>
+          The selection button's menu copies the selected orders to the clipboard or clears the selection; the Actions menu copies every order the filters keep, or resets the filters. A copy and a
+          reset say so in a snack.
+        </li>
+        <li>The charts are SVG in the template, since the library has no charts; the page adds no chart library.</li>
+        <li>On a narrow dashboard, the drawer covers it while it shows.</li>
+      </ul>
+      <app-docs-example [example]="examples.dashboard" />
+    </div>
+
+    <div class="section">
+      <h3>The enhanced table</h3>
+      <p>
+        <code>app-enhanced-table</code>
+        frames a table, which it finds anywhere in its content. Layout & Sorting stripes the rows, and shows, hides, moves and pins the columns; Save keeps the layout and the sort in the viewer's
+        browser, and Reset goes back to the saved layout or the default. A column moves by its handle, dragged, or focused and moved with the up and down arrows.
+      </p>
+      <table class="docs-table">
+        <thead>
+          <tr>
+            <th scope="col">Input, output or template</th>
+            <th scope="col">What it does</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>uniqueId</code></td>
+            <td>Required. Names the layout a viewer saves</td>
+          </tr>
+          <tr>
+            <td><code>selectionButtonText</code></td>
+            <td>The selection button's text; the button shows while rows are selected, when there is a selection menu</td>
+          </tr>
+          <tr>
+            <td><code>searchLabel</code>, <code>[(search)]</code></td>
+            <td>The search field's name, without which there is none, and its text</td>
+          </tr>
+          <tr>
+            <td><code>activeFilters</code>, <code>(clearFilters)</code></td>
+            <td>The number the Filters button shows, and Clear all filters</td>
+          </tr>
+          <tr>
+            <td><code>drawerWidth</code></td>
+            <td>The drawer's width beside the content, <code>20rem</code> by default</td>
+          </tr>
+          <tr>
+            <td><code>(drawerOpened)</code></td>
+            <td>The panel the drawer opened on, <code>filter</code> or <code>layout</code></td>
+          </tr>
+          <tr>
+            <td><code>ng-template headerBeforeSelect</code>, <code>headerAfterSelect</code></td>
+            <td>The header row's content left and right of the selection button</td>
+          </tr>
+          <tr>
+            <td><code>ng-template buttonMenu selectMenuButtons</code></td>
+            <td>The selection button's menu</td>
+          </tr>
+          <tr>
+            <td><code>ng-template filterPanel</code></td>
+            <td>The filters in the drawer</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        It moves columns with
+        <code>&#64;angular/cdk/drag-drop</code>, so an app that copies it installs the package at its Angular version:
+      </p>
+      <app-docs-code label="command" [source]="cdkInstall" />
+      <tab-group headerPadding="0.25rem 1rem">
+        @for (file of tableFiles; track file.label) {
+          <tab [key]="file.label">
+            <span tab-header>{{ file.label }}</span>
+            <app-docs-code [label]="file.label" [source]="file.source" />
+          </tab>
+        }
+      </tab-group>
+    </div>
+  </div>
+</div>

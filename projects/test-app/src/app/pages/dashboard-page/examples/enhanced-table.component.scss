@@ -1,0 +1,124 @@
+// The header row, then the drawer container, which takes the height left
+:host {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.header-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--twc-color-border-light);
+}
+
+.group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.search {
+  width: 14rem;
+  max-width: 100%;
+}
+
+.toggle tab-icon {
+  margin-right: 0.25rem;
+}
+
+.count {
+  margin-left: 0.25rem;
+  padding: 0 0.4rem;
+  border-radius: 1rem;
+  background: var(--twc-color-primary);
+  color: var(--twc-color-on-primary);
+}
+
+// On the raised button of the open drawer, the colours turn round
+.raised .count {
+  background: var(--twc-color-on-primary);
+  color: var(--twc-color-primary);
+}
+
+.content {
+  height: 100%;
+}
+
+.panel {
+  display: grid;
+  gap: 1rem;
+  padding: 0.75rem 1rem 1.5rem;
+}
+
+.panel-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+h3,
+h4 {
+  margin: 0;
+  line-height: 1.3;
+}
+
+.columns {
+  display: grid;
+  gap: 0.25rem;
+}
+
+// The handle, the name, the sort, and the two pins
+.column,
+.column-preview {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto auto;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--twc-color-base);
+}
+
+.column-preview {
+  box-shadow: 0 0.25rem 0.75rem var(--twc-modal-color-box-shadow);
+}
+
+[cdkDragHandle]:not([disabled]) {
+  cursor: grab;
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.3;
+}
+
+.cdk-drag-animating,
+.cdk-drop-list-dragging .column:not(.cdk-drag-placeholder) {
+  transition: transform 0.25s ease;
+}
+
+.sort {
+  min-width: 1.5rem;
+  color: var(--twc-color-text-light);
+}
+
+// The pin turns to point at its side
+.pin.left tab-icon {
+  transform: rotate(270deg);
+}
+
+.pin.right tab-icon {
+  transform: rotate(90deg);
+}
+
+// Read by screen readers only
+.hidden {
+  position: absolute;
+  width: 1em;
+  height: 1em;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
