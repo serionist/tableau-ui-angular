@@ -8,7 +8,8 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
 
 ### Fixed
 
-- A multi select lists its picked values as "English, Hungarian", where it showed a space before each comma.
+- A multi select lists its picked values as "English, Hungarian", where it showed a space before each comma. An
+  option's icon in a select's shown value sits 0.25rem from its text, as in the dropdown, where a space widened the gap.
 
 ## 0.2.0 (2026-10-31)
 
