@@ -6,6 +6,8 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
 
 ## Unreleased
 
+## 0.2.0 (2026-10-31)
+
 ### Breaking
 
 - Angular 22: the peers are `@angular/*` `^22.0.0`. Update the app to Angular 22 (`ng update`), or stay on 0.1.129,
