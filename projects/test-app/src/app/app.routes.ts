@@ -17,6 +17,14 @@ export const routes: Routes = [
     },
   },
   {
+    path: 'dashboard',
+    loadComponent: async () => import('./pages/dashboard-page/dashboard-page.component').then(m => m.DashboardPageComponent),
+    title: 'Dashboard',
+    data: {
+      page: 'dashboard',
+    },
+  },
+  {
     path: 'theming',
     loadComponent: async () => import('./pages/theming-page/theming-page.component').then(m => m.ThemingPageComponent),
     title: 'Theming',
