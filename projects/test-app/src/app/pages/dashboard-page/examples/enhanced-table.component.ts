@@ -230,8 +230,12 @@ export class EnhancedTableComponent<TData> implements AfterContentInit {
     this.focusToggle(this.$drawerMode());
   }
 
+  // Escape in the panel closes it, unless a select's options or a menu over it are open: Escape closes those first
   @HostListener('keydown.escape', ['$event'])
   protected escape(event: Event) {
+    if (this.dialogs.dialogStack.some(entry => entry.args.closeOnEscape === true)) {
+      return;
+    }
     if (this.$drawerOpen() && event.target instanceof Node && this.host.querySelector('.panel')?.contains(event.target) === true) {
       this.closeDrawer();
     }

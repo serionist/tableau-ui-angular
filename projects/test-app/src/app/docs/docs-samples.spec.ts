@@ -700,7 +700,16 @@ describe('The samples', () => {
       await vi.waitFor(() => expect(document.activeElement!.textContent.trim()).toBe('Filters'));
       expect(panel.contains(document.activeElement)).toBe(true);
 
-      document.activeElement!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      // Escape with the region's options open closes them, and leaves the drawer open
+      const regions = host.querySelector<HTMLElement>('tab-multi-select')!;
+      regions.click();
+      await fixture.whenStable();
+      regions.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      await fixture.whenStable();
+      expect(document.querySelector('[role="listbox"]')).toBeNull();
+      expect(button('Filters').getAttribute('aria-expanded')).toBe('true');
+
+      panel.querySelector('h3')!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
       await fixture.whenStable();
       expect(button('Filters').getAttribute('aria-expanded')).toBe('false');
       expect(document.activeElement).toBe(button('Filters'));
