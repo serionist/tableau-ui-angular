@@ -22,6 +22,7 @@ import outlinedScss from '../../../../../node_modules/material-symbols/outlined.
 import roundedScss from '../../../../../node_modules/material-symbols/rounded.scss?source' with { loader: 'text' };
 import sharpScss from '../../../../../node_modules/material-symbols/sharp.scss?source' with { loader: 'text' };
 import stylesScss from '../../styles.scss?source' with { loader: 'text' };
+import { routes } from '../app.routes';
 import { BUTTONS_EXAMPLES } from '../pages/buttons-page/buttons.examples';
 import { ButtonsPageComponent } from '../pages/buttons-page/buttons-page.component';
 import { CHECKBOX_EXAMPLES } from '../pages/checkbox-page/checkbox.examples';
@@ -84,8 +85,10 @@ import { TreePageComponent } from '../pages/tree-page/tree-page.component';
 import { VIRTUALIZE_EXAMPLES } from '../pages/virtualize-page/virtualize.examples';
 import { VirtualizePageComponent } from '../pages/virtualize-page/virtualize-page.component';
 import { DocsCodeComponent } from './docs-code.component';
+import { codeLanguage } from './docs-code-colours';
 import type { DocsExample } from './docs-example';
 import { DocsExampleComponent } from './docs-example.component';
+import { MONACO_VS_PATH } from './docs-monaco.service';
 
 // Each page with samples, which show their source, and the list of its samples. A new page with samples joins it
 const PAGES: { name: string; page: Type<unknown>; examples: Record<string, DocsExample> }[] = [
@@ -221,11 +224,30 @@ describe('The docs pages', () => {
     expect(addBentonSans).toContain(FONTS_COMMAND);
   });
 
-  it("serves Monaco's files where the editor loads them, with the angular.json entry the Monaco page shows", () => {
+  it("serves Monaco's files where the editor and the code blocks load them, with the angular.json entry the Monaco page shows", () => {
     const asset = JSON.parse(MONACO_ASSET) as { glob: string; input: string; output: string };
     expect(asset.input).toBe('node_modules/monaco-editor/min');
     expect(monacoEditorTs).toContain(`+ '${asset.output.replace(/^\//, '')}/vs'`);
+    expect(MONACO_VS_PATH).toBe(`${asset.output.replace(/^\//, '')}/vs`);
     expect(projects['test-app'].architect.build.options.assets).toContainEqual(asset);
+  });
+
+  // A label that names no language leaves its block plain text
+  it('labels every code block on every page with a language Monaco colours it in', async () => {
+    TestBed.configureTestingModule({ providers: [provideRouter([])] });
+    const labels = new Set<string>();
+    for (const route of routes) {
+      const page = (await (route.loadComponent as () => Promise<Type<unknown>>)()) as Type<unknown>;
+      const fixture = TestBed.createComponent(page);
+      await fixture.whenStable();
+      for (const pre of (fixture.nativeElement as HTMLElement).querySelectorAll('app-docs-code pre')) {
+        labels.add(pre.getAttribute('aria-label') ?? '');
+      }
+      fixture.destroy();
+    }
+
+    expect(labels.size).toBeGreaterThan(5);
+    expect([...labels].filter(label => codeLanguage(label) === undefined)).toEqual([]);
   });
 
   it('runs the used-icons script on the icons page as on the getting started page and the site, with what the script reads', () => {
