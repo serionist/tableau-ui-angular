@@ -316,7 +316,7 @@ export class SalesDashboardExampleComponent {
     this.snacks.openSnack(`Filters reset: all ${this.orderCount} orders`, 3000, 'info');
   }
 
-  // The layout is the Orders table's, so its tab shows while the layout panel is open
+  // The layout is the Orders table's, so its tab shows when the layout panel opens
   protected drawerOpened(panel: 'filter' | 'layout') {
     if (panel === 'layout') {
       this.tabs().selectTabByKey('orders');

@@ -225,7 +225,7 @@ export class EnhancedTableComponent<TData> implements AfterContentInit {
     return layout !== undefined && !sameLayout(layout, this.currentLayout());
   });
 
-  // Never on the server; a browser that blocks storage, or a value that isn't a layout, leaves the default
+  // Never on the server; a browser that blocks storage, or text that isn't JSON, leaves the default
   private readSavedLayout(defaults: LayoutState): LayoutState | undefined {
     if (!this.isBrowser) {
       return undefined;
