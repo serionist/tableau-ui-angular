@@ -5,10 +5,11 @@
         <div class="version">v{{ version }}</div>
       </tab-nav-bar-footer>
     }
-    <tab-nav-bar-header>
-      <!-- eslint-disable-next-line @angular-eslint/template/prefer-ngsrc-->
-      <img class="logo" src="tableau_ui_logo.svg" alt="Tableau UI Logo" />
-    </tab-nav-bar-header>
+    @if (navBar.$expanded()) {
+      <tab-nav-bar-header>
+        <div class="title">Tableau UI for Angular</div>
+      </tab-nav-bar-header>
+    }
 
     <tab-nav-bar-button text="Home" link="/" [isActive]="(page$ | async) === 'home'">
       <tab-icon value="home" />

@@ -14,8 +14,7 @@ people and agents alike, and [REVIEW.md](REVIEW.md) what a review checks.
   every selector, input, output and export, the SCSS paths, the shipped scripts, the peer range (AGENTS.md, One-way
   doors).
 - Report a security issue privately, never in an issue: see [SECURITY.md](SECURITY.md).
-- Opening a pull request means you license your contribution under the repository's licence, AGPL-3.0 today
-  ([LICENSE](LICENSE)), and under MIT, which the project means to move to.
+- Opening a pull request means you license your contribution under the repository's licence, MIT ([LICENSE](LICENSE)).
 
 ## Build and test
 
