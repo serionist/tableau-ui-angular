@@ -13,8 +13,8 @@
 # A version with a pre-release part (0.3.0-rc.1) goes under npm's next tag and makes a GitHub pre-release.
 #
 # No secret is used. npm trades the publish job's OIDC token for a short-lived one: its trusted publisher for the
-# package names this repository, release.yml and the npm environment, so nothing else can publish. Each job states the
-# permissions it needs, and none caches dependencies, since what they build is published.
+# package names this repository, release.yml and the npm environment, so no other workflow or job gets one. Each job
+# states the permissions it needs, and none caches dependencies, since what they build is published.
 name: Release
 
 on:
