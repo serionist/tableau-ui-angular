@@ -1,0 +1,209 @@
+# The release: a tag v<version> pushed on a commit of main publishes tableau-ui-angular@<version> to npm, through
+# trusted publishing with provenance, and creates the GitHub release with the package attached and the version's
+# CHANGELOG.md section as its notes. docs/releasing.md is the runbook.
+#
+# Nothing is published until three jobs pass and the maintainer approves the npm environment's deployment:
+# - Check the tag (tools/release.mjs check): the commit is on main, the tag is v and projects/component-library/
+#   package.json's version, CHANGELOG.md has the version's dated section, and npm has no such version yet.
+# - CI passed (tools/release.mjs ci): a ci.yml run on main for the commit concluded success. It covers what this
+#   workflow doesn't run: the Node 22 leg, and Windows' API compare, pack and shipped scripts. A run still going, as
+#   when the tag follows the merge at once, is waited for.
+# - Build: the gate's full lane on the tagged commit, then the library built and packed. That tarball is what npm
+#   gets and the release attaches.
+# A version with a pre-release part (0.3.0-rc.1) goes under npm's next tag and makes a GitHub pre-release.
+#
+# No secret is used. npm trades the publish job's OIDC token for a short-lived one: its trusted publisher for the
+# package names this repository, release.yml and the npm environment, so no other workflow or job gets one. Each job
+# states the permissions it needs, and none caches dependencies, since what they build is published.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions: {}
+
+concurrency:
+  # One release at a time, never cancelled once started, so two tags never publish at once. GitHub keeps one waiting
+  # run per group: a third tag pushed meanwhile cancels the waiting one, which is then re-run from its page.
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  checks:
+    name: Check the tag
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read # the checkout
+    outputs:
+      version: ${{ steps.check.outputs.version }}
+      dist-tag: ${{ steps.check.outputs.dist-tag }}
+      prerelease: ${{ steps.check.outputs.prerelease }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Every branch, origin/main among them, for the check that the tagged commit is on it
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - name: On main, the package's version, dated in CHANGELOG.md, not on npm yet
+        id: check
+        run: node tools/release.mjs check "$GITHUB_REF_NAME"
+
+  ci:
+    name: CI passed on the tagged commit
+    needs: checks
+    runs-on: ubuntu-latest
+    # The wait for a running ci.yml is 45 minutes, its own legs' timeouts with room for the queue.
+    timeout-minutes: 55
+    permissions:
+      actions: read # ci.yml's runs
+      contents: read # the checkout
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: tools/release.mjs
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          package-manager-cache: false
+      # A failed or cancelled run stops the release: re-run it from its page, then re-run this job.
+      - name: A ci.yml run on main for this commit concluded success
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node tools/release.mjs ci "$GITHUB_SHA"
+
+  build:
+    name: Build, test, pack
+    needs: checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read # the checkout
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The attribution and secret checks read the tagged commit against its parent.
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - run: npm ci
+      - name: Install Chromium and Firefox for the tests
+        run: npx playwright install --with-deps chromium firefox
+      - name: Install gitleaks
+        run: |
+          curl -sSfL -o "$RUNNER_TEMP/gitleaks.tgz" \
+            https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz
+          echo "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  $RUNNER_TEMP/gitleaks.tgz" | sha256sum -c -
+          sudo tar -xzf "$RUNNER_TEMP/gitleaks.tgz" -C /usr/local/bin gitleaks
+      # As ci.yml runs it on a push to main: the commit against its parent, so its coverage floor is the one before it,
+      # not that of a main that has moved on since the tag's commit. GATE_REQUIRE_GITLEAKS makes a missing gitleaks a
+      # failure.
+      - name: The gate's full lane, on the tagged commit
+        env:
+          GATE_REQUIRE_GITLEAKS: '1'
+        run: npm run gate -- full --base HEAD~1
+      - name: Build the library
+        run: npm run build:component-library
+      - name: List what the package holds
+        working-directory: dist/component-library
+        run: npm pack --dry-run --ignore-scripts
+      - name: Pack it
+        working-directory: dist/component-library
+        env:
+          VERSION: ${{ needs.checks.outputs.version }}
+        run: |
+          set -euo pipefail
+          tarball=$(npm pack --ignore-scripts --json | jq -r '.[0].filename')
+          if [ "$tarball" != "tableau-ui-angular-$VERSION.tgz" ]; then
+            echo "::error::npm packed $tarball, not tableau-ui-angular-$VERSION.tgz"
+            exit 1
+          fi
+          sha256sum "$tarball"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: package
+          path: dist/component-library/tableau-ui-angular-${{ needs.checks.outputs.version }}.tgz
+          if-no-files-found: error
+
+  publish:
+    name: Publish to npm
+    needs: [checks, ci, build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # The maintainer approves here, as the environment's required reviewer; it takes deployments from v* tags only.
+    environment:
+      name: npm
+      url: https://www.npmjs.com/package/tableau-ui-angular/v/${{ needs.checks.outputs.version }}
+    permissions:
+      contents: read
+      id-token: write # the OIDC token npm trades for a short-lived publish token, and signs the provenance with
+    # No checkout and no npm ci: in the job that holds the OIDC token, nothing runs but setup-node and npm itself.
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: package
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+      # Trusted publishing needs npm 11.5.1 or later, which Node 24 has bundled since 24.5.0. An older one stops here,
+      # instead of failing to authenticate; nothing installs a newer one.
+      - name: npm is 11.5.1 or later
+        run: |
+          version=$(npm --version)
+          if ! printf '%s\n' 11.5.1 "$version" | sort -V -C; then
+            echo "::error::npm $version can't publish through trusted publishing, which needs npm 11.5.1 or later"
+            exit 1
+          fi
+          echo "npm $version"
+      - name: Publish, with provenance
+        env:
+          VERSION: ${{ needs.checks.outputs.version }}
+          DIST_TAG: ${{ needs.checks.outputs.dist-tag }}
+        run: npm publish "tableau-ui-angular-$VERSION.tgz" --provenance --access public --tag "$DIST_TAG" --ignore-scripts
+
+  github-release:
+    name: GitHub release
+    needs: [checks, publish]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write # creates the release and uploads the package to it
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: |
+            CHANGELOG.md
+            tools/release.mjs
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: package
+      - name: Create the release, with the CHANGELOG.md section as its notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.checks.outputs.version }}
+          PRERELEASE: ${{ needs.checks.outputs.prerelease }}
+        run: |
+          set -euo pipefail
+          node tools/release.mjs notes "$VERSION" > "$RUNNER_TEMP/notes.md"
+          prerelease=()
+          if [ "$PRERELEASE" = true ]; then prerelease=(--prerelease); fi
+          gh release create "$GITHUB_REF_NAME" "tableau-ui-angular-$VERSION.tgz" --repo "$GITHUB_REPOSITORY" \
+            --verify-tag --title "$GITHUB_REF_NAME" --notes-file "$RUNNER_TEMP/notes.md" "${prerelease[@]}"
