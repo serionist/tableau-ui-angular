@@ -1,15 +1,17 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { userEvent } from 'vitest/browser';
+import { page, userEvent } from 'vitest/browser';
+import { TableauUiIconModule } from 'tableau-ui-angular/icon';
 import { axeViolations } from '../../testing/axe';
 import { movePointerAway } from '../../testing/pointer';
 import { TableauUiChipModule } from './tableau-ui-chip-module';
 
 @Component({
-  imports: [TableauUiChipModule],
+  imports: [TableauUiChipModule, TableauUiIconModule],
   template: `
     <tab-chip [selected]="$selected()" [disabled]="$disabled()">Plain</tab-chip>
     <tab-chip [allowRemove]="$removable()" [removeTooltip]="{ template: 'Remove Berlin', context: undefined }" (removed)="removed.push('Berlin')">Berlin</tab-chip>
+    <tab-chip [allowRemove]="true"><tab-icon value="location_on" /><span>Paris</span></tab-chip>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -41,10 +43,22 @@ describe('ChipComponent', () => {
     expect(plain.querySelector('button')).toBeNull();
     expect(berlin.textContent).toContain('Berlin');
     expect(berlin.querySelector('button tab-icon')!.getAttribute('aria-label')).toBe('Remove');
+    // its content sits in the chip's own flex layout, as before the span that names the button
+    expect(getComputedStyle(berlin.querySelector('.content')!).display).toBe('contents');
+    expect(getComputedStyle(berlin).display).toBe('flex');
 
     component.$removable.set(false);
     await fixture.whenStable();
     expect(berlin.querySelector('button')).toBeNull();
+  });
+
+  // #75: every remove button was named Remove, whichever chip it removed
+  it("names each remove button Remove and its chip's content, without a decorative icon's ligature", async () => {
+    const { berlin } = await render();
+
+    expect(page.getByRole('button', { name: 'Remove Berlin', exact: true }).element()).toBe(berlin.querySelector('button'));
+    expect(page.getByRole('button', { name: 'Remove Paris', exact: true }).elements()).toHaveLength(1);
+    expect(page.getByRole('button', { name: 'Remove', exact: true }).elements()).toEqual([]);
   });
 
   it('emits removed from a click on its remove button, and from the keyboard', async () => {

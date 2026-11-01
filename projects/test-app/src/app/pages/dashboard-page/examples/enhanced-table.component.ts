@@ -228,7 +228,10 @@ export class EnhancedTableComponent<TData> implements AfterContentInit {
     );
   }
 
-  /** Closes the drawer, and focus goes back to the button that opens its panel */
+  /**
+   * Closes the drawer, and focus goes back to the button that opens its panel. The drawer would put it back on the
+   * element focused when it opened, the other button once the panels switch, so this moves it first
+   */
   closeDrawer() {
     this.$drawerOpen.set(false);
     this.focusToggle(this.$drawerMode());

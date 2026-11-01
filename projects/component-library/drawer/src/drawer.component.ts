@@ -51,7 +51,12 @@ export class DrawerComponent {
   });
 
   /**
-   * The drawer status.
+   * The drawer status. Closed, the drawer is inert: Tab skips it and screen readers don't read it.
+   *
+   * The app moves focus into the drawer it opens once it renders, in `afterNextRender`, such as to its heading: until
+   * then the drawer is still inert. A drawer opened after its first render gives focus back, when it closes with focus
+   * inside, to the element focused when it opened. A drawer open from its first render has no such element, so the app
+   * moves focus when it closes it.
    * @default 'false'
    */
   readonly $isOpen = model(false, {

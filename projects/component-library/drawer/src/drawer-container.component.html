@@ -1,9 +1,11 @@
 @let leftDrawer = $leftDrawer();
 @let rightDrawer = $rightDrawer();
+<!-- A closed drawer is inert: Tab skips it and screen readers don't read it -->
 @if (leftDrawer) {
   <div
     #leftDrawerWrapper
     class="drawer left"
+    [attr.inert]="leftDrawer.$isOpen() ? null : ''"
     [style.left]="leftDrawer.$isOpen() ? '0' : `calc(-1 * (${$leftDrawerPositionExpression()}))`"
     [style.width]="leftDrawer.$width()"
     [style.borderRight]="leftDrawer.$border()"
@@ -21,7 +23,9 @@
 
 @if (rightDrawer) {
   <div
+    #rightDrawerWrapper
     class="drawer right"
+    [attr.inert]="rightDrawer.$isOpen() ? null : ''"
     [style.right]="rightDrawer.$isOpen() ? '0' : `calc(-1 * (${$rightDrawerPositionExpression()}))`"
     [style.width]="rightDrawer.$width()"
     [style.borderLeft]="rightDrawer.$border()"

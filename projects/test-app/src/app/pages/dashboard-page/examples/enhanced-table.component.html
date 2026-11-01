@@ -50,7 +50,7 @@
   <!-- Closed, the drawer is inert, so the keyboard skips it; on a narrow table it covers the content, which is then inert.
        Escape in it closes it -->
   <tab-drawer position="right" padding="0" [width]="$wide() ? $drawerWidth() : '100%'" [isOpen]="$drawerOpen()">
-    <div #panel class="panel" [attr.inert]="$drawerOpen() ? null : ''">
+    <div #panel class="panel">
       @if ($drawerMode() === 'filter') {
         <div class="panel-header">
           <h3 #panelHeading tabindex="-1">Filters</h3>
@@ -91,7 +91,7 @@
         <span class="hidden" [id]="`${id}-move`">Move</span>
         <span class="hidden" [id]="`${id}-left`">Pin to the left:</span>
         <span class="hidden" [id]="`${id}-right`">Pin to the right:</span>
-        <span class="hidden" aria-live="polite">{{ $moved() }}</span>
+        <span class="hidden" aria-live="polite" aria-atomic="true">{{ $moved() }}</span>
         <div class="columns" cdkDropList (cdkDropListDropped)="columnDropped($event)">
           @for (column of $orderedColumns(); track column.id; let index = $index) {
             @let left = table.$pinnedLeftColumn() === column.id;

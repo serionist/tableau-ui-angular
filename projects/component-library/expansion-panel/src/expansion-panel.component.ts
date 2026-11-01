@@ -1,5 +1,5 @@
-import type { OnDestroy, OnInit, Signal } from '@angular/core';
-import { ChangeDetectionStrategy, Component, contentChild, inject, input, model } from '@angular/core';
+import type { InputSignal, OnDestroy, OnInit, Signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, contentChild, inject, input, model } from '@angular/core';
 import { ExpansionPanelTitleCollapsedContentDirective, ExpansionPanelTitleComponent, ExpansionPanelTitleExpandedContentDirective } from './expansion-panel-title.component';
 import { AccordionComponent } from './accordion.component';
 import type { AccordionRegistry } from './accordion.registry';
@@ -43,6 +43,18 @@ export class ExpansionPanelComponent implements OnInit, OnDestroy {
   readonly $noHeaderHover = input<boolean>(false, {
     alias: 'noHeaderHover',
   });
+  // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+  /**
+   * Names the panel's toggle button for screen readers, in place of its title: "Order 1024". Give it when the title
+   * holds a control, such as a button, or more than the panel's name. Without it the toggle takes the title's whole
+   * text, a control's included, and without a title either it is named Details.
+   * @default undefined
+   */
+  readonly $label: InputSignal<string | undefined> = input<string>(undefined, {
+    alias: 'label',
+  });
+  // the toggle takes the label when it has words, else the title shown
+  protected readonly $hasLabel = computed(() => (this.$label() ?? '').trim() !== '');
 
   protected readonly $expandedHeader: Signal<ExpansionPanelTitleExpandedContentDirective | undefined> = contentChild(ExpansionPanelTitleExpandedContentDirective);
   protected readonly $collapsedHeader: Signal<ExpansionPanelTitleCollapsedContentDirective | undefined> = contentChild(ExpansionPanelTitleCollapsedContentDirective);

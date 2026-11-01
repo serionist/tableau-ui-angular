@@ -26,9 +26,29 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   `form.$value()` to save a draft reads the value it was given, the field included. Act on the value the next call
   brings: each subscriber is called again with the new one. An array's `push`, `insert`, `removeAt` and `clear` still
   change its `$rawValue()`, `rawValue$` and `$controls()` at once, while its `$value()` waits.
+- A chip's content sits in a `span.content` inside `tab-chip`, with `display: contents`, so the chip looks the same
+  but its content is no longer the chip's direct child. A style such as `tab-chip > tab-icon`, or a test that reads
+  `chip.children[0]`, goes through the span: `tab-chip tab-icon`, or `chip.querySelector('.content')!.children[0]`.
+- A closed drawer is inert until change detection renders it open, so an app that sets `isOpen` and focuses into the
+  drawer in the same tick finds the focus refused. Move the focus in `afterNextRender`, once the drawer renders.
+
+### Added
+
+- `tab-expansion-panel`'s `label` input names its toggle button in place of the title. A title that holds a control,
+  such as a button, or more than the panel's name needs it: the toggle took the title's whole text as its name, the
+  control's included.
 
 ### Fixed
 
+- A chip's remove button is named Remove and the chip's content, such as "Remove Berlin", where every one was named
+  Remove. A test that found it by the exact name Remove finds it by the chip's text too.
+- The chip control says which chip a key highlights and which it removes, in a hidden polite live region: "Berlin, 2
+  of 3, highlighted. Backspace or Delete removes it." and "Berlin removed." Focus stays in its input, and the keys are
+  the same.
+- A closed drawer is inert, so Tab skips its links and screen readers don't read it. A drawer that opens after its
+  first render puts focus back on the element focused before it opened, when it closes with focus inside. The app
+  moves focus into a drawer it opens once it renders, and out of a drawer open from its first render when it closes
+  it.
 - A multi select lists its picked values as "English, Hungarian", where it showed a space before each comma. An
   option's icon in a select's shown value sits 0.25rem from its text, as in the dropdown, where a space widened the gap.
 - A tooltip takes the padding its `tooltipPadding` sets. Only `full` and `lazy` passed one, from their args, so a
