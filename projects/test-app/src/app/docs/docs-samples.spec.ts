@@ -123,16 +123,17 @@ describe('The samples', () => {
     const fixture = TestBed.createComponent(DialogOverlaysExampleComponent);
     await fixture.whenStable();
     await click(fixture, 'Open a modal with overlays');
-    const modal = dialogs.$overlayHost()!;
+    const layer = dialogs.$overlayHost()!;
+    const modal = layer.parentElement!;
     const button = (text: string) => Array.from(modal.querySelectorAll('button')).find(element => element.textContent.trim() === text)!;
 
     button('Show a snack').click();
     button('Open a dialog').click();
     await fixture.whenStable();
     const snacks = document.querySelector('.tab-snacks.top')!;
-    expect(snacks.parentElement).toBe(modal);
+    expect(snacks.parentElement).toBe(layer);
     const note = document.querySelector('app-example-note')!.closest('.dialog-container')!;
-    expect(note.parentElement).toBe(modal);
+    expect(note.parentElement).toBe(layer);
 
     button('Close').click();
     await fixture.whenStable();

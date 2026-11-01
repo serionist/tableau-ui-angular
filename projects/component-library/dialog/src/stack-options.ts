@@ -1,8 +1,9 @@
 /**
  * The dialog will be placed in the global stacking context, placed at the end of the document body.
  * This is useful for dialogs that need to be displayed above all other content, such as modals or overlays.
- * While a modal is open, the dialog goes at the end of the topmost modal's container instead
- * (`DialogService.$overlayHost`), and closes with that modal. A modal itself stays in the body.
+ * While a modal is open, the dialog goes into the topmost modal's overlay layer instead
+ * (`DialogService.$overlayHost`), above the modal's content, and closes with that modal. A modal itself stays in the
+ * body.
  */
 export class GlobalStackOptions {
   constructor(

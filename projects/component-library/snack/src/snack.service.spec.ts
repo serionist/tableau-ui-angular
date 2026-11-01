@@ -66,6 +66,7 @@ describe('SnackService', () => {
   const stylesheet = document.createElement('style');
   stylesheet.textContent = `
     .dialog-container { position: fixed; }
+    .dialog-overlay-layer { position: fixed; top: 0; left: 0; width: 0; height: 0; z-index: 2147483647; }
     .tab-snacks { position: fixed; top: 0; left: 0; right: 0; z-index: 2000; display: flex; justify-content: center; }
   `;
 
@@ -214,14 +215,15 @@ describe('SnackService', () => {
     document.head.appendChild(stylesheet);
     const dialogs = TestBed.inject(DialogService);
     const modal = dialogs.openModal(ModalContentComponent, undefined, { width: '100vw', maxWidth: 'none', height: '100vh', maxHeight: 'none' });
-    const container = dialogs.$overlayHost()!;
+    const layer = dialogs.$overlayHost()!;
+    const container = layer.parentElement!;
     const content = container.querySelector<HTMLElement>('tab-test-modal-content')!;
     const action = vi.fn();
     const ref = TestBed.inject(SnackService).openSnackWithAction('Deleted', 'Undo', action, 0);
     TestBed.inject(ApplicationRef).tick();
 
     const stack = document.querySelector<HTMLElement>('.tab-snacks')!;
-    expect(stack.parentElement).toBe(container);
+    expect(stack.parentElement).toBe(layer);
     const undo = stack.querySelector<HTMLButtonElement>('.action')!;
     // the button's centre is over the modal's content, and a click there reaches the button, once the snack has slid in
     await vi.waitFor(() => {
@@ -247,7 +249,7 @@ describe('SnackService', () => {
     document.head.appendChild(stylesheet);
     const dialogs = TestBed.inject(DialogService);
     const modal = dialogs.openModal(ModalContentComponent, undefined);
-    const container = dialogs.$overlayHost()!;
+    const container = dialogs.$overlayHost()!.parentElement!;
     await vi.waitFor(() => {
       expect(container.style.top).not.toBe('-9999px');
     });
@@ -278,15 +280,15 @@ describe('SnackService', () => {
 
     const below = dialogs.openModal(ModalContentComponent, undefined);
     TestBed.tick();
-    const belowContainer = dialogs.$overlayHost()!;
-    expect(stack.parentElement).toBe(belowContainer);
+    const belowLayer = dialogs.$overlayHost()!;
+    expect(stack.parentElement).toBe(belowLayer);
     const top = dialogs.openModal(ModalContentComponent, undefined);
     TestBed.tick();
     expect(stack.parentElement).toBe(dialogs.$overlayHost());
-    expect(stack.parentElement).not.toBe(belowContainer);
+    expect(stack.parentElement).not.toBe(belowLayer);
 
     top.close();
-    expect(stack.parentElement).toBe(belowContainer);
+    expect(stack.parentElement).toBe(belowLayer);
     below.close();
     expect(stack.parentElement).toBe(document.body);
     TestBed.tick();
@@ -319,7 +321,7 @@ describe('SnackService', () => {
     await userEvent.keyboard('{Enter}');
     expect(dialogs.dialogStack.length).toBe(1);
     TestBed.tick();
-    expect(details.closest('.dialog-container')).toBe(dialogs.$overlayHost());
+    expect(details.closest('.dialog-overlay-layer')).toBe(dialogs.$overlayHost());
 
     await userEvent.keyboard('{Escape}');
     expect(dialogs.dialogStack).toEqual([]);

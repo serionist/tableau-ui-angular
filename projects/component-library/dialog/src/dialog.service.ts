@@ -27,12 +27,13 @@ export class DialogService implements OnDestroy {
   // dead HTML, since the browser renders the app again
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
-  // The containers of the open modals, the bottom one first
-  private readonly modalContainers: HTMLElement[] = [];
+  // The overlay layers of the open modals, the bottom one first
+  private readonly overlayLayers: HTMLElement[] = [];
   private readonly $host = signal<HTMLElement | null>(null);
   /**
-   * Where an overlay opened now belongs: the container of the topmost open modal, or `null` while no modal is open,
-   * for the body.
+   * Where an overlay opened now belongs: the overlay layer of the topmost open modal, `div.dialog-overlay-layer` at the
+   * end of its `.dialog-container`, or `null` while no modal is open, for the body. The layer is fixed, takes no
+   * space, and sits above everything in the modal's content, a toolbar or a map with a z-index of its own included.
    *
    * The service puts a dialog it opens with `GlobalStackOptions` there, its backdrop included: a tooltip, or a dialog
    * the app opens with `openDialog()` or `openTemplateDialog()`. The snack service moves its stack there too. A dialog
@@ -42,10 +43,10 @@ export class DialogService implements OnDestroy {
    * a modal can open the next one and close itself.
    *
    * An app that appends an overlay of its own to the body, opened from a modal, appends it here instead
-   * (`$overlayHost() ?? document.body`). An element the app or the snack service put in a modal's container moves on
-   * to the next host when the modal closes, the topmost modal still open or the body; one that should go with the
-   * modal, the app removes. The overlays are `position: fixed` children of the modal's container, so a `transform`,
-   * `filter` or `contain` on `.dialog-container` would move and clip them.
+   * (`$overlayHost() ?? document.body`). An element the app or the snack service put in a modal's layer moves on to
+   * the next host when the modal closes, the topmost modal still open or the body; one that should go with the modal,
+   * the app removes. The overlays are `position: fixed` inside the modal's container, so a `transform`, `filter` or
+   * `contain` on `.dialog-container` would move and clip them.
    */
   readonly $overlayHost: Signal<HTMLElement | null> = this.$host.asReadonly();
 
@@ -215,7 +216,7 @@ export class DialogService implements OnDestroy {
     // the modal's content and is part of the modal: a modal shown in the top layer covers what is outside it, inert. A
     // modal stays in the body, a sibling of the one below, which the top layer stacks above it; nested, it would close
     // with the modal that opened it, as a wizard's next step does when it closes the step before
-    const host = modal ? this.document.body : (this.modalContainers.at(-1) ?? this.document.body);
+    const host = modal ? this.document.body : (this.overlayLayers.at(-1) ?? this.document.body);
     let trappedFocus:
       | {
           elements: {
@@ -258,7 +259,7 @@ export class DialogService implements OnDestroy {
     this.appRef.attachView(componentView);
 
     // Create a container for the dialog
-    const { dialogElement, headerElement, headerIcon } = this.createDialogElement(componentView, args, injector, dialogRef, zIndex);
+    const { dialogElement, headerIcon } = this.createDialogElement(componentView, args, injector, dialogRef, zIndex);
     // the tooltip directive reads it from the DialogRef openDialog returns, to give the tooltip its role, id and pointer;
     // the service reads it to find the dialogs inside another
     dialogRef.dialogElement = dialogElement;
@@ -271,9 +272,15 @@ export class DialogService implements OnDestroy {
     } else {
       host.appendChild(dialogElement);
     }
+    // A modal's overlays go in a layer at the top of its container (_dialog.service.scss), so a layer of the content
+    // with a z-index of its own, such as a sticky toolbar or a map's panes, never covers them
+    let overlayLayer: HTMLElement | undefined = undefined;
     if (modal) {
-      this.modalContainers.push(dialogElement);
-      this.$host.set(dialogElement);
+      overlayLayer = this.document.createElement('div');
+      overlayLayer.classList.add('dialog-overlay-layer');
+      dialogElement.appendChild(overlayLayer);
+      this.overlayLayers.push(overlayLayer);
+      this.$host.set(overlayLayer);
     }
 
     // Handle container position and window resize event
@@ -287,21 +294,17 @@ export class DialogService implements OnDestroy {
     dialogRef.closed$.subscribe(() => {
       // first the dialogs inside it, so none stays on the stack without its element or takes the next Escape
       this.closeDialogsInside(dialogRef, dialogElement);
-      if (modal) {
-        const modalIndex = this.modalContainers.indexOf(dialogElement);
-        if (modalIndex !== -1) {
-          this.modalContainers.splice(modalIndex, 1);
+      if (overlayLayer) {
+        const layerIndex = this.overlayLayers.indexOf(overlayLayer);
+        if (layerIndex !== -1) {
+          this.overlayLayers.splice(layerIndex, 1);
         }
-        const next = this.modalContainers.at(-1) ?? null;
+        const next = this.overlayLayers.at(-1) ?? null;
         this.$host.set(next);
-        // What the app or the snack service put in the modal goes on to the next host, before focus goes back, which
-        // may be to a button in a snack. The rest is the modal's own: its header and its content's root nodes. A view
-        // the app destroyed first, as it went, has nothing to hand on
-        if (!componentView.destroyed) {
-          const own = new Set<unknown>((componentView as EmbeddedViewRef<unknown>).rootNodes as unknown[]).add(headerElement);
-          for (const child of Array.from(dialogElement.children).filter(element => !own.has(element))) {
-            (next ?? this.document.body).appendChild(child);
-          }
+        // What the app or the snack service put in the modal's layer goes on to the next host, before focus goes back,
+        // which may be to a button in a snack; the layer goes with the modal
+        for (const child of Array.from(overlayLayer.children)) {
+          (next ?? this.document.body).appendChild(child);
         }
       }
       if (resizeSubscription) {
@@ -436,9 +439,8 @@ export class DialogService implements OnDestroy {
     injector: Injector,
     dialogRef: IDialogRef,
     zIndex: number,
-  ): { dialogElement: HTMLElement; headerElement: HTMLElement | undefined; headerIcon: ComponentRef<IconComponent> | undefined } {
+  ): { dialogElement: HTMLElement; headerIcon: ComponentRef<IconComponent> | undefined } {
     const embeddedViewRef = viewRef as EmbeddedViewRef<unknown>;
-    let headerElement: HTMLElement | undefined = undefined;
     let headerIcon: ComponentRef<IconComponent> | undefined = undefined;
 
     const dialogElement = this.document.createElement('div');
@@ -454,7 +456,7 @@ export class DialogService implements OnDestroy {
       });
     }
     if (args.header) {
-      headerElement = this.document.createElement('div');
+      const headerElement = this.document.createElement('div');
       headerElement.classList.add('dialog-header');
       const titleElement = this.document.createElement('div');
       titleElement.classList.add('dialog-title');
@@ -481,7 +483,7 @@ export class DialogService implements OnDestroy {
       }
       dialogElement.insertBefore(headerElement, dialogElement.firstChild);
     }
-    return { dialogElement, headerElement, headerIcon };
+    return { dialogElement, headerIcon };
   }
 
   private static manageDialogPosition(dialogElement: HTMLElement, args: IDialogPositionAndSizeArgs, stackOptions: StackOptions): Subscription | null {

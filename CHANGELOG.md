@@ -55,8 +55,8 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
 - A dialog an app opens with `openDialog()` or `openTemplateDialog()` while a modal is open sits in the modal and
   closes with it; before, it went to the body, and stayed open and on the dialog stack once the modal had closed. An
   app that wants such a dialog to outlive the modal opens it once the modal has closed. A tooltip, a dialog or a snack
-  shown over a modal is inside its `.dialog-container`, not a child of the body: a test or a style that looked for it
-  under `body` looks in the whole document. A modal opened from a modal still goes to the body.
+  shown over a modal is inside its `.dialog-container`, in its overlay layer, not a child of the body: a test or a
+  style that looked for it under `body` looks in the whole document. A modal opened from a modal still goes to the body.
 
 ### Added
 
@@ -67,10 +67,11 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   the list. A static `aria-label` on the element names it the same way, and `label` wins. Without a name a table's host
   has no role, and a virtual scroller is an unnamed list, or has no role while it shows no items.
 - `label` on `tab-group`: the name screen readers give its strip of tabs.
-- `DialogService.$overlayHost`, a signal: the container of the topmost open modal, or `null` while none is open, for
-  the body. Tooltips, the dialogs an app opens with `openDialog()` or `openTemplateDialog()` and the snacks go there,
-  above the modal's content, and an app appends an overlay of its own there instead of the body. When the modal
-  closes, it first closes the dialogs in it, and what the app put in it moves on to the next host.
+- `DialogService.$overlayHost`, a signal: the overlay layer of the topmost open modal, `div.dialog-overlay-layer` at
+  the end of its container, or `null` while none is open, for the body. Tooltips, the dialogs an app opens with
+  `openDialog()` or `openTemplateDialog()` and the snacks go there, above everything in the modal's content, and an app
+  appends an overlay of its own there instead of the body. When the modal closes, it first closes the dialogs in it,
+  and what the app put in its layer moves on to the next host.
 
 ### Fixed
 
