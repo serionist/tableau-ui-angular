@@ -140,12 +140,23 @@
           // stylelint-disable-next-line declaration-property-unit-disallowed-list
           margin-right: -4px;
 
+          // a touch drags it, where it would scroll the table
+          touch-action: none;
+
           // inside the table's edge, its line on it: half past it, the last resizer made the table scroll sideways
           &.last {
             justify-content: flex-end;
             // stylelint-disable-next-line declaration-property-unit-disallowed-list
             margin-left: -8px;
             margin-right: 0;
+          }
+
+          // A Tab stop. Its ring is inside it, and while it shows it is above a pinned column beside it, which covers the
+          // half of it past its own header
+          &:focus-visible {
+            outline: 2px solid var(--twc-color-focused-input);
+            outline-offset: -2px;
+            z-index: 5;
           }
         }
 
@@ -171,7 +182,8 @@
           }
         }
 
-        .resizer.enabled.dragging .line {
+        .resizer.enabled.dragging .line,
+        .resizer.enabled:focus-visible .line {
           // stylelint-disable-next-line declaration-property-unit-disallowed-list
           width: 3px;
           background: var(--twc-color-primary);

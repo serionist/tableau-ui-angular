@@ -64,6 +64,10 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   app that wants such a dialog to outlive the modal opens it once the modal has closed. A tooltip, a dialog or a snack
   shown over a modal is inside its `.dialog-container`, in its overlay layer, not a child of the body: a test or a
   style that looked for it under `body` looks in the whole document. A modal opened from a modal still goes to the body.
+- Each resizable column of a table, every column unless it sets `[resizable]="false"`, adds a Tab stop: its edge,
+  after its header's button. A press on an edge moves focus to it. A test that tabs through a table's header passes
+  the resizers, and one that sent mouse events to an edge sends pointer events: `pointerdown`, `pointermove` and
+  `pointerup` on the edge. `[resizable]="false"` keeps a column that needn't resize out of the Tab order.
 - A modal, a confirmation included, is a `dialog.dialog-container` shown with `showModal()`, in the browser's top layer
   above every z-index, where it was a `div.dialog-container` at z-index 100 over a `div.dialog-backdrop`. The page
   outside it is inert while it is open, and its elements keep their `tabindex`, where each took `tabindex="-1"`. A test
@@ -216,6 +220,14 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   placed in it with `LocalStackOptions`, which stayed on the dialog stack and took the next Escape. A `DialogRef`'s
   `close()` while it is closing does nothing, where a `closed$` subscriber that closed it again told every subscriber
   twice and took the top dialog off the stack, so Escape no longer closed it.
+- A table's columns resize from the keyboard, and by touch and pen, where only a mouse could drag them. A resizable
+  column's edge is a separator named "Resize" and the header's text, whose value is the column's width in pixels,
+  between its minimum and maximum. Right and Left change the width by 10px, 50px with Shift; Home and End take it to
+  its minimum and maximum, or without a maximum to the table's visible width. A drag follows the pointer past the edge,
+  and a resized column keeps its width where the columns are wider than the table, where it narrowed.
+- A table's column header is named by its text alone, where a multi-sort's number joined it: a test that found a
+  header by "Id 2" finds it by "Id". A header with no words, blank or an icon alone, is named by its place, "Column 3",
+  and so are its button and its resizer, where they had no name.
 - A modal follows the WAI-ARIA dialog (modal) pattern. Screen readers hear a modal dialog named by its header's title,
   or by its `label`, and the rest of the page is inert to them. As it opens, focus goes to its content's first
   `autofocus` element, else its first element in the Tab order, the header's close button or the modal itself, where
