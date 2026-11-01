@@ -1,5 +1,21 @@
 import type { InputSignal, Signal, WritableSignal } from '@angular/core';
-import { ChangeDetectionStrategy, Component, computed, contentChild, contentChildren, effect, ElementRef, forwardRef, inject, input, linkedSignal, output, signal } from '@angular/core';
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  contentChild,
+  contentChildren,
+  DestroyRef,
+  effect,
+  ElementRef,
+  forwardRef,
+  inject,
+  input,
+  linkedSignal,
+  output,
+  signal,
+} from '@angular/core';
 
 import type { ControlValueAccessor } from '@angular/forms';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
@@ -48,21 +64,24 @@ export class RadioGroupComponent<T extends Primitive> implements ControlValueAcc
   });
   protected readonly errorId = `${generateRandomString(16)}-error`;
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly destroyRef = inject(DestroyRef);
   // Whether the group set its host's aria-invalid, so it takes off only its own
   private invalidMarked = false;
   // The error describes the group and marks it invalid while it shows; the app's own ids, and a form field's, stay.
   // It runs on the server too, so the first HTML has them
   private readonly describeGroup = effect(() => {
-    const host = this.host.nativeElement;
-    const error = this.$errorElement() !== undefined;
-    setOwnIds(host, 'aria-describedby', [this.errorId], error ? [this.errorId] : []);
-    if (error && !this.invalidMarked && host.getAttribute('aria-invalid') !== 'true') {
-      host.setAttribute('aria-invalid', 'true');
-      this.invalidMarked = true;
-    } else if (!error && this.invalidMarked) {
-      host.removeAttribute('aria-invalid');
-      this.invalidMarked = false;
-    }
+    this.writeOwnAttributes();
+  });
+  // An app's own binding of aria-describedby or aria-invalid on the host rewrites the whole attribute, so the group
+  // writes its part again. The observer needs a browser, so it starts after the first render
+  private readonly watchHost = afterNextRender(() => {
+    const observer = new MutationObserver(() => {
+      this.writeOwnAttributes();
+    });
+    observer.observe(this.host.nativeElement, { attributes: true, attributeFilter: ['aria-describedby', 'aria-invalid'] });
+    this.destroyRef.onDestroy(() => {
+      observer.disconnect();
+    });
   });
 
   // eslint-disable-next-line  @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
@@ -104,6 +123,21 @@ export class RadioGroupComponent<T extends Primitive> implements ControlValueAcc
 
   generateRandomGroupName(length: number = 8): string {
     return `group-${generateRandomString(length)}`;
+  }
+
+  // The group's part of its host's attributes: the error's id in aria-describedby and aria-invalid while the error
+  // shows. It writes nothing that is already there, so the host observer doesn't run again for its own writes
+  private writeOwnAttributes() {
+    const host = this.host.nativeElement;
+    const error = this.$errorElement() !== undefined;
+    setOwnIds(host, 'aria-describedby', [this.errorId], error ? [this.errorId] : []);
+    if (error && host.getAttribute('aria-invalid') !== 'true') {
+      host.setAttribute('aria-invalid', 'true');
+      this.invalidMarked = true;
+    } else if (!error && this.invalidMarked) {
+      host.removeAttribute('aria-invalid');
+      this.invalidMarked = false;
+    }
   }
 
   optionTemplateContext: IOptionGridContext = {

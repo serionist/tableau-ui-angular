@@ -1,8 +1,8 @@
 import type { Type } from '@angular/core';
-import { ChangeDetectionStrategy, Component, signal, ViewEncapsulation } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, Component, signal, ViewEncapsulation } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormControl, Validators } from '@angular/forms';
-import { page } from 'vitest/browser';
+import { page, userEvent } from 'vitest/browser';
 import { TableauUiChipControlModule } from 'tableau-ui-angular/chip-control';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
 import { TableauUiListModule } from 'tableau-ui-angular/list';
@@ -392,6 +392,112 @@ describe('FormFieldComponent', () => {
       expect(region.textContent).toBe('');
     });
 
+    // An app that focuses the first invalid field after a submit, as the docs say, did so before the field's observer
+    // heard the new error, so the error was read as the description and then again by the region
+    it('says nothing in the region for an error that shows when focus arrives, which the description says', async () => {
+      const { fixture, host } = await render(CodeFieldComponent);
+      const code = fixture.componentInstance as CodeFieldComponent;
+      const input = host.querySelector('input')!;
+      const region = host.querySelector('tab-form-field [aria-live="polite"]')!;
+
+      // the submit: the error shows, and the app focuses the field once it has rendered
+      code.$error.set('Too short');
+      afterNextRender(
+        () => {
+          input.focus();
+        },
+        { injector: fixture.componentRef.injector },
+      );
+      await fixture.whenStable();
+      await new Promise(resolve => setTimeout(resolve));
+      expect(document.activeElement).toBe(input);
+      expect(region.textContent).toBe('');
+      await expect.element(input).toHaveAccessibleDescription('Too short');
+
+      // a change while focus stays in the field is still said
+      code.$error.set('Digits only');
+      await fixture.whenStable();
+      await new Promise(resolve => setTimeout(resolve));
+      expect(region.textContent).toBe('Digits only');
+    });
+
+    // The region was positioned against the page: in a scrolling box with no position of its own, its place below the
+    // fold made the whole page scroll
+    it("adds nothing to the page's scroll height from below the fold of a scrolling box", async () => {
+      @Component({
+        imports,
+        template: `
+          <div style="height: 100px; overflow: auto">
+            <div style="height: 3000px"></div>
+            @if ($field()) {
+              <tab-form-field>
+                <tab-label>Name</tab-label>
+                <input type="text" />
+                <tab-error>Too short</tab-error>
+              </tab-form-field>
+            }
+          </div>
+        `,
+        changeDetection: ChangeDetectionStrategy.OnPush,
+      })
+      class FoldComponent {
+        readonly $field = signal(false);
+      }
+      const { fixture, host } = await render(FoldComponent);
+      const scrollHeight = () => document.scrollingElement!.scrollHeight;
+      const without = scrollHeight();
+
+      (fixture.componentInstance as FoldComponent).$field.set(true);
+      await fixture.whenStable();
+
+      expect(host.querySelector('tab-form-field [aria-live="polite"]')).not.toBeNull();
+      expect(scrollHeight()).toBe(without);
+    });
+
+    // An app's own bound attribute rewrote the whole attribute, which wiped the field's ids until its hint or error
+    // next changed
+    it("writes its part again when an app's own binding rewrites the control's attributes", async () => {
+      @Component({
+        imports: [...imports, TableauUiListModule],
+        template: `
+          <h4 id="heading">Travel</h4>
+          <p id="note-a">The first note</p>
+          <p id="note-b">The second note</p>
+          <tab-form-field>
+            <tab-label>Country</tab-label>
+            <tab-list-single-select [attr.aria-describedby]="$note()" [attr.aria-labelledby]="$heading()" [attr.aria-invalid]="$invalid()">
+              <tab-option value="us" text="United States" />
+            </tab-list-single-select>
+            <tab-error>Pick a country</tab-error>
+          </tab-form-field>
+        `,
+        changeDetection: ChangeDetectionStrategy.OnPush,
+      })
+      class BoundFieldComponent {
+        readonly $note = signal('note-a');
+        readonly $heading = signal<string | null>(null);
+        readonly $invalid = signal<string | null>(null);
+      }
+      const { fixture, host, label } = await render(BoundFieldComponent);
+      const bound = fixture.componentInstance as BoundFieldComponent;
+      const list = host.querySelector('tab-list-single-select')!;
+      const errorId = host.querySelector('tab-error')!.parentElement!.id;
+      expect(list.getAttribute('aria-describedby')).toBe(`note-a ${errorId}`);
+      expect(list.getAttribute('aria-labelledby')).toBe(label.id);
+      expect(list.getAttribute('aria-invalid')).toBe('true');
+
+      bound.$note.set('note-b');
+      bound.$heading.set('heading');
+      bound.$invalid.set('false');
+      await fixture.whenStable();
+      // the field hears the rewrite through an observer
+      await new Promise(resolve => setTimeout(resolve));
+
+      expect(list.getAttribute('aria-describedby')).toBe(`note-b ${errorId}`);
+      expect(list.getAttribute('aria-labelledby')).toBe(`heading ${label.id}`);
+      expect(list.getAttribute('aria-invalid')).toBe('true');
+    });
+
     // #53: the group's options read as loose radios, with nothing that said what they answer
     it("names a radio group by the field's label, and describes it by the field's hint", async () => {
       @Component({
@@ -436,16 +542,22 @@ describe('FormFieldComponent', () => {
     });
   });
 
-  // #114: the touched invalid input's rule outranked the focus rule, and inputs have no outline, so a keyboard user
-  // couldn't see which field they were in
-  it('shows focus on a touched invalid input: the red border stays, and a ring inside it stands 3:1 against the page in both themes', async () => {
+  // #114: the touched invalid control's rule outranked the focus rule, and inputs have no outline, so a keyboard user
+  // couldn't see which field they were in. A chip control's focus is on its search input, so its host never matched
+  describe('shows focus on a touched invalid control', () => {
+    // The input before the field holds focus first: a text input always shows its focus, and Tab carries that on
+    abstract class InvalidField {
+      readonly control = new FormControl<unknown>(null, Validators.required);
+    }
+
     @Component({
       imports,
       template: `
+        <input type="text" aria-label="Before" />
         <tab-form-field>
           <tab-label>Email</tab-label>
-          <input type="email" [formControl]="email" />
-          <tab-error>Enter an email</tab-error>
+          <input type="email" [formControl]="control" />
+          <tab-error>Required</tab-error>
         </tab-form-field>
       `,
       // the library's styles, as an app imports them, in the page while it is rendered
@@ -453,41 +565,101 @@ describe('FormFieldComponent', () => {
       encapsulation: ViewEncapsulation.None,
       changeDetection: ChangeDetectionStrategy.OnPush,
     })
-    class EmailFieldComponent {
-      readonly email = new FormControl('', Validators.required);
+    class InputComponent extends InvalidField {}
+
+    @Component({
+      imports: [...imports, TableauUiSelectModule],
+      template: `
+        <input type="text" aria-label="Before" />
+        <tab-form-field>
+          <tab-label>Country</tab-label>
+          <tab-single-select [formControl]="control"><tab-option value="us" text="United States" /></tab-single-select>
+          <tab-error>Required</tab-error>
+        </tab-form-field>
+      `,
+      styleUrl: '../../styles/lib-styles.scss',
+      encapsulation: ViewEncapsulation.None,
+      changeDetection: ChangeDetectionStrategy.OnPush,
+    })
+    class SelectComponent extends InvalidField {}
+
+    @Component({
+      imports: [...imports, TableauUiListModule],
+      template: `
+        <input type="text" aria-label="Before" />
+        <tab-form-field>
+          <tab-label>Country</tab-label>
+          <tab-list-single-select [formControl]="control"><tab-option value="us" text="United States" /></tab-list-single-select>
+          <tab-error>Required</tab-error>
+        </tab-form-field>
+      `,
+      styleUrl: '../../styles/lib-styles.scss',
+      encapsulation: ViewEncapsulation.None,
+      changeDetection: ChangeDetectionStrategy.OnPush,
+    })
+    class ListComponent extends InvalidField {}
+
+    @Component({
+      imports: [...imports, TableauUiChipControlModule],
+      template: `
+        <input type="text" aria-label="Before" />
+        <tab-form-field>
+          <tab-label>Tags</tab-label>
+          <tab-chip-control #chips [formControl]="control" [getValuesByKeys]="getValues">
+            <ng-template let-ctx [tabChipTemplate]="chips">{{ ctx.data.value }}</ng-template>
+          </tab-chip-control>
+          <tab-error>Required</tab-error>
+        </tab-form-field>
+      `,
+      styleUrl: '../../styles/lib-styles.scss',
+      encapsulation: ViewEncapsulation.None,
+      changeDetection: ChangeDetectionStrategy.OnPush,
+    })
+    class ChipsComponent extends InvalidField {
+      readonly getValues = async () => Promise.resolve([]);
     }
-    const { fixture, host } = await render(EmailFieldComponent);
-    const input = host.querySelector('input')!;
-    // leaving the field touches it, as a user does
-    input.focus();
-    input.blur();
-    await fixture.whenStable();
-    expect(input.matches('.ng-invalid.ng-touched')).toBe(true);
-    const root = document.documentElement;
 
-    try {
-      for (const dark of [false, true]) {
-        root.classList.toggle('dark-mode', dark);
-        input.focus();
-        expect(input.matches(':focus-visible')).toBe(true);
-        const style = getComputedStyle(input);
+    it.each([
+      { name: 'an input', component: InputComponent, focused: 'tab-form-field input', ringed: 'tab-form-field input' },
+      { name: 'a select', component: SelectComponent, focused: 'tab-single-select', ringed: 'tab-single-select' },
+      { name: 'a list', component: ListComponent, focused: 'tab-list-single-select', ringed: 'tab-list-single-select' },
+      { name: 'a chip control', component: ChipsComponent, focused: 'tab-chip-control input', ringed: 'tab-chip-control' },
+    ])('on $name: the red border stays, and a ring inside it stands 3:1 against the page in both themes', async ({ component, focused, ringed }) => {
+      const { fixture, host } = await render(component);
+      (fixture.componentInstance as InvalidField).control.markAsTouched();
+      fixture.componentRef.changeDetectorRef.markForCheck();
+      await fixture.whenStable();
+      const [before, target, styled] = [host.querySelector<HTMLElement>('input[aria-label="Before"]')!, host.querySelector<HTMLElement>(focused)!, host.querySelector<HTMLElement>(ringed)!];
+      expect(styled.matches('.ng-invalid.ng-touched')).toBe(true);
+      const root = document.documentElement;
 
-        // the red border, the error's colour, stays
-        expect(style.borderTopColor).toBe(getComputedStyle(host.querySelector('.tab-error')!).color);
-        expect(style.borderTopWidth).toBe('2px');
-        // a solid ring, wholly inside the border with a gap between them, in a colour that stands against the page's
-        expect(style.outlineStyle).toBe('solid');
-        expect(style.outlineWidth).toBe('2px');
-        expect(parseFloat(style.outlineOffset) + parseFloat(style.outlineWidth)).toBeLessThan(-parseFloat(style.borderTopWidth));
-        expect(contrast(style.outlineColor, getComputedStyle(root).backgroundColor)).toBeGreaterThanOrEqual(3);
+      try {
+        for (const dark of [false, true]) {
+          root.classList.toggle('dark-mode', dark);
+          before.focus();
+          await userEvent.keyboard('{Tab}');
+          expect(document.activeElement).toBe(target);
+          expect(target.matches(':focus-visible')).toBe(true);
+          const style = getComputedStyle(styled);
 
-        // and without focus, no ring
-        input.blur();
-        expect(getComputedStyle(input).outlineStyle).toBe('none');
+          // the red border, the error's colour, stays
+          expect(style.borderTopColor).toBe(getComputedStyle(host.querySelector('.tab-error')!).color);
+          expect(style.borderTopWidth).toBe('2px');
+          // a solid ring, wholly inside the border with a gap between them, in a colour that stands against the page's
+          expect(style.outlineStyle).toBe('solid');
+          expect(style.outlineWidth).toBe('2px');
+          expect(parseFloat(style.outlineOffset) + parseFloat(style.outlineWidth)).toBeLessThan(-parseFloat(style.borderTopWidth));
+          expect(contrast(style.outlineColor, getComputedStyle(root).backgroundColor)).toBeGreaterThanOrEqual(3);
+
+          // and without focus, no ring
+          await userEvent.keyboard('{Shift>}{Tab}{/Shift}');
+          expect(document.activeElement).toBe(before);
+          expect(getComputedStyle(styled).outlineStyle).toBe('none');
+        }
+      } finally {
+        root.classList.remove('dark-mode');
       }
-    } finally {
-      root.classList.remove('dark-mode');
-    }
+    });
   });
 });
 

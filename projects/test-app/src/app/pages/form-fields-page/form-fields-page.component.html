@@ -128,7 +128,8 @@
         reaching its field. Call
         <code>markAllAsTouched()</code>
         on the form, and once its errors show, focus the first element in it with
-        <code>aria-invalid="true"</code>.
+        <code>aria-invalid="true"</code>. A radio group's host takes no focus: for a radio group, focus its checked radio, or else its first enabled one. The user then hears the field's name and its
+        error once.
       </p>
     </div>
   </div>

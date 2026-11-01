@@ -43,8 +43,10 @@ textarea,
     border-width: 2px;
 
     // This rule outranks the focus one above, so focus keeps the red border and adds a ring inside it, a pixel
-    // apart: the ring stands against the page's colour, and outside the input a form field would clip it
-    &:focus-visible {
+    // apart: the ring stands against the page's colour, and outside the input a form field would clip it. A chip
+    // control's focus is on the search input inside it
+    &:focus-visible,
+    &:has(:focus-visible) {
       outline: 2px solid var(--twc-color-focused-input);
       outline-offset: -5px;
     }

@@ -16,6 +16,7 @@ const LABELABLE = ['INPUT', 'TEXTAREA', 'SELECT'];
     '[class.disabled]': '$inputDisabled()',
     '[attr.aria-disabled]': '$inputDisabled()',
     'style.display': 'grid',
+    '(focusin)': 'onFocusIn()',
     '(focusout)': 'onFocusOut($event)',
   },
 })
@@ -59,6 +60,8 @@ export class FormFieldComponent implements AfterContentInit, OnDestroy {
    * control's search input, or the host of a select, a list or a radio group
    */
   private readonly $control = signal<HTMLElement | null>(null);
+  // Whether the label names the control through aria-labelledby, which the field keeps there
+  private labelledBy = false;
   // Whether the field set the control's aria-invalid, so it takes off only its own
   private invalidMarked = false;
   // The error's words when the field last looked, so the region says only an error that appears or changes
@@ -72,14 +75,7 @@ export class FormFieldComponent implements AfterContentInit, OnDestroy {
   // The control is described by the hint, then the error, as each shows, and invalid while the error shows. It runs
   // on the server too, so the first HTML has them
   private readonly describeControl = effect(() => {
-    const control = this.$control();
-    if (!control) {
-      return;
-    }
-    const error = this.$errorElement() !== undefined;
-    const shown = [...(this.$hintShown() ? [this.hintId] : []), ...(error ? [this.errorId] : [])];
-    setOwnIds(control, 'aria-describedby', [this.hintId, this.errorId], shown);
-    this.markInvalid(control, error);
+    this.writeOwnAttributes();
   });
 
   constructor() {
@@ -121,13 +117,34 @@ export class FormFieldComponent implements AfterContentInit, OnDestroy {
       return;
     }
     if (control) {
+      this.labelledBy = true;
       setOwnIds(control, 'aria-labelledby', [this.labelId], [this.labelId]);
     }
   }
 
+  /**
+   * Writes the field's part of the control's attributes: the label's id in `aria-labelledby` when the label names it
+   * that way, the shown hint's and error's ids in `aria-describedby`, and `aria-invalid` while the error shows. The
+   * effect runs it as they change, and the input observer when an app's own binding rewrites one of those attributes.
+   * It writes nothing that is already there, so the observer doesn't run again for its own writes.
+   */
+  private writeOwnAttributes() {
+    const control = this.$control();
+    if (!control) {
+      return;
+    }
+    if (this.labelledBy) {
+      setOwnIds(control, 'aria-labelledby', [this.labelId], [this.labelId]);
+    }
+    const error = this.$errorElement() !== undefined;
+    const shown = [...(this.$hintShown() ? [this.hintId] : []), ...(error ? [this.errorId] : [])];
+    setOwnIds(control, 'aria-describedby', [this.hintId, this.errorId], shown);
+    this.markInvalid(control, error);
+  }
+
   // aria-invalid while the error shows. The field takes off only the one it set, so an app's own stays
   private markInvalid(control: HTMLElement, invalid: boolean) {
-    if (invalid && !this.invalidMarked && control.getAttribute('aria-invalid') !== 'true') {
+    if (invalid && control.getAttribute('aria-invalid') !== 'true') {
       control.setAttribute('aria-invalid', 'true');
       this.invalidMarked = true;
     } else if (!invalid && this.invalidMarked) {
@@ -176,6 +193,12 @@ export class FormFieldComponent implements AfterContentInit, OnDestroy {
     this.$announcer().nativeElement.textContent = error !== '' && host.contains(host.ownerDocument.activeElement) ? error : '';
   }
 
+  // An error that shows when focus arrives is heard once, as the control's description: the region waits for a change,
+  // as when an app focuses the first invalid field after a submit
+  protected onFocusIn() {
+    this.lastError = this.errorText();
+  }
+
   // The region holds an error only while focus is in the field, so a screen reader reading the page doesn't find it twice
   protected onFocusOut(event: FocusEvent) {
     if (!this.host.nativeElement.contains(event.relatedTarget as Node | null)) {
@@ -186,12 +209,15 @@ export class FormFieldComponent implements AfterContentInit, OnDestroy {
   private observe(): void {
     const inputElement = this.findInput();
     if (inputElement) {
+      // An app's own binding of aria-describedby, aria-labelledby or aria-invalid rewrites the whole attribute, so the
+      // field writes its part again. A chip control's search input is the library's own, which no app binds
       this.inputObserver = new MutationObserver(() => {
         this.updateInputAttributes(inputElement);
+        this.writeOwnAttributes();
       });
       this.inputObserver.observe(inputElement, {
         attributes: true,
-        attributeFilter: ['disabled', 'placeholder', 'required'],
+        attributeFilter: ['disabled', 'placeholder', 'required', 'aria-describedby', 'aria-labelledby', 'aria-invalid'],
       });
     }
     this.updatePrefixSuffixWidths();

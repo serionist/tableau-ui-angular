@@ -151,6 +151,40 @@ describe('RadioGroupComponent', () => {
     expect(group.hasAttribute('aria-invalid')).toBe(false);
   });
 
+  // An app's own bound attribute rewrote the whole attribute, which wiped the group's error id until the error next
+  // changed
+  it("writes its error's id again when an app's own binding rewrites the host's aria-describedby", async () => {
+    @Component({
+      imports: [TableauUiRadioGroupModule, TableauUiCommonModule],
+      template: `
+        <tab-radio-group aria-label="Size" [attr.aria-describedby]="$note()">
+          <tab-option text="Small" [value]="'s'" />
+          <tab-error>Pick a size</tab-error>
+        </tab-radio-group>
+        <p id="note-a">The first note</p>
+        <p id="note-b">The second note</p>
+      `,
+      changeDetection: ChangeDetectionStrategy.OnPush,
+    })
+    class BoundGroupComponent {
+      readonly $note = signal('note-a');
+    }
+    const fixture = TestBed.createComponent(BoundGroupComponent);
+    fixture.autoDetectChanges();
+    await fixture.whenStable();
+    const group = (fixture.nativeElement as HTMLElement).querySelector('tab-radio-group')!;
+    const errorId = group.querySelector('.extra-info')!.id;
+    expect(group.getAttribute('aria-describedby')).toBe(`note-a ${errorId}`);
+
+    fixture.componentInstance.$note.set('note-b');
+    await fixture.whenStable();
+    // the group hears the rewrite through an observer
+    await new Promise(resolve => setTimeout(resolve));
+
+    expect(group.getAttribute('aria-describedby')).toBe(`note-b ${errorId}`);
+    expect(group.getAttribute('aria-invalid')).toBe('true');
+  });
+
   it('passes axe', async () => {
     const { host } = await render();
 

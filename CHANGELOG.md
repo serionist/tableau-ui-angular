@@ -74,10 +74,12 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
 - A checkbox's hint, or its error in the hint's place, describes its input, and the input has `aria-invalid="true"`
   while the error shows.
 - `tab-radio-group` is a `radiogroup`, named by a form field's label or by `aria-label` or `aria-labelledby` on it. Its
-  error describes it, after the app's own ids, and it has `aria-invalid="true"` while the error shows.
-- A touched invalid input, textarea, select or list shows keyboard focus: its red border stays, and a 2px ring in
-  `--twc-color-focused-input` shows inside it, a pixel apart, 3:1 or more against the page in both themes. The invalid
-  style outranked the focus style, so focus didn't show.
+  error describes it, after the app's own ids, and it has `aria-invalid="true"` while the error shows. A group that an
+  app named with a `fieldset` and its `legend`, as 0.2.0's sample did, now reads as a radio group with no name inside
+  a named group: drop the `fieldset` and name `tab-radio-group` with `aria-labelledby`, or with `aria-label`.
+- A touched invalid input, textarea, select, list or chip control shows keyboard focus: its red border stays, and a
+  2px ring in `--twc-color-focused-input` shows inside it, a pixel apart, 3:1 or more against the page in both themes.
+  The invalid style outranked the focus style, so focus didn't show.
 
 ## 0.2.0 (2026-10-31)
 
