@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule, Validators } from '@angular/forms';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, skip } from 'rxjs';
 import { FormGroupValuePipe } from '../../pipes/value/form-group-value.pipe';
 import { TableauUiFormModule } from '../../tableau-ui-form.module';
 import { FB } from '../fb';
@@ -10,6 +10,11 @@ import type { FG } from './interfaces';
 type Address = {
   country: string | null;
   state: string | null;
+};
+
+type Contact = {
+  name: string;
+  email: string;
 };
 
 describe('FG', () => {
@@ -51,6 +56,70 @@ describe('FG', () => {
     group.metaFn.enable();
 
     expect(group.controls.state.$meta().disabled).toBe(true);
+  });
+
+  function contactForm(): FG<{ contact: Contact }> {
+    return fb.group<{ contact: Contact }>({
+      contact: fb.group<Contact>({ name: fb.control<string>('Ada'), email: fb.control<string>('', Validators.required) }),
+    });
+  }
+
+  // disable() and enable() passed Angular onlySelf: true by default, so the groups above kept a disabled control in
+  // their value and validity: a form whose only invalid field was disabled stayed invalid
+  it("leaves a disabled control out of its ancestors' value and validity, and takes it in again when enabled", () => {
+    const form = contactForm();
+    const { contact } = form.controls;
+    expect(form.$meta().validity).toBe('INVALID');
+
+    contact.controls.email.metaFn.disable();
+
+    expect(contact.$meta().validity).toBe('VALID');
+    expect(contact.$value()).toEqual({ name: 'Ada' });
+    expect(form.$meta().validity).toBe('VALID');
+    expect(form.$value()).toEqual({ contact: { name: 'Ada' } });
+
+    contact.controls.email.metaFn.enable();
+
+    expect(contact.$meta().validity).toBe('INVALID');
+    expect(form.$meta().validity).toBe('INVALID');
+    expect(form.$value()).toEqual({ contact: { name: 'Ada', email: '' } });
+  });
+
+  // disable() called Angular's disable() a second time without emitEvent, so disable(false) still emitted
+  it('emits no value or status change when emitEvent is false, and still updates the ancestors', () => {
+    const form = contactForm();
+    const { name, email } = form.controls.contact.controls;
+    const emitted: string[] = [];
+    email.meta$.pipe(skip(1)).subscribe(() => emitted.push('email meta'));
+    form.value$.pipe(skip(1)).subscribe(() => emitted.push('form value'));
+
+    email.metaFn.disable(false);
+
+    expect(emitted).toEqual([]);
+    name.metaFn.markAsTouched(true);
+    expect(form.$meta().validity).toBe('VALID');
+
+    email.metaFn.enable(false);
+
+    expect(emitted).toEqual([]);
+    name.metaFn.markAsDirty(true, true);
+    expect(form.$meta().validity).toBe('INVALID');
+  });
+
+  it('leaves the ancestors as they were when markAncestors is false, until their next update', () => {
+    const form = contactForm();
+    const { name, email } = form.controls.contact.controls;
+
+    email.metaFn.disable(true, false);
+
+    expect(email.$meta().disabled).toBe(true);
+    expect(form.$meta().validity).toBe('INVALID');
+    expect(form.$value()).toEqual({ contact: { name: 'Ada', email: '' } });
+
+    name.setValue('Bo');
+
+    expect(form.$meta().validity).toBe('VALID');
+    expect(form.$value()).toEqual({ contact: { name: 'Bo' } });
   });
 
   // F7: markAllAsTouched emits the group's event before its children are touched, so the group's meta kept them untouched

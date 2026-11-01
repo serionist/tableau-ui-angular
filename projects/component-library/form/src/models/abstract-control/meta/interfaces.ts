@@ -67,8 +67,9 @@ export interface MetaFns<TChild = AC> {
    * @see {@link markAsDirty()}
    * @see {@link markAsPristine()}
    *
+   * @param markAncestors When true, marks the control's ancestors touched as well. When false or not supplied, marks
+   * only this control. Default is false. It comes first here, and second in the other methods.
    * @param emitEvent When true or not supplied, the meta$ observable emits an event. Default is true.
-   * @param markAncestors When true, marks all ancestors of the control as well
    */
   markAsTouched: (markAncestors?: boolean, emitEvent?: boolean) => TChild;
   /**
@@ -81,16 +82,15 @@ export interface MetaFns<TChild = AC> {
   /**
    * Marks the control as `untouched`.
    *
-   * If the control has any children, also marks all children as `untouched`
-   * and recalculates the `touched` status of all parent controls.
+   * If the control has any children, also marks all children as `untouched`.
    *
    * @see {@link markAsTouched()}
    * @see {@link markAsDirty()}
    * @see {@link markAsPristine()}
    *
    * @param emitEvent When true or not supplied, the meta$ observable emits an event. Default is true.
-   * @param markAncestors When true, mark only this control. When false or not supplied,
-   * marks all direct ancestors. Default is false.
+   * @param markAncestors When true, also recalculates the `touched` status of the control's ancestors. When false or
+   * not supplied, marks only this control and its children. Default is false.
    */
   markAsUntouched: (emitEvent?: boolean, markAncestors?: boolean) => TChild;
   /**
@@ -104,16 +104,14 @@ export interface MetaFns<TChild = AC> {
    * @see {@link markAsPristine()}
    *
    * @param emitEvent When true or not supplied, the meta$ observable emits an event. Default is true.
-   * @param markAncestors When true, mark only this control. When false or not supplied,
-   * marks all direct ancestors. Default is false.
+   * @param markAncestors When true, marks the control's ancestors dirty as well. When false or not supplied, marks only
+   * this control. Default is false.
    */
   markAsDirty: (emitEvent?: boolean, markAncestors?: boolean) => TChild;
   /**
    * Marks the control as `pristine`.
    *
-   * If the control has any children, marks all children as `pristine`,
-   * and recalculates the `pristine` status of all parent
-   * controls.
+   * If the control has any children, marks all children as `pristine`.
    *
    * If the control is already pristine, this does nothing
    *
@@ -122,8 +120,8 @@ export interface MetaFns<TChild = AC> {
    * @see {@link markAsDirty()}
    *
    * @param emitEvent When true or not supplied, the meta$ observable emits an event. Default is true.
-   * @param markAncestors When true, mark only this control. When false or not supplied,
-   * marks all direct ancestors. Default is false.
+   * @param markAncestors When true, also recalculates the `pristine` status of the control's ancestors. When false or
+   * not supplied, marks only this control and its children. Default is false.
    */
   markAsPristine: (emitEvent?: boolean, markAncestors?: boolean) => TChild;
 
@@ -131,15 +129,19 @@ export interface MetaFns<TChild = AC> {
    * Disables the control. This means the control is exempt from validation checks and
    * excluded from the aggregate value of any parent. Its validity is `DISABLED`.
    *
-   * If the control has children, all children are also disabled.
+   * If the control has children, all children are also disabled. Its ancestors then update their value and validity,
+   * as Angular's own `disable()` does, so a group's value and validity leave the control out.
    *
    * If the control is already disabled, this does nothing.
    *
    * @see {@link AbstractControlMeta.validity}
    *
-   * @param emitEvent When true or not supplied, the meta$ observable emits an event. Default is true.
-   * @param markAncestors When true, mark only this control. When false or not supplied,
-   * marks all direct ancestors. Default is false.
+   * @param emitEvent When true or not supplied, the control and its ancestors emit their value and status changes.
+   * When false, none of them does: the control's meta and the ancestors' `value$` show the change at their next
+   * event. Default is true.
+   * @param markAncestors When true or not supplied, the ancestors update their value and validity. When false, only
+   * this control and its children change, as with Angular's `onlySelf: true`, and the ancestors keep theirs until
+   * their next update. Default is true.
    */
   disable: (emitEvent?: boolean, markAncestors?: boolean) => TChild;
   /**
@@ -147,15 +149,19 @@ export interface MetaFns<TChild = AC> {
    * the aggregate value of its parent. Its status recalculates based on its value and
    * its validators.
    *
-   * By default, if the control has children, all children are enabled.
+   * By default, if the control has children, all children are enabled. Its ancestors then update their value and
+   * validity, as Angular's own `enable()` does, so a group's value and validity take the control in again.
    *
    * If the control is already enabled, this does nothing.
    *
    * @see {@link AbstractControl.status}
    *
-   * @param emitEvent When true or not supplied, the meta$ observable emits an event. Default is true.
-   * @param markAncestors When true, mark only this control. When false or not supplied,
-   * marks all direct ancestors. Default is false.
+   * @param emitEvent When true or not supplied, the control and its ancestors emit their value and status changes.
+   * When false, none of them does: the control's meta and the ancestors' `value$` show the change at their next
+   * event. Default is true.
+   * @param markAncestors When true or not supplied, the ancestors update their value and validity. When false, only
+   * this control and its children change, as with Angular's `onlySelf: true`, and the ancestors keep theirs until
+   * their next update. Default is true.
    */
   enable: (emitEvent?: boolean, markAncestors?: boolean) => TChild;
 }

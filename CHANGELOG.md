@@ -10,6 +10,10 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
 
 - A multi select lists its picked values as "English, Hungarian", where it showed a space before each comma. An
   option's icon in a select's shown value sits 0.25rem from its text, as in the dropdown, where a space widened the gap.
+- A control's `metaFn.disable()` and `metaFn.enable()` update its groups' and arrays' value and validity, as Angular's
+  own `disable()` and `enable()` do: a form whose only invalid field is disabled is valid. They left them as they were
+  until another change updated them. `disable(emitEvent, false)` keeps that, and `disable(false)` no longer emits the
+  control's value and status changes. The `markAncestors` docs of the `metaFn` methods say what each one does.
 
 ## 0.2.0 (2026-10-31)
 
