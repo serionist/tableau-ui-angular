@@ -272,7 +272,7 @@ export class MetaFnsImpl<TChild> implements MetaFns<TChild> {
    * Marks the control as `dirty`. A control becomes dirty when
    * the control's value is changed through the UI; compare `markAsTouched`.
    *
-   * If the control is already dirty this does nothing
+   * If the control is already dirty, this does nothing; with `markAncestors` true, it still marks the ancestors dirty.
    *
    * @see {@link markAsTouched()}
    * @see {@link markAsUntouched()}
@@ -283,7 +283,9 @@ export class MetaFnsImpl<TChild> implements MetaFns<TChild> {
    * marks all direct ancestors. Default is false.
    */
   markAsDirty(emitEvent = true, markAncestors = false): TChild {
-    if (this.ctrl.meta$.value.dirty) {
+    // Angular's own flag, since the meta lags it after a call with emitEvent false. The ancestors can be pristine while
+    // this control is dirty, so a call that marks them goes on.
+    if (!markAncestors && this.control.dirty) {
       return this.ctrl as unknown as TChild;
     }
     this.control.markAsDirty({
@@ -299,7 +301,8 @@ export class MetaFnsImpl<TChild> implements MetaFns<TChild> {
    * and recalculates the `pristine` status of all parent
    * controls.
    *
-   * If the control is already pristine, this does nothing
+   * If the control and its children are already pristine, this does nothing; with `markAncestors` true, it still
+   * recalculates the `pristine` status of the ancestors.
    *
    * @see {@link markAsTouched()}
    * @see {@link markAsUntouched()}
@@ -310,7 +313,9 @@ export class MetaFnsImpl<TChild> implements MetaFns<TChild> {
    * marks all direct ancestors. Default is false.
    */
   markAsPristine(emitEvent = true, markAncestors = false): TChild {
-    if (this.ctrl.meta$.value.pristine) {
+    // Angular's own flags, since the meta lags them after a call with emitEvent false. A pristine group can hold a dirty
+    // child, and the ancestors can be dirty while this control is pristine, so those calls go on.
+    if (!markAncestors && MetaFnsImpl.allPristine(this.ctrl)) {
       return this.ctrl as unknown as TChild;
     }
     this.control.markAsPristine({
@@ -318,6 +323,10 @@ export class MetaFnsImpl<TChild> implements MetaFns<TChild> {
       emitEvent: emitEvent,
     });
     return this.ctrl as unknown as TChild;
+  }
+  /** Whether the control and every control under it are pristine, by Angular's own flags */
+  private static allPristine(ctrl: AC): boolean {
+    return (ctrl as ACImpl<unknown>).control.pristine && ctrl.hierarchy.childList$.value.every(child => MetaFnsImpl.allPristine(child));
   }
 
   /**

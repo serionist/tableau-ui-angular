@@ -30,6 +30,11 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
 - An autocomplete's suggestions close while none matches the text, and open again when one does; a prefix or a suffix
   keeps them open. The empty dialog stayed open, out of sight, and took the next Escape: in a drawer, the first Escape
   didn't close the drawer.
+- A control's `metaFn.markAsPristine()` works after `markAsDirty(false)`, and `markAsDirty()` after
+  `markAsPristine(false)`: each checked the meta, which a call with `emitEvent` false leaves as it was, and did nothing.
+  They check Angular's own state now, so `markAsDirty(true, true)` marks the ancestors of a control that is already
+  dirty, `markAsPristine(true, true)` recalculates them, and a pristine group's `markAsPristine()` marks its dirty
+  children pristine.
 
 ## 0.2.0 (2026-10-31)
 

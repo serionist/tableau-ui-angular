@@ -93,4 +93,32 @@ describe('FG', () => {
 
     expect(submitted).toEqual([{ country: 'US', state: null }]);
   });
+
+  // markAsDirty and markAsPristine did nothing while the control itself was already marked, so a call that marks the
+  // ancestors left them as they were
+  it('marks the ancestors with markAncestors true, though the control is already dirty or pristine', () => {
+    const group = address();
+    const { state } = group.controls;
+
+    state.metaFn.markAsDirty();
+    expect(group.$meta().dirty).toBe(false);
+    state.metaFn.markAsDirty(true, true);
+    expect(group.$meta().dirty).toBe(true);
+
+    state.metaFn.markAsPristine();
+    expect(group.$meta().dirty).toBe(true);
+    state.metaFn.markAsPristine(true, true);
+    expect(group.$meta().pristine).toBe(true);
+  });
+
+  // markAsPristine did nothing on a pristine group, though a child marked dirty without its ancestors was still dirty
+  it("marks a pristine group's dirty children pristine", () => {
+    const group = address();
+    group.controls.state.metaFn.markAsDirty();
+    expect(group.$meta().pristine).toBe(true);
+
+    group.metaFn.markAsPristine();
+
+    expect(group.controls.state.$meta().pristine).toBe(true);
+  });
 });

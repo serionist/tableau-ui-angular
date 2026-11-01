@@ -97,7 +97,7 @@ export interface MetaFns<TChild = AC> {
    * Marks the control as `dirty`. A control becomes dirty when
    * the control's value is changed through the UI; compare `markAsTouched`.
    *
-   * If the control is already dirty this does nothing
+   * If the control is already dirty, this does nothing; with `markAncestors` true, it still marks the ancestors dirty.
    *
    * @see {@link markAsTouched()}
    * @see {@link markAsUntouched()}
@@ -115,7 +115,8 @@ export interface MetaFns<TChild = AC> {
    * and recalculates the `pristine` status of all parent
    * controls.
    *
-   * If the control is already pristine, this does nothing
+   * If the control and its children are already pristine, this does nothing; with `markAncestors` true, it still
+   * recalculates the `pristine` status of the ancestors.
    *
    * @see {@link markAsTouched()}
    * @see {@link markAsUntouched()}

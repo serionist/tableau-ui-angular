@@ -1,4 +1,5 @@
 import { Validators } from '@angular/forms';
+import { FormControlPipe } from '../../pipes/raw-controls/form-control.pipe';
 import { FB } from '../fb';
 
 describe('FC', () => {
@@ -77,5 +78,32 @@ describe('FC', () => {
     expect(control.$meta().errors).toEqual({ minlength: { requiredLength: 3, actualLength: 2 } });
     expect(control.$meta().touched).toBe(true);
     expect(control.validatorFn.clearValidators()).toBe(control);
+  });
+
+  // markAsDirty and markAsPristine checked the meta, which a call with emitEvent false leaves as it was, so the next
+  // call did nothing: the meta still said pristine after markAsDirty(false), and markAsPristine() left the control dirty
+  it.each([true, false])('marks a control pristine after markAsDirty(%s)', emitEvent => {
+    const control = fb.control<string>('a');
+    const angularControl = new FormControlPipe().transform(control);
+
+    control.metaFn.markAsDirty(emitEvent);
+    control.metaFn.markAsPristine();
+
+    expect(angularControl.pristine).toBe(true);
+    expect(control.$meta().pristine).toBe(true);
+    expect(control.meta$.value.dirty).toBe(false);
+  });
+
+  it.each([true, false])('marks a control dirty after markAsPristine(%s)', emitEvent => {
+    const control = fb.control<string>('a');
+    const angularControl = new FormControlPipe().transform(control);
+    control.metaFn.markAsDirty();
+
+    control.metaFn.markAsPristine(emitEvent);
+    control.metaFn.markAsDirty();
+
+    expect(angularControl.dirty).toBe(true);
+    expect(control.$meta().dirty).toBe(true);
+    expect(control.meta$.value.pristine).toBe(false);
   });
 });
