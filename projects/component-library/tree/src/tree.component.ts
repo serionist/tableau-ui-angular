@@ -1,6 +1,7 @@
 import type { InputSignal, OnDestroy, TemplateRef } from '@angular/core';
 import { afterNextRender, ChangeDetectionStrategy, Component, computed, DOCUMENT, effect, ElementRef, inject, input } from '@angular/core';
 import type { TabTreeNodeComponent, TreeNodeTemplate } from './tree-node.component';
+import { enclosingNode } from './tree-node-nesting';
 import { TreeNodeRegistry } from './tree-node-registry';
 @Component({
   selector: 'tab-tree',
@@ -49,14 +50,18 @@ export class TabTreeComponent implements OnDestroy {
     alias: 'keepButtonOffsetOnNoChildren',
   });
 
+  /**
+   * Where a node's parent comes from. `auto`, the default: the node its `hierarchyParentId` names, or else the node it
+   * sits in. `manual`: only the node its `hierarchyParentId` names, so a node that names none is at the top level,
+   * wherever it sits.
+   * @default 'auto'
+   */
   readonly $hierarchyMode = input<'auto' | 'manual'>('auto', {
     alias: 'hierarchyMode',
   });
 
   readonly registry = new TreeNodeRegistry();
 
-  // used when hierarchyMode is auto to get direct children
-  // directChildren = contentChildren(TabTreeNodeComponent);
   templateParams: TreeNodeTemplate = {
     $childrenIndent: this.$childrenIndent,
     $expandButtonSize: this.$expandButtonSize,
@@ -69,13 +74,16 @@ export class TabTreeComponent implements OnDestroy {
 
   constructor() {
     effect(() => {
-      // set the hierarchyMode of each children all times
+      // place every node under its parent, as the mode says, from the top level down
       const registryNodes = this.registry.nodes();
+      const auto = this.$hierarchyMode() === 'auto';
 
-      for (const child of registryNodes.filter(e => e.$hierarchyParentId() === undefined)) {
-        if (this.$hierarchyMode() === 'auto') {
+      for (const child of registryNodes.filter(e => (auto ? autoParentId(e) : e.$hierarchyParentId()) === undefined)) {
+        if (auto) {
           this.hierarchyModeAutoSetChildrenDepthAndId(registryNodes, child, null, this.$showRootGridLines() ? 1 : 0);
         } else {
+          // a node the auto mode put under another is at the top level now
+          child.$parent.set(null);
           this.hierarchyModeManualSetChildrenDepthAndId(child, this.$showRootGridLines() ? 1 : 0);
         }
       }
@@ -93,18 +101,19 @@ export class TabTreeComponent implements OnDestroy {
     });
   }
 
+  // A node's children are the nodes that name it as their parent, and those that sit in it and name none
   hierarchyModeAutoSetChildrenDepthAndId(allNodes: TabTreeNodeComponent[], node: TabTreeNodeComponent, parentNode: TabTreeNodeComponent | null = null, depth: number) {
     node.$depth.set(depth);
     node.$parent.set(parentNode);
-    node.$children.set(allNodes.filter(e => e.$hierarchyParentId() === node.$hierarchyId()));
+    node.$children.set(allNodes.filter(e => autoParentId(e) === node.$hierarchyId()));
     for (const c of node.$children()) {
       this.hierarchyModeAutoSetChildrenDepthAndId(allNodes, c, node, depth + 1);
     }
   }
 
+  // A node's children are the nodes that name it as their parent; where they sit doesn't matter
   hierarchyModeManualSetChildrenDepthAndId(child: TabTreeNodeComponent, currentChildDepth: number) {
     child.$depth.set(currentChildDepth);
-    // get direct children
     const children = this.registry.nodes().filter(e => e.$hierarchyParentId() === child.$hierarchyId());
     child.$children.set(children);
     for (const c of children) {
@@ -259,6 +268,12 @@ export class TabTreeComponent implements OnDestroy {
     }
   }
 }
+// The id of a node's parent in auto mode: the one it names, or else the node it sits in. Read when the tree places its
+// nodes, so a parent whose hierarchyId is bound, and set after its children were made, is found too.
+function autoParentId(node: TabTreeNodeComponent): string | undefined {
+  return node.$hierarchyParentId() ?? enclosingNode(node)?.$hierarchyId();
+}
+
 export interface ExpandButtonTooltipParams<T = unknown> {
   expand: TemplateRef<T> | string | undefined;
   collapse: TemplateRef<T> | string | undefined;

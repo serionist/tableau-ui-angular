@@ -12,6 +12,7 @@ import { DatePickerValueExampleComponent } from '../pages/date-picker-page/examp
 import { ExpansionPanelSingleExampleComponent } from '../pages/expansion-page/examples/expansion-panel-single.example';
 import { ListDisplayExampleComponent } from '../pages/list-page/examples/list-display.example';
 import { ListFormsExampleComponent } from '../pages/list-page/examples/list-forms.example';
+import { NavBarBasicExampleComponent } from '../pages/navbar-page/examples/nav-bar-basic.example';
 import { RadioFormsExampleComponent } from '../pages/radio-buttons-page/examples/radio-forms.example';
 import { ScrollerVerticalExampleComponent } from '../pages/scroller-page/examples/scroller-vertical.example';
 import { SnackMessageExampleComponent } from '../pages/snacks-page/examples/snack-message.example';
@@ -252,7 +253,6 @@ describe('The samples', () => {
     fixture.destroy();
   });
 
-  // The padding goes through tooltipFullArgs: tooltipPadding sets none
   it("opens the tooltip template sample's tooltips with their context, and the padded ones with their 2rem", async () => {
     const fixture = TestBed.createComponent(TooltipTemplateExampleComponent);
     await fixture.whenStable();
@@ -275,6 +275,22 @@ describe('The samples', () => {
     fixture.destroy();
   });
 
+  it("shows the nav bar sample's name in its header while the bar is open, and the initials while it is closed", async () => {
+    const fixture = TestBed.createComponent(NavBarBasicExampleComponent);
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+    const brand = () =>
+      Array.from(host.querySelectorAll<HTMLElement>('.brand span'), span => (getComputedStyle(span).display === 'none' ? null : span.textContent.trim())).filter(text => text !== null);
+
+    expect(brand()).toEqual(['My app']);
+
+    host.querySelector<HTMLButtonElement>('.menu-toggle-button button')!.click();
+    await fixture.whenStable();
+    expect(brand()).toEqual(['MA']);
+    fixture.destroy();
+  });
+
+  // In manual mode, Node 2, which sits in Node 1 and names no parent, is at the top level
   it("orders the flat tree sample's nodes by their order, then by their place in the template, under the parent each names", async () => {
     const fixture = TestBed.createComponent(TreeFlatExampleComponent);
     await fixture.whenStable();
@@ -718,6 +734,32 @@ describe('The samples', () => {
       expect(button('Filters').getAttribute('aria-expanded')).toBe('true');
 
       host.querySelector('.panel h3')!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      await fixture.whenStable();
+      expect(button('Filters').getAttribute('aria-expanded')).toBe('false');
+      fixture.destroy();
+    });
+
+    // The customer's suggestions left an empty dialog open when no name matched, which took the first Escape
+    it('shows no suggestions for a customer no one is, and closes the drawer on the first Escape', async () => {
+      const { fixture, host, button } = await render();
+      button('Filters').click();
+      await fixture.whenStable();
+      const customer = Array.from(host.querySelectorAll('.panel tab-form-field'))
+        .find(field => field.querySelector('tab-label')?.textContent.trim() === 'Customer')!
+        .querySelector('input')!;
+      const enter = async (text: string) => {
+        customer.value = text;
+        customer.dispatchEvent(new Event('input', { bubbles: true }));
+        await fixture.whenStable();
+      };
+
+      customer.focus();
+      await enter('Ada');
+      expect(document.querySelectorAll('.dropdown-container [role="option"]').length).toBeGreaterThan(0);
+
+      await enter('Nobody');
+      expect(document.querySelector('.dropdown-container')).toBeNull();
+      customer.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
       await fixture.whenStable();
       expect(button('Filters').getAttribute('aria-expanded')).toBe('false');
       fixture.destroy();

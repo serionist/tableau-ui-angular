@@ -15,6 +15,12 @@ tab-nav-bar[expanded='true'] {
   font-size: var(--twc-font-size-body-large);
 }
 
+// The header's expanded attribute is the bar's state: open, it shows the name, and closed, the initials
+tab-nav-bar-header[expanded='true'] .initials,
+tab-nav-bar-header[expanded='false'] .name {
+  display: none;
+}
+
 .version {
   padding: 0.5rem 1rem;
 }
