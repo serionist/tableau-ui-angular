@@ -1,6 +1,7 @@
 import type { Type } from '@angular/core';
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal, ViewEncapsulation } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { FormControl, Validators } from '@angular/forms';
 import { page } from 'vitest/browser';
 import { TableauUiChipControlModule } from 'tableau-ui-angular/chip-control';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
@@ -434,4 +435,74 @@ describe('FormFieldComponent', () => {
       expect(host.querySelector('tab-list-single-select')!.getAttribute('aria-labelledby')).toBe(`app-heading ${label.id}`);
     });
   });
+
+  // #114: the touched invalid input's rule outranked the focus rule, and inputs have no outline, so a keyboard user
+  // couldn't see which field they were in
+  it('shows focus on a touched invalid input: the red border stays, and a ring inside it stands 3:1 against the page in both themes', async () => {
+    @Component({
+      imports,
+      template: `
+        <tab-form-field>
+          <tab-label>Email</tab-label>
+          <input type="email" [formControl]="email" />
+          <tab-error>Enter an email</tab-error>
+        </tab-form-field>
+      `,
+      // the library's styles, as an app imports them, in the page while it is rendered
+      styleUrl: '../../styles/lib-styles.scss',
+      encapsulation: ViewEncapsulation.None,
+      changeDetection: ChangeDetectionStrategy.OnPush,
+    })
+    class EmailFieldComponent {
+      readonly email = new FormControl('', Validators.required);
+    }
+    const { fixture, host } = await render(EmailFieldComponent);
+    const input = host.querySelector('input')!;
+    // leaving the field touches it, as a user does
+    input.focus();
+    input.blur();
+    await fixture.whenStable();
+    expect(input.matches('.ng-invalid.ng-touched')).toBe(true);
+    const root = document.documentElement;
+
+    try {
+      for (const dark of [false, true]) {
+        root.classList.toggle('dark-mode', dark);
+        input.focus();
+        expect(input.matches(':focus-visible')).toBe(true);
+        const style = getComputedStyle(input);
+
+        // the red border, the error's colour, stays
+        expect(style.borderTopColor).toBe(getComputedStyle(host.querySelector('.tab-error')!).color);
+        expect(style.borderTopWidth).toBe('2px');
+        // a solid ring, wholly inside the border with a gap between them, in a colour that stands against the page's
+        expect(style.outlineStyle).toBe('solid');
+        expect(style.outlineWidth).toBe('2px');
+        expect(parseFloat(style.outlineOffset) + parseFloat(style.outlineWidth)).toBeLessThan(-parseFloat(style.borderTopWidth));
+        expect(contrast(style.outlineColor, getComputedStyle(root).backgroundColor)).toBeGreaterThanOrEqual(3);
+
+        // and without focus, no ring
+        input.blur();
+        expect(getComputedStyle(input).outlineStyle).toBe('none');
+      }
+    } finally {
+      root.classList.remove('dark-mode');
+    }
+  });
 });
+
+// The contrast ratio of two computed colours, `rgb(r, g, b)`, as WCAG defines it
+function contrast(first: string, second: string): number {
+  const luminance = (color: string) => {
+    const [r, g, b] = color
+      .match(/[\d.]+/g)!
+      .slice(0, 3)
+      .map(value => {
+        const channel = Number(value) / 255;
+        return channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+      });
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  };
+  const [lighter, darker] = [luminance(first), luminance(second)].sort((a, b) => b - a);
+  return (lighter + 0.05) / (darker + 0.05);
+}

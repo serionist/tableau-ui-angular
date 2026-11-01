@@ -42,10 +42,12 @@ textarea,
     border-color: var(--twc-color-error);
     border-width: 2px;
 
-    // // outline-offset: -1px;
-    // &:focus-visible {
-    //     border: none;
-    // }
+    // This rule outranks the focus one above, so focus keeps the red border and adds a ring inside it, a pixel
+    // apart: the ring stands against the page's colour, and outside the input a form field would clip it
+    &:focus-visible {
+      outline: 2px solid var(--twc-color-focused-input);
+      outline-offset: -5px;
+    }
   }
 
   // &:focus {

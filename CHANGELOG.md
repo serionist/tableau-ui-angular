@@ -70,6 +70,9 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   while the error shows.
 - `tab-radio-group` is a `radiogroup`, named by a form field's label or by `aria-label` or `aria-labelledby` on it. Its
   error describes it, after the app's own ids, and it has `aria-invalid="true"` while the error shows.
+- A touched invalid input, textarea, select or list shows keyboard focus: its red border stays, and a 2px ring in
+  `--twc-color-focused-input` shows inside it, a pixel apart, 3:1 or more against the page in both themes. The invalid
+  style outranked the focus style, so focus didn't show.
 
 ## 0.2.0 (2026-10-31)
 
