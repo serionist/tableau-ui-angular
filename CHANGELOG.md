@@ -36,6 +36,14 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   While `tab-virtualize` shows items it is a list and its items `listitem`s; an app whose items have a role of their
   own writes a static `role` attribute on `tab-virtualize`, such as `role="listbox"`, which keeps the library's roles
   off. Name a table or a virtual scroller that scrolls with `label`, or a static `aria-label` on it.
+- Escape first hides a showing tooltip and goes no further: the dialog, menu or drawer under it closes on the next
+  Escape. A list the tooltip's element opened above it, such as a select's, still closes on the first. A test that
+  hovers or tabs to an element with a tooltip, then presses Escape to close a dialog, presses it twice or moves the
+  pointer and the focus away first.
+- A tooltip takes the pointer: the pointer can move onto it and rest there, so a click on a tooltip no longer reaches
+  what is under it. Once the pointer leaves the element it has 100 ms to reach the tooltip, and as long as it needs
+  while it stays between the two; before, the tooltip hid as the pointer left. A test that hovers an element, then
+  hovers or clicks what its tooltip covers, moves the pointer away first and waits for the tooltip to go.
 
 ### Added
 
@@ -110,6 +118,11 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
 - The bar a table or a virtual scroller shows in a row whose block failed to load is the error colour itself, 3:1 or
   more on the row in both themes, where it was that colour at 30% opacity, about 1.75:1. A screen reader reads it as
   "Failed to load", so it isn't told by its colour alone.
+- A tooltip shows when the keyboard moves the focus to its element, as on hover, where only the pointer opened one;
+  the focus a click gives doesn't open it, a text input's included. Focus from the keyboard keeps it while the pointer
+  passes over the element and leaves. A screen reader hears it: while it shows it is `role="tooltip"`, and its
+  element's `aria-describedby` names it after the app's own ids, which stay. A text tooltip equal to the element's name
+  adds none, so the nav bar's collapsed buttons and the chips' remove buttons aren't read twice.
 - A form field's hints and errors describe its control through `aria-describedby`, the hints first, each while it
   shows, and the control has `aria-invalid="true"` while an error shows. The control is a native input, textarea or
   select, the host of a select, a list or a radio group, or a chip control's search input. A hidden polite live region

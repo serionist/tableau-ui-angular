@@ -195,8 +195,10 @@ describe('DialogService', () => {
     below.close();
   });
 
-  // F77: a tooltip is a dialog that ignores Escape, and while one showed, Escape no longer closed the modal under it
-  it('closes a modal on Escape while a tooltip shows over it', async () => {
+  // F77: a tooltip is a dialog that ignores Escape, and while one showed, Escape no longer closed the modal under it.
+  // Since #60 the first Escape hides the tooltip and goes no further, as WCAG 1.4.13 asks: the user dismisses it
+  // without moving the pointer or the focus, and keeps the modal. The next Escape closes the modal
+  it('hides a tooltip over a modal on the first Escape, and closes the modal on the next', async () => {
     const fixture = TestBed.createComponent(TooltipPageComponent);
     fixture.autoDetectChanges();
     await fixture.whenStable();
@@ -211,8 +213,13 @@ describe('DialogService', () => {
 
     await userEvent.keyboard('{Escape}');
 
+    expect(document.querySelector('[role="tooltip"]')).toBeNull();
+    expect(document.querySelectorAll('.dialog-container').length).toBe(1);
+    expect(closed).not.toHaveBeenCalled();
+
+    await userEvent.keyboard('{Escape}');
+
     expect(closed).toHaveBeenCalled();
-    help.dispatchEvent(new MouseEvent('mouseleave'));
     expect(document.querySelector('.dialog-container')).toBeNull();
   });
 
