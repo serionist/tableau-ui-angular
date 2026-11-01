@@ -65,6 +65,25 @@
     </div>
 
     <div class="section">
+      <h3>Accessibility</h3>
+      <p>The list scrolls in its own host, which is in the Tab order, so the keyboard scrolls it in every browser, even when its rows hold nothing that takes focus.</p>
+      <ul>
+        <li>A list that scrolls needs <code>label</code>, which names it for screen readers.</li>
+        <li>Once the host has focus, the arrow keys, Page Up, Page Down, Home and End scroll it, and the blocks they reach load.</li>
+        <li>
+          While it shows rows, the host is a list and each row a list item with its place in the whole list, as "61 of 10,000". Until the first block says the total, its size is
+          <code>-1</code>, unknown.
+        </li>
+        <li>While it shows no rows, its no-data template or its custom loader, the host is a region named by <code>label</code>, and without <code>label</code> it has no role.</li>
+        <li>A row whose block failed shows a red bar, which a screen reader reads as "Failed to load".</li>
+        <li>
+          When the rows have a role of their own, such as options, write a static <code>role</code> on <code>tab-virtualize</code>, such as <code>role="listbox"</code>. The host keeps it, and its
+          <code>aria-label</code> unless <code>label</code> is set, and the rows take no role. The role is read once, when the list is made, so a bound <code>[attr.role]</code> isn't read.
+        </li>
+      </ul>
+    </div>
+
+    <div class="section">
       <h3>A virtual component of your own</h3>
       <p>
         The list and the table extend <code>VirtualizeBaseComponent</code>, which holds the loading and <code>load()</code>, <code>reload()</code> and <code>reset()</code>. A component that extends it

@@ -1,6 +1,8 @@
-import { ChangeDetectionStrategy, Component, effect, PLATFORM_ID, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, PLATFORM_ID, signal, viewChild, ViewEncapsulation } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { page, userEvent } from 'vitest/browser';
 import { axeViolations } from '../../testing/axe';
+import { backgroundUnder, contrast, inEachMode } from '../../testing/contrast';
 import type { Person } from '../../testing/people';
 import { PEOPLE, PeopleServer } from '../../testing/people';
 import type { DataRowCss } from './base/virutalize-base.component';
@@ -12,14 +14,17 @@ import { VirtualizeComponent } from './virtualize.component';
 @Component({
   imports: [TableauUiVirtualizeModule],
   template: `
-    <tab-virtualize #list style="height: 200px" [style.fontSize]="$fontSize()" [dataOptions]="$options()" [(dataSort)]="$sort" [dataRowCss]="$rowCss()">
+    <button type="button">Before</button>
+    <tab-virtualize #list style="height: 200px" [style.fontSize]="$fontSize()" [label]="$label()" [dataOptions]="$options()" [(dataSort)]="$sort" [dataRowCss]="$rowCss()">
       @if ($customLoader()) {
         <ng-template tabCustomLoader>Loading people</ng-template>
       }
       @if ($rowLoader()) {
         <ng-template let-meta tabItemLoadingTemplate>Loading row {{ meta.index + 1 }}</ng-template>
       }
-      <ng-template tabItemErrorTemplate>Not loaded</ng-template>
+      @if ($errorTemplate()) {
+        <ng-template tabItemErrorTemplate>Not loaded</ng-template>
+      }
       @if ($padded()) {
         <ng-template let-ctx [tabItemTemplate]="list">
           <div class="padded" style="width: 100%; padding: 0 16px">
@@ -42,6 +47,8 @@ class PeopleListComponent {
   readonly $rowCss = signal<DataRowCss>({ height: '20px', lineHeight: '20px', padding: '0 8px' });
   readonly $fontSize = signal<string | null>(null);
   readonly $customLoader = signal(false);
+  readonly $errorTemplate = signal(true);
+  readonly $label = signal<string | undefined>(undefined);
   // an item template whose root, and a block in it, are full width with padding of their own
   readonly $padded = signal(false);
   readonly list = viewChild.required<VirtualizeComponent<Person>>(VirtualizeComponent);
@@ -68,6 +75,34 @@ class ShownListComponent {
       void this.list().reload();
     }
   });
+}
+
+// The library's styles, as an app imports them, while a fixture of it lives: the theme's colours in both modes
+@Component({
+  template: '',
+  styleUrl: '../../styles/lib-styles.scss',
+  encapsulation: ViewEncapsulation.None,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class LibraryStylesComponent {}
+
+// An app whose items have a role of their own, and which names its list itself
+@Component({
+  imports: [TableauUiVirtualizeModule],
+  template: `
+    <tab-virtualize #list role="listbox" aria-label="People" style="height: 200px" [label]="$label()" [dataOptions]="server.incremental" [dataSort]="[]" [dataRowCss]="rowCss">
+      <ng-template let-ctx [tabItemTemplate]="list">
+        <div role="option" aria-selected="false">{{ ctx.item.name }}</div>
+      </ng-template>
+    </tab-virtualize>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class OptionsListComponent {
+  readonly server = new PeopleServer();
+  readonly $label = signal<string | undefined>(undefined);
+  readonly rowCss: DataRowCss = { height: '20px', lineHeight: '20px', padding: '0 8px' };
+  readonly list = viewChild.required<VirtualizeComponent<Person>>(VirtualizeComponent);
 }
 
 describe('VirtualizeComponent', () => {
@@ -501,11 +536,174 @@ describe('VirtualizeComponent', () => {
     }
   });
 
-  it('passes axe', async () => {
-    const { fixture, load } = await render();
+  // #68: a list of plain text held nothing focusable, so the keyboard could scroll it only in a browser that makes a
+  // scroll container focusable on its own, and a screen reader met unnamed text
+  describe('as a scroll region', () => {
+    const items = (host: HTMLElement) => Array.from(host.querySelectorAll('.item'));
+    const place = (item: Element) => [item.getAttribute('role'), item.getAttribute('aria-posinset'), item.getAttribute('aria-setsize')];
+
+    it('takes focus from the keyboard, as a list named by its label', async () => {
+      const { host, load } = await render(c => {
+        c.$label.set('People');
+      });
+      await load();
+      const before = host.previousElementSibling as HTMLElement;
+      before.focus();
+
+      await userEvent.tab();
+
+      expect(document.activeElement).toBe(host);
+      expect(page.getByRole('list', { name: 'People', exact: true }).element()).toBe(host);
+    });
+
+    it('loads the next block as the arrow keys scroll it', async () => {
+      const { host, server, shown, settle, load } = await render();
+      await load();
+      // blocks of 10 rows: the first five load, the sixth once the list scrolls past its first 200px
+      expect(server.requests.map(request => request.offset)).toEqual([0, 10, 20, 30, 40]);
+      host.focus();
+
+      for (let press = 0; press < 40 && !server.requests.some(request => request.offset === 50); press++) {
+        await userEvent.keyboard('{ArrowDown}');
+        await server.answerAll(settle);
+      }
+
+      expect(host.scrollTop).toBeGreaterThan(0);
+      expect(server.requests.some(request => request.offset === 50)).toBe(true);
+      expect(shown()).toContain('Person 51');
+    });
+
+    it('gives each item its place in the whole list, and a size of -1 until the total is known', async () => {
+      const { component, host, server, settle, scrollTo } = await render();
+
+      const loading = component.list().load();
+      await settle();
+      // the first block's ten rows, still loading
+      expect(items(host).map(place)).toEqual(Array.from({ length: 10 }, (_, i) => ['listitem', `${i + 1}`, '-1']));
+
+      await server.answerAll(settle);
+      await loading;
+      expect(place(items(host)[0])).toEqual(['listitem', '1', '100']);
+
+      await scrollTo(1200);
+      const person = items(host).find(item => item.textContent.trim() === 'Person 61')!;
+      expect(place(person)).toEqual(['listitem', '61', '100']);
+    });
+
+    it('is a region named by its label while it shows no items, and has no role and no name without a label', async () => {
+      const { component, host, fixture, server, settle } = await render(c => {
+        c.$customLoader.set(true);
+      });
+      const roleAndName = () => [host.getAttribute('role'), host.getAttribute('aria-label')];
+      // its no-data template, before it loads
+      expect(roleAndName()).toEqual([null, null]);
+      expect(host.getAttribute('tabindex')).toBe('0');
+
+      component.$label.set('People');
+      await fixture.whenStable();
+      expect(roleAndName()).toEqual(['region', 'People']);
+
+      // its custom loader, while its first block loads
+      const loading = component.list().load();
+      await settle();
+      expect(host.textContent).toContain('Loading people');
+      expect(roleAndName()).toEqual(['region', 'People']);
+
+      await server.answerAll(settle);
+      await loading;
+      expect(roleAndName()).toEqual(['list', 'People']);
+
+      component.$label.set(undefined);
+      await fixture.whenStable();
+      expect(roleAndName()).toEqual(['list', null]);
+    });
+
+    // A role binding that returned null to turn the list roles off would remove the app's own role and name
+    it("keeps an app's own static role and name on its host, and gives its items no role", async () => {
+      const fixture = TestBed.createComponent(OptionsListComponent);
+      fixture.autoDetectChanges();
+      await fixture.whenStable();
+      const component = fixture.componentInstance;
+      const host = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('tab-virtualize')!;
+      const settle = async () => {
+        await new Promise(resolve => setTimeout(resolve));
+        await fixture.whenStable();
+      };
+      const roleAndName = () => [host.getAttribute('role'), host.getAttribute('aria-label')];
+      const loading = component.list().load();
+      await component.server.answerAll(settle);
+      await loading;
+
+      expect(page.getByRole('listbox', { name: 'People', exact: true }).element()).toBe(host);
+      expect(host.getAttribute('tabindex')).toBe('0');
+      expect(page.getByRole('option').elements()).toHaveLength(50);
+      expect(items(host).filter(item => place(item).some(value => value !== null))).toEqual([]);
+      expect(await axeViolations(fixture.nativeElement as HTMLElement)).toEqual([]);
+
+      // the label names it in place of the app's own name, which comes back without it
+      component.$label.set('Staff');
+      await fixture.whenStable();
+      expect(roleAndName()).toEqual(['listbox', 'Staff']);
+      component.$label.set(undefined);
+      await fixture.whenStable();
+      expect(roleAndName()).toEqual(['listbox', 'People']);
+    });
+  });
+
+  // #115: a failed block's pill was the error colour at 30% opacity, about 1.75:1 on the row, and only its colour told
+  // it from the loading pill
+  it("draws a failed block's rows at 3:1 or more in both themes, and says they failed", async () => {
+    TestBed.createComponent(LibraryStylesComponent);
+    const logged = vi.spyOn(console, 'error').mockImplementation(() => {
+      // recorded only
+    });
+    // the failure is rethrown for the app's ErrorHandler; this test's listener takes it, as an app's would
+    const expected = (event: PromiseRejectionEvent) => {
+      event.preventDefault();
+    };
+    window.addEventListener('unhandledrejection', expected);
+    try {
+      const { component, host, server, settle } = await render(c => {
+        c.$errorTemplate.set(false);
+      });
+      const loading = component.list().load();
+      await settle();
+      server.waiting[0].fail();
+      await settle();
+      await loading;
+      const pills = Array.from(host.querySelectorAll('.item .status.error'));
+
+      expect(pills.map(pill => pill.textContent.trim())).toEqual(Array.from({ length: 10 }, () => 'Failed to load'));
+      // out of sight: one clipped pixel in the pill
+      const words = pills[0].querySelector('.hidden-text')!;
+      expect(getComputedStyle(words).clipPath).toBe('inset(50%)');
+      expect(words.getBoundingClientRect().width).toBeLessThanOrEqual(1);
+      const reds = new Set<string>();
+      await inEachMode(mode => {
+        for (const pill of pills) {
+          reds.add(getComputedStyle(pill).backgroundColor);
+          expect(getComputedStyle(pill).opacity, mode).toBe('1');
+          expect(contrast(getComputedStyle(pill).backgroundColor, backgroundUnder(pill.parentElement!)), mode).toBeGreaterThanOrEqual(3);
+        }
+      });
+      // each theme's own red
+      expect(reds.size).toBe(2);
+      // the rethrown rejection is reported after the microtasks, while the listener still takes it
+      await new Promise(resolve => setTimeout(resolve, 100));
+    } finally {
+      window.removeEventListener('unhandledrejection', expected);
+      logged.mockRestore();
+    }
+  });
+
+  it('passes axe, with no rule off', async () => {
+    const { fixture, load } = await render(c => {
+      c.$label.set('People');
+    });
+    expect(await axeViolations(fixture.nativeElement as HTMLElement), 'no items').toEqual([]);
+
     await load();
 
-    // a list of plain text holds nothing focusable, so the keyboard can't scroll it in every browser (#68)
-    expect(await axeViolations(fixture.nativeElement as HTMLElement, { 'scrollable-region-focusable': '#68' })).toEqual([]);
+    expect(await axeViolations(fixture.nativeElement as HTMLElement), 'items').toEqual([]);
   });
 });

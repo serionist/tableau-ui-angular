@@ -20,6 +20,16 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   pristine, so a Save button bound to `dirty` turns off; and a rule that disables a field when another changes, as with
   `childChange`, makes the group emit its value twice. To keep the old behaviour, pass `false` as the second argument:
   `disable(emitEvent, false)` and `enable(emitEvent, false)`.
+- Every `tab-table` and `tab-virtualize` is a Tab stop, so the keyboard can scroll it. While `tab-virtualize` shows
+  items it is a list and its items `listitem`s; an app whose items have a role of their own writes a static `role`
+  attribute on `tab-virtualize`, such as `role="listbox"`, which keeps the library's roles off. Name a table or a
+  virtual scroller that scrolls with `label`.
+
+### Added
+
+- `label` on `tab-table` and `tab-virtualize`: the name screen readers give the table and the region its host is, or
+  the list. Without it a table's host has no role, and a virtual scroller is an unnamed list, or no role while it shows
+  no items.
 
 ### Fixed
 
@@ -65,6 +75,11 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   black on the dark one. The property names stay. Styles that copied the old red read the property instead. Text an app
   puts on `--twc-color-error` takes `--twc-color-base`, as the raised error button now does, since a light text there
   reads below 4.5:1 on the dark red; an app that sets `--twc-color-error` keeps `--twc-color-base` on it at 4.5:1.
+- A table or a virtual scroller whose rows hold nothing focusable can be scrolled from the keyboard in every browser,
+  and a screen reader hears its name and each item's place in the list, as "61 of 10,000".
+- The bar a table or a virtual scroller shows in a row whose block failed to load is the error colour itself, 3:1 or
+  more on the row in both themes, where it was that colour at 30% opacity, about 1.75:1. A screen reader reads it as
+  "Failed to load", so it isn't told by its colour alone.
 
 ## 0.2.0 (2026-10-31)
 

@@ -1,11 +1,12 @@
-import { ChangeDetectionStrategy, Component, effect, PLATFORM_ID, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, PLATFORM_ID, signal, viewChild, ViewEncapsulation } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { userEvent } from 'vitest/browser';
+import { page, userEvent } from 'vitest/browser';
 import { TableauUiButtonToggleModule } from 'tableau-ui-angular/button-toggle';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
 import type { Primitive } from 'tableau-ui-angular/types';
 import type { DataOptions, DataRowCss, DataSort } from 'tableau-ui-angular/virtualize';
 import { axeViolations } from '../../testing/axe';
+import { backgroundUnder, contrast, inEachMode } from '../../testing/contrast';
 import type { Person } from '../../testing/people';
 import { PEOPLE, PeopleServer } from '../../testing/people';
 import { movePointerAway } from '../../testing/pointer';
@@ -795,5 +796,209 @@ describe('TableComponent tooltips and column widths', () => {
     // a column that is not resizable has no edge to drag
     expect(header('name').querySelector('.resizer')).toBeNull();
     expect(host.querySelectorAll('.resizer').length).toBe(2);
+  });
+});
+
+// The library's styles, as an app imports them, while a fixture of it lives: the theme's colours in both modes
+@Component({
+  template: '',
+  styleUrl: '../../styles/lib-styles.scss',
+  encapsulation: ViewEncapsulation.None,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class LibraryStylesComponent {}
+
+// A table of plain text whose columns don't sort, so nothing in it takes focus but its host, with striped rows
+@Component({
+  imports: [TableauUiTableModule],
+  template: `
+    <button type="button">Before</button>
+    <tab-table
+      #table
+      style="height: 200px"
+      [label]="$label()"
+      [striped]="true"
+      [dataOptions]="server.incremental"
+      [dataRowCss]="{ height: '20px', lineHeight: '20px', padding: '0 8px' }"
+      [selectionOptions]="$selection()"
+    >
+      <ng-container tabColumnDef="id" [sortable]="false">
+        <ng-template [tabHeaderDef]="table">Id</ng-template>
+        <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.id }}</ng-template>
+      </ng-container>
+      <ng-container tabColumnDef="name" [sortable]="false">
+        <ng-template [tabHeaderDef]="table">Name</ng-template>
+        <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.name }}</ng-template>
+      </ng-container>
+    </tab-table>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class PlainTableComponent {
+  readonly server = new PeopleServer();
+  readonly $label = signal<string | undefined>(undefined);
+  readonly $selection = signal<SelectionOptions | undefined>(undefined);
+  readonly table = viewChild.required<TableComponent<Person>>(TableComponent);
+}
+
+// An app that made its table a named region itself
+@Component({
+  imports: [TableauUiTableModule],
+  template: `
+    <tab-table #table role="region" aria-label="Staff" style="height: 200px" [label]="$label()" [dataOptions]="server.incremental">
+      <ng-container tabColumnDef="name" [sortable]="false">
+        <ng-template [tabHeaderDef]="table">Name</ng-template>
+        <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.name }}</ng-template>
+      </ng-container>
+    </tab-table>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class StaffTableComponent {
+  readonly server = new PeopleServer();
+  readonly $label = signal<string | undefined>(undefined);
+}
+
+// #68: a table whose columns don't sort and whose cells hold no control had nothing that takes focus, so the keyboard
+// could scroll it only in a browser that makes a scroll container focusable on its own
+describe('TableComponent as a scroll region', () => {
+  beforeEach(movePointerAway);
+
+  async function render(setUp?: (component: PlainTableComponent) => void) {
+    const fixture = TestBed.createComponent(PlainTableComponent);
+    const component = fixture.componentInstance;
+    setUp?.(component);
+    fixture.autoDetectChanges();
+    await fixture.whenStable();
+    const host = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('tab-table')!;
+    const settle = async () => {
+      await new Promise(resolve => setTimeout(resolve));
+      await fixture.whenStable();
+    };
+    const load = async () => {
+      const loading = component.table().load();
+      await component.server.answerAll(settle);
+      return loading;
+    };
+    return { fixture, component, host, settle, load };
+  }
+
+  it('takes focus from the keyboard, as a region named by its label, its table too', async () => {
+    const { host, load } = await render(c => {
+      c.$label.set('People');
+    });
+    await load();
+    (host.previousElementSibling as HTMLElement).focus();
+
+    await userEvent.tab();
+
+    expect(document.activeElement).toBe(host);
+    expect(page.getByRole('region', { name: 'People', exact: true }).element()).toBe(host);
+    expect(page.getByRole('table', { name: 'People', exact: true }).element()).toBe(host.querySelector('.table'));
+  });
+
+  it('has no role and no name without a label, and still takes focus', async () => {
+    const { fixture, component, host, load } = await render();
+    await load();
+    const names = () => [host.getAttribute('role'), host.getAttribute('aria-label'), host.querySelector('.table')!.getAttribute('aria-label')];
+
+    expect(host.getAttribute('tabindex')).toBe('0');
+    expect(names()).toEqual([null, null, null]);
+
+    // a label with no words names nothing
+    component.$label.set(' ');
+    await fixture.whenStable();
+    expect(names()).toEqual([null, null, null]);
+  });
+
+  // A role binding that returned null without a label would remove the app's own role and name
+  it("keeps an app's own static role and name on its host", async () => {
+    const fixture = TestBed.createComponent(StaffTableComponent);
+    fixture.autoDetectChanges();
+    await fixture.whenStable();
+    const host = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('tab-table')!;
+    const roleAndName = () => [host.getAttribute('role'), host.getAttribute('aria-label')];
+
+    expect(roleAndName()).toEqual(['region', 'Staff']);
+
+    fixture.componentInstance.$label.set('People');
+    await fixture.whenStable();
+    expect(roleAndName()).toEqual(['region', 'People']);
+    fixture.componentInstance.$label.set(undefined);
+    await fixture.whenStable();
+    expect(roleAndName()).toEqual(['region', 'Staff']);
+  });
+
+  // #115: a failed block's pill was the error colour at 30% opacity, about 1.75:1 on the row, and only its colour told
+  // it from the loading pill
+  it("draws a failed block's cells at 3:1 or more on each row in both themes, and says they failed", async () => {
+    TestBed.createComponent(LibraryStylesComponent);
+    const logged = vi.spyOn(console, 'error').mockImplementation(() => {
+      // recorded only
+    });
+    // the failure is rethrown for the app's ErrorHandler; this test's listener takes it, as an app's would
+    const expected = (event: PromiseRejectionEvent) => {
+      event.preventDefault();
+    };
+    window.addEventListener('unhandledrejection', expected);
+    try {
+      // a row under the pointer takes the highlight while rows select on a click
+      const { component, host, settle } = await render(c => {
+        c.$selection.set(new SingleSelectionOptions());
+      });
+      const loading = component.table().load();
+      await settle();
+      component.server.waiting[0].fail();
+      await settle();
+      await loading;
+      const rows = Array.from(host.querySelectorAll<HTMLElement>('.data-rows .row'));
+      const pills = (row: Element) => Array.from(row.querySelectorAll('.status.error'));
+
+      expect(rows.length).toBeGreaterThan(2);
+      expect(rows.flatMap(row => pills(row).map(pill => pill.textContent.trim()))).toEqual(rows.flatMap(() => ['Failed to load', 'Failed to load']));
+      const words = rows[0].querySelector('.hidden-text')!;
+      expect(getComputedStyle(words).clipPath).toBe('inset(50%)');
+      expect(words.getBoundingClientRect().width).toBeLessThanOrEqual(1);
+      // each pill on its row: a plain row, a striped one, and one under the pointer
+      const reds = new Set<string>();
+      const ratios = () =>
+        rows.slice(0, 2).flatMap(row =>
+          pills(row).map(pill => {
+            reds.add(getComputedStyle(pill).backgroundColor);
+            return { opacity: getComputedStyle(pill).opacity, ratio: contrast(getComputedStyle(pill).backgroundColor, backgroundUnder(pill.parentElement!)) };
+          }),
+        );
+      await inEachMode(async mode => {
+        await movePointerAway();
+        const atRest = ratios();
+        const striped = backgroundUnder(rows[1]);
+        await userEvent.hover(rows[1]);
+        await vi.waitFor(() => {
+          expect(backgroundUnder(rows[1]), mode).not.toBe(striped);
+        });
+        const hovered = ratios();
+        for (const { opacity, ratio } of [...atRest, ...hovered]) {
+          expect(opacity, mode).toBe('1');
+          expect(ratio, mode).toBeGreaterThanOrEqual(3);
+        }
+      });
+      // each theme's own red
+      expect(reds.size).toBe(2);
+      // the rethrown rejection is reported after the microtasks, while the listener still takes it
+      await new Promise(resolve => setTimeout(resolve, 100));
+    } finally {
+      window.removeEventListener('unhandledrejection', expected);
+      logged.mockRestore();
+    }
+  });
+
+  it('passes axe with scrollable-region-focusable on, though no column sorts', async () => {
+    const { fixture, load } = await render(c => {
+      c.$label.set('People');
+    });
+    await load();
+
+    // the header row has no row role (#64)
+    expect(await axeViolations(fixture.nativeElement as HTMLElement, { 'aria-required-children': '#64', 'aria-required-parent': '#64' })).toEqual([]);
   });
 });

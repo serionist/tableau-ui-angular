@@ -1,5 +1,5 @@
-import type { TemplateRef } from '@angular/core';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, contentChild, ElementRef, HostListener, inject, input, model } from '@angular/core';
+import type { InputSignal, TemplateRef } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, contentChild, ElementRef, HostAttributeToken, HostListener, inject, input, model } from '@angular/core';
 import type { DataRowCss } from './base/virutalize-base.component';
 import { VirtualizeBaseComponent } from './base/virutalize-base.component';
 import type { DataOptions } from './data/data-options';
@@ -8,20 +8,54 @@ import { ItemTemplateDirective } from './templates/item-template.directive';
 import { LoadingTemplateDirective } from './templates/loading-template.directive';
 import { ErrorTemplateDirective } from './templates/error-template.directive';
 import { CustomLoaderDirective } from './templates/custom-loader.directive';
+/**
+ * A list that draws only the items near its view, and scrolls them in its own host.
+ *
+ * The host takes focus, so the keyboard scrolls it in every browser. While it shows items it is a `list`, named by
+ * `label`, and each item a `listitem` with its place in the whole list: `aria-posinset`, and `aria-setsize`, `-1` until
+ * the total is known. While it shows no items, its no-data template or its custom loader, it is a `region` named by
+ * `label`, and without `label` it has no role.
+ *
+ * An app whose items have a role of their own writes a static `role` attribute on `tab-virtualize`, such as
+ * `role="listbox"`: the host keeps that role, and its `aria-label` unless `label` is set, and its items take no role.
+ * The role is read once, when the host is created, so a bound `[attr.role]` isn't read.
+ */
 @Component({
   selector: 'tab-virtualize',
   standalone: false,
   templateUrl: './virtualize.component.html',
   styleUrl: './virtualize.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    tabindex: '0',
+    '[attr.role]': '$role()',
+    '[attr.aria-label]': '$ariaLabel()',
+  },
 })
 export class VirtualizeComponent<TData> extends VirtualizeBaseComponent<TData> {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  // The app's own static role and name on the host. The bindings return them, since a binding that returned null would
+  // remove them at the first change detection
+  private readonly appRole = inject(new HostAttributeToken('role'), { optional: true });
+  private readonly appAriaLabel = inject(new HostAttributeToken('aria-label'), { optional: true });
+  // the list and its items take the library's roles unless the app gave the host a role of its own
+  protected readonly listRoles = this.appRole === null;
+
   constructor() {
     super(inject(ChangeDetectorRef));
   }
 
   // #region Inputs
+  // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+  /**
+   * Names the list for screen readers, and the region it is while it shows no items: "Customers". A virtual scroller
+   * that scrolls needs it: its host takes focus, so a screen reader names what the keyboard reached.
+   * @default undefined
+   */
+  readonly $label: InputSignal<string | undefined> = input<string>(undefined, {
+    alias: 'label',
+  });
+
   /**
    * The data options for the table
    */
@@ -91,6 +125,33 @@ export class VirtualizeComponent<TData> extends VirtualizeBaseComponent<TData> {
   readonly $errorTemplate = contentChild(ErrorTemplateDirective);
   readonly $customLoaderTemplate = contentChild(CustomLoaderDirective);
   // #endregion Templates
+
+  // #region Accessibility
+  // What the host shows: the no-data template while it has no blocks, the custom loader while a reset waits for its
+  // first block, else the items
+  protected readonly $shows = computed<'items' | 'loader' | 'no-data'>(() => {
+    if (this.dataManager.$blocks().blocks.length === 0) {
+      return 'no-data';
+    }
+    return this.$loading() && this.$customLoaderTemplate() !== undefined ? 'loader' : 'items';
+  });
+  // the label, unless it has no words
+  private readonly $name = computed(() => {
+    const label = this.$label();
+    return label !== undefined && label.trim() !== '' ? label : undefined;
+  });
+  // A list while it shows items; with no items a region, which a name must name, so none without one
+  protected readonly $role = computed(() => {
+    if (this.appRole !== null) {
+      return this.appRole;
+    }
+    if (this.$shows() === 'items') {
+      return 'list';
+    }
+    return this.$name() === undefined ? null : 'region';
+  });
+  protected readonly $ariaLabel = computed(() => this.$name() ?? (this.appRole === null ? null : this.appAriaLabel));
+  // #endregion Accessibility
 
   // A row is drawn border-box at the height the virtual scroll counts, less its margins, its padding and borders inside
   // it, so its content keeps the app's own box-sizing; the binding sets its height, not the row's CSS
