@@ -31,6 +31,11 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   `chip.children[0]`, goes through the span: `tab-chip tab-icon`, or `chip.querySelector('.content')!.children[0]`.
 - A closed drawer is inert until change detection renders it open, so an app that sets `isOpen` and focuses into the
   drawer in the same tick finds the focus refused. Move the focus in `afterNextRender`, once the drawer renders.
+- Every `tab-table` and `tab-virtualize` is a Tab stop, so the keyboard can scroll it. A static `tabindex="-1"` on
+  one takes it out of the Tab order, and a `tabindex` an app put on a wrapper so the keyboard could scroll it can go.
+  While `tab-virtualize` shows items it is a list and its items `listitem`s; an app whose items have a role of their
+  own writes a static `role` attribute on `tab-virtualize`, such as `role="listbox"`, which keeps the library's roles
+  off. Name a table or a virtual scroller that scrolls with `label`, or a static `aria-label` on it.
 - Escape first hides a showing tooltip and goes no further: the dialog, menu or drawer under it closes on the next
   Escape. A list the tooltip's element opened above it, such as a select's, still closes on the first. A test that
   hovers or tabs to an element with a tooltip, then presses Escape to close a dialog, presses it twice or moves the
@@ -45,6 +50,9 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
 - `tab-expansion-panel`'s `label` input names its toggle button in place of the title. A title that holds a control,
   such as a button, or more than the panel's name needs it: the toggle took the title's whole text as its name, the
   control's included.
+- `label` on `tab-table` and `tab-virtualize`: the name screen readers give the table and the region its host is, or
+  the list. A static `aria-label` on the element names it the same way, and `label` wins. Without a name a table's host
+  has no role, and a virtual scroller is an unnamed list, or has no role while it shows no items.
 
 ### Fixed
 
@@ -105,6 +113,11 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   the old value and then the new one. A rule that sets a field from the others, with no check that the field already
   holds it, settles, where it overflowed the stack. A value or meta rule that doesn't settle within 100 rounds stops
   with an error that names `value$` or `meta$`, and its last change is dropped.
+- A table or a virtual scroller whose rows hold nothing focusable can be scrolled from the keyboard in every browser,
+  and a screen reader hears its name and each item's place in the list, as "61 of 10,000".
+- The bar a table or a virtual scroller shows in a row whose block failed to load is the error colour itself, 3:1 or
+  more on the row in both themes, where it was that colour at 30% opacity, about 1.75:1. A screen reader reads it as
+  "Failed to load", so it isn't told by its colour alone.
 - A tooltip shows when the keyboard moves the focus to its element, as on hover, where only the pointer opened one;
   the focus a click gives doesn't open it, a text input's included. Focus from the keyboard keeps it while the pointer
   passes over the element and leaves. A screen reader hears it: while it shows it is `role="tooltip"`, and its

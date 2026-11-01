@@ -1,5 +1,19 @@
 import type { InputSignal, ModelSignal, TemplateRef } from '@angular/core';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, contentChildren, ElementRef, HostListener, inject, input, model, viewChild, viewChildren } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  computed,
+  contentChildren,
+  ElementRef,
+  HostAttributeToken,
+  HostListener,
+  inject,
+  input,
+  model,
+  viewChild,
+  viewChildren,
+} from '@angular/core';
 import type { SortOrderPair } from './defs/column-def/column-def.directive';
 import { ColumnDefDirective } from './defs/column-def/column-def.directive';
 import { ColRenderedWidthDirective } from './column-widths/col-rendered-width.directive';
@@ -9,16 +23,32 @@ import type { Primitive } from 'tableau-ui-angular/types';
 import type { DataBlock, DataOptions, DataRowCss, DataSort } from 'tableau-ui-angular/virtualize';
 import { VirtualizeBaseComponent } from 'tableau-ui-angular/virtualize';
 
+/**
+ * A table that draws only the rows near its view, and scrolls them in its own host.
+ *
+ * The host takes focus, so the keyboard scrolls it in every browser, however little in it takes focus; a static
+ * `tabindex="-1"` the app writes on `tab-table` takes it out of the Tab order. With `label`, or a static `aria-label`
+ * the app writes on `tab-table`, the host is a `region` of that name, and its table too; `label` wins. A static `role`
+ * the app writes on `tab-table` stays.
+ */
 @Component({
   selector: 'tab-table',
   standalone: false,
   templateUrl: './table.component.html',
   styleUrl: './table.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: {},
+  host: {
+    tabindex: '0',
+    '[attr.role]': '$role()',
+    '[attr.aria-label]': '$ariaLabel()',
+  },
 })
 export class TableComponent<TData> extends VirtualizeBaseComponent<TData> {
   protected readonly checkboxColWidth = '2.5em';
+  // The app's own static role and name on the host. The bindings keep them, since a binding that returned null would
+  // remove them at the first change detection
+  private readonly appRole = inject(new HostAttributeToken('role'), { optional: true });
+  private readonly appAriaLabel = inject(new HostAttributeToken('aria-label'), { optional: true });
 
   readonly self = this;
 
@@ -165,6 +195,23 @@ export class TableComponent<TData> extends VirtualizeBaseComponent<TData> {
     alias: 'selectedRows',
   });
 
+  // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+  /**
+   * Names the table for screen readers, and the region its host is: "Orders". A table that scrolls needs it, or a static
+   * `aria-label` on `tab-table`: its host takes focus, so a screen reader names what the keyboard reached.
+   * @default undefined
+   */
+  readonly $label: InputSignal<string | undefined> = input<string>(undefined, {
+    alias: 'label',
+  });
+
+  // #endregion
+  // #region Accessibility
+  // the label, else the app's own static aria-label, whichever has words
+  protected readonly $name = computed(() => words(this.$label()) ?? words(this.appAriaLabel));
+  // A region, which a name must name, so none without one
+  protected readonly $role = computed(() => this.appRole ?? (this.$name() === undefined ? null : 'region'));
+  protected readonly $ariaLabel = computed(() => this.$name() ?? null);
   // #endregion
   // #region Columns
   public readonly $columnDefs = contentChildren<ColumnDefDirective<TData>>(ColumnDefDirective);
@@ -445,6 +492,11 @@ export class TableComponent<TData> extends VirtualizeBaseComponent<TData> {
   });
   private lineClampWarned = false;
   // #endregion
+}
+
+// A name, unless it has no words
+function words(name: string | null | undefined): string | undefined {
+  return name !== null && name !== undefined && name.trim() !== '' ? name : undefined;
 }
 
 // What a click in a cell can be meant for instead of the row: native controls, the library's button toggle, whose

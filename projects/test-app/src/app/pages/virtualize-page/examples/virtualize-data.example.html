@@ -12,7 +12,8 @@
   <button color="error" (click)="show('error')">A failed load</button>
 </div>
 
-<tab-virtualize #list class="list" [dataOptions]="$dataOptions()" [dataSort]="[]">
+<!-- It scrolls, so it takes focus, and its label names it for screen readers -->
+<tab-virtualize #list class="list" label="Rows" [dataOptions]="$dataOptions()" [dataSort]="[]">
   <ng-template let-ctx [tabItemTemplate]="list">{{ ctx.item.name }}</ng-template>
 </tab-virtualize>
 <output>The last request asked for {{ $lastRequest() }}</output>

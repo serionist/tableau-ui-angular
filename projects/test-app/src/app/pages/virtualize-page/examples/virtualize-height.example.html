@@ -5,7 +5,7 @@
 </div>
 
 <!-- No height: the list is as tall as its rows, up to 300px, so it loads blocks for a window of 300px -->
-<tab-virtualize #list class="list" [dataOptions]="dataOptions" [dataSort]="[]" [dataWindowHeightPx]="300" [noDataTemplate]="noRows">
+<tab-virtualize #list class="list" label="Rows" [dataOptions]="dataOptions" [dataSort]="[]" [dataWindowHeightPx]="300" [noDataTemplate]="noRows">
   <!-- Shown in place of the rows while the first block loads -->
   <ng-template tabCustomLoader>
     <tab-loading-gif />
