@@ -14,7 +14,7 @@
       <h3>A tab group</h3>
       <p>
         A <code>tab-group</code> holds <code>tab</code> elements. In each, the element marked <code>tab-header</code> is its header, and the rest is its content. The group starts on the first enabled
-        tab. Each header is in the Tab order, and Enter or Space selects it. Every tab's content stays in the page, hidden while another tab is selected.
+        tab. It is one Tab stop, the selected tab, and the arrow keys move between the tabs and select them. Every tab's content stays in the page, hidden while another tab is selected.
       </p>
       <table class="docs-table">
         <thead>
@@ -26,7 +26,7 @@
         <tbody>
           <tr>
             <td><code>[disabled]</code>, on a tab</td>
-            <td>Keeps the tab from being selected, and its header out of the Tab order</td>
+            <td>Keeps the tab from being selected; the arrow keys pass it</td>
           </tr>
           <tr>
             <td><code>key</code>, on a tab</td>
@@ -39,6 +39,10 @@
           <tr>
             <td><code>(tabSelected)</code></td>
             <td>Emitted each time a tab is selected, with its index, its key and the tab</td>
+          </tr>
+          <tr>
+            <td><code>label</code></td>
+            <td>Names the strip of tabs for screen readers</td>
           </tr>
           <tr>
             <td><code>[autoSelectFirstTab]</code></td>
@@ -63,6 +67,47 @@
         <code>1.5rem</code> by default.
       </p>
       <app-docs-example [example]="examples.narrow" />
+    </div>
+
+    <div class="section">
+      <h3>Accessibility</h3>
+      <p>A tab group follows the WAI-ARIA tabs pattern, and selects a tab as the arrow keys move to it.</p>
+      <ul>
+        <li>
+          The strip is a <code>tablist</code>, named by <code>label</code>. Each header is a <code>tab</code> that says whether it is selected or disabled, and each tab's content is a
+          <code>tabpanel</code> named by its tab.
+        </li>
+        <li>
+          The group is one Tab stop: the selected tab, or the first enabled one while none is selected, with <code>[autoSelectFirstTab]="false"</code>. The next Tab goes to the selected tab's content,
+          past the strip's scroll arrows when they show, then on through the page.
+        </li>
+        <li>
+          Each arrow key selects the tab it moves to, so <code>(tabSelected)</code> and <code>(afterActivate)</code> run once for each. A tab that loads its data on them gets it once per key; wait for
+          the user to stop, or load it once.
+        </li>
+      </ul>
+      <table class="docs-table">
+        <thead>
+          <tr>
+            <th scope="col">Key, on a tab</th>
+            <th scope="col">What it does</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Right, Left</td>
+            <td>Moves to the next or the previous enabled tab, past the end to the other end, and selects it</td>
+          </tr>
+          <tr>
+            <td>Home, End</td>
+            <td>Moves to the first or the last enabled tab, and selects it</td>
+          </tr>
+          <tr>
+            <td>Enter, Space</td>
+            <td>Selects the tab</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </div>

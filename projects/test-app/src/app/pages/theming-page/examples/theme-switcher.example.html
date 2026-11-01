@@ -1,7 +1,7 @@
 <div class="controls">
   <div>
     <tab-label>Colour mode</tab-label>
-    <tab-button-toggle [selectedValue]="$mode()" (selectedValueChange)="setMode($event)">
+    <tab-button-toggle aria-label="Colour mode" [selectedValue]="$mode()" (selectedValueChange)="setMode($event)">
       <tab-option value="light" icon="light_mode" text="Light" />
       <tab-option value="dark" icon="dark_mode" text="Dark" />
       <tab-option value="auto" icon="night_sight_auto" text="The system's" />
