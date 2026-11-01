@@ -519,7 +519,7 @@ export declare class MultiSelectionOptions extends CommonSelectionOptions {
 declare class ResizerDirective {
   readonly $columnElement: import('@angular/core').InputSignal<HTMLElement>;
   readonly $enabled: import('@angular/core').InputSignal<boolean>;
-  onMouseDown(event: MouseEvent): void;
+  constructor();
   static ɵfac: i0.ɵɵFactoryDeclaration<ResizerDirective, never>;
   static ɵdir: i0.ɵɵDirectiveDeclaration<
     ResizerDirective,
