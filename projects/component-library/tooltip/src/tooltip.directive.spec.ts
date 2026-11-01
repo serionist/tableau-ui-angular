@@ -497,7 +497,9 @@ describe('TooltipDirective', () => {
 
   it('shows a new text while it is open, and closes with its element, which takes its Escape listener', async () => {
     const { fixture, component, button } = await render();
-    await userEvent.hover(button('text'));
+    // from the keyboard, with the pointer on a button above: a pointer on the element would rest on the next one once
+    // the element goes and the rest move up, and that one's tooltip would take the Escape
+    await tabToText(button);
 
     component.$text.set('Saved');
     await fixture.whenStable();
