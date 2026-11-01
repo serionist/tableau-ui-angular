@@ -184,7 +184,7 @@ class DateContentComponent {}
 class HintContentComponent {}
 
 // What a modal's content renders with, as the tests below read it
-const rendered: { host?: HTMLElement | null; answer?: Promise<boolean> } = {};
+const rendered: { made?: HTMLElement | null; host?: HTMLElement | null; answer?: Promise<boolean> } = {};
 
 // Opens an app's dialog as it renders, and notes where overlays go then
 @Component({
@@ -194,6 +194,8 @@ const rendered: { host?: HTMLElement | null; answer?: Promise<boolean> } = {};
 })
 class OpeningContentComponent implements OnInit {
   private readonly dialogs = inject(DialogService);
+  // as it is made
+  protected readonly made = (rendered.made = this.dialogs.$overlayHost());
   ngOnInit() {
     rendered.host = this.dialogs.$overlayHost();
     this.dialogs.openDialog(DialogContentComponent, undefined, { closeOnEscape: true });
@@ -823,7 +825,14 @@ describe('DialogService', () => {
     const dialogs = TestBed.inject(DialogService);
     const header = { title: 'Edit', allowClose: true };
     const focused: EventTarget[] = [];
-    const track = (e: FocusEvent) => focused.push(e.target!);
+    // the close button's name as it takes focus, before any tick renders its icon
+    const closeNames: (string | null | undefined)[] = [];
+    const track = (e: FocusEvent) => {
+      focused.push(e.target!);
+      if (e.target instanceof Element && e.target.matches('.dialog-close')) {
+        closeNames.push(e.target.querySelector('tab-icon')?.getAttribute('aria-label'));
+      }
+    };
     document.addEventListener('focusin', track);
     try {
       const open = (component: Type<unknown>, args?: IModalArgs) => {
@@ -853,6 +862,7 @@ describe('DialogService', () => {
       // nothing in the content takes focus: the header's close button
       ref = open(DialogContentComponent, { header });
       expect(focused).toEqual([document.querySelector('.dialog-close')]);
+      expect(closeNames).toEqual(['Close']);
       ref.close();
 
       // nothing in it takes focus: the modal itself
@@ -1210,6 +1220,7 @@ describe('DialogService', () => {
     const dialogs = TestBed.inject(DialogService);
     const modal = dialogs.openModal(OpeningContentComponent, undefined);
     const layer = document.querySelector('dialog.dialog-container > .dialog-overlay-layer')!;
+    expect(rendered.made).toBe(layer);
     expect(rendered.host).toBe(layer);
     expect(document.querySelector('tab-test-dialog-content')!.closest('.dialog-container')!.parentElement).toBe(layer);
     modal.close();
@@ -1223,9 +1234,11 @@ describe('DialogService', () => {
 
   // A modal the content opened as it rendered, such as "Restore your draft?", showed first, and the outer one's
   // showModal() then covered it, inert, while Escape closed it unseen
-  it('shows a modal its content opens as it renders above it', async () => {
+  it('shows a modal its content opens as it renders above it, and gives focus back into it', async () => {
     TestBed.createComponent(LibraryStylesComponent);
     const dialogs = TestBed.inject(DialogService);
+    const page = onThePage();
+    page.focus();
     const outer = dialogs.openModal(DraftContentComponent, undefined, { header: { title: 'Note', allowClose: true } });
     TestBed.inject(ApplicationRef).tick();
     const [note, draft] = Array.from(document.querySelectorAll<HTMLDialogElement>('dialog.dialog-container'));
@@ -1245,10 +1258,13 @@ describe('DialogService', () => {
       expect(restore.contains(document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2))).toBe(true);
     });
 
+    // focus goes back into the note, where it was as the confirmation showed, not to the page under the note
     await userEvent.keyboard('{Escape}');
     await expect(rendered.answer).resolves.toBe(false);
     expect(isModal(note)).toBe(true);
+    expect(document.activeElement).toBe(note.querySelector('.edit'));
     outer.close();
+    expect(document.activeElement).toBe(page);
   });
 
   it("draws a modal's backdrop in the theme's backdrop colour, light and dark", async () => {

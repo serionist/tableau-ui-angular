@@ -20,6 +20,8 @@ interface OpenModal {
   dialogRef: IDialogRef;
   layer: HTMLElement;
   opener: HTMLElement | null;
+  // opened while another modal's content was made or rendered, so it shows once that one has
+  heldBack: boolean;
   // its showModal(), until it has run
   reveal?: () => void;
 }
@@ -46,8 +48,10 @@ export class DialogService implements OnDestroy {
 
   // The open modals, the bottom one first, a modal whose content renders now included
   private readonly modals: OpenModal[] = [];
-  // How many modals' contents render now, one inside another's
+  // How many modals' contents are being made or rendered now, one inside another's
   private rendering = 0;
+  // Ends the watch on the Tab key the browser moves now, in a dialog that keeps focus
+  private endTabGuard: () => void = () => undefined;
   private readonly $host = signal<HTMLElement | null>(null);
   /**
    * Where an overlay opened now belongs: the overlay layer of the topmost open modal, `div.dialog-overlay-layer` at the
@@ -86,7 +90,7 @@ export class DialogService implements OnDestroy {
    * from a menu that has closed meanwhile gives it back to the menu's button. A menu opened with `trapFocus` false, or
    * a button gone by the time the modal closes, leaves focus on the body. Escape
    * closes the top dialog in it, then the modal, unless `closeOnEscape` is `false`; a press on its backdrop closes it
-   * unless `closeOnBackdropClick` is `false`. A modal the content opens as it renders, such as a confirmation from its
+   * unless `closeOnBackdropClick` is `false`. A modal its content opens as it is made or renders, such as a confirmation from its
    * `ngOnInit`, shows above it.
    */
   openModal<TComponent, TData, TResult>(component: Type<TComponent>, data: TData, args?: IModalArgs): DialogRef<TResult> {
@@ -283,6 +287,22 @@ export class DialogService implements OnDestroy {
     const backdrop = modal ? undefined : this.createBackdrop(args, dialogRef, zIndex - 1, stackOptions, host);
     this.listenForKeys();
 
+    // A modal's overlays go in a layer at the top of its container (_dialog.service.scss), so a layer of the content
+    // with a z-index of its own, such as a sticky toolbar or a map's panes, never covers them. The modal is the overlay
+    // host from its content's creation: a dialog, a snack or a tooltip its content opens as it is made or renders goes
+    // into it, and shows with it, the closed <dialog> being laid out. One opened meanwhile from another modal's content
+    // shows once that one has, above it. Its close takes it out of the open modals again, then too
+    let overlayLayer: HTMLElement | undefined = undefined;
+    let thisModal: OpenModal | undefined = undefined;
+    if (modal) {
+      overlayLayer = this.document.createElement('div');
+      overlayLayer.classList.add('dialog-overlay-layer');
+      thisModal = { dialogRef, layer: overlayLayer, opener, heldBack: this.rendering > 0 };
+      this.modals.push(thisModal);
+      this.$host.set(overlayLayer);
+      this.rendering++;
+    }
+
     // Create an injector that provides the DialogRef
     const injector = Injector.create({
       providers: [
@@ -293,7 +313,27 @@ export class DialogService implements OnDestroy {
     });
 
     // Create the component view
-    const componentView = getViewRef(injector);
+    let componentView: ViewRef;
+    try {
+      componentView = getViewRef(injector);
+    } catch (error) {
+      // a content that can't be made leaves no modal, host or stack entry behind
+      if (thisModal) {
+        this.rendering--;
+        const modalIndex = this.modals.indexOf(thisModal);
+        if (modalIndex !== -1) {
+          this.modals.splice(modalIndex, 1);
+        }
+        this.$host.set(this.modals.at(-1)?.layer ?? null);
+      }
+      const dialogIndex = this.dialogStack.findIndex(entry => entry.dialogRef === dialogRef);
+      if (dialogIndex !== -1) {
+        this.dialogStack.splice(dialogIndex, 1);
+      }
+      backdrop?.remove();
+      this.listenForKeys();
+      throw error;
+    }
     // Attach component to the application
     this.appRef.attachView(componentView);
 
@@ -311,12 +351,7 @@ export class DialogService implements OnDestroy {
     } else {
       host.appendChild(dialogElement);
     }
-    // A modal's overlays go in a layer at the top of its container (_dialog.service.scss), so a layer of the content
-    // with a z-index of its own, such as a sticky toolbar or a map's panes, never covers them
-    let overlayLayer: HTMLElement | undefined = undefined;
-    if (modal) {
-      overlayLayer = this.document.createElement('div');
-      overlayLayer.classList.add('dialog-overlay-layer');
+    if (overlayLayer) {
       dialogElement.appendChild(overlayLayer);
     }
 
@@ -402,21 +437,14 @@ export class DialogService implements OnDestroy {
       }
     });
 
-    if (dialogElement instanceof HTMLDialogElement) {
-      this.showModal(dialogElement, overlayLayer!, componentView, dialogRef, opener);
+    if (dialogElement instanceof HTMLDialogElement && thisModal) {
+      this.showModal(dialogElement, componentView, thisModal);
     }
     return dialogRef;
   }
 
   // Shows a modal once its content has rendered, so the element focus goes to is there and focus moves once
-  private showModal(dialog: HTMLDialogElement, layer: HTMLElement, view: ViewRef, dialogRef: IDialogRef, opener: HTMLElement | null) {
-    // Overlays opened from now on go into it, those its content opens as it renders included, such as a dialog from its
-    // ngOnInit or the tooltip of a field it focuses: the closed <dialog> is laid out, and they show with it. Its close
-    // takes it out of the open modals again, during the render too
-    const open: OpenModal = { dialogRef, layer, opener };
-    this.modals.push(open);
-    this.$host.set(layer);
-    this.rendering++;
+  private showModal(dialog: HTMLDialogElement, view: ViewRef, open: OpenModal) {
     try {
       view.detectChanges();
     } catch (error) {
@@ -429,11 +457,16 @@ export class DialogService implements OnDestroy {
       open.reveal = undefined;
       // unless it closed meanwhile
       if (dialog.isConnected) {
-        this.reveal(dialog, layer);
+        // focus goes back to the element of the modal below that has it now, not to the page under that modal, which
+        // had it as this one opened
+        if (open.heldBack) {
+          open.opener = this.focusedElement();
+        }
+        this.reveal(dialog, open.layer);
       }
     };
-    // A modal opened as another's content rendered, such as a confirmation from its ngOnInit, shows once that one has,
-    // above it, in the order they opened
+    // A modal opened as another's content was made or rendered, such as a confirmation from its ngOnInit, shows once
+    // that one has, above it, in the order they opened
     if (this.rendering === 0) {
       for (const modal of [...this.modals]) {
         modal.reveal?.();
@@ -582,6 +615,7 @@ export class DialogService implements OnDestroy {
     }
     this.escapeSubscription?.unsubscribe();
     this.escapeSubscription = null;
+    this.endTabGuard();
   }
 
   // One listener on the window, in the bubble phase, while a dialog is open: a handler of the app's on an element or on
@@ -593,6 +627,7 @@ export class DialogService implements OnDestroy {
       return;
     }
     this.escapeSubscription ??= fromEvent<KeyboardEvent>(this.document.defaultView!, 'keydown').subscribe(e => {
+      this.endTabGuard();
       if (e.key === 'Escape') {
         this.onEscape(e);
       } else if (e.key === 'Tab') {
@@ -638,13 +673,14 @@ export class DialogService implements OnDestroy {
 
   // Tab and Shift+Tab keep focus in the top dialog that keeps it, such as a menu, and in the dialogs opened above it
   // outside it, such as an app's dialog a menu item opens while the menu stays open. The browser moves focus within
-  // each, a date input's own fields included; the service steps in only at an end, where Tab goes on to the next
-  // dialog's first element, wrapping from the last to the first, and Shift+Tab back, and where focus is outside them
-  // all. The page's own tabindex stays as it is, so a Tab stop the page moves meanwhile, as a button toggle's does when
-  // its value changes, stays where the page put it. A modal's <dialog> keeps focus by itself, since the browser makes
-  // the rest inert
+  // each, a date input's own fields included; the service steps in at an end, where Tab goes on to the next dialog's
+  // first element, wrapping from the last to the first, and Shift+Tab back, and where focus is outside them all. Should
+  // the browser's move leave them all, as past a date input's last field or from an element after the last Tab stop,
+  // the focus goes on to that same element. The page's own tabindex stays as it is, so a Tab stop the page moves
+  // meanwhile, as a button toggle's does when its value changes, stays where the page put it. A modal's <dialog> keeps
+  // focus by itself, since the browser makes the rest inert
   private keepFocusIn(e: KeyboardEvent) {
-    if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || isPicker(e.target)) {
+    if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) {
       return;
     }
     const element = (entry: (typeof this.dialogStack)[number]) => (entry.dialogRef as DialogRefInternal<unknown>).dialogElement;
@@ -667,21 +703,45 @@ export class DialogService implements OnDestroy {
     }
     const active = this.document.activeElement;
     const at = regions.findIndex(region => active instanceof Node && region.contains(active));
-    const own = at === -1 ? [] : stops[at];
-    // the regions after this one, or before it for Shift+Tab, wrapping round to it
-    const order = e.shiftKey ? [...stops.slice(0, at).reverse(), ...stops.slice(at).reverse()] : [...stops.slice(at + 1), ...stops.slice(0, at + 1)];
-    let next: FocusableElement | undefined;
     if (at === -1) {
       const all = stops.flat();
-      next = e.shiftKey ? all.at(-1) : all[0];
-    } else if (own.length === 0 || active === (e.shiftKey ? own[0] : own.at(-1))) {
-      const following = order.find(stopsOf => stopsOf.length > 0)!;
-      next = e.shiftKey ? following.at(-1) : following[0];
+      e.preventDefault();
+      (e.shiftKey ? all.at(-1) : all[0])?.focus();
+      return;
     }
-    if (next) {
+    // the next region's first Tab stop, or for Shift+Tab the last of the one before, wrapping round to this one
+    const order = e.shiftKey ? [...stops.slice(0, at).reverse(), ...stops.slice(at).reverse()] : [...stops.slice(at + 1), ...stops.slice(0, at + 1)];
+    const following = order.find(stopsOf => stopsOf.length > 0)!;
+    const next = e.shiftKey ? following.at(-1)! : following[0];
+    const own = stops[at];
+    // a date or time input's fields take Tab before it leaves the input
+    if (!isPicker(e.target) && (own.length === 0 || active === (e.shiftKey ? own[0] : own.at(-1)))) {
       e.preventDefault();
       next.focus();
+      return;
     }
+    this.guardTab(regions, next);
+  }
+
+  // Watches where the browser moves focus for this Tab press, and only for it: a focus that leaves every region goes on
+  // to `next`. It ends when focus moves, on the key's keyup or on the next key, so it never meets a script's own focus
+  private guardTab(regions: HTMLElement[], next: FocusableElement) {
+    const onFocusIn = (e: FocusEvent) => {
+      this.endTabGuard();
+      if (!regions.some(region => e.target instanceof Node && region.contains(e.target))) {
+        next.focus();
+      }
+    };
+    const onKeyUp = () => {
+      this.endTabGuard();
+    };
+    this.document.addEventListener('focusin', onFocusIn, true);
+    this.document.addEventListener('keyup', onKeyUp, true);
+    this.endTabGuard = () => {
+      this.document.removeEventListener('focusin', onFocusIn, true);
+      this.document.removeEventListener('keyup', onKeyUp, true);
+      this.endTabGuard = () => undefined;
+    };
   }
 
   private createView<TComponent>(component: Type<TComponent>, injector: Injector): ViewRef {

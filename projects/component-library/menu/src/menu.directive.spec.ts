@@ -67,6 +67,25 @@ class FiltersComponent {
   }
 }
 
+// A date range menu: a date first and last, and an element before and after them that takes focus from a script
+// only, as a screen reader may give it
+@Component({
+  imports: [TableauUiMenuModule],
+  template: `
+    <button type="button" class="dates" [attachedMenu]="dates">Dates</button>
+    <ng-template #dates="menu" menu>
+      <span class="lead" tabindex="-1">Range</span>
+      <input type="date" class="start" aria-label="Start" />
+      <button type="button" class="apply">Apply</button>
+      <input type="date" class="end" aria-label="End" />
+      <span class="tail" tabindex="-1">Today</span>
+    </ng-template>
+    <button type="button" class="after">After</button>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class DatesComponent {}
+
 // An app's dialog that doesn't keep focus
 @Component({
   selector: 'tab-test-note',
@@ -227,6 +246,34 @@ describe('MenuDirective', () => {
     expect(document.activeElement).toBe(element('.got-it'));
     await userEvent.keyboard('{Shift>}{Tab}{/Shift}');
     expect(document.activeElement).toBe(element('.help'));
+    expect(element('.after').tabIndex).toBe(0);
+  });
+
+  // Tab past a date input's last field, or Shift+Tab before its first, and Tab from an element after the last Tab stop,
+  // left the menu for the page behind it
+  it('keeps Tab in a menu past a date input at either end, and from an element outside its Tab stops', async () => {
+    const fixture = TestBed.createComponent(DatesComponent);
+    fixture.autoDetectChanges();
+    await fixture.whenStable();
+    const element = (selector: string) => document.querySelector<HTMLElement>(selector)!;
+    // presses the key until focus leaves the element, through a date input's own fields
+    const leave = async (from: HTMLElement, key: string) => {
+      from.focus();
+      for (let i = 0; i < 6 && document.activeElement === from; i++) {
+        await userEvent.keyboard(key);
+      }
+      return document.activeElement;
+    };
+    await userEvent.click(element('.dates'));
+    await fixture.whenStable();
+
+    expect(await leave(element('.end'), '{Tab}')).toBe(element('.start'));
+    expect(await leave(element('.start'), '{Shift>}{Tab}{/Shift}')).toBe(element('.end'));
+    expect(await leave(element('.tail'), '{Tab}')).toBe(element('.start'));
+    expect(await leave(element('.lead'), '{Shift>}{Tab}{/Shift}')).toBe(element('.end'));
+    // inside, the browser's own order
+    expect(await leave(element('.lead'), '{Tab}')).toBe(element('.start'));
+    expect(document.querySelector('.dialog-container')).not.toBeNull();
     expect(element('.after').tabIndex).toBe(0);
   });
 

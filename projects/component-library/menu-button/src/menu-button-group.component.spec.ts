@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import type { TemplateRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { userEvent } from 'vitest/browser';
 import { DialogService, TableauUiDialogModule } from 'tableau-ui-angular/dialog';
@@ -80,6 +81,30 @@ class StandaloneMenuComponent {}
 })
 class ResetMenuComponent {
   private readonly dialogs = inject(DialogService);
+  answer: Promise<boolean> | undefined;
+  protected reset() {
+    this.answer = this.dialogs.openConfirmationMessageDialog('Reset the layout?', 'This clears the layout you saved.', 'error', 'Reset', 'Cancel', 'cancel');
+  }
+}
+
+// The same menu, in a modal: its button sits in the modal's content
+@Component({
+  imports: [TableauUiMenuModule, TableauUiMenuButtonModule, TableauUiDialogModule],
+  template: `
+    <ng-template #layout>
+      <button type="button" class="in-modal" [attachedMenu]="resetMenu">Reset</button>
+      <ng-template #resetMenu="buttonMenu" buttonMenu>
+        <tab-menu-button-group>
+          <tab-menu-button (clicked)="reset()">Reset to the default layout</tab-menu-button>
+        </tab-menu-button-group>
+      </ng-template>
+    </ng-template>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class LayoutModalComponent {
+  readonly dialogs = inject(DialogService);
+  readonly $layout = viewChild.required<TemplateRef<unknown>>('layout');
   answer: Promise<boolean> | undefined;
   protected reset() {
     this.answer = this.dialogs.openConfirmationMessageDialog('Reset the layout?', 'This clears the layout you saved.', 'error', 'Reset', 'Cancel', 'cancel');
@@ -249,6 +274,33 @@ describe('MenuButtonGroupComponent', () => {
     await userEvent.click(cancel()!);
     await expect(component.answer).resolves.toBe(false);
     expect(document.activeElement).toBe(trigger);
+  });
+
+  it("gives focus back to the menu's button in a modal when a confirmation its item opened closes", async () => {
+    const fixture = TestBed.createComponent(LayoutModalComponent);
+    fixture.autoDetectChanges();
+    await fixture.whenStable();
+    const host = fixture.componentInstance;
+    const modal = host.dialogs.openTemplateModal(host.$layout(), undefined, { header: { title: 'Layout', allowClose: true } });
+    await fixture.whenStable();
+    const trigger = document.querySelector<HTMLButtonElement>('dialog .in-modal')!;
+    expect(document.activeElement).toBe(trigger);
+
+    trigger.click();
+    await fixture.whenStable();
+    // focus on the group, which highlights its first item
+    await vi.waitFor(() => {
+      const group = document.querySelector('tab-menu-button-group');
+      expect(document.activeElement).toBe(group);
+      expect(group?.getAttribute('aria-activedescendant')).toBeTruthy();
+    });
+    await userEvent.keyboard('{Enter}');
+    await fixture.whenStable();
+    expect(document.activeElement?.textContent.trim()).toBe('Cancel');
+    await userEvent.keyboard('{Enter}');
+    await expect(host.answer).resolves.toBe(false);
+    expect(document.activeElement).toBe(trigger);
+    modal.close();
   });
 
   it('runs an item that has focus itself on Enter', async () => {

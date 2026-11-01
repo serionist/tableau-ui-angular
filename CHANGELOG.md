@@ -241,7 +241,7 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   which a screen reader reads with that button. When it closes, focus goes back to the element focused before it
   opened, or to the button of the menu whose item opened it, and a wizard's step that closes under the next leaves
   focus in the next. A modal opened as another's content
-  renders, such as a confirmation from its `ngOnInit`, shows above it.
+  is made or renders, such as a confirmation from its `ngOnInit`, shows above it, and gives focus back into it.
 - A modal shows above an app's fixed header or any other z-index of the page, where it sat at z-index 100, and so do
   the tooltips, snacks and dialogs shown over it. Escape and the browser's other close requests, such as a back
   gesture or `requestClose()`, close the top dialog in a modal first, and Escape and `requestClose()` leave a modal
