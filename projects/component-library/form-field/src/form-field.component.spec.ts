@@ -1,8 +1,11 @@
 import type { Type } from '@angular/core';
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { page } from 'vitest/browser';
 import { TableauUiChipControlModule } from 'tableau-ui-angular/chip-control';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
+import { TableauUiListModule } from 'tableau-ui-angular/list';
+import { TableauUiRadioGroupModule } from 'tableau-ui-angular/radio-group';
 import { TableauUiSelectModule } from 'tableau-ui-angular/select';
 import { axeViolations } from '../../testing/axe';
 import { TableauUiFormFieldModule } from './tableau-ui-form-field.module';
@@ -152,6 +155,8 @@ describe('FormFieldComponent', () => {
 
       expect(created).toEqual([]);
       expect(label.htmlFor).toBe(host.querySelector('input')!.id);
+      // the description is in the first HTML: the effect that writes it runs on the server too
+      expect(host.querySelector('input')!.getAttribute('aria-describedby')).toBe(host.querySelector('tab-hint')!.parentElement!.id);
     } finally {
       delete globals.ngServerMode;
       vi.unstubAllGlobals();
@@ -211,5 +216,222 @@ describe('FormFieldComponent', () => {
     await fixture.whenStable();
     expect(shown()).toEqual(['Before tax', 'Too high']);
     expect(await axeViolations(host)).toEqual([]);
+  });
+
+  // #52: the hint and the error were not linked to the control, so a screen reader on the control read neither
+  describe('describes the control it names', () => {
+    abstract class DescribedField {
+      readonly $invalid = signal(false);
+      readonly $hintOnError = signal(false);
+    }
+
+    @Component({
+      imports,
+      template: `
+        <tab-form-field>
+          <tab-label>Name</tab-label>
+          <input type="text" aria-describedby="app-note" />
+          <tab-hint [showOnError]="$hintOnError()">The hint</tab-hint>
+          @if ($invalid()) {
+            <tab-error>The error</tab-error>
+          }
+        </tab-form-field>
+        <p id="app-note">The app's note</p>
+      `,
+      changeDetection: ChangeDetectionStrategy.OnPush,
+    })
+    class InputFieldComponent extends DescribedField {}
+
+    @Component({
+      imports: [...imports, TableauUiSelectModule],
+      template: `
+        <tab-form-field>
+          <tab-label>Country</tab-label>
+          <tab-single-select aria-describedby="app-note"><tab-option value="us" text="United States" /></tab-single-select>
+          <tab-hint [showOnError]="$hintOnError()">The hint</tab-hint>
+          @if ($invalid()) {
+            <tab-error>The error</tab-error>
+          }
+        </tab-form-field>
+        <p id="app-note">The app's note</p>
+      `,
+      changeDetection: ChangeDetectionStrategy.OnPush,
+    })
+    class SelectFieldComponent extends DescribedField {}
+
+    @Component({
+      imports: [...imports, TableauUiListModule],
+      template: `
+        <tab-form-field>
+          <tab-label>Country</tab-label>
+          <tab-list-single-select aria-describedby="app-note"><tab-option value="us" text="United States" /></tab-list-single-select>
+          <tab-hint [showOnError]="$hintOnError()">The hint</tab-hint>
+          @if ($invalid()) {
+            <tab-error>The error</tab-error>
+          }
+        </tab-form-field>
+        <p id="app-note">The app's note</p>
+      `,
+      changeDetection: ChangeDetectionStrategy.OnPush,
+    })
+    class ListFieldComponent extends DescribedField {}
+
+    // The chip control's search input is the library's, so it has no id of the app's
+    @Component({
+      imports: [...imports, TableauUiChipControlModule],
+      template: `
+        <tab-form-field>
+          <tab-label>Tags</tab-label>
+          <tab-chip-control #chips [getValuesByKeys]="getValues">
+            <ng-template let-ctx [tabChipTemplate]="chips">{{ ctx.data.value }}</ng-template>
+          </tab-chip-control>
+          <tab-hint [showOnError]="$hintOnError()">The hint</tab-hint>
+          @if ($invalid()) {
+            <tab-error>The error</tab-error>
+          }
+        </tab-form-field>
+      `,
+      changeDetection: ChangeDetectionStrategy.OnPush,
+    })
+    class ChipFieldComponent extends DescribedField {
+      readonly getValues = async () => Promise.resolve([]);
+    }
+
+    it.each([
+      { name: 'a native input', component: InputFieldComponent, selector: 'input', app: ["The app's note"] },
+      { name: 'a select', component: SelectFieldComponent, selector: 'tab-single-select', app: ["The app's note"] },
+      { name: 'a list', component: ListFieldComponent, selector: 'tab-list-single-select', app: ["The app's note"] },
+      { name: "a chip control's search input", component: ChipFieldComponent, selector: 'tab-chip-control input', app: [] },
+    ])('describes $name by the hint, then the error, as each shows, invalid only while the error shows', async ({ component, selector, app }) => {
+      const { fixture, host } = await render(component);
+      const field = fixture.componentInstance as DescribedField;
+      const control = host.querySelector<HTMLElement>(selector)!;
+      // the text of each element the control's aria-describedby names, in its order
+      const describedBy = () => (control.getAttribute('aria-describedby') ?? '').split(' ').filter(id => id !== '');
+      const description = () => describedBy().map(id => document.getElementById(id)?.textContent.trim());
+      const invalid = () => control.getAttribute('aria-invalid');
+
+      expect(description()).toEqual([...app, 'The hint']);
+      await expect.element(control).toHaveAccessibleDescription([...app, 'The hint'].join(' '));
+      expect(invalid()).toBeNull();
+
+      // the error shows in the hint's place
+      field.$invalid.set(true);
+      await fixture.whenStable();
+      expect(description()).toEqual([...app, 'The error']);
+      expect(invalid()).toBe('true');
+
+      // and with it, after it, when the hint shows on error
+      field.$hintOnError.set(true);
+      await fixture.whenStable();
+      expect(description()).toEqual([...app, 'The hint', 'The error']);
+      await expect.element(control).toHaveAccessibleDescription([...app, 'The hint', 'The error'].join(' '));
+      expect(invalid()).toBe('true');
+      expect(await axeViolations(host)).toEqual([]);
+
+      field.$invalid.set(false);
+      await fixture.whenStable();
+      expect(description()).toEqual([...app, 'The hint']);
+      expect(invalid()).toBeNull();
+    });
+
+    @Component({
+      imports,
+      template: `
+        <tab-form-field>
+          <tab-label>Code</tab-label>
+          <input type="text" />
+          @if ($error()) {
+            <tab-error>{{ $error() }}</tab-error>
+          }
+        </tab-form-field>
+        <button type="button">Elsewhere</button>
+      `,
+      changeDetection: ChangeDetectionStrategy.OnPush,
+    })
+    class CodeFieldComponent {
+      readonly $error = signal('');
+    }
+
+    it('says an error that appears or changes with focus in the field, and not one that appears with focus elsewhere', async () => {
+      const { fixture, host } = await render(CodeFieldComponent);
+      const code = fixture.componentInstance as CodeFieldComponent;
+      const [input, elsewhere] = [host.querySelector('input')!, host.querySelector('button')!];
+      const region = host.querySelector('tab-form-field [aria-live="polite"]')!;
+      // the field hears each change through an observer, after the render
+      const show = async (error: string) => {
+        code.$error.set(error);
+        await fixture.whenStable();
+        await new Promise(resolve => setTimeout(resolve));
+      };
+      expect(region.textContent).toBe('');
+
+      input.focus();
+      await show('Too short');
+      expect(region.textContent).toBe('Too short');
+      await show('Digits only');
+      expect(region.textContent).toBe('Digits only');
+      // an error that goes takes its words out
+      await show('');
+      expect(region.textContent).toBe('');
+
+      // with focus elsewhere it stays quiet: the error describes the input, so the user hears it on coming back
+      elsewhere.focus();
+      await show('Too short');
+      expect(region.textContent).toBe('');
+      await expect.element(input).toHaveAccessibleDescription('Too short');
+
+      input.focus();
+      await show('Digits only');
+      expect(region.textContent).toBe('Digits only');
+      expect(await axeViolations(host)).toEqual([]);
+
+      // leaving the field empties the region, so reading the page later doesn't find the error twice
+      elsewhere.focus();
+      expect(region.textContent).toBe('');
+    });
+
+    // #53: the group's options read as loose radios, with nothing that said what they answer
+    it("names a radio group by the field's label, and describes it by the field's hint", async () => {
+      @Component({
+        imports: [...imports, TableauUiRadioGroupModule],
+        template: `
+          <tab-form-field>
+            <tab-label>Size</tab-label>
+            <tab-radio-group>
+              <tab-option text="Small" [value]="'s'" />
+              <tab-option text="Large" [value]="'l'" />
+            </tab-radio-group>
+            <tab-hint>Sizes run large</tab-hint>
+          </tab-form-field>
+        `,
+        changeDetection: ChangeDetectionStrategy.OnPush,
+      })
+      class SizeFieldComponent {}
+      const { host } = await render(SizeFieldComponent);
+
+      const group = page.getByRole('radiogroup', { name: 'Size', exact: true }).element();
+      expect(group).toBe(host.querySelector('tab-radio-group'));
+      await expect.element(group).toHaveAccessibleDescription('Sizes run large');
+      expect(await axeViolations(host)).toEqual([]);
+    });
+
+    it("adds its label to a control's own aria-labelledby", async () => {
+      @Component({
+        imports: [...imports, TableauUiListModule],
+        template: `
+          <h4 id="app-heading">Travel</h4>
+          <tab-form-field>
+            <tab-label>Country</tab-label>
+            <tab-list-single-select aria-labelledby="app-heading"><tab-option value="us" text="United States" /></tab-list-single-select>
+          </tab-form-field>
+        `,
+        changeDetection: ChangeDetectionStrategy.OnPush,
+      })
+      class TravelFieldComponent {}
+      const { host, label } = await render(TravelFieldComponent);
+
+      expect(host.querySelector('tab-list-single-select')!.getAttribute('aria-labelledby')).toBe(`app-heading ${label.id}`);
+    });
   });
 });

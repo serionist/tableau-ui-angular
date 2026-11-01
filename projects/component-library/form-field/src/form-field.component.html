@@ -21,11 +21,18 @@
 </div>
 @if ($hintElement() || $errorElement()) {
   <div class="form-extra-info">
-    @if ($hintElement() && (!$errorElement() || $hintElement()!.$showOnError())) {
-      <ng-content select="tab-hint" />
+    <!-- The control's aria-describedby names these wrappers while they show, the hint first -->
+    @if ($hintShown()) {
+      <div class="hints" [id]="hintId">
+        <ng-content select="tab-hint" />
+      </div>
     }
     @if ($errorElement()) {
-      <ng-content select="tab-error" />
+      <div #errorContainer class="errors" [id]="errorId">
+        <ng-content select="tab-error" />
+      </div>
     }
   </div>
 }
+<!-- Says an error that appears or changes while focus is in the field -->
+<div #announcer class="announcer" aria-live="polite"></div>

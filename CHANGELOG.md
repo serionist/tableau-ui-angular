@@ -60,6 +60,16 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   They check Angular's own state now, so `markAsDirty(true, true)` marks the ancestors of a control that is already
   dirty and `markAsPristine(true, true)` those of one already pristine, and a pristine group's `markAsPristine()` marks its dirty
   children pristine.
+- A form field's hints and errors describe its control through `aria-describedby`, the hints first, each while it
+  shows, and the control has `aria-invalid="true"` while an error shows. The control is a native input, textarea or
+  select, the host of a select, a list or a radio group, or a chip control's search input. A hidden polite live region
+  says an error that appears or changes while focus is in the field. Ids an app puts in the control's own
+  `aria-describedby` or `aria-labelledby` stay: the field's label joins an app's `aria-labelledby`, where it replaced
+  it.
+- A checkbox's hint, or its error in the hint's place, describes its input, and the input has `aria-invalid="true"`
+  while the error shows.
+- `tab-radio-group` is a `radiogroup`, named by a form field's label or by `aria-label` or `aria-labelledby` on it. Its
+  error describes it, after the app's own ids, and it has `aria-invalid="true"` while the error shows.
 
 ## 0.2.0 (2026-10-31)
 

@@ -57,6 +57,12 @@
     overflow: hidden;
     column-gap: 0.75rem;
 
+    // Wrappers with the ids the control's aria-describedby names; their hints and errors stay items of this grid
+    .hints,
+    .errors {
+      display: contents;
+    }
+
     ::ng-deep tab-hint {
       grid-row: 1;
     }
@@ -73,6 +79,16 @@
     ::ng-deep tab-error {
       grid-column: 1;
     }
+  }
+
+  // out of sight and out of the layout, still read: a box of one pixel at the default size, clipped
+  .announcer {
+    position: absolute;
+    width: 0.0625rem;
+    height: 0.0625rem;
+    overflow: hidden;
+    white-space: nowrap;
+    clip-path: inset(50%);
   }
 
   &.disabled .prefix,

@@ -76,5 +76,60 @@
       </p>
       <app-docs-example [example]="examples.validation" />
     </div>
+
+    <div class="section">
+      <h3>Accessibility</h3>
+      <p>The field names its control by the label and describes it by the hints and the errors; the app adds nothing.</p>
+      <table class="docs-table">
+        <thead>
+          <tr>
+            <th scope="col">The control gets</th>
+            <th scope="col">How</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Its name</td>
+            <td>
+              The
+              <code>tab-label</code>: its <code>for</code> names a native input, textarea or select, and <code>aria-labelledby</code> names the host of a select, a list or a radio group, or a chip
+              control's search input
+            </td>
+          </tr>
+          <tr>
+            <td>Its description</td>
+            <td>
+              <code>aria-describedby</code>
+              names the hints while they show, then the errors while they show
+            </td>
+          </tr>
+          <tr>
+            <td>Its state</td>
+            <td>
+              <code>aria-invalid="true"</code>
+              while an error shows
+            </td>
+          </tr>
+          <tr>
+            <td>An announcement</td>
+            <td>A hidden polite live region says an error that appears or changes while focus is in the field; one that appears while focus is elsewhere stays quiet</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        Ids the app puts in the control's own
+        <code>aria-describedby</code>
+        or
+        <code>aria-labelledby</code>
+        stay, with the field's after them.
+      </p>
+      <p>
+        On submit, move focus to the first invalid field. The fields say only the error of the field that has focus, so a submit that shows five errors stays quiet, and the user hears each error on
+        reaching its field. Call
+        <code>markAllAsTouched()</code>
+        on the form, and once its errors show, focus the first element in it with
+        <code>aria-invalid="true"</code>.
+      </p>
+    </div>
   </div>
 </div>

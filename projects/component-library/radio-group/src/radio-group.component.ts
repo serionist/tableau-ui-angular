@@ -1,5 +1,5 @@
 import type { InputSignal, Signal, WritableSignal } from '@angular/core';
-import { ChangeDetectionStrategy, Component, computed, contentChild, contentChildren, forwardRef, input, linkedSignal, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, contentChild, contentChildren, effect, ElementRef, forwardRef, inject, input, linkedSignal, output, signal } from '@angular/core';
 
 import type { ControlValueAccessor } from '@angular/forms';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
@@ -21,6 +21,11 @@ import { generateRandomString } from 'tableau-ui-angular/utils';
     },
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  // WAI-ARIA's radio group: the host groups the native radios, which keep their keys. The app names it with aria-label
+  // or aria-labelledby on tab-radio-group, or a form field's label does
+  host: {
+    role: 'radiogroup',
+  },
 })
 export class RadioGroupComponent<T extends Primitive> implements ControlValueAccessor {
   readonly $disabled = signal(false);
@@ -40,6 +45,24 @@ export class RadioGroupComponent<T extends Primitive> implements ControlValueAcc
   protected readonly $selectedOption: Signal<OptionComponent<T> | undefined> = computed(() => {
     const selected = this.$value();
     return this.$options().find(option => sameValue(option.$value(), selected));
+  });
+  protected readonly errorId = `${generateRandomString(16)}-error`;
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  // Whether the group set its host's aria-invalid, so it takes off only its own
+  private invalidMarked = false;
+  // The error describes the group and marks it invalid while it shows; the app's own ids, and a form field's, stay.
+  // It runs on the server too, so the first HTML has them
+  private readonly describeGroup = effect(() => {
+    const host = this.host.nativeElement;
+    const error = this.$errorElement() !== undefined;
+    setOwnIds(host, 'aria-describedby', [this.errorId], error ? [this.errorId] : []);
+    if (error && !this.invalidMarked && host.getAttribute('aria-invalid') !== 'true') {
+      host.setAttribute('aria-invalid', 'true');
+      this.invalidMarked = true;
+    } else if (!error && this.invalidMarked) {
+      host.removeAttribute('aria-invalid');
+      this.invalidMarked = false;
+    }
   });
 
   // eslint-disable-next-line  @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
@@ -88,6 +111,21 @@ export class RadioGroupComponent<T extends Primitive> implements ControlValueAcc
     renderText: true,
     renderHint: true,
   };
+}
+
+/**
+ * Writes `ids` last in an id list attribute such as `aria-describedby`, in place of the ids in `own`: the app's ids
+ * stay, and the library's own come and go
+ */
+function setOwnIds(element: Element, attribute: string, own: readonly string[], ids: readonly string[]) {
+  const current = element.getAttribute(attribute);
+  const kept = (current ?? '').split(/\s+/).filter(id => id !== '' && !own.includes(id));
+  const value = [...kept, ...ids].join(' ');
+  if (value === '') {
+    element.removeAttribute(attribute);
+  } else if (value !== current) {
+    element.setAttribute(attribute, value);
+  }
 }
 
 /** Whether two option values are the same: equal dates are, though they are different objects */
