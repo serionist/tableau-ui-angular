@@ -62,7 +62,9 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   children pristine.
 - Error text reaches 4.5:1 on every surface in both themes: `--twc-color-error` is `rgb(190 10 30)` light and
   `rgb(255 133 133)` dark, and a raised error button's label takes `--twc-color-base`, white on the light red and near
-  black on the dark one. The property names stay. Styles that copied the old red read the property instead.
+  black on the dark one. The property names stay. Styles that copied the old red read the property instead. Text an app
+  puts on `--twc-color-error` takes `--twc-color-base`, as the raised error button now does, since a light text there
+  reads below 4.5:1 on the dark red; an app that sets `--twc-color-error` keeps `--twc-color-base` on it at 4.5:1.
 
 ## 0.2.0 (2026-10-31)
 

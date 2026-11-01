@@ -114,8 +114,8 @@
     <div class="section">
       <h3>Accessibility</h3>
       <p>
-        Error text reads at 4.5:1 or more, the contrast WCAG asks of body text, on every surface the library draws it on, in light and in dark. A spec in the library reads each pair below in both
-        themes, in Chromium and Firefox.
+        Error text and the error buttons' labels read at 4.5:1 or more, the contrast WCAG asks of body text, on every surface the library draws them on, at rest and under the pointer, in light and in
+        dark. A spec in the library reads each pair below in both themes, in Chromium and Firefox.
       </p>
       <table class="docs-table">
         <thead>
@@ -140,9 +140,15 @@
         </tbody>
       </table>
       <p>
-        An app that sets one of these colours keeps each pair at 4.5:1. For its own error text, such as a negative number, it reads
+        For its own error text, such as a negative number, an app reads
         <code>var(--twc-color-error)</code>
-        rather than copying the value, so the text follows the theme.
+        rather than copying the value, so the text follows the theme. Text an app puts on
+        <code>--twc-color-error</code>, such as a count badge, takes <code>--twc-color-base</code>, as the raised error button now does: a light text there reads below 4.5:1 on the dark theme's red.
+        An app that sets one of these colours keeps each pair at 4.5:1,
+        <code>--twc-color-base</code>
+        on
+        <code>--twc-color-error</code>
+        included.
       </p>
     </div>
   </div>
