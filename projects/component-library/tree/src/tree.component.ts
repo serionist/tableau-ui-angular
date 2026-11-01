@@ -13,9 +13,11 @@ import { TreeNodeRegistry } from './tree-node-registry';
  * next and previous shown node; Right opens a closed node and moves into an open one; Left closes an open node and
  * moves from a child to its parent; Home and End move to the first and last shown node; Enter opens or closes a node;
  * a character moves to the next shown node whose text starts with it. A control in a node's content keeps its own Tab
- * stop and its own keys. The buttons that open and close the nodes are for the pointer: they take no focus, and are
- * hidden from assistive technology, since the node says whether it is open. An assistive technology that activates a
- * node clicks its row, which opens or closes it as the button does; a click on the node's content only focuses it.
+ * stop, its own keys and its own clicks. The buttons that open and close the nodes take no focus, and are hidden from
+ * assistive technology, since the node says whether it is open. A click anywhere else in a node's row, its text and
+ * icons included, opens or closes a node with children and focuses it, as an assistive technology's activation does; a
+ * click on a link, a button, a field, a label or an element with a `tabindex` in the content, or one that ends a text
+ * selection, is left to the content.
  */
 @Component({
   selector: 'tab-tree',
@@ -279,15 +281,17 @@ export class TabTreeComponent implements OnDestroy {
     }
   }
 
-  // A click on the row itself, where an assistive technology's activation lands, opens or closes a node with children,
-  // as its hidden button does for the pointer, and moves the focus to it. A click on the node's content is the content's.
+  // A click in a row, its text and icons included, opens or closes a node with children and moves the focus to it. An
+  // assistive technology's activation lands there: WebKit's, on iOS and macOS, on the element at the row's centre, the
+  // node's content. A click on a control in the content is the control's; the hidden button, one of them, toggles itself.
   protected onClick(event: MouseEvent) {
-    const row = this.rowOf(event.target instanceof Node ? event.target : null);
+    const target = event.target instanceof Element ? event.target : null;
+    const row = this.rowOf(target);
     const node = row && this.nodeOf(row);
-    if (!node || event.target !== row) {
+    if (!target || !node || interactiveIn(target, row)) {
       return;
     }
-    // a drag that selects the node's text and ends on the row is no activation
+    // a drag that selects the node's text and ends in the row is no activation
     const selection = this.document.getSelection();
     if (selection && !selection.isCollapsed && (row.contains(selection.anchorNode) || row.contains(selection.focusNode))) {
       return;
@@ -505,6 +509,16 @@ export class TabTreeComponent implements OnDestroy {
 // nodes, so a parent whose hierarchyId is bound, and set after its children were made, is found too.
 function autoParentId(node: TabTreeNodeComponent): string | undefined {
   return node.$hierarchyParentId() ?? enclosingNode(node)?.$hierarchyId();
+}
+
+// What takes its own clicks in a node's content: a link, a button (the node's hidden one too), a field, a label, an
+// editable element, anything with a tabindex, such as a nested tree's rows
+const INTERACTIVE = 'a[href], button, input, select, textarea, label, [contenteditable]:not([contenteditable="false"]), [tabindex]';
+
+// Whether `target`, or an element between it and `row`, takes its own clicks; the row's own tabindex doesn't count
+function interactiveIn(target: Element, row: HTMLElement): boolean {
+  const control = target.closest(INTERACTIVE);
+  return control !== null && control !== row && row.contains(control);
 }
 
 export interface ExpandButtonTooltipParams<T = unknown> {

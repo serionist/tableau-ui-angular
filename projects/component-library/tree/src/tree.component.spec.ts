@@ -64,7 +64,7 @@ class ModesTreeComponent {
         }
       </tab-tree-node>
       <tab-tree-node [order]="$teamOrder()" (expandedChange)="teamChanges.push($event)">
-        Team
+        <span>Team</span>
         <tab-tree-node>Ada</tab-tree-node>
         <tab-tree-node>Bob</tab-tree-node>
       </tab-tree-node>
@@ -84,13 +84,15 @@ class FilesTreeComponent {
   readonly teamChanges: boolean[] = [];
 }
 
-// A node whose content holds a control
+// Nodes whose content holds controls
 @Component({
   imports: [TableauUiTreeModule],
   template: `
     <tab-tree aria-label="Tasks">
       <tab-tree-node [expanded]="true">
         Tasks
+        <input aria-label="Filter" />
+        <button type="button" (click)="added = added + 1">Add</button>
         <tab-tree-node>Write <input aria-label="Note" /></tab-tree-node>
         <tab-tree-node>Review</tab-tree-node>
       </tab-tree-node>
@@ -98,7 +100,9 @@ class FilesTreeComponent {
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-class ControlTreeComponent {}
+class ControlTreeComponent {
+  added = 0;
+}
 
 // A row's first word, or an element's text
 function nameOf(element: Element | null) {
@@ -456,53 +460,86 @@ describe('TabTreeComponent', () => {
       expect(tabStops()).toEqual(['Costs']);
     });
 
-    // An assistive technology activates a node with a click on its row: VoiceOver on iOS, TalkBack, Switch Control and
-    // Voice Control can't reach the hidden toggle
-    it('opens and closes a node on a click on its row itself, as assistive technologies send it, and not on a click on its content', async () => {
+    // An assistive technology activates a node with a click: WebKit's, for VoiceOver on iOS and Switch Control and Voice
+    // Control on Apple platforms, lands on the element at the row's centre, the node's content; TalkBack's on the row
+    it('opens and closes a node on a click anywhere in its row, its text included, and focuses it', async () => {
       const { fixture, component, row, focused, button } = await renderFiles();
+      const content = () => row('Team').querySelector<HTMLElement>('.header-content')!;
+      const label = () => content().querySelector('span')!;
       button('Before').focus();
 
       row('Team').click();
       await fixture.whenStable();
       expect(row('Team').getAttribute('aria-expanded')).toBe('true');
       expect(focused()).toBe('Team');
-      row('Team').click();
+      content().click();
       await fixture.whenStable();
       expect(row('Team').getAttribute('aria-expanded')).toBe('false');
-      expect(component.teamChanges).toEqual([true, false]);
-
-      // the pointer on the node's text focuses it, and toggles nothing
-      button('Before').focus();
-      await userEvent.click(row('Team').querySelector('.header-content')!);
-      await fixture.whenStable();
-      expect(focused()).toBe('Team');
-      expect(row('Team').getAttribute('aria-expanded')).toBe('false');
-      row('Team').querySelector<HTMLElement>('.header-content')!.click();
-      await fixture.whenStable();
-      expect(row('Team').getAttribute('aria-expanded')).toBe('false');
-
-      // a drag that selects the node's text and ends on its row toggles nothing; a selection elsewhere doesn't stop a click
-      const selection = document.getSelection()!;
-      const range = document.createRange();
-      range.selectNodeContents(row('Team').querySelector('.header-content')!);
-      selection.removeAllRanges();
-      selection.addRange(range);
-      row('Team').click();
-      await fixture.whenStable();
-      expect(row('Team').getAttribute('aria-expanded')).toBe('false');
-      range.selectNodeContents(button('After'));
-      selection.removeAllRanges();
-      selection.addRange(range);
-      row('Team').click();
+      label().click();
       await fixture.whenStable();
       expect(row('Team').getAttribute('aria-expanded')).toBe('true');
-      selection.removeAllRanges();
+      expect(component.teamChanges).toEqual([true, false, true]);
+
+      // the pointer on the node's label too
+      button('Before').focus();
+      await userEvent.click(label());
+      await fixture.whenStable();
+      expect(row('Team').getAttribute('aria-expanded')).toBe('false');
+      expect(focused()).toBe('Team');
 
       // a node without children only takes the focus
       row('Archive').click();
       await fixture.whenStable();
       expect(focused()).toBe('Archive');
       expect(row('Archive').hasAttribute('aria-expanded')).toBe(false);
+    });
+
+    it('toggles a node once on a click on its hidden button', async () => {
+      const { fixture, component, toggle } = await renderFiles();
+
+      await userEvent.click(toggle('Team'));
+      await fixture.whenStable();
+      expect(component.teamChanges).toEqual([true]);
+    });
+
+    // A drag that selects a node's text and lets go on its button or beside it clicks the row
+    it('toggles nothing on a click that ends a selection in the node, and still does with a selection elsewhere', async () => {
+      const { fixture, row, button } = await renderFiles();
+      const selection = document.getSelection()!;
+      const select = (node: Node) => {
+        const range = document.createRange();
+        range.selectNodeContents(node);
+        selection.removeAllRanges();
+        selection.addRange(range);
+      };
+
+      select(row('Team').querySelector('.header-content')!);
+      row('Team').click();
+      await fixture.whenStable();
+      expect(row('Team').getAttribute('aria-expanded')).toBe('false');
+
+      select(button('After'));
+      row('Team').click();
+      await fixture.whenStable();
+      expect(row('Team').getAttribute('aria-expanded')).toBe('true');
+      selection.removeAllRanges();
+    });
+
+    it("leaves a click on a control in a node's content to the control", async () => {
+      const fixture = TestBed.createComponent(ControlTreeComponent);
+      fixture.autoDetectChanges();
+      await fixture.whenStable();
+      const host = fixture.nativeElement as HTMLElement;
+      const tasks = host.querySelector('[role="treeitem"]')!;
+
+      await userEvent.click(host.querySelector('button:not(.header-button)')!);
+      await fixture.whenStable();
+      expect(fixture.componentInstance.added).toBe(1);
+      expect(tasks.getAttribute('aria-expanded')).toBe('true');
+      await userEvent.click(host.querySelector('input[aria-label="Filter"]')!);
+      await fixture.whenStable();
+      expect(document.activeElement).toBe(host.querySelector('input[aria-label="Filter"]'));
+      expect(tasks.getAttribute('aria-expanded')).toBe('true');
     });
 
     // The rows were tracked by their place, so a node added or removed above the focused one rebuilt its row and dropped
@@ -583,7 +620,7 @@ describe('TabTreeComponent', () => {
       fixture.autoDetectChanges();
       await fixture.whenStable();
       const host = fixture.nativeElement as HTMLElement;
-      const input = host.querySelector('input')!;
+      const input = host.querySelector<HTMLInputElement>('input[aria-label="Note"]')!;
       input.focus();
 
       await userEvent.keyboard('{ArrowDown}{Home}r');
