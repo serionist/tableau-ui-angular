@@ -21,6 +21,9 @@ body.dark-mode {
       color-primary-light: rgb(27, 48, 68),
       color-primary-dark: rgb(14, 151, 209),
       color-on-primary: rgb(226, 226, 226),
+      // the primary drawn as text, an icon, a border or a ring on the base: a lighter blue, as the primary is 2.56:1 on
+      // the base; 7.73:1 on it, and 4.95:1 on the highlight, the lightest surface it is drawn on
+      color-primary-on-base: rgb(80 185 230),
       color-error: rgb(255 133 133),
       color-error-dark: rgb(211, 122, 122),
       color-error-light: rgb(100 1 3),

@@ -1,9 +1,11 @@
 // What the specs share; never published, since no entry point imports it.
 
-// A computed colour's red, green and blue. Each must be opaque: a see-through one would need what lies under it, and an
-// unstyled element's transparent background fails here rather than reading as black
+// A computed colour's red, green and blue, from 0 to 255: `rgb()`, or `color(srgb)` from 0 to 1, as a `color-mix()` in
+// srgb computes. Each must be opaque: a see-through one would need what lies under it, and an unstyled element's
+// transparent background fails here rather than reading as black
 function channels(colour: string): number[] {
-  const [red, green, blue, alpha = 1] = (colour.match(/[\d.]+/g) ?? []).map(Number);
+  const values = (colour.match(/[\d.]+/g) ?? []).map(Number);
+  const [red, green, blue, alpha = 1] = colour.startsWith('color(srgb ') ? [...values.slice(0, 3).map(value => value * 255), ...values.slice(3)] : values;
   if (alpha !== 1) {
     throw new Error(`Not opaque: ${colour}`);
   }

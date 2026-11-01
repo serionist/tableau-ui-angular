@@ -169,7 +169,7 @@
         .resizer.enabled:hover .line {
           // stylelint-disable-next-line declaration-property-unit-disallowed-list
           width: 3px;
-          background: var(--twc-color-primary);
+          background: var(--twc-color-primary-on-base);
         }
 
         .resizer:not(.enabled):hover {
@@ -186,7 +186,7 @@
         .resizer.enabled:focus-visible .line {
           // stylelint-disable-next-line declaration-property-unit-disallowed-list
           width: 3px;
-          background: var(--twc-color-primary);
+          background: var(--twc-color-primary-on-base);
         }
       }
     }

@@ -28,7 +28,9 @@ export function colorProperties(): ThemeProperty[] {
     .filter(Boolean)
     .map(name => {
       const lightValue = lightValues.get(name) ?? '';
-      return { name: `--twc-${name}`, light: lightValue, dark: darkValues.get(name) ?? '', swatch: lightValue.startsWith('rgb') };
+      // a colour, or another theme colour, as the light primary on the base is
+      const swatch = lightValue.startsWith('rgb') || lightValue.startsWith('var(--twc-color-');
+      return { name: `--twc-${name}`, light: lightValue, dark: darkValues.get(name) ?? '', swatch };
     });
 }
 

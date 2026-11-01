@@ -1,10 +1,11 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal, ViewEncapsulation } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { userEvent } from 'vitest/browser';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
 import { TableauUiFormFieldModule } from 'tableau-ui-angular/form-field';
 import { axeViolations } from '../../testing/axe';
+import { backgroundUnder, contrast, inEachMode } from '../../testing/contrast';
 import { movePointerAway } from '../../testing/pointer';
 import { TableauUiSelectModule } from './tableau-ui-select.module';
 
@@ -55,6 +56,15 @@ class SummaryComponent {
   readonly country = new FormControl<string | null>('hu');
   readonly languages = new FormControl<string[] | null>(['en', 'hu']);
 }
+
+// The library's styles, as an app imports them, while a fixture of it lives: the theme's colours in both modes
+@Component({
+  template: '',
+  styleUrl: '../../styles/lib-styles.scss',
+  encapsulation: ViewEncapsulation.None,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class LibraryStylesComponent {}
 
 describe('SelectComponent', () => {
   // a pointer left over an opening dropdown or menu would move its highlight
@@ -347,6 +357,23 @@ describe('SelectComponent', () => {
     await fixture.whenStable();
 
     expect(shown('tab-multi-select')).toBe('3 items selected');
+  });
+
+  // #133: a focused select's arrow turned the primary, 2.56:1 on the dark base
+  it("draws a focused select's arrow at 3:1 or more on its background, in light and dark", async () => {
+    TestBed.createComponent(LibraryStylesComponent);
+    const { multi } = await render();
+    const arrow = multi.querySelector('.dropdown')!;
+    const atRest = getComputedStyle(arrow).color;
+
+    multi.focus();
+
+    expect(document.activeElement).toBe(multi);
+    // the focus colour, apart from the arrow's at rest
+    expect(getComputedStyle(arrow).color).not.toBe(atRest);
+    await inEachMode(mode => {
+      expect(contrast(getComputedStyle(arrow).color, backgroundUnder(arrow)), mode).toBeGreaterThanOrEqual(3);
+    });
   });
 
   it('passes axe, closed and open', async () => {

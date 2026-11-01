@@ -1,3 +1,4 @@
+import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
 import type { ComponentFixture } from '@angular/core/testing';
 import { TestBed } from '@angular/core/testing';
 import { page, userEvent } from 'vitest/browser';
@@ -5,6 +6,8 @@ import { SnackService } from 'tableau-ui-angular/snack';
 import { ClipboardService } from 'tableau-ui-angular/clipboard';
 import { DialogService } from 'tableau-ui-angular/dialog';
 import type { Type } from '@angular/core';
+import { backgroundUnder, contrast, inEachMode } from '../../../../component-library/testing/contrast';
+import { movePointerAway } from '../../../../component-library/testing/pointer';
 import { CheckboxFormsExampleComponent } from '../pages/checkbox-page/examples/checkbox-forms.example';
 import { ChipControlExampleComponent } from '../pages/chip-page/examples/chip-control.example';
 import { SalesDashboardExampleComponent } from '../pages/dashboard-page/examples/sales-dashboard.example';
@@ -20,11 +23,13 @@ import { RadioFormsExampleComponent } from '../pages/radio-buttons-page/examples
 import { ScrollerVerticalExampleComponent } from '../pages/scroller-page/examples/scroller-vertical.example';
 import { SnackMessageExampleComponent } from '../pages/snacks-page/examples/snack-message.example';
 import { TabsBasicExampleComponent } from '../pages/tabcontrol-page/examples/tabs-basic.example';
+import { ThemeOverrideExampleComponent } from '../pages/theming-page/examples/theme-override.example';
 import { TableBasicExampleComponent } from '../pages/table-page/examples/table-basic.example';
 import { TableOptionsExampleComponent } from '../pages/table-page/examples/table-options.example';
 import { TooltipTemplateExampleComponent } from '../pages/tooltips-page/examples/tooltip-template.example';
 import { TreeComponentExampleComponent } from '../pages/tree-page/examples/tree-component.example';
 import { TreeFlatExampleComponent } from '../pages/tree-page/examples/tree-flat.example';
+import { THEMING_EXAMPLES } from '../pages/theming-page/theming.examples';
 import { TREE_EXAMPLES } from '../pages/tree-page/tree.examples';
 import { VirtualizeDataExampleComponent } from '../pages/virtualize-page/examples/virtualize-data.example';
 
@@ -49,6 +54,15 @@ async function type(fixture: ComponentFixture<unknown>, input: HTMLInputElement,
   input.dispatchEvent(new Event('blur'));
   await fixture.whenStable();
 }
+
+// The library's styles, as an app imports them, while a fixture of it lives: the theme's colours in both modes
+@Component({
+  template: '',
+  styleUrl: '../../../../component-library/styles/lib-styles.scss',
+  encapsulation: ViewEncapsulation.None,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class LibraryStylesComponent {}
 
 // What a sample does that its page's prose promises
 describe('The samples', () => {
@@ -969,5 +983,82 @@ describe('The samples', () => {
     await click(fixture, '2 rows');
     await vi.waitFor(() => expect(rows()).toEqual(['Row 1', 'Row 2']), { timeout: 5000 });
     fixture.destroy();
+  });
+
+  // #133: the green row's raised label was 2.39:1 on dark; apps copy the colours it sets. Each row's primary on the base
+  // is also read on the keyboard highlight, where a primary menu item sits
+  it("draws the theme override sample's labels at 4.5:1 or more on their buttons, at rest and under the pointer, and its primary on the highlight, in light and dark", async () => {
+    TestBed.createComponent(LibraryStylesComponent);
+    const fixture = TestBed.createComponent(ThemeOverrideExampleComponent);
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+    const row = (element: Element) => (element.closest('.green') ? 'green' : 'theme');
+    const buttons = Array.from(host.querySelectorAll('button'));
+    expect(buttons.map(button => `${row(button)} ${button.textContent.trim()}`)).toEqual(['theme Primary', 'theme Raised primary', 'green Primary', 'green Raised primary']);
+    // the primary on the base, as each row sets it, on the highlight
+    const probes = Array.from(host.querySelectorAll('.row'), element => {
+      const probe = document.createElement('span');
+      probe.style.color = 'var(--twc-color-primary-on-base)';
+      probe.style.backgroundColor = 'var(--twc-color-highlight)';
+      element.appendChild(probe);
+      return probe;
+    });
+
+    await inEachMode(async mode => {
+      const low: string[] = [];
+      const check = (name: string, element: Element) => {
+        const ratio = contrast(getComputedStyle(element).color, backgroundUnder(element));
+        if (ratio < 4.5) {
+          low.push(`${name}: ${ratio.toFixed(2)}`);
+        }
+      };
+      for (const button of buttons) {
+        const name = `${row(button)} ${button.textContent.trim()}`;
+        const atRest = backgroundUnder(button);
+        check(`${name} at rest`, button);
+        await userEvent.hover(button);
+        // a stroked button takes the pointer's highlight, so the hover reads apart from at rest
+        if (button.getAttribute('kind') !== 'raised') {
+          await vi.waitFor(() => {
+            expect(backgroundUnder(button)).not.toBe(atRest);
+          });
+        }
+        check(`${name} under the pointer`, button);
+        await movePointerAway();
+      }
+      for (const probe of probes) {
+        check(`${row(probe)} primary on the highlight`, probe);
+      }
+      expect(low, mode).toEqual([]);
+    });
+    fixture.destroy();
+  });
+
+  // In dark the theme sets each colour on the body too, so a colour an app sets on :root.dark-mode alone stops there
+  it('reaches what is in the body in dark from the selectors the theme override sample names, and not from :root.dark-mode alone', () => {
+    expect(THEMING_EXAMPLES.override.scss).toContain('Set on :root, and on :root.dark-mode, body.dark-mode');
+    TestBed.createComponent(LibraryStylesComponent);
+    const style = document.createElement('style');
+    document.head.appendChild(style);
+    const text = document.createElement('p');
+    text.className = 'text-primary';
+    document.body.appendChild(text);
+    const colour = (selector: string) => {
+      style.textContent = `${selector} { --twc-color-primary-on-base: rgb(0, 200, 0); }`;
+      return getComputedStyle(text).color;
+    };
+    try {
+      for (const element of [document.documentElement, document.body]) {
+        element.classList.add('dark-mode');
+      }
+      expect(colour(':root.dark-mode, body.dark-mode')).toBe('rgb(0, 200, 0)');
+      expect(colour(':root.dark-mode')).not.toBe('rgb(0, 200, 0)');
+    } finally {
+      for (const element of [document.documentElement, document.body]) {
+        element.classList.remove('dark-mode');
+      }
+      style.remove();
+      text.remove();
+    }
   });
 });

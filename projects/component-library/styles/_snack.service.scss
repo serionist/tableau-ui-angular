@@ -52,10 +52,10 @@
 
       &.info {
         background-color: var(--twc-color-primary-light);
-        border-color: var(--twc-color-primary);
+        border-color: var(--twc-color-primary-on-base);
 
         .timer {
-          background-color: var(--twc-color-primary);
+          background-color: var(--twc-color-primary-on-base);
         }
       }
 

@@ -91,8 +91,8 @@
 
     &.primary {
       &:not([disabled], [disabled='false']) {
-        color: var(--twc-color-primary);
-        border-color: var(--twc-color-primary);
+        color: var(--twc-color-primary-on-base);
+        border-color: var(--twc-color-primary-on-base);
 
         &:hover {
           background-color: var(--twc-color-mouse-highlight);
@@ -159,8 +159,11 @@
         background-color: var(--twc-color-primary);
         color: var(--twc-color-on-primary);
 
+        // the base under the pointer: white on the light theme's darker blue, near black on the dark theme's lighter
+        // one, where the light label was 2.55:1
         &:hover {
           background-color: var(--twc-color-primary-dark);
+          color: var(--twc-color-base);
         }
       }
 

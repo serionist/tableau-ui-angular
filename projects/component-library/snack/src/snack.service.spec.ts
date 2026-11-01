@@ -5,6 +5,7 @@ import { userEvent } from 'vitest/browser';
 import { TableauUiButtonModule } from 'tableau-ui-angular/button';
 import { DialogService } from 'tableau-ui-angular/dialog';
 import { axeViolations } from '../../testing/axe';
+import { contrast, inEachMode } from '../../testing/contrast';
 import { movePointerAway } from '../../testing/pointer';
 import { SnackService } from './snack.service';
 import { TableauUiSnackModule } from './tableau-ui-snack.module';
@@ -365,6 +366,38 @@ describe('SnackService', () => {
     await userEvent.keyboard('{Escape}');
     expect(dialogs.dialogStack).toEqual([]);
     expect(document.activeElement).toBe(details);
+    ref.close();
+  });
+
+  // #133: an info snack's icon, border and timer were the primary, 2.01:1 on the snack's dark background
+  it("draws an info snack's icon, border and timer at 3:1 or more on what they sit on, in light and dark", async () => {
+    TestBed.createComponent(LibraryStylesComponent);
+    const ref = open('Saved', 60_000);
+    const wrapper = document.querySelector<HTMLElement>('.snack-wrapper.info')!;
+    const icon = await vi.waitFor(() => {
+      const shown = wrapper.querySelector('tab-icon.icon');
+      expect(shown).not.toBeNull();
+      return shown!;
+    });
+    const timer = wrapper.querySelector('.timer')!;
+
+    await inEachMode(mode => {
+      const snack = getComputedStyle(wrapper).backgroundColor;
+      const page = getComputedStyle(document.body).backgroundColor;
+      const border = getComputedStyle(wrapper).borderLeftColor;
+      const ratios = {
+        'the icon on the snack': contrast(getComputedStyle(icon).color, snack),
+        'the border on the snack': contrast(border, snack),
+        'the border on the page': contrast(border, page),
+        'the timer on the snack': contrast(getComputedStyle(timer).backgroundColor, snack),
+      };
+      expect(
+        Object.entries(ratios)
+          .filter(([, ratio]) => ratio < 3)
+          .map(([name, ratio]) => `${name}: ${ratio.toFixed(2)}`),
+        mode,
+      ).toEqual([]);
+    });
     ref.close();
   });
 

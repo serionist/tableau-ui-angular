@@ -40,7 +40,7 @@ import { TAB_SNACK_DATA_REF } from './data.ref';
       font-size: 1.5em;
     }
     .info .icon {
-      color: var(--twc-color-primary);
+      color: var(--twc-color-primary-on-base);
     }
     .error .icon {
       color: var(--twc-color-error);
