@@ -57,5 +57,28 @@
       </p>
       <app-docs-example [example]="examples.forms" />
     </div>
+
+    <div class="section">
+      <h3>Accessibility</h3>
+      <p>The checkbox is a native checkbox input, named by its text; the app adds nothing.</p>
+      <ul>
+        <li>
+          Its
+          <code>tab-hint</code>
+          describes it, and its
+          <code>tab-error</code>
+          in the hint's place while the error shows, through
+          <code>aria-describedby</code>.
+        </li>
+        <li>
+          It has
+          <code>aria-invalid="true"</code>
+          while the error shows, and
+          <code>'partial'</code>
+          reads as mixed.
+        </li>
+        <li>Space toggles it, and Enter too.</li>
+      </ul>
+    </div>
   </div>
 </div>

@@ -12,6 +12,9 @@ import { TableauUiCheckboxModule } from './tableau-ui-checkbox.module';
     <tab-checkbox [formControl]="control" [loading]="$loading()" (valueChange)="changes.push($event)">
       I accept the <button type="button">terms</button>
       <tab-hint>Required to continue</tab-hint>
+      @if ($invalid()) {
+        <tab-error>Accept the terms to go on</tab-error>
+      }
     </tab-checkbox>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -19,6 +22,7 @@ import { TableauUiCheckboxModule } from './tableau-ui-checkbox.module';
 class TermsComponent {
   readonly control = new FormControl<boolean | 'partial' | null>(false);
   readonly $loading = signal(false);
+  readonly $invalid = signal(false);
   readonly changes: (boolean | 'partial')[] = [];
 }
 
@@ -137,6 +141,26 @@ describe('CheckboxComponent', () => {
 
     input.blur();
     expect(control.touched).toBe(true);
+  });
+
+  // #52: the hint and the error were not linked to the input, so a screen reader on the input read neither
+  it('is described by its hint, then by its error in its place, and invalid while the error shows', async () => {
+    const { fixture, host, input } = await render();
+    const terms = fixture.componentInstance;
+
+    await expect.element(input).toHaveAccessibleDescription('Required to continue');
+    expect(input.hasAttribute('aria-invalid')).toBe(false);
+
+    terms.$invalid.set(true);
+    await fixture.whenStable();
+    await expect.element(input).toHaveAccessibleDescription('Accept the terms to go on');
+    expect(input.getAttribute('aria-invalid')).toBe('true');
+    expect(await axeViolations(host)).toEqual([]);
+
+    terms.$invalid.set(false);
+    await fixture.whenStable();
+    await expect.element(input).toHaveAccessibleDescription('Required to continue');
+    expect(input.hasAttribute('aria-invalid')).toBe(false);
   });
 
   it('passes axe', async () => {
