@@ -1,18 +1,37 @@
 import type { ComponentRef, EmbeddedViewRef, OnDestroy, Signal, TemplateRef, Type, ViewRef } from '@angular/core';
-import { ApplicationRef, createComponent, DOCUMENT, EnvironmentInjector, inject, Injectable, Injector, PLATFORM_ID, signal } from '@angular/core';
+import { ApplicationRef, createComponent, DOCUMENT, EnvironmentInjector, ErrorHandler, inject, Injectable, Injector, PLATFORM_ID, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import type { DialogRef, IDialogRef } from './dialog.ref';
 import { TAB_DIALOG_REF, DialogRefInternal } from './dialog.ref';
 import type { IConfirmationDialogArgs, IDialogArgs, IDialogPositionAndSizeArgs, IModalArgs } from './dialog.args';
-import { fromEvent, map, Subscription } from 'rxjs';
+import { fromEvent, Subscription } from 'rxjs';
 import type { FocusableElement } from 'tabbable';
-import { tabbable } from 'tabbable';
+import { isFocusable, tabbable } from 'tabbable';
 import type { IConfirmationDialogData } from './confirmation-dialog.component';
 import { ConfirmationDialogComponent } from './confirmation-dialog.component';
 import { TAB_DATA_REF } from './data.ref';
 import { IconComponent } from 'tableau-ui-angular/icon';
+import { generateRandomString } from 'tableau-ui-angular/utils';
 import type { StackOptions } from './stack-options';
 import { GlobalStackOptions, LocalStackOptions } from './stack-options';
+
+// An open modal: its <dialog>, the layer for the overlays it hosts, and the element focus goes back to when it closes
+interface OpenModal {
+  dialogRef: IDialogRef;
+  layer: HTMLElement;
+  opener: HTMLElement | null;
+  // opened while another modal's content was made or rendered, so it shows once that one has
+  heldBack: boolean;
+  // its showModal(), until it has run
+  reveal?: () => void;
+}
+
+// The inputs whose picker the browser opens and closes on Escape, the key reaching the page as the picker shuts, and
+// whose own fields take Tab
+const PICKERS = ['date', 'datetime-local', 'month', 'time', 'week'];
+function isPicker(target: EventTarget | null): boolean {
+  return target instanceof HTMLInputElement && PICKERS.includes(target.type);
+}
 
 // Styles for the dialog container are in _dialog.service.scss in the styles folder
 @Injectable({
@@ -27,20 +46,26 @@ export class DialogService implements OnDestroy {
   // dead HTML, since the browser renders the app again
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
-  // The overlay layers of the open modals, the bottom one first
-  private readonly overlayLayers: HTMLElement[] = [];
+  // The open modals, the bottom one first, a modal whose content renders now included
+  private readonly modals: OpenModal[] = [];
+  // How many modals' contents are being made or rendered now, one inside another's
+  private rendering = 0;
+  // Ends the watch on the Tab key the browser moves now, in a dialog that keeps focus
+  private endTabGuard: () => void = () => undefined;
   private readonly $host = signal<HTMLElement | null>(null);
   /**
    * Where an overlay opened now belongs: the overlay layer of the topmost open modal, `div.dialog-overlay-layer` at the
-   * end of its `.dialog-container`, or `null` while no modal is open, for the body. The layer is fixed, takes no
+   * end of its `dialog.dialog-container`, or `null` while no modal is open, for the body. The layer is fixed, takes no
    * space, and sits above everything in the modal's content, a toolbar or a map with a z-index of its own included.
    *
-   * The service puts a dialog it opens with `GlobalStackOptions` there, its backdrop included: a tooltip, or a dialog
-   * the app opens with `openDialog()` or `openTemplateDialog()`. The snack service moves its stack there too. A dialog
-   * with `LocalStackOptions`, such as a select's list or a menu, sits after its element, in the modal already. Such an
-   * overlay sits above the modal's content and takes its clicks, and the modal, when it closes, first closes the
-   * dialogs inside it, top first. A modal, a confirmation included, goes to the body, a sibling of the modal below, so
-   * a modal can open the next one and close itself.
+   * A modal is a `<dialog>` shown with `showModal()`: the browser puts it in the top layer, above every z-index in the
+   * page, and makes everything outside it inert, so an overlay outside the modal shows under it and takes no clicks or
+   * focus. The service puts a dialog it opens with `GlobalStackOptions` here, its backdrop included: a tooltip, or a
+   * dialog the app opens with `openDialog()` or `openTemplateDialog()`. The snack service moves its stack here too. A
+   * dialog with `LocalStackOptions`, such as a select's list or a menu, sits after its element, in the modal already.
+   * Such an overlay sits above the modal's content and takes its clicks and focus, and the modal, when it closes, first
+   * closes the dialogs inside it, top first. A modal, a confirmation included, goes to the body, a sibling of the modal
+   * below, which the top layer stacks under it, so a modal can open the next one and close itself.
    *
    * An app that appends an overlay of its own to the body, opened from a modal, appends it here instead
    * (`$overlayHost() ?? document.body`), `position: fixed` at the viewport coordinates `getBoundingClientRect()` gives:
@@ -52,10 +77,29 @@ export class DialogService implements OnDestroy {
    */
   readonly $overlayHost: Signal<HTMLElement | null> = this.$host.asReadonly();
 
+  /**
+   * Shows a component in a modal, a `<dialog>` shown with `showModal()`: it sits in the top layer, above the page,
+   * which is inert while it is open, and screen readers hear it as a modal dialog named by its header's title, or by
+   * `args.label` without a header.
+   *
+   * As it opens, focus goes to the first of these: an element the content focused as it rendered, the content's first
+   * `[autofocus]` element, its first element in the Tab order, the header's close button, the modal itself. Content
+   * opened from a modal marks the element to focus `autofocus` rather than focusing it as it renders: until the new
+   * modal shows, it is outside the open one, inert, and takes no focus. When it closes, focus goes back to the element
+   * focused before it opened, while that is still in the page and no modal opened after it is still open; one opened
+   * from a menu that has closed meanwhile gives it back to the menu's button. A menu opened with `trapFocus` false, or
+   * a button gone by the time the modal closes, leaves focus on the body. Escape
+   * closes the top dialog in it, then the modal, unless `closeOnEscape` is `false`; a press on its backdrop closes it
+   * unless `closeOnBackdropClick` is `false`. A modal its content opens as it is made or renders, such as a confirmation from its
+   * `ngOnInit`, shows above it.
+   */
   openModal<TComponent, TData, TResult>(component: Type<TComponent>, data: TData, args?: IModalArgs): DialogRef<TResult> {
     return this._openModal<TData, TResult>((injector: Injector) => this.createView(component, injector), data, args);
   }
 
+  /**
+   * Shows a template in a modal, as `openModal()` shows a component.
+   */
   openTemplateModal<TContext, TResult>(contentTemplate: TemplateRef<TContext>, contentTemplateContext: TContext, args?: IModalArgs): DialogRef<TResult> {
     return this._openModal<TContext, TResult>((injector: Injector) => contentTemplate.createEmbeddedView(contentTemplateContext, injector), contentTemplateContext, args);
   }
@@ -70,9 +114,7 @@ export class DialogService implements OnDestroy {
       maxHeight: args?.maxHeight ?? 'calc(80vh - 50px)',
       closeOnBackdropClick: args?.closeOnBackdropClick ?? true,
       closeOnEscape: args?.closeOnEscape ?? true,
-      backdropCss: {
-        backgroundColor: 'var(--twc-modal-color-backdrop)',
-      },
+      label: args?.label,
       containerCss: {
         backgroundColor: 'var(--twc-color-base)',
         borderColor: 'var(--twc-color-border-light)',
@@ -81,6 +123,8 @@ export class DialogService implements OnDestroy {
         borderRadius: '1px',
         boxShadow: '0 2px 10px var(--twc-modal-color-box-shadow)',
         cursor: 'default',
+        // which also lays the <dialog> out while it is closed, off the screen, where the browser's own style hides it:
+        // its content renders and measures itself before showModal(), as in a <div>
         display: 'flex',
         flexDirection: 'column',
       },
@@ -102,8 +146,9 @@ export class DialogService implements OnDestroy {
 
   /**
    * Asks the user to accept or cancel, in a modal with `title` as its header, and resolves `true` when they accept.
-   * On the server, where no one can answer, it resolves `false` at once, so a guard or a resolver that awaits it doesn't
-   * hold the render.
+   * `autofocus` names the button focus goes to as it opens; without it, focus goes to the cancel button. On the server,
+   * where no one can answer, it resolves `false` at once, so a guard or a resolver that awaits it doesn't hold the
+   * render.
    */
   async openConfirmationMessageDialog(
     title: string,
@@ -140,8 +185,9 @@ export class DialogService implements OnDestroy {
 
   /**
    * Asks the user to accept or cancel, in a modal with `title` as its header and `template` as its content, and resolves `true` when they accept.
-   * On the server, where no one can answer, it resolves `false` at once, so a guard or a resolver that awaits it doesn't
-   * hold the render.
+   * `autofocus` names the button focus goes to as it opens; without it, the template's first element in the Tab order,
+   * else the cancel button. On the server, where no one can answer, it resolves `false` at once, so a guard or a
+   * resolver that awaits it doesn't hold the render.
    */
   async openConfirmationTemplateDialog<TContext>(
     title: string,
@@ -190,7 +236,9 @@ export class DialogService implements OnDestroy {
 
   /**
    * Shows a template in a dialog that `args` sets up. With `GlobalStackOptions`, the default, it goes into
-   * `$overlayHost()`: opened while a modal is open, it sits in that modal and closes with it.
+   * `$overlayHost()`: opened while a modal is open, it sits in that modal and closes with it. It is a `<div>`, not a
+   * modal: `args.label` names nothing here. With `trapFocus`, Tab and Shift+Tab move through its elements and wrap at
+   * either end, and focus goes back where it was when it closes; the page's own Tab order stays as it is.
    */
   openTemplateDialog<TContext, TResult>(contentTemplate: TemplateRef<TContext>, args: IDialogArgs, contentTemplateContext: TContext, stackOptions: StackOptions = new GlobalStackOptions()) {
     return this._openDialog<TContext, TResult>((injector: Injector) => contentTemplate.createEmbeddedView(contentTemplateContext, injector), contentTemplateContext, args, stackOptions);
@@ -198,7 +246,9 @@ export class DialogService implements OnDestroy {
 
   /**
    * Shows a component in a dialog that `args` sets up. With `GlobalStackOptions`, the default, it goes into
-   * `$overlayHost()`: opened while a modal is open, it sits in that modal and closes with it.
+   * `$overlayHost()`: opened while a modal is open, it sits in that modal and closes with it. It is a `<div>`, not a
+   * modal: `args.label` names nothing here. With `trapFocus`, Tab and Shift+Tab move through its elements and wrap at
+   * either end, and focus goes back where it was when it closes; the page's own Tab order stays as it is.
    */
   openDialog<TComponent, TData, TResult>(component: Type<TComponent>, data: TData, args: IDialogArgs = {}, stackOptions: StackOptions = new GlobalStackOptions()): DialogRef<TResult> {
     return this._openDialog<TData, TResult>((injector: Injector) => this.createView(component, injector), data, args, stackOptions);
@@ -218,21 +268,12 @@ export class DialogService implements OnDestroy {
     // the modal's content and is part of the modal: a modal shown in the top layer covers what is outside it, inert. A
     // modal stays in the body, a sibling of the one below, which the top layer stacks above it; nested, it would close
     // with the modal that opened it, as a wizard's next step does when it closes the step before
-    const host = modal ? this.document.body : (this.overlayLayers.at(-1) ?? this.document.body);
-    let trappedFocus:
-      | {
-          elements: {
-            element: FocusableElement;
-            originalTabIndex: number;
-          }[];
-          focusedElement: HTMLElement | null;
-        }
-      | undefined = undefined;
-    // Before creating the dialog, trap focus
-    // This means that we get all elements which are tabbable and set the tabindex to -1 for the duration of the popup
-    if (args.trapFocus === true) {
-      trappedFocus = this.trapFocus();
-    }
+    const host = modal ? this.document.body : (this.modals.at(-1)?.layer ?? this.document.body);
+    // where focus goes back to when a modal closes
+    const opener = modal ? this.focusedElement() : null;
+    // A non-modal dialog that keeps focus, such as a menu, takes it from the page as it opens; a modal's <dialog> keeps
+    // focus in itself
+    const trappedFocus = !modal && args.trapFocus === true ? this.trapFocus() : undefined;
     const dialogRef = new DialogRefInternal<TResult>();
     // calculate new zIndex
     let { zIndex } = this;
@@ -242,9 +283,25 @@ export class DialogService implements OnDestroy {
     // push this dialog to the new stack
     this.dialogStack.push({ dialogRef, zIndex, args });
 
-    // Set the backdrop
-    const backdrop = this.createBackdrop(args, dialogRef, zIndex - 1, stackOptions, host);
-    this.setEscapeHandler();
+    // Set the backdrop; a modal's is its <dialog>'s ::backdrop
+    const backdrop = modal ? undefined : this.createBackdrop(args, dialogRef, zIndex - 1, stackOptions, host);
+    this.listenForKeys();
+
+    // A modal's overlays go in a layer at the top of its container (_dialog.service.scss), so a layer of the content
+    // with a z-index of its own, such as a sticky toolbar or a map's panes, never covers them. The modal is the overlay
+    // host from its content's creation: a dialog, a snack or a tooltip its content opens as it is made or renders goes
+    // into it, and shows with it, the closed <dialog> being laid out. One opened meanwhile from another modal's content
+    // shows once that one has, above it. Its close takes it out of the open modals again, then too
+    let overlayLayer: HTMLElement | undefined = undefined;
+    let thisModal: OpenModal | undefined = undefined;
+    if (modal) {
+      overlayLayer = this.document.createElement('div');
+      overlayLayer.classList.add('dialog-overlay-layer');
+      thisModal = { dialogRef, layer: overlayLayer, opener, heldBack: this.rendering > 0 };
+      this.modals.push(thisModal);
+      this.$host.set(overlayLayer);
+      this.rendering++;
+    }
 
     // Create an injector that provides the DialogRef
     const injector = Injector.create({
@@ -256,12 +313,32 @@ export class DialogService implements OnDestroy {
     });
 
     // Create the component view
-    const componentView = getViewRef(injector);
+    let componentView: ViewRef;
+    try {
+      componentView = getViewRef(injector);
+    } catch (error) {
+      // a content that can't be made leaves no modal, host or stack entry behind
+      if (thisModal) {
+        this.rendering--;
+        const modalIndex = this.modals.indexOf(thisModal);
+        if (modalIndex !== -1) {
+          this.modals.splice(modalIndex, 1);
+        }
+        this.$host.set(this.modals.at(-1)?.layer ?? null);
+      }
+      const dialogIndex = this.dialogStack.findIndex(entry => entry.dialogRef === dialogRef);
+      if (dialogIndex !== -1) {
+        this.dialogStack.splice(dialogIndex, 1);
+      }
+      backdrop?.remove();
+      this.listenForKeys();
+      throw error;
+    }
     // Attach component to the application
     this.appRef.attachView(componentView);
 
     // Create a container for the dialog
-    const { dialogElement, headerIcon } = this.createDialogElement(componentView, args, injector, dialogRef, zIndex);
+    const { dialogElement, headerIcon } = this.createDialogElement(componentView, args, injector, dialogRef, zIndex, modal);
     // the tooltip directive reads it from the DialogRef openDialog returns, to give the tooltip its role, id and pointer;
     // the service reads it to find the dialogs inside another
     dialogRef.dialogElement = dialogElement;
@@ -274,15 +351,8 @@ export class DialogService implements OnDestroy {
     } else {
       host.appendChild(dialogElement);
     }
-    // A modal's overlays go in a layer at the top of its container (_dialog.service.scss), so a layer of the content
-    // with a z-index of its own, such as a sticky toolbar or a map's panes, never covers them
-    let overlayLayer: HTMLElement | undefined = undefined;
-    if (modal) {
-      overlayLayer = this.document.createElement('div');
-      overlayLayer.classList.add('dialog-overlay-layer');
+    if (overlayLayer) {
       dialogElement.appendChild(overlayLayer);
-      this.overlayLayers.push(overlayLayer);
-      this.$host.set(overlayLayer);
     }
 
     // Handle container position and window resize event
@@ -291,17 +361,41 @@ export class DialogService implements OnDestroy {
       DialogService.calculateAndSetPosition(dialogElement, args, stackOptions);
     };
     const resizeSubscription = DialogService.manageDialogPosition(dialogElement, args, stackOptions);
+    const modalSubscription = dialogElement instanceof HTMLDialogElement ? this.listenToModal(dialogElement, dialogRef, args) : undefined;
 
     // Handle dialog close
     dialogRef.closed$.subscribe(() => {
       // first the dialogs inside it, so none stays on the stack without its element or takes the next Escape
       this.closeDialogsInside(dialogRef, dialogElement);
-      if (overlayLayer) {
-        const layerIndex = this.overlayLayers.indexOf(overlayLayer);
-        if (layerIndex !== -1) {
-          this.overlayLayers.splice(layerIndex, 1);
+      // A modal opened from this dialog and still open, such as a confirmation a menu's item opens before the menu
+      // closes, gives focus back where this dialog would have: the menu's own focus return finds the page inert under
+      // the modal, and the modal's opener goes with the menu
+      if (trappedFocus) {
+        for (const open of this.modals) {
+          if (open.opener && dialogElement.contains(open.opener)) {
+            open.opener = trappedFocus.focusedElement;
+          }
         }
-        const next = this.overlayLayers.at(-1) ?? null;
+      }
+      // focus goes back only from the topmost modal, never behind one still open
+      let focusBack: HTMLElement | null = null;
+      if (overlayLayer) {
+        const modalIndex = this.modals.findIndex(open => open.dialogRef === dialogRef);
+        if (modalIndex !== -1) {
+          const [closing] = this.modals.splice(modalIndex, 1);
+          const above = this.modals.slice(modalIndex);
+          // A modal opened from this one and still open, as a wizard's next step is, gives focus back where this one
+          // would have, since its own opener goes with this modal
+          for (const open of above) {
+            if (open.opener && dialogElement.contains(open.opener)) {
+              open.opener = closing.opener;
+            }
+          }
+          if (above.length === 0) {
+            focusBack = closing.opener;
+          }
+        }
+        const next = this.modals.at(-1)?.layer ?? null;
         this.$host.set(next);
         // What the app or the snack service put in the modal's layer goes on to the next host, before focus goes back,
         // which may be to a button in a snack; the layer goes with the modal
@@ -309,6 +403,7 @@ export class DialogService implements OnDestroy {
           (next ?? this.document.body).appendChild(child);
         }
       }
+      modalSubscription?.unsubscribe();
       if (resizeSubscription) {
         resizeSubscription.unsubscribe();
       }
@@ -323,6 +418,7 @@ export class DialogService implements OnDestroy {
       if (headerIcon && !headerIcon.hostView.destroyed) {
         headerIcon.destroy();
       }
+      // a modal leaves the top layer with its element, and the page under it is no longer inert
       dialogElement.remove();
 
       const dialogIndex = this.dialogStack.findIndex(d => d.zIndex === zIndex);
@@ -331,15 +427,142 @@ export class DialogService implements OnDestroy {
       }
       // clear backdrop
       backdrop?.remove();
-      // set escape handler
-      this.setEscapeHandler();
-      // restore focus to the elements that were trapped
+      this.listenForKeys();
+      // give focus back to the element focused before the dialog opened
       if (trappedFocus) {
         this.restoreFocus(trappedFocus);
       }
+      if (focusBack?.isConnected === true) {
+        focusBack.focus();
+      }
     });
 
+    if (dialogElement instanceof HTMLDialogElement && thisModal) {
+      this.showModal(dialogElement, componentView, thisModal);
+    }
     return dialogRef;
+  }
+
+  // Shows a modal once its content has rendered, so the element focus goes to is there and focus moves once
+  private showModal(dialog: HTMLDialogElement, view: ViewRef, open: OpenModal) {
+    try {
+      view.detectChanges();
+    } catch (error) {
+      // as an error in the content's first render at the application's next tick would be, and the modal still shows
+      this.injector.get(ErrorHandler).handleError(error);
+    } finally {
+      this.rendering--;
+    }
+    open.reveal = () => {
+      open.reveal = undefined;
+      // unless it closed meanwhile
+      if (dialog.isConnected) {
+        // focus goes back to the element of the modal below that has it now, not to the page under that modal, which
+        // had it as this one opened
+        if (open.heldBack) {
+          open.opener = this.focusedElement();
+        }
+        this.reveal(dialog, open.layer);
+      }
+    };
+    // A modal opened as another's content was made or rendered, such as a confirmation from its ngOnInit, shows once
+    // that one has, above it, in the order they opened
+    if (this.rendering === 0) {
+      for (const modal of [...this.modals]) {
+        modal.reveal?.();
+      }
+    }
+  }
+
+  // The browser's own focusing steps for a <dialog> focus its first [autofocus] element, else its first focusable one,
+  // the header's close button, so the service marks the element its order picks
+  private reveal(dialog: HTMLDialogElement, layer: HTMLElement) {
+    const target = this.initialFocus(dialog, layer);
+    const mark = !target.hasAttribute('autofocus');
+    if (mark) {
+      target.setAttribute('autofocus', '');
+    }
+    try {
+      dialog.showModal();
+    } finally {
+      if (mark) {
+        target.removeAttribute('autofocus');
+      }
+    }
+    // an [autofocus] element before it, where the content focused another as it rendered, took the browser's focus
+    if (this.document.activeElement !== target) {
+      target.focus();
+    }
+  }
+
+  // The element focus goes to as a modal opens: one its content focused as it rendered, the content's first focusable
+  // [autofocus] element, its first element in the Tab order, the header's close button, else the modal itself. The
+  // <dialog> is laid out while closed, off the screen, since its container style shows it, so the Tab order is found
+  // as it will be once it shows
+  private initialFocus(dialog: HTMLDialogElement, layer: HTMLElement): HTMLElement {
+    const header = dialog.querySelector<HTMLElement>(':scope > .dialog-header');
+    const inContent = (element: Element) => element !== dialog && header?.contains(element) !== true && !layer.contains(element);
+    const focused = this.document.activeElement;
+    if (focused instanceof HTMLElement && dialog.contains(focused) && inContent(focused)) {
+      return focused;
+    }
+    const autofocus = Array.from(dialog.querySelectorAll<HTMLElement>('[autofocus]')).find(element => inContent(element) && isFocusable(element));
+    if (autofocus) {
+      return autofocus;
+    }
+    const first = tabbable(dialog).find(inContent);
+    if (first instanceof HTMLElement) {
+      return first;
+    }
+    return header?.querySelector<HTMLElement>('.dialog-close') ?? dialog;
+  }
+
+  // A modal's close requests, its backdrop, and a close the page didn't ask for
+  private listenToModal(dialog: HTMLDialogElement, dialogRef: IDialogRef, args: IDialogArgs): Subscription {
+    const subscription = new Subscription();
+    // A close request other than Escape, whose keydown the service cancels, such as a back gesture or requestClose():
+    // it closes what Escape would close in this modal, a dropdown in it first, and nothing where Escape closes nothing.
+    // The browser closes the modal anyway when the request can't be cancelled, without a user's action since the last
+    subscription.add(
+      fromEvent(dialog, 'cancel').subscribe(e => {
+        e.preventDefault();
+        this.escapeTarget(entry => {
+          const element = (entry.dialogRef as DialogRefInternal<unknown>).dialogElement;
+          return element !== undefined && dialog.contains(element);
+        })?.dialogRef.close();
+      }),
+    );
+    // closed with dialog.close(), or by a close request the page couldn't cancel: its DialogRef closes with it, and the
+    // dialogs it hosts
+    subscription.add(
+      fromEvent(dialog, 'close').subscribe(() => {
+        dialogRef.close();
+      }),
+    );
+    // A press on the ::backdrop targets the <dialog> outside its box. The press and its click must both be there, so a
+    // text selection dragged out of the modal, a click on its border or in its own area, and a press on an overlay it
+    // hosts, drawn past its box, all keep it open; a press on the backdrop of a modal opened from it targets that one
+    if (args.closeOnBackdropClick === true) {
+      const outside = (e: MouseEvent) => {
+        const box = dialog.getBoundingClientRect();
+        return e.target === dialog && (e.clientX < box.left || e.clientX > box.right || e.clientY < box.top || e.clientY > box.bottom);
+      };
+      let pressed = false;
+      subscription.add(
+        fromEvent<PointerEvent>(dialog, 'pointerdown').subscribe(e => {
+          pressed = outside(e);
+        }),
+      );
+      subscription.add(
+        fromEvent<MouseEvent>(dialog, 'click').subscribe(e => {
+          if (pressed && outside(e)) {
+            dialogRef.close();
+          }
+          pressed = false;
+        }),
+      );
+    }
+    return subscription;
   }
 
   // Closes the dialogs whose element is inside this dialog's, top first: the overlays a modal hosts, a select's list in
@@ -381,50 +604,144 @@ export class DialogService implements OnDestroy {
     return backdrop;
   }
 
+  // The window's keydown, while a dialog is open: Escape, and Tab in a dialog that keeps focus
   escapeSubscription: Subscription | null = null;
 
   // An app destroyed with dialogs open closes them, top first: their backdrops, DOM, observers and listeners go, and
-  // the page's tab order comes back
+  // the page is no longer inert
   ngOnDestroy(): void {
     for (const { dialogRef } of [...this.dialogStack].reverse()) {
       dialogRef.close();
     }
     this.escapeSubscription?.unsubscribe();
     this.escapeSubscription = null;
+    this.endTabGuard();
   }
 
-  private setEscapeHandler() {
-    if (this.escapeSubscription) {
-      this.escapeSubscription.unsubscribe();
+  // One listener on the window, in the bubble phase, while a dialog is open: a handler of the app's on an element or on
+  // the document runs first, and can keep a dialog open by cancelling the key
+  private listenForKeys() {
+    if (this.dialogStack.length === 0) {
+      this.escapeSubscription?.unsubscribe();
       this.escapeSubscription = null;
+      return;
     }
-    // Escape closes the top dialog that closes on Escape. One above it with no backdrop that ignores Escape, such as a
-    // tooltip, lets the key through; one with a backdrop that ignores Escape keeps the ones below it open
-    let target: (typeof this.dialogStack)[number] | undefined = undefined;
+    this.escapeSubscription ??= fromEvent<KeyboardEvent>(this.document.defaultView!, 'keydown').subscribe(e => {
+      this.endTabGuard();
+      if (e.key === 'Escape') {
+        this.onEscape(e);
+      } else if (e.key === 'Tab') {
+        this.keepFocusIn(e);
+      }
+    });
+  }
+
+  // Escape closes the top dialog that closes on Escape. It skips a key the app cancelled, and one from a date or time
+  // input, which can reach the page as the input's own picker closes. While a modal is open it cancels the key, which
+  // stops the browser's own close request for the <dialog>, so a modal that ignores Escape stays open however often it
+  // is pressed
+  private onEscape(e: KeyboardEvent) {
+    if (e.defaultPrevented) {
+      return;
+    }
+    const target = isPicker(e.target) ? undefined : this.escapeTarget();
+    if (target) {
+      e.preventDefault();
+      target.dialogRef.close();
+    } else if (this.modals.length > 0) {
+      e.preventDefault();
+    }
+  }
+
+  // The dialog Escape closes, of those `include` takes: the top one that closes on Escape. One above it with no
+  // backdrop that ignores Escape, such as a tooltip, lets the key through; one with a backdrop that ignores Escape, a
+  // modal's ::backdrop included, keeps the ones below it open
+  private escapeTarget(include: (entry: (typeof this.dialogStack)[number]) => boolean = () => true) {
     for (const entry of [...this.dialogStack].reverse()) {
+      if (!include(entry)) {
+        continue;
+      }
       if (entry.args.closeOnEscape === true) {
-        target = entry;
-        break;
+        return entry;
       }
       if (entry.args.skipCreatingBackdrop !== true) {
-        break;
+        return undefined;
       }
     }
-    if (target) {
-      const { dialogRef } = target;
-      this.escapeSubscription = fromEvent(this.document, 'keydown')
-        .pipe(map(e => e as KeyboardEvent))
-        .subscribe((e: KeyboardEvent) => {
-          if (e.key === 'Escape') {
-            if (this.escapeSubscription) {
-              this.escapeSubscription.unsubscribe();
-              this.escapeSubscription = null;
-            }
-            dialogRef.close();
-            e.preventDefault();
-          }
-        });
+    return undefined;
+  }
+
+  // Tab and Shift+Tab keep focus in the top dialog that keeps it, such as a menu, and in the dialogs opened above it
+  // outside it, such as an app's dialog a menu item opens while the menu stays open. The browser moves focus within
+  // each, a date input's own fields included; the service steps in at an end, where Tab goes on to the next dialog's
+  // first element, wrapping from the last to the first, and Shift+Tab back, and where focus is outside them all. Should
+  // the browser's move leave them all, as past a date input's last field or from an element after the last Tab stop,
+  // the focus goes on to that same element. The page's own tabindex stays as it is, so a Tab stop the page moves
+  // meanwhile, as a button toggle's does when its value changes, stays where the page put it. A modal's <dialog> keeps
+  // focus by itself, since the browser makes the rest inert
+  private keepFocusIn(e: KeyboardEvent) {
+    if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) {
+      return;
     }
+    const element = (entry: (typeof this.dialogStack)[number]) => (entry.dialogRef as DialogRefInternal<unknown>).dialogElement;
+    const topIndex = this.dialogStack.map(entry => entry.args.trapFocus === true).lastIndexOf(true);
+    if (topIndex === -1 || element(this.dialogStack[topIndex]) instanceof HTMLDialogElement) {
+      return;
+    }
+    // the dialog and those above it, each once: a select's list in a menu is part of the menu
+    const regions: HTMLElement[] = [];
+    for (const entry of this.dialogStack.slice(topIndex)) {
+      const candidate = element(entry);
+      if (!regions.some(region => region.contains(candidate))) {
+        regions.push(candidate);
+      }
+    }
+    const stops = regions.map(region => tabbable(region));
+    if (stops.every(own => own.length === 0)) {
+      e.preventDefault();
+      return;
+    }
+    const active = this.document.activeElement;
+    const at = regions.findIndex(region => active instanceof Node && region.contains(active));
+    if (at === -1) {
+      const all = stops.flat();
+      e.preventDefault();
+      (e.shiftKey ? all.at(-1) : all[0])?.focus();
+      return;
+    }
+    // the next region's first Tab stop, or for Shift+Tab the last of the one before, wrapping round to this one
+    const order = e.shiftKey ? [...stops.slice(0, at).reverse(), ...stops.slice(at).reverse()] : [...stops.slice(at + 1), ...stops.slice(0, at + 1)];
+    const following = order.find(stopsOf => stopsOf.length > 0)!;
+    const next = e.shiftKey ? following.at(-1)! : following[0];
+    const own = stops[at];
+    // a date or time input's fields take Tab before it leaves the input
+    if (!isPicker(e.target) && (own.length === 0 || active === (e.shiftKey ? own[0] : own.at(-1)))) {
+      e.preventDefault();
+      next.focus();
+      return;
+    }
+    this.guardTab(regions, next);
+  }
+
+  // Watches where the browser moves focus for this Tab press, and only for it: a focus that leaves every region goes on
+  // to `next`. It ends when focus moves, on the key's keyup or on the next key, so it never meets a script's own focus
+  private guardTab(regions: HTMLElement[], next: FocusableElement) {
+    const onFocusIn = (e: FocusEvent) => {
+      this.endTabGuard();
+      if (!regions.some(region => e.target instanceof Node && region.contains(e.target))) {
+        next.focus();
+      }
+    };
+    const onKeyUp = () => {
+      this.endTabGuard();
+    };
+    this.document.addEventListener('focusin', onFocusIn, true);
+    this.document.addEventListener('keyup', onKeyUp, true);
+    this.endTabGuard = () => {
+      this.document.removeEventListener('focusin', onFocusIn, true);
+      this.document.removeEventListener('keyup', onKeyUp, true);
+      this.endTabGuard = () => undefined;
+    };
   }
 
   private createView<TComponent>(component: Type<TComponent>, injector: Injector): ViewRef {
@@ -441,13 +758,19 @@ export class DialogService implements OnDestroy {
     injector: Injector,
     dialogRef: IDialogRef,
     zIndex: number,
+    modal: boolean,
   ): { dialogElement: HTMLElement; headerIcon: ComponentRef<IconComponent> | undefined } {
     const embeddedViewRef = viewRef as EmbeddedViewRef<unknown>;
     let headerIcon: ComponentRef<IconComponent> | undefined = undefined;
 
-    const dialogElement = this.document.createElement('div');
+    // A modal is a <dialog>, which showModal() shows in the top layer as a modal dialog. It takes focus itself when
+    // nothing in it does
+    const dialogElement = this.document.createElement(modal ? 'dialog' : 'div');
     dialogElement.classList.add('dialog-container');
     dialogElement.style.zIndex = zIndex.toString();
+    if (modal) {
+      dialogElement.tabIndex = -1;
+    }
     for (const rootNode of embeddedViewRef.rootNodes) {
       dialogElement.appendChild(rootNode as Node);
     }
@@ -464,6 +787,11 @@ export class DialogService implements OnDestroy {
       titleElement.classList.add('dialog-title');
       // the title is text: callers build it from their data, so it must never be parsed as HTML
       titleElement.textContent = args.header.title;
+      // a modal's name
+      if (modal) {
+        titleElement.id = generateRandomString();
+        dialogElement.setAttribute('aria-labelledby', titleElement.id);
+      }
       headerElement.appendChild(titleElement);
       if (args.header.allowClose) {
         // A button, so a screen reader says what it is and Enter and Space press it; its labelled icon names it
@@ -480,10 +808,15 @@ export class DialogService implements OnDestroy {
         headerIcon.setInput('value', 'close');
         headerIcon.setInput('label', 'Close');
         this.appRef.attachView(headerIcon.hostView);
+        // rendered now, so the button has its name when a modal shows and focuses it
+        headerIcon.changeDetectorRef.detectChanges();
         closeButton.appendChild(headerIcon.location.nativeElement as HTMLElement);
         headerElement.appendChild(closeButton);
       }
       dialogElement.insertBefore(headerElement, dialogElement.firstChild);
+    } else if (modal && args.label !== undefined && args.label.trim() !== '') {
+      // a modal without a header is named by its label; one with no words names nothing
+      dialogElement.setAttribute('aria-label', args.label);
     }
     return { dialogElement, headerIcon };
   }
@@ -594,38 +927,20 @@ export class DialogService implements OnDestroy {
     }
   }
 
-  private trapFocus(): {
-    elements: {
-      element: FocusableElement;
-      originalTabIndex: number;
-    }[];
-    focusedElement: HTMLElement | null;
-  } {
-    const tabbableElements = tabbable(this.document.body);
-    const elementsTable = tabbableElements.map(e => ({
-      element: e,
-      originalTabIndex: e.tabIndex,
-    }));
-    elementsTable.forEach(e => (e.element.tabIndex = -1));
-    const focusedElement = this.document.activeElement as HTMLElement | null;
-    if (focusedElement) {
-      focusedElement.blur();
-    }
-    return {
-      elements: elementsTable,
-      focusedElement: focusedElement,
-    };
+  // The element that has focus, none for the body
+  private focusedElement(): HTMLElement | null {
+    const { activeElement } = this.document;
+    return activeElement instanceof HTMLElement && activeElement !== this.document.body ? activeElement : null;
   }
-  private restoreFocus(obj: {
-    elements: {
-      element: FocusableElement;
-      originalTabIndex: number;
-    }[];
-    focusedElement: HTMLElement | null;
-  }) {
-    obj.elements.forEach(e => (e.element.tabIndex = e.originalTabIndex));
-    if (obj.focusedElement) {
-      obj.focusedElement.focus();
-    }
+
+  // A non-modal dialog that keeps focus takes it from the page as it opens, and gives it back as it closes; Tab keeps
+  // it in the dialog (keepFocusIn)
+  private trapFocus(): { focusedElement: HTMLElement | null } {
+    const focusedElement = this.focusedElement();
+    focusedElement?.blur();
+    return { focusedElement };
+  }
+  private restoreFocus(trapped: { focusedElement: HTMLElement | null }) {
+    trapped.focusedElement?.focus();
   }
 }

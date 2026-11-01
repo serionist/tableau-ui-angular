@@ -275,6 +275,43 @@ describe('SnackService', () => {
     modal.close();
   });
 
+  // A snack over a modal sat at the modal's level in the page, under an app's fixed header above it; the modal shows in
+  // the top layer, above every z-index of the page, and the snack in it
+  it("shows a snack over a modal above an app's fixed header, where its buttons take focus and clicks and leave the modal open", async () => {
+    TestBed.createComponent(LibraryStylesComponent);
+    const header = document.createElement('header');
+    header.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; height: 6rem; z-index: 1000; background: white';
+    document.body.appendChild(header);
+    try {
+      const dialogs = TestBed.inject(DialogService);
+      const modal = dialogs.openModal(ModalContentComponent, undefined);
+      const dialog = document.querySelector<HTMLDialogElement>('dialog.dialog-container')!;
+      const modalClosed = vi.fn();
+      modal.closed$.subscribe(modalClosed);
+      const ref = TestBed.inject(SnackService).openSnack('Saved', 0);
+      const closed = vi.fn();
+      ref.closed$.subscribe(closed);
+      TestBed.inject(ApplicationRef).tick();
+
+      const close = document.querySelector<HTMLButtonElement>('.tab-snacks .close')!;
+      await vi.waitFor(() => {
+        const box = close.getBoundingClientRect();
+        expect(box.bottom).toBeLessThan(header.getBoundingClientRect().bottom);
+        expect(close.contains(document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2))).toBe(true);
+      });
+      close.focus();
+      expect(document.activeElement).toBe(close);
+      await userEvent.click(close);
+      expect(closed).toHaveBeenCalledWith(true);
+      await wait(50);
+      expect(modalClosed).not.toHaveBeenCalled();
+      expect(dialog.matches(':modal')).toBe(true);
+      modal.close();
+    } finally {
+      header.remove();
+    }
+  });
+
   it('moves a showing snack into a modal that opens, into the modal above it, and back as each closes', async () => {
     const dialogs = TestBed.inject(DialogService);
     const ref = open('Saved', 0);
