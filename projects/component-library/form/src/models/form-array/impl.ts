@@ -3,7 +3,7 @@ import { signal } from '@angular/core';
 import type { Observable } from 'rxjs';
 import { BehaviorSubject, filter, map, startWith } from 'rxjs';
 import { ACImpl } from '../abstract-control/impl';
-import { InTurnSubject, sameValue } from '../abstract-control/in-turn';
+import { InTurnSubject } from '../abstract-control/in-turn';
 import type { MetaFns } from '../abstract-control/meta/interfaces';
 import type { AsyncValidatorFn, ValidatorFn, ValidatorFns } from '../abstract-control/validation/interfaces';
 import type { FA } from './interaces';
@@ -75,8 +75,7 @@ export class FAImpl<T extends Record<string, unknown>> extends ACImpl<T[]> imple
 
     this.$_controls = signal(this._controls$.value);
 
-    // a held value goes out unless both it and the raw value are the same as when the last one went out
-    this._value$ = new InTurnSubject<DeepPartial<T>[]>(control.value, (held, emitted) => sameValue(held, emitted) && sameValue(control.getRawValue(), this._rawValue$.value));
+    this._value$ = new InTurnSubject<DeepPartial<T>[]>(control.value, control);
     this.$_value = signal(control.value);
     this._rawValue$ = new BehaviorSubject<T[]>(this._defaultValue);
     this.$_rawValue = signal<T[]>(this._rawValue$.value);
@@ -123,7 +122,8 @@ export class FAImpl<T extends Record<string, unknown>> extends ACImpl<T[]> imple
   }
   // push, insert and removeAt change the child list first, as a new list so the signals over it notify, and then the
   // FormArray, whose event then reaches valueChange with the rows its value holds. The raw value and the metas, the
-  // array's and its ancestors', follow the FormArray even when it emits nothing.
+  // array's and its ancestors', follow the FormArray even when it emits nothing. The removed rows are destroyed before
+  // the metas refresh, which throws to the caller when a meta rule doesn't settle (InTurn).
   push(
     control: FG<T>,
     options?: {
@@ -145,10 +145,10 @@ export class FAImpl<T extends Record<string, unknown>> extends ACImpl<T[]> imple
     this.hierarchy.childList$.next(childList.filter((_, i) => i !== at));
     this.formArray.removeAt(index, options);
     this.refreshRawValue();
-    this.refreshMetaUpwards();
     if (control !== undefined && destroyControl) {
       control.destroy();
     }
+    this.refreshMetaUpwards();
   }
   insert(
     index: number,
@@ -170,12 +170,12 @@ export class FAImpl<T extends Record<string, unknown>> extends ACImpl<T[]> imple
     this.hierarchy.childList$.next([]);
     this.formArray.clear(options);
     this.refreshRawValue();
-    this.refreshMetaUpwards();
     if (destroyControls) {
       childList.forEach(child => {
         child.destroy();
       });
     }
+    this.refreshMetaUpwards();
   }
   at(index: number): FG<T> | undefined {
     return this._controls$.value[index];

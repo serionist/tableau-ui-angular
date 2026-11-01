@@ -310,6 +310,29 @@ describe('FG', () => {
     expect(raw.at(-1)).toEqual({ name: 'bo', id: 'BO' });
   });
 
+  // A held value the same as the last one was dropped though the form's validity had changed, so a subscriber that
+  // read the validity never ran again and kept the form savable while it was invalid
+  it('calls the value subscribers again when another one changes the validity alone', () => {
+    const form = fb.group<{ kind: string; vat: string }>({ kind: fb.control<string>('person'), vat: fb.control<string>('') });
+    let canSave = false;
+    form.registerFn.valueChange(() => {
+      canSave = form.$meta().validity === 'VALID';
+    });
+    form.registerFn.valueChange((value, old) => {
+      if (old !== undefined && value.kind !== old.kind) {
+        const { vat } = form.controls;
+        vat.validatorFn.setValidators(value.kind === 'business' ? Validators.required : null);
+        vat.updateValueAndValidity(true, false, false, false);
+      }
+    });
+    expect(canSave).toBe(true);
+
+    form.controls.kind.setValue('business');
+
+    expect(form.$meta().validity).toBe('INVALID');
+    expect(canSave).toBe(false);
+  });
+
   /** The errors RxJS reports from inside a subscription while `act` runs, which it reports on a timeout */
   async function reported(act: () => void): Promise<unknown[]> {
     const errors: unknown[] = [];
@@ -340,7 +363,7 @@ describe('FG', () => {
     const errors = await reported(() => form.controls.name.setValue('Bo'));
     counting = false;
 
-    expect(errors).toEqual([expect.objectContaining({ message: expect.stringContaining('value$ emitted 100 held changes in one turn') })]);
+    expect(errors).toEqual([expect.objectContaining({ message: expect.stringContaining("value$ didn't settle within 100 rounds in one turn") })]);
     expect(values.length).toBe(102);
     form.controls.name.setValue('Cy');
     expect(form.$value()).toEqual({ count: 101, name: 'Cy' });
@@ -364,7 +387,7 @@ describe('FG', () => {
     const errors = await reported(() => form.metaFn.markAsTouched());
     toggling = false;
 
-    expect(errors).toEqual([expect.objectContaining({ message: expect.stringContaining('meta$ emitted 100 held changes in one turn') })]);
+    expect(errors).toEqual([expect.objectContaining({ message: expect.stringContaining("meta$ didn't settle within 100 rounds in one turn") })]);
     form.controls.state.setValue('WA');
     expect(form.$meta().touched).toBe(new FormGroupPipe().transform(form).touched);
   });

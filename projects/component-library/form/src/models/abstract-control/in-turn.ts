@@ -1,3 +1,4 @@
+import type { AbstractControl } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
 
 /** The held runs one turn takes before it gives up, as Angular gives up on change detection that never settles */
@@ -9,8 +10,10 @@ export const MAX_HELD_RUNS = 100;
  * values merge, the latest by default, and a held value `same` finds equal to the one just emitted is dropped.
  *
  * After 100 held runs in one turn it drops what it holds and throws: a subscriber that changes the form each time it
- * is given a value never settles. The emits run inside Angular's own subscriptions, so RxJS reports the throw as an
- * uncaught error, as it did the stack overflow such a subscriber caused before the emits took turns.
+ * is given a value may not settle within 100 rounds. The emits run inside Angular's own subscriptions, so RxJS reports
+ * the throw as an uncaught error, as it did the stack overflow such a subscriber caused before the emits took turns.
+ * An array's `push`, `insert`, `removeAt` and `clear` refresh the metas themselves, so from them a meta rule's error
+ * reaches the caller.
  */
 export class InTurn<T> {
   private running = false;
@@ -39,7 +42,7 @@ export class InTurn<T> {
       for (let run = 0; next; run++) {
         if (run > MAX_HELD_RUNS) {
           throw new Error(
-            `tableau-ui-angular/form: ${this.name} emitted ${MAX_HELD_RUNS} held changes in one turn, since a subscriber changes the form each time it is given a value, and the form never settles. The last change was dropped: give that subscriber a check that leaves the form as it is once it holds what the subscriber sets.`,
+            `tableau-ui-angular/form: ${this.name} didn't settle within ${MAX_HELD_RUNS} rounds in one turn: a subscriber changes the form each time it is given a value. The last change was dropped. Give that subscriber a check that leaves the form as it is once it holds what the subscriber sets, or make the whole change in one call.`,
           );
         }
         const current = next.value;
@@ -65,15 +68,24 @@ export class InTurn<T> {
 /**
  * A `BehaviorSubject` whose emits take turns (`InTurn`). RxJS's own `next` hands a value that comes while it is
  * emitting to every subscriber at once, so the subscribers after the one that made the change got the old value last;
- * here each subscriber gets the same values in the same order. A held value `same` finds equal to the one just emitted
- * is dropped, so a rule that sets a field from the others settles.
+ * here each subscriber gets the same values in the same order.
+ *
+ * A held value the same as the one just emitted is dropped, so a rule that sets a field from the others settles, but
+ * only while the control's raw value, status and errors are what they were when that one went out: a subscriber that
+ * sets a disabled field, changes a validator or adds a disabled row gets the subscribers called again.
  */
 export class InTurnSubject<T> extends BehaviorSubject<T> {
   private readonly turn: InTurn<T>;
+  // the control's raw value, status and errors when the last value went out
+  private emittedState: unknown;
 
-  constructor(value: T, same: (held: T, emitted: T) => boolean = sameValue) {
+  /** @param control The control whose value it emits; without one, a held value is compared alone */
+  constructor(
+    value: T,
+    private readonly control?: AbstractControl,
+  ) {
     super(value);
-    this.turn = new InTurn<T>('value$', undefined, same);
+    this.turn = new InTurn<T>('value$', undefined, (held, emitted) => sameValue(held, emitted) && sameValue(this.state(), this.emittedState));
   }
 
   /** The value it holds, or the one waiting for its turn */
@@ -84,8 +96,14 @@ export class InTurnSubject<T> extends BehaviorSubject<T> {
 
   override next(value: T): void {
     this.turn.run(value, current => {
+      this.emittedState = this.state();
       super.next(current);
     });
+  }
+
+  private state(): unknown {
+    const { control } = this;
+    return control ? { raw: control.getRawValue() as unknown, status: control.status, errors: control.errors } : undefined;
   }
 }
 
@@ -101,7 +119,16 @@ export function sameValue(a: unknown, b: unknown): boolean {
     return Object.is(a.getTime(), b.getTime());
   }
   if (Array.isArray(a) && Array.isArray(b)) {
-    return a.length === b.length && a.every((item, i) => sameValue(item, b[i]));
+    if (a.length !== b.length) {
+      return false;
+    }
+    // by index, since every() skips the holes of a sparse array
+    for (let i = 0; i < a.length; i++) {
+      if (!sameValue(a[i], b[i])) {
+        return false;
+      }
+    }
+    return true;
   }
   if (isPlainObject(a) && isPlainObject(b)) {
     const keys = Object.keys(a);

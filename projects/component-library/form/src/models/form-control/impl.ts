@@ -56,7 +56,7 @@ export class FCImpl<T extends PrimitiveWithUndefined | PrimitiveWithUndefined[]>
     super('control', control, []);
     this._control = control;
     this._defaultValue = params.defaultValue;
-    this._value$ = new InTurnSubject<T>(params.defaultValue);
+    this._value$ = new InTurnSubject<T>(params.defaultValue, control);
     this.$_value = signal<T>(this._value$.value);
     // A change a subscriber makes reaches value$ and $value once every subscriber has the current value
     this.subscriptions.push(

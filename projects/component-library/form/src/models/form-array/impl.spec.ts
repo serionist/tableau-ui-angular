@@ -149,4 +149,42 @@ describe('FA', () => {
     expect(array.$value()).toEqual([{ hasEmail: false }]);
     expect(array.$rawValue()).toEqual([{ hasEmail: false, email: 'ada' }]);
   });
+
+  // A held value the same as the last one was dropped though the raw value had changed, so the subscribers before the
+  // one that pushed a disabled row never saw it
+  it('calls the value subscribers again when one of them pushes a disabled row', () => {
+    const array = fb.array([row('a')]);
+    const rows: number[] = [];
+    array.registerFn.valueChange((_value, _old, controls) => rows.push(controls.length));
+    let adding = false;
+    array.registerFn.valueChange(() => {
+      if (adding) {
+        adding = false;
+        const hidden = row('hidden');
+        hidden.metaFn.disable();
+        array.push(hidden);
+      }
+    });
+
+    adding = true;
+    array.at(0)!.controls.name.setValue('b');
+
+    expect(rows).toEqual([1, 1, 2]);
+    expect(array.$value()).toEqual([{ name: 'b' }]);
+    expect(array.$rawValue()).toEqual([{ name: 'b' }, { name: 'hidden' }]);
+  });
+
+  it('emits the value again when a rule sets a disabled field in a row, so the raw value follows', () => {
+    const array = fb.array([fb.group<{ name: string; id: string }>({ name: fb.control<string>('ada'), id: fb.control<string>('', undefined, undefined, true) })]);
+    array.registerFn.valueChange((_value, _old, controls) => {
+      controls.forEach(({ controls: { name, id } }) => id.setValue(name.$value().toUpperCase()));
+    });
+    const raw: unknown[] = [];
+    array.rawValue$.subscribe(value => raw.push(value));
+
+    array.at(0)!.controls.name.setValue('bo');
+
+    expect(array.$rawValue()).toEqual([{ name: 'bo', id: 'BO' }]);
+    expect(raw.at(-1)).toEqual([{ name: 'bo', id: 'BO' }]);
+  });
 });

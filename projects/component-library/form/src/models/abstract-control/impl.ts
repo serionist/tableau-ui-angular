@@ -79,8 +79,8 @@ export abstract class ACImpl<TValue> implements AC {
   /**
    * Recomputes the meta, all of it or only its children's part, and emits it when it changed: the signal first, so a
    * subscriber that reads `$meta()` sees what it was given. A change a subscriber makes is emitted after every
-   * subscriber has the current meta, so none of them ends on a stale one, and one that never settles stops after 100
-   * rounds with an error (`InTurn`). Subclasses call it once their constructor has set the default value.
+   * subscriber has the current meta, so none of them ends on a stale one, and one that doesn't settle within 100 rounds
+   * stops with an error (`InTurn`). Subclasses call it once their constructor has set the default value.
    */
   protected refreshMeta(scope: 'all' | 'children' = 'all'): void {
     this.metaTurn.run(scope, next => {

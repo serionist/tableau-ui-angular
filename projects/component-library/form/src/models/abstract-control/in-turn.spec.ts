@@ -79,7 +79,7 @@ describe('InTurnSubject', () => {
     subject.subscribe(value => seen.push(value));
 
     counting = true;
-    expect(() => subject.next(1)).toThrowError(/value\$ emitted 100 held changes in one turn/);
+    expect(() => subject.next(1)).toThrowError(/value\$ didn't settle within 100 rounds in one turn/);
     counting = false;
 
     // 0 when it subscribed, 1, then the 100 held runs; 102 was dropped
@@ -114,6 +114,7 @@ describe('sameValue', () => {
     ['nested objects and arrays', { a: { b: [1, 'x', null, new Date(0)] } }, { a: { b: [1, 'x', null, new Date(0)] } }, true],
     ['an object with a key more', { a: 1 }, { a: 1, b: undefined }, false],
     ['arrays of different lengths', [1], [1, 1], false],
+    ['a sparse array and a full one', new Array<string>(4), ['1', '2', '3', '4'], false],
     ['NaN', Number.NaN, Number.NaN, true],
     ['0 and -0', 0, -0, true],
     ['an array and an object', [], {}, false],

@@ -75,7 +75,7 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   the form while the value emits, as a `valueChange` that disables a field does. The subscribers after that one got the
   new value and then the old one, so a template or a save kept a field the form had left out. Each subscriber now gets
   the old value and then the new one. A rule that sets a field from the others, with no check that the field already
-  holds it, settles, where it overflowed the stack. A value or meta rule that never settles stops after 100 rounds
+  holds it, settles, where it overflowed the stack. A value or meta rule that doesn't settle within 100 rounds stops
   with an error that names `value$` or `meta$`, and its last change is dropped.
 
 ## 0.2.0 (2026-10-31)
