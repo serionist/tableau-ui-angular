@@ -75,6 +75,24 @@ class ShortShellComponent {
 })
 class BrandedShellComponent {}
 
+// Two bars, one whose header follows it and one whose header the app holds open
+@Component({
+  imports: [TableauUiNavBarModule],
+  template: `
+    <tab-nav-bar class="follows" [(expanded)]="$expanded">
+      <tab-nav-bar-header>Logo</tab-nav-bar-header>
+    </tab-nav-bar>
+    <tab-nav-bar class="held" [(expanded)]="$expanded">
+      <tab-nav-bar-header [expanded]="$held()">Logo</tab-nav-bar-header>
+    </tab-nav-bar>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class HeaderShellComponent {
+  readonly $expanded = signal(true);
+  readonly $held = signal<boolean | undefined>(true);
+}
+
 describe('NavBarComponent', () => {
   beforeEach(() => {
     // any path navigates, so a link's click lands somewhere
@@ -201,5 +219,24 @@ describe('NavBarComponent', () => {
     await fixture.whenStable();
     expect(host.querySelector('.version')).toBeNull();
     expect(host.querySelector('.logo')).not.toBeNull();
+  });
+
+  // The header's expanded input was read by nothing, and the header didn't follow the bar
+  it("gives its header the bar's state as its expanded attribute, unless the header's own [expanded] sets it", async () => {
+    const fixture = TestBed.createComponent(HeaderShellComponent);
+    fixture.autoDetectChanges();
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+    const header = (bar: string) => host.querySelector(`tab-nav-bar.${bar} tab-nav-bar-header`)!.getAttribute('expanded');
+    expect([header('follows'), header('held')]).toEqual(['true', 'true']);
+
+    host.querySelector<HTMLButtonElement>('tab-nav-bar.follows .menu-toggle-button button')!.click();
+    await fixture.whenStable();
+    expect(fixture.componentInstance.$expanded()).toBe(false);
+    expect([header('follows'), header('held')]).toEqual(['false', 'true']);
+
+    fixture.componentInstance.$held.set(undefined);
+    await fixture.whenStable();
+    expect(header('held')).toBe('false');
   });
 });

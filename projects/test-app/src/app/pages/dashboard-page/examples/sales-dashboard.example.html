@@ -180,7 +180,8 @@
 
         <tab key="orders" (afterActivate)="loadOrders()">
           <span tab-header>Orders</span>
-          <!-- Each column has a width of its own: a flexible one keeps its width when the table narrows, as the drawer opens -->
+          <!-- The numbers keep a width of their own; the customer and the product share the rest, so they narrow as the drawer opens
+               beside the table, down to their minimum widths, past which the table scrolls sideways -->
           <tab-table #table sortMode="single" [dataOptions]="$dataOptions()" [selectionOptions]="selectionOptions" [(sort)]="$sort" [(selectedRows)]="$selected">
             <ng-container tabColumnDef="id" width="7rem">
               <ng-template let-ctx [tabHeaderDef]="table">Order</ng-template>
@@ -195,7 +196,7 @@
               <ng-template let-ctx [tabHeaderDef]="table">Date</ng-template>
               <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.date | date: 'mediumDate' }}</ng-template>
             </ng-container>
-            <ng-container tabColumnDef="customer" width="10rem">
+            <ng-container tabColumnDef="customer" minWidth="8rem">
               <ng-template let-ctx [tabHeaderDef]="table">Customer</ng-template>
               <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.customer }}</ng-template>
             </ng-container>
@@ -203,7 +204,7 @@
               <ng-template let-ctx [tabHeaderDef]="table">Region</ng-template>
               <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.region }}</ng-template>
             </ng-container>
-            <ng-container tabColumnDef="product" width="11rem">
+            <ng-container tabColumnDef="product" minWidth="9rem">
               <ng-template let-ctx [tabHeaderDef]="table">Product</ng-template>
               <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.product }}</ng-template>
             </ng-container>

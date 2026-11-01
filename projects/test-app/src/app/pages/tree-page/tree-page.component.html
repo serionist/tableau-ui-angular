@@ -13,8 +13,8 @@
     <div class="section">
       <h3>A tree</h3>
       <p>
-        A <code>tab-tree</code> holds <code>tab-tree-node</code> elements, and a node inside another is its child. A node with children has a button that opens and closes it, named Expand or Collapse
-        for screen readers. Nodes start closed: <code>[expanded]</code> opens one, and <code>(expandedChange)</code> emits when the user opens or closes it.
+        A <code>tab-tree</code> holds <code>tab-tree-node</code> elements, and in the default <code>auto</code> mode a node inside another is its child. A node with children has a button that opens
+        and closes it, named Expand or Collapse for screen readers. Nodes start closed: <code>[expanded]</code> opens one, and <code>(expandedChange)</code> emits when the user opens or closes it.
       </p>
       <app-docs-example [example]="examples.basic" />
     </div>
@@ -88,6 +88,25 @@
         Nodes can also sit side by side: <code>hierarchyId</code> names a node, and <code>hierarchyParentId</code> its parent. An id is unique in its tree; a node with an id the tree already has is
         left out. <code>[order]</code> sorts the children of a parent, lower first and <code>0</code> by default; nodes with the same order keep their order in the template.
       </p>
+      <p>The tree's <code>hierarchyMode</code> says where a node's parent comes from:</p>
+      <table class="docs-table">
+        <thead>
+          <tr>
+            <th scope="col">Mode</th>
+            <th scope="col">A node's parent</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>auto</code>, the default</td>
+            <td>The node its <code>hierarchyParentId</code> names, or else the node it sits in</td>
+          </tr>
+          <tr>
+            <td><code>manual</code></td>
+            <td>Only the node its <code>hierarchyParentId</code> names: a node that names none is at the top level, wherever it sits</td>
+          </tr>
+        </tbody>
+      </table>
       <app-docs-example [example]="examples.flat" />
     </div>
 

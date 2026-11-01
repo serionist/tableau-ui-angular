@@ -35,10 +35,10 @@
         @let itemTemplate = $itemTemplate();
         <div
           class="item"
-          [ngStyle]="$dataRowCss()"
-          [style.height]="$dataRowCss().height"
-          [style.maxHeight]="$dataRowCss().height"
-          [style.minHeight]="$dataRowCss().height"
+          [ngStyle]="$itemCss()"
+          [style.height.px]="$itemHeightPx()"
+          [style.maxHeight.px]="$itemHeightPx()"
+          [style.minHeight.px]="$itemHeightPx()"
           [class.even]="(block.offset + $index) % 2 === 0"
         >
           @switch (block.$status()) {

@@ -1,13 +1,16 @@
 import type { Signal } from '@angular/core';
-import { ChangeDetectionStrategy, Component, contentChild, model } from '@angular/core';
+import { ChangeDetectionStrategy, Component, contentChild, forwardRef, model } from '@angular/core';
 import { NavBarHeaderComponent } from './nav-bar-header.component';
 import { NavBarFooterComponent } from './nav-bar-footer.component';
+import { NavBarState } from './nav-bar-state';
 
 @Component({
   selector: 'tab-nav-bar',
   standalone: false,
   templateUrl: './nav-bar.component.html',
   styleUrl: './nav-bar.component.scss',
+  // the header follows the bar's state
+  providers: [{ provide: NavBarState, useExisting: forwardRef(() => NavBarComponent) }],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[attr.expanded]': '$expanded()',

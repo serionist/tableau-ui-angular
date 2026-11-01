@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { userEvent } from 'vitest/browser';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
+import { DialogService } from 'tableau-ui-angular/dialog';
 import { TableauUiFormFieldModule } from 'tableau-ui-angular/form-field';
 import { axeViolations } from '../../testing/axe';
 import { movePointerAway } from '../../testing/pointer';
@@ -212,6 +213,83 @@ describe('AutoCompleteComponent', () => {
     await fixture.whenStable();
 
     expect(await axeViolations(host)).toEqual([]);
+  });
+});
+
+// Suggestions the app filters by the input's text, as a search field does
+@Component({
+  imports: [TableauUiAutoCompleteModule, TableauUiCommonModule],
+  template: `
+    <input type="text" aria-label="City" [tabAutoComplete]="cities" (input)="search($event)" />
+    <tab-autocomplete #cities>
+      @for (city of $matches(); track city) {
+        <tab-option [value]="city" [text]="city" />
+      }
+    </tab-autocomplete>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class CitySearchComponent {
+  readonly $text = signal('');
+  readonly $matches = computed(() => ['Budapest', 'Bern', 'Vienna'].filter(city => city.toLowerCase().startsWith(this.$text().toLowerCase())));
+
+  search(event: Event) {
+    this.$text.set((event.target as HTMLInputElement).value);
+  }
+}
+
+describe('AutoCompleteComponent, filtered by the app', () => {
+  beforeEach(movePointerAway);
+
+  // An empty suggestions dialog stayed open, about 2px tall, and took the page's next Escape: in a drawer, the first
+  // Escape closed the dialog no one could see, and only the second the drawer
+  it('shows no dialog while nothing matches, shows it again when something does, and lets Escape reach the page', async () => {
+    const fixture = TestBed.createComponent(CitySearchComponent);
+    fixture.autoDetectChanges();
+    await fixture.whenStable();
+    const input = (fixture.nativeElement as HTMLElement).querySelector('input')!;
+    const suggestions = () => Array.from(document.querySelectorAll('.dropdown-container .option-content'), option => option.textContent.trim());
+    const dialogs = TestBed.inject(DialogService).dialogStack;
+    // whether each Escape that reached the window was still the page's, which a dialog's Escape is not
+    const escapes: boolean[] = [];
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        escapes.push(!event.defaultPrevented);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    try {
+      input.focus();
+      await fixture.whenStable();
+      expect(suggestions()).toEqual(['Budapest', 'Bern', 'Vienna']);
+
+      await userEvent.keyboard('x');
+      await fixture.whenStable();
+      expect(document.querySelector('.dropdown-container')).toBeNull();
+      expect(dialogs).toEqual([]);
+      expect(input.getAttribute('aria-expanded')).toBe('false');
+      expect(input.hasAttribute('aria-controls')).toBe(false);
+
+      await userEvent.keyboard('{Backspace}b');
+      await fixture.whenStable();
+      expect(suggestions()).toEqual(['Budapest', 'Bern']);
+      expect(input.getAttribute('aria-expanded')).toBe('true');
+
+      // a pick from the dialog shown again goes into the input
+      document.querySelectorAll<HTMLElement>('.dropdown-container .option-wrapper')[1].click();
+      await fixture.whenStable();
+      expect(input.value).toBe('Bern');
+      expect(document.querySelector('.dropdown-container')).toBeNull();
+
+      await userEvent.keyboard('{Backspace}{Backspace}{Backspace}{Backspace}zz');
+      await fixture.whenStable();
+      expect(document.querySelector('.dropdown-container')).toBeNull();
+      await userEvent.keyboard('{Escape}');
+      await fixture.whenStable();
+      expect(escapes).toEqual([true]);
+    } finally {
+      window.removeEventListener('keydown', onKeyDown);
+    }
   });
 });
 

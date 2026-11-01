@@ -6,10 +6,43 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
 
 ## Unreleased
 
+### Breaking
+
+- In a tree with `hierarchyMode="manual"`, a node that names no `hierarchyParentId` is at the top level, wherever it
+  sits, where a node inside another was its child in either mode. Give nested nodes their `hierarchyParentId`, or drop
+  `hierarchyMode="manual"`.
+- `TabTreeNodeComponent.$hierarchyParentId()` reads `undefined` unless the app sets it, where it held the id of the
+  node it sits in. Read `$parent()?.$hierarchyId()` for the parent's id.
+
 ### Fixed
 
 - A multi select lists its picked values as "English, Hungarian", where it showed a space before each comma. An
   option's icon in a select's shown value sits 0.25rem from its text, as in the dropdown, where a space widened the gap.
+- A tooltip takes the padding its `tooltipPadding` sets. Only `full` and `lazy` passed one, from their args, so a
+  tooltip on the individual inputs kept the `0.5rem` default. A new `tooltipPosition`, `tooltipMargin` or
+  `tooltipPadding` reaches a tooltip that shows, as a new `[tooltip]` does.
+- A tree's `hierarchyMode` changes where a node's parent comes from, where both modes built the same tree. In
+  `manual`, only the node its `hierarchyParentId` names is its parent. In `auto`, the default, it is that node, or else
+  the node it sits in. In `auto`, a node inside one whose `[hierarchyId]` is bound is its child, where it sat at the
+  top level with a negative indent.
+- The nav bar header's `expanded` input works, where nothing read it. The header follows the bar: its `expanded`
+  attribute is the bar's state, for the app's styles to show what fits, and `[expanded]` on the header sets its own.
+- An autocomplete's suggestions close while none matches the text, and open again when one does; a prefix or a suffix
+  keeps them open. The empty dialog stayed open, out of sight, and took the next Escape: in a drawer, the first Escape
+  didn't close the drawer.
+- A table's flexible columns narrow when the table does, as when a drawer opens beside it, down to their minimum
+  widths; they kept the widest width they had reached, and the table scrolled sideways. A table whose last column is
+  resizable no longer scrolls 4px sideways.
+- A table's data rows are as wide as its header row when the table is wider than its columns, so the rows' rule and a
+  selected row's highlight reach its edge.
+- A row with vertical padding in `dataRowCss` is drawn as tall as the virtual scroll counts it, its height plus its
+  padding, so rows no longer jump as the user scrolls. A table's cells spilled their padding over the next row, and a
+  `tab-virtualize` row lost it under an app's border-box reset. `height` is the row's content's height, and a table
+  cell's text clamps to the lines that height holds. To keep a padded row as tall as before, take its vertical padding
+  off `height`.
+- A full load that fails, as when `FullDataOptions.getAllData` rejects, is reported once: one "Error loading all data"
+  console error and one rejection for the app's `ErrorHandler`, where it logged three errors and rejected twice. A
+  first block that fails logs one error, where it logged two.
 - A control's `metaFn.disable()` and `metaFn.enable()` update its groups' and arrays' value and validity, as Angular's
   own `disable()` and `enable()` do: a form whose only invalid field is disabled is valid. They left them as they were
   until another change updated them. `disable(emitEvent, false)` keeps that, and `disable(false)` no longer emits the

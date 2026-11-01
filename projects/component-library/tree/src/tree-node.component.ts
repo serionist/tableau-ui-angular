@@ -6,6 +6,7 @@ import type { TreeNodeRegistry } from './tree-node-registry';
 import type { ExpandButtonTooltipParams } from './tree.component';
 import { TabTreeComponent } from './tree.component';
 import type { TreeNodeInterface } from './tree-node-interface';
+import { setEnclosingNode } from './tree-node-nesting';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { generateRandomString } from 'tableau-ui-angular/utils';
 
@@ -18,8 +19,8 @@ import { generateRandomString } from 'tableau-ui-angular/utils';
 })
 export class TabTreeNodeComponent implements OnInit, OnDestroy, TreeNodeInterface {
   readonly headerButtonId = generateRandomString(16);
-  // used when hierarchyMode is auto to get direct parent
-  private readonly hierarchyModeAutoParent = inject(TabTreeNodeComponent, {
+  // the node it sits in, which the tree's auto mode makes its parent when it names none
+  private readonly enclosingNode = inject(TabTreeNodeComponent, {
     skipSelf: true,
     optional: true,
   });
@@ -49,11 +50,16 @@ export class TabTreeNodeComponent implements OnInit, OnDestroy, TreeNodeInterfac
   // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
   readonly $template: Signal<TemplateRef<TreeNodeTemplate> | undefined> = viewChild<TemplateRef<TreeNodeTemplate>>('treeNodeTemplate');
 
+  /** The node's id, unique in its tree; a random one by default */
   readonly $hierarchyId: InputSignal<string> = input<string>(generateRandomString(16), {
     alias: 'hierarchyId',
   });
+  /**
+   * The id of the node's parent. Without one, the tree's `auto` mode makes the node it sits in its parent, and its
+   * `manual` mode puts it at the top level.
+   */
   // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
-  readonly $hierarchyParentId: InputSignal<string | undefined> = input<string | undefined>(this.hierarchyModeAutoParent?.$hierarchyId(), {
+  readonly $hierarchyParentId: InputSignal<string | undefined> = input<string | undefined>(undefined, {
     alias: 'hierarchyParentId',
   });
 
@@ -86,6 +92,7 @@ export class TabTreeNodeComponent implements OnInit, OnDestroy, TreeNodeInterfac
     if (!registry) {
       throw new Error('TreeNodeComponent: registry is not provided. Please provide a registry or use the TabTreeComponent.');
     }
+    setEnclosingNode(this, this.enclosingNode);
     registry.register(this);
   }
 
