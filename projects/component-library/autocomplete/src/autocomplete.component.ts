@@ -1,13 +1,12 @@
 import type { Signal, TemplateRef, WritableSignal } from '@angular/core';
-import { ChangeDetectionStrategy, Component, computed, contentChild, contentChildren, DOCUMENT, effect, inject, model, signal, viewChild } from '@angular/core';
+import { afterRenderEffect, ChangeDetectionStrategy, Component, computed, contentChild, contentChildren, DOCUMENT, effect, inject, model, signal, untracked, viewChild } from '@angular/core';
 
 import type { Subscription } from 'rxjs';
 import { fromEvent, Subject } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
 import type { IOptionGridContext } from 'tableau-ui-angular/common';
 import { OptionComponent, PrefixComponent, SuffixComponent } from 'tableau-ui-angular/common';
-import type { DialogRef } from 'tableau-ui-angular/dialog';
-import { DialogService, LocalStackOptions } from 'tableau-ui-angular/dialog';
+import { DialogRef, DialogService, LocalStackOptions } from 'tableau-ui-angular/dialog';
 import { generateRandomString } from 'tableau-ui-angular/utils';
 import type { Primitive } from 'tableau-ui-angular/types';
 
@@ -88,8 +87,34 @@ export class AutoCompleteComponent<T extends Primitive> {
     });
   }
 
+  // The input the suggestions are open for, and the handle openDropdown gave for them, until the user or the app
+  // closes them. Their dialog shows only while it has something to show: an empty one took the page's next Escape.
+  // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+  private readonly $request: WritableSignal<{ handle: DialogRef; el: HTMLInputElement } | undefined> = signal<{ handle: DialogRef; el: HTMLInputElement } | undefined>(undefined);
+  // The dialog, while it shows
   // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
   private readonly $openDialog: WritableSignal<{ ref: DialogRef; el: HTMLInputElement } | undefined> = signal<{ ref: DialogRef; el: HTMLInputElement } | undefined>(undefined);
+  // Set while the dialog closes for want of anything to show, which leaves the suggestions open for their input
+  private hidingEmpty = false;
+  private readonly $hasContent = computed(() => this.$options().length > 0 || this.$dropdownPrefix() !== undefined || this.$dropdownSuffix() !== undefined);
+  // The dialog follows the suggestions' content: it closes when nothing matches, and shows again when something does
+  private readonly showWhileContent = afterRenderEffect(() => {
+    const request = this.$request();
+    const hasContent = this.$hasContent();
+    untracked(() => {
+      const open = this.$openDialog();
+      if (request && hasContent && !open) {
+        this.showDropdown(request.el);
+      } else if (open && !hasContent) {
+        this.hidingEmpty = true;
+        try {
+          open.ref.close();
+        } finally {
+          this.hidingEmpty = false;
+        }
+      }
+    });
+  });
   // The listbox is named as its input is: by aria-labelledby, its label, or aria-label
   protected readonly $listboxName = signal<{ labelledBy: string | null; label: string | null }>({ labelledBy: null, label: null });
   // The highlighted suggestion's id, which the input's aria-activedescendant names
@@ -109,16 +134,40 @@ export class AutoCompleteComponent<T extends Primitive> {
       setOrRemove(open.el, 'aria-activedescendant', active);
     }
   });
+  /**
+   * Opens the suggestions for an input, and gives their handle, which closes them; the same handle while they stay open
+   * for that input. Their dialog shows while there is a suggestion, a prefix or a suffix to show. A disabled or
+   * read-only input gets none.
+   */
   openDropdown(parentControl: HTMLInputElement) {
     if ((parentControl.hasAttribute('disabled') && parentControl.getAttribute('disabled') !== 'false') || parentControl.readOnly) {
       return undefined;
     }
-    if (this.$openDialog()) {
-      if (this.$openDialog()?.el === parentControl) {
-        return this.$openDialog()?.ref;
-      }
-      this.$openDialog()?.ref.close();
+    const request = this.$request();
+    if (request?.el === parentControl) {
+      return request.handle;
     }
+    request?.handle.close();
+    const handle = new DialogRef();
+    handle.closed$.subscribe(() => {
+      if (this.$request()?.handle === handle) {
+        this.$request.set(undefined);
+      }
+      if (this.$openDialog()?.el === parentControl) {
+        this.$openDialog()?.ref.close();
+      }
+    });
+    this.$request.set({ handle, el: parentControl });
+    if (untracked(this.$hasContent)) {
+      this.showDropdown(parentControl);
+    }
+    return handle;
+  }
+  closeDropdown() {
+    this.$request()?.handle.close();
+  }
+
+  private showDropdown(parentControl: HTMLInputElement) {
     // a label with an id names the listbox by reference; one without, or one around the input, by its text
     const label = parentControl.labels?.[0];
     const labelledBy = parentControl.getAttribute('aria-labelledby') ?? (label !== undefined && label.id !== '' ? label.id : null);
@@ -161,12 +210,12 @@ export class AutoCompleteComponent<T extends Primitive> {
       if (this.$openDialog()?.ref === ref) {
         this.$openDialog.set(undefined);
       }
+      // closed by the user, by Escape or a click outside, or by Enter: the suggestions close with it
+      if (!this.hidingEmpty && this.$request()?.el === parentControl) {
+        this.closeDropdown();
+      }
     });
     this.$openDialog.set({ ref, el: parentControl });
-    return ref;
-  }
-  closeDropdown() {
-    this.$openDialog()?.ref.close();
   }
 
   // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability

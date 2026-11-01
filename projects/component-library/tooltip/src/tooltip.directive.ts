@@ -45,8 +45,8 @@ export class TooltipDirective<T> implements OnDestroy {
   /**
    * Margin around the tooltip.
    * This is used to position the tooltip away from the element.
-   * It can be a string representing a CSS value (e.g., '5px', '1rem', '10%').
-   * @default '5px'
+   * It can be a string representing a CSS value (e.g., '5px', '1rem', '10%'); a number without a unit is in pixels.
+   * @default '0.5rem'
    */
   readonly $tooltipMargin = model<string>('0.5rem', {
     alias: 'tooltipMargin',
@@ -65,10 +65,9 @@ export class TooltipDirective<T> implements OnDestroy {
 
   /**
    * Mode for the tooltip arguments.
-   * If 'individual', the tooltip will use the individual properties provided ([tooltip], `[tooltipContext]`, `[tooltipPosition]`, and `[tooltipMargin]`).
+   * If 'individual', the tooltip will use the individual properties provided (`[tooltip]`, `[tooltipContext]`, `[tooltipPosition]`, `[tooltipMargin]` and `[tooltipPadding]`).
    * If 'full', the tooltip will use the full arguments provided in `[tooltipFullArgs]`.
    * If 'lazy', the tooltip will use lazy evaluation of arguments by calling the provided in `[tooltipLazyArgs]` function.
-   * tooltipContext`, `$tooltipPosition`, and `$tooltipMargin`.
    * @default 'individual'
    */
   readonly $tooltipArgsMode = input<'full' | 'individual' | 'lazy'>('individual', {
@@ -101,6 +100,9 @@ export class TooltipDirective<T> implements OnDestroy {
   private readonly tooltipArgsChanged = effect(() => {
     this.$tooltip();
     this.$tooltipContext();
+    this.$tooltipPosition();
+    this.$tooltipMargin();
+    this.$tooltipPadding();
     this.$tooltipFullArgs();
     this.$tooltipLazyArgs();
     this.$tooltipArgsMode();
@@ -149,6 +151,7 @@ export class TooltipDirective<T> implements OnDestroy {
           context: this.$tooltipContext(),
           position: this.$tooltipPosition(),
           margin: this.$tooltipMargin(),
+          padding: this.$tooltipPadding(),
         };
         break;
       default:

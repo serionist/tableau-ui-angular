@@ -1,8 +1,8 @@
 <div class="app">
   <tab-nav-bar [(expanded)]="$expanded">
-    <!-- The header and the footer show what fits the bar's width -->
+    <!-- The header and the footer show what fits the bar's width; the header's expanded attribute follows the bar -->
     <tab-nav-bar-header>
-      <div class="brand">{{ $expanded() ? 'My app' : 'MA' }}</div>
+      <div class="brand"><span class="name">My app</span><span class="initials">MA</span></div>
     </tab-nav-bar-header>
 
     @for (page of pages; track page.key) {

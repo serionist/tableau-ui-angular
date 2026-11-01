@@ -21,6 +21,7 @@
           <code>tooltipPosition</code> is <code>top</code>, the default, <code>bottom</code>, <code>left</code> or <code>right</code>. A tooltip that would leave the window moves to the other side.
         </li>
         <li><code>tooltipMargin</code> is its distance from the element, <code>0.5rem</code> by default; a number without a unit is in pixels.</li>
+        <li><code>tooltipPadding</code> is the space inside it, <code>0.5rem</code> by default; it takes a CSS padding, such as <code>0.5rem 1rem</code>.</li>
       </ul>
       <app-docs-example [example]="examples.text" />
     </div>
@@ -42,7 +43,7 @@
           </tr>
           <tr>
             <td><code>full</code></td>
-            <td><code>[tooltipFullArgs]</code>, one object: the template, its context, the position, the margin, and the padding, <code>0.5rem</code> by default</td>
+            <td><code>[tooltipFullArgs]</code>, one object: the template, its context, the position, the margin and the padding</td>
           </tr>
           <tr>
             <td><code>lazy</code></td>
