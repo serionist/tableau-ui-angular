@@ -855,7 +855,8 @@ API; the rows after it stay proposed.
 - Before S13: on npmjs.com, a trusted publisher for `tableau-ui-angular` (this repo, `release.yml`, environment
   `npm`); the `npm` environment with you as reviewer, limited to `v*` tags, created on 2026-10-31.
 - S11, after #98 merges: upload `docs/assets/social-preview.png` in the repo's settings, General, Social preview
-  (GitHub takes it only there). Done on 2026-10-31.
+  (GitHub takes it only there). Done on 2026-10-31; again once #131 merges, which retakes it with the 0.3.0 error
+  colour.
 - S13: approve the `npm` deployment; then set the package to "Require two-factor authentication and disallow tokens".
   Done on 2026-10-31.
 
