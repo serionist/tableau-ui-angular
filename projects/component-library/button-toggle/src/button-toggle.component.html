@@ -1,9 +1,15 @@
 @for (option of $options(); track option.$value()) {
-  <!--eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus-->
+  <!--eslint-disable-next-line @angular-eslint/template/click-events-have-key-events-->
   <div
+    #optionElement
     class="option"
+    role="radio"
+    [attr.aria-checked]="$selectedOption() === option"
+    [attr.aria-disabled]="$disabled() || option.$disabled() ? 'true' : null"
+    [attr.aria-label]="$hintName(option)"
+    [tabindex]="$tabStop() === option ? 0 : -1"
     [class.disabled]="$disabled() || option.$disabled()"
-    [tooltip]="option.$hint() ? tooltipTemplate : undefined"
+    [tooltip]="$hintName(option) ?? (option.$hint() ? tooltipTemplate : undefined)"
     [tooltipContext]="{
       hint: option.$hint() ? option.$hint() : undefined,
     }"

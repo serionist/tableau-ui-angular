@@ -1,5 +1,5 @@
 <div class="narrow">
-  <tab-group>
+  <tab-group label="Narrow tabs">
     @for (tab of tabs; track tab) {
       <tab>
         <span tab-header>{{ tab }} tab</span>
@@ -11,7 +11,7 @@
 
 <!-- Larger text, and larger arrows -->
 <div class="narrow">
-  <tab-group class="large" scrollArrowsIconSize="2rem">
+  <tab-group class="large" scrollArrowsIconSize="2rem" label="Narrow tabs, larger">
     @for (tab of tabs; track tab) {
       <tab>
         <span tab-header>{{ tab }} tab</span>

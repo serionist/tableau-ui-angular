@@ -1,7 +1,7 @@
 <tab-expansion-panel>
   <tab-expansion-panel-title>Data Load options</tab-expansion-panel-title>
   <div class="options-container">
-    <tab-button-toggle [(selectedValue)]="$dataMode">
+    <tab-button-toggle aria-label="Data mode" [(selectedValue)]="$dataMode">
       <tab-option text="Incremental Data Mode" value="incremental" hint="Data is loaded on-demand as the user scrolls. HTML rendering is virtualized." />
       <tab-option text="Full Data Mode" value="full" hint="Data is loaded entirely in the background. HTML rendering is still virtualized. Required when SelectAll option is needed for MultiSelect." />
     </tab-button-toggle>
@@ -36,7 +36,7 @@
 <tab-expansion-panel>
   <tab-expansion-panel-title>Selection options</tab-expansion-panel-title>
   <div class="options-container">
-    <tab-button-toggle [(selectedValue)]="$selectionMode">
+    <tab-button-toggle aria-label="Selection" [(selectedValue)]="$selectionMode">
       <tab-option text="Selection Turned Off" value="none" />
       <tab-option text="Single Selection" value="single" />
       <tab-option text="Multi Selection" value="multi" />
@@ -53,7 +53,7 @@
     }
     @if ($selectionMode() === 'multi') {
       <tab-label>Header Checkbox</tab-label>
-      <tab-button-toggle [(selectedValue)]="$multiSelectHeaderCheckboxMode">
+      <tab-button-toggle aria-label="Header Checkbox" [(selectedValue)]="$multiSelectHeaderCheckboxMode">
         <tab-option value="none" text="No header checkbox" hint="Rows can be selected/unselected with checkboxes individually, but no mass selection is possible" />
         <tab-option value="selectNone" text="Select none checkbox" hint="A mass unselect checkbox is available in the header. Can not select all rows." />
         <tab-option

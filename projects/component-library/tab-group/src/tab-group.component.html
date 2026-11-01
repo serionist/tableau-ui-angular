@@ -1,13 +1,18 @@
-<tab-arrow-scroll scrollType="arrow" scrollDirection="horizontal" buttonsCssColor="var(--twc-color-text-light)" [iconParams]="{ fontSize: $scrollArrowsIconSize() }">
+<tab-arrow-scroll #strip scrollType="arrow" scrollDirection="horizontal" buttonsCssColor="var(--twc-color-text-light)" [iconParams]="{ fontSize: $scrollArrowsIconSize() }">
   <div class="tab-headers-container">
-    <div class="tab-headers">
+    <div class="tab-headers" role="tablist" [attr.aria-label]="$hasLabel() ? $label() : null">
       @for (tab of $tabs(); let i = $index; track i) {
         <div
           #tab
           class="tab"
+          role="tab"
+          [id]="$tabId(i)"
+          [attr.aria-selected]="$selectedIndex() === i"
+          [attr.aria-controls]="$panelId(i)"
+          [attr.aria-disabled]="tab.$disabled() ? 'true' : null"
           [class.active]="$selectedIndex() === i"
           [class.disabled]="tab.$disabled()"
-          [tabindex]="tab.$disabled() ? -1 : 0"
+          [tabindex]="$tabStop() === i ? 0 : -1"
           [style.padding]="$headerPadding()"
           (click)="selectTabByIndex(i)"
           (keydown)="onkeydown(i, $event)"
@@ -22,7 +27,7 @@
 </tab-arrow-scroll>
 <div class="tab-headers-underline"></div>
 @for (tab of $tabs(); let i = $index; track i) {
-  <div class="tab-content" [style.display]="$selectedIndex() === i ? 'block' : 'none'">
+  <div class="tab-content" role="tabpanel" tabindex="0" [id]="$panelId(i)" [attr.aria-labelledby]="$tabId(i)" [style.display]="$selectedIndex() === i ? 'block' : 'none'">
     <ng-container *ngTemplateOutlet="tab.$contentTemplate()" />
   </div>
 }
