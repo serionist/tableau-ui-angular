@@ -44,6 +44,14 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   what is under it. Once the pointer leaves the element it has 100 ms to reach the tooltip, and as long as it needs
   while it stays between the two; before, the tooltip hid as the pointer left. A test that hovers an element, then
   hovers or clicks what its tooltip covers, moves the pointer away first and waits for the tooltip to go.
+- A tab group is one Tab stop, the selected tab: the arrows, Home and End move between the tabs and select them, and
+  the next Tab goes to the selected tab's content, past the strip's scroll arrows when they show, a Tab stop of its
+  own. Code that loads data on `(tabSelected)` or `(afterActivate)` sees it once per arrow. Name the tabs with `label`
+  on `tab-group`.
+- A button toggle's options take focus, not the toggle: code that focused the toggle focuses its checked option, and
+  a test that sent keys to the toggle sends them to the option that has focus. Name the toggle with `aria-label` on
+  `tab-button-toggle`. An option with only an icon needs a string `hint`, its name; its tooltip shows that hint in the
+  text colour, as the nav bar's tooltips do, where it was grey.
 
 ### Added
 
@@ -53,6 +61,7 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
 - `label` on `tab-table` and `tab-virtualize`: the name screen readers give the table and the region its host is, or
   the list. A static `aria-label` on the element names it the same way, and `label` wins. Without a name a table's host
   has no role, and a virtual scroller is an unnamed list, or has no role while it shows no items.
+- `label` on `tab-group`: the name screen readers give its strip of tabs.
 
 ### Fixed
 
@@ -141,6 +150,13 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
 - A table or a virtual scroller whose first block fails to load keeps that block's failed rows when it scrolls, as a
   table does sideways, until it loads again: `reload()`, `reset()`, or a new sort, `dataOptions`, `dataBlockWindow` or
   `dataRowCss`. The first scroll dropped them and showed "No data available".
+- A tab group follows the WAI-ARIA tabs pattern: its strip is a `tablist`, each header a `tab` that says whether it is
+  selected or disabled, and each tab's content a `tabpanel` named by its tab. A button toggle follows the radio group
+  pattern: it is a `radiogroup` of `radio`s that say which is checked, so a screen reader hears the value the arrows
+  change. In Firefox, a tab group whose headers overflow is no longer a Tab stop of its own before the selected tab.
+- A focused tab shows a 2px ring inside it in `--twc-color-focused-input`, 3:1 or more on the base in both themes, and
+  the headers stay where they are. Its ring was a border on three sides in `--twc-color-primary`, 2.56:1 on the dark
+  base, and each focus move shifted the strip 6px.
 
 ## 0.2.0 (2026-10-31)
 
