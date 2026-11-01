@@ -1,7 +1,8 @@
 import type { TemplateRef, OnDestroy, ModelSignal } from '@angular/core';
-import { Directive, ElementRef, HostListener, input, inject, effect, model } from '@angular/core';
+import { Directive, DOCUMENT, ElementRef, HostListener, input, inject, effect, model } from '@angular/core';
 import type { DialogRef } from 'tableau-ui-angular/dialog';
 import { DialogService, GlobalStackOptions } from 'tableau-ui-angular/dialog';
+import { generateRandomString } from 'tableau-ui-angular/utils';
 import type { TooltipComponentArgs } from './tooltip.component';
 import { TooltipComponent } from './tooltip.component';
 
@@ -14,11 +15,17 @@ export class TooltipDirective<T> implements OnDestroy {
   private readonly dialogService = inject(DialogService);
 
   /**
-   * Tooltip directive to show a tooltip on hover.
+   * Tooltip directive to show a tooltip on hover and on keyboard focus.
    * The tooltip can be a string or a TemplateRef.
    * The tooltip will be positioned relative to the element it is applied to.
    * The tooltip will be destroyed when the element is destroyed.
-   * The tooltip will be opened on mouse enter and closed on mouse leave.
+   * It shows when the pointer enters the element, or when the element or one inside it takes focus that shows
+   * (`:focus-visible`), as from the keyboard; the focus a click gives doesn't show it. It hides 100 ms after the pointer
+   * leaves, unless the pointer moves onto the tooltip, and when the focus leaves, unless the pointer is on the element
+   * or the tooltip. Escape hides it, and the key goes no further.
+   * While it shows it is `role="tooltip"`, and the element's `aria-describedby` names it, the app's own ids kept; a
+   * string tooltip equal to the element's own name adds none. It describes the element and never names it: an
+   * icon-only button still needs a name of its own.
    * @default undefined
    */
   readonly $tooltip: ModelSignal<TemplateRef<T | undefined> | string | null | undefined> = model.required<TemplateRef<T | undefined> | string | null | undefined>({
@@ -85,7 +92,7 @@ export class TooltipDirective<T> implements OnDestroy {
 
   /**
    * Lazy arguments for the tooltip.
-   * The passed function is called to determine if a tooltip is needed when the element is hovered.
+   * The passed function is called to determine if a tooltip is needed when the element is hovered or takes focus from the keyboard.
    * Only works if the `tooltipArgsMode` is set to 'lazy'.
    * This is used to pass a function that returns the tooltip arguments.
    * This is useful for cases where the tooltip arguments are not known at the time of directive initialization.
@@ -114,19 +121,86 @@ export class TooltipDirective<T> implements OnDestroy {
 
   private tooltipDialogRef: DialogRef | undefined = undefined;
   private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly document = inject(DOCUMENT);
+  // the tooltip's id, which the element's aria-describedby names while it shows
+  private readonly tooltipId = generateRandomString();
+  // What holds the tooltip open: focus shown in the element, the pointer on the element, the pointer on the tooltip
+  private focused = false;
+  private pointerOnElement = false;
+  private pointerOnTooltip = false;
+  private hideTimer: ReturnType<typeof setTimeout> | undefined = undefined;
 
   @HostListener('mouseenter', ['$event']) onMouseEnter(e: MouseEvent) {
     if (e.buttons !== 0) {
       return;
     }
-    this.createTooltip();
+    this.pointerOnElement = true;
+    this.show();
   }
   @HostListener('mouseleave') onMouseLeave() {
-    this.destroyTooltip();
+    this.pointerOnElement = false;
+    this.hideSoon();
+  }
+  // Focus from the keyboard shows the tooltip. The focus a click gives doesn't match :focus-visible, and the pointer is
+  // on the element then anyway
+  @HostListener('focusin', ['$event']) protected onFocusIn(e: FocusEvent) {
+    if (e.target instanceof Element && e.target.matches(':focus-visible')) {
+      this.focused = true;
+      this.show();
+    }
+  }
+  @HostListener('focusout', ['$event']) protected onFocusOut(e: FocusEvent) {
+    // focus that moves to another element inside this one stays in it
+    if (e.relatedTarget instanceof Node && this.elementRef.nativeElement.contains(e.relatedTarget)) {
+      return;
+    }
+    this.focused = false;
+    this.hideUnlessHeld();
   }
   ngOnDestroy(): void {
+    clearTimeout(this.hideTimer);
     this.destroyTooltip();
   }
+
+  private show() {
+    clearTimeout(this.hideTimer);
+    this.createTooltip();
+  }
+  // The pointer that leaves the element or the tooltip has 100 ms to reach the other, across the margin between them
+  private hideSoon() {
+    clearTimeout(this.hideTimer);
+    this.hideTimer = setTimeout(() => {
+      this.hideUnlessHeld();
+    }, 100);
+  }
+  private hideUnlessHeld() {
+    if (!this.focused && !this.pointerOnElement && !this.pointerOnTooltip) {
+      clearTimeout(this.hideTimer);
+      this.destroyTooltip();
+    }
+  }
+  private readonly onTooltipEnter = () => {
+    this.pointerOnTooltip = true;
+    clearTimeout(this.hideTimer);
+  };
+  private readonly onTooltipLeave = () => {
+    this.pointerOnTooltip = false;
+    this.hideSoon();
+  };
+  // While the tooltip shows, the first Escape hides it and goes no further, so the user can dismiss it without moving
+  // the pointer or the focus (WCAG 1.4.13). A capture listener on the window runs before the page's others, so neither
+  // the dialog service nor an app's own handler sees the key, and the dialog, menu or drawer under the tooltip takes
+  // the next Escape. Another tooltip that shows has its own listener on the window, which still runs and hides it
+  private readonly onEscape = (e: KeyboardEvent) => {
+    if (e.key !== 'Escape') {
+      return;
+    }
+    e.preventDefault();
+    e.stopPropagation();
+    this.focused = false;
+    clearTimeout(this.hideTimer);
+    this.destroyTooltip();
+  };
 
   private createTooltip() {
     // determine the tooltip arguments based on the mode
@@ -247,7 +321,8 @@ export class TooltipDirective<T> implements OnDestroy {
         closeOnEscape: false,
         trapFocus: false,
         containerCss: {
-          pointerEvents: 'none',
+          // the pointer can move onto the tooltip and rest there (WCAG 1.4.13)
+          pointerEvents: 'auto',
           backgroundColor: 'var(--twc-color-base)',
           border: '1px solid var(--twc-color-border-light)',
           borderRadius: '1px',
@@ -271,14 +346,71 @@ export class TooltipDirective<T> implements OnDestroy {
       },
       new GlobalStackOptions(this.elementRef.nativeElement),
     );
+
+    // the element the service shows the tooltip in, which the DialogRef it returns carries
+    const container = (this.tooltipDialogRef as DialogRef & { dialogElement?: HTMLElement }).dialogElement;
+    if (container) {
+      container.id = this.tooltipId;
+      container.setAttribute('role', 'tooltip');
+      container.addEventListener('mouseenter', this.onTooltipEnter);
+      container.addEventListener('mouseleave', this.onTooltipLeave);
+    }
+    // a string tooltip that only repeats the element's name would be read twice
+    const host = this.elementRef.nativeElement;
+    if (typeof args.template !== 'string' || words(args.template) !== nameOf(host)) {
+      describe(host, this.tooltipId, true);
+    }
+    this.document.defaultView?.addEventListener('keydown', this.onEscape, true);
   }
 
   private destroyTooltip() {
     if (this.tooltipDialogRef) {
       this.tooltipDialogRef.close();
       this.tooltipDialogRef = undefined;
+      // the tooltip's element is gone, and the pointer with it
+      this.pointerOnTooltip = false;
+      describe(this.elementRef.nativeElement, this.tooltipId, false);
+      this.document.defaultView?.removeEventListener('keydown', this.onEscape, true);
     }
   }
+}
+
+// Adds the tooltip's id to the element's aria-describedby, or takes it out, and keeps the app's own ids
+function describe(element: Element, id: string, add: boolean) {
+  const ids = (element.getAttribute('aria-describedby') ?? '').split(/\s+/).filter(other => other !== '' && other !== id);
+  if (add) {
+    ids.push(id);
+  }
+  if (ids.length > 0) {
+    element.setAttribute('aria-describedby', ids.join(' '));
+  } else {
+    element.removeAttribute('aria-describedby');
+  }
+}
+
+// The element's name, near enough to how a screen reader builds it to compare a string tooltip with: the text of the
+// elements its aria-labelledby names, its aria-label, or its own text without what assistive technology skips, such as
+// an icon's ligature
+function nameOf(element: Element): string {
+  const labelledBy = (element.getAttribute('aria-labelledby') ?? '').split(/\s+/).filter(id => id !== '');
+  if (labelledBy.length > 0) {
+    return words(labelledBy.map(id => textOf(element.ownerDocument.getElementById(id))).join(' '));
+  }
+  return words(element.getAttribute('aria-label') ?? '') || words(textOf(element));
+}
+
+function textOf(node: Node | null): string {
+  if (node instanceof Element) {
+    if (node.getAttribute('aria-hidden') === 'true' || node.hasAttribute('hidden')) {
+      return '';
+    }
+    return words(node.getAttribute('aria-label') ?? '') || Array.from(node.childNodes, textOf).join('');
+  }
+  return node?.nodeType === Node.TEXT_NODE ? (node.textContent ?? '') : '';
+}
+
+function words(text: string): string {
+  return text.replace(/\s+/g, ' ').trim();
 }
 export interface TooltipArgs<T> {
   template: TemplateRef<T | undefined> | string | null | undefined;

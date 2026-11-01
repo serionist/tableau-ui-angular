@@ -741,34 +741,44 @@ describe('TableComponent tooltips and column widths', () => {
         expect(tooltip()).toBe(text);
       });
     };
-    return { fixture, component, host, header, cell, tooltip, shows, settle };
+    // the pointer leaves, and the tooltip goes 100 ms later: until then it may cover the next cell the test hovers
+    const leave = async () => {
+      await movePointerAway();
+      await vi.waitFor(() => {
+        expect(tooltip()).toBeUndefined();
+      });
+    };
+    return { fixture, component, host, header, cell, tooltip, shows, leave, settle };
   }
 
   it("shows a column's own tooltips, a cell's with its row, where its showTooltip says so", async () => {
-    const { header, cell, tooltip, shows } = await render();
+    const { header, cell, tooltip, shows, leave } = await render();
 
     await userEvent.hover(header('id').querySelector('.header-button')!);
     await shows('Unique per person');
+    await leave();
 
     // the first row is person 1, the second person 2
     await userEvent.hover(cell(1, 'id'));
     await shows('Person number 2');
+    await leave();
     await userEvent.hover(cell(0, 'id'));
     expect(tooltip()).toBeUndefined();
   });
 
   it("shows a clamped cell's whole text, and the default header tooltip with what a click does", async () => {
-    const { fixture, component, header, cell, tooltip, shows } = await render();
+    const { fixture, component, header, cell, tooltip, shows, leave } = await render();
 
     await userEvent.hover(cell(0, 'bio'));
     await shows('Person 1 likes long walks');
+    await leave();
     await userEvent.hover(cell(0, 'name'));
     expect(tooltip()).toBeUndefined();
 
     await userEvent.hover(header('name').querySelector('.header-button')!);
     await shows('Name Click to sort in Ascending order.');
 
-    await movePointerAway();
+    await leave();
     component.$sort.set([{ property: 'id', direction: 'asc' }]);
     await fixture.whenStable();
     await userEvent.hover(header('name').querySelector('.header-button')!);

@@ -20,6 +20,9 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   pristine, so a Save button bound to `dirty` turns off; and a rule that disables a field when another changes, as with
   `childChange`, makes the group emit its value twice. To keep the old behaviour, pass `false` as the second argument:
   `disable(emitEvent, false)` and `enable(emitEvent, false)`.
+- Escape first hides a showing tooltip and goes no further: the dialog, menu or drawer under it closes on the next
+  Escape. A test that hovers or tabs to an element with a tooltip, then presses Escape to close a dialog, presses it
+  twice or moves the pointer and the focus away first.
 
 ### Fixed
 
@@ -65,6 +68,13 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   black on the dark one. The property names stay. Styles that copied the old red read the property instead. Text an app
   puts on `--twc-color-error` takes `--twc-color-base`, as the raised error button now does, since a light text there
   reads below 4.5:1 on the dark red; an app that sets `--twc-color-error` keeps `--twc-color-base` on it at 4.5:1.
+- A tooltip shows when the keyboard moves the focus to its element, as on hover, where only the pointer opened one;
+  the focus a click gives doesn't open it. A screen reader hears it: while it shows it is `role="tooltip"`, and its
+  element's `aria-describedby` names it after the app's own ids, which stay. A text tooltip equal to the element's name
+  adds none, so the nav bar's collapsed buttons aren't read twice.
+- The pointer can move onto a tooltip and rest there, so a click on a tooltip no longer reaches what is under it. A
+  tooltip hides 100 ms after the pointer leaves its element, unless the pointer is on it, where it hid at once: a test
+  that hovers one element after another waits for the first tooltip to go.
 
 ## 0.2.0 (2026-10-31)
 

@@ -1,7 +1,7 @@
 <div class="page">
   <div class="title">
     <h1>Tooltips</h1>
-    <div class="text-light text-large">A tooltip shows a text or a template beside an element while the pointer is over it.</div>
+    <div class="text-light text-large">A tooltip shows a text or a template beside an element while the pointer is over it, or while the keyboard's focus is on it.</div>
   </div>
   <tab-separator />
   <div class="content">
@@ -13,8 +13,8 @@
     <div class="section">
       <h3>A text</h3>
       <p>
-        <code>tooltip</code> goes on any element. A tooltip opens when the pointer enters the element and closes when it leaves; keyboard focus doesn't open one, so put nothing in one that a user
-        needs.
+        <code>tooltip</code> goes on any element. A tooltip opens when the pointer enters the element, or when the keyboard moves the focus to it or into it; the focus a click gives doesn't open one.
+        It closes 100 ms after the pointer leaves, unless the pointer has moved onto the tooltip, and when the focus leaves, unless the pointer is on the element or the tooltip. Escape closes it.
       </p>
       <ul>
         <li>
@@ -47,11 +47,31 @@
           </tr>
           <tr>
             <td><code>lazy</code></td>
-            <td><code>[tooltipLazyArgs]</code>, a function the tooltip calls each time the pointer enters; when it gives <code>undefined</code>, no tooltip opens</td>
+            <td><code>[tooltipLazyArgs]</code>, a function the tooltip calls each time it would open; when it gives <code>undefined</code>, no tooltip opens</td>
           </tr>
         </tbody>
       </table>
       <app-docs-example [example]="examples.template" />
+    </div>
+
+    <div class="section">
+      <h3>Accessibility</h3>
+      <p>A tooltip follows the WAI-ARIA tooltip pattern: it describes its element, and never names it.</p>
+      <ul>
+        <li>
+          While it shows, its box is <code>role="tooltip"</code>, and the element's <code>aria-describedby</code> names it after the app's own ids, which stay. A text tooltip equal to the element's
+          name, as on the nav bar's collapsed buttons, adds no description, so a screen reader doesn't read it twice.
+        </li>
+        <li>
+          Tab to the element shows its tooltip. Escape hides it and goes no further, so a dialog, menu or drawer under the tooltip closes on the next Escape, and the user dismisses a tooltip without
+          moving the pointer or the focus.
+        </li>
+        <li>The pointer can rest on a tooltip, to read it or to get past it, so a click on a tooltip doesn't reach what is under it.</li>
+        <li>
+          The app names the element. An icon-only button needs a name of its own, such as a <code>label</code> on its <code>tab-icon</code> or an <code>aria-label</code>, with a tooltip or without.
+        </li>
+        <li>Nothing in a tooltip takes the focus, so a template holds no link or button. A touch screen has no hover, so put nothing in a tooltip that a user needs.</li>
+      </ul>
     </div>
   </div>
 </div>
