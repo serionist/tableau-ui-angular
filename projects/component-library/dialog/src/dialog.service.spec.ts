@@ -1,11 +1,14 @@
 import type { TemplateRef } from '@angular/core';
-import { ApplicationRef, ChangeDetectionStrategy, Component, inject, PLATFORM_ID, viewChild } from '@angular/core';
+import { ApplicationRef, ChangeDetectionStrategy, Component, inject, PLATFORM_ID, viewChild, ViewEncapsulation } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { userEvent } from 'vitest/browser';
 import { TableauUiTooltipModule } from 'tableau-ui-angular/tooltip';
 import { axeViolations } from '../../testing/axe';
 import { movePointerAway } from '../../testing/pointer';
+import { injectDialogData } from './data.ref';
+import type { DialogRef } from './dialog.ref';
 import { DialogService } from './dialog.service';
+import { LocalStackOptions } from './stack-options';
 import { TableauUiDialogModule } from './tableau-ui-dialog.module';
 
 @Component({
@@ -14,6 +17,91 @@ import { TableauUiDialogModule } from './tableau-ui-dialog.module';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class DialogContentComponent {}
+
+// A modal's content that fills it: a sticky toolbar at z-index 1000, with a button whose tooltip shows below it, over
+// the toolbar, and a map layer at z-index 400 with a transform, as a map library draws its panes
+@Component({
+  selector: 'tab-test-help-content',
+  imports: [TableauUiTooltipModule],
+  template: `
+    <div class="toolbar"><button type="button" class="help" tooltip="Help" tooltipPosition="bottom">Help</button></div>
+    <div class="map"></div>
+  `,
+  styles: `
+    :host {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      height: 6rem;
+      padding: 0.5rem;
+    }
+
+    .map {
+      position: relative;
+      z-index: 400;
+      flex: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class HelpContentComponent {}
+
+// An app's own dialog, with a button that calls its data
+@Component({
+  selector: 'tab-test-note',
+  template: `<button type="button" (click)="clicked()">Note</button>`,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class NoteComponent {
+  protected readonly clicked = injectDialogData<() => void>();
+}
+
+// A template whose root element an @if renders, beside the template's own nodes
+@Component({
+  template: `
+    <ng-template #shown>
+      @if (true) {
+        <p class="shown">Shown</p>
+      }
+    </ng-template>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class ShownComponent {
+  readonly $shown = viewChild.required<TemplateRef<unknown>>('shown');
+}
+
+// A template with two roots, its fields and the action row below them
+@Component({
+  template: `
+    <ng-template #form>
+      <div class="fields"><button type="button" class="region">Region</button></div>
+      <div class="actions"><button type="button" class="save">Save</button></div>
+    </ng-template>
+  `,
+  styles: `
+    .fields {
+      padding: 0.5rem;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: flex-end;
+      padding: 0.5rem 0.5rem 4rem;
+    }
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class FormComponent {
+  readonly $form = viewChild.required<TemplateRef<unknown>>('form');
+}
 
 // A page that imports the dialog module, as every page with a select, a menu or a tooltip does
 @Component({
@@ -42,8 +130,19 @@ class QuestionComponent {
   readonly $question = viewChild.required<TemplateRef<{ name: string }>>('question');
 }
 
+// The library's styles, as an app imports them, while a fixture of it lives: the dialogs', the overlay layer's and the
+// snacks' rules among them
+@Component({
+  template: '',
+  styleUrl: '../../styles/lib-styles.scss',
+  encapsulation: ViewEncapsulation.None,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class LibraryStylesComponent {}
+
 describe('DialogService', () => {
-  // what the library's stylesheet (styles/_dialog.service.scss) gives every dialog, which a test doesn't load
+  // what the library's stylesheet (styles/_dialog.service.scss) gives every dialog, which most tests don't load; those
+  // that stack overlays above a modal's content load the library's styles themselves
   const stylesheet = document.createElement('style');
   stylesheet.textContent = '.dialog-container, .dialog-backdrop { position: fixed; }';
 
@@ -223,6 +322,259 @@ describe('DialogService', () => {
     expect(document.querySelector('.dialog-container')).toBeNull();
   });
 
+  // A modal shown in the top layer (#58) covers what sits outside it and makes it inert, so an overlay opened over it
+  // goes into it
+  it('hosts overlays in a layer at the end of the topmost modal, and in the body once no modal is open', () => {
+    const dialogs = TestBed.inject(DialogService);
+    expect(dialogs.$overlayHost()).toBeNull();
+
+    const below = dialogs.openModal(DialogContentComponent, undefined, { header: { title: 'Below', allowClose: true } });
+    const belowContainer = document.querySelector<HTMLElement>('.dialog-container')!;
+    const belowLayer = dialogs.$overlayHost()!;
+    expect(belowLayer.classList.contains('dialog-overlay-layer')).toBe(true);
+    expect(belowContainer.lastElementChild).toBe(belowLayer);
+    expect(belowContainer.parentElement).toBe(document.body);
+    // a modal opened from a modal sits beside it in the body, with its backdrop, and takes the overlays
+    const top = dialogs.openModal(DialogContentComponent, undefined);
+    const topLayer = dialogs.$overlayHost()!;
+    expect(topLayer).not.toBe(belowLayer);
+    expect(topLayer.closest('.dialog-container')!.parentElement).toBe(document.body);
+    expect(belowContainer.querySelector('.dialog-backdrop, .dialog-container')).toBeNull();
+
+    top.close();
+    expect(dialogs.$overlayHost()).toBe(belowLayer);
+    expect(topLayer.isConnected).toBe(false);
+    below.close();
+    expect(dialogs.$overlayHost()).toBeNull();
+  });
+
+  // In the modal's container they shared its stacking context with the content, so a sticky toolbar or a map's panes
+  // with a z-index above theirs covered them
+  it("places a tooltip and an app's dialog opened over a modal above its content, whatever its z-indexes, where they take clicks", async () => {
+    const dialogs = TestBed.inject(DialogService);
+    const appRef = TestBed.inject(ApplicationRef);
+    TestBed.createComponent(LibraryStylesComponent);
+    const modal = dialogs.openModal(HelpContentComponent, undefined, { width: '80vw', height: '80vh', maxHeight: 'none' });
+    appRef.tick();
+    const container = await placed();
+    const layer = dialogs.$overlayHost()!;
+    const content = container.querySelector<HTMLElement>('tab-test-help-content')!;
+    // the element at a box's centre, which a click there reaches; and whether that centre is over the modal's content
+    const atCentre = (element: HTMLElement) => {
+      const box = element.getBoundingClientRect();
+      const [x, y] = [box.left + box.width / 2, box.top + box.height / 2];
+      const over = content.getBoundingClientRect();
+      expect(x > over.left && x < over.right && y > over.top && y < over.bottom).toBe(true);
+      return document.elementFromPoint(x, y);
+    };
+
+    await userEvent.hover(content.querySelector<HTMLElement>('.help')!);
+    const tooltip = await vi.waitFor(() => {
+      const element = document.querySelector<HTMLElement>('[role="tooltip"]');
+      expect(element).not.toBeNull();
+      expect(element!.style.top).not.toBe('-9999px');
+      return element!;
+    });
+    expect(tooltip.parentElement).toBe(layer);
+    // over the toolbar, at z-index 1000
+    const toolbar = content.querySelector('.toolbar')!.getBoundingClientRect();
+    expect(tooltip.getBoundingClientRect().bottom).toBeLessThan(toolbar.bottom);
+    expect(tooltip.contains(atCentre(tooltip))).toBe(true);
+    expect(await axeViolations(container)).toEqual([]);
+    const tooltipClicked = vi.fn();
+    tooltip.addEventListener('click', tooltipClicked);
+    await userEvent.click(tooltip);
+    expect(tooltipClicked).toHaveBeenCalled();
+    // away to the map: the modal's backdrop covers the rest of the page
+    await userEvent.hover(content.querySelector<HTMLElement>('.map')!);
+    await vi.waitFor(() => {
+      expect(document.querySelector('[role="tooltip"]')).toBeNull();
+    });
+
+    const noteClicked = vi.fn();
+    dialogs.openDialog(NoteComponent, noteClicked, { top: 'calc(50vh - 1em)', left: 'calc(50vw - 2em)' });
+    appRef.tick();
+    const note = document.querySelector('tab-test-note')!.closest<HTMLElement>('.dialog-container')!;
+    expect(note.parentElement).toBe(layer);
+    // its backdrop too
+    expect(note.previousElementSibling?.classList.contains('dialog-backdrop')).toBe(true);
+    await vi.waitFor(() => {
+      expect(note.style.top).not.toBe('-9999px');
+    });
+    const button = note.querySelector('button')!;
+    expect(button.contains(atCentre(button))).toBe(true);
+    expect(await axeViolations(container)).toEqual([]);
+    await userEvent.click(button);
+    expect(noteClicked).toHaveBeenCalled();
+
+    // a confirmation over the map
+    const answer = dialogs.openConfirmationMessageDialog('Discard', 'Discard the changes?', 'primary', 'OK', 'Cancel', undefined);
+    appRef.tick();
+    const ok = await vi.waitFor(() => {
+      const element = Array.from(document.querySelectorAll<HTMLButtonElement>('.dialog-actions button')).find(candidate => candidate.textContent.trim() === 'OK');
+      expect(element).toBeDefined();
+      expect(element!.contains(atCentre(element!))).toBe(true);
+      return element!;
+    });
+    await userEvent.click(ok);
+    await expect(answer).resolves.toBe(true);
+
+    modal.close();
+    expect(dialogs.dialogStack).toEqual([]);
+  });
+
+  // Each root of a template modal stacks in the modal as it did before the overlay layer: a list a select in one root
+  // opens hangs over the next root, and a press there lands on the list
+  it('keeps a list opened in one root of a template modal above the root after it', async () => {
+    const dialogs = TestBed.inject(DialogService);
+    TestBed.createComponent(LibraryStylesComponent);
+    const form = TestBed.createComponent(FormComponent).componentInstance.$form();
+    const modal = dialogs.openTemplateModal(form, undefined, { width: '600px', header: { title: 'Template', allowClose: true } });
+    TestBed.inject(ApplicationRef).tick();
+    await placed();
+    const region = document.querySelector<HTMLElement>('.region')!;
+    const box = region.getBoundingClientRect();
+    dialogs.openDialog(DialogContentComponent, undefined, { top: `${box.bottom}px`, left: `${box.left}px`, width: '600px', height: '10rem' }, new LocalStackOptions(region));
+    const list = document.querySelector<HTMLElement>('.fields .dialog-container')!;
+    await vi.waitFor(() => {
+      expect(list.style.top).not.toBe('-9999px');
+    });
+
+    const save = document.querySelector<HTMLElement>('.save')!.getBoundingClientRect();
+    expect(list.contains(document.elementFromPoint(save.left + save.width / 2, save.top + save.height / 2))).toBe(true);
+    modal.close();
+    expect(dialogs.dialogStack).toEqual([]);
+  });
+
+  // An app's dialog opened from a modal sat in the body: once the modal closed it stayed open on the page, and on the
+  // stack, where it took the next Escape
+  it('closes the dialogs a modal hosts before it, top first, and the next Escape reaches the page', async () => {
+    const dialogs = TestBed.inject(DialogService);
+    const closed: string[] = [];
+    const track = (name: string, ref: DialogRef<unknown>) => ref.closed$.subscribe(() => closed.push(name));
+    const modal = dialogs.openModal(DialogContentComponent, undefined);
+    track('modal', modal);
+    const content = document.querySelector<HTMLElement>('tab-test-dialog-content')!;
+    track('dialog', dialogs.openDialog(DialogContentComponent, undefined, { closeOnEscape: true }));
+    // placed after an element in the modal, as a select places its list
+    track('list', dialogs.openDialog(DialogContentComponent, undefined, { closeOnEscape: true, skipCreatingBackdrop: true }, new LocalStackOptions(content)));
+    track('second dialog', dialogs.openDialog(DialogContentComponent, undefined, { closeOnEscape: true }));
+    expect(dialogs.dialogStack.length).toBe(4);
+
+    modal.close();
+
+    expect(closed).toEqual(['second dialog', 'list', 'dialog', 'modal']);
+    expect(dialogs.dialogStack).toEqual([]);
+    expect(document.querySelector('.dialog-container, .dialog-backdrop')).toBeNull();
+    // an app's own handler
+    const app = vi.fn((e: KeyboardEvent) => e.defaultPrevented);
+    document.addEventListener('keydown', app);
+    try {
+      await userEvent.keyboard('{Escape}');
+      expect(app).toHaveReturnedWith(false);
+    } finally {
+      document.removeEventListener('keydown', app);
+    }
+  });
+
+  // A wizard opens its next modal, then closes the one before: nested in it, the next one closed with it at once
+  it('keeps a modal opened from a modal open when the one below closes, and Escape closes it next', async () => {
+    const dialogs = TestBed.inject(DialogService);
+    const first = dialogs.openModal(DialogContentComponent, undefined);
+    const next = dialogs.openModal(DialogContentComponent, undefined);
+    const nextLayer = dialogs.$overlayHost()!;
+    const closed = vi.fn();
+    next.closed$.subscribe(closed);
+
+    first.close();
+
+    expect(closed).not.toHaveBeenCalled();
+    expect(nextLayer.isConnected).toBe(true);
+    expect(dialogs.dialogStack.map(entry => entry.dialogRef)).toEqual([next]);
+    expect(dialogs.$overlayHost()).toBe(nextLayer);
+    await userEvent.keyboard('{Escape}');
+    expect(closed).toHaveBeenCalled();
+    expect(dialogs.dialogStack).toEqual([]);
+  });
+
+  // An app that closed a modal when a dialog in it closed ran the modal's close twice, and the second run took the
+  // modal below off the stack and out of the hosts, so Escape no longer closed it
+  it('closes a modal once when a dialog it hosts closes it again, and keeps the modal below', async () => {
+    const dialogs = TestBed.inject(DialogService);
+    const below = dialogs.openModal(DialogContentComponent, undefined);
+    const belowLayer = dialogs.$overlayHost()!;
+    const modal = dialogs.openModal(DialogContentComponent, undefined);
+    const dialog = dialogs.openDialog(DialogContentComponent, undefined);
+    dialog.closed$.subscribe(() => {
+      modal.close();
+    });
+    const closed = vi.fn();
+    modal.closed$.subscribe(closed);
+
+    modal.close();
+
+    expect(closed).toHaveBeenCalledTimes(1);
+    expect(dialogs.dialogStack.map(entry => entry.dialogRef)).toEqual([below]);
+    expect(dialogs.$overlayHost()).toBe(belowLayer);
+    expect(belowLayer.isConnected).toBe(true);
+    const belowClosed = vi.fn();
+    below.closed$.subscribe(belowClosed);
+    await userEvent.keyboard('{Escape}');
+    expect(belowClosed).toHaveBeenCalled();
+  });
+
+  // Any dialog closes the dialogs inside it, as an app's dialog does a select's list in it
+  it("closes a dialog placed inside an app's dialog with it, and the next Escape reaches the page", async () => {
+    const dialogs = TestBed.inject(DialogService);
+    const outer = dialogs.openDialog(DialogContentComponent, undefined);
+    const content = document.querySelector<HTMLElement>('tab-test-dialog-content')!;
+    const inner = dialogs.openDialog(DialogContentComponent, undefined, { closeOnEscape: true, skipCreatingBackdrop: true }, new LocalStackOptions(content));
+    const innerClosed = vi.fn();
+    inner.closed$.subscribe(innerClosed);
+
+    outer.close();
+
+    expect(innerClosed).toHaveBeenCalled();
+    expect(dialogs.dialogStack).toEqual([]);
+    expect(document.querySelector('.dialog-container, .dialog-backdrop')).toBeNull();
+    // an app's own handler
+    const app = vi.fn((e: KeyboardEvent) => e.defaultPrevented);
+    document.addEventListener('keydown', app);
+    try {
+      await userEvent.keyboard('{Escape}');
+      expect(app).toHaveReturnedWith(false);
+    } finally {
+      document.removeEventListener('keydown', app);
+    }
+  });
+
+  it('hands what the app put in a closing modal on to the next host, and takes its own header and content with it', () => {
+    const dialogs = TestBed.inject(DialogService);
+    const below = dialogs.openModal(DialogContentComponent, undefined, { header: { title: 'Below', allowClose: true } });
+    const belowLayer = dialogs.$overlayHost()!;
+    const shown = TestBed.createComponent(ShownComponent).componentInstance.$shown();
+    const top = dialogs.openTemplateModal(shown, undefined, { header: { title: 'Top', allowClose: true } });
+    TestBed.inject(ApplicationRef).tick();
+    const topLayer = dialogs.$overlayHost()!;
+    const topContainer = topLayer.parentElement!;
+    const paragraph = topContainer.querySelector(':scope > .shown')!;
+    expect(paragraph).not.toBeNull();
+    // the app's own overlay, as an app moves it in
+    const popover = document.createElement('div');
+    dialogs.$overlayHost()!.appendChild(popover);
+
+    top.close();
+    expect(popover.parentElement).toBe(belowLayer);
+    expect(paragraph.isConnected).toBe(false);
+    expect(topContainer.isConnected).toBe(false);
+    expect(document.querySelectorAll('.dialog-header').length).toBe(1);
+
+    below.close();
+    expect(popover.parentElement).toBe(document.body);
+    expect(document.querySelector('.dialog-header, tab-test-dialog-content')).toBeNull();
+    popover.remove();
+  });
+
   // The server has no layout and no one to show a dialog to, and one rendered there would stay in the page as dead
   // HTML, since the browser renders the app again
   it('shows nothing on the server', () => {
@@ -248,6 +600,7 @@ describe('DialogService', () => {
 
     expect(document.querySelector('.dialog-container, .dialog-backdrop')).toBeNull();
     expect(created).toEqual([]);
+    expect(TestBed.inject(DialogService).$overlayHost()).toBeNull();
     const closed = vi.fn();
     dialogRef.closed$.subscribe(closed);
     dialogRef.close();
