@@ -1,6 +1,9 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { page, userEvent } from 'vitest/browser';
+import { TableauUiCommonModule } from 'tableau-ui-angular/common';
+import { DialogService } from 'tableau-ui-angular/dialog';
+import { TableauUiSelectModule } from 'tableau-ui-angular/select';
 import type { TooltipArgs } from './tooltip.directive';
 import { axeViolations } from '../../testing/axe';
 import { movePointerAway } from '../../testing/pointer';
@@ -28,6 +31,11 @@ import { TableauUiTooltipModule } from './tableau-ui-tooltip.module';
       <!-- named as the nav bar's collapsed buttons are: a hidden icon, and the text its tooltip repeats -->
       <button class="named" type="button" tooltip="Home"><span aria-hidden="true">home</span> Home</button>
       <button class="labelled" type="button" aria-label="Close" tooltip="Close">x</button>
+      <!-- named as a chip's remove button is: its icon is labelled by itself and the chip's content -->
+      <span id="city">Berlin</span>
+      <button class="remove" type="button" tooltip="Remove Berlin"><span id="remove" role="img" aria-label="Remove" aria-labelledby="remove city">close</span></button>
+      <button class="far" type="button" tooltip="Far" tooltipPosition="bottom" tooltipMargin="2em">Far</button>
+      <input class="field" aria-label="City" tooltip="Where the parcel goes" />
     </div>
     <button class="edge" type="button" style="position: fixed; top: 0; right: 0" tooltip="At the edge">Edge</button>
     <ng-template #greeting let-name>Hello {{ name }}</ng-template>
@@ -45,6 +53,20 @@ class ToolbarComponent {
     return this.lazyText === undefined ? undefined : { template: `${this.lazyText} ${this.lazyCalls}`, context: undefined };
   };
 }
+
+// A select with a tooltip, whose list opens above the tooltip
+@Component({
+  imports: [TableauUiTooltipModule, TableauUiSelectModule, TableauUiCommonModule],
+  template: `
+    <button class="first" type="button">First</button>
+    <tab-single-select aria-label="Country" tooltip="Where the parcel goes">
+      <tab-option value="hu" text="Hungary" />
+      <tab-option value="de" text="Germany" />
+    </tab-single-select>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class ParcelComponent {}
 
 describe('TooltipDirective', () => {
   // what the library's stylesheet (styles/_dialog.service.scss) gives every dialog, which a test doesn't load
@@ -128,6 +150,24 @@ describe('TooltipDirective', () => {
     await leave();
   });
 
+  // A click into a text input matches :focus-visible, so its tooltip stayed while the field had focus, over what is
+  // above it, and took the first Escape
+  it('shows no tooltip for the focus a click gives a text input, and one for the focus the keyboard brings', async () => {
+    const { button } = await render();
+    const field = button('field');
+
+    await userEvent.click(field);
+    expect(document.activeElement).toBe(field);
+    expect(field.matches(':focus-visible')).toBe(true);
+    await leave();
+    expect(document.activeElement).toBe(field);
+
+    await userEvent.tab({ shift: true });
+    await userEvent.tab();
+    expect(document.activeElement).toBe(field);
+    await shows(['Where the parcel goes']);
+  });
+
   it('shows for focus from the keyboard on an element inside its own, and stays while the focus moves inside it', async () => {
     const { host, button } = await render();
     const [one, two] = Array.from(host.querySelectorAll<HTMLElement>('.wrapper button'));
@@ -179,6 +219,56 @@ describe('TooltipDirective', () => {
     await leave();
   });
 
+  it('keeps a tooltip the keyboard showed while the pointer passes over its element and leaves', async () => {
+    const { button } = await render();
+    await tabToText(button);
+    await shows(['Save changes']);
+
+    await userEvent.hover(button('text'));
+    await movePointerAway();
+    await new Promise(resolve => setTimeout(resolve, 300));
+    expect(tooltips()).toEqual(['Save changes']);
+
+    await userEvent.tab({ shift: true });
+    expect(tooltips()).toEqual([]);
+  });
+
+  // WCAG 1.4.13: a slow pointer took longer than 100 ms to cross the margin, here 2em, and the tooltip went first
+  it('stays while the pointer crosses the margin to it slowly, and hides once the pointer moves anywhere else', async () => {
+    const { button } = await render();
+    const far = button('far');
+    // the pointer's own events, at the pace of a slow hand: a real hover jumps
+    far.dispatchEvent(new MouseEvent('mouseenter'));
+    const tip = await placed();
+    const element = far.getBoundingClientRect();
+    expect(tip.top - element.bottom).toBeGreaterThan(20);
+    const move = (x: number, y: number) => document.body.dispatchEvent(new PointerEvent('pointermove', { clientX: x, clientY: y, bubbles: true }));
+    const x = element.left + element.width / 2;
+
+    far.dispatchEvent(new MouseEvent('mouseleave'));
+    for (let y = element.bottom + 1; y < tip.top; y += 2) {
+      move(x, y);
+      await new Promise(resolve => setTimeout(resolve, 40));
+    }
+    expect(tooltips()).toEqual(['Far']);
+
+    move(x, element.top - 40);
+    expect(tooltips()).toEqual([]);
+  });
+
+  // The box was made again at the new position, away from the pointer that rested on the old one, and nothing hid it
+  it('hides a tooltip that moves away from the pointer resting on it', async () => {
+    const { fixture, component, button } = await render();
+    await userEvent.hover(button('text'));
+    await placed();
+    await userEvent.hover(tooltipElement()!);
+
+    component.$position.set('bottom');
+    await fixture.whenStable();
+
+    await shows([]);
+  });
+
   // WCAG 1.4.13: the user can dismiss a tooltip without moving the pointer or the focus, and Escape on it no longer
   // reaches the page: a dialog under it closes on the next Escape
   it('hides every tooltip that shows on Escape, which goes no further, and lets the next Escape through', async () => {
@@ -197,6 +287,69 @@ describe('TooltipDirective', () => {
 
       await userEvent.keyboard('{Escape}');
       expect(app).toHaveBeenCalledTimes(1);
+      expect(app).toHaveReturnedWith(false);
+    } finally {
+      document.removeEventListener('keydown', app);
+    }
+  });
+
+  // The combobox pattern: Escape closes the list a select opened, which sat above the tooltip and missed the key
+  it('lets the list its element opened take Escape first, and hides on the next one', async () => {
+    const fixture = TestBed.createComponent(ParcelComponent);
+    fixture.autoDetectChanges();
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+    const select = host.querySelector<HTMLElement>('tab-single-select')!;
+    const list = () => document.querySelector('[role="listbox"]');
+    await userEvent.click(host.querySelector<HTMLElement>('.first')!);
+    await userEvent.tab();
+    expect(document.activeElement).toBe(select);
+    await shows(['Where the parcel goes']);
+
+    await userEvent.keyboard('{Enter}');
+    await vi.waitFor(() => {
+      expect(list()).not.toBeNull();
+    });
+    await userEvent.keyboard('{Escape}');
+    await vi.waitFor(() => {
+      expect(list()).toBeNull();
+    });
+    expect(tooltips()).toEqual(['Where the parcel goes']);
+
+    await userEvent.keyboard('{Escape}');
+    expect(tooltips()).toEqual([]);
+  });
+
+  // With no room beside its element the tooltip sits on it, and once Escape hides it, the element under the still
+  // pointer takes a mouseenter: the tooltip showed again, and took every Escape
+  it('stays hidden after Escape while the pointer stays, and shows again once the pointer has left and come back', async () => {
+    const { button } = await render();
+    await userEvent.hover(button('text'));
+    await shows(['Save changes']);
+
+    await userEvent.keyboard('{Escape}');
+    expect(tooltips()).toEqual([]);
+    button('text').dispatchEvent(new MouseEvent('mouseenter'));
+    expect(tooltips()).toEqual([]);
+
+    await movePointerAway();
+    await userEvent.hover(button('text'));
+    await shows(['Save changes']);
+  });
+
+  // The dialog service closes a dialog itself, as when the app goes
+  it('leaves no description or Escape listener behind when the dialog service closes it', async () => {
+    const { button } = await render();
+    await tabToText(button);
+    await shows(['Save changes']);
+
+    TestBed.inject(DialogService).dialogStack.at(-1)!.dialogRef.close();
+    expect(tooltips()).toEqual([]);
+    expect(button('text').hasAttribute('aria-describedby')).toBe(false);
+    const app = vi.fn((e: KeyboardEvent) => e.defaultPrevented);
+    document.addEventListener('keydown', app);
+    try {
+      await userEvent.keyboard('{Escape}');
       expect(app).toHaveReturnedWith(false);
     } finally {
       document.removeEventListener('keydown', app);
@@ -226,12 +379,13 @@ describe('TooltipDirective', () => {
     expect(button('text').hasAttribute('aria-describedby')).toBe(false);
   });
 
-  it("adds no description for a text that repeats its element's name, from its text or its aria-label", async () => {
+  it("adds no description for a text that repeats its element's name, from its text, its aria-label or its icon's", async () => {
     const { button } = await render();
 
     for (const [name, text] of [
       ['named', 'Home'],
       ['labelled', 'Close'],
+      ['remove', 'Remove Berlin'],
     ]) {
       await userEvent.hover(button(name));
       await shows([text]);
@@ -341,7 +495,7 @@ describe('TooltipDirective', () => {
     expect((await placed()).top).toBeGreaterThanOrEqual(save.bottom);
   });
 
-  it('shows a new text while it is open, and closes with its element', async () => {
+  it('shows a new text while it is open, and closes with its element, which takes its Escape listener', async () => {
     const { fixture, component, button } = await render();
     await userEvent.hover(button('text'));
 
@@ -352,6 +506,14 @@ describe('TooltipDirective', () => {
     component.$shown.set(false);
     await fixture.whenStable();
     expect(tooltips()).toEqual([]);
+    const app = vi.fn((e: KeyboardEvent) => e.defaultPrevented);
+    document.addEventListener('keydown', app);
+    try {
+      await userEvent.keyboard('{Escape}');
+      expect(app).toHaveReturnedWith(false);
+    } finally {
+      document.removeEventListener('keydown', app);
+    }
   });
 
   it('passes axe while it shows', async () => {

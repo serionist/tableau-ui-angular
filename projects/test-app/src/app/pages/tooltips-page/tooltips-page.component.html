@@ -13,8 +13,10 @@
     <div class="section">
       <h3>A text</h3>
       <p>
-        <code>tooltip</code> goes on any element. A tooltip opens when the pointer enters the element, or when the keyboard moves the focus to it or into it; the focus a click gives doesn't open one.
-        It closes 100 ms after the pointer leaves, unless the pointer has moved onto the tooltip, and when the focus leaves, unless the pointer is on the element or the tooltip. Escape closes it.
+        <code>tooltip</code> goes on any element. A tooltip opens when the pointer enters the element, or when the keyboard moves the focus to it or into it; the focus a click gives doesn't open one,
+        a text input's included. Once the pointer leaves the element it has 100 ms to reach the tooltip, and as long as it needs while it stays between the two; the tooltip closes when the pointer
+        moves anywhere else, or leaves the tooltip. Focus from the keyboard keeps a tooltip while the pointer passes over the element and leaves, and the tooltip closes when the focus leaves, unless
+        the pointer is on the element or the tooltip. Escape closes it.
       </p>
       <ul>
         <li>
@@ -64,9 +66,13 @@
         </li>
         <li>
           Tab to the element shows its tooltip. Escape hides it and goes no further, so a dialog, menu or drawer under the tooltip closes on the next Escape, and the user dismisses a tooltip without
-          moving the pointer or the focus.
+          moving the pointer or the focus. A list the element opened above the tooltip, such as a select's, closes on the first Escape, and the tooltip on the next. After Escape the pointer shows the
+          tooltip again once it has left the element.
         </li>
-        <li>The pointer can rest on a tooltip, to read it or to get past it, so a click on a tooltip doesn't reach what is under it.</li>
+        <li>
+          The pointer can rest on a tooltip, to read it or to get past it, and crosses the margin to it at any pace. A click on a tooltip doesn't reach what is under it, so place a tooltip where it
+          covers nothing the user reaches for next, as <code>tooltipPosition</code> can.
+        </li>
         <li>
           The app names the element. An icon-only button needs a name of its own, such as a <code>label</code> on its <code>tab-icon</code> or an <code>aria-label</code>, with a tooltip or without.
         </li>

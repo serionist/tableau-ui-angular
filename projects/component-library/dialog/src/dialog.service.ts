@@ -218,6 +218,7 @@ export class DialogService implements OnDestroy {
 
     // Create a container for the dialog
     const { dialogElement, headerIcon } = this.createDialogElement(componentView, args, injector, dialogRef, zIndex);
+    // the tooltip directive reads it from the DialogRef openDialog returns, to give the tooltip its role, id and pointer
     dialogRef.dialogElement = dialogElement;
 
     // always insert element after the backdrop

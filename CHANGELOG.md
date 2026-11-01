@@ -32,8 +32,13 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
 - A closed drawer is inert until change detection renders it open, so an app that sets `isOpen` and focuses into the
   drawer in the same tick finds the focus refused. Move the focus in `afterNextRender`, once the drawer renders.
 - Escape first hides a showing tooltip and goes no further: the dialog, menu or drawer under it closes on the next
-  Escape. A test that hovers or tabs to an element with a tooltip, then presses Escape to close a dialog, presses it
-  twice or moves the pointer and the focus away first.
+  Escape. A list the tooltip's element opened above it, such as a select's, still closes on the first. A test that
+  hovers or tabs to an element with a tooltip, then presses Escape to close a dialog, presses it twice or moves the
+  pointer and the focus away first.
+- A tooltip takes the pointer: the pointer can move onto it and rest there, so a click on a tooltip no longer reaches
+  what is under it. Once the pointer leaves the element it has 100 ms to reach the tooltip, and as long as it needs
+  while it stays between the two; before, the tooltip hid as the pointer left. A test that hovers an element, then
+  hovers or clicks what its tooltip covers, moves the pointer away first and waits for the tooltip to go.
 
 ### Added
 
@@ -101,12 +106,10 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   holds it, settles, where it overflowed the stack. A value or meta rule that doesn't settle within 100 rounds stops
   with an error that names `value$` or `meta$`, and its last change is dropped.
 - A tooltip shows when the keyboard moves the focus to its element, as on hover, where only the pointer opened one;
-  the focus a click gives doesn't open it. A screen reader hears it: while it shows it is `role="tooltip"`, and its
+  the focus a click gives doesn't open it, a text input's included. Focus from the keyboard keeps it while the pointer
+  passes over the element and leaves. A screen reader hears it: while it shows it is `role="tooltip"`, and its
   element's `aria-describedby` names it after the app's own ids, which stay. A text tooltip equal to the element's name
-  adds none, so the nav bar's collapsed buttons aren't read twice.
-- The pointer can move onto a tooltip and rest there, so a click on a tooltip no longer reaches what is under it. A
-  tooltip hides 100 ms after the pointer leaves its element, unless the pointer is on it, where it hid at once: a test
-  that hovers one element after another waits for the first tooltip to go.
+  adds none, so the nav bar's collapsed buttons and the chips' remove buttons aren't read twice.
 
 ## 0.2.0 (2026-10-31)
 
