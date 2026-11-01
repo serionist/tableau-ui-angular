@@ -21,9 +21,11 @@
       user-select: none;
       z-index: 1;
 
+      // the panel's ring, inside the tab, so a focus move shifts nothing; a border on three sides moved the strip 6px,
+      // and the primary colour was 2.56:1 on the dark base
       &:focus-visible {
-        border: 3px solid var(--twc-color-primary);
-        outline: none;
+        outline: 2px solid var(--twc-color-focused-input);
+        outline-offset: -2px;
       }
 
       &.disabled {

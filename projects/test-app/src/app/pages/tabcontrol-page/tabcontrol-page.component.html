@@ -79,7 +79,7 @@
         </li>
         <li>
           The group is one Tab stop: the selected tab, or the first enabled one while none is selected, with <code>[autoSelectFirstTab]="false"</code>. The next Tab goes to the selected tab's content,
-          then on through the page.
+          past the strip's scroll arrows when they show, then on through the page.
         </li>
         <li>
           Each arrow key selects the tab it moves to, so <code>(tabSelected)</code> and <code>(afterActivate)</code> run once for each. A tab that loads its data on them gets it once per key; wait for

@@ -284,6 +284,30 @@ describe('ButtonToggleComponent', () => {
     });
 
     // The option sits at fractions of a pixel, so the screenshot's first and last pixel along an edge can miss the ring
+    // The plan's "the checked option": a screen reader then hears the value, as on a toggle that starts on a disabled one
+    it('keeps the Tab stop on a checked option that is disabled, and the arrows move on to the enabled ones', async () => {
+      const { fixture, stops, button, component } = await toolbar(bar => {
+        bar.$value.set('right');
+      });
+      expect(stops()).toEqual([-1, -1, 0, -1]);
+
+      button('Before').focus();
+      await userEvent.tab();
+      expect(document.activeElement).toBe(named('Right'));
+      expect([named('Right').getAttribute('aria-checked'), named('Right').getAttribute('aria-disabled')]).toEqual(['true', 'true']);
+
+      // Space on it changes nothing
+      await userEvent.keyboard(' ');
+      await fixture.whenStable();
+      expect(component.$value()).toBe('right');
+
+      await userEvent.keyboard('{ArrowRight}');
+      await fixture.whenStable();
+      expect(document.activeElement).toBe(named('Justify'));
+      expect(component.$value()).toBe('justify');
+      expect(stops()).toEqual([-1, -1, -1, 0]);
+    });
+
     it('shows a focus ring on all four edges of the focused option, a checked one included', async () => {
       TestBed.createComponent(LibraryStylesComponent);
       const { button } = await toolbar();

@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, signal, ViewEncapsulation } from '@
 import { TestBed } from '@angular/core/testing';
 import { page, userEvent } from 'vitest/browser';
 import { axeViolations } from '../../testing/axe';
-import { inEachMode } from '../../testing/contrast';
+import { backgroundUnder, contrast, inEachMode } from '../../testing/contrast';
 import { focusRingShown } from '../../testing/focus-ring';
 import { TableauUiTabgroupModule } from './tableau-ui-tab-group.module';
 
@@ -37,7 +37,7 @@ class TabsHostComponent {
     <div [style.width]="$width()">
       <tab-group headerPadding="0.25rem 0.5rem" scrollArrowsIconSize="0.25rem" [label]="$label()" [autoSelectFirstTab]="$autoSelect()" (tabSelected)="selected.push($event.key)">
         @for (name of tabs; track name) {
-          <tab [key]="name" [disabled]="name === 'Draft' || name === 'Archive'" (afterActivate)="activated.push(name)">
+          <tab [key]="name" [disabled]="$disabled().includes(name)" (afterActivate)="activated.push(name)">
             <span tab-header>{{ name }}</span>
             <p>{{ name }} content</p>
           </tab>
@@ -52,6 +52,7 @@ class SheetsComponent {
   readonly tabs = ['Draft', 'General', 'Sharing', 'Archive', 'History'];
   readonly $label = signal<string | undefined>('Sheets');
   readonly $autoSelect = signal(true);
+  readonly $disabled = signal(['Draft', 'Archive']);
   readonly $width = signal('auto');
   readonly selected: (string | undefined)[] = [];
   readonly activated: string[] = [];
@@ -310,6 +311,53 @@ describe('TabGroupComponent', () => {
       });
       expect(strip.scrollLeft).toBeGreaterThan(start);
       expect(window.scrollY).toBe(0);
+    });
+
+    // The plan's "the selected tab": a screen reader then hears which tab shows
+    it('keeps the Tab stop on a selected tab the app disables, and the arrows move on to the enabled ones', async () => {
+      const { fixture, stops, tab, shown, button, component } = await sheets();
+      component.$disabled.set(['Draft', 'General', 'Archive']);
+      await fixture.whenStable();
+      expect(shown()).toEqual(['General content']);
+      expect(stops()).toEqual([-1, 0, -1, -1, -1]);
+
+      button('Before').focus();
+      await userEvent.tab();
+      expect(document.activeElement).toBe(tab('General'));
+      expect([tab('General').getAttribute('aria-selected'), tab('General').getAttribute('aria-disabled')]).toEqual(['true', 'true']);
+
+      await userEvent.keyboard('{ArrowRight}');
+      await fixture.whenStable();
+      expect(document.activeElement).toBe(tab('Sharing'));
+      expect(shown()).toEqual(['Sharing content']);
+      expect(stops()).toEqual([-1, -1, 0, -1, -1]);
+    });
+
+    // The tab's ring was a border on three sides in the primary colour: 2.56:1 on the dark base, and each focus move
+    // shifted the strip 6px
+    it("shows a tab's focus ring inside it in the focus colour, 3:1 or more on the base, and moves no header", async () => {
+      TestBed.createComponent(LibraryStylesComponent);
+      const { tabs, tab, button } = await sheets();
+      const places = () => tabs().map(element => element.getBoundingClientRect().toJSON() as DOMRect);
+      const probe = document.createElement('div');
+      probe.style.color = 'var(--twc-color-focused-input)';
+      document.body.appendChild(probe);
+      try {
+        await inEachMode(async mode => {
+          button('Before').focus();
+          const before = places();
+
+          await userEvent.tab();
+
+          const ring = getComputedStyle(tab('General'));
+          expect(tab('General').matches(':focus-visible'), mode).toBe(true);
+          expect([ring.outlineStyle, ring.outlineWidth, ring.outlineOffset, ring.outlineColor], mode).toEqual(['solid', '2px', '-2px', getComputedStyle(probe).color]);
+          expect(contrast(ring.outlineColor, backgroundUnder(tab('General'))), mode).toBeGreaterThanOrEqual(3);
+          expect(places(), mode).toEqual(before);
+        });
+      } finally {
+        probe.remove();
+      }
     });
 
     it('shows a focus ring on all four edges of the panel that takes focus', async () => {
