@@ -1,4 +1,4 @@
-@for (node of $childrenDisplayOrder(); let i = $index; track i) {
+@for (node of $childrenDisplayOrder(); track node) {
   @if (!node.$parent() || node.$allParentsExpanded()) {
     <ng-container *ngTemplateOutlet="node.$template()!; context: nodeContext" />
   }

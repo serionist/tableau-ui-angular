@@ -8,25 +8,27 @@
   let-$expandButtonAlign="$expandButtonAlign"
   let-$keepButtonOffsetOnNoChildren="$keepButtonOffsetOnNoChildren"
   let-$treeItem="$treeItem"
+  let-$tabStopId="$tabStopId"
 >
-  @let item = $treeItem(headerButtonId);
-  <!-- The node's row is its treeitem, and says whether it is open; the button is for the pointer only. A node can't be
-  selected, so the tree view pattern gives it no aria-selected: the null binding says so to role-has-required-aria, whose
-  aria-query still lists it as required, where ARIA 1.2 and axe require none -->
+  @let item = $treeItem?.(headerButtonId);
+  <!-- The node's row is its treeitem, and says whether it is open; the button is for the pointer only -->
+  <!-- The rule reports on the role's own line, which a next-line disable above this tag doesn't reach, so the disable ends
+  inside the row -->
+  <!-- eslint-disable @angular-eslint/template/role-has-required-aria -- ARIA 1.2 inherits a required aria-selected from option, but the ARIA 1.3 draft, the APG and axe give a node that can't be selected none; aria-query 5.3.2 follows 1.2; the maintainer approved this exception on 2026-11-01 -->
   <div
     #row
     class="tree-node-container"
     role="treeitem"
-    [attr.aria-selected]="null"
     [attr.aria-level]="item?.level"
     [attr.aria-setsize]="item?.setSize"
     [attr.aria-posinset]="item?.posInSet"
     [attr.aria-expanded]="$children().length === 0 ? null : $expanded()"
-    [attr.tabindex]="item?.tabIndex ?? -1"
+    [attr.tabindex]="$tabStopId?.() === headerButtonId ? 0 : -1"
     [style.marginLeft]="`calc(${$depth()} * ${$childrenIndent()})`"
     [style.alignItems]="$expandButtonAlign()"
     [style.gap]="$expandButtonGap()"
   >
+    <!-- eslint-enable @angular-eslint/template/role-has-required-aria -->
     <button
       layout="icon"
       color="plain"

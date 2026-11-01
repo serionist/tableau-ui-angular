@@ -14,7 +14,8 @@ import { TreeNodeRegistry } from './tree-node-registry';
  * moves from a child to its parent; Home and End move to the first and last shown node; Enter opens or closes a node;
  * a character moves to the next shown node whose text starts with it. A control in a node's content keeps its own Tab
  * stop and its own keys. The buttons that open and close the nodes are for the pointer: they take no focus, and are
- * hidden from assistive technology, since the node says whether it is open.
+ * hidden from assistive technology, since the node says whether it is open. An assistive technology that activates a
+ * node clicks its row, which opens or closes it as the button does; a click on the node's content only focuses it.
  */
 @Component({
   selector: 'tab-tree',
@@ -26,6 +27,7 @@ import { TreeNodeRegistry } from './tree-node-registry';
     role: 'tree',
     '(keydown)': 'onKeydown($event)',
     '(focusin)': 'onFocusin($event)',
+    '(click)': 'onClick($event)',
   },
 })
 export class TabTreeComponent implements OnDestroy {
@@ -119,8 +121,9 @@ export class TabTreeComponent implements OnDestroy {
       });
       this.resizeObserver.observe(this.selfElementRef.nativeElement);
     });
-    // Focus in a row that a closing node hides, or that goes with its node, moves to the node that takes the Tab stop.
-    // This runs before the tree's template drops the row, while the focus is still in it.
+    // Focus in a row that a closing node hides, or that goes with its node, moves to the node that takes the Tab stop;
+    // so does focus that a moved row drops to the body. This runs before the tree's template changes the rows, while the
+    // focus is still in one: a browser removing the focused element fires no focusout in every engine.
     effect(() => {
       const shown = this.$shownNodes();
       const tabStop = this.$tabStop();
@@ -129,10 +132,20 @@ export class TabTreeComponent implements OnDestroy {
       }
       untracked(() => {
         const row = this.rowOf(this.document.activeElement);
-        const node = row && this.nodeOf(row);
-        if (row && (!node || !shown.includes(node))) {
-          afterNextRender(() => this.rowOfNode(tabStop)?.focus(), { injector: this.injector });
+        if (!row) {
+          return;
         }
+        const node = this.nodeOf(row);
+        const goes = !node || !shown.includes(node);
+        afterNextRender(
+          () => {
+            const active = this.document.activeElement;
+            if (goes || active === null || active === this.document.body) {
+              this.rowOfNode(tabStop)?.focus();
+            }
+          },
+          { injector: this.injector },
+        );
       });
     });
   }
@@ -210,33 +223,31 @@ export class TabTreeComponent implements OnDestroy {
   // The tree's one Tab stop
   private readonly $tabStop = computed(() => this.$current() ?? this.$shownNodes().at(0));
 
-  // Each shown node's level, from 1 at the top, its place among its siblings, and its tabindex, by its headerButtonId
+  // The Tab stop's headerButtonId, which its row compares with its own
+  private readonly $tabStopId = computed(() => this.$tabStop()?.headerButtonId);
+
+  // Each shown node's level, from 1 at the top, and its place among its siblings, by its headerButtonId
   private readonly $treeItems = computed(() => {
-    const shown = this.$shownNodes();
-    const tabStop = this.$tabStop();
-    const siblings = new Map<TabTreeNodeComponent | null, TabTreeNodeComponent[]>();
-    for (const node of shown) {
-      const group = siblings.get(node.$parent()) ?? [];
-      group.push(node);
-      siblings.set(node.$parent(), group);
-    }
-    const levels = new Map<TabTreeNodeComponent, number>();
-    const items = new Map<string, { level: number; setSize: number; posInSet: number; tabIndex: number }>();
-    for (const node of shown) {
+    // each parent's shown children, the top level's under null; a shown node's parent is shown, and comes before it
+    const groups = new Map<TabTreeNodeComponent | null, { level: number; size: number }>();
+    const places = this.$shownNodes().map(node => {
       const parent = node.$parent();
-      // a shown node's parent is shown, and comes first
-      const level = parent ? (levels.get(parent) ?? 0) + 1 : 1;
-      levels.set(node, level);
-      const group = siblings.get(parent) ?? [node];
-      items.set(node.headerButtonId, { level, setSize: group.length, posInSet: group.indexOf(node) + 1, tabIndex: node === tabStop ? 0 : -1 });
-    }
-    return items;
+      let group = groups.get(parent);
+      if (!group) {
+        group = { level: parent ? (groups.get(parent.$parent())?.level ?? 0) + 1 : 1, size: 0 };
+        groups.set(parent, group);
+      }
+      group.size++;
+      return { node, group, posInSet: group.size };
+    });
+    return new Map(places.map(({ node, group, posInSet }) => [node.headerButtonId, { level: group.level, setSize: group.size, posInSet }]));
   });
 
-  // What each node's row reads: the template params, and its place in the tree
+  // What each node's row reads: the template params, its place in the tree, and whether it is the Tab stop
   protected readonly nodeContext = {
     ...this.templateParams,
     $treeItem: (headerButtonId: string) => this.$treeItems().get(headerButtonId),
+    $tabStopId: this.$tabStopId,
   };
 
   // The tree's rows: one per shown node, each a child of the host, in the order of $shownNodes
@@ -255,8 +266,10 @@ export class TabTreeComponent implements OnDestroy {
     return this.registry.nodes().find(node => node.headerButtonId === id);
   }
 
+  // A node's row: its button's parent, when that is a row of this tree
   private rowOfNode(node: TabTreeNodeComponent) {
-    return this.rows().find(row => row.querySelector(':scope > .header-button')?.id === node.headerButtonId);
+    const row = this.document.getElementById(node.headerButtonId)?.parentElement;
+    return row?.parentElement === this.selfElementRef.nativeElement ? row : undefined;
   }
 
   // Focus in a row, or in a control in it, makes its node the Tab stop
@@ -266,6 +279,20 @@ export class TabTreeComponent implements OnDestroy {
     if (node) {
       this.$current.set(node);
     }
+  }
+
+  // A click on the row itself, where an assistive technology's activation lands, opens or closes a node with children,
+  // as its hidden button does for the pointer, and moves the focus to it. A click on the node's content is the content's.
+  protected onClick(event: MouseEvent) {
+    const row = this.rowOf(event.target instanceof Node ? event.target : null);
+    const node = row && this.nodeOf(row);
+    if (!node || event.target !== row) {
+      return;
+    }
+    if (node.$children().length > 0) {
+      node.setExpanded(!node.$expanded());
+    }
+    row.focus();
   }
 
   // The tree view pattern's keys, on a row; keys from a control in a node's content are the control's

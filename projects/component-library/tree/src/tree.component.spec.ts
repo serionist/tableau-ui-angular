@@ -59,7 +59,9 @@ class ModesTreeComponent {
           <tab-tree-node>Q1</tab-tree-node>
           <tab-tree-node>Q2</tab-tree-node>
         </tab-tree-node>
-        <tab-tree-node>Costs</tab-tree-node>
+        @if ($costs()) {
+          <tab-tree-node>Costs</tab-tree-node>
+        }
       </tab-tree-node>
       <tab-tree-node (expandedChange)="teamChanges.push($event)">
         Team
@@ -76,6 +78,7 @@ class ModesTreeComponent {
 })
 class FilesTreeComponent {
   readonly $reportsOpen = signal(true);
+  readonly $costs = signal(true);
   readonly $archive = signal(true);
   readonly teamChanges: boolean[] = [];
 }
@@ -430,7 +433,7 @@ describe('TabTreeComponent', () => {
       expect(focusedToggles).toEqual([]);
     });
 
-    // P11 in the plan's review: a click on a toggle focused the hidden button in Chromium, and left the Tab stop where it was
+    // A click on a toggle focused the hidden button in Chromium, and left the Tab stop where it was
     it('moves on from a clicked node with Down, and Tab out and back in lands on the node it moved to', async () => {
       const { fixture, row, toggle, tabStops, focused, press } = await renderFiles();
 
@@ -450,6 +453,78 @@ describe('TabTreeComponent', () => {
       await press('{ArrowDown}');
       expect(focused()).toBe('Costs');
       expect(tabStops()).toEqual(['Costs']);
+    });
+
+    // An assistive technology activates a node with a click on its row: VoiceOver on iOS, TalkBack, Switch Control and
+    // Voice Control can't reach the hidden toggle
+    it('opens and closes a node on a click on its row itself, as assistive technologies send it, and not on a click on its content', async () => {
+      const { fixture, component, row, focused, button } = await renderFiles();
+      button('Before').focus();
+
+      row('Team').click();
+      await fixture.whenStable();
+      expect(row('Team').getAttribute('aria-expanded')).toBe('true');
+      expect(focused()).toBe('Team');
+      row('Team').click();
+      await fixture.whenStable();
+      expect(row('Team').getAttribute('aria-expanded')).toBe('false');
+      expect(component.teamChanges).toEqual([true, false]);
+
+      // the pointer on the node's text focuses it, and toggles nothing
+      button('Before').focus();
+      await userEvent.click(row('Team').querySelector('.header-content')!);
+      await fixture.whenStable();
+      expect(focused()).toBe('Team');
+      expect(row('Team').getAttribute('aria-expanded')).toBe('false');
+      row('Team').querySelector<HTMLElement>('.header-content')!.click();
+      await fixture.whenStable();
+      expect(row('Team').getAttribute('aria-expanded')).toBe('false');
+
+      // a node without children only takes the focus
+      row('Archive').click();
+      await fixture.whenStable();
+      expect(focused()).toBe('Archive');
+      expect(row('Archive').hasAttribute('aria-expanded')).toBe(false);
+    });
+
+    // The rows were tracked by their place, so a node added or removed above the focused one rebuilt its row and dropped
+    // the focus to the body
+    it('keeps the focus on a node when a node above it goes or comes, and the siblings left count again', async () => {
+      const { fixture, component, row, rows, focused } = await renderFiles();
+      row('Team').focus();
+
+      component.$costs.set(false);
+      await fixture.whenStable();
+      expect(rows().map(nameOf)).not.toContain('Costs');
+      expect(focused()).toBe('Team');
+      expect(row('Sales').getAttribute('aria-setsize')).toBe('1');
+
+      component.$costs.set(true);
+      await fixture.whenStable();
+      expect(rows().map(nameOf)).toContain('Costs');
+      expect(focused()).toBe('Team');
+      expect(row('Costs').getAttribute('aria-posinset')).toBe('2');
+    });
+
+    it('cancels the arrows where they move nothing, and leaves keys with Alt, Ctrl or Meta to the browser', async () => {
+      const { row, focused } = await renderFiles();
+      const keydown = (name: string, init: KeyboardEventInit) => {
+        const event = new KeyboardEvent('keydown', { bubbles: true, cancelable: true, ...init });
+        row(name).dispatchEvent(event);
+        return event.defaultPrevented;
+      };
+
+      row('Archive').focus();
+      expect(keydown('Archive', { key: 'ArrowDown' })).toBe(true);
+      expect(focused()).toBe('Archive');
+      row('Q1').focus();
+      expect(keydown('Q1', { key: 'ArrowRight' })).toBe(true);
+      expect(focused()).toBe('Q1');
+      // Alt+Left is the browser's Back; without Alt, Left would move to Sales
+      expect(keydown('Q1', { key: 'ArrowLeft', altKey: true })).toBe(false);
+      expect(keydown('Q1', { key: 'ArrowLeft', ctrlKey: true })).toBe(false);
+      expect(keydown('Q1', { key: 'ArrowLeft', metaKey: true })).toBe(false);
+      expect(focused()).toBe('Q1');
     });
 
     it("leaves the keys of a control in a node's content to the control, which keeps its own Tab stop", async () => {
