@@ -137,11 +137,14 @@ export interface MetaFns<TChild = AC> {
    * @see {@link AbstractControlMeta.validity}
    *
    * @param emitEvent When true or not supplied, the control and its ancestors emit their value and status changes.
-   * When false, none of them does: the control's meta and the ancestors' `value$` show the change at their next
-   * event. Default is true.
-   * @param markAncestors When true or not supplied, the ancestors update their value and validity. When false, only
-   * this control and its children change, as with Angular's `onlySelf: true`, and the ancestors keep theirs until
-   * their next update. Default is true.
+   * When false, none of them does, and the control's meta, its errors with it, waits for its next event: until then
+   * a disabled field keeps the errors it had, such as `required`, and its ancestors' `hasError()` can still find them
+   * through `childControls`. The ancestors' `value$` waits for their next value change. Default is true.
+   * @param markAncestors When true or not supplied, the ancestors update as with Angular's `onlySelf: false`: each
+   * recalculates its value and validity, runs its async validators, emits its value and status changes unless
+   * `emitEvent` is false, and takes `pristine` and `touched` from its enabled children, so disabling the only
+   * dirty field makes the form pristine. When false, as with `onlySelf: true`, only this control and its
+   * children change, and the ancestors keep all of it until their next update. Default is true.
    */
   disable: (emitEvent?: boolean, markAncestors?: boolean) => TChild;
   /**
@@ -157,11 +160,14 @@ export interface MetaFns<TChild = AC> {
    * @see {@link AbstractControl.status}
    *
    * @param emitEvent When true or not supplied, the control and its ancestors emit their value and status changes.
-   * When false, none of them does: the control's meta and the ancestors' `value$` show the change at their next
-   * event. Default is true.
-   * @param markAncestors When true or not supplied, the ancestors update their value and validity. When false, only
-   * this control and its children change, as with Angular's `onlySelf: true`, and the ancestors keep theirs until
-   * their next update. Default is true.
+   * When false, none of them does, and the control's meta, its errors with it, waits for its next event: until then
+   * an enabled field shows none of the errors it now has. The ancestors' `value$` waits for their next value change.
+   * Default is true.
+   * @param markAncestors When true or not supplied, the ancestors update as with Angular's `onlySelf: false`: each
+   * recalculates its value and validity, runs its async validators, emits its value and status changes unless
+   * `emitEvent` is false, and takes `pristine` and `touched` from its enabled children, so enabling a dirty field
+   * makes the form dirty. When false, as with `onlySelf: true`, only this control and its
+   * children change, and the ancestors keep all of it until their next update. Default is true.
    */
   enable: (emitEvent?: boolean, markAncestors?: boolean) => TChild;
 }

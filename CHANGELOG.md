@@ -13,6 +13,13 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   `hierarchyMode="manual"`.
 - `TabTreeNodeComponent.$hierarchyParentId()` reads `undefined` unless the app sets it, where it held the id of the
   node it sits in. Read `$parent()?.$hierarchyId()` for the parent's id.
+- A control's `metaFn.disable()` and `metaFn.enable()` update the groups and arrays above it, as Angular's own
+  `disable()` and `enable()` do, where they changed the control alone. Each ancestor recalculates its value and
+  validity, runs its async validators, emits its value and status changes, and takes `pristine` and `touched` from its
+  enabled children. A form whose only invalid field is disabled is valid, but one whose only dirty field is disabled is
+  pristine, so a Save button bound to `dirty` turns off; and a rule that disables a field when another changes, as with
+  `childChange`, makes the group emit its value twice. To keep the old behaviour, pass `false` as the second argument:
+  `disable(emitEvent, false)` and `enable(emitEvent, false)`.
 
 ### Fixed
 
@@ -43,10 +50,11 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
 - A full load that fails, as when `FullDataOptions.getAllData` rejects, is reported once: one "Error loading all data"
   console error and one rejection for the app's `ErrorHandler`, where it logged three errors and rejected twice. A
   first block that fails logs one error, where it logged two.
-- A control's `metaFn.disable()` and `metaFn.enable()` update its groups' and arrays' value and validity, as Angular's
-  own `disable()` and `enable()` do: a form whose only invalid field is disabled is valid. They left them as they were
-  until another change updated them. `disable(emitEvent, false)` keeps that, and `disable(false)` no longer emits the
-  control's value and status changes. The `markAncestors` docs of the `metaFn` methods say what each one does.
+- `metaFn.disable()` and `metaFn.enable()` no longer emit the control's value and status changes when `emitEvent` is
+  false: `disable()` called Angular's twice, the second time without it. As with any write with `emitEvent: false`,
+  the control's meta, its errors with it, waits for its next event: a field disabled this way keeps its `required`
+  error until then, and its form's `hasError()` can still find it. The `markAncestors` docs of the `metaFn` methods say
+  what each one does, where they said the opposite.
 
 ## 0.2.0 (2026-10-31)
 

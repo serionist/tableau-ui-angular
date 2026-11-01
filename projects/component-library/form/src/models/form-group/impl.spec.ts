@@ -88,7 +88,7 @@ describe('FG', () => {
   // disable() called Angular's disable() a second time without emitEvent, so disable(false) still emitted
   it('emits no value or status change when emitEvent is false, and still updates the ancestors', () => {
     const form = contactForm();
-    const { name, email } = form.controls.contact.controls;
+    const { email } = form.controls.contact.controls;
     const emitted: string[] = [];
     email.meta$.pipe(skip(1)).subscribe(() => emitted.push('email meta'));
     form.value$.pipe(skip(1)).subscribe(() => emitted.push('form value'));
@@ -96,13 +96,12 @@ describe('FG', () => {
     email.metaFn.disable(false);
 
     expect(emitted).toEqual([]);
-    name.metaFn.markAsTouched(true);
+    // Angular emits a touched event on each ancestor whatever emitEvent says, so the form's meta has the new validity
     expect(form.$meta().validity).toBe('VALID');
 
     email.metaFn.enable(false);
 
     expect(emitted).toEqual([]);
-    name.metaFn.markAsDirty(true, true);
     expect(form.$meta().validity).toBe('INVALID');
   });
 
