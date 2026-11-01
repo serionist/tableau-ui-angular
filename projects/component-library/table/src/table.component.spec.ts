@@ -19,15 +19,15 @@ import { TableComponent } from './table.component';
   imports: [TableauUiTableModule],
   template: `
     <tab-table #table style="height: 300px" sortMode="multi" [dataOptions]="$options()" [(sort)]="$sort" [dataRowCss]="$rowCss()" [selectionOptions]="$selection()" [(selectedRows)]="$selected">
-      <ng-container tabColumnDef="id">
+      <ng-container tabColumnDef="id" [width]="$columnWidth()">
         <ng-template [tabHeaderDef]="table">Id</ng-template>
         <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.id }}</ng-template>
       </ng-container>
-      <ng-container tabColumnDef="name" [cellClass]="cellClass">
+      <ng-container tabColumnDef="name" [width]="$columnWidth()" [cellClass]="cellClass">
         <ng-template [tabHeaderDef]="table">Name</ng-template>
         <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.name }}</ng-template>
       </ng-container>
-      <ng-container tabColumnDef="profile" [sortable]="false">
+      <ng-container tabColumnDef="profile" [width]="$columnWidth()" [sortable]="false">
         <ng-template [tabHeaderDef]="table">Profile</ng-template>
         <ng-template let-ctx [tabCellDef]="table" [textClamping]="false">
           <a [href]="'#person-' + ctx.row.id">Profile</a>
@@ -45,6 +45,8 @@ class PeopleTableComponent {
   readonly $rowCss = signal<DataRowCss>({ height: '20px', lineHeight: '20px', padding: '0 8px' });
   readonly $selection = signal<SelectionOptions | undefined>(undefined);
   readonly $selected = signal(new Map<Primitive, Person>());
+  // each column's width: flexible, filling the table, or a CSS length
+  readonly $columnWidth = signal<number | string>(1);
   // the rows the name column's cellClass function was given
   readonly classed: unknown[] = [];
   readonly cellClass = (ctx: CellContext<Person>) => {
@@ -210,6 +212,61 @@ describe('TableComponent', () => {
     } finally {
       reset.remove();
     }
+  });
+
+  // A cell took its header's width, and the rows counted in the table's width, so the widest the columns had been held
+  // the table open: its flexible columns widened with it but never narrowed, and it scrolled sideways
+  it('narrows and widens its flexible columns with the table', async () => {
+    const { host, rows, load } = await render();
+    await load();
+    const columnRow = host.querySelector<HTMLElement>('.column-row')!;
+    const widths = (elements: Iterable<Element>) => Array.from(elements, element => Math.round(element.getBoundingClientRect().width));
+
+    for (const width of [900, 400, 900]) {
+      host.style.width = `${width}px`;
+      await vi.waitFor(() => {
+        // the columns fill the table and no more, and the cells keep to their headers
+        expect(Math.round(columnRow.getBoundingClientRect().width), `${width}px`).toBe(host.clientWidth);
+        expect(host.scrollWidth, `${width}px`).toBe(host.clientWidth);
+        expect(widths(rows()[0].querySelectorAll('.cell')), `${width}px`).toEqual(widths(host.querySelectorAll('.column-header')));
+      });
+    }
+  });
+
+  // The header row stretched to the table's width, and the rows stayed as wide as their cells, so their rule and a
+  // selected row's highlight ended short of the header's
+  it('stretches its rows to its width, as its header row, when its columns are narrower', async () => {
+    const { host, rows, cell, settle, load } = await render(c => {
+      c.$columnWidth.set('100px');
+      c.$selection.set(new SingleSelectionOptions());
+    });
+    host.style.width = '600px';
+    await load();
+
+    cell(rows()[1], 'name').click();
+    await settle();
+
+    const width = host.querySelector('.column-row')!.getBoundingClientRect().width;
+    expect(width).toBe(host.clientWidth);
+    expect(rows()[0].getBoundingClientRect().width).toBe(width);
+    expect(host.querySelector('.row.selected')!.getBoundingClientRect().width).toBe(width);
+  });
+
+  // A row was drawn its height tall, its cells' vertical padding spilling over the next row, but counted with that
+  // padding, so the space kept for the rows not drawn didn't match them
+  it("draws each row as tall as its cells' height and vertical padding", async () => {
+    const { host, rows, load } = await render(c => {
+      c.$rowCss.set({ height: '40px', lineHeight: '20px', padding: '5px 8px' });
+    });
+    await load();
+    const top = (row: HTMLElement) => row.getBoundingClientRect().top;
+
+    expect(rows()[0].getBoundingClientRect().height).toBe(50);
+    expect(top(rows()[1]) - top(rows()[0])).toBe(50);
+    // 100 rows of 50 px: the rows drawn and the space kept for the rest
+    expect(host.querySelector('.data-rows')!.getBoundingClientRect().height).toBe(5000);
+    // the clamp holds the lines of the cell's height, inside its padding
+    expect(host.querySelector<HTMLElement>('.line-clamp')!.style.getPropertyValue('-webkit-line-clamp')).toBe('2');
   });
 
   // F92: load() let the inputs' changes through only once its first block came, so a sort clicked while it loaded

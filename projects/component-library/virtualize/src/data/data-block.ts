@@ -1,6 +1,7 @@
 import type { Signal } from '@angular/core';
 import { computed, signal } from '@angular/core';
 import type { Primitive } from 'tableau-ui-angular/types';
+import { ReportedError } from './reported-error';
 export type DataBlockStatus = 'canceled' | 'error' | 'loading' | 'success';
 
 export class DataBlock<TData> {
@@ -44,6 +45,10 @@ export class DataBlock<TData> {
           return;
         }
         this.$_status.set('error');
+        // a block cut from a full load fails with it, which its AllDataInfo reports once for every block
+        if (error instanceof ReportedError) {
+          return;
+        }
         console.error('Error loading data block:', error);
 
         throw error;

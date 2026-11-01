@@ -207,12 +207,13 @@
           <!-- a row still loading is a placeholder, which the app's code never gets -->
           @let loaded = block.$status() === 'success';
 
+          <!-- as tall as the space kept for a row not drawn: its cells' height and vertical padding -->
           <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
           <div
             class="row"
             role="row"
-            [style.height]="$dataRowCss().height"
-            [style.maxHeight]="$dataRowCss().height"
+            [style.height.px]="$dataRowHeightPx()"
+            [style.maxHeight.px]="$dataRowHeightPx()"
             [class.even]="(block.offset + rowIndex) % 2 === 0"
             [class.selected]="loaded && (r.data | rowSelected: $selectedRows() : $dataOptions())"
             (click)="rowClicked(r.data, block, $event)"

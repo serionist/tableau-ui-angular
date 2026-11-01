@@ -132,6 +132,64 @@ describe('VirtualizeComponent', () => {
     expect(component.server.requests[0].count).toBe(10);
   });
 
+  // A row was counted with its vertical padding, but under an app's border-box reset drawn without it, so the space
+  // kept for the rows not drawn didn't match them
+  it('draws a row as tall as it counts it, its height and vertical padding, under a border-box reset', async () => {
+    const reset = document.createElement('style');
+    reset.textContent = '*, ::before, ::after { box-sizing: border-box; }';
+    document.head.append(reset);
+    try {
+      const { host, load } = await render(c => {
+        c.$rowCss.set({ height: '20px', lineHeight: '20px', padding: '5px 8px' });
+      });
+      await load();
+
+      expect(host.querySelector('.item')!.getBoundingClientRect().height).toBe(30);
+      // 100 rows of 30 px: the rows drawn and the space kept for the rest
+      expect(host.scrollHeight).toBe(3000);
+    } finally {
+      reset.remove();
+    }
+  });
+
+  // A failed full load was logged by the full load, by its first block and by the reset, and rethrown by the first two,
+  // so the app's ErrorHandler got the one failure twice; a first block that failed was logged by the reset again too
+  it.each([
+    ['full load', 'full', 'Error loading all data:'],
+    ['first block', 'incremental', 'Error loading data block:'],
+  ] as const)('reports a %s that fails once, and shows its rows as failed', async (_, options, message) => {
+    const logged = vi.spyOn(console, 'error').mockImplementation(() => {
+      // recorded only
+    });
+    // the one report rethrown for the app's ErrorHandler; this test's listener takes it, as an app's would
+    const rejections: unknown[] = [];
+    const listener = (event: PromiseRejectionEvent) => {
+      event.preventDefault();
+      rejections.push(event.reason);
+    };
+    window.addEventListener('unhandledrejection', listener);
+    try {
+      const { component, server, shown, settle } = await render(c => {
+        c.$options.set(c.server[options]);
+      });
+      const loading = component.list().load();
+      await settle();
+      server.waiting[0].fail();
+      await settle();
+
+      expect(await loading).toBe(true);
+      expect(shown().slice(0, 2)).toEqual(['Not loaded', 'Not loaded']);
+      // the rethrown rejection is reported after the microtasks
+      await new Promise(resolve => setTimeout(resolve, 100));
+      // the library's own messages: the test browser logs the rejection too
+      expect(logged.mock.calls.filter(([first]) => typeof first === 'string')).toEqual([[message, new Error('The server failed')]]);
+      expect(rejections).toEqual([new Error('The server failed')]);
+    } finally {
+      window.removeEventListener('unhandledrejection', listener);
+      logged.mockRestore();
+    }
+  });
+
   // an app's effect that called reload() took the sort the reload read as its own input, so a sort change ran it
   // again, and the data loaded twice
   it('loads once for a sort change after an app effect reloaded it', async () => {

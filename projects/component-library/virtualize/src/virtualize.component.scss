@@ -10,7 +10,9 @@
     font-size: var(--twc-font-size-subtitle);
   }
 
+  // as tall as the row is measured, its height plus its padding, under an app's border-box reset too
   .item {
+    box-sizing: content-box;
     display: flex;
     align-items: center;
     overflow: hidden;

@@ -30,11 +30,10 @@ export class VirtualizeComponent<TData> extends VirtualizeBaseComponent<TData> {
   });
 
   /**
-   * The height of the data row.
-   * This must be a valid CSS value.
-   * Fixed height is required for virtual scrolling to work properly.
-   * If the height is not fixed, the container will not be able to calculate the row heights and will not be able to scroll properly.
-   * @default '2.5em'
+   * The CSS of a data row: its height, line height and padding, and any other CSS.
+   * The height must be a fixed CSS length for virtual scrolling to work properly.
+   * It is the height of the row's content: a row is drawn that tall plus its vertical padding and borders.
+   * @default { height: '1.5em', padding: '0em 0.5em', lineHeight: 'inherit' }
    */
   override readonly $dataRowCss = input<DataRowCss>(
     {
