@@ -265,7 +265,10 @@ describe('The samples', () => {
       const tooltip = document.querySelector('tab-tooltip')!;
       const shown = { text: tooltip.textContent.trim(), padding: getComputedStyle(tooltip.parentElement!).paddingTop };
       button.dispatchEvent(new MouseEvent('mouseleave'));
-      await fixture.whenStable();
+      // it goes 100 ms after the pointer leaves
+      await vi.waitFor(() => {
+        expect(document.querySelector('tab-tooltip')).toBeNull();
+      });
       return shown;
     };
     const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
