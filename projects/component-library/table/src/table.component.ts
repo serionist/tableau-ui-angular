@@ -24,6 +24,7 @@ import { MultiSelectionOptions, SingleSelectionOptions } from './selection/selec
 import type { Primitive } from 'tableau-ui-angular/types';
 import type { DataBlock, DataOptions, DataRowCss, DataSort } from 'tableau-ui-angular/virtualize';
 import { VirtualizeBaseComponent } from 'tableau-ui-angular/virtualize';
+import { generateRandomString } from 'tableau-ui-angular/utils';
 
 /**
  * A table that draws only the rows near its view, and scrolls them in its own host.
@@ -40,6 +41,11 @@ import { VirtualizeBaseComponent } from 'tableau-ui-angular/virtualize';
  * `sortMode` multi, Shift+Enter, Shift+Space and Shift+Click add the column to the sort. With selection on, each loaded
  * row has `aria-selected`, and its checkbox is named "Select" and `rowLabel`'s name for it, or its place, "Select row
  * 12".
+ *
+ * A resizable column's header holds a resizer after its button: a focusable `separator` named "Resize" and the
+ * header's text, whose value is the column's width in pixels, "180 pixels". Right and Left change the width by 10px,
+ * 50px with Shift; Home and End take it to its minimum and maximum width, or without a maximum to the table's visible
+ * width; a mouse, a finger or a pen drags it. Each column header is named by its text alone.
  */
 @Component({
   selector: 'tab-table',
@@ -55,6 +61,8 @@ import { VirtualizeBaseComponent } from 'tableau-ui-angular/virtualize';
 })
 export class TableComponent<TData> extends VirtualizeBaseComponent<TData> {
   protected readonly checkboxColWidth = '2.5em';
+  // the start of the ids that name the column headers and their resizers
+  protected readonly ids = generateRandomString();
   // The app's own static role and name on the host. The bindings keep them, since a binding that returned null would
   // remove them at the first change detection
   private readonly appRole = inject(new HostAttributeToken('role'), { optional: true });

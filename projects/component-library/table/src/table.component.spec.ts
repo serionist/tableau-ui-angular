@@ -943,11 +943,35 @@ describe('TableComponent', () => {
       expect(measured).not.toHaveBeenCalled();
       expect(component.server.requests).toEqual([]);
       expect(host.querySelector('.column-row')!.textContent).toContain('Name');
+      // a resizer's role and name, by ids, render there; its width is measured in the browser
+      const separator = host.querySelector('.resizer')!;
+      expect([separator.getAttribute('role'), separator.getAttribute('aria-orientation'), separator.getAttribute('tabindex'), separator.hasAttribute('aria-valuenow')]).toEqual([
+        'separator',
+        'vertical',
+        '0',
+        false,
+      ]);
+      const [resize, text] = separator.getAttribute('aria-labelledby')!.split(' ');
+      expect([host.querySelector(`[id="${resize}"]`)?.textContent, host.querySelector(`[id="${text}"]`)?.textContent.trim()]).toEqual(['Resize', 'Id']);
     } finally {
       delete globals.ngServerMode;
       measured.mockRestore();
       vi.unstubAllGlobals();
     }
+  });
+
+  // A table hidden from the page, as in a closed tab, has no layout, and its flexible columns measured no width
+  it("keeps its resizers' values while it is hidden", async () => {
+    const { host } = await render();
+    const separator = page.getByRole('separator', { name: 'Resize Name', exact: true }).element();
+    const values = () => ['aria-valuenow', 'aria-valuemin', 'aria-valuemax', 'aria-valuetext'].map(name => separator.getAttribute(name));
+    const shown = values();
+    expect(shown[0]).toMatch(/^\d+$/);
+
+    host.style.display = 'none';
+    // two frames: the resize observers have been told
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    expect(values()).toEqual(shown);
   });
 
   it('passes axe with no data, while its first block loads, and with its rows in a multi-sort', async () => {
@@ -969,18 +993,27 @@ describe('TableComponent', () => {
   });
 });
 
-// A table whose id column has tooltips of its own, whose bio column clamps a long text, and whose name column is fixed
+// A table whose id column has tooltips of its own, whose bio column clamps a long text between a minimum and a maximum
+// width, and whose name column is fixed and can be pinned to the right
 @Component({
   imports: [TableauUiTableModule],
   template: `
-    <tab-table #table style="height: 200px; width: 500px" sortMode="multi" [dataOptions]="server.incremental" [dataRowCss]="{ height: '20px', lineHeight: '20px', padding: '0 8px' }" [(sort)]="$sort">
+    <tab-table
+      #table
+      style="height: 200px; width: 500px"
+      sortMode="multi"
+      [dataOptions]="server.incremental"
+      [dataRowCss]="{ height: '20px', lineHeight: '20px', padding: '0 8px' }"
+      [pinnedRightColumn]="$pinnedRight()"
+      [(sort)]="$sort"
+    >
       <ng-container tabColumnDef="id" width="100px">
         <ng-template [tabHeaderDef]="table">Id</ng-template>
         <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.id }}</ng-template>
         <ng-template [tabHeaderTooltipDef]="table">Unique per person</ng-template>
         <ng-template let-ctx [tabCellTooltipDef]="table" [showTooltip]="evenOnly">Person number {{ ctx.row.id }}</ng-template>
       </ng-container>
-      <ng-container tabColumnDef="bio" width="80px" minWidth="40px" [sortable]="false">
+      <ng-container tabColumnDef="bio" width="80px" minWidth="40px" maxWidth="160px" [sortable]="false">
         <ng-template [tabHeaderDef]="table">Bio</ng-template>
         <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.name }} likes long walks</ng-template>
       </ng-container>
@@ -995,8 +1028,26 @@ describe('TableComponent', () => {
 class NotesTableComponent {
   readonly server = new PeopleServer();
   readonly $sort = signal<DataSort[]>([]);
+  readonly $pinnedRight = signal<string | undefined>(undefined);
   readonly evenOnly = (ctx: CellContext<Person>) => ctx.row.id % 2 === 0;
   readonly table = viewChild.required<TableComponent<Person>>(TableComponent);
+}
+
+// A table whose one column's minimum and maximum widths are shares of its header row's width
+@Component({
+  imports: [TableauUiTableModule],
+  template: `
+    <tab-table #table style="height: 200px; width: 500px" [dataOptions]="server.incremental">
+      <ng-container tabColumnDef="name" width="200px" minWidth="20%" maxWidth="50%" [sortable]="false">
+        <ng-template [tabHeaderDef]="table">Name</ng-template>
+        <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.name }}</ng-template>
+      </ng-container>
+    </tab-table>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class SharesTableComponent {
+  readonly server = new PeopleServer();
 }
 
 describe('TableComponent tooltips and column widths', () => {
@@ -1085,9 +1136,11 @@ describe('TableComponent tooltips and column widths', () => {
     const { component, host, header, shows, settle } = await render();
     const button = (column: string) => header(column).querySelector<HTMLElement>('.header-button')!;
     host.focus();
-    // the Id column's button, then the Name column's: Bio's doesn't sort, so it is no Tab stop
-    await userEvent.tab();
-    await userEvent.tab();
+    // the Id column's button and resizer, Bio's resizer, then the Name column's button: Bio's doesn't sort, so its
+    // button is no Tab stop, and Name's column doesn't resize
+    for (let i = 0; i < 4; i++) {
+      await userEvent.tab();
+    }
     expect(document.activeElement).toBe(button('name'));
     await shows('Name Click to sort in Ascending order.');
 
@@ -1098,7 +1151,7 @@ describe('TableComponent tooltips and column widths', () => {
     expect(document.activeElement).toBe(button('name'));
     await shows('Name Currently sorted in Ascending order. Click to sort in Descending order.');
 
-    await userEvent.keyboard('{Shift>}{Tab}{/Shift}');
+    await userEvent.keyboard('{Shift>}{Tab}{Tab}{Tab}{/Shift}');
     expect(document.activeElement).toBe(button('id'));
     await userEvent.keyboard('{Shift>}{Enter}{/Shift}');
     await component.server.answerAll(settle);
@@ -1140,11 +1193,11 @@ describe('TableComponent tooltips and column widths', () => {
     expect(document.activeElement).toBe(button('name'));
     expect(ring('name')).toEqual(['none', 'none']);
 
-    // the keyboard's focus shows it, on the next button and back on this one
-    await userEvent.keyboard('{Shift>}{Tab}{/Shift}');
+    // the keyboard's focus shows it, on the button before, past two resizers, and back on this one
+    await userEvent.keyboard('{Shift>}{Tab}{Tab}{Tab}{/Shift}');
     expect(document.activeElement).toBe(button('id'));
     expect(ring('id')[0]).toBe('solid');
-    await userEvent.tab();
+    await userEvent.keyboard('{Tab}{Tab}{Tab}');
     expect(document.activeElement).toBe(button('name'));
     expect(ring('name')[0]).toBe('solid');
 
@@ -1156,26 +1209,280 @@ describe('TableComponent tooltips and column widths', () => {
     expect(component.$sort()).toEqual([{ property: 'name', direction: 'asc' }]);
   });
 
-  it('widens a column by the distance its edge is dragged, and its cells with it', async () => {
-    const { header, cell, host } = await render();
-    const resizer = header('id').querySelector<HTMLElement>('.resizer')!;
-    const start = header('id').getBoundingClientRect().width;
-    const x = resizer.getBoundingClientRect().left + 1;
+  // #67: the resizer took no focus and followed the mouse alone, so a keyboard, touch or pen user couldn't resize a column
+  describe('resizers', () => {
+    const resizer = (host: HTMLElement, column: string) => host.querySelector<HTMLElement>(`.column-header[data-column-id="${column}"] .resizer`)!;
+    const widthOf = (host: HTMLElement, column: string) => host.querySelector(`.column-header[data-column-id="${column}"]`)!.getBoundingClientRect().width;
+    const button = (host: HTMLElement, column: string) => host.querySelector<HTMLElement>(`.column-header[data-column-id="${column}"] .header-button`)!;
+    // what a screen reader reads of a resizer: its width, its bounds and its width in words
+    const values = (separator: Element) => ['aria-valuenow', 'aria-valuemin', 'aria-valuemax', 'aria-valuetext'].map(name => separator.getAttribute(name));
 
-    resizer.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, clientX: x }));
-    document.dispatchEvent(new MouseEvent('mousemove', { bubbles: true, clientX: x + 40 }));
-    document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, clientX: x + 40 }));
+    it('is a vertical separator named Resize and its header, whose value is the width in pixels, between its bounds', async () => {
+      const { host, header } = await render();
+      const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
 
-    expect(header('id').getBoundingClientRect().width).toBe(start + 40);
-    await vi.waitFor(() => {
-      expect(cell(0, 'id').getBoundingClientRect().width).toBe(start + 40);
+      expect(page.getByRole('separator', { name: 'Resize Id', exact: true }).element()).toBe(resizer(host, 'id'));
+      expect(page.getByRole('separator', { name: 'Resize Bio', exact: true }).element()).toBe(resizer(host, 'bio'));
+      expect([resizer(host, 'id').getAttribute('aria-orientation'), resizer(host, 'id').getAttribute('tabindex')]).toEqual(['vertical', '0']);
+      // a column that doesn't resize has none
+      expect(header('name').querySelector('.resizer')).toBeNull();
+      expect(host.querySelectorAll('[role="separator"]').length).toBe(2);
+
+      // Bio's own bounds, 40px to 160px
+      expect(values(resizer(host, 'bio'))).toEqual(['80', '40', '160', '80 pixels']);
+      // Id has no maximum, so the table's visible width is its maximum; its minimum is the default 5rem
+      expect(host.clientWidth).toBeGreaterThan(100);
+      expect(values(resizer(host, 'id'))).toEqual(['100', String(5 * rem), String(host.clientWidth), '100 pixels']);
+
+      // a column header is named by its text alone, not by its resizer's name too
+      expect(page.getByRole('columnheader', { name: 'Id', exact: true }).element()).toBe(header('id'));
+      expect(page.getByRole('columnheader', { name: 'Bio', exact: true }).element()).toBe(header('bio'));
+      expect(page.getByRole('columnheader', { name: 'Name', exact: true }).element()).toBe(header('name'));
     });
-    // a later move, with the button up, changes nothing
-    document.dispatchEvent(new MouseEvent('mousemove', { bubbles: true, clientX: x + 100 }));
-    expect(header('id').getBoundingClientRect().width).toBe(start + 40);
-    // a column that is not resizable has no edge to drag
-    expect(header('name').querySelector('.resizer')).toBeNull();
-    expect(host.querySelectorAll('.resizer').length).toBe(2);
+
+    it("keeps a column with no maximum width up to the table's visible width, or its own where that is wider", async () => {
+      const { host } = await render();
+
+      host.style.width = '300px';
+      await vi.waitFor(() => {
+        expect(resizer(host, 'id').getAttribute('aria-valuemax')).toBe(String(host.clientWidth));
+      });
+      expect(host.clientWidth).toBeLessThan(300);
+
+      // narrower than the column, whose width is then its maximum
+      host.style.width = '60px';
+      await vi.waitFor(() => {
+        expect(host.clientWidth).toBeLessThan(80);
+        const [now, , max] = values(resizer(host, 'id'));
+        expect(max).toBe(now);
+      });
+      expect(resizer(host, 'bio').getAttribute('aria-valuemax')).toBe('160');
+    });
+
+    it('widens and narrows its column by 10px on Right and Left, 50px with Shift, and takes it to its bounds on Home and End', async () => {
+      const { fixture, component, host, cell } = await render();
+      const press = async (keys: string) => {
+        await userEvent.keyboard(keys);
+        await fixture.whenStable();
+      };
+      const bio = resizer(host, 'bio');
+      bio.focus();
+
+      await press('{ArrowRight}');
+      expect([widthOf(host, 'bio'), ...values(bio)]).toEqual([90, '90', '40', '160', '90 pixels']);
+      await press('{Shift>}{ArrowRight}{/Shift}');
+      expect([widthOf(host, 'bio'), ...values(bio)]).toEqual([140, '140', '40', '160', '140 pixels']);
+      // no wider than its maximum
+      await press('{Shift>}{ArrowRight}{/Shift}');
+      expect(widthOf(host, 'bio')).toBe(160);
+      await press('{ArrowRight}');
+      expect([widthOf(host, 'bio'), ...values(bio)]).toEqual([160, '160', '40', '160', '160 pixels']);
+      await press('{Shift>}{ArrowLeft}{/Shift}');
+      await press('{ArrowLeft}');
+      expect(widthOf(host, 'bio')).toBe(100);
+      // its cells follow it
+      await vi.waitFor(() => {
+        expect(cell(0, 'bio').getBoundingClientRect().width).toBe(100);
+      });
+
+      // Home and End: its minimum, no narrower, then its maximum
+      await press('{Home}');
+      await press('{ArrowLeft}');
+      expect([widthOf(host, 'bio'), ...values(bio)]).toEqual([40, '40', '40', '160', '40 pixels']);
+      await press('{End}');
+      expect([widthOf(host, 'bio'), values(bio)[0]]).toEqual([160, '160']);
+
+      // a column with no maximum: End takes it to the table's visible width, the columns then wider than the table; the
+      // table under it scrolls neither way
+      const id = resizer(host, 'id');
+      id.focus();
+      const visible = host.clientWidth;
+      await press('{End}');
+      expect([widthOf(host, 'id'), ...values(id)]).toEqual([visible, String(visible), '80', String(visible), `${visible} pixels`]);
+      await press('{Home}');
+      expect(widthOf(host, 'id')).toBe(80);
+      expect([host.scrollTop, host.scrollLeft]).toEqual([0, 0]);
+
+      // keys with Alt, Ctrl or Meta are the browser's and the app's
+      for (const modifier of ['altKey', 'ctrlKey', 'metaKey']) {
+        const key = new KeyboardEvent('keydown', { key: 'ArrowRight', [modifier]: true, bubbles: true, cancelable: true });
+        id.dispatchEvent(key);
+        expect(key.defaultPrevented, modifier).toBe(false);
+      }
+      await fixture.whenStable();
+      expect(widthOf(host, 'id')).toBe(80);
+      // and none of it sorts
+      expect(component.$sort()).toEqual([]);
+    });
+
+    it("comes after its header's button in the Tab order, and a key or a click on it sorts nothing", async () => {
+      const { fixture, component, host, settle } = await render();
+      host.focus();
+      const order: (Element | null)[] = [];
+      for (let i = 0; i < 4; i++) {
+        await userEvent.tab();
+        order.push(document.activeElement);
+      }
+      // Bio's button doesn't sort, so it is no Tab stop; Name's column doesn't resize
+      expect(order).toEqual([button(host, 'id'), resizer(host, 'id'), resizer(host, 'bio'), button(host, 'name')]);
+      await userEvent.keyboard('{Shift>}{Tab}{/Shift}');
+      expect(document.activeElement).toBe(resizer(host, 'bio'));
+
+      resizer(host, 'id').focus();
+      await userEvent.keyboard('{Enter}{ }{Shift>}{Enter}{/Shift}');
+      await userEvent.click(resizer(host, 'id'));
+      await settle();
+      await fixture.whenStable();
+      expect(component.$sort()).toEqual([]);
+      expect(widthOf(host, 'id')).toBe(100);
+    });
+
+    it('widens a column by the distance a mouse drags its edge, following the pointer past the edge, and sorts nothing', async () => {
+      const { component, host, header, cell } = await render();
+      const edge = resizer(host, 'id');
+      const box = edge.getBoundingClientRect();
+      // a whole pixel half way across the edge, then 100px to its right, over the Name column's sortable button; a
+      // position is from the padding box, and the header has no border
+      const x = Math.round(box.left + box.width / 2);
+      const y = Math.round(box.top + box.height / 2);
+      const over = header('name').getBoundingClientRect();
+      expect(x + 100).toBeGreaterThan(button(host, 'name').getBoundingClientRect().left);
+
+      await userEvent.dragAndDrop(edge, header('name'), {
+        sourcePosition: { x: x - box.left, y: y - box.top },
+        targetPosition: { x: x + 100 - over.left, y: y - over.top },
+      });
+
+      expect(widthOf(host, 'id')).toBe(200);
+      await vi.waitFor(() => {
+        expect(cell(0, 'id').getBoundingClientRect().width).toBe(200);
+      });
+      expect(component.$sort()).toEqual([]);
+      expect(edge.classList.contains('dragging')).toBe(false);
+      expect(document.body.style.userSelect).toBe('');
+      // the press focused it, as a native control's does, with no ring for the pointer's focus
+      expect(document.activeElement).toBe(edge);
+      expect(edge.matches(':focus-visible')).toBe(false);
+
+      // a later move, with the button up, changes nothing
+      await userEvent.hover(header('name'));
+      expect(widthOf(host, 'id')).toBe(200);
+    });
+
+    it('follows a finger or a pen, the pointer captured, and only that pointer', async () => {
+      const { host } = await render();
+      const edge = resizer(host, 'bio');
+      // what pointer capture would route here: events made in a test belong to no pointer the browser tracks
+      const captured = vi.spyOn(edge, 'setPointerCapture').mockImplementation(() => undefined);
+      const send = (type: string, init: PointerEventInit) => {
+        edge.dispatchEvent(new PointerEvent(type, { bubbles: true, cancelable: true, isPrimary: true, button: type === 'pointermove' ? -1 : 0, ...init }));
+      };
+      // a touch drags it, where it would scroll the table
+      expect(getComputedStyle(edge).touchAction).toBe('none');
+
+      for (const [pointerType, pointerId] of [
+        ['touch', 7],
+        ['pen', 8],
+      ] as const) {
+        const start = widthOf(host, 'bio');
+        const x = edge.getBoundingClientRect().left + 4;
+        send('pointerdown', { pointerType, pointerId, clientX: x });
+        expect(captured, pointerType).toHaveBeenLastCalledWith(pointerId);
+        expect([edge.classList.contains('dragging'), document.body.style.userSelect], pointerType).toEqual([true, 'none']);
+
+        send('pointermove', { pointerType, pointerId, clientX: x + 30 });
+        // a second finger moves nothing
+        send('pointermove', { pointerType, pointerId: 9, isPrimary: false, clientX: x + 70 });
+        expect(widthOf(host, 'bio'), pointerType).toBe(start + 30);
+        send('pointerup', { pointerType, pointerId, clientX: x + 30 });
+
+        expect([edge.classList.contains('dragging'), document.body.style.userSelect], pointerType).toEqual([false, '']);
+        send('pointermove', { pointerType, pointerId, clientX: x + 50 });
+        expect(widthOf(host, 'bio'), pointerType).toBe(start + 30);
+        await vi.waitFor(() => {
+          expect(values(edge)[0], pointerType).toBe(String(start + 30));
+        });
+      }
+    });
+
+    it('ends a drag the browser cancels, or whose capture is lost, where the column is; a press of another button drags nothing', async () => {
+      const { host } = await render();
+      const edge = resizer(host, 'bio');
+      vi.spyOn(edge, 'setPointerCapture').mockImplementation(() => undefined);
+      const send = (type: string, clientX: number, button = -1) => {
+        edge.dispatchEvent(new PointerEvent(type, { bubbles: true, cancelable: true, isPrimary: true, pointerType: 'pen', pointerId: 8, button, clientX }));
+      };
+      const x = edge.getBoundingClientRect().left + 4;
+
+      send('pointerdown', x, 0);
+      send('pointermove', x + 20);
+      expect(document.body.style.userSelect).toBe('none');
+      send('pointercancel', x + 20);
+      expect([edge.classList.contains('dragging'), document.body.style.userSelect]).toEqual([false, '']);
+      send('pointermove', x + 60);
+      expect(widthOf(host, 'bio')).toBe(100);
+
+      send('pointerdown', x + 20, 0);
+      send('pointermove', x + 30);
+      send('lostpointercapture', x + 30);
+      expect(edge.classList.contains('dragging')).toBe(false);
+      send('pointermove', x + 60);
+      expect(widthOf(host, 'bio')).toBe(110);
+
+      // the right button
+      send('pointerdown', x + 30, 2);
+      expect(edge.classList.contains('dragging')).toBe(false);
+      send('pointermove', x + 60);
+      expect(widthOf(host, 'bio')).toBe(110);
+    });
+
+    it('shows its focus ring on all four edges, beside a column pinned to the right too', async () => {
+      TestBed.createComponent(LibraryStylesComponent);
+      const { fixture, component, host, header } = await render();
+      host.focus();
+      await userEvent.keyboard('{Tab}{Tab}');
+
+      expect(document.activeElement).toBe(resizer(host, 'id'));
+      expect(resizer(host, 'id').matches(':focus-visible')).toBe(true);
+      await inEachMode(async mode => {
+        expect(await focusRingShown(resizer(host, 'id')), mode).toEqual({ top: 1, right: 1, bottom: 1, left: 1 });
+      });
+
+      // Bio's resizer reaches half into the pinned column, which is drawn above the columns it passes over
+      component.$pinnedRight.set('name');
+      await fixture.whenStable();
+      expect(header('name').classList.contains('pinned-right')).toBe(true);
+      await userEvent.tab();
+      expect(document.activeElement).toBe(resizer(host, 'bio'));
+      await inEachMode(async mode => {
+        expect(await focusRingShown(resizer(host, 'bio')), mode).toEqual({ top: 1, right: 1, bottom: 1, left: 1 });
+      });
+    });
+
+    it("takes a minimum and a maximum width in percent as shares of the header row's width", async () => {
+      const fixture = TestBed.createComponent(SharesTableComponent);
+      fixture.autoDetectChanges();
+      await fixture.whenStable();
+      const host = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('tab-table')!;
+      const row = host.querySelector('.column-row')!.clientWidth;
+      const separator = page.getByRole('separator', { name: 'Resize Name', exact: true }).element() as HTMLElement;
+
+      expect(values(separator)).toEqual(['200', String(Math.round(row * 0.2)), String(Math.round(row * 0.5)), '200 pixels']);
+      separator.focus();
+      await userEvent.keyboard('{End}');
+      expect(Math.round(widthOf(host, 'name'))).toBe(Math.round(row * 0.5));
+      await userEvent.keyboard('{Home}');
+      expect(Math.round(widthOf(host, 'name'))).toBe(Math.round(row * 0.2));
+    });
+
+    it('passes axe with a resizer focused and its column resized', async () => {
+      const { fixture, host } = await render();
+      resizer(host, 'bio').focus();
+      await userEvent.keyboard('{ArrowRight}');
+      await fixture.whenStable();
+
+      expect(await axeViolations(fixture.nativeElement as HTMLElement)).toEqual([]);
+    });
   });
 });
 

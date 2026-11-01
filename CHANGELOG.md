@@ -187,6 +187,14 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   each loaded row has `aria-selected`, so a row selected by a click is not told by its colour alone.
 - A table's select-none header checkbox clears a selection of every row, where it showed checked and stayed disabled
   once every row was selected by hand; it is disabled only while nothing is selected.
+- A table's columns resize from the keyboard, and by touch and pen, where only a mouse could drag them. A resizable
+  column's edge is a separator in the Tab order after its header's button, named "Resize" and the header's text, whose
+  value is the column's width in pixels, between its minimum and maximum. Right and Left change the width by 10px, 50px
+  with Shift; Home and End take it to its minimum and maximum, or without a maximum to the table's visible width. A
+  drag follows the pointer past the edge, and a resized column keeps its width where the columns are wider than the
+  table, where it narrowed. Each column header is named by its text alone, without its sort's place or its resizer's
+  name. A test that dragged an edge with mouse events sends pointer events: `pointerdown`, `pointermove` and
+  `pointerup` on the edge.
 
 ## 0.2.0 (2026-10-31)
 

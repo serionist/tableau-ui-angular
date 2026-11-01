@@ -69,6 +69,12 @@
           With selection on, each row's checkbox is named "Select" and the name <code>rowLabel</code> gives the row, such as "Select User 12", or its place without one, "Select row 12". The header's
           checkbox is named "Select all rows" or "Clear the selection", and the column "Selection". Each loaded row says whether it is selected (<code>aria-selected</code>).
         </li>
+        <li>
+          A resizable column's edge is a separator in the Tab order, after its header's button, named "Resize" and the header's text, such as "Resize Name". A screen reader hears the column's width in
+          pixels, and its minimum and maximum. Right and Left widen and narrow the column by 10 pixels, 50 with Shift; Home and End take it to its minimum and maximum width, or without a maximum to
+          the table's visible width. A mouse, a finger or a pen drags it.
+        </li>
+        <li>Each column header is named by its text alone, so a cell's column is read without its sort's place or its resizer's name.</li>
       </ul>
     </div>
   </div>
