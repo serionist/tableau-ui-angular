@@ -1,5 +1,8 @@
+// The host is the containing block of the announcement below, so it never reaches past the control into a scrolling
+// ancestor
 :host {
   display: flex;
+  position: relative;
   gap: 0.5rem;
   flex-wrap: wrap;
   outline: none;

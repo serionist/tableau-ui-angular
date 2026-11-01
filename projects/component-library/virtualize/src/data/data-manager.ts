@@ -45,13 +45,16 @@ export class DataManager<TData> {
   private get currentBlocks() {
     return untracked(this.$_blocks).blocks;
   }
-  private resetting = false;
+  // Scrolling moves the blocks once the newest reset's first block has loaded, and with it the row count. Until then
+  // the count is 0, unknown, and a scroll would drop that block for "No data available", so it keeps the block, loading
+  // or failed, until the next reset
+  private scrolls = false;
   // Each reset and destroy() starts a generation; what an older one's loads answer after it is dropped, so a reset
   // that a newer one overtook writes nothing the newer one owns
   private generation = 0;
   public async reset(dataWindowHeightPx: number, dataRowHeightPx: number, sort: DataSort[], dataBlockWindow: number, dataOptions: DataOptions<TData>) {
     const generation = ++this.generation;
-    this.resetting = true;
+    this.scrolls = false;
     this.dataOptions = dataOptions;
     this.dataRowHeightPx = dataRowHeightPx;
     this.dataWindowHeightPx = dataWindowHeightPx;
@@ -75,7 +78,6 @@ export class DataManager<TData> {
         postPixels: 0,
       });
       cancelPrevious();
-      this.resetting = false;
       return;
     }
 
@@ -103,7 +105,6 @@ export class DataManager<TData> {
       initialBlock = this.getBlock(0);
     } else {
       cancelPrevious();
-      this.resetting = false;
       throw new Error('Unsupported data options type');
     }
 
@@ -122,16 +123,16 @@ export class DataManager<TData> {
       if (generation !== this.generation) {
         return;
       }
-      // reported already, by the block or by the full load it was cut from
+      // reported already, by the block or by the full load it was cut from; the block's failed rows stay, whatever the
+      // scroll, until a reset loads again
       this.cdr.markForCheck();
-      this.resetting = false;
       return;
     }
     if (generation !== this.generation) {
       return;
     }
     this.cdr.markForCheck();
-    this.resetting = false;
+    this.scrolls = true;
     this.setScrollPosition(0);
   }
 
@@ -204,7 +205,7 @@ export class DataManager<TData> {
   }
 
   setScrollPosition(topPx: number) {
-    if (this.resetting) {
+    if (!this.scrolls) {
       return;
     }
     // get the block IDs in the current viewPort

@@ -283,6 +283,43 @@ describe('VirtualizeComponent', () => {
     }
   });
 
+  // #119: a failed first block left the row count at 0, so the first scroll event dropped its rows, which said they
+  // failed, and showed "No data available"
+  it.each(['incremental', 'full'] as const)('keeps the failed rows of its first block through a scroll, until a reload loads the data, with %s data', async options => {
+    await whileLoadsFail(async () => {
+      const { component, host, server, shown, settle, scrollTo } = await render(c => {
+        c.$options.set(c.server[options]);
+        c.$errorTemplate.set(false);
+      });
+      const sizes = () => Array.from(host.querySelectorAll('.item'), item => item.getAttribute('aria-setsize'));
+      const loading = component.list().load();
+      await settle();
+      server.waiting[0].fail();
+      await settle();
+      expect(await loading).toBe(true);
+
+      // the ten failed rows fill the list, so it can't move: the event comes, as when a table scrolls sideways
+      host.dispatchEvent(new Event('scroll'));
+      await settle();
+
+      expect(host.textContent).not.toContain('No data available');
+      expect(shown()).toEqual(Array.from({ length: 10 }, () => 'Failed to load'));
+      // the total is still unknown
+      expect(sizes()).toEqual(Array.from({ length: 10 }, () => '-1'));
+      expect(server.requests).toHaveLength(1);
+
+      const reloading = component.list().reload();
+      await server.answerAll(settle);
+
+      expect(await reloading).toBe(true);
+      expect(shown().slice(0, 3)).toEqual(['Person 1', 'Person 2', 'Person 3']);
+      expect(sizes()[0]).toBe('100');
+      // and scrolling moves the rows again
+      await scrollTo(1200);
+      expect(shown()).toContain('Person 61');
+    });
+  });
+
   // an app's effect that called reload() took the sort the reload read as its own input, so a sort change ran it
   // again, and the data loaded twice
   it('loads once for a sort change after an app effect reloaded it', async () => {

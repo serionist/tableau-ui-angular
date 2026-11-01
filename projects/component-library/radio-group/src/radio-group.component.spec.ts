@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { userEvent } from 'vitest/browser';
+import { page, userEvent } from 'vitest/browser';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
 import { axeViolations } from '../../testing/axe';
 import { TableauUiRadioGroupModule } from './tableau-ui-radio-group.module';
@@ -9,17 +9,22 @@ import { TableauUiRadioGroupModule } from './tableau-ui-radio-group.module';
 @Component({
   imports: [ReactiveFormsModule, TableauUiRadioGroupModule, TableauUiCommonModule],
   template: `
-    <tab-radio-group [formControl]="control" (valueChange)="changes.push($event)">
+    <tab-radio-group aria-label="Size" aria-describedby="size-note" [formControl]="control" (valueChange)="changes.push($event)">
       <tab-option text="Small" icon="local_cafe" [value]="'s'" />
       <tab-option text="Medium" [value]="'m'" />
       <tab-option text="Large" hint="Not today" [value]="'l'" [disabled]="true" />
+      @if ($invalid()) {
+        <tab-error>Pick a size</tab-error>
+      }
     </tab-radio-group>
+    <p id="size-note">Sizes run large</p>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class SizeComponent {
   readonly control = new FormControl<string | null>('s');
   readonly changes: unknown[] = [];
+  readonly $invalid = signal(false);
 }
 
 describe('RadioGroupComponent', () => {
@@ -117,6 +122,71 @@ describe('RadioGroupComponent', () => {
 
     radios[1].blur();
     expect(control.touched).toBe(true);
+  });
+
+  // #53: the options read as loose radios, with nothing that said they belong together or what they answer
+  it('is a radiogroup named by its aria-label', async () => {
+    const { host } = await render();
+
+    expect(page.getByRole('radiogroup', { name: 'Size', exact: true }).element()).toBe(host.querySelector('tab-radio-group'));
+  });
+
+  // #52: the error was not linked to the group
+  it("is described by its error while it shows, and invalid then, the app's own description kept", async () => {
+    const { fixture, host } = await render();
+    const group = host.querySelector<HTMLElement>('tab-radio-group')!;
+
+    await expect.element(group).toHaveAccessibleDescription('Sizes run large');
+    expect(group.hasAttribute('aria-invalid')).toBe(false);
+
+    fixture.componentInstance.$invalid.set(true);
+    await fixture.whenStable();
+    await expect.element(group).toHaveAccessibleDescription('Sizes run large Pick a size');
+    expect(group.getAttribute('aria-invalid')).toBe('true');
+    expect(await axeViolations(host)).toEqual([]);
+
+    fixture.componentInstance.$invalid.set(false);
+    await fixture.whenStable();
+    expect(group.getAttribute('aria-describedby')).toBe('size-note');
+    expect(group.hasAttribute('aria-invalid')).toBe(false);
+  });
+
+  // An app's own bound attribute rewrote the whole attribute, which wiped the group's error id until the error next
+  // changed
+  it("writes its error's id and aria-invalid again when an app's own binding rewrites them", async () => {
+    @Component({
+      imports: [TableauUiRadioGroupModule, TableauUiCommonModule],
+      template: `
+        <tab-radio-group aria-label="Size" [attr.aria-describedby]="$note()" [attr.aria-invalid]="$invalid()">
+          <tab-option text="Small" [value]="'s'" />
+          <tab-error>Pick a size</tab-error>
+        </tab-radio-group>
+        <p id="note-a">The first note</p>
+        <p id="note-b">The second note</p>
+      `,
+      changeDetection: ChangeDetectionStrategy.OnPush,
+    })
+    class BoundGroupComponent {
+      readonly $note = signal('note-a');
+      readonly $invalid = signal<string | null>(null);
+    }
+    const fixture = TestBed.createComponent(BoundGroupComponent);
+    fixture.autoDetectChanges();
+    await fixture.whenStable();
+    const group = (fixture.nativeElement as HTMLElement).querySelector('tab-radio-group')!;
+    const errorId = group.querySelector('.extra-info')!.id;
+    expect(group.getAttribute('aria-describedby')).toBe(`note-a ${errorId}`);
+    expect(group.getAttribute('aria-invalid')).toBe('true');
+
+    // the app's bindings write both attributes whole while the error shows
+    fixture.componentInstance.$note.set('note-b');
+    fixture.componentInstance.$invalid.set('false');
+    await fixture.whenStable();
+    // the group hears the rewrite through an observer
+    await new Promise(resolve => setTimeout(resolve));
+
+    expect(group.getAttribute('aria-describedby')).toBe(`note-b ${errorId}`);
+    expect(group.getAttribute('aria-invalid')).toBe('true');
   });
 
   it('passes axe', async () => {

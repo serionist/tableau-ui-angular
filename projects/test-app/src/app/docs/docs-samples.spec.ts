@@ -201,6 +201,11 @@ describe('The samples', () => {
     await fixture.whenStable();
     expect(host.contains(document.activeElement)).toBe(true);
     expect(errors()).toEqual(['The largest size is Large']);
+    // a radio group named by the question above it, through aria-labelledby, and described by its error
+    const group = page.getByRole('radiogroup', { name: 'Size', exact: true }).element();
+    expect(group).toBe(host.querySelector('tab-radio-group'));
+    await expect.element(group).toHaveAccessibleDescription('The largest size is Large');
+    expect(group.getAttribute('aria-invalid')).toBe('true');
     fixture.destroy();
   });
 
@@ -588,6 +593,8 @@ describe('The samples', () => {
         handle.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }));
         await fixture.whenStable();
       };
+      // the layout panel's own region, not one of the form fields' error regions
+      const moved = () => host.querySelector('span.hidden[aria-live]')!.textContent.trim();
       tab('Overview').click();
       await fixture.whenStable();
 
@@ -603,11 +610,11 @@ describe('The samples', () => {
       await moveUp('customer');
       expect(headers()).toEqual(['id', 'customer', 'date', 'product', 'quantity', 'sales', 'profit']);
       expect(document.activeElement).toBe(column('customer').querySelector('[data-handle]'));
-      expect(host.querySelector('[aria-live]')!.textContent.trim()).toBe('Customer moved to place 2 of 8');
+      expect(moved()).toBe('Customer moved to place 2 of 8');
 
       await moveUp('date');
       expect(headers()).toEqual(['id', 'date', 'customer', 'product', 'quantity', 'sales', 'profit']);
-      expect(host.querySelector('[aria-live]')!.textContent.trim()).toBe('Date moved to place 2 of 8');
+      expect(moved()).toBe('Date moved to place 2 of 8');
       fixture.destroy();
     });
 
