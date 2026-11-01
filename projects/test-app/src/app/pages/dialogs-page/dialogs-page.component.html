@@ -52,5 +52,21 @@
       </p>
       <app-docs-example [example]="examples.custom" />
     </div>
+
+    <div class="section">
+      <h3>Overlays in a modal</h3>
+      <p>
+        A tooltip, a snack, a modal, or a dialog the app opens with <code>openDialog()</code> or <code>openTemplateDialog()</code>, opened while a modal is open, goes into that modal: it sits above
+        the modal's content and takes its clicks. A select's list, an autocomplete's suggestions and a menu sit after their element, so in the modal already. A modal that closes first closes the
+        dialogs in it, top first, and the snacks go back to the page.
+      </p>
+      <p>
+        <code>$overlayHost()</code> is where an overlay opened now belongs: the topmost modal's container, or <code>null</code> while no modal is open, for the body. An app that appends an overlay of
+        its own to the body appends it to <code>$overlayHost() ?? document.body</code> instead. When the modal closes, the service moves what the app put in it on to the next host, the modal below or
+        the body; the app removes what should go with the modal. The overlays are <code>position: fixed</code> in the modal's container, so a <code>transform</code>, <code>filter</code> or
+        <code>contain</code> on <code>.dialog-container</code> would move and clip them.
+      </p>
+      <app-docs-example [example]="examples.overlays" />
+    </div>
   </div>
 </div>

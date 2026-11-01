@@ -1,5 +1,5 @@
-import type { ComponentRef, EmbeddedViewRef, OnDestroy, TemplateRef, Type, ViewRef } from '@angular/core';
-import { ApplicationRef, createComponent, DOCUMENT, EnvironmentInjector, inject, Injectable, Injector, PLATFORM_ID } from '@angular/core';
+import type { ComponentRef, EmbeddedViewRef, OnDestroy, Signal, TemplateRef, Type, ViewRef } from '@angular/core';
+import { ApplicationRef, createComponent, DOCUMENT, EnvironmentInjector, inject, Injectable, Injector, PLATFORM_ID, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import type { DialogRef, IDialogRef } from './dialog.ref';
 import { TAB_DIALOG_REF, DialogRefInternal } from './dialog.ref';
@@ -26,6 +26,27 @@ export class DialogService implements OnDestroy {
   // The server shows no dialog: it has no layout and no user, and a dialog rendered there would stay in the page as
   // dead HTML, since the browser renders the app again
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+
+  // The containers of the open modals, the bottom one first
+  private readonly modalContainers: HTMLElement[] = [];
+  private readonly $host = signal<HTMLElement | null>(null);
+  /**
+   * Where an overlay opened now belongs: the container of the topmost open modal, or `null` while no modal is open,
+   * for the body.
+   *
+   * The service puts a dialog it opens with `GlobalStackOptions` there, its backdrop included: a tooltip, a dialog the
+   * app opens with `openDialog()` or `openTemplateDialog()`, a modal opened from a modal. The snack service moves its
+   * stack there too. A dialog with `LocalStackOptions`, such as a select's list or a menu, sits after its element, in
+   * the modal already. Such an overlay sits above the modal's content and takes its clicks, and the modal, when it
+   * closes, first closes the dialogs inside it, top first.
+   *
+   * An app that appends an overlay of its own to the body, opened from a modal, appends it here instead
+   * (`$overlayHost() ?? document.body`). An element the app or the snack service put in a modal's container moves on
+   * to the next host when the modal closes, the modal below or the body; one that should go with the modal, the app
+   * removes. The overlays are `position: fixed` children of the modal's container, so a `transform`, `filter` or
+   * `contain` on `.dialog-container` would move and clip them.
+   */
+  readonly $overlayHost: Signal<HTMLElement | null> = this.$host.asReadonly();
 
   openModal<TComponent, TData, TResult>(component: Type<TComponent>, data: TData, args?: IModalArgs): DialogRef<TResult> {
     return this._openModal<TData, TResult>((injector: Injector) => this.createView(component, injector), data, args);
@@ -71,7 +92,7 @@ export class DialogService implements OnDestroy {
       trapFocus: true,
     } as IDialogArgs;
 
-    const ref = this._openDialog<TData, TResult>(getViewRef, data, a);
+    const ref = this._openDialog<TData, TResult>(getViewRef, data, a, new GlobalStackOptions(), true);
     return ref;
   }
 
@@ -163,18 +184,35 @@ export class DialogService implements OnDestroy {
     args: IDialogArgs;
   }[] = [];
 
+  /**
+   * Shows a template in a dialog that `args` sets up. With `GlobalStackOptions`, the default, it goes into
+   * `$overlayHost()`: opened while a modal is open, it sits in that modal and closes with it.
+   */
   openTemplateDialog<TContext, TResult>(contentTemplate: TemplateRef<TContext>, args: IDialogArgs, contentTemplateContext: TContext, stackOptions: StackOptions = new GlobalStackOptions()) {
     return this._openDialog<TContext, TResult>((injector: Injector) => contentTemplate.createEmbeddedView(contentTemplateContext, injector), contentTemplateContext, args, stackOptions);
   }
 
+  /**
+   * Shows a component in a dialog that `args` sets up. With `GlobalStackOptions`, the default, it goes into
+   * `$overlayHost()`: opened while a modal is open, it sits in that modal and closes with it.
+   */
   openDialog<TComponent, TData, TResult>(component: Type<TComponent>, data: TData, args: IDialogArgs = {}, stackOptions: StackOptions = new GlobalStackOptions()): DialogRef<TResult> {
     return this._openDialog<TData, TResult>((injector: Injector) => this.createView(component, injector), data, args, stackOptions);
   }
-  private _openDialog<TData, TResult>(getViewRef: (injector: Injector) => ViewRef, data: TData, args: IDialogArgs = {}, stackOptions: StackOptions = new GlobalStackOptions()): DialogRef<TResult> {
+  private _openDialog<TData, TResult>(
+    getViewRef: (injector: Injector) => ViewRef,
+    data: TData,
+    args: IDialogArgs = {},
+    stackOptions: StackOptions = new GlobalStackOptions(),
+    modal = false,
+  ): DialogRef<TResult> {
     if (!this.isBrowser) {
       // a dialog that is never shown; closing it still tells its caller
       return new DialogRefInternal<TResult>();
     }
+    // A dialog with GlobalStackOptions, and its backdrop, go into the topmost modal while one is open, so it sits above
+    // the modal's content and is part of the modal: a modal shown in the top layer covers what is outside it, inert
+    const host = this.modalContainers.at(-1) ?? this.document.body;
     let trappedFocus:
       | {
           elements: {
@@ -199,7 +237,7 @@ export class DialogService implements OnDestroy {
     this.dialogStack.push({ dialogRef, zIndex, args });
 
     // Set the backdrop
-    const backdrop = this.createBackdrop(args, dialogRef, zIndex - 1, stackOptions);
+    const backdrop = this.createBackdrop(args, dialogRef, zIndex - 1, stackOptions, host);
     this.setEscapeHandler();
 
     // Create an injector that provides the DialogRef
@@ -217,8 +255,9 @@ export class DialogService implements OnDestroy {
     this.appRef.attachView(componentView);
 
     // Create a container for the dialog
-    const { dialogElement, headerIcon } = this.createDialogElement(componentView, args, injector, dialogRef, zIndex);
-    // the tooltip directive reads it from the DialogRef openDialog returns, to give the tooltip its role, id and pointer
+    const { dialogElement, headerElement, headerIcon } = this.createDialogElement(componentView, args, injector, dialogRef, zIndex);
+    // the tooltip directive reads it from the DialogRef openDialog returns, to give the tooltip its role, id and pointer;
+    // the service reads it to find the dialogs inside another
     dialogRef.dialogElement = dialogElement;
 
     // always insert element after the backdrop
@@ -227,7 +266,11 @@ export class DialogService implements OnDestroy {
     } else if (stackOptions instanceof LocalStackOptions) {
       stackOptions.insertAfterElement.insertAdjacentElement('afterend', dialogElement);
     } else {
-      this.document.body.appendChild(dialogElement);
+      host.appendChild(dialogElement);
+    }
+    if (modal) {
+      this.modalContainers.push(dialogElement);
+      this.$host.set(dialogElement);
     }
 
     // Handle container position and window resize event
@@ -239,6 +282,22 @@ export class DialogService implements OnDestroy {
 
     // Handle dialog close
     dialogRef.closed$.subscribe(() => {
+      // first the dialogs inside it, so none stays on the stack without its element or takes the next Escape
+      this.closeDialogsInside(dialogRef, dialogElement);
+      if (modal) {
+        this.modalContainers.splice(this.modalContainers.indexOf(dialogElement), 1);
+        const next = this.modalContainers.at(-1) ?? null;
+        this.$host.set(next);
+        // What the app or the snack service put in the modal goes on to the next host, before focus goes back, which
+        // may be to a button in a snack. The rest is the modal's own: its header and its content's root nodes. A view
+        // the app destroyed first, as it went, has nothing to hand on
+        if (!componentView.destroyed) {
+          const own = new Set<unknown>((componentView as EmbeddedViewRef<unknown>).rootNodes as unknown[]).add(headerElement);
+          for (const child of Array.from(dialogElement.children).filter(element => !own.has(element))) {
+            (next ?? this.document.body).appendChild(child);
+          }
+        }
+      }
       if (resizeSubscription) {
         resizeSubscription.unsubscribe();
       }
@@ -270,7 +329,21 @@ export class DialogService implements OnDestroy {
     return dialogRef;
   }
 
-  private createBackdrop(args: IDialogArgs, dialogRef: IDialogRef, dialogZIndex: number, stackOptions: StackOptions): HTMLDivElement | undefined {
+  // Closes the dialogs whose element is inside this dialog's, top first: the overlays a modal hosts, a select's list in
+  // a dialog. One a closing dialog opens meanwhile is inside too, and closes as well
+  private closeDialogsInside(dialogRef: IDialogRef, dialogElement: HTMLElement) {
+    const closed = new Set<IDialogRef>([dialogRef]);
+    for (;;) {
+      const inside = [...this.dialogStack].reverse().find(entry => !closed.has(entry.dialogRef) && dialogElement.contains((entry.dialogRef as DialogRefInternal<unknown>).dialogElement));
+      if (!inside) {
+        return;
+      }
+      closed.add(inside.dialogRef);
+      inside.dialogRef.close();
+    }
+  }
+
+  private createBackdrop(args: IDialogArgs, dialogRef: IDialogRef, dialogZIndex: number, stackOptions: StackOptions, host: HTMLElement): HTMLDivElement | undefined {
     if (args.skipCreatingBackdrop === true) {
       return undefined;
     }
@@ -285,7 +358,7 @@ export class DialogService implements OnDestroy {
     if (stackOptions instanceof LocalStackOptions) {
       stackOptions.insertAfterElement.insertAdjacentElement('afterend', backdrop);
     } else {
-      this.document.body.appendChild(backdrop);
+      host.appendChild(backdrop);
     }
     if (args.closeOnBackdropClick === true) {
       backdrop.onclick = () => {
@@ -355,8 +428,9 @@ export class DialogService implements OnDestroy {
     injector: Injector,
     dialogRef: IDialogRef,
     zIndex: number,
-  ): { dialogElement: HTMLElement; headerIcon: ComponentRef<IconComponent> | undefined } {
+  ): { dialogElement: HTMLElement; headerElement: HTMLElement | undefined; headerIcon: ComponentRef<IconComponent> | undefined } {
     const embeddedViewRef = viewRef as EmbeddedViewRef<unknown>;
+    let headerElement: HTMLElement | undefined = undefined;
     let headerIcon: ComponentRef<IconComponent> | undefined = undefined;
 
     const dialogElement = this.document.createElement('div');
@@ -372,7 +446,7 @@ export class DialogService implements OnDestroy {
       });
     }
     if (args.header) {
-      const headerElement = this.document.createElement('div');
+      headerElement = this.document.createElement('div');
       headerElement.classList.add('dialog-header');
       const titleElement = this.document.createElement('div');
       titleElement.classList.add('dialog-title');
@@ -399,7 +473,7 @@ export class DialogService implements OnDestroy {
       }
       dialogElement.insertBefore(headerElement, dialogElement.firstChild);
     }
-    return { dialogElement, headerIcon };
+    return { dialogElement, headerElement, headerIcon };
   }
 
   private static manageDialogPosition(dialogElement: HTMLElement, args: IDialogPositionAndSizeArgs, stackOptions: StackOptions): Subscription | null {

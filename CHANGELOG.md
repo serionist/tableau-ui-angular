@@ -44,6 +44,11 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   what is under it. Once the pointer leaves the element it has 100 ms to reach the tooltip, and as long as it needs
   while it stays between the two; before, the tooltip hid as the pointer left. A test that hovers an element, then
   hovers or clicks what its tooltip covers, moves the pointer away first and waits for the tooltip to go.
+- A dialog an app opens with `openDialog()` or `openTemplateDialog()` while a modal is open sits in the modal and
+  closes with it, and so does a modal opened from a modal; before, it went to the body, and stayed open and on the
+  dialog stack once the modal had closed. An app that wants such a dialog to outlive the modal opens it once the modal
+  has closed. A tooltip, a dialog or a snack shown over a modal is inside its `.dialog-container`, not a child of the
+  body: a test or a style that looked for it under `body` looks in the whole document.
 
 ### Added
 
@@ -53,6 +58,10 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
 - `label` on `tab-table` and `tab-virtualize`: the name screen readers give the table and the region its host is, or
   the list. A static `aria-label` on the element names it the same way, and `label` wins. Without a name a table's host
   has no role, and a virtual scroller is an unnamed list, or has no role while it shows no items.
+- `DialogService.$overlayHost`, a signal: the container of the topmost open modal, or `null` while none is open, for
+  the body. Tooltips, the dialogs the service opens with `GlobalStackOptions` and the snacks go there, above the
+  modal's content, and an app appends an overlay of its own there instead of the body. When the modal closes, it
+  first closes the dialogs in it, and what the app put in it moves on to the next host.
 
 ### Fixed
 

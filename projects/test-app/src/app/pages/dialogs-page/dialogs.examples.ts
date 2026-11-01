@@ -6,6 +6,9 @@ import confirmTs from './examples/dialog-confirm.example.ts?source' with { loade
 import { DialogCustomExampleComponent } from './examples/dialog-custom.example';
 import customHtml from './examples/dialog-custom.example.html?source' with { loader: 'text' };
 import customTs from './examples/dialog-custom.example.ts?source' with { loader: 'text' };
+import { DialogOverlaysExampleComponent } from './examples/dialog-overlays.example';
+import overlaysHtml from './examples/dialog-overlays.example.html?source' with { loader: 'text' };
+import overlaysTs from './examples/dialog-overlays.example.ts?source' with { loader: 'text' };
 import { DialogTemplateExampleComponent } from './examples/dialog-template.example';
 import templateHtml from './examples/dialog-template.example.html?source' with { loader: 'text' };
 import templateScss from './examples/dialog-template.example.scss?source' with { loader: 'text' };
@@ -16,4 +19,5 @@ export const DIALOGS_EXAMPLES = {
   confirm: { component: DialogConfirmExampleComponent, ts: confirmTs, html: confirmHtml, scss: confirmScss },
   template: { component: DialogTemplateExampleComponent, ts: templateTs, html: templateHtml, scss: templateScss },
   custom: { component: DialogCustomExampleComponent, ts: customTs, html: customHtml },
+  overlays: { component: DialogOverlaysExampleComponent, ts: overlaysTs, html: overlaysHtml },
 } satisfies Record<string, DocsExample>;

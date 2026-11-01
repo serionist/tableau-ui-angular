@@ -2,7 +2,7 @@
 
 import * as i2 from '@angular/common';
 import * as i0 from '@angular/core';
-import { AfterContentInit, AfterViewInit, ApplicationRef, EnvironmentInjector, Injector, OnDestroy, TemplateRef, Type, ViewRef } from '@angular/core';
+import { AfterContentInit, AfterViewInit, ApplicationRef, EnvironmentInjector, Injector, OnDestroy, Signal, TemplateRef, Type, ViewRef } from '@angular/core';
 import { Observable, Subscription } from 'rxjs';
 import * as i3 from 'tableau-ui-angular/button';
 
@@ -23,6 +23,7 @@ export declare class DialogService implements OnDestroy {
   injector: Injector;
   appRef: ApplicationRef;
   environmentInjector: EnvironmentInjector;
+  readonly $overlayHost: Signal<HTMLElement | null>;
   openModal<TComponent, TData, TResult>(component: Type<TComponent>, data: TData, args?: IModalArgs): DialogRef<TResult>;
   openTemplateModal<TContext, TResult>(contentTemplate: TemplateRef<TContext>, contentTemplateContext: TContext, args?: IModalArgs): DialogRef<TResult>;
   _openModal<TData, TResult>(getViewRef: (injector: Injector) => ViewRef, data: TData, args?: IModalArgs): DialogRef<TResult>;

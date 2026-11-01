@@ -1,6 +1,7 @@
 import type { ComponentRef, EmbeddedViewRef, TemplateRef, Type, ViewRef } from '@angular/core';
-import { ApplicationRef, createComponent, DOCUMENT, EnvironmentInjector, inject, Injectable, Injector, PLATFORM_ID } from '@angular/core';
+import { ApplicationRef, createComponent, DOCUMENT, effect, EnvironmentInjector, inject, Injectable, Injector, PLATFORM_ID, untracked } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { DialogService } from 'tableau-ui-angular/dialog';
 import { SnackRef, TAB_SNACK_REF } from './snack.ref';
 import type { SnackComponentData } from './snack.component';
 import { SnackComponent } from './snack.component';
@@ -23,6 +24,20 @@ export class SnackService {
   // The server shows no snack: it has no one to tell, and a snack rendered there would stay in the page, since the
   // browser renders the app again
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private readonly dialogService = inject(DialogService);
+
+  // The snacks sit in the topmost modal while one is open, so they show above it and take clicks: the stacks move in
+  // when a modal opens, and the dialog service hands them on to the next host when it closes
+  private readonly followOverlayHost = effect(() => {
+    const host = this.dialogService.$overlayHost();
+    if (this.isBrowser) {
+      untracked(() => {
+        this.document.querySelectorAll<HTMLElement>('.tab-snacks').forEach(stack => {
+          this.place(stack, host);
+        });
+      });
+    }
+  });
 
   openSnack(message: string, duration: number | undefined = 5000, type: 'error' | 'info' | 'success' = 'info', location: 'bottom' | 'top' = 'top'): SnackRef<boolean> {
     return this.openSnackComponent<SnackComponent<unknown>, SnackComponentData<unknown>, boolean>(
@@ -98,14 +113,17 @@ export class SnackService {
     const { document } = this;
     // check if snack container exists
     let container = document.querySelector(`.tab-snacks.${location} .snack-container`);
-    if (!container) {
-      const tabSnacks = document.createElement('div');
+    let tabSnacks = container?.parentElement;
+    if (!container || !tabSnacks) {
+      tabSnacks = document.createElement('div');
       tabSnacks.classList.add('tab-snacks', location);
       container = document.createElement('div');
       container.classList.add('snack-container');
       tabSnacks.appendChild(container);
-      document.body.appendChild(tabSnacks);
     }
+    // in the topmost modal, or the body; read untracked, so an effect that opens a snack doesn't run again as modals
+    // open and close
+    this.place(tabSnacks, untracked(this.dialogService.$overlayHost));
 
     // create the snack wrapper
     const snackWrapper = document.createElement('div');
@@ -201,6 +219,14 @@ export class SnackService {
     });
 
     return snackRef;
+  }
+
+  // Moves a snack stack into the overlay host, the body for none, unless it is there already
+  private place(stack: HTMLElement, host: HTMLElement | null) {
+    const parent = host ?? this.document.body;
+    if (stack.parentElement !== parent) {
+      parent.appendChild(stack);
+    }
   }
 
   /**

@@ -1,7 +1,9 @@
 import type { OnDestroy } from '@angular/core';
-import { ApplicationRef, ChangeDetectionStrategy, Component, inject, PLATFORM_ID } from '@angular/core';
+import { ApplicationRef, ChangeDetectionStrategy, Component, effect, inject, PLATFORM_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { userEvent } from 'vitest/browser';
 import { TableauUiButtonModule } from 'tableau-ui-angular/button';
+import { DialogService } from 'tableau-ui-angular/dialog';
 import { axeViolations } from '../../testing/axe';
 import { movePointerAway } from '../../testing/pointer';
 import { SnackService } from './snack.service';
@@ -29,6 +31,20 @@ class SnackContentComponent implements OnDestroy {
 })
 class RetrySnackComponent {}
 
+// A modal's content that fills it
+@Component({
+  selector: 'tab-test-modal-content',
+  template: 'Content',
+  styles: `
+    :host {
+      display: block;
+      flex: 1;
+    }
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class ModalContentComponent {}
+
 // A page that imports the snack module
 @Component({
   imports: [TableauUiSnackModule],
@@ -45,6 +61,14 @@ const wait = async (ms: number) =>
   });
 
 describe('SnackService', () => {
+  // what the library's stylesheets (styles/_dialog.service.scss, _snack.service.scss) give a modal and the snacks, which
+  // a test doesn't load
+  const stylesheet = document.createElement('style');
+  stylesheet.textContent = `
+    .dialog-container { position: fixed; }
+    .tab-snacks { position: fixed; top: 0; left: 0; right: 0; z-index: 2000; display: flex; justify-content: center; }
+  `;
+
   beforeEach(async () => {
     // no router: a snack's action needs none
     TestBed.configureTestingModule({ imports: [TableauUiSnackModule] });
@@ -53,7 +77,8 @@ describe('SnackService', () => {
   });
 
   afterEach(() => {
-    document.querySelectorAll('.tab-snacks').forEach(element => element.remove());
+    stylesheet.remove();
+    document.querySelectorAll('.tab-snacks, .dialog-container, .dialog-backdrop').forEach(element => element.remove());
     vi.unstubAllGlobals();
   });
 
@@ -181,6 +206,121 @@ describe('SnackService', () => {
     await vi.waitFor(() => {
       expect(document.querySelector('.snack-wrapper')).toBeNull();
     });
+  });
+
+  // A modal shown in the top layer (#58) covers what sits outside it and makes it inert, so a snack shown over a modal
+  // goes into it
+  it('sits in a modal open before it, above its content, where it takes clicks, and goes back to the body when the modal closes', async () => {
+    document.head.appendChild(stylesheet);
+    const dialogs = TestBed.inject(DialogService);
+    const modal = dialogs.openModal(ModalContentComponent, undefined, { width: '100vw', maxWidth: 'none', height: '100vh', maxHeight: 'none' });
+    const container = dialogs.$overlayHost()!;
+    const content = container.querySelector<HTMLElement>('tab-test-modal-content')!;
+    const action = vi.fn();
+    const ref = TestBed.inject(SnackService).openSnackWithAction('Deleted', 'Undo', action, 0);
+    TestBed.inject(ApplicationRef).tick();
+
+    const stack = document.querySelector<HTMLElement>('.tab-snacks')!;
+    expect(stack.parentElement).toBe(container);
+    const undo = stack.querySelector<HTMLButtonElement>('.action')!;
+    // the button's centre is over the modal's content, and a click there reaches the button, once the snack has slid in
+    await vi.waitFor(() => {
+      const box = undo.getBoundingClientRect();
+      const [x, y] = [box.left + box.width / 2, box.top + box.height / 2];
+      const over = content.getBoundingClientRect();
+      expect(x > over.left && x < over.right && y > over.top && y < over.bottom).toBe(true);
+      expect(undo.contains(document.elementFromPoint(x, y))).toBe(true);
+    });
+    expect(await axeViolations(container)).toEqual([]);
+    await userEvent.click(undo);
+    expect(action).toHaveBeenCalledWith(ref);
+
+    modal.close();
+    expect(stack.parentElement).toBe(document.body);
+    expect(stack.querySelector('.snack-wrapper')?.textContent).toContain('Deleted');
+    ref.close();
+  });
+
+  it('moves a showing snack into a modal that opens, into the modal above it, and back as each closes', async () => {
+    document.head.appendChild(stylesheet);
+    const dialogs = TestBed.inject(DialogService);
+    const ref = open('Saved', 0);
+    const stack = document.querySelector<HTMLElement>('.tab-snacks')!;
+    expect(stack.parentElement).toBe(document.body);
+
+    const below = dialogs.openModal(ModalContentComponent, undefined);
+    TestBed.tick();
+    const belowContainer = dialogs.$overlayHost()!;
+    expect(stack.parentElement).toBe(belowContainer);
+    const top = dialogs.openModal(ModalContentComponent, undefined);
+    TestBed.tick();
+    expect(stack.parentElement).toBe(dialogs.$overlayHost());
+    expect(stack.parentElement).not.toBe(belowContainer);
+
+    top.close();
+    expect(stack.parentElement).toBe(belowContainer);
+    below.close();
+    expect(stack.parentElement).toBe(document.body);
+    TestBed.tick();
+    expect(stack.parentElement).toBe(document.body);
+    expect(document.querySelectorAll('.tab-snacks').length).toBe(1);
+    ref.close();
+  });
+
+  // The modal took the snack with it as it closed, so the focus it gave back had nowhere to go
+  it("gives the focus back to a snack's button when the modal its action opened closes", async () => {
+    document.head.appendChild(stylesheet);
+    const dialogs = TestBed.inject(DialogService);
+    const ref = TestBed.inject(SnackService).openSnackWithAction(
+      'Not sent',
+      'Details',
+      () => {
+        dialogs.openModal(ModalContentComponent, undefined);
+      },
+      0,
+    );
+    TestBed.inject(ApplicationRef).tick();
+    // once the snack has moved into its live region
+    const details = await vi.waitFor(() => {
+      const button = document.querySelector<HTMLButtonElement>('.snack-live .action');
+      expect(button).not.toBeNull();
+      return button!;
+    });
+    details.focus();
+
+    await userEvent.keyboard('{Enter}');
+    expect(dialogs.dialogStack.length).toBe(1);
+    TestBed.tick();
+    expect(details.closest('.dialog-container')).toBe(dialogs.$overlayHost());
+
+    await userEvent.keyboard('{Escape}');
+    expect(dialogs.dialogStack).toEqual([]);
+    expect(document.activeElement).toBe(details);
+    ref.close();
+  });
+
+  // An app's effect that opens a snack would have followed the modals too, and opened it again at each
+  it("opens a snack from an app's effect once, whatever modals open and close after", () => {
+    const dialogs = TestBed.inject(DialogService);
+    const snacks = TestBed.inject(SnackService);
+    const $message = signal('Saved');
+    let runs = 0;
+    TestBed.runInInjectionContext(() =>
+      effect(() => {
+        runs++;
+        snacks.openSnack($message(), 0);
+      }),
+    );
+    TestBed.tick();
+    expect(runs).toBe(1);
+
+    const modal = dialogs.openModal(ModalContentComponent, undefined);
+    TestBed.tick();
+    modal.close();
+    TestBed.tick();
+
+    expect(runs).toBe(1);
+    expect(document.querySelectorAll('.snack-wrapper').length).toBe(1);
   });
 
   // The service was provided anew in each injector that asked for it ('any', which Angular 21 deprecates)
