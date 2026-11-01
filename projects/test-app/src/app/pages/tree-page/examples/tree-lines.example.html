@@ -1,5 +1,5 @@
 <!-- Nodes without children start where their button would be -->
-<tab-tree gridLinesBorder="1px solid var(--twc-color-border)" expandButtonAlign="center" [keepButtonOffsetOnNoChildren]="false">
+<tab-tree aria-label="Nodes with lines" gridLinesBorder="1px solid var(--twc-color-border)" expandButtonAlign="center" [keepButtonOffsetOnNoChildren]="false">
   <!-- The first node starts open, to show its lines -->
   @for (node of nodes; track node.name) {
     <tab-tree-node [expanded]="$first">

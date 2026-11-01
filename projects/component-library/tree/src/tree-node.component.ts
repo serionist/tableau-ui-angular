@@ -108,6 +108,13 @@ export class TabTreeNodeComponent implements OnInit, OnDestroy, TreeNodeInterfac
     this.$expanded.set(expanded);
     this.expandedChange.emit(expanded);
   }
+
+  // A click on the button opens or closes the node and moves the focus to its row, as a click on the row does. The
+  // button's mousedown is cancelled, so the button, hidden from assistive technology, never takes the focus.
+  protected toggle(row: HTMLElement) {
+    this.setExpanded(!this.$expanded());
+    row.focus();
+  }
 }
 export interface TreeNodeTemplate {
   $childrenIndent: Signal<string>;

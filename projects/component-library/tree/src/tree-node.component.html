@@ -7,13 +7,33 @@
   let-$expandButtonTooltip="$expandButtonTooltip"
   let-$expandButtonAlign="$expandButtonAlign"
   let-$keepButtonOffsetOnNoChildren="$keepButtonOffsetOnNoChildren"
+  let-$treeItem="$treeItem"
 >
-  <div class="tree-node-container" [style.marginLeft]="`calc(${$depth()} * ${$childrenIndent()})`" [style.alignItems]="$expandButtonAlign()" [style.gap]="$expandButtonGap()">
+  @let item = $treeItem(headerButtonId);
+  <!-- The node's row is its treeitem, and says whether it is open; the button is for the pointer only. A node can't be
+  selected, so the tree view pattern gives it no aria-selected: the null binding says so to role-has-required-aria, whose
+  aria-query still lists it as required, where ARIA 1.2 and axe require none -->
+  <div
+    #row
+    class="tree-node-container"
+    role="treeitem"
+    [attr.aria-selected]="null"
+    [attr.aria-level]="item?.level"
+    [attr.aria-setsize]="item?.setSize"
+    [attr.aria-posinset]="item?.posInSet"
+    [attr.aria-expanded]="$children().length === 0 ? null : $expanded()"
+    [attr.tabindex]="item?.tabIndex ?? -1"
+    [style.marginLeft]="`calc(${$depth()} * ${$childrenIndent()})`"
+    [style.alignItems]="$expandButtonAlign()"
+    [style.gap]="$expandButtonGap()"
+  >
     <button
       layout="icon"
       color="plain"
       class="header-button"
       type="button"
+      tabindex="-1"
+      aria-hidden="true"
       [id]="headerButtonId"
       [inline]="true"
       [style.visibility]="$children().length === 0 ? 'hidden' : 'visible'"
@@ -26,9 +46,10 @@
       [tooltipPosition]="$expandButtonTooltip()?.position"
       [tooltipMargin]="$expandButtonTooltip()?.margin"
       [tooltipContext]="$expandButtonTooltip()?.context"
-      (click)="setExpanded(!$expanded())"
+      (mousedown)="$event.preventDefault()"
+      (click)="toggle(row)"
     >
-      <tab-icon [value]="$expanded() ? 'keyboard_arrow_down' : 'keyboard_arrow_right'" [label]="$expanded() ? 'Collapse' : 'Expand'" />
+      <tab-icon [value]="$expanded() ? 'keyboard_arrow_down' : 'keyboard_arrow_right'" />
     </button>
     <div class="header-content">
       @if ($expanded() && $expandedContent()) {

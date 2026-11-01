@@ -31,6 +31,10 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   `chip.children[0]`, goes through the span: `tab-chip tab-icon`, or `chip.querySelector('.content')!.children[0]`.
 - A closed drawer is inert until change detection renders it open, so an app that sets `isOpen` and focuses into the
   drawer in the same tick finds the focus refused. Move the focus in `afterNextRender`, once the drawer renders.
+- A tree is one Tab stop: the arrows move between nodes and open and close them, and Enter toggles. The toggles take
+  no focus and are hidden from assistive technology; a click still toggles. A test that found a toggle by its role and
+  the name Expand finds the node by its `treeitem` role and name, and reads `aria-expanded`. Name the tree with
+  `aria-label` on `tab-tree`.
 
 ### Added
 

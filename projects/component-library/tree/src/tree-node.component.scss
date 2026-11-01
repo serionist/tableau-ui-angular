@@ -1,5 +1,11 @@
 .tree-node-container {
   display: flex;
+  outline: none;
+
+  // The row takes the focus, the tree's one Tab stop, and shows it to the keyboard
+  &:focus-visible {
+    outline: 2px solid var(--twc-color-focused-input);
+  }
 }
 
 .header-content {
