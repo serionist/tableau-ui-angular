@@ -4,6 +4,7 @@ import { userEvent } from 'vitest/browser';
 import { TableauUiButtonModule } from 'tableau-ui-angular/button';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
 import { axeViolations } from '../../testing/axe';
+import { contrast } from '../../testing/contrast';
 import { CONTRAST_PAIRS } from '../../testing/contrast-pairs';
 import { movePointerAway } from '../../testing/pointer';
 import { ThemeService } from './theme.service';
@@ -26,24 +27,6 @@ import { ThemeService } from './theme.service';
 })
 class ColoursComponent {
   protected readonly pairs = CONTRAST_PAIRS;
-}
-
-// A computed colour's red, green and blue. Each must be opaque: a see-through one would need what lies under it, and an
-// unstyled element's transparent background fails here rather than reading as black
-function channels(colour: string): number[] {
-  const [red, green, blue, alpha = 1] = (colour.match(/[\d.]+/g) ?? []).map(Number);
-  expect(alpha, colour).toBe(1);
-  return [red, green, blue];
-}
-
-// WCAG's contrast ratio of two colours, from their relative luminance
-function contrast(text: string, background: string): number {
-  const luminance = (colour: string) => {
-    const [r, g, b] = channels(colour).map(value => (value / 255 <= 0.04045 ? value / 255 / 12.92 : ((value / 255 + 0.055) / 1.055) ** 2.4));
-    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-  };
-  const [lighter, darker] = [luminance(text), luminance(background)].sort((a, b) => b - a);
-  return (lighter + 0.05) / (darker + 0.05);
 }
 
 // An element's text colour on its background, as computed

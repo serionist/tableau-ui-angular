@@ -600,6 +600,7 @@ export declare class TableComponent<TData> extends VirtualizeBaseComponent<TData
   readonly $noDataTemplate: InputSignal<string | TemplateRef<unknown>>;
   readonly $selectionOptions: InputSignal<SelectionOptions | undefined>;
   readonly $selectedRows: ModelSignal<Map<Primitive, TData>>;
+  readonly $label: InputSignal<string | undefined>;
   readonly $columnDefs: import('@angular/core').Signal<readonly ColumnDefDirective<TData>[]>;
   selectionMultiHeaderCheckboxSelectNoneChanged(): void;
   selectionMultiHeaderCheckboxSelectAllChanged(val: boolean | 'partial'): Promise<void>;
@@ -671,6 +672,11 @@ export declare class TableComponent<TData> extends VirtualizeBaseComponent<TData
       };
       $selectedRows: {
         alias: 'selectedRows';
+        required: false;
+        isSignal: true;
+      };
+      $label: {
+        alias: 'label';
         required: false;
         isSignal: true;
       };
