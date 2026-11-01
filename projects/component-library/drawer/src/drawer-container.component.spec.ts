@@ -1,17 +1,20 @@
 import { ChangeDetectionStrategy, Component, signal, ViewEncapsulation } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { userEvent } from 'vitest/browser';
 import { axeViolations } from '../../testing/axe';
 import { TableauUiDrawerModule } from './tableau-ui-drawer-module';
 
 @Component({
   imports: [TableauUiDrawerModule],
   template: `
+    <button class="opener" (click)="$leftOpen.set(true)">Show the filters</button>
     <div class="drawer-test" style="width: 600px; height: 200px; --twc-color-border-light: gray">
       <tab-drawer-container>
         <tab-drawer width="200px" padding="10" [(isOpen)]="$leftOpen">
-          <a href="#filters">Filters</a>
+          <a href="#filters" (keydown.escape)="$leftOpen.set(false)">Filters</a>
         </tab-drawer>
         <p>Report</p>
+        <a href="#report">The full report</a>
         <tab-drawer position="right" width="150px" border="none" [isOpen]="$rightOpen()">
           <p>Details</p>
         </tab-drawer>
@@ -33,8 +36,9 @@ class ReportComponent {
 }
 
 describe('DrawerContainerComponent', () => {
-  async function render() {
+  async function render(before?: (component: ReportComponent) => void) {
     const fixture = TestBed.createComponent(ReportComponent);
+    before?.(fixture.componentInstance);
     fixture.autoDetectChanges();
     await fixture.whenStable();
     const host = fixture.nativeElement as HTMLElement;
@@ -45,8 +49,15 @@ describe('DrawerContainerComponent', () => {
       const origin = container.getBoundingClientRect().left;
       return [box.left - origin, box.right - origin];
     };
-    return { fixture, host, component: fixture.componentInstance, edges };
+    const link = (text: string) => Array.from(host.querySelectorAll('a')).find(element => element.textContent.trim() === text)!;
+    return { fixture, host, component: fixture.componentInstance, edges, link, opener: host.querySelector<HTMLButtonElement>('.opener')!, left: host.querySelector('.drawer.left')! };
   }
+
+  // the frames the browser takes to settle focus after the drawer turns inert
+  const frames = async () =>
+    new Promise(resolve => {
+      requestAnimationFrame(() => requestAnimationFrame(resolve));
+    });
 
   it('gives the content the whole width while both drawers are closed, and keeps them out of sight', async () => {
     const { host, edges } = await render();
@@ -79,8 +90,79 @@ describe('DrawerContainerComponent', () => {
     expect(edges('.drawer.left')[1]).toBeLessThanOrEqual(0);
   });
 
-  it('passes axe with a drawer open', async () => {
+  // #59: a closed drawer was only moved out of sight, so Tab went through its links
+  it("skips a closed drawer's link with Tab, and reaches it once the drawer opens", async () => {
+    const { fixture, host, component, link, opener, left } = await render();
+    expect(left.hasAttribute('inert')).toBe(true);
+    expect(host.querySelector('.drawer.right')!.hasAttribute('inert')).toBe(true);
+
+    opener.focus();
+    await userEvent.tab();
+    expect(document.activeElement).toBe(link('The full report'));
+
+    component.$leftOpen.set(true);
+    await fixture.whenStable();
+    expect(left.hasAttribute('inert')).toBe(false);
+    opener.focus();
+    await userEvent.tab();
+    expect(document.activeElement).toBe(link('Filters'));
+  });
+
+  it('gives the focus back to the button that opened it when it closes with the focus inside', async () => {
+    const { fixture, link, opener, left } = await render();
+
+    opener.focus();
+    await userEvent.keyboard('{Enter}');
+    await fixture.whenStable();
+    link('Filters').focus();
+    await userEvent.keyboard('{Escape}');
+    await fixture.whenStable();
+
+    expect(left.hasAttribute('inert')).toBe(true);
+    await vi.waitFor(() => expect(document.activeElement).toBe(opener));
+  });
+
+  it('leaves the focus where the app moves it as the drawer closes', async () => {
+    const { fixture, component, link, opener } = await render();
+    opener.focus();
+    await userEvent.keyboard('{Enter}');
+    await fixture.whenStable();
+    link('Filters').focus();
+
+    component.$leftOpen.set(false);
+    link('The full report').focus();
+    await fixture.whenStable();
+    await frames();
+
+    expect(document.activeElement).toBe(link('The full report'));
+  });
+
+  it('records no opener for a drawer open from its first render, and moves no focus when it closes', async () => {
+    const { fixture, link, opener, left } = await render(component => component.$leftOpen.set(true));
+    expect(left.hasAttribute('inert')).toBe(false);
+    opener.focus();
+    link('Filters').focus();
+    const focused: EventTarget[] = [];
+    const record = (event: FocusEvent) => focused.push(event.target!);
+    document.addEventListener('focusin', record);
+
+    try {
+      await userEvent.keyboard('{Escape}');
+      await fixture.whenStable();
+      await frames();
+    } finally {
+      document.removeEventListener('focusin', record);
+    }
+
+    expect(left.hasAttribute('inert')).toBe(true);
+    expect(focused).toEqual([]);
+    expect(document.activeElement).not.toBe(opener);
+  });
+
+  it('passes axe with the drawers closed, and with one open', async () => {
     const { fixture, host, component } = await render();
+    expect(await axeViolations(host)).toEqual([]);
+
     component.$leftOpen.set(true);
     await fixture.whenStable();
 

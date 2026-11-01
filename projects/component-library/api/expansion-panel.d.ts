@@ -2,7 +2,7 @@
 
 import * as i4 from '@angular/common';
 import * as i0 from '@angular/core';
-import { OnDestroy, OnInit, Signal } from '@angular/core';
+import { InputSignal, OnDestroy, OnInit, Signal } from '@angular/core';
 import * as i5 from 'tableau-ui-angular/button';
 import * as i6 from 'tableau-ui-angular/icon';
 
@@ -22,9 +22,10 @@ export declare class ExpansionPanelComponent implements OnInit, OnDestroy {
   readonly id: string;
   readonly $expanded: import('@angular/core').ModelSignal<boolean>;
   readonly expandedChange$: import('rxjs').Observable<boolean>;
-  readonly $disabled: import('@angular/core').InputSignal<boolean>;
-  readonly $noHeaderHover: import('@angular/core').InputSignal<boolean>;
-  readonly $registry: import('@angular/core').InputSignal<AccordionRegistry | undefined>;
+  readonly $disabled: InputSignal<boolean>;
+  readonly $noHeaderHover: InputSignal<boolean>;
+  readonly $label: InputSignal<string | undefined>;
+  readonly $registry: InputSignal<AccordionRegistry | undefined>;
   ngOnInit(): void;
   ngOnDestroy(): void;
   static ɵfac: i0.ɵɵFactoryDeclaration<ExpansionPanelComponent, never>;
@@ -45,6 +46,11 @@ export declare class ExpansionPanelComponent implements OnInit, OnDestroy {
       };
       $noHeaderHover: {
         alias: 'noHeaderHover';
+        required: false;
+        isSignal: true;
+      };
+      $label: {
+        alias: 'label';
         required: false;
         isSignal: true;
       };

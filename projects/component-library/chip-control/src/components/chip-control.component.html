@@ -1,5 +1,5 @@
 @for (view of $chipViews(); track view.chip.key) {
-  <div class="chip" (mousedown)="chipClicked(view.chip.key)">
+  <div #chipWrapper class="chip" (mousedown)="chipClicked(view.chip.key)">
     <ng-container
       *ngTemplateOutlet="
         $chipTemplate().templateRef;
@@ -33,3 +33,5 @@
   (keydown)="inputKeydown($event)"
   (click)="$searchClicked.emit($event)"
 />
+<!-- Says which chip a key highlights or removes, since focus stays in the input -->
+<span class="announcement" aria-live="polite">{{ $announcement() }}</span>

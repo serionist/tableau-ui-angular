@@ -54,7 +54,8 @@
     <p>Each state has a title of its own.</p>
   </tab-expansion-panel>
 
-  <tab-expansion-panel [noHeaderHover]="true">
+  <!-- The title holds a button and a second line, so label names the toggle -->
+  <tab-expansion-panel label="A large title with a button, and no hover colour" [noHeaderHover]="true">
     <tab-expansion-panel-title>
       <div class="large-title">
         <tab-icon value="info" />

@@ -55,5 +55,15 @@
       </table>
       <app-docs-example [example]="examples.basic" />
     </div>
+
+    <div class="section">
+      <h3>Accessibility</h3>
+      <ul>
+        <li>A closed drawer is inert: Tab skips it, and screen readers don't read it.</li>
+        <li>The app moves focus into a drawer it opens, such as to its heading, as the dashboard does, so a keyboard user doesn't tab through the page to reach it.</li>
+        <li>A drawer that opens after the page's first render puts focus back where it was before it opened, when it closes with focus inside and that element is still in the page.</li>
+        <li>A drawer open from the first render has nowhere to put focus back, so the app moves focus when it closes that drawer.</li>
+      </ul>
+    </div>
   </div>
 </div>

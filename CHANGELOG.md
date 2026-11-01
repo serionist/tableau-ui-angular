@@ -21,8 +21,22 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   `childChange`, makes the group emit its value twice. To keep the old behaviour, pass `false` as the second argument:
   `disable(emitEvent, false)` and `enable(emitEvent, false)`.
 
+### Added
+
+- `tab-expansion-panel`'s `label` input names its toggle button in place of the title. A title that holds a control,
+  such as a button, or more than the panel's name needs it: the toggle took the title's whole text as its name, the
+  control's included.
+
 ### Fixed
 
+- A chip's remove button is named Remove and the chip's content, such as "Remove Berlin", where every one was named
+  Remove. A test that found it by the exact name Remove finds it by the chip's text too.
+- The chip control says which chip a key highlights and which it removes, in a hidden polite live region: "Berlin,
+  highlighted. Backspace or Delete removes it." and "Berlin removed." Focus stays in its input, and the keys are the
+  same.
+- A closed drawer is inert, so Tab skips its links and screen readers don't read it. A drawer that opens after its
+  first render puts focus back on the element focused before it opened, when it closes with focus inside. The app
+  moves focus into a drawer it opens, and out of a drawer open from its first render when it closes it.
 - A multi select lists its picked values as "English, Hungarian", where it showed a space before each comma. An
   option's icon in a select's shown value sits 0.25rem from its text, as in the dropdown, where a space widened the gap.
 - A tooltip takes the padding its `tooltipPadding` sets. Only `full` and `lazy` passed one, from their args, so a

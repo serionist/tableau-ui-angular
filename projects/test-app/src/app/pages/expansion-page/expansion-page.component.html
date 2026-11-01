@@ -38,6 +38,10 @@
           <code>[noHeaderHover]</code>
           turns the title's hover colour off.
         </li>
+        <li>
+          <code>label</code>
+          names the arrow button in place of the title, as the last panel here does.
+        </li>
         <li>A button in the title keeps its click from reaching the title, or the click toggles the panel too.</li>
       </ul>
       <app-docs-example [example]="examples.single" />
@@ -50,6 +54,21 @@
         holds panels, and at most one is open: opening a panel closes the others.
       </p>
       <app-docs-example [example]="examples.accordion" />
+    </div>
+
+    <div class="section">
+      <h3>Accessibility</h3>
+      <ul>
+        <li>
+          The arrow button opens and closes the panel, from the keyboard too, and its
+          <code>aria-expanded</code>
+          says whether the panel is open.
+        </li>
+        <li>
+          The title names the arrow button, or Details without a title. A title that holds a control, such as a button, or more than the panel's name needs
+          <code>label</code>: without it the button's name is the title's whole text, the control's included, and a search for the control by its name finds the arrow button too.
+        </li>
+      </ul>
     </div>
   </div>
 </div>

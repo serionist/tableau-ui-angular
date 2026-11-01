@@ -86,5 +86,27 @@
       </p>
       <app-docs-example [example]="examples.forms" />
     </div>
+
+    <div class="section">
+      <h3>Accessibility</h3>
+      <ul>
+        <li>A chip's remove button is named Remove and the chip's content, such as Remove Berlin. Its content's decorative icons are left out.</li>
+        <li>
+          In the chip control, focus stays in the text box. Backspace and the left arrow highlight a chip, the left and right arrows move the highlight, and Backspace or Delete removes the highlighted
+          chip.
+        </li>
+        <li>
+          A hidden polite live region in the control says what those keys do: <q>Berlin, highlighted. Backspace or Delete removes it</q> when a key highlights a chip, and <q>Berlin removed</q> when
+          one removes it. A chip's words are its text, without decorative icons or its buttons.
+        </li>
+        <li>
+          The app names the control: a
+          <code>tab-label</code>
+          in its
+          <code>tab-form-field</code>
+          names its text box.
+        </li>
+      </ul>
+    </div>
   </div>
 </div>

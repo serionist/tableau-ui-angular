@@ -5,6 +5,7 @@ import { userEvent } from 'vitest/browser';
 import { TableauUiChipModule } from 'tableau-ui-angular/chip';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
 import { TableauUiFormFieldModule } from 'tableau-ui-angular/form-field';
+import { TableauUiIconModule } from 'tableau-ui-angular/icon';
 import { axeViolations } from '../../../testing/axe';
 import type { ChipData } from '../models/chip-data';
 import { TableauUiChipControlModule } from '../tableau-ui-chip-control.module';
@@ -39,14 +40,14 @@ class Lookup {
 }
 
 @Component({
-  imports: [ReactiveFormsModule, TableauUiChipControlModule, TableauUiChipModule, TableauUiFormFieldModule, TableauUiCommonModule],
+  imports: [ReactiveFormsModule, TableauUiChipControlModule, TableauUiChipModule, TableauUiFormFieldModule, TableauUiCommonModule, TableauUiIconModule],
   template: `
     <tab-form-field>
       <tab-label>Tags</tab-label>
       <tab-chip-control #chips [formControl]="control" [getValuesByKeys]="lookup.fn" [keyComparer]="sameTag" ($chipAdded)="added.push($event.key.id)" ($chipRemoved)="removed.push($event.id)">
         <ng-template let-ctx [tabChipTemplate]="chips">
           <tab-chip [allowRemove]="ctx.removable" [selected]="ctx.selected" (removed)="ctx.chipControl.remove(ctx.data.key)"
-            ><span class="name">{{ ctx.data.value }}</span></tab-chip
+            ><tab-icon value="sell" /><span class="name">{{ ctx.data.value }}</span></tab-chip
           >
         </ng-template>
       </tab-chip-control>
@@ -237,9 +238,59 @@ describe('ChipControlComponent', () => {
     expect(ids(component.control.value)).toEqual(['a']);
   });
 
+  // #55: the chip a key highlighted was shown, never announced, so the second Backspace removed a chip the user never
+  // heard was chosen
+  it('says in a polite region which chip a key highlights and which it removes, and nothing on other keys', async () => {
+    const { fixture, host, input, chipTexts, show } = await render(new FormControl<Tag[] | null>([]));
+    await show(tags('a', 'b', 'c'));
+    const region = host.querySelector('tab-chip-control [aria-live]')!;
+    const press = async (key: string) => {
+      await userEvent.keyboard(key);
+      await fixture.whenStable();
+    };
+    const highlighted = (name: string) => `${name}, highlighted. Backspace or Delete removes it.`;
+    expect(region.getAttribute('aria-live')).toBe('polite');
+    expect(region.textContent.trim()).toBe('');
+
+    input.focus();
+    await press('{Backspace}');
+    // the chip's words leave out its icon's ligature and its remove button
+    expect(region.textContent.trim()).toBe(highlighted('C'));
+    await press('{ArrowLeft}');
+    expect(region.textContent.trim()).toBe(highlighted('B'));
+    await press('{ArrowLeft}');
+    expect(region.textContent.trim()).toBe(highlighted('A'));
+    await press('{ArrowRight}');
+    expect(region.textContent.trim()).toBe(highlighted('B'));
+
+    await press('{Delete}');
+    await vi.waitFor(() => expect(region.textContent.trim()).toBe(`B removed. ${highlighted('C')}`));
+    expect(chipTexts()).toEqual(['A', 'C']);
+    expect(chipTexts('tab-chip.selected')).toEqual(['C']);
+
+    await press('{Backspace}');
+    expect(region.textContent.trim()).toBe(`C removed. ${highlighted('A')}`);
+    await press('{Backspace}');
+    expect(region.textContent.trim()).toBe('A removed.');
+    expect(chipTexts()).toEqual([]);
+
+    await show(tags('d'));
+    input.focus();
+    await press('{ArrowLeft}');
+    expect(region.textContent.trim()).toBe(highlighted('D'));
+    await press('{ArrowRight}');
+    expect(region.textContent.trim()).toBe('');
+    await press('{ArrowLeft}');
+    await press('x');
+    expect(region.textContent.trim()).toBe('');
+    expect(chipTexts('tab-chip.selected')).toEqual([]);
+  });
+
   it('passes axe', async () => {
-    const { host, show } = await render(new FormControl<Tag[] | null>([]));
+    const { host, input, show } = await render(new FormControl<Tag[] | null>([]));
     await show(tags('a', 'b'));
+    input.focus();
+    await userEvent.keyboard('{Backspace}');
 
     expect(await axeViolations(host)).toEqual([]);
   });
