@@ -3,6 +3,7 @@ import { signal } from '@angular/core';
 import type { Observable } from 'rxjs';
 import { BehaviorSubject, filter, map, startWith } from 'rxjs';
 import { ACImpl } from '../abstract-control/impl';
+import { InTurnSubject } from '../abstract-control/in-turn';
 import type { MetaFns } from '../abstract-control/meta/interfaces';
 import type { AsyncValidatorFn, ValidatorFn, ValidatorFns } from '../abstract-control/validation/interfaces';
 import type { FA } from './interaces';
@@ -18,7 +19,7 @@ import type { DeepPartial, ReadonlyBehaviorSubject } from 'tableau-ui-angular/ty
 
 export class FAImpl<T extends Record<string, unknown>> extends ACImpl<T[]> implements FA<T> {
   protected readonly $_value: WritableSignal<DeepPartial<T>[]>;
-  protected readonly _value$: BehaviorSubject<DeepPartial<T>[]>;
+  protected readonly _value$: InTurnSubject<DeepPartial<T>[]>;
   private readonly _rawValue$: BehaviorSubject<T[]>;
   private readonly $_rawValue: WritableSignal<T[]>;
   public override get value$(): Observable<DeepPartial<T>[]> {
@@ -74,10 +75,12 @@ export class FAImpl<T extends Record<string, unknown>> extends ACImpl<T[]> imple
 
     this.$_controls = signal(this._controls$.value);
 
-    this._value$ = new BehaviorSubject<DeepPartial<T>[]>(control.value);
+    this._value$ = new InTurnSubject<DeepPartial<T>[]>(control.value, control);
     this.$_value = signal(control.value);
     this._rawValue$ = new BehaviorSubject<T[]>(this._defaultValue);
     this.$_rawValue = signal<T[]>(this._rawValue$.value);
+    // A change a subscriber makes reaches value$, $value and the raw value once every subscriber has the current value;
+    // push, insert, removeAt and clear change the raw value and $controls at once, while $value waits
     this.subscriptions.push(
       control.valueChanges.pipe(startWith(control.value)).subscribe(v => {
         this._value$.next(v);
@@ -97,11 +100,11 @@ export class FAImpl<T extends Record<string, unknown>> extends ACImpl<T[]> imple
     );
     this.submitted$ = this.control.events.pipe(
       filter(e => e instanceof FormSubmittedEvent),
-      map(() => this._value$.value),
+      map(() => this._value$.latest),
     );
     this.reset$ = this.control.events.pipe(
       filter(e => e instanceof FormResetEvent),
-      map(() => this._value$.value),
+      map(() => this._value$.latest),
     );
     this.registerFn = new FaRegisterFnsImpl<T>(this, this.subscriptions);
     this.validatorFn = new ValidatorFnsImpl<FA<T>>(this.control, this);
@@ -119,7 +122,8 @@ export class FAImpl<T extends Record<string, unknown>> extends ACImpl<T[]> imple
   }
   // push, insert and removeAt change the child list first, as a new list so the signals over it notify, and then the
   // FormArray, whose event then reaches valueChange with the rows its value holds. The raw value and the metas, the
-  // array's and its ancestors', follow the FormArray even when it emits nothing.
+  // array's and its ancestors', follow the FormArray even when it emits nothing. The removed rows are destroyed before
+  // the metas refresh, which throws to the caller when a meta rule doesn't settle (InTurn).
   push(
     control: FG<T>,
     options?: {
@@ -141,10 +145,10 @@ export class FAImpl<T extends Record<string, unknown>> extends ACImpl<T[]> imple
     this.hierarchy.childList$.next(childList.filter((_, i) => i !== at));
     this.formArray.removeAt(index, options);
     this.refreshRawValue();
-    this.refreshMetaUpwards();
     if (control !== undefined && destroyControl) {
       control.destroy();
     }
+    this.refreshMetaUpwards();
   }
   insert(
     index: number,
@@ -166,12 +170,12 @@ export class FAImpl<T extends Record<string, unknown>> extends ACImpl<T[]> imple
     this.hierarchy.childList$.next([]);
     this.formArray.clear(options);
     this.refreshRawValue();
-    this.refreshMetaUpwards();
     if (destroyControls) {
       childList.forEach(child => {
         child.destroy();
       });
     }
+    this.refreshMetaUpwards();
   }
   at(index: number): FG<T> | undefined {
     return this._controls$.value[index];
