@@ -1,8 +1,33 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { tabbable } from 'tabbable';
+import { userEvent } from 'vitest/browser';
+import { TableauUiButtonToggleModule } from 'tableau-ui-angular/button-toggle';
+import { TableauUiCommonModule } from 'tableau-ui-angular/common';
 import { axeViolations } from '../../testing/axe';
 import { movePointerAway } from '../../testing/pointer';
 import { TableauUiMenuModule } from './tableau-ui-menu.module';
+
+// A colour mode toggle, and a menu whose items change it, as the docs site's theming page has them
+@Component({
+  imports: [TableauUiMenuModule, TableauUiButtonToggleModule, TableauUiCommonModule],
+  template: `
+    <button type="button" class="before">Before</button>
+    <tab-button-toggle aria-label="Colour mode" [(selectedValue)]="$mode">
+      <tab-option value="light" text="Light" />
+      <tab-option value="dark" text="Dark" />
+    </tab-button-toggle>
+    <button type="button" class="palette" [attachedMenu]="palette">Palette</button>
+    <ng-template #palette="menu" menu>
+      <button type="button" class="dark" (click)="$mode.set('dark')">Dark mode</button>
+      <button type="button" class="light" (click)="$mode.set('light')">Light mode</button>
+    </ng-template>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class PaletteComponent {
+  readonly $mode = signal<string | undefined>('light');
+}
 
 @Component({
   imports: [TableauUiMenuModule],
@@ -79,6 +104,61 @@ describe('MenuDirective', () => {
 
     expect(popup()).toBeNull();
     expect(document.querySelector('.dialog-backdrop')).toBeNull();
+  });
+
+  async function renderPalette() {
+    const fixture = TestBed.createComponent(PaletteComponent);
+    fixture.autoDetectChanges();
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+    const element = (selector: string) => document.querySelector<HTMLElement>(selector)!;
+    // the toggle's Tab stops, by their text
+    const stops = () => tabbable(host.querySelector('tab-button-toggle')!).map(stop => stop.textContent.trim());
+    return { fixture, host, element, stops };
+  }
+
+  // Tab stayed in a menu because its trap set every Tab stop of the page to -1
+  it('keeps Tab in an open menu, wrapping at either end, and leaves the Tab stops of the page as they are', async () => {
+    const { fixture, element } = await renderPalette();
+    await userEvent.click(element('.palette'));
+    await fixture.whenStable();
+    expect(element('.before').tabIndex).toBe(0);
+
+    await userEvent.keyboard('{Tab}');
+    expect(document.activeElement).toBe(element('.dark'));
+    await userEvent.keyboard('{Tab}');
+    expect(document.activeElement).toBe(element('.light'));
+    await userEvent.keyboard('{Tab}');
+    expect(document.activeElement).toBe(element('.dark'));
+    await userEvent.keyboard('{Shift>}{Tab}{/Shift}');
+    expect(document.activeElement).toBe(element('.light'));
+
+    await userEvent.keyboard('{Escape}');
+    await fixture.whenStable();
+    expect(document.querySelector('.dialog-container')).toBeNull();
+    expect(document.activeElement).toBe(element('.palette'));
+  });
+
+  // #125: the trap wrote the old Tab stops back as the menu closed, so a toggle whose value changed meanwhile kept its
+  // old stop beside its new one
+  it('leaves one Tab stop in a button toggle whose value changed while a menu was open', async () => {
+    const { fixture, element, stops } = await renderPalette();
+    expect(stops()).toEqual(['Light']);
+    await userEvent.click(element('.palette'));
+    await fixture.whenStable();
+
+    await userEvent.click(element('.dark'));
+    await fixture.whenStable();
+    expect(stops()).toEqual(['Dark']);
+    await userEvent.keyboard('{Escape}');
+    await fixture.whenStable();
+
+    expect(stops()).toEqual(['Dark']);
+    element('.before').focus();
+    await userEvent.keyboard('{Tab}');
+    expect(document.activeElement?.textContent.trim()).toBe('Dark');
+    await userEvent.keyboard('{Tab}');
+    expect(document.activeElement).toBe(element('.palette'));
   });
 
   it('passes axe, closed and open', async () => {

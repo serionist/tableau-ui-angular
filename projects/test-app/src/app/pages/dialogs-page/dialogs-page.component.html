@@ -25,7 +25,7 @@
         <code>true</code>
         when the user accepts. Its colour styles the accept button, and
         <code>autofocus</code>
-        focuses accept, cancel or neither.
+        picks the button focus goes to as it opens, accept or cancel; without it, focus goes to cancel, the first.
       </p>
       <app-docs-example [example]="examples.confirm" />
     </div>
@@ -48,7 +48,7 @@
         and closes with
         <code>injectDialogRef()</code>;
         <code>closed$</code>
-        gives the result.
+        gives the result. A modal without a header is named by <code>label</code> in its args, as the second dialog here is.
       </p>
       <app-docs-example [example]="examples.custom" />
     </div>
@@ -56,9 +56,10 @@
     <div class="section">
       <h3>Overlays in a modal</h3>
       <p>
-        A tooltip, a snack, or a dialog the app opens with <code>openDialog()</code> or <code>openTemplateDialog()</code>, opened while a modal is open, goes into that modal: it sits above the modal's
-        content and takes its clicks. A select's list, an autocomplete's suggestions and a menu sit after their element, so in the modal already. A modal that closes first closes the dialogs in it,
-        top first, and the snacks go back to the page. A modal opened from a modal, a confirmation included, goes to the body above it, so a modal can open the next one and close itself.
+        A modal sits in the browser's top layer, above every z-index of the page, and the page outside it is inert: an overlay outside the modal shows under it and takes no clicks or focus. So a
+        tooltip, a snack, or a dialog the app opens with <code>openDialog()</code> or <code>openTemplateDialog()</code>, opened while a modal is open, goes into that modal: it sits above the modal's
+        content and takes its clicks and focus. A select's list, an autocomplete's suggestions and a menu sit after their element, so in the modal already. A modal that closes first closes the dialogs
+        in it, top first, and the snacks go back to the page. A modal opened from a modal, a confirmation included, goes to the body above it, so a modal can open the next one and close itself.
       </p>
       <p>
         <code>$overlayHost()</code> is where an overlay opened now belongs: the topmost modal's overlay layer, <code>div.dialog-overlay-layer</code> at the end of its container, or
@@ -70,6 +71,59 @@
         and clip them.
       </p>
       <app-docs-example [example]="examples.overlays" />
+    </div>
+
+    <div class="section">
+      <h3>Accessibility</h3>
+      <p>
+        A modal follows the WAI-ARIA dialog (modal) pattern: it is a <code>&lt;dialog&gt;</code> the service shows with <code>showModal()</code>, so the browser makes the rest of the page inert for
+        the keyboard, the pointer and screen readers until it closes.
+      </p>
+      <ul>
+        <li>
+          Screen readers hear a modal dialog named by its header's title. A modal without a header is named by <code>label</code> in its args; a dialog that isn't a modal, from
+          <code>openDialog()</code> or <code>openTemplateDialog()</code>, ignores it.
+        </li>
+        <li>
+          As a modal opens, focus goes to the first of these: an element its content focused as it rendered, its content's first <code>autofocus</code> element, its first element in the Tab order, the
+          header's close button, the modal itself.
+        </li>
+        <li>
+          When it closes, focus goes back to the element focused before it opened, while that is still in the page. A modal that closes under one it opened, as a wizard's step does, leaves focus in
+          the one still open, which gives it back there in its turn.
+        </li>
+        <li>
+          A dialog that isn't a modal and keeps focus, such as a menu or one the app opens with <code>trapFocus</code>, keeps Tab in itself and wraps at either end, and gives focus back when it
+          closes. The page's own Tab order stays as it is.
+        </li>
+        <li>Its backdrop is the <code>&lt;dialog&gt;</code>'s <code>::backdrop</code>, in <code>--twc-modal-color-backdrop</code>; style it as <code>dialog.dialog-container::backdrop</code>.</li>
+      </ul>
+      <table class="docs-table">
+        <thead>
+          <tr>
+            <th scope="col">Key or press</th>
+            <th scope="col">What it does</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Escape</td>
+            <td>
+              Closes the top dialog in the modal, such as a select's list, then the modal, unless <code>closeOnEscape</code> is <code>false</code>. A showing tooltip takes it first. A handler of the
+              app's, on an element in the modal or on the document, keeps the modal open with <code>preventDefault()</code>. Escape in a date or time input closes nothing, since it can come from
+              closing the input's own picker
+            </td>
+          </tr>
+          <tr>
+            <td>Tab, Shift+Tab</td>
+            <td>Move through the modal's elements; the page outside takes no focus</td>
+          </tr>
+          <tr>
+            <td>A press on the backdrop</td>
+            <td>Closes the modal, unless <code>closeOnBackdropClick</code> is <code>false</code>. The press starts and ends on the backdrop, so a text selection dragged out of the modal keeps it</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </div>

@@ -85,5 +85,20 @@
       </p>
       <app-docs-example [example]="examples.component" />
     </div>
+
+    <div class="section">
+      <h3>Accessibility</h3>
+      <ul>
+        <li>
+          Screen readers announce each snack through a live region: a <code>status</code>, polite, for <code>info</code> and <code>success</code>, and an <code>alert</code>, assertive, for
+          <code>error</code>.
+        </li>
+        <li>A timed snack waits while the pointer or focus is on it, so the user can read it and reach its buttons. Its action is a button, and its close button is named Close.</li>
+        <li>
+          While a modal is open, the snacks sit in it, in the browser's top layer above the page and any header the app fixes there, where they take focus and clicks while the rest of the page is
+          inert.
+        </li>
+      </ul>
+    </div>
   </div>
 </div>

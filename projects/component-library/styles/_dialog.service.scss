@@ -8,6 +8,23 @@
   padding: 0;
 }
 
+// A modal is a <dialog> the dialog service shows with showModal(), in the top layer. The browser's own margin,
+// padding, border, colour, inset and maximum size give way to the service's placement and the modal's look, and its
+// ::backdrop takes the theme's backdrop colour
+dialog.dialog-container {
+  margin: 0;
+  padding: 0;
+  border: none;
+  color: inherit;
+  inset: auto;
+  max-width: none;
+  max-height: none;
+
+  &::backdrop {
+    background-color: var(--twc-modal-color-backdrop);
+  }
+}
+
 .dialog-container {
   position: fixed;
   background: var(--twc-color-base);

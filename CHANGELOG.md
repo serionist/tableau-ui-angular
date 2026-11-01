@@ -64,6 +64,19 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   app that wants such a dialog to outlive the modal opens it once the modal has closed. A tooltip, a dialog or a snack
   shown over a modal is inside its `.dialog-container`, in its overlay layer, not a child of the body: a test or a
   style that looked for it under `body` looks in the whole document. A modal opened from a modal still goes to the body.
+- A modal, a confirmation included, is a `dialog.dialog-container` shown with `showModal()`, in the browser's top layer
+  above every z-index, where it was a `div.dialog-container` at z-index 100 over a `div.dialog-backdrop`. The page
+  outside it is inert while it is open, and its elements keep their `tabindex`, where each took `tabindex="-1"`. A test
+  or a style that found a modal by `div.dialog-container` finds it by `dialog.dialog-container`, or by its `dialog` role
+  and its name; a test that read the page's `tabindex` checks that the page takes no focus.
+- An overlay an app appends to the body itself, opened from a modal, sits under the modal and is inert: open it
+  through `DialogService`, or move its container into `DialogService.$overlayHost()`.
+- An Escape handler that keeps a modal open, on an element in the modal or on the document, calls `preventDefault()`;
+  `stopPropagation()` alone no longer does, since the browser then closes the `<dialog>` and the service with it.
+- A modal's backdrop is its `<dialog>`'s `::backdrop`: CSS on `.dialog-backdrop` moves to
+  `dialog.dialog-container::backdrop` or sets `--twc-modal-color-backdrop`, and a test that clicked `.dialog-backdrop`
+  presses the `<dialog>` outside its box with a pointer, a `pointerdown` then a `click`; `dialog.click()` alone no
+  longer closes it. A dialog that isn't a modal, such as a menu, keeps its `div.dialog-backdrop`.
 
 ### Added
 
@@ -82,6 +95,8 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   `openDialog()` or `openTemplateDialog()` and the snacks go there, above everything in the modal's content, and an app
   appends an overlay of its own there instead of the body. When the modal closes, it first closes the dialogs in it,
   and what the app put in its layer moves on to the next host.
+- `label` in `IModalArgs`: the name screen readers give a modal without a header, its `aria-label`; a modal with a
+  header is named by its title. It names modals only: `openDialog()` and `openTemplateDialog()` ignore it.
 
 ### Fixed
 
@@ -201,6 +216,19 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   placed in it with `LocalStackOptions`, which stayed on the dialog stack and took the next Escape. A `DialogRef`'s
   `close()` while it is closing does nothing, where a `closed$` subscriber that closed it again told every subscriber
   twice and took the top dialog off the stack, so Escape no longer closed it.
+- A modal follows the WAI-ARIA dialog (modal) pattern. Screen readers hear a modal dialog named by its header's title,
+  or by its `label`, and the rest of the page is inert to them. As it opens, focus goes to its content's first
+  `autofocus` element, else its first element in the Tab order, the header's close button or the modal itself, where
+  it stayed on the page; a confirmation without `autofocus` focuses its cancel button. When it closes, focus goes back
+  to the element focused before it opened, and a wizard's step that closes under the next leaves focus in the next.
+- A modal shows above an app's fixed header or any other z-index of the page, where it sat at z-index 100, and so do
+  the tooltips, snacks and dialogs shown over it. Escape and the browser's other close requests, such as a back
+  gesture, close the top dialog in a modal first, and leave a modal with `closeOnEscape` false open however often they
+  come.
+- A tab group, a button toggle or a tree whose selection changed while a menu or a modal was open keeps one Tab stop
+  once it closes, where it kept its old one too. A menu, or a dialog opened with `trapFocus`, keeps Tab in itself,
+  wrapping at either end, and leaves the page's `tabindex` as it is, where it set every Tab stop of the page to `-1`
+  and wrote the old values back as it closed.
 
 ## 0.2.0 (2026-10-31)
 
