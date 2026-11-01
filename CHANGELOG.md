@@ -20,6 +20,12 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   pristine, so a Save button bound to `dirty` turns off; and a rule that disables a field when another changes, as with
   `childChange`, makes the group emit its value twice. To keep the old behaviour, pass `false` as the second argument:
   `disable(emitEvent, false)` and `enable(emitEvent, false)`.
+- Inside a subscriber of a group's, an array's or a control's `value$`, such as a `valueChange` callback, a change the
+  subscriber makes to the form reaches `value$`, `$value()` and `$rawValue()` once every subscriber has the value being
+  emitted, where it reached them during the call that made it. A subscriber that disables a field and then reads
+  `form.$value()` to save a draft reads the value it was given, the field included. Act on the value the next call
+  brings: each subscriber is called again with the new one. An array's `push`, `insert`, `removeAt` and `clear` still
+  change its `$rawValue()`, `rawValue$` and `$controls()` at once, while its `$value()` waits.
 
 ### Fixed
 
@@ -65,6 +71,12 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   black on the dark one. The property names stay. Styles that copied the old red read the property instead. Text an app
   puts on `--twc-color-error` takes `--twc-color-base`, as the raised error button now does, since a light text there
   reads below 4.5:1 on the dark red; an app that sets `--twc-color-error` keeps `--twc-color-base` on it at 4.5:1.
+- A group's, an array's or a control's `value$` ends on the latest value for every subscriber when one of them changes
+  the form while the value emits, as a `valueChange` that disables a field does. The subscribers after that one got the
+  new value and then the old one, so a template or a save kept a field the form had left out. Each subscriber now gets
+  the old value and then the new one. A rule that sets a field from the others, with no check that the field already
+  holds it, settles, where it overflowed the stack. A value or meta rule that doesn't settle within 100 rounds stops
+  with an error that names `value$` or `meta$`, and its last change is dropped.
 
 ## 0.2.0 (2026-10-31)
 

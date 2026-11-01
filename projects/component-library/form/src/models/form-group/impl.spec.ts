@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule, Validators } from '@angular/forms';
-import { firstValueFrom, skip } from 'rxjs';
+import { config, firstValueFrom, skip } from 'rxjs';
+import { FormGroupPipe } from '../../pipes/raw-controls/form-group.pipe';
 import { FormGroupValuePipe } from '../../pipes/value/form-group-value.pipe';
 import { TableauUiFormModule } from '../../tableau-ui-form.module';
 import { FB } from '../fb';
@@ -201,5 +202,193 @@ describe('FG', () => {
     form.metaFn.markAsPristine();
 
     expect(state.$meta().pristine).toBe(true);
+  });
+
+  type Email = {
+    hasEmail: boolean;
+    email: string;
+  };
+
+  // The rule from the issue: the first subscriber disables email while the form's value is emitting
+  function emailForm(first: unknown[]): FG<Email> {
+    const form = fb.group<Email>({ hasEmail: fb.control<boolean>(true), email: fb.control<string>('ada') });
+    const { email } = form.controls;
+    form.registerFn.valueChange(value => {
+      first.push(value);
+      if (value.hasEmail) {
+        email.metaFn.enable();
+      } else {
+        email.metaFn.disable();
+      }
+    });
+    return form;
+  }
+
+  // A subscriber that changed the form while its value emitted made Angular emit the new value inside that emit, so the
+  // subscribers after it got the new value and then the old one, and a template kept showing the disabled field
+  it('gives every value subscriber the old value and then the new one when a subscriber changes the form', () => {
+    const first: unknown[] = [];
+    const second: unknown[] = [];
+    const form = emailForm(first);
+    form.value$.subscribe(value => second.push(value));
+
+    form.controls.hasEmail.setValue(false);
+
+    expect(second).toEqual([{ hasEmail: true, email: 'ada' }, { hasEmail: false, email: 'ada' }, { hasEmail: false }]);
+    expect(first).toEqual(second);
+    expect(form.$value()).toEqual({ hasEmail: false });
+    expect(form.$rawValue()).toEqual({ hasEmail: false, email: 'ada' });
+
+    form.controls.hasEmail.setValue(true);
+
+    expect(second.slice(3)).toEqual([{ hasEmail: true }, { hasEmail: true, email: 'ada' }]);
+    expect(first).toEqual(second);
+    expect(form.$value()).toEqual({ hasEmail: true, email: 'ada' });
+  });
+
+  it('emits a change once when no subscriber changes the form', () => {
+    const second: unknown[] = [];
+    const form = emailForm([]);
+    form.value$.subscribe(value => second.push(value));
+
+    form.controls.email.setValue('bo');
+
+    expect(second).toEqual([
+      { hasEmail: true, email: 'ada' },
+      { hasEmail: true, email: 'bo' },
+    ]);
+  });
+
+  // reset$ read the value value$ had emitted, and a reset made inside a value subscriber waits for its turn there
+  it('gives reset$ the reset value when a value subscriber resets the form', () => {
+    const form = fb.group<{ name: string }>({ name: fb.control<string>('Ada') });
+    form.registerFn.valueChange(value => {
+      if (value.name === 'clear') {
+        form.resetWithDefaultValue();
+      }
+    });
+    const resets: unknown[] = [];
+    const values: unknown[] = [];
+    form.reset$.subscribe(value => resets.push(value));
+    form.value$.subscribe(value => values.push(value));
+
+    form.controls.name.setValue('clear');
+
+    expect(resets).toEqual([{ name: 'Ada' }]);
+    expect(values).toEqual([{ name: 'Ada' }, { name: 'clear' }, { name: 'Ada' }]);
+    expect(form.$value()).toEqual({ name: 'Ada' });
+  });
+
+  // A rule that sets a field from the others, with no check that the field already holds it, makes Angular emit an
+  // equal value each time: it recursed until the stack overflowed, and taking turns would loop
+  it('settles a rule that sets a field from the others without a check', () => {
+    const form = fb.group<{ first: string; last: string; full: string }>({ first: fb.control<string>('Ada'), last: fb.control<string>('King'), full: fb.control<string>('') });
+    form.registerFn.valueChange(value => form.controls.full.setValue(`${value.first} ${value.last}`));
+    const values: unknown[] = [];
+    form.value$.subscribe(value => values.push(value));
+
+    form.controls.first.setValue('Augusta');
+
+    expect(values).toEqual([
+      { first: 'Ada', last: 'King', full: 'Ada King' },
+      { first: 'Augusta', last: 'King', full: 'Ada King' },
+      { first: 'Augusta', last: 'King', full: 'Augusta King' },
+    ]);
+    expect(form.$value()).toEqual({ first: 'Augusta', last: 'King', full: 'Augusta King' });
+  });
+
+  // A held value the same as the last one still goes out when the raw value changed, as when a rule sets a disabled field
+  it('emits a held value the same as the last one when the raw value changed, so the raw value follows', () => {
+    const form = fb.group<{ name: string; id: string }>({ name: fb.control<string>('ada'), id: fb.control<string>('', undefined, undefined, true) });
+    form.registerFn.valueChange(value => form.controls.id.setValue((value.name ?? '').toUpperCase()));
+    const raw: unknown[] = [];
+    form.rawValue$.subscribe(value => raw.push(value));
+
+    form.controls.name.setValue('bo');
+
+    expect(form.$rawValue()).toEqual({ name: 'bo', id: 'BO' });
+    expect(raw.at(-1)).toEqual({ name: 'bo', id: 'BO' });
+  });
+
+  // A held value the same as the last one was dropped though the form's validity had changed, so a subscriber that
+  // read the validity never ran again and kept the form savable while it was invalid
+  it('calls the value subscribers again when another one changes the validity alone', () => {
+    const form = fb.group<{ kind: string; vat: string }>({ kind: fb.control<string>('person'), vat: fb.control<string>('') });
+    let canSave = false;
+    form.registerFn.valueChange(() => {
+      canSave = form.$meta().validity === 'VALID';
+    });
+    form.registerFn.valueChange((value, old) => {
+      if (old !== undefined && value.kind !== old.kind) {
+        const { vat } = form.controls;
+        vat.validatorFn.setValidators(value.kind === 'business' ? Validators.required : null);
+        vat.updateValueAndValidity(true, false, false, false);
+      }
+    });
+    expect(canSave).toBe(true);
+
+    form.controls.kind.setValue('business');
+
+    expect(form.$meta().validity).toBe('INVALID');
+    expect(canSave).toBe(false);
+  });
+
+  /** The errors RxJS reports from inside a subscription while `act` runs, which it reports on a timeout */
+  async function reported(act: () => void): Promise<unknown[]> {
+    const errors: unknown[] = [];
+    config.onUnhandledError = error => errors.push(error);
+    try {
+      act();
+      await new Promise(resolve => setTimeout(resolve));
+    } finally {
+      config.onUnhandledError = null;
+    }
+    return errors;
+  }
+
+  // A rule that changes the form each time it runs never settles: it overflowed the stack, and taking turns without a
+  // cap froze the page with nothing logged
+  it('stops a value rule that never settles after 100 held runs, reports it, and goes on working', async () => {
+    const form = fb.group<{ count: number; name: string }>({ count: fb.control<number>(0), name: fb.control<string>('Ada') });
+    let counting = false;
+    form.registerFn.valueChange(value => {
+      if (counting) {
+        form.controls.count.setValue((value.count ?? 0) + 1);
+      }
+    });
+    const values: unknown[] = [];
+    form.value$.subscribe(value => values.push(value));
+
+    counting = true;
+    const errors = await reported(() => form.controls.name.setValue('Bo'));
+    counting = false;
+
+    expect(errors).toEqual([expect.objectContaining({ message: expect.stringContaining("value$ didn't settle within 100 rounds in one turn") })]);
+    expect(values.length).toBe(102);
+    form.controls.name.setValue('Cy');
+    expect(form.$value()).toEqual({ count: 101, name: 'Cy' });
+    expect(values.at(-1)).toEqual({ count: 101, name: 'Cy' });
+  });
+
+  it('stops a meta rule that never settles after 100 held runs, reports it, and goes on working', async () => {
+    const form = address();
+    let toggling = false;
+    form.registerFn.metaChange(meta => {
+      if (toggling) {
+        if (meta.touched) {
+          form.metaFn.markAsUntouched();
+        } else {
+          form.metaFn.markAsTouched();
+        }
+      }
+    });
+
+    toggling = true;
+    const errors = await reported(() => form.metaFn.markAsTouched());
+    toggling = false;
+
+    expect(errors).toEqual([expect.objectContaining({ message: expect.stringContaining("meta$ didn't settle within 100 rounds in one turn") })]);
+    form.controls.state.setValue('WA');
+    expect(form.$meta().touched).toBe(new FormGroupPipe().transform(form).touched);
   });
 });
