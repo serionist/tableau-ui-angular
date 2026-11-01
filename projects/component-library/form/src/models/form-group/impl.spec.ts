@@ -202,4 +202,79 @@ describe('FG', () => {
 
     expect(state.$meta().pristine).toBe(true);
   });
+
+  type Email = {
+    hasEmail: boolean;
+    email: string;
+  };
+
+  // The rule from the issue: the first subscriber disables email while the form's value is emitting
+  function emailForm(first: unknown[]): FG<Email> {
+    const form = fb.group<Email>({ hasEmail: fb.control<boolean>(true), email: fb.control<string>('ada') });
+    const { email } = form.controls;
+    form.registerFn.valueChange(value => {
+      first.push(value);
+      if (value.hasEmail) {
+        email.metaFn.enable();
+      } else {
+        email.metaFn.disable();
+      }
+    });
+    return form;
+  }
+
+  // A subscriber that changed the form while its value emitted made Angular emit the new value inside that emit, so the
+  // subscribers after it got the new value and then the old one, and a template kept showing the disabled field
+  it('gives every value subscriber the old value and then the new one when a subscriber changes the form', () => {
+    const first: unknown[] = [];
+    const second: unknown[] = [];
+    const form = emailForm(first);
+    form.value$.subscribe(value => second.push(value));
+
+    form.controls.hasEmail.setValue(false);
+
+    expect(second).toEqual([{ hasEmail: true, email: 'ada' }, { hasEmail: false, email: 'ada' }, { hasEmail: false }]);
+    expect(first).toEqual(second);
+    expect(form.$value()).toEqual({ hasEmail: false });
+    expect(form.$rawValue()).toEqual({ hasEmail: false, email: 'ada' });
+
+    form.controls.hasEmail.setValue(true);
+
+    expect(second.slice(3)).toEqual([{ hasEmail: true }, { hasEmail: true, email: 'ada' }]);
+    expect(first).toEqual(second);
+    expect(form.$value()).toEqual({ hasEmail: true, email: 'ada' });
+  });
+
+  it('emits a change once when no subscriber changes the form', () => {
+    const second: unknown[] = [];
+    const form = emailForm([]);
+    form.value$.subscribe(value => second.push(value));
+
+    form.controls.email.setValue('bo');
+
+    expect(second).toEqual([
+      { hasEmail: true, email: 'ada' },
+      { hasEmail: true, email: 'bo' },
+    ]);
+  });
+
+  // reset$ read the value value$ had emitted, and a reset made inside a value subscriber waits for its turn there
+  it('gives reset$ the reset value when a value subscriber resets the form', () => {
+    const form = fb.group<{ name: string }>({ name: fb.control<string>('Ada') });
+    form.registerFn.valueChange(value => {
+      if (value.name === 'clear') {
+        form.resetWithDefaultValue();
+      }
+    });
+    const resets: unknown[] = [];
+    const values: unknown[] = [];
+    form.reset$.subscribe(value => resets.push(value));
+    form.value$.subscribe(value => values.push(value));
+
+    form.controls.name.setValue('clear');
+
+    expect(resets).toEqual([{ name: 'Ada' }]);
+    expect(values).toEqual([{ name: 'Ada' }, { name: 'clear' }, { name: 'Ada' }]);
+    expect(form.$value()).toEqual({ name: 'Ada' });
+  });
 });

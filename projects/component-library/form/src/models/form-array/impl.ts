@@ -3,6 +3,7 @@ import { signal } from '@angular/core';
 import type { Observable } from 'rxjs';
 import { BehaviorSubject, filter, map, startWith } from 'rxjs';
 import { ACImpl } from '../abstract-control/impl';
+import { InTurnSubject } from '../abstract-control/in-turn-subject';
 import type { MetaFns } from '../abstract-control/meta/interfaces';
 import type { AsyncValidatorFn, ValidatorFn, ValidatorFns } from '../abstract-control/validation/interfaces';
 import type { FA } from './interaces';
@@ -18,7 +19,7 @@ import type { DeepPartial, ReadonlyBehaviorSubject } from 'tableau-ui-angular/ty
 
 export class FAImpl<T extends Record<string, unknown>> extends ACImpl<T[]> implements FA<T> {
   protected readonly $_value: WritableSignal<DeepPartial<T>[]>;
-  protected readonly _value$: BehaviorSubject<DeepPartial<T>[]>;
+  protected readonly _value$: InTurnSubject<DeepPartial<T>[]>;
   private readonly _rawValue$: BehaviorSubject<T[]>;
   private readonly $_rawValue: WritableSignal<T[]>;
   public override get value$(): Observable<DeepPartial<T>[]> {
@@ -74,10 +75,11 @@ export class FAImpl<T extends Record<string, unknown>> extends ACImpl<T[]> imple
 
     this.$_controls = signal(this._controls$.value);
 
-    this._value$ = new BehaviorSubject<DeepPartial<T>[]>(control.value);
+    this._value$ = new InTurnSubject<DeepPartial<T>[]>(control.value);
     this.$_value = signal(control.value);
     this._rawValue$ = new BehaviorSubject<T[]>(this._defaultValue);
     this.$_rawValue = signal<T[]>(this._rawValue$.value);
+    // A change a subscriber makes reaches value$, $value and the raw value once every subscriber has the current value
     this.subscriptions.push(
       control.valueChanges.pipe(startWith(control.value)).subscribe(v => {
         this._value$.next(v);
@@ -97,11 +99,11 @@ export class FAImpl<T extends Record<string, unknown>> extends ACImpl<T[]> imple
     );
     this.submitted$ = this.control.events.pipe(
       filter(e => e instanceof FormSubmittedEvent),
-      map(() => this._value$.value),
+      map(() => this._value$.latest),
     );
     this.reset$ = this.control.events.pipe(
       filter(e => e instanceof FormResetEvent),
-      map(() => this._value$.value),
+      map(() => this._value$.latest),
     );
     this.registerFn = new FaRegisterFnsImpl<T>(this, this.subscriptions);
     this.validatorFn = new ValidatorFnsImpl<FA<T>>(this.control, this);

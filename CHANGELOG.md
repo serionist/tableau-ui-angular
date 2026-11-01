@@ -65,6 +65,11 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   black on the dark one. The property names stay. Styles that copied the old red read the property instead. Text an app
   puts on `--twc-color-error` takes `--twc-color-base`, as the raised error button now does, since a light text there
   reads below 4.5:1 on the dark red; an app that sets `--twc-color-error` keeps `--twc-color-base` on it at 4.5:1.
+- A group's, an array's or a control's `value$` ends on the latest value for every subscriber when one of them changes
+  the form while the value emits, as a `valueChange` that disables a field does. The subscribers after that one got the
+  new value and then the old one, so a template or a save kept a field the form had left out. Each subscriber now gets
+  the old value and then the new one. The change reaches `value$`, `$value()` and `$rawValue()` once the old value has
+  reached every subscriber, where it reached them during the call that made it.
 
 ## 0.2.0 (2026-10-31)
 

@@ -129,4 +129,24 @@ describe('FA', () => {
     expect(await firstValueFrom(pipe.transform(array))).toEqual([{ name: 'b' }]);
     expect(await firstValueFrom(pipe.transform(array, 'raw'))).toEqual([{ name: 'b', id: '1' }]);
   });
+
+  // A subscriber that changed the array while its value emitted made Angular emit the new value inside that emit, so
+  // the subscribers after it got the new value and then the old one
+  it('gives every value subscriber the old value and then the new one when a subscriber changes the array', () => {
+    const array = fb.array([fb.group<{ hasEmail: boolean; email: string }>({ hasEmail: fb.control<boolean>(true), email: fb.control<string>('ada') })]);
+    const first: unknown[] = [];
+    const second: unknown[] = [];
+    array.registerFn.valueChange((value, _old, controls) => {
+      first.push(value);
+      controls.forEach(({ controls: { hasEmail, email } }) => (hasEmail.$value() ? email.metaFn.enable() : email.metaFn.disable()));
+    });
+    array.value$.subscribe(value => second.push(value));
+
+    array.at(0)!.controls.hasEmail.setValue(false);
+
+    expect(second).toEqual([[{ hasEmail: true, email: 'ada' }], [{ hasEmail: false, email: 'ada' }], [{ hasEmail: false }]]);
+    expect(first).toEqual(second);
+    expect(array.$value()).toEqual([{ hasEmail: false }]);
+    expect(array.$rawValue()).toEqual([{ hasEmail: false, email: 'ada' }]);
+  });
 });

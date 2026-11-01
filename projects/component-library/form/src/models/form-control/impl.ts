@@ -1,8 +1,9 @@
 import type { Signal, WritableSignal } from '@angular/core';
 import { signal } from '@angular/core';
 import type { Observable } from 'rxjs';
-import { BehaviorSubject, distinctUntilChanged, filter, map, startWith } from 'rxjs';
+import { distinctUntilChanged, filter, map, startWith } from 'rxjs';
 import { ACImpl } from '../abstract-control/impl';
+import { InTurnSubject } from '../abstract-control/in-turn-subject';
 import type { MetaFns } from '../abstract-control/meta/interfaces';
 import type { AsyncValidatorFn, ValidatorFn, ValidatorFns } from '../abstract-control/validation/interfaces';
 import type { FC } from './interfaces';
@@ -14,7 +15,7 @@ import { FcRegisterFnsImpl } from './register/impl';
 import type { PrimitiveWithUndefined } from './types';
 
 export class FCImpl<T extends PrimitiveWithUndefined | PrimitiveWithUndefined[]> extends ACImpl<T> implements FC<T> {
-  private readonly _value$: BehaviorSubject<T>;
+  private readonly _value$: InTurnSubject<T>;
   private readonly $_value: WritableSignal<T>;
 
   public override get value$(): Observable<T> {
@@ -55,8 +56,9 @@ export class FCImpl<T extends PrimitiveWithUndefined | PrimitiveWithUndefined[]>
     super('control', control, []);
     this._control = control;
     this._defaultValue = params.defaultValue;
-    this._value$ = new BehaviorSubject<T>(params.defaultValue);
+    this._value$ = new InTurnSubject<T>(params.defaultValue);
     this.$_value = signal<T>(this._value$.value);
+    // A change a subscriber makes reaches value$ and $value once every subscriber has the current value
     this.subscriptions.push(
       control.valueChanges
         .pipe(
@@ -79,11 +81,11 @@ export class FCImpl<T extends PrimitiveWithUndefined | PrimitiveWithUndefined[]>
     );
     this.submitted$ = this.control.events.pipe(
       filter(e => e instanceof FormSubmittedEvent),
-      map(() => this._value$.value),
+      map(() => this._value$.latest),
     );
     this.reset$ = this.control.events.pipe(
       filter(e => e instanceof FormResetEvent),
-      map(() => this._value$.value),
+      map(() => this._value$.latest),
     );
     this.registerFn = new FcRegisterFnsImpl<T>(this, this.subscriptions);
     this.validatorFn = new ValidatorFnsImpl<FC<T>>(this.control, this);
