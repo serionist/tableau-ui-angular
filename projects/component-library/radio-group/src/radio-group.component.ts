@@ -126,7 +126,8 @@ export class RadioGroupComponent<T extends Primitive> implements ControlValueAcc
   }
 
   // The group's part of its host's attributes: the error's id in aria-describedby and aria-invalid while the error
-  // shows. It writes nothing that is already there, so the host observer doesn't run again for its own writes
+  // shows. The host observer sees these writes too and runs again, but then finds its part in place and writes
+  // nothing: the group and any other writer settle on that
   private writeOwnAttributes() {
     const host = this.host.nativeElement;
     const error = this.$errorElement() !== undefined;

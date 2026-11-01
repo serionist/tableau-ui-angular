@@ -126,7 +126,8 @@ export class FormFieldComponent implements AfterContentInit, OnDestroy {
    * Writes the field's part of the control's attributes: the label's id in `aria-labelledby` when the label names it
    * that way, the shown hint's and error's ids in `aria-describedby`, and `aria-invalid` while the error shows. The
    * effect runs it as they change, and the input observer when an app's own binding rewrites one of those attributes.
-   * It writes nothing that is already there, so the observer doesn't run again for its own writes.
+   * The input observer sees these writes too and runs again, but then finds its part in place and writes nothing: the
+   * field and any other writer settle on that.
    */
   private writeOwnAttributes() {
     const control = this.$control();

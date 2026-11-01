@@ -544,6 +544,8 @@ describe('FormFieldComponent', () => {
       watcher.disconnect();
       expect(writes).toEqual([]);
       expect(describedBy()).toEqual(ids);
+      // what a screen reader hears for the group holds its error
+      await expect.element(page.elementLocator(group)).toHaveAccessibleDescription(/Pick a size/);
     });
 
     // A tooltip adds its own id to its element's aria-describedby while it shows
@@ -741,6 +743,7 @@ describe('FormFieldComponent', () => {
       host.querySelector<HTMLElement>('input[aria-label="Before"]')!.focus();
       await userEvent.keyboard('{Tab}');
       expect(document.activeElement).toBe(host.querySelector('tab-chip-control input'));
+      expect((document.activeElement as HTMLElement).matches(':focus-visible')).toBe(true);
       expect(getComputedStyle(styled).outlineStyle).toBe('none');
     });
   });
