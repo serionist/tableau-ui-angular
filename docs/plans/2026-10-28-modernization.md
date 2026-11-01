@@ -832,6 +832,15 @@ API; the rows after it stay proposed.
   icon: the link says `32x32`, and the app spec pins it. The screenshots and the card are retaken from main after #100
   and #94, so the Region select reads "North, East", and the caption links the dashboard page; the card's crop ends
   below the month labels, a whole row, and its not-affiliated line reads at 500 px wide.
+- 2026-10-31, S13: the tag `v0.2.0` ran `release.yml`: the maintainer approved the `npm` deployment, and 0.2.0 is
+  on npm through trusted publishing, with SLSA provenance, and on GitHub as a release whose notes are its CHANGELOG
+  section. The package then requires two-factor authentication and disallows tokens, and the old tokens are deleted.
+- 2026-10-31, S11: the social preview, `docs/assets/social-preview.png`, is uploaded in the repo's settings.
+- 2026-10-31, S14: the GitHub release is out with 0.2.0; the awesome-angular entry is PatrickJS/awesome-angular#2642,
+  open. #24 closes once it merges.
+- 2026-11-01: after the plan's steps, the docs site's code is coloured by Monaco (#93) and has a showcase dashboard
+  (#94). The next release, 0.3.0, is tracked in #101: its bugs, then the accessibility plan,
+  `2026-11-01-accessibility.md`.
 
 ## For the maintainers
 
@@ -846,8 +855,9 @@ API; the rows after it stay proposed.
 - Before S13: on npmjs.com, a trusted publisher for `tableau-ui-angular` (this repo, `release.yml`, environment
   `npm`); the `npm` environment with you as reviewer, limited to `v*` tags, created on 2026-10-31.
 - S11, after #98 merges: upload `docs/assets/social-preview.png` in the repo's settings, General, Social preview
-  (GitHub takes it only there).
+  (GitHub takes it only there). Done on 2026-10-31.
 - S13: approve the `npm` deployment; then set the package to "Require two-factor authentication and disallow tokens".
+  Done on 2026-10-31.
 
 ## Later
 
