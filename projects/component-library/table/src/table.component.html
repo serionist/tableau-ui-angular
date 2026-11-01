@@ -17,7 +17,7 @@
           @switch ($selectionOptions() | headerCheckboxMode) {
             @case ('selectNone') {
               <tab-checkbox
-                [disabled]="$selectionMultiHeaderCheckboxSelected() !== 'partial'"
+                [disabled]="$selectionMultiHeaderCheckboxSelected() === false"
                 [value]="$selectionMultiHeaderCheckboxSelected()"
                 [valueAfterPartial]="false"
                 (valueChange)="selectionMultiHeaderCheckboxSelectNoneChanged()"
@@ -76,7 +76,7 @@
             tooltip
             tooltipArgsMode="lazy"
             [class.not-sortable]="!def.col.$sortable()"
-            [noFocusOnClick]="false"
+            [noFocusOnClick]="!def.col.$sortable()"
             [tabindex]="def.col.$sortable() ? '0' : '-1'"
             [tooltipLazyArgs]="
               def.col
@@ -207,8 +207,9 @@
   <div class="data-rows" role="rowgroup" [class.striped]="$striped()">
     @if (dmBlocks.blocks.length === 0) {
       <!-- a row of one cell across the columns, so the table's rows hold only rows -->
+      @let columns = $displayedColumnDefs().length + (hasCheckboxColumn ? 1 : 0);
       <div class="no-data-row" role="row">
-        <div role="cell" [attr.aria-colspan]="$displayedColumnDefs().length + (hasCheckboxColumn ? 1 : 0)">
+        <div role="cell" [attr.aria-colspan]="columns > 0 ? columns : 1">
           @let _noDataTemplate = $noDataTemplate();
           @if (_noDataTemplate === 'default') {
             <ng-container [ngTemplateOutlet]="defaultNoData" />
@@ -229,7 +230,8 @@
       <div class="virtualize pre" aria-hidden="true" [style.height]="`${dmBlocks.prePixels}px`"></div>
 
       @for (block of dmBlocks.blocks; track block.id) {
-        @for (r of block.$data(); track r.key) {
+        <!-- a block still loading, or failed, holds a placeholder for each row a block can hold; the last holds fewer -->
+        @for (r of block.$data() | withinTotal: block.offset : total; track r.key) {
           @let rowIndex = $index;
           @let rowFirst = $first;
           <!-- the row's place in the data, from 0 -->

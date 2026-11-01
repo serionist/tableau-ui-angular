@@ -1,13 +1,13 @@
 // The public API of tableau-ui-angular/table, from its built typings. npm run api:update writes it; a change to it is named in the PR.
 
-import * as i21 from '@angular/common';
+import * as i22 from '@angular/common';
 import * as i0 from '@angular/core';
 import { InputSignal, ModelSignal, OnDestroy, PipeTransform, TemplateRef } from '@angular/core';
 import { Observable } from 'rxjs';
-import * as i23 from 'tableau-ui-angular/button';
-import * as i25 from 'tableau-ui-angular/checkbox';
-import * as i22 from 'tableau-ui-angular/icon';
-import * as i24 from 'tableau-ui-angular/tooltip';
+import * as i24 from 'tableau-ui-angular/button';
+import * as i26 from 'tableau-ui-angular/checkbox';
+import * as i23 from 'tableau-ui-angular/icon';
+import * as i25 from 'tableau-ui-angular/tooltip';
 import { TooltipArgs } from 'tableau-ui-angular/tooltip';
 import { Primitive } from 'tableau-ui-angular/types';
 import { DataBlock, DataOptions, DataRowCss, DataSort, VirtualizeBaseComponent } from 'tableau-ui-angular/virtualize';
@@ -733,11 +733,18 @@ export declare class TableauUiTableModule {
       typeof HeaderCheckboxModePipe,
       typeof RowSelectedPipe,
       typeof RowNamePipe,
+      typeof WithinTotalPipe,
     ],
-    [typeof i21.CommonModule, typeof i22.TableauUiIconModule, typeof i23.TableauUiButtonModule, typeof i24.TableauUiTooltipModule, typeof i25.TableauUiCheckboxModule],
+    [typeof i22.CommonModule, typeof i23.TableauUiIconModule, typeof i24.TableauUiButtonModule, typeof i25.TableauUiTooltipModule, typeof i26.TableauUiCheckboxModule],
     [typeof TableComponent, typeof HeaderDefDirective, typeof HeaderToolipDefDirective, typeof ColumnDefDirective, typeof CellDefDirective, typeof CellToolipDefDirective, typeof SortInfoPipe]
   >;
   static ɵinj: i0.ɵɵInjectorDeclaration<TableauUiTableModule>;
+}
+
+declare class WithinTotalPipe implements PipeTransform {
+  transform<TRow>(rows: TRow[], offset: number, total: number): TRow[];
+  static ɵfac: i0.ɵɵFactoryDeclaration<WithinTotalPipe, never>;
+  static ɵpipe: i0.ɵɵPipeDeclaration<WithinTotalPipe, 'withinTotal', false>;
 }
 
 export type { CellContext, CellMetaContext, CellTooltipContext, HeaderContext, HeaderContextMeta, HeaderTooltipContext };

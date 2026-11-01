@@ -149,14 +149,21 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   the whole data, so a screen reader says which row it is on though only the rows near the view are drawn; until a
   load says the total, the count is unknown. "No data available", or an app's `noDataTemplate`, sits in a row with one
   cell across the columns.
+- A table's or a virtual scroller's last block, while it loads or once it failed, draws only the rows the total has
+  left, where it drew a block's worth of placeholders: a screen reader said "row 105 of 101", and the list grew taller
+  until the block loaded.
 - Sorting a table keeps focus on the header's button, where it dropped to the page, and the button's tooltip shows the
-  new sort. The first sort's column header has `aria-sort`, and a later sort's button says its place, "sort 2,
-  descending"; the number a multi-sort shows by the arrow is hidden from screen readers, so a test that found the
-  button by a name with that number, such as "Id 2", finds it by "Id". Shift+Enter and Shift+Space add a column to a
-  multi-sort, as Shift+Click does, and the header's tooltip says so.
+  new sort; a click keeps focus there too, with no focus ring, which shows for the keyboard's focus only. The first
+  sort's column header has `aria-sort`, and a later sort's button says its place, "sort 2, descending"; the number a
+  multi-sort shows by the arrow is hidden from screen readers, so a test that found a button by a name with that
+  number, such as "Id 2", finds the first sort's button by "Id", and a later one's by its place, "Id sort 2,
+  ascending". Shift+Enter and Shift+Space add a column to a multi-sort, as Shift+Click does, and the header's tooltip
+  says so.
 - A table's selection checkboxes have names: each row's is "Select row 12", or "Select" and its `rowLabel`; the
   header's is "Select all rows" or "Clear the selection"; and the column's header is "Selection". With selection on,
   each loaded row has `aria-selected`, so a row selected by a click is not told by its colour alone.
+- A table's select-none header checkbox clears a selection of every row, where it showed checked and stayed disabled
+  once every row was selected by hand; it is disabled only while nothing is selected.
 
 ## 0.2.0 (2026-10-31)
 

@@ -82,6 +82,13 @@
               }
             }
 
+            // a click that sorts keeps focus on the button, as the keyboard's Enter does, but shows its ring only for
+            // the keyboard's focus
+            &:focus:not(:focus-visible) {
+              outline: none;
+              box-shadow: none;
+            }
+
             &.not-sortable {
               outline: none;
               cursor: default;

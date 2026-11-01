@@ -69,7 +69,8 @@ export class TableComponent<TData> extends VirtualizeBaseComponent<TData> {
   // #endregion
 
   // Whether Shift is held with the Enter or Space a header's button turns into a click: the button's own click for
-  // Space carries no Shift, nor does Firefox's for Enter. Taken in the capture phase, before the button makes its click
+  // Space carries no Shift, nor does Firefox's for Enter. Taken in the capture phase, before the button makes its click.
+  // Space by its code, as the button finds it: with Shift some layouts type another character on it
   private keyShift = false;
 
   constructor() {
@@ -81,7 +82,7 @@ export class TableComponent<TData> extends VirtualizeBaseComponent<TData> {
         host,
         'keydown',
         (e: KeyboardEvent) => {
-          if (e.key === 'Enter' || e.key === ' ') {
+          if (e.key === 'Enter' || e.code === 'Space') {
             this.keyShift = e.shiftKey;
           }
         },
@@ -367,7 +368,10 @@ export class TableComponent<TData> extends VirtualizeBaseComponent<TData> {
     }
     e.preventDefault();
     e.stopPropagation();
-    this.sortBy(def, e.shiftKey || (e.detail === 0 && this.keyShift));
+    const addToMultiSort = e.shiftKey || (e.detail === 0 && this.keyShift);
+    // read once: a click made later, without its key, mustn't take it
+    this.keyShift = false;
+    this.sortBy(def, addToMultiSort);
   }
 
   // Sorts by the column alone, or with addToMultiSort, adds it to a multi-sort, turns it, or drops it

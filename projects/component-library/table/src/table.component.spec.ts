@@ -30,6 +30,7 @@ import { TableComponent } from './table.component';
       [dataRowCss]="$rowCss()"
       [selectionOptions]="$selection()"
       [rowLabel]="$rowLabel()"
+      [displayedColumns]="$columns()"
       [(selectedRows)]="$selected"
     >
       <ng-container tabColumnDef="id" [width]="$columnWidth()">
@@ -59,6 +60,7 @@ class PeopleTableComponent {
   readonly $selection = signal<SelectionOptions | undefined>(undefined);
   readonly $selected = signal(new Map<Primitive, Person>());
   readonly $rowLabel = signal<((person: Person) => string) | undefined>(undefined);
+  readonly $columns = signal<string[] | undefined>(undefined);
   // each column's width: flexible, filling the table, or a CSS length
   readonly $columnWidth = signal<number | string>(1);
   // the rows the name column's cellClass function was given
@@ -469,6 +471,14 @@ describe('TableComponent', () => {
       await fixture.whenStable();
       expect(named('Select row 2')).toBe(checkbox(rows()[1]));
 
+      // so does one that is no string, as a server's null, which threw while the table rendered and froze it
+      component.$rowLabel.set(() => null as unknown as string);
+      await fixture.whenStable();
+      expect(named('Select row 2')).toBe(checkbox(rows()[1]));
+      component.$rowLabel.set(person => person.id as unknown as string);
+      await fixture.whenStable();
+      expect(named('Select row 2')).toBe(checkbox(rows()[1]));
+
       // a row in a later block, by its place in the whole data
       component.$rowLabel.set(undefined);
       await scrollTo(1200);
@@ -530,6 +540,32 @@ describe('TableComponent', () => {
     expect(await axeViolations(fixture.nativeElement as HTMLElement)).toEqual([]);
   });
 
+  // #126: the select-none header checkbox was disabled unless the selection was partial, so once every row was selected
+  // it showed checked and couldn't clear it
+  it('clears a selection of every row, made by hand, with the select-none header checkbox', async () => {
+    const { host, rows, selectedIds, settle, load } = await render(c => {
+      c.server.rows = PEOPLE.slice(0, 3);
+      c.$options.set(c.server.full);
+      c.$selection.set(new MultiSelectionOptions('selectNone'));
+    });
+    await load();
+    const all = () => host.querySelector<HTMLInputElement>('.column-header.pinned-left input')!;
+    expect(all().disabled).toBe(true);
+
+    for (const row of rows()) {
+      row.querySelector<HTMLElement>('.cell.check-select .box')!.click();
+      await settle();
+    }
+    expect(selectedIds()).toEqual([1, 2, 3]);
+    expect([all().checked, all().disabled]).toEqual([true, false]);
+
+    host.querySelector<HTMLElement>('.column-header.pinned-left .box')!.click();
+    await settle();
+
+    expect(selectedIds()).toEqual([]);
+    expect(all().disabled).toBe(true);
+  });
+
   // #64: the header row was no row and the table had no row count, so with only some rows drawn a screen reader
   // couldn't tell how many there were, nor which one it was on
   describe('rows', () => {
@@ -566,6 +602,57 @@ describe('TableComponent', () => {
       expect(shown.map(row => row.getAttribute('aria-rowindex'))).toContain('62');
       // the space kept for the rows not drawn is no row
       expect(Array.from(host.querySelectorAll('.virtualize'), spacer => spacer.getAttribute('aria-hidden'))).toEqual(['true', 'true']);
+
+      // a reset counts again: unknown until its first block answers
+      const resetting = component.table().reset();
+      await settle();
+      expect(table.getAttribute('aria-rowcount')).toBe('-1');
+      await server.answerAll(settle);
+      await resetting;
+      expect(table.getAttribute('aria-rowcount')).toBe('101');
+    });
+
+    it('counts its rows as unknown after its first block failed', async () => {
+      await whileLoadsFail(async () => {
+        const { component, host, rows, server, settle } = await render();
+        const loading = component.table().load();
+        await settle();
+        server.waiting[0].fail();
+        await settle();
+        await loading;
+
+        expect(rows().length).toBeGreaterThan(0);
+        expect(rows()[0].querySelector('.status.error')).not.toBeNull();
+        expect(host.querySelector('.table')!.getAttribute('aria-rowcount')).toBe('-1');
+        expect(rows()[0].getAttribute('aria-rowindex')).toBe('2');
+      });
+    });
+
+    // A block still loading, or failed, held a placeholder for each row a block can hold, so the last block's ran past
+    // the count: "row 105 of 101"
+    it('draws no row past its count while its last block loads, nor once it failed', async () => {
+      await whileLoadsFail(async () => {
+        const { host, rows, server, settle, load } = await render();
+        await load();
+        const indexes = () => rows().map(row => Number(row.getAttribute('aria-rowindex')));
+
+        host.scrollTop = host.scrollHeight;
+        host.dispatchEvent(new Event('scroll'));
+        await settle();
+        // the last block asks for more rows than are left
+        const last = server.waiting.find(request => request.offset! + request.count! > 100)!;
+        expect(last).toBeDefined();
+        expect(rows().at(-1)!.querySelector('.status.loader')).not.toBeNull();
+        expect(host.querySelector('.table')!.getAttribute('aria-rowcount')).toBe('101');
+        expect(Math.max(...indexes())).toBe(101);
+        // as tall as once it loads: 100 rows of 20 px under the header row
+        expect(host.querySelector('.data-rows')!.getBoundingClientRect().height).toBe(2000);
+
+        last.fail();
+        await settle();
+        expect(rows().at(-1)!.querySelector('.status.error')).not.toBeNull();
+        expect(Math.max(...indexes())).toBe(101);
+      });
     });
 
     it('shows "No data available" as a row of one cell across its columns, and counts no rows', async () => {
@@ -589,7 +676,30 @@ describe('TableComponent', () => {
       component.$selection.set(undefined);
       await settle();
       expect(page.getByRole('cell', { name: 'No data available' }).element().getAttribute('aria-colspan')).toBe('3');
+      // with every column hidden it still spans one, as ARIA asks
+      component.$columns.set([]);
+      await settle();
+      expect(page.getByRole('cell', { name: 'No data available' }).element().getAttribute('aria-colspan')).toBe('1');
     });
+  });
+
+  // The button clicks on Space by the key's code; on a layout where Shift+Space types another character, the table
+  // looked for a space and missed the Shift, so the column replaced the sort
+  it('adds to the sort on Shift+Space where the layout types another character for it', async () => {
+    const { component, header, server, settle, load } = await render();
+    await load();
+    header('name').click();
+    await server.answerAll(settle);
+
+    header('id').focus();
+    header('id').dispatchEvent(new KeyboardEvent('keydown', { key: ' ', code: 'Space', shiftKey: true, bubbles: true, cancelable: true }));
+    header('id').dispatchEvent(new KeyboardEvent('keyup', { key: ' ', code: 'Space', shiftKey: true, bubbles: true, cancelable: true }));
+    await server.answerAll(settle);
+
+    expect(component.$sort()).toEqual([
+      { property: 'name', direction: 'asc' },
+      { property: 'id', direction: 'asc' },
+    ]);
   });
 
   // #65: a sort didn't say which column the rows were sorted by, nor how
@@ -1014,15 +1124,36 @@ describe('TableComponent tooltips and column widths', () => {
     expect(document.activeElement).toBe(button('id'));
   });
 
-  it("keeps focus on the header's button after a click sorts", async () => {
+  // The button blurred itself after a click, so the click's focus never lingered; now it stays, and its ring shows for
+  // the keyboard's focus only
+  it("keeps focus on the header's button after a click sorts, its ring shown only for the keyboard's focus", async () => {
+    // the theme's colours, without which the button's ring is no colour at all
+    TestBed.createComponent(LibraryStylesComponent);
     const { component, header, settle } = await render();
-    const button = header('name').querySelector<HTMLElement>('.header-button')!;
+    const button = (column: string) => header(column).querySelector<HTMLElement>('.header-button')!;
+    const ring = (column: string) => [getComputedStyle(button(column)).outlineStyle, getComputedStyle(button(column)).boxShadow];
 
-    await userEvent.click(button);
+    await userEvent.click(button('name'));
     await component.server.answerAll(settle);
 
     expect(component.$sort()).toEqual([{ property: 'name', direction: 'asc' }]);
-    expect(document.activeElement).toBe(button);
+    expect(document.activeElement).toBe(button('name'));
+    expect(ring('name')).toEqual(['none', 'none']);
+
+    // the keyboard's focus shows it, on the next button and back on this one
+    await userEvent.keyboard('{Shift>}{Tab}{/Shift}');
+    expect(document.activeElement).toBe(button('id'));
+    expect(ring('id')[0]).toBe('solid');
+    await userEvent.tab();
+    expect(document.activeElement).toBe(button('name'));
+    expect(ring('name')[0]).toBe('solid');
+
+    // a header that doesn't sort keeps no focus from a click
+    await userEvent.click(button('bio'));
+    await vi.waitFor(() => {
+      expect(document.activeElement).not.toBe(button('bio'));
+    });
+    expect(component.$sort()).toEqual([{ property: 'name', direction: 'asc' }]);
   });
 
   it('widens a column by the distance its edge is dragged, and its cells with it', async () => {
