@@ -8,6 +8,11 @@
   white-space: nowrap;
   height: fit-content;
 
+  // names the remove button; its children sit in the chip's own flex layout
+  .content {
+    display: contents;
+  }
+
   .close-button {
     background: transparent;
     width: 1rem;

@@ -106,4 +106,18 @@ describe('FC', () => {
     expect(control.$meta().dirty).toBe(true);
     expect(control.meta$.value.pristine).toBe(false);
   });
+
+  // A subscriber that set the control's value while it emitted, as a rule that tidies what the user typed does, made
+  // Angular emit the new value inside that emit, so the subscribers after it got the tidy value and then the untidy one
+  it('gives every value subscriber the old value and then the new one when a subscriber changes the control', () => {
+    const control = fb.control<string>('A');
+    control.registerFn.valueChange(value => control.setValue(value.toUpperCase()));
+    const values: string[] = [];
+    control.value$.subscribe(value => values.push(value));
+
+    control.setValue('b');
+
+    expect(values).toEqual(['A', 'b', 'B']);
+    expect(control.$value()).toBe('B');
+  });
 });

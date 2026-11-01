@@ -1,5 +1,10 @@
 import { ChangeDetectionStrategy, Component, Directive } from '@angular/core';
 
+/**
+ * The panel's title, which names its toggle button for screen readers. A title that holds a control, such as a button,
+ * or more than the panel's name needs the panel's `label`: without it the toggle's name is the title's whole text, the
+ * control's included, and a search for the control by its name finds the toggle too.
+ */
 @Component({
   selector: 'tab-expansion-panel-title',
   standalone: false,

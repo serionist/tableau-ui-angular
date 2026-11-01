@@ -129,4 +129,62 @@ describe('FA', () => {
     expect(await firstValueFrom(pipe.transform(array))).toEqual([{ name: 'b' }]);
     expect(await firstValueFrom(pipe.transform(array, 'raw'))).toEqual([{ name: 'b', id: '1' }]);
   });
+
+  // A subscriber that changed the array while its value emitted made Angular emit the new value inside that emit, so
+  // the subscribers after it got the new value and then the old one
+  it('gives every value subscriber the old value and then the new one when a subscriber changes the array', () => {
+    const array = fb.array([fb.group<{ hasEmail: boolean; email: string }>({ hasEmail: fb.control<boolean>(true), email: fb.control<string>('ada') })]);
+    const first: unknown[] = [];
+    const second: unknown[] = [];
+    array.registerFn.valueChange((value, _old, controls) => {
+      first.push(value);
+      controls.forEach(({ controls: { hasEmail, email } }) => (hasEmail.$value() ? email.metaFn.enable() : email.metaFn.disable()));
+    });
+    array.value$.subscribe(value => second.push(value));
+
+    array.at(0)!.controls.hasEmail.setValue(false);
+
+    expect(second).toEqual([[{ hasEmail: true, email: 'ada' }], [{ hasEmail: false, email: 'ada' }], [{ hasEmail: false }]]);
+    expect(first).toEqual(second);
+    expect(array.$value()).toEqual([{ hasEmail: false }]);
+    expect(array.$rawValue()).toEqual([{ hasEmail: false, email: 'ada' }]);
+  });
+
+  // A held value the same as the last one was dropped though the raw value had changed, so the subscribers before the
+  // one that pushed a disabled row never saw it
+  it('calls the value subscribers again when one of them pushes a disabled row', () => {
+    const array = fb.array([row('a')]);
+    const rows: number[] = [];
+    array.registerFn.valueChange((_value, _old, controls) => rows.push(controls.length));
+    let adding = false;
+    array.registerFn.valueChange(() => {
+      if (adding) {
+        adding = false;
+        const hidden = row('hidden');
+        hidden.metaFn.disable();
+        array.push(hidden);
+      }
+    });
+
+    adding = true;
+    array.at(0)!.controls.name.setValue('b');
+
+    expect(rows).toEqual([1, 1, 2]);
+    expect(array.$value()).toEqual([{ name: 'b' }]);
+    expect(array.$rawValue()).toEqual([{ name: 'b' }, { name: 'hidden' }]);
+  });
+
+  it('emits the value again when a rule sets a disabled field in a row, so the raw value follows', () => {
+    const array = fb.array([fb.group<{ name: string; id: string }>({ name: fb.control<string>('ada'), id: fb.control<string>('', undefined, undefined, true) })]);
+    array.registerFn.valueChange((_value, _old, controls) => {
+      controls.forEach(({ controls: { name, id } }) => id.setValue(name.$value().toUpperCase()));
+    });
+    const raw: unknown[] = [];
+    array.rawValue$.subscribe(value => raw.push(value));
+
+    array.at(0)!.controls.name.setValue('bo');
+
+    expect(array.$rawValue()).toEqual([{ name: 'bo', id: 'BO' }]);
+    expect(raw.at(-1)).toEqual([{ name: 'bo', id: 'BO' }]);
+  });
 });
