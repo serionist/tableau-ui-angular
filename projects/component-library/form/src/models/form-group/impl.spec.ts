@@ -189,4 +189,17 @@ describe('FG', () => {
 
     expect(group.controls.state.$meta().pristine).toBe(true);
   });
+
+  // The check walks every level: a control two levels down, marked dirty alone, leaves both groups pristine
+  it('marks a dirty control two levels down pristine', () => {
+    const form = fb.group<{ address: Address }>({ address: address() });
+    const { state } = form.controls.address.controls;
+    state.metaFn.markAsDirty();
+    expect(form.$meta().pristine).toBe(true);
+    expect(form.controls.address.$meta().pristine).toBe(true);
+
+    form.metaFn.markAsPristine();
+
+    expect(state.$meta().pristine).toBe(true);
+  });
 });
