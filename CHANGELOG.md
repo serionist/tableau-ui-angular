@@ -6,6 +6,8 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
 
 ## Unreleased
 
+## 0.3.0 (2026-11-01)
+
 ### Breaking
 
 - The primary drawn as text, an icon, a border, or the checkbox's or the radio button's focus ring reads
