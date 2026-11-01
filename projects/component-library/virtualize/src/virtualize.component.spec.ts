@@ -20,7 +20,15 @@ import { VirtualizeComponent } from './virtualize.component';
         <ng-template let-meta tabItemLoadingTemplate>Loading row {{ meta.index + 1 }}</ng-template>
       }
       <ng-template tabItemErrorTemplate>Not loaded</ng-template>
-      <ng-template let-ctx [tabItemTemplate]="list">{{ ctx.item.name }}</ng-template>
+      @if ($padded()) {
+        <ng-template let-ctx [tabItemTemplate]="list">
+          <div class="padded" style="width: 100%; padding: 0 16px">
+            <div class="line" style="width: 100%; padding: 0 16px">{{ ctx.item.name }}</div>
+          </div>
+        </ng-template>
+      } @else {
+        <ng-template let-ctx [tabItemTemplate]="list">{{ ctx.item.name }}</ng-template>
+      }
     </tab-virtualize>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -34,6 +42,8 @@ class PeopleListComponent {
   readonly $rowCss = signal<DataRowCss>({ height: '20px', lineHeight: '20px', padding: '0 8px' });
   readonly $fontSize = signal<string | null>(null);
   readonly $customLoader = signal(false);
+  // an item template whose root, and a block in it, are full width with padding of their own
+  readonly $padded = signal(false);
   readonly list = viewChild.required<VirtualizeComponent<Person>>(VirtualizeComponent);
 }
 
@@ -146,6 +156,35 @@ describe('VirtualizeComponent', () => {
 
       expect(host.querySelector('.item')!.getBoundingClientRect().height).toBe(30);
       // 100 rows of 30 px: the rows drawn and the space kept for the rest
+      expect(host.scrollHeight).toBe(3000);
+    } finally {
+      reset.remove();
+    }
+  });
+
+  // Under a reset whose elements inherit their box-sizing, as Bulma's and Foundation's do, a row drawn content-box handed
+  // that to the app's template: a full-width block with padding of its own was wider than the row, and clipped
+  it("leaves the app's own box-sizing to the content of a row, under a reset that inherits it", async () => {
+    const reset = document.createElement('style');
+    reset.textContent = 'html { box-sizing: border-box; } *, ::before, ::after { box-sizing: inherit; }';
+    document.head.append(reset);
+    try {
+      const { host, load } = await render(c => {
+        c.$padded.set(true);
+        c.$rowCss.set({ height: '20px', lineHeight: '20px', padding: '5px 8px' });
+      });
+      await load();
+      const item = host.querySelector('.item')!;
+      const box = (selector: string) => item.querySelector(selector)!.getBoundingClientRect();
+      const row = item.getBoundingClientRect();
+
+      // inside the row's padding, 8px a side
+      for (const selector of ['.padded', '.line']) {
+        expect(box(selector).left, selector).toBeGreaterThanOrEqual(row.left + 8);
+        expect(box(selector).right, selector).toBeLessThanOrEqual(row.right - 8);
+      }
+      // the row is still as tall as it counts it
+      expect(row.height).toBe(30);
       expect(host.scrollHeight).toBe(3000);
     } finally {
       reset.remove();

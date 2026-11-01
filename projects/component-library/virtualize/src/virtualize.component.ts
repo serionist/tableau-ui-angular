@@ -1,5 +1,5 @@
 import type { TemplateRef } from '@angular/core';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, contentChild, ElementRef, HostListener, inject, input, model } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, contentChild, ElementRef, HostListener, inject, input, model } from '@angular/core';
 import type { DataRowCss } from './base/virutalize-base.component';
 import { VirtualizeBaseComponent } from './base/virutalize-base.component';
 import type { DataOptions } from './data/data-options';
@@ -91,6 +91,18 @@ export class VirtualizeComponent<TData> extends VirtualizeBaseComponent<TData> {
   readonly $errorTemplate = contentChild(ErrorTemplateDirective);
   readonly $customLoaderTemplate = contentChild(CustomLoaderDirective);
   // #endregion Templates
+
+  // A row is drawn border-box at the height the virtual scroll counts, less its margins, its padding and borders inside
+  // it, so its content keeps the app's own box-sizing; the binding sets its height, not the row's CSS
+  protected readonly $itemCss = computed(() => {
+    const css: Partial<DataRowCss> = { ...this.$dataRowCss() };
+    delete css.height;
+    return css;
+  });
+  protected readonly $itemHeightPx = computed(() => {
+    const style = this.$dataRowComputedStyle();
+    return this.$dataRowHeightPx() - parseFloat(style.marginTop) - parseFloat(style.marginBottom);
+  });
 
   // the dataWindowHeightPx input, or the host's height
   protected measureDataWindowHeightPx(): number {

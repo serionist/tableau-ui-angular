@@ -252,6 +252,24 @@ describe('TableComponent', () => {
     expect(host.querySelector('.row.selected')!.getBoundingClientRect().width).toBe(width);
   });
 
+  it('scrolls sideways under fixed columns wider than it, its rows as wide as its header row', async () => {
+    const { host, rows, load } = await render(c => {
+      c.$columnWidth.set('300px');
+    });
+    host.style.width = '600px';
+    await load();
+    const widths = (elements: Iterable<Element>) => Array.from(elements, element => Math.round(element.getBoundingClientRect().width));
+
+    await vi.waitFor(() => {
+      // three columns of 300 px, the header row and the rows as wide as them, the cells on their headers
+      expect(host.querySelector('.column-row')!.getBoundingClientRect().width).toBe(900);
+      expect(rows()[0].getBoundingClientRect().width).toBe(900);
+      expect(widths(rows()[0].querySelectorAll('.cell'))).toEqual(widths(host.querySelectorAll('.column-header')));
+      expect(host.clientWidth).toBeLessThan(900);
+      expect(host.scrollWidth).toBe(900);
+    });
+  });
+
   // A row was drawn its height tall, its cells' vertical padding spilling over the next row, but counted with that
   // padding, so the space kept for the rows not drawn didn't match them
   it("draws each row as tall as its cells' height and vertical padding", async () => {

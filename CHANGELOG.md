@@ -18,7 +18,8 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
 - A row with vertical padding in `dataRowCss` is drawn as tall as the virtual scroll counts it, its height plus its
   padding, so rows no longer jump as the user scrolls. A table's cells spilled their padding over the next row, and a
   `tab-virtualize` row lost it under an app's border-box reset. `height` is the row's content's height, and a table
-  cell's text clamps to the lines that height holds.
+  cell's text clamps to the lines that height holds. To keep a padded row as tall as before, take its vertical padding
+  off `height`.
 - A full load that fails, as when `FullDataOptions.getAllData` rejects, is reported once: one "Error loading all data"
   console error and one rejection for the app's `ErrorHandler`, where it logged three errors and rejected twice. A
   first block that fails logs one error, where it logged two.
