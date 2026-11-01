@@ -82,6 +82,13 @@
               }
             }
 
+            // a click that sorts keeps focus on the button, as the keyboard's Enter does, but shows its ring only for
+            // the keyboard's focus
+            &:focus:not(:focus-visible) {
+              outline: none;
+              box-shadow: none;
+            }
+
             &.not-sortable {
               outline: none;
               cursor: default;
@@ -259,16 +266,6 @@
             &.error {
               background-color: var(--twc-color-error);
             }
-
-            // out of sight and out of the layout, still read: a box of one pixel at the default size, clipped
-            .hidden-text {
-              position: absolute;
-              width: 0.0625rem;
-              height: 0.0625rem;
-              overflow: hidden;
-              white-space: nowrap;
-              clip-path: inset(50%);
-            }
           }
         }
       }
@@ -318,6 +315,18 @@
       display: flex;
       align-items: center;
       justify-content: center;
+    }
+
+    // Out of sight and out of the layout, still read: a box of one pixel at the default size, clipped. Each sits in a
+    // positioned box of the table's, a failed bar, the sticky header row or a pinned cell, so it never reaches past the
+    // table's scrolled content
+    .hidden-text {
+      position: absolute;
+      width: 0.0625rem;
+      height: 0.0625rem;
+      overflow: hidden;
+      white-space: nowrap;
+      clip-path: inset(50%);
     }
   }
 }

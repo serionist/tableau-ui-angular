@@ -181,5 +181,8 @@ export class TableOptionsExampleComponent implements AfterViewInit {
   });
 
   readonly $selectedRows = signal<Map<number, Person>>(new Map<number, Person>());
+
+  // Names each row's checkbox for screen readers: "Select User 12"
+  readonly personName = (person: Person) => person.name;
   // #endregion
 }

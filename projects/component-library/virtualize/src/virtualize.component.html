@@ -25,49 +25,53 @@
     <div class="virtualize pre" [style.height]="`${dmBlocks.prePixels}px`"></div>
     @for (block of dmBlocks.blocks; track block.id) {
       @for (r of block.$data(); track r.key) {
-        @let itemMetaContext =
-          {
-            index: $index,
-            first: $first,
-            last: $last,
-            even: $even,
-            odd: $odd,
-            count: $count,
-          };
-        @let loadingTemplate = $loadingTemplate();
-        @let errorTemplate = $errorTemplate();
-        @let itemTemplate = $itemTemplate();
-        <div
-          class="item"
-          [attr.role]="listRoles ? 'listitem' : null"
-          [attr.aria-posinset]="listRoles ? block.offset + $index + 1 : null"
-          [attr.aria-setsize]="listRoles ? setSize : null"
-          [ngStyle]="$itemCss()"
-          [style.height.px]="$itemHeightPx()"
-          [style.maxHeight.px]="$itemHeightPx()"
-          [style.minHeight.px]="$itemHeightPx()"
-          [class.even]="(block.offset + $index) % 2 === 0"
-        >
-          @switch (block.$status()) {
-            @case ('loading') {
-              @if (loadingTemplate) {
-                <ng-container [ngTemplateOutlet]="loadingTemplate.templateRef" [ngTemplateOutletContext]="{ $implicit: itemMetaContext }" />
-              } @else {
-                <span class="status loader"></span>
+        <!-- a block still loading, or failed, holds a placeholder for each item a block can hold; the last holds fewer, so
+         no item's place passes the size once a load has said it -->
+        @if (total === 0 || block.offset + $index < total) {
+          @let itemMetaContext =
+            {
+              index: $index,
+              first: $first,
+              last: $last,
+              even: $even,
+              odd: $odd,
+              count: $count,
+            };
+          @let loadingTemplate = $loadingTemplate();
+          @let errorTemplate = $errorTemplate();
+          @let itemTemplate = $itemTemplate();
+          <div
+            class="item"
+            [attr.role]="listRoles ? 'listitem' : null"
+            [attr.aria-posinset]="listRoles ? block.offset + $index + 1 : null"
+            [attr.aria-setsize]="listRoles ? setSize : null"
+            [ngStyle]="$itemCss()"
+            [style.height.px]="$itemHeightPx()"
+            [style.maxHeight.px]="$itemHeightPx()"
+            [style.minHeight.px]="$itemHeightPx()"
+            [class.even]="(block.offset + $index) % 2 === 0"
+          >
+            @switch (block.$status()) {
+              @case ('loading') {
+                @if (loadingTemplate) {
+                  <ng-container [ngTemplateOutlet]="loadingTemplate.templateRef" [ngTemplateOutletContext]="{ $implicit: itemMetaContext }" />
+                } @else {
+                  <span class="status loader"></span>
+                }
+              }
+              @case ('error') {
+                @if (errorTemplate) {
+                  <ng-container [ngTemplateOutlet]="errorTemplate.templateRef" [ngTemplateOutletContext]="{ $implicit: itemMetaContext }" />
+                } @else {
+                  <span class="status error"><span class="hidden-text">Failed to load</span></span>
+                }
+              }
+              @case ('success') {
+                <ng-container [ngTemplateOutlet]="itemTemplate.templateRef" [ngTemplateOutletContext]="{ $implicit: { item: r.data, meta: itemMetaContext } }" />
               }
             }
-            @case ('error') {
-              @if (errorTemplate) {
-                <ng-container [ngTemplateOutlet]="errorTemplate.templateRef" [ngTemplateOutletContext]="{ $implicit: itemMetaContext }" />
-              } @else {
-                <span class="status error"><span class="hidden-text">Failed to load</span></span>
-              }
-            }
-            @case ('success') {
-              <ng-container [ngTemplateOutlet]="itemTemplate.templateRef" [ngTemplateOutletContext]="{ $implicit: { item: r.data, meta: itemMetaContext } }" />
-            }
-          }
-        </div>
+          </div>
+        }
       }
     }
     <div class="virtualize post" [style.height]="`${dmBlocks.postPixels}px`"></div>

@@ -1,13 +1,13 @@
 // The public API of tableau-ui-angular/table, from its built typings. npm run api:update writes it; a change to it is named in the PR.
 
-import * as i20 from '@angular/common';
+import * as i22 from '@angular/common';
 import * as i0 from '@angular/core';
 import { InputSignal, ModelSignal, OnDestroy, PipeTransform, TemplateRef } from '@angular/core';
 import { Observable } from 'rxjs';
-import * as i22 from 'tableau-ui-angular/button';
-import * as i24 from 'tableau-ui-angular/checkbox';
-import * as i21 from 'tableau-ui-angular/icon';
-import * as i23 from 'tableau-ui-angular/tooltip';
+import * as i24 from 'tableau-ui-angular/button';
+import * as i26 from 'tableau-ui-angular/checkbox';
+import * as i23 from 'tableau-ui-angular/icon';
+import * as i25 from 'tableau-ui-angular/tooltip';
 import { TooltipArgs } from 'tableau-ui-angular/tooltip';
 import { Primitive } from 'tableau-ui-angular/types';
 import { DataBlock, DataOptions, DataRowCss, DataSort, VirtualizeBaseComponent } from 'tableau-ui-angular/virtualize';
@@ -545,6 +545,12 @@ declare class ResizerDirective {
   >;
 }
 
+declare class RowNamePipe<TData> implements PipeTransform {
+  transform(row: TData, rowLabel: ((row: TData) => string) | undefined, place: number): string;
+  static ɵfac: i0.ɵɵFactoryDeclaration<RowNamePipe<any>, never>;
+  static ɵpipe: i0.ɵɵPipeDeclaration<RowNamePipe<any>, 'rowName', false>;
+}
+
 declare class RowSelectedPipe<TData> implements PipeTransform {
   transform(row: TData, selectedRows: Map<Primitive, TData>, dataOptions: DataOptions<TData>): boolean;
   static ɵfac: i0.ɵɵFactoryDeclaration<RowSelectedPipe<any>, never>;
@@ -601,6 +607,7 @@ export declare class TableComponent<TData> extends VirtualizeBaseComponent<TData
   readonly $selectionOptions: InputSignal<SelectionOptions | undefined>;
   readonly $selectedRows: ModelSignal<Map<Primitive, TData>>;
   readonly $label: InputSignal<string | undefined>;
+  readonly $rowLabel: InputSignal<((row: TData) => string) | undefined>;
   readonly $columnDefs: import('@angular/core').Signal<readonly ColumnDefDirective<TData>[]>;
   selectionMultiHeaderCheckboxSelectNoneChanged(): void;
   selectionMultiHeaderCheckboxSelectAllChanged(val: boolean | 'partial'): Promise<void>;
@@ -680,6 +687,11 @@ export declare class TableComponent<TData> extends VirtualizeBaseComponent<TData
         required: false;
         isSignal: true;
       };
+      $rowLabel: {
+        alias: 'rowLabel';
+        required: false;
+        isSignal: true;
+      };
     },
     {
       $displayedColumns: 'displayedColumnsChange';
@@ -720,11 +732,19 @@ export declare class TableauUiTableModule {
       typeof ResizerDirective,
       typeof HeaderCheckboxModePipe,
       typeof RowSelectedPipe,
+      typeof RowNamePipe,
+      typeof WithinTotalPipe,
     ],
-    [typeof i20.CommonModule, typeof i21.TableauUiIconModule, typeof i22.TableauUiButtonModule, typeof i23.TableauUiTooltipModule, typeof i24.TableauUiCheckboxModule],
+    [typeof i22.CommonModule, typeof i23.TableauUiIconModule, typeof i24.TableauUiButtonModule, typeof i25.TableauUiTooltipModule, typeof i26.TableauUiCheckboxModule],
     [typeof TableComponent, typeof HeaderDefDirective, typeof HeaderToolipDefDirective, typeof ColumnDefDirective, typeof CellDefDirective, typeof CellToolipDefDirective, typeof SortInfoPipe]
   >;
   static ɵinj: i0.ɵɵInjectorDeclaration<TableauUiTableModule>;
+}
+
+declare class WithinTotalPipe implements PipeTransform {
+  transform<TRow>(rows: TRow[], offset: number, total: number): TRow[];
+  static ɵfac: i0.ɵɵFactoryDeclaration<WithinTotalPipe, never>;
+  static ɵpipe: i0.ɵɵPipeDeclaration<WithinTotalPipe, 'withinTotal', false>;
 }
 
 export type { CellContext, CellMetaContext, CellTooltipContext, HeaderContext, HeaderContextMeta, HeaderTooltipContext };

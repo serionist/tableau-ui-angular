@@ -523,6 +523,9 @@ describe('The samples', () => {
       const { fixture, host, cells } = await render();
       const sales = () => cells('sales').map(text => Number(text.replace(/[$,]/g, '')));
       const header = host.querySelector<HTMLElement>('.column-header[data-column-id="sales"] .header-button')!;
+      // the column headers that say a sort: newest first at the start
+      const sorted = () => Array.from(host.querySelectorAll('.column-header[aria-sort]'), column => [column.getAttribute('data-column-id'), column.getAttribute('aria-sort')]);
+      expect(sorted()).toEqual([['date', 'descending']]);
 
       // until the reset's rows have loaded: the rows still loading read as $0, which looks sorted
       header.click();
@@ -531,6 +534,7 @@ describe('The samples', () => {
         expect(values[0]).toBeLessThan(values.at(-1)!);
         expect(values).toEqual([...values].sort((a, b) => a - b));
       });
+      expect(sorted()).toEqual([['sales', 'ascending']]);
 
       header.click();
       await vi.waitFor(() => {
@@ -538,6 +542,7 @@ describe('The samples', () => {
         expect(values[0]).toBeGreaterThan(values.at(-1)!);
         expect(values).toEqual([...values].sort((a, b) => b - a));
       });
+      expect(sorted()).toEqual([['sales', 'descending']]);
       fixture.destroy();
     });
 
@@ -546,13 +551,17 @@ describe('The samples', () => {
       const snack = vi.spyOn(TestBed.inject(SnackService), 'openSnack');
       const write = vi.spyOn(TestBed.inject(ClipboardService), 'writeText').mockResolvedValue();
       const ids = cells('id').map(text => parseInt(text, 10));
+      // an order's checkbox, by the name the table gives it from the order
+      const checkbox = (id: number) => page.getByRole('checkbox', { name: `Select order ${id}`, exact: true }).element() as HTMLInputElement;
       expect(button('2 orders selected')).toBeUndefined();
 
       // the third row first: the copy keeps the table's order, not the order they were picked in
-      rows()[2].querySelector<HTMLInputElement>('tab-checkbox input[type="checkbox"]')!.click();
+      expect(checkbox(ids[2])).toBe(rows()[2].querySelector('tab-checkbox input[type="checkbox"]'));
+      checkbox(ids[2]).click();
       await fixture.whenStable();
       expect(button('1 order selected')).toBeDefined();
-      rows()[0].querySelector<HTMLInputElement>('tab-checkbox input[type="checkbox"]')!.click();
+      expect(rows()[2].getAttribute('aria-selected')).toBe('true');
+      checkbox(ids[0]).click();
       await fixture.whenStable();
       await menu('2 orders selected', 'Copy them to the clipboard');
 

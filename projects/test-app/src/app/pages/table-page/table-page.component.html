@@ -36,7 +36,7 @@
       <h3>Every option</h3>
       <p>
         Data loaded in blocks or at once, with no rows, two, or an error; columns shown, striped, pinned, resizable, sortable, with their own classes and tooltips; a template for no data; and single
-        or multiple selection, by checkbox or by row, with a header checkbox and when a reset clears it.
+        or multiple selection, by checkbox or by row, with a header checkbox, each row's checkbox named by <code>rowLabel</code>, and when a reset clears it.
       </p>
       <app-docs-example [example]="examples.options" />
     </div>
@@ -56,6 +56,19 @@
         <li>Once the host has focus, the arrow keys, Page Up, Page Down, Home and End scroll it, and the rows they reach load.</li>
         <li>A row whose block failed shows a red bar in each cell, which a screen reader reads as "Failed to load".</li>
         <li>A static <code>role</code> the app writes on <code>tab-table</code> stays.</li>
+        <li>
+          The header row and each data row are rows, the data rows in a row group. The table says how many rows it has, the header row included, and each row its place in the whole data, so a screen
+          reader says which row it is on though only the rows near the view are drawn. Until a load says the total, the count is unknown. "No data available" is a row with one cell across the columns.
+        </li>
+        <li>
+          Enter, Space or a click on a sortable header sorts by its column, and focus stays on its button, whose tooltip shows the new sort. With <code>sortMode="multi"</code>, Shift+Enter,
+          Shift+Space or Shift+Click adds the column to the sort. The first sort's column header says its direction (<code>aria-sort</code>); a later sort's button says its place, "sort 2,
+          descending".
+        </li>
+        <li>
+          With selection on, each row's checkbox is named "Select" and the name <code>rowLabel</code> gives the row, such as "Select User 12", or its place without one, "Select row 12". The header's
+          checkbox is named "Select all rows" or "Clear the selection", and the column "Selection". Each loaded row says whether it is selected (<code>aria-selected</code>).
+        </li>
       </ul>
     </div>
   </div>
