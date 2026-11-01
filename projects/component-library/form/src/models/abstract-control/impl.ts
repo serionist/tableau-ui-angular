@@ -9,6 +9,7 @@ import type { ValidatorFns } from './validation/interfaces';
 import type { AbstractControl } from '@angular/forms';
 import { HierarchyImpl } from './hierarchy/impl';
 import { MetaImpl } from './meta/impl';
+import { InTurn } from './in-turn';
 
 export abstract class ACImpl<TValue> implements AC {
   readonly type: 'array' | 'control' | 'group';
@@ -73,35 +74,22 @@ export abstract class ACImpl<TValue> implements AC {
     }
   }
 
-  private emittingMeta = false;
-  private pendingMeta: 'all' | 'children' | undefined;
+  // a held refresh of all the meta covers one of its children's part
+  private readonly metaTurn = new InTurn<'all' | 'children'>('meta$', (held, scope) => (held === 'all' || scope === 'all' ? 'all' : 'children'));
   /**
    * Recomputes the meta, all of it or only its children's part, and emits it when it changed: the signal first, so a
    * subscriber that reads `$meta()` sees what it was given. A change a subscriber makes is emitted after every
-   * subscriber has the current meta, so none of them ends on a stale one. Subclasses call it once their constructor
-   * has set the default value.
+   * subscriber has the current meta, so none of them ends on a stale one, and one that never settles stops after 100
+   * rounds with an error (`InTurn`). Subclasses call it once their constructor has set the default value.
    */
   protected refreshMeta(scope: 'all' | 'children' = 'all'): void {
-    if (this.emittingMeta) {
-      this.pendingMeta = this.pendingMeta === 'all' || scope === 'all' ? 'all' : 'children';
-      return;
-    }
-    this.emittingMeta = true;
-    try {
-      let next: 'all' | 'children' | undefined = scope;
-      while (next) {
-        this.pendingMeta = undefined;
-        const meta = next === 'all' ? MetaImpl.fromControl(this) : MetaImpl.withChildren(this.meta$.value, this);
-        if (!MetaImpl.compare(meta, this.meta$.value)) {
-          this.$meta.set(meta);
-          this.meta$.next(meta);
-        }
-        next = this.pendingMeta;
+    this.metaTurn.run(scope, next => {
+      const meta = next === 'all' ? MetaImpl.fromControl(this) : MetaImpl.withChildren(this.meta$.value, this);
+      if (!MetaImpl.compare(meta, this.meta$.value)) {
+        this.$meta.set(meta);
+        this.meta$.next(meta);
       }
-    } finally {
-      this.emittingMeta = false;
-      this.pendingMeta = undefined;
-    }
+    });
   }
 
   public getRawValue(): TValue {

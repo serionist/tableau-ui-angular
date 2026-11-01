@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule, Validators } from '@angular/forms';
-import { firstValueFrom, skip } from 'rxjs';
+import { config, firstValueFrom, skip } from 'rxjs';
+import { FormGroupPipe } from '../../pipes/raw-controls/form-group.pipe';
 import { FormGroupValuePipe } from '../../pipes/value/form-group-value.pipe';
 import { TableauUiFormModule } from '../../tableau-ui-form.module';
 import { FB } from '../fb';
@@ -276,5 +277,95 @@ describe('FG', () => {
     expect(resets).toEqual([{ name: 'Ada' }]);
     expect(values).toEqual([{ name: 'Ada' }, { name: 'clear' }, { name: 'Ada' }]);
     expect(form.$value()).toEqual({ name: 'Ada' });
+  });
+
+  // A rule that sets a field from the others, with no check that the field already holds it, makes Angular emit an
+  // equal value each time: it recursed until the stack overflowed, and taking turns would loop
+  it('settles a rule that sets a field from the others without a check', () => {
+    const form = fb.group<{ first: string; last: string; full: string }>({ first: fb.control<string>('Ada'), last: fb.control<string>('King'), full: fb.control<string>('') });
+    form.registerFn.valueChange(value => form.controls.full.setValue(`${value.first} ${value.last}`));
+    const values: unknown[] = [];
+    form.value$.subscribe(value => values.push(value));
+
+    form.controls.first.setValue('Augusta');
+
+    expect(values).toEqual([
+      { first: 'Ada', last: 'King', full: 'Ada King' },
+      { first: 'Augusta', last: 'King', full: 'Ada King' },
+      { first: 'Augusta', last: 'King', full: 'Augusta King' },
+    ]);
+    expect(form.$value()).toEqual({ first: 'Augusta', last: 'King', full: 'Augusta King' });
+  });
+
+  // A held value the same as the last one still goes out when the raw value changed, as when a rule sets a disabled field
+  it('emits a held value the same as the last one when the raw value changed, so the raw value follows', () => {
+    const form = fb.group<{ name: string; id: string }>({ name: fb.control<string>('ada'), id: fb.control<string>('', undefined, undefined, true) });
+    form.registerFn.valueChange(value => form.controls.id.setValue((value.name ?? '').toUpperCase()));
+    const raw: unknown[] = [];
+    form.rawValue$.subscribe(value => raw.push(value));
+
+    form.controls.name.setValue('bo');
+
+    expect(form.$rawValue()).toEqual({ name: 'bo', id: 'BO' });
+    expect(raw.at(-1)).toEqual({ name: 'bo', id: 'BO' });
+  });
+
+  /** The errors RxJS reports from inside a subscription while `act` runs, which it reports on a timeout */
+  async function reported(act: () => void): Promise<unknown[]> {
+    const errors: unknown[] = [];
+    config.onUnhandledError = error => errors.push(error);
+    try {
+      act();
+      await new Promise(resolve => setTimeout(resolve));
+    } finally {
+      config.onUnhandledError = null;
+    }
+    return errors;
+  }
+
+  // A rule that changes the form each time it runs never settles: it overflowed the stack, and taking turns without a
+  // cap froze the page with nothing logged
+  it('stops a value rule that never settles after 100 held runs, reports it, and goes on working', async () => {
+    const form = fb.group<{ count: number; name: string }>({ count: fb.control<number>(0), name: fb.control<string>('Ada') });
+    let counting = false;
+    form.registerFn.valueChange(value => {
+      if (counting) {
+        form.controls.count.setValue((value.count ?? 0) + 1);
+      }
+    });
+    const values: unknown[] = [];
+    form.value$.subscribe(value => values.push(value));
+
+    counting = true;
+    const errors = await reported(() => form.controls.name.setValue('Bo'));
+    counting = false;
+
+    expect(errors).toEqual([expect.objectContaining({ message: expect.stringContaining('value$ emitted 100 held changes in one turn') })]);
+    expect(values.length).toBe(102);
+    form.controls.name.setValue('Cy');
+    expect(form.$value()).toEqual({ count: 101, name: 'Cy' });
+    expect(values.at(-1)).toEqual({ count: 101, name: 'Cy' });
+  });
+
+  it('stops a meta rule that never settles after 100 held runs, reports it, and goes on working', async () => {
+    const form = address();
+    let toggling = false;
+    form.registerFn.metaChange(meta => {
+      if (toggling) {
+        if (meta.touched) {
+          form.metaFn.markAsUntouched();
+        } else {
+          form.metaFn.markAsTouched();
+        }
+      }
+    });
+
+    toggling = true;
+    const errors = await reported(() => form.metaFn.markAsTouched());
+    toggling = false;
+
+    expect(errors).toEqual([expect.objectContaining({ message: expect.stringContaining('meta$ emitted 100 held changes in one turn') })]);
+    form.controls.state.setValue('WA');
+    expect(form.$meta().touched).toBe(new FormGroupPipe().transform(form).touched);
   });
 });

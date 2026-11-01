@@ -3,7 +3,7 @@ import { signal } from '@angular/core';
 import type { Observable } from 'rxjs';
 import { distinctUntilChanged, filter, map, startWith } from 'rxjs';
 import { ACImpl } from '../abstract-control/impl';
-import { InTurnSubject } from '../abstract-control/in-turn-subject';
+import { InTurnSubject } from '../abstract-control/in-turn';
 import type { MetaFns } from '../abstract-control/meta/interfaces';
 import type { AsyncValidatorFn, ValidatorFn, ValidatorFns } from '../abstract-control/validation/interfaces';
 import type { FC } from './interfaces';

@@ -3,7 +3,7 @@ import { signal } from '@angular/core';
 import type { Observable } from 'rxjs';
 import { BehaviorSubject, filter, map, startWith } from 'rxjs';
 import { ACImpl } from '../abstract-control/impl';
-import { InTurnSubject } from '../abstract-control/in-turn-subject';
+import { InTurnSubject, sameValue } from '../abstract-control/in-turn';
 import type { MetaFns } from '../abstract-control/meta/interfaces';
 import type { AsyncValidatorFn, ValidatorFn, ValidatorFns } from '../abstract-control/validation/interfaces';
 import type { FA } from './interaces';
@@ -75,11 +75,13 @@ export class FAImpl<T extends Record<string, unknown>> extends ACImpl<T[]> imple
 
     this.$_controls = signal(this._controls$.value);
 
-    this._value$ = new InTurnSubject<DeepPartial<T>[]>(control.value);
+    // a held value goes out unless both it and the raw value are the same as when the last one went out
+    this._value$ = new InTurnSubject<DeepPartial<T>[]>(control.value, (held, emitted) => sameValue(held, emitted) && sameValue(control.getRawValue(), this._rawValue$.value));
     this.$_value = signal(control.value);
     this._rawValue$ = new BehaviorSubject<T[]>(this._defaultValue);
     this.$_rawValue = signal<T[]>(this._rawValue$.value);
-    // A change a subscriber makes reaches value$, $value and the raw value once every subscriber has the current value
+    // A change a subscriber makes reaches value$, $value and the raw value once every subscriber has the current value;
+    // push, insert, removeAt and clear change the raw value and $controls at once, while $value waits
     this.subscriptions.push(
       control.valueChanges.pipe(startWith(control.value)).subscribe(v => {
         this._value$.next(v);

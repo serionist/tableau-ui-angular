@@ -3,7 +3,7 @@ import { signal } from '@angular/core';
 import type { Observable } from 'rxjs';
 import { BehaviorSubject, filter, map, startWith } from 'rxjs';
 import { ACImpl } from '../abstract-control/impl';
-import { InTurnSubject } from '../abstract-control/in-turn-subject';
+import { InTurnSubject, sameValue } from '../abstract-control/in-turn';
 import type { AC } from '../abstract-control/interfaces';
 import type { MetaFns } from '../abstract-control/meta/interfaces';
 import type { AsyncValidatorFn, ValidatorFn, ValidatorFns } from '../abstract-control/validation/interfaces';
@@ -68,7 +68,8 @@ export class FGImpl<T extends Record<string, unknown>> extends ACImpl<T> impleme
     this._defaultValue = control.getRawValue() as T;
 
     this.controls = params.controls;
-    this._value$ = new InTurnSubject<DeepPartial<T>>(control.value);
+    // a held value goes out unless both it and the raw value are the same as when the last one went out
+    this._value$ = new InTurnSubject<DeepPartial<T>>(control.value, (held, emitted) => sameValue(held, emitted) && sameValue(control.getRawValue(), this._rawValue$.value));
     this.$_value = signal<DeepPartial<T>>(this._value$.value);
     this._rawValue$ = new BehaviorSubject<T>(this._defaultValue);
     this.$_rawValue = signal<T>(this._rawValue$.value);
