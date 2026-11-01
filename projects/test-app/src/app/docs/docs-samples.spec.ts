@@ -10,6 +10,7 @@ import { ChipControlExampleComponent } from '../pages/chip-page/examples/chip-co
 import { SalesDashboardExampleComponent } from '../pages/dashboard-page/examples/sales-dashboard.example';
 import { DatePickerFormsExampleComponent } from '../pages/date-picker-page/examples/date-picker-forms.example';
 import { DatePickerValueExampleComponent } from '../pages/date-picker-page/examples/date-picker-value.example';
+import { DialogOverlaysExampleComponent } from '../pages/dialogs-page/examples/dialog-overlays.example';
 import { ExpansionPanelSingleExampleComponent } from '../pages/expansion-page/examples/expansion-panel-single.example';
 import { ListDisplayExampleComponent } from '../pages/list-page/examples/list-display.example';
 import { ListFormsExampleComponent } from '../pages/list-page/examples/list-forms.example';
@@ -114,6 +115,34 @@ describe('The samples', () => {
     await check(fixture, 'Until the user closes it');
     await click(fixture, 'A success snack');
     expect(snack).toHaveBeenLastCalledWith('A snack of type success', 0, 'success', 'bottom');
+    fixture.destroy();
+  });
+
+  // A modal shown in the top layer (#58) covers what sits outside it, so the overlays opened from it go into it
+  it("puts the overlays sample's snack and dialog in its modal, closes the dialog with it, and sends the snack back to the page", async () => {
+    const dialogs = TestBed.inject(DialogService);
+    const fixture = TestBed.createComponent(DialogOverlaysExampleComponent);
+    await fixture.whenStable();
+    await click(fixture, 'Open a modal with overlays');
+    const layer = dialogs.$overlayHost()!;
+    const modal = layer.parentElement!;
+    const button = (text: string) => Array.from(modal.querySelectorAll('button')).find(element => element.textContent.trim() === text)!;
+
+    button('Show a snack').click();
+    button('Open a dialog').click();
+    await fixture.whenStable();
+    const snacks = document.querySelector('.tab-snacks.top')!;
+    expect(snacks.parentElement).toBe(layer);
+    const note = document.querySelector('app-example-note')!.closest('.dialog-container')!;
+    expect(note.parentElement).toBe(layer);
+
+    button('Close').click();
+    await fixture.whenStable();
+    expect(note.isConnected).toBe(false);
+    expect(dialogs.dialogStack).toEqual([]);
+    expect(snacks.parentElement).toBe(document.body);
+    expect(snacks.textContent).toContain('This snack sits in the modal while it is open');
+    snacks.remove();
     fixture.destroy();
   });
 

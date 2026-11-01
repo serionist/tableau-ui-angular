@@ -15,6 +15,17 @@
   // border-radius: 8px;
   outline: none !important;
 
+  // DialogService.$overlayHost: the overlays a modal hosts sit in it, above every z-index in the modal's content. It
+  // takes no space, and its fixed children are placed against the window
+  .dialog-overlay-layer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    z-index: 2147483647;
+  }
+
   .dialog-header {
     user-select: none;
     cursor: default;

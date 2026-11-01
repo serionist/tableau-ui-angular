@@ -18,7 +18,16 @@ export class DialogRef<T = unknown> implements IDialogRef {
   readonly closed$: Observable<T | undefined> = this._closed$.asObservable();
 
   private _result: T | undefined = undefined;
+  private closing = false;
+  /**
+   * Closes the dialog with `result`, or the result set without closing. A call once the dialog is closing does
+   * nothing, such as one from a `closed$` subscriber, so each subscriber hears of the close once.
+   */
   close(result?: T): void {
+    if (this.closing) {
+      return;
+    }
+    this.closing = true;
     this._closed$.next(result ?? this._result);
     this._closed$.complete();
   }

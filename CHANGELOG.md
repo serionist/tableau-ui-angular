@@ -59,6 +59,11 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   own a button, give it a `tabindex`, or stop its click's propagation. A test that found a toggle by its role and the name Expand finds the node
   by its `treeitem` role and name, and reads `aria-expanded`; a test's `click()` on a `treeitem` or its text, as
   Testing Library's user-event sends it, now toggles the node. Name the tree with `aria-label` on `tab-tree`.
+- A dialog an app opens with `openDialog()` or `openTemplateDialog()` while a modal is open sits in the modal and
+  closes with it; before, it went to the body, and stayed open and on the dialog stack once the modal had closed. An
+  app that wants such a dialog to outlive the modal opens it once the modal has closed. A tooltip, a dialog or a snack
+  shown over a modal is inside its `.dialog-container`, in its overlay layer, not a child of the body: a test or a
+  style that looked for it under `body` looks in the whole document. A modal opened from a modal still goes to the body.
 
 ### Added
 
@@ -72,6 +77,11 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
 - `rowLabel` on `tab-table`: a function from a row to its name, which names the row's selection checkbox "Select" and
   that name, such as "Select Ada Lovelace". Without it, or when it returns no words, the checkbox is named by the row's
   place in the data, "Select row 12".
+- `DialogService.$overlayHost`, a signal: the overlay layer of the topmost open modal, `div.dialog-overlay-layer` at
+  the end of its container, or `null` while none is open, for the body. Tooltips, the dialogs an app opens with
+  `openDialog()` or `openTemplateDialog()` and the snacks go there, above everything in the modal's content, and an app
+  appends an overlay of its own there instead of the body. When the modal closes, it first closes the dialogs in it,
+  and what the app put in its layer moves on to the next host.
 
 ### Fixed
 
@@ -187,6 +197,10 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   each loaded row has `aria-selected`, so a row selected by a click is not told by its colour alone.
 - A table's select-none header checkbox clears a selection of every row, where it showed checked and stayed disabled
   once every row was selected by hand; it is disabled only while nothing is selected.
+- A dialog that closes first closes the dialogs inside it, such as an autocomplete's suggestions or a dialog the app
+  placed in it with `LocalStackOptions`, which stayed on the dialog stack and took the next Escape. A `DialogRef`'s
+  `close()` while it is closing does nothing, where a `closed$` subscriber that closed it again told every subscriber
+  twice and took the top dialog off the stack, so Escape no longer closed it.
 
 ## 0.2.0 (2026-10-31)
 
