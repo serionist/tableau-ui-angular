@@ -16,15 +16,15 @@
         <li>In the app's <code>angular.json</code>, preserve symlinks in the build, and leave the library out of the dev server's prebundling:</li>
       </ol>
       <app-docs-code label="angular.json" [source]="angularJson" />
+      <p>
+        The app's <code>tsconfig.json</code> needs no change: TypeScript and the build find each <code>tableau-ui-angular/&lt;folder&gt;</code> import through the package's <code>exports</code>, in
+        the folder <code>npx link</code> puts in the app's <code>node_modules</code>, as they do for the published package.
+      </p>
       <ol start="3">
-        <li>In the app's <code>tsconfig.json</code>, add a path for the package:</li>
-      </ol>
-      <app-docs-code label="tsconfig.json" [source]="tsconfigJson" />
-      <ol start="4">
         <li>In the app, install <code>link</code>:</li>
       </ol>
       <app-docs-code label="command" [source]="linkInstall" />
-      <ol start="5">
+      <ol start="4">
         <li>
           In the app, run the <code>npx link</code> line the script printed. It links the library's build, and Angular's packages and Monaco from the library's checkout; here
           <code>&lt;library&gt;</code> stands for the checkout's path.
