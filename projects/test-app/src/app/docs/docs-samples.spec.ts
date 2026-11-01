@@ -10,6 +10,7 @@ import { ChipControlExampleComponent } from '../pages/chip-page/examples/chip-co
 import { SalesDashboardExampleComponent } from '../pages/dashboard-page/examples/sales-dashboard.example';
 import { DatePickerFormsExampleComponent } from '../pages/date-picker-page/examples/date-picker-forms.example';
 import { DatePickerValueExampleComponent } from '../pages/date-picker-page/examples/date-picker-value.example';
+import { DialogCustomExampleComponent } from '../pages/dialogs-page/examples/dialog-custom.example';
 import { DialogOverlaysExampleComponent } from '../pages/dialogs-page/examples/dialog-overlays.example';
 import { ExpansionPanelSingleExampleComponent } from '../pages/expansion-page/examples/expansion-panel-single.example';
 import { ListDisplayExampleComponent } from '../pages/list-page/examples/list-display.example';
@@ -115,6 +116,32 @@ describe('The samples', () => {
     await check(fixture, 'Until the user closes it');
     await click(fixture, 'A success snack');
     expect(snack).toHaveBeenLastCalledWith('A snack of type success', 0, 'success', 'bottom');
+    fixture.destroy();
+  });
+
+  // The page says a modal without a header is named by its label, as the custom sample's second dialog is
+  it("names the custom sample's modal by its title and the one it opens by its label, and gives focus back as each closes", async () => {
+    const fixture = TestBed.createComponent(DialogCustomExampleComponent);
+    await fixture.whenStable();
+    const open = (fixture.nativeElement as HTMLElement).querySelector('button')!;
+    open.focus();
+    await click(fixture, 'Open a dialog with a component of its own');
+    const modals = () => Array.from(document.querySelectorAll<HTMLDialogElement>('dialog.dialog-container'));
+    const name = (dialog: HTMLDialogElement) => dialog.getAttribute('aria-label') ?? document.getElementById(dialog.getAttribute('aria-labelledby') ?? '')?.textContent;
+    expect(modals().map(name)).toEqual(['A custom dialog']);
+    const another = Array.from(modals()[0].querySelectorAll('button')).find(button => button.textContent.trim() === 'Open another dialog')!;
+    another.focus();
+    another.click();
+    await fixture.whenStable();
+    expect(modals().map(name)).toEqual(['A custom dialog', 'Another dialog']);
+    expect(modals().every(dialog => dialog.matches(':modal'))).toBe(true);
+
+    await userEvent.keyboard('{Escape}');
+    expect(document.activeElement).toBe(another);
+    await userEvent.keyboard('{Escape}');
+    expect(modals()).toEqual([]);
+    expect(document.activeElement).toBe(open);
+    document.querySelectorAll('.tab-snacks').forEach(element => element.remove());
     fixture.destroy();
   });
 

@@ -7,6 +7,12 @@ export interface IDialogArgs extends IModalArgs, IDialogPositionAndSizeArgs {
 
 export interface IModalArgs extends IConfirmationDialogArgs {
   header?: IDialogHeaderArgs;
+  /**
+   * The name screen readers give a modal without a header, its `aria-label`; a modal with a header is named by its
+   * title. A label with no words names nothing. It names modals only: `openDialog()` and `openTemplateDialog()` ignore
+   * it.
+   */
+  label?: string;
 }
 export interface IConfirmationDialogArgs extends IDialogSizeArgs {
   closeOnBackdropClick?: boolean;

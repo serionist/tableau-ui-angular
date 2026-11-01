@@ -1,12 +1,21 @@
-import type { TemplateRef } from '@angular/core';
-import { ApplicationRef, ChangeDetectionStrategy, Component, inject, PLATFORM_ID, viewChild, ViewEncapsulation } from '@angular/core';
+import type { AfterViewInit, ElementRef, OnInit, TemplateRef, Type } from '@angular/core';
+import { ApplicationRef, ChangeDetectionStrategy, Component, ErrorHandler, inject, PLATFORM_ID, viewChild, ViewEncapsulation } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { userEvent } from 'vitest/browser';
+// the Playwright options of userEvent's click and dragAndDrop, such as force
+import type {} from '@vitest/browser-playwright';
+import { TableauUiAutoCompleteModule } from 'tableau-ui-angular/autocomplete';
+import { TableauUiCommonModule } from 'tableau-ui-angular/common';
+import { TableauUiMenuModule } from 'tableau-ui-angular/menu';
+import { TableauUiSelectModule } from 'tableau-ui-angular/select';
 import { TableauUiTooltipModule } from 'tableau-ui-angular/tooltip';
 import { axeViolations } from '../../testing/axe';
 import { movePointerAway } from '../../testing/pointer';
 import { injectDialogData } from './data.ref';
+import type { IModalArgs } from './dialog.args';
 import type { DialogRef } from './dialog.ref';
+import { injectDialogRef } from './dialog.ref';
 import { DialogService } from './dialog.service';
 import { LocalStackOptions } from './stack-options';
 import { TableauUiDialogModule } from './tableau-ui-dialog.module';
@@ -130,6 +139,191 @@ class QuestionComponent {
   readonly $question = viewChild.required<TemplateRef<{ name: string }>>('question');
 }
 
+// Two fields and a button, the second field marked by the app to take focus first
+@Component({
+  selector: 'tab-test-autofocus-content',
+  template: `<input class="name" aria-label="Name" /><input class="note" aria-label="Note" autofocus /><button type="button">Save</button>`,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class AutofocusContentComponent {}
+
+@Component({
+  selector: 'tab-test-fields-content',
+  template: `<input class="name" aria-label="Name" /><button type="button">Save</button>`,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class FieldsContentComponent {}
+
+// Focuses its second field as it renders, as a component that picks its own field does
+@Component({
+  selector: 'tab-test-focusing-content',
+  template: `<input aria-label="Name" /><input #note class="note" aria-label="Note" />`,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class FocusingContentComponent implements AfterViewInit {
+  private readonly $note = viewChild.required<ElementRef<HTMLInputElement>>('note');
+  ngAfterViewInit() {
+    this.$note().nativeElement.focus();
+  }
+}
+
+@Component({
+  selector: 'tab-test-date-content',
+  template: `<input type="date" aria-label="From" />`,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class DateContentComponent {}
+
+// A field, which takes focus as the modal opens, and a button with a tooltip
+@Component({
+  selector: 'tab-test-hint-content',
+  imports: [TableauUiTooltipModule],
+  template: `<input aria-label="Name" /><button type="button" class="hint" tooltip="A hint">Hint</button>`,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class HintContentComponent {}
+
+// What a modal's content renders with, as the tests below read it
+const rendered: { made?: HTMLElement | null; host?: HTMLElement | null; answer?: Promise<boolean> } = {};
+
+// Opens an app's dialog as it renders, and notes where overlays go then
+@Component({
+  selector: 'tab-test-opening-content',
+  template: 'Opening',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class OpeningContentComponent implements OnInit {
+  private readonly dialogs = inject(DialogService);
+  // as it is made
+  protected readonly made = (rendered.made = this.dialogs.$overlayHost());
+  ngOnInit() {
+    rendered.host = this.dialogs.$overlayHost();
+    this.dialogs.openDialog(DialogContentComponent, undefined, { closeOnEscape: true });
+  }
+}
+
+// Can't be made
+@Component({
+  selector: 'tab-test-broken-content',
+  template: 'Broken',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class BrokenContentComponent {
+  constructor() {
+    throw new Error('Broken content');
+  }
+}
+
+// Fails in its first render
+@Component({
+  selector: 'tab-test-failing-content',
+  template: '<input aria-label="Name" />',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class FailingContentComponent implements OnInit {
+  ngOnInit() {
+    throw new Error('Failing content');
+  }
+}
+
+// A field the app marks autofocus, and one the content focuses itself as it renders
+@Component({
+  selector: 'tab-test-overruling-content',
+  template: `<input class="name" aria-label="Name" autofocus /><input #note class="note" aria-label="Note" />`,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class OverrulingContentComponent implements AfterViewInit {
+  private readonly $note = viewChild.required<ElementRef<HTMLInputElement>>('note');
+  ngAfterViewInit() {
+    this.$note().nativeElement.focus();
+  }
+}
+
+// Closes its modal as it renders
+@Component({
+  selector: 'tab-test-closing-content',
+  template: 'Closing',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class ClosingContentComponent implements OnInit {
+  private readonly dialogRef = injectDialogRef();
+  ngOnInit() {
+    this.dialogRef.close();
+  }
+}
+
+// Asks whether to restore a draft as it renders, in a confirmation of its own
+@Component({
+  selector: 'tab-test-draft-content',
+  template: `<button type="button" class="edit">Edit</button>`,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class DraftContentComponent implements OnInit {
+  private readonly dialogs = inject(DialogService);
+  ngOnInit() {
+    rendered.answer = this.dialogs.openConfirmationMessageDialog('Restore your draft?', 'A draft of this note is saved.', 'primary', 'Restore', 'Discard', 'accept');
+  }
+}
+
+// A select at the bottom of a small modal, whose list hangs below the modal's box
+@Component({
+  imports: [ReactiveFormsModule, TableauUiSelectModule, TableauUiCommonModule],
+  template: `
+    <ng-template #picker>
+      <tab-single-select aria-label="Country" [formControl]="country">
+        <tab-option value="hu" text="Hungary" />
+        <tab-option value="de" text="Germany" />
+        <tab-option value="fr" text="France" />
+      </tab-single-select>
+    </ng-template>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class PickerComponent {
+  readonly country = new FormControl<string | null>(null);
+  readonly $picker = viewChild.required<TemplateRef<unknown>>('picker');
+}
+
+// Each overlay a modal's content opens: a select's list, an autocomplete's suggestions, a menu and a tooltip
+@Component({
+  imports: [ReactiveFormsModule, TableauUiSelectModule, TableauUiCommonModule, TableauUiAutoCompleteModule, TableauUiMenuModule, TableauUiTooltipModule],
+  template: `
+    <ng-template #overlays>
+      <div class="overlays">
+        <!-- first, where no list hangs over it -->
+        <button type="button" class="hint" tooltip="A hint">Hint</button>
+        <tab-single-select aria-label="Country" [formControl]="country">
+          <tab-option value="hu" text="Hungary" />
+          <tab-option value="de" text="Germany" />
+        </tab-single-select>
+        <input class="city" type="text" aria-label="City" [tabAutoComplete]="cities" />
+        <tab-autocomplete #cities>
+          <tab-option value="Budapest" text="Budapest" />
+          <tab-option value="Bern" text="Bern" />
+        </tab-autocomplete>
+        <button type="button" class="more" [attachedMenu]="more">More</button>
+        <ng-template #more="menu" menu>
+          <button type="button" class="help" (click)="helped = true">Help</button>
+        </ng-template>
+      </div>
+    </ng-template>
+  `,
+  styles: `
+    .overlays {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      padding: 0.5rem;
+    }
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class OverlaysComponent {
+  readonly country = new FormControl<string | null>(null);
+  helped = false;
+  readonly $overlays = viewChild.required<TemplateRef<unknown>>('overlays');
+}
+
 // The library's styles, as an app imports them, while a fixture of it lives: the dialogs', the overlay layer's and the
 // snacks' rules among them
 @Component({
@@ -155,7 +349,8 @@ describe('DialogService', () => {
   afterEach(() => {
     stylesheet.remove();
     // a dialog left open by a failed test would take the next one's Escape
-    document.querySelectorAll('.dialog-container, .dialog-backdrop').forEach(element => element.remove());
+    document.querySelectorAll('.dialog-container, .dialog-backdrop, .test-page').forEach(element => element.remove());
+    document.documentElement.classList.remove('dark-mode');
     vi.unstubAllGlobals();
   });
 
@@ -165,6 +360,46 @@ describe('DialogService', () => {
       expect(container.style.top).not.toBe('-9999px');
     });
     return container;
+  };
+
+  // The top modal's <dialog>, once the service has placed it
+  const shown = async () => {
+    const dialog = Array.from(document.querySelectorAll<HTMLDialogElement>('dialog.dialog-container')).at(-1)!;
+    await vi.waitFor(() => {
+      expect(dialog.style.top).not.toBe('-9999px');
+    });
+    return dialog;
+  };
+  // Shown in the top layer as a modal
+  const isModal = (dialog: HTMLDialogElement) => dialog.isConnected && dialog.open && dialog.matches(':modal');
+  // A close event the browser queues runs in a task of its own
+  const settle = async () =>
+    new Promise(resolve => {
+      setTimeout(resolve, 50);
+    });
+
+  // A button of the page at its top left corner, outside every modal's box: the real pointer pressed there lands on
+  // the top modal's ::backdrop, which targets its <dialog>
+  const onThePage = () => {
+    const page = document.createElement('button');
+    page.type = 'button';
+    page.className = 'test-page';
+    page.textContent = 'On the page';
+    page.style.cssText = 'position: fixed; left: 4px; top: 4px';
+    document.body.appendChild(page);
+    return page;
+  };
+
+  // Whether Escape, pressed now, reaches a listener on the window after the service's own uncancelled
+  const escapeReachesThePage = async () => {
+    const app = vi.fn((e: KeyboardEvent) => e.defaultPrevented);
+    window.addEventListener('keydown', app);
+    try {
+      await userEvent.keyboard('{Escape}');
+    } finally {
+      window.removeEventListener('keydown', app);
+    }
+    return app.mock.results.every(result => result.value === false) && app.mock.calls.length > 0;
   };
 
   // F1: the title was set with innerHTML, so a title built from user data could run script. The header's close control
@@ -223,6 +458,8 @@ describe('DialogService', () => {
 
   // F65: the modal's top was computed from its width, so a modal wider than the screen is tall had its header above it
   it('centres a modal by its height, and keeps a tall one on screen', async () => {
+    // the library's styles, which set aside the browser's own margin and inset for a <dialog>
+    TestBed.createComponent(LibraryStylesComponent);
     const dialogs = TestBed.inject(DialogService);
     const wide = dialogs.openModal(DialogContentComponent, undefined, {
       header: { title: 'Wide', allowClose: true },
@@ -575,6 +812,655 @@ describe('DialogService', () => {
     popover.remove();
   });
 
+  // #57: a modal was a <div> with no role and no name; #58: the browser shows a <dialog> as a modal in the top layer
+  it('shows a modal as an open <dialog> in the top layer, named by its title, or by its label without a header', async () => {
+    const dialogs = TestBed.inject(DialogService);
+    TestBed.createComponent(LibraryStylesComponent);
+    const modal = () => document.querySelector<HTMLDialogElement>('dialog.dialog-container')!;
+
+    const titled = dialogs.openModal(DialogContentComponent, undefined, { header: { title: 'Rename', allowClose: true }, label: 'Not this' });
+    TestBed.inject(ApplicationRef).tick();
+    expect(isModal(modal())).toBe(true);
+    expect(document.getElementById(modal().getAttribute('aria-labelledby')!)?.textContent).toBe('Rename');
+    expect(modal().hasAttribute('aria-label')).toBe(false);
+    expect(await axeViolations(modal())).toEqual([]);
+    titled.close();
+
+    const labelled = dialogs.openModal(DialogContentComponent, undefined, { label: 'Filters' });
+    expect(isModal(modal())).toBe(true);
+    expect(modal().getAttribute('aria-label')).toBe('Filters');
+    expect(modal().hasAttribute('aria-labelledby')).toBe(false);
+    expect(await axeViolations(modal())).toEqual([]);
+    labelled.close();
+
+    // a label with no words names nothing
+    const blank = dialogs.openModal(DialogContentComponent, undefined, { label: '  ' });
+    expect(modal().hasAttribute('aria-label')).toBe(false);
+    blank.close();
+
+    // a confirmation is a modal named by its title and described by its message, which a screen reader reads with the
+    // button that takes focus
+    void dialogs.openConfirmationMessageDialog('Discard', 'Discard the changes?', 'primary', undefined, undefined, undefined);
+    expect(isModal(modal())).toBe(true);
+    expect(document.getElementById(modal().getAttribute('aria-labelledby')!)?.textContent).toBe('Discard');
+    expect(document.getElementById(modal().getAttribute('aria-describedby')!)?.textContent.trim()).toBe('Discard the changes?');
+    expect(await axeViolations(modal())).toEqual([]);
+    dialogs.dialogStack[0].dialogRef.close();
+
+    // a dialog that isn't a modal is a <div>, which a label doesn't name
+    const note = dialogs.openDialog(DialogContentComponent, undefined, { label: 'Note', header: { title: 'Note', allowClose: true } });
+    const div = document.querySelector('.dialog-container')!;
+    expect(div.tagName).toBe('DIV');
+    expect(div.hasAttribute('aria-label')).toBe(false);
+    expect(div.hasAttribute('aria-labelledby')).toBe(false);
+    expect(document.querySelector('dialog')).toBeNull();
+    note.close();
+  });
+
+  // #57: focus stayed on the page as a modal opened; and the browser's own steps focus the header's close button first
+  it("moves focus into a modal once: to an [autofocus] element, the first in the Tab order, the header's close button, or the modal", () => {
+    const dialogs = TestBed.inject(DialogService);
+    const header = { title: 'Edit', allowClose: true };
+    const focused: EventTarget[] = [];
+    // the close button's name as it takes focus, before any tick renders its icon
+    const closeNames: (string | null | undefined)[] = [];
+    const track = (e: FocusEvent) => {
+      focused.push(e.target!);
+      if (e.target instanceof Element && e.target.matches('.dialog-close')) {
+        closeNames.push(e.target.querySelector('tab-icon')?.getAttribute('aria-label'));
+      }
+    };
+    document.addEventListener('focusin', track);
+    try {
+      const open = (component: Type<unknown>, args?: IModalArgs) => {
+        focused.length = 0;
+        return dialogs.openModal(component, undefined, args);
+      };
+
+      // the app's own [autofocus], past the close button and the first field; its attribute stays
+      let ref = open(AutofocusContentComponent, { header });
+      const note = document.querySelector('.note')!;
+      expect(focused).toEqual([note]);
+      expect(note.hasAttribute('autofocus')).toBe(true);
+      ref.close();
+
+      // the first field; the service's own mark is gone once the modal shows
+      ref = open(FieldsContentComponent, { header });
+      const name = document.querySelector('.name')!;
+      expect(focused).toEqual([name]);
+      expect(name.hasAttribute('autofocus')).toBe(false);
+      ref.close();
+
+      // the field the content focused as it rendered stays focused
+      ref = open(FocusingContentComponent, { header });
+      expect(focused).toEqual([document.querySelector('.note')]);
+      ref.close();
+
+      // nothing in the content takes focus: the header's close button
+      ref = open(DialogContentComponent, { header });
+      expect(focused).toEqual([document.querySelector('.dialog-close')]);
+      expect(closeNames).toEqual(['Close']);
+      ref.close();
+
+      // nothing in it takes focus: the modal itself
+      ref = open(DialogContentComponent);
+      const dialog = document.querySelector('dialog.dialog-container')!;
+      expect(focused).toEqual([dialog]);
+      expect(dialog.hasAttribute('autofocus')).toBe(false);
+      ref.close();
+
+      // a confirmation's chosen button
+      focused.length = 0;
+      void dialogs.openConfirmationMessageDialog('Discard', 'Discard the changes?', 'primary', 'Discard', 'Keep', 'accept');
+      expect(focused.map(target => (target as HTMLElement).textContent.trim())).toEqual(['Discard']);
+      dialogs.dialogStack[0].dialogRef.close();
+    } finally {
+      document.removeEventListener('focusin', track);
+    }
+  });
+
+  it('gives focus back to the element focused before a modal opened, and from a wizard, back to the page', () => {
+    const dialogs = TestBed.inject(DialogService);
+    const page = onThePage();
+    page.focus();
+    const element = (ref: DialogRef<unknown>) => (ref as DialogRef<unknown> & { dialogElement: HTMLElement }).dialogElement;
+    const button = (ref: DialogRef<unknown>) => element(ref).querySelector('button')!;
+
+    const modal = dialogs.openModal(FieldsContentComponent, undefined);
+    expect(document.activeElement).not.toBe(page);
+    // a modal opened from it gives focus back to the button in it
+    button(modal).focus();
+    const above = dialogs.openModal(FieldsContentComponent, undefined);
+    above.close();
+    expect(document.activeElement).toBe(button(modal));
+    modal.close();
+    expect(document.activeElement).toBe(page);
+
+    // a wizard: the next step opens from a button in the first, which then closes; focus stays in the step still open
+    const first = dialogs.openModal(FieldsContentComponent, undefined);
+    button(first).focus();
+    const next = dialogs.openModal(FieldsContentComponent, undefined);
+    const field = document.activeElement;
+    expect(field?.closest('dialog')).toBe(element(next));
+    first.close();
+    expect(document.activeElement).toBe(field);
+    next.close();
+    expect(document.activeElement).toBe(page);
+
+    // an element gone from the page takes no focus
+    const gone = onThePage();
+    gone.focus();
+    const last = dialogs.openModal(FieldsContentComponent, undefined);
+    gone.remove();
+    last.close();
+    expect(document.activeElement).toBe(document.body);
+  });
+
+  // #57: every element of the page took tabindex -1 to keep focus in a modal, a screen reader still read the page, and
+  // a script could focus it
+  it('keeps focus in a modal: the page outside takes none, from Tab or from a script', async () => {
+    const page = onThePage();
+    const modal = TestBed.inject(DialogService).openModal(FieldsContentComponent, undefined, { header: { title: 'Edit', allowClose: true } });
+    for (let i = 0; i < 5; i++) {
+      await userEvent.keyboard('{Tab}');
+      expect(document.activeElement).not.toBe(page);
+    }
+    page.focus();
+    expect(document.activeElement).not.toBe(page);
+    expect(page.tabIndex).toBe(0);
+    modal.close();
+  });
+
+  it('closes the top dialog in a modal on Escape first, then the modal', async () => {
+    const dialogs = TestBed.inject(DialogService);
+    const modal = dialogs.openModal(DialogContentComponent, undefined);
+    const dialog = document.querySelector<HTMLDialogElement>('dialog.dialog-container')!;
+    // placed after an element in the modal, as a select places its list
+    const content = document.querySelector<HTMLElement>('tab-test-dialog-content')!;
+    const list = dialogs.openDialog(DialogContentComponent, undefined, { closeOnEscape: true, skipCreatingBackdrop: true }, new LocalStackOptions(content));
+    const closed: string[] = [];
+    list.closed$.subscribe(() => closed.push('list'));
+    modal.closed$.subscribe(() => closed.push('modal'));
+
+    await userEvent.keyboard('{Escape}');
+    await settle();
+    expect(closed).toEqual(['list']);
+    expect(isModal(dialog)).toBe(true);
+
+    await userEvent.keyboard('{Escape}');
+    expect(closed).toEqual(['list', 'modal']);
+    expect(dialog.isConnected).toBe(false);
+  });
+
+  // The browser's own close request on Escape would close a <dialog> the app keeps open, the second time without a
+  // user's action in between
+  it('keeps a modal that ignores Escape open however often it is pressed, a dropdown in it closing first', async () => {
+    const dialogs = TestBed.inject(DialogService);
+    const modal = dialogs.openModal(DialogContentComponent, undefined, { closeOnEscape: false });
+    const dialog = document.querySelector<HTMLDialogElement>('dialog.dialog-container')!;
+    const content = document.querySelector<HTMLElement>('tab-test-dialog-content')!;
+    const list = dialogs.openDialog(DialogContentComponent, undefined, { closeOnEscape: true, skipCreatingBackdrop: true }, new LocalStackOptions(content));
+    const listClosed = vi.fn();
+    list.closed$.subscribe(listClosed);
+    const closed = vi.fn();
+    modal.closed$.subscribe(closed);
+
+    for (let i = 0; i < 3; i++) {
+      await userEvent.keyboard('{Escape}');
+      await settle();
+    }
+
+    expect(listClosed).toHaveBeenCalled();
+    expect(closed).not.toHaveBeenCalled();
+    expect(isModal(dialog)).toBe(true);
+    modal.close();
+  });
+
+  it('keeps both open on Escape when a modal that ignores it sits over another', async () => {
+    const dialogs = TestBed.inject(DialogService);
+    const below = dialogs.openModal(DialogContentComponent, undefined);
+    const top = dialogs.openModal(DialogContentComponent, undefined, { closeOnEscape: false });
+    const closed = vi.fn();
+    below.closed$.subscribe(closed);
+    top.closed$.subscribe(closed);
+
+    await userEvent.keyboard('{Escape}');
+    await userEvent.keyboard('{Escape}');
+    await settle();
+
+    expect(closed).not.toHaveBeenCalled();
+    expect(Array.from(document.querySelectorAll<HTMLDialogElement>('dialog.dialog-container')).map(isModal)).toEqual([true, true]);
+    top.close();
+    below.close();
+  });
+
+  // The service listened on the document, so an app's own handler there could run after it and lose
+  it("leaves a modal open when an app's handler on the document cancels Escape, before and after a tooltip shows", async () => {
+    const dialogs = TestBed.inject(DialogService);
+    const keep = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+      }
+    };
+    const modal = dialogs.openModal(HintContentComponent, undefined, { header: { title: 'Hints', allowClose: true } });
+    TestBed.inject(ApplicationRef).tick();
+    const dialog = await shown();
+    const closed = vi.fn();
+    modal.closed$.subscribe(closed);
+    document.addEventListener('keydown', keep);
+    try {
+      await userEvent.keyboard('{Escape}');
+      await settle();
+      expect(isModal(dialog)).toBe(true);
+
+      await userEvent.hover(dialog.querySelector<HTMLElement>('.hint')!);
+      await vi.waitFor(() => {
+        expect(document.querySelector('[role="tooltip"]')).not.toBeNull();
+      });
+      // the tooltip takes the first Escape, the app's handler the next
+      await userEvent.keyboard('{Escape}');
+      expect(document.querySelector('[role="tooltip"]')).toBeNull();
+      await userEvent.keyboard('{Escape}');
+      await settle();
+      expect(closed).not.toHaveBeenCalled();
+      expect(isModal(dialog)).toBe(true);
+    } finally {
+      document.removeEventListener('keydown', keep);
+    }
+    await userEvent.keyboard('{Escape}');
+    expect(closed).toHaveBeenCalled();
+  });
+
+  // The browser's picker for a date closes on Escape, and the key can reach the page as the picker shuts
+  it('leaves a modal open on Escape from a date input in it', async () => {
+    const modal = TestBed.inject(DialogService).openModal(DateContentComponent, undefined);
+    const dialog = document.querySelector<HTMLDialogElement>('dialog.dialog-container')!;
+    const date = dialog.querySelector('input')!;
+    expect(document.activeElement).toBe(date);
+    const closed = vi.fn();
+    modal.closed$.subscribe(closed);
+
+    await userEvent.keyboard('{Escape}');
+    await settle();
+
+    expect(closed).not.toHaveBeenCalled();
+    expect(isModal(dialog)).toBe(true);
+    modal.close();
+  });
+
+  it('leaves Escape to the page while only a dialog that ignores it is open', async () => {
+    const dialogs = TestBed.inject(DialogService);
+    const panel = dialogs.openDialog(DialogContentComponent, undefined, { closeOnEscape: false });
+    const closed = vi.fn();
+    panel.closed$.subscribe(closed);
+
+    expect(await escapeReachesThePage()).toBe(true);
+    expect(closed).not.toHaveBeenCalled();
+    panel.close();
+
+    // one with no backdrop, as a tooltip has
+    const hint = dialogs.openDialog(DialogContentComponent, undefined, { closeOnEscape: false, skipCreatingBackdrop: true });
+    const hintClosed = vi.fn();
+    hint.closed$.subscribe(hintClosed);
+    expect(await escapeReachesThePage()).toBe(true);
+    expect(hintClosed).not.toHaveBeenCalled();
+    hint.close();
+  });
+
+  // A modal under another took the top one's walk, so requestClose() on it closed the modal above
+  it('closes the modal requestClose() is called on, under another', async () => {
+    const dialogs = TestBed.inject(DialogService);
+    const below = dialogs.openModal(DialogContentComponent, undefined);
+    const top = dialogs.openModal(DialogContentComponent, undefined);
+    const [belowDialog, topDialog] = Array.from(document.querySelectorAll<HTMLDialogElement>('dialog.dialog-container'));
+    const closed: string[] = [];
+    below.closed$.subscribe(() => closed.push('below'));
+    top.closed$.subscribe(() => closed.push('top'));
+
+    belowDialog.requestClose();
+    await settle();
+
+    expect(closed).toEqual(['below']);
+    expect(isModal(topDialog)).toBe(true);
+    top.close();
+  });
+
+  it('leaves no modal, host or stack entry behind for a content that cannot be made, and shows the next modal', () => {
+    const dialogs = TestBed.inject(DialogService);
+    expect(() => dialogs.openModal(BrokenContentComponent, undefined)).toThrowError('Broken content');
+
+    expect(document.querySelector('dialog')).toBeNull();
+    expect(dialogs.$overlayHost()).toBeNull();
+    expect(dialogs.dialogStack).toEqual([]);
+    const next = dialogs.openModal(DialogContentComponent, undefined);
+    expect(isModal(document.querySelector<HTMLDialogElement>('dialog.dialog-container')!)).toBe(true);
+    next.close();
+  });
+
+  // as an error in the application's next tick would be, when that tick rendered the content
+  it("gives an error in the content's first render to the ErrorHandler, and shows the modal", () => {
+    const handleError = vi.fn();
+    TestBed.configureTestingModule({ providers: [{ provide: ErrorHandler, useValue: { handleError } }] });
+    const modal = TestBed.inject(DialogService).openModal(FailingContentComponent, undefined);
+
+    expect(handleError).toHaveBeenCalledWith(new Error('Failing content'));
+    expect(isModal(document.querySelector<HTMLDialogElement>('dialog.dialog-container')!)).toBe(true);
+    modal.close();
+  });
+
+  it('keeps the field the content focused as it rendered, past an [autofocus] field before it', () => {
+    const modal = TestBed.inject(DialogService).openModal(OverrulingContentComponent, undefined);
+
+    expect(document.activeElement).toBe(document.querySelector('.note'));
+    modal.close();
+  });
+
+  it('keeps Tab in a dialog that keeps focus and has no Tab stop, and lets Tab with a modifier through', async () => {
+    const page = onThePage();
+    const dialogs = TestBed.inject(DialogService);
+    const panel = dialogs.openDialog(DialogContentComponent, undefined, { trapFocus: true });
+    TestBed.inject(ApplicationRef).tick();
+
+    await userEvent.keyboard('{Tab}');
+    expect(document.activeElement).not.toBe(page);
+    // as Ctrl+Tab, the browser's own
+    const switching = new KeyboardEvent('keydown', { key: 'Tab', ctrlKey: true, bubbles: true, cancelable: true });
+    window.dispatchEvent(switching);
+    expect(switching.defaultPrevented).toBe(false);
+    panel.close();
+  });
+
+  // A close request other than Escape, such as a back gesture, fires cancel on the <dialog>, and closed it under a
+  // dropdown, or one that ignores Escape
+  it('closes what Escape would on requestClose(): a dropdown first, then nothing for a modal that ignores Escape', async () => {
+    const dialogs = TestBed.inject(DialogService);
+    const modal = dialogs.openModal(DialogContentComponent, undefined, { closeOnEscape: false });
+    const dialog = document.querySelector<HTMLDialogElement>('dialog.dialog-container')!;
+    const content = document.querySelector<HTMLElement>('tab-test-dialog-content')!;
+    const list = dialogs.openDialog(DialogContentComponent, undefined, { closeOnEscape: true, skipCreatingBackdrop: true }, new LocalStackOptions(content));
+    const listClosed = vi.fn();
+    list.closed$.subscribe(listClosed);
+    const closed = vi.fn();
+    modal.closed$.subscribe(closed);
+
+    dialog.requestClose();
+    await settle();
+    expect(listClosed).toHaveBeenCalled();
+    expect(isModal(dialog)).toBe(true);
+
+    dialog.requestClose();
+    await settle();
+    expect(closed).not.toHaveBeenCalled();
+    expect(isModal(dialog)).toBe(true);
+    modal.close();
+
+    // one that closes on Escape closes
+    const other = dialogs.openModal(DialogContentComponent, undefined);
+    const otherClosed = vi.fn();
+    other.closed$.subscribe(otherClosed);
+    document.querySelector<HTMLDialogElement>('dialog.dialog-container')!.requestClose();
+    await settle();
+    expect(otherClosed).toHaveBeenCalled();
+    expect(document.querySelector('dialog')).toBeNull();
+  });
+
+  it('closes the DialogRef and the dialogs a modal hosts when its <dialog> is closed directly, and the next Escape reaches the page', async () => {
+    const dialogs = TestBed.inject(DialogService);
+    const modal = dialogs.openModal(DialogContentComponent, undefined);
+    const dialog = document.querySelector<HTMLDialogElement>('dialog.dialog-container')!;
+    const note = dialogs.openDialog(DialogContentComponent, undefined, { closeOnEscape: true });
+    const closed: string[] = [];
+    note.closed$.subscribe(() => closed.push('note'));
+    modal.closed$.subscribe(() => closed.push('modal'));
+
+    dialog.close();
+    await vi.waitFor(() => {
+      expect(closed).toEqual(['note', 'modal']);
+    });
+
+    expect(dialog.isConnected).toBe(false);
+    expect(dialogs.dialogStack).toEqual([]);
+    expect(dialogs.$overlayHost()).toBeNull();
+    expect(await escapeReachesThePage()).toBe(true);
+  });
+
+  it('closes a modal on a press on its backdrop, and not on a press that starts or ends in it', async () => {
+    TestBed.createComponent(LibraryStylesComponent);
+    const dialogs = TestBed.inject(DialogService);
+    const page = onThePage();
+
+    const modal = dialogs.openModal(FieldsContentComponent, undefined, { height: '12rem' });
+    const dialog = await shown();
+    const closed = vi.fn();
+    modal.closed$.subscribe(closed);
+    // a click in the modal's own area, below its content, and on its border, outside its padding box
+    await userEvent.click(dialog, { position: { x: 20, y: dialog.clientHeight - 10 } });
+    await userEvent.click(dialog, { position: { x: -0.5, y: dialog.clientHeight - 10 }, force: true });
+    // a text selection dragged from its field out to the backdrop
+    const name = dialog.querySelector<HTMLInputElement>('.name')!;
+    name.value = 'Ada Lovelace';
+    await userEvent.dragAndDrop(name, page, { force: true });
+    // the same as events, for a browser whose drag sends no click: the press on the field, the click on the <dialog>
+    // outside its box, as the backdrop takes it
+    const outside = { bubbles: true, clientX: 2, clientY: 2 };
+    name.dispatchEvent(new PointerEvent('pointerdown', outside));
+    dialog.dispatchEvent(new MouseEvent('click', outside));
+    // a click() with no press, as a test that moved over from the old backdrop's click might send
+    dialog.click();
+    expect(closed).not.toHaveBeenCalled();
+    expect(isModal(dialog)).toBe(true);
+
+    // a press on the backdrop
+    await userEvent.click(page, { force: true });
+    expect(closed).toHaveBeenCalled();
+    expect(dialog.isConnected).toBe(false);
+
+    // one that keeps it
+    dialogs.openModal(DialogContentComponent, undefined, { closeOnBackdropClick: false });
+    const kept = await shown();
+    await userEvent.click(page, { force: true });
+    expect(isModal(kept)).toBe(true);
+  });
+
+  // The list a select opens hangs below a small modal, outside its box, and its backdrop covers the window
+  it('keeps a modal open on a press on an option of a list that hangs below it, and on one outside the list, which closes it', async () => {
+    TestBed.createComponent(LibraryStylesComponent);
+    const dialogs = TestBed.inject(DialogService);
+    const picker = TestBed.createComponent(PickerComponent);
+    const page = onThePage();
+    const modal = dialogs.openTemplateModal(picker.componentInstance.$picker(), undefined, { label: 'Country' });
+    TestBed.inject(ApplicationRef).tick();
+    const dialog = await shown();
+    const closed = vi.fn();
+    modal.closed$.subscribe(closed);
+    const select = dialog.querySelector<HTMLElement>('tab-single-select')!;
+
+    await userEvent.click(select);
+    const france = await vi.waitFor(() => {
+      const option = Array.from(document.querySelectorAll<HTMLElement>('[role="option"]')).find(element => element.textContent.includes('France'));
+      expect(option).toBeDefined();
+      const box = option!.getBoundingClientRect();
+      expect(box.top).toBeGreaterThan(dialog.getBoundingClientRect().bottom);
+      expect(option!.contains(document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2))).toBe(true);
+      return option!;
+    });
+    await userEvent.click(france);
+    expect(picker.componentInstance.country.value).toBe('fr');
+    expect(isModal(dialog)).toBe(true);
+
+    await userEvent.click(select);
+    await vi.waitFor(() => {
+      expect(document.querySelector('[role="listbox"]')).not.toBeNull();
+    });
+    await userEvent.click(page, { force: true });
+    await vi.waitFor(() => {
+      expect(document.querySelector('[role="listbox"]')).toBeNull();
+    });
+    await settle();
+    expect(closed).not.toHaveBeenCalled();
+    expect(isModal(dialog)).toBe(true);
+    modal.close();
+  });
+
+  it('closes only a confirmation on a press on its backdrop, over a modal', async () => {
+    TestBed.createComponent(LibraryStylesComponent);
+    const dialogs = TestBed.inject(DialogService);
+    const page = onThePage();
+    const modal = dialogs.openModal(DialogContentComponent, undefined);
+    const below = await shown();
+    const closed = vi.fn();
+    modal.closed$.subscribe(closed);
+    const answer = dialogs.openConfirmationMessageDialog('Discard', 'Discard the changes?', 'primary', undefined, undefined, undefined);
+    const confirmation = await shown();
+    expect(confirmation).not.toBe(below);
+
+    await userEvent.click(page, { force: true });
+
+    await expect(answer).resolves.toBe(false);
+    expect(confirmation.isConnected).toBe(false);
+    expect(closed).not.toHaveBeenCalled();
+    expect(isModal(below)).toBe(true);
+    modal.close();
+  });
+
+  // A dialog the content opened as it rendered went to the host before the modal, under it once it showed
+  it('puts a dialog its content opens as it renders in the modal, and takes a modal its content closes out of the hosts', () => {
+    const dialogs = TestBed.inject(DialogService);
+    const modal = dialogs.openModal(OpeningContentComponent, undefined);
+    const layer = document.querySelector('dialog.dialog-container > .dialog-overlay-layer')!;
+    expect(rendered.made).toBe(layer);
+    expect(rendered.host).toBe(layer);
+    expect(document.querySelector('tab-test-dialog-content')!.closest('.dialog-container')!.parentElement).toBe(layer);
+    modal.close();
+    expect(dialogs.dialogStack).toEqual([]);
+
+    dialogs.openModal(ClosingContentComponent, undefined);
+    expect(document.querySelector('dialog')).toBeNull();
+    expect(dialogs.$overlayHost()).toBeNull();
+    expect(dialogs.dialogStack).toEqual([]);
+  });
+
+  // A modal the content opened as it rendered, such as "Restore your draft?", showed first, and the outer one's
+  // showModal() then covered it, inert, while Escape closed it unseen
+  it('shows a modal its content opens as it renders above it, and gives focus back into it', async () => {
+    TestBed.createComponent(LibraryStylesComponent);
+    const dialogs = TestBed.inject(DialogService);
+    const page = onThePage();
+    page.focus();
+    const outer = dialogs.openModal(DraftContentComponent, undefined, { header: { title: 'Note', allowClose: true } });
+    TestBed.inject(ApplicationRef).tick();
+    const [note, draft] = Array.from(document.querySelectorAll<HTMLDialogElement>('dialog.dialog-container'));
+    expect(draft.textContent).toContain('Restore your draft?');
+    expect([note, draft].map(isModal)).toEqual([true, true]);
+    expect(dialogs.$overlayHost()).toBe(draft.querySelector('.dialog-overlay-layer'));
+
+    // on top: focus is on its Restore button, the note under it takes none, and a press at the button reaches it
+    const restore = Array.from(draft.querySelectorAll('button')).find(button => button.textContent.trim() === 'Restore')!;
+    expect(document.activeElement).toBe(restore);
+    note.querySelector<HTMLElement>('.edit')!.focus();
+    expect(document.activeElement).toBe(restore);
+    await vi.waitFor(() => {
+      expect(note.style.top).not.toBe('-9999px');
+      expect(draft.style.top).not.toBe('-9999px');
+      const box = restore.getBoundingClientRect();
+      expect(restore.contains(document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2))).toBe(true);
+    });
+
+    // focus goes back into the note, where it was as the confirmation showed, not to the page under the note
+    await userEvent.keyboard('{Escape}');
+    await expect(rendered.answer).resolves.toBe(false);
+    expect(isModal(note)).toBe(true);
+    expect(document.activeElement).toBe(note.querySelector('.edit'));
+    outer.close();
+    expect(document.activeElement).toBe(page);
+  });
+
+  it("draws a modal's backdrop in the theme's backdrop colour, light and dark", async () => {
+    TestBed.createComponent(LibraryStylesComponent);
+    const modal = TestBed.inject(DialogService).openModal(DialogContentComponent, undefined);
+    const dialog = document.querySelector<HTMLDialogElement>('dialog.dialog-container')!;
+    // the property's colour, as the page computes it
+    const probe = document.createElement('div');
+    probe.className = 'test-page';
+    probe.style.backgroundColor = 'var(--twc-modal-color-backdrop)';
+    document.body.appendChild(probe);
+    const backdrop = () => getComputedStyle(dialog, '::backdrop').backgroundColor;
+
+    const light = getComputedStyle(probe).backgroundColor;
+    expect(backdrop()).toBe(light);
+    document.documentElement.classList.add('dark-mode');
+    const dark = getComputedStyle(probe).backgroundColor;
+    expect(dark).not.toBe(light);
+    expect(backdrop()).toBe(dark);
+    modal.close();
+  });
+
+  // A modal in the top layer covers whatever is outside it and makes it inert, so each overlay its content opens sits
+  // in it, above it
+  it("shows a select's list, an autocomplete's suggestions, a menu and a tooltip opened in a modal above it, where they take focus and clicks", async () => {
+    TestBed.createComponent(LibraryStylesComponent);
+    const dialogs = TestBed.inject(DialogService);
+    const fixture = TestBed.createComponent(OverlaysComponent);
+    const host = fixture.componentInstance;
+    const modal = dialogs.openTemplateModal(host.$overlays(), undefined, { width: '20rem', header: { title: 'Overlays', allowClose: true } });
+    TestBed.inject(ApplicationRef).tick();
+    const dialog = await shown();
+    // the element a press at the centre of an element's box reaches
+    const atCentre = (element: Element) => {
+      const box = element.getBoundingClientRect();
+      return document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+    };
+    const option = async (text: string) =>
+      vi.waitFor(() => {
+        const element = Array.from(document.querySelectorAll<HTMLElement>('[role="option"]')).find(candidate => candidate.textContent.includes(text));
+        expect(element).toBeDefined();
+        expect(element!.closest('dialog')).toBe(dialog);
+        expect(element!.contains(atCentre(element!))).toBe(true);
+        return element!;
+      });
+
+    await userEvent.click(dialog.querySelector('tab-single-select')!);
+    await userEvent.click(await option('Germany'));
+    expect(host.country.value).toBe('de');
+
+    const city = dialog.querySelector<HTMLInputElement>('.city')!;
+    await userEvent.click(city);
+    await userEvent.click(await option('Bern'));
+    expect(city.value).toBe('Bern');
+
+    await userEvent.click(dialog.querySelector('.more')!);
+    const help = await vi.waitFor(() => {
+      const element = document.querySelector<HTMLButtonElement>('.help')!;
+      expect(element.closest('dialog')).toBe(dialog);
+      expect(element.contains(atCentre(element))).toBe(true);
+      return element;
+    });
+    // the menu keeps focus: Tab goes into it
+    await userEvent.keyboard('{Tab}');
+    expect(document.activeElement).toBe(help);
+    expect(await axeViolations(dialog)).toEqual([]);
+    await userEvent.click(help);
+    expect(host.helped).toBe(true);
+    await userEvent.keyboard('{Escape}');
+
+    await userEvent.hover(dialog.querySelector('.hint')!);
+    const tooltip = await vi.waitFor(() => {
+      const element = document.querySelector<HTMLElement>('[role="tooltip"]')!;
+      expect(element.closest('dialog')).toBe(dialog);
+      expect(element.style.top).not.toBe('-9999px');
+      expect(element.contains(atCentre(element))).toBe(true);
+      return element;
+    });
+    const clicked = vi.fn();
+    tooltip.addEventListener('click', clicked);
+    await userEvent.click(tooltip);
+    expect(clicked).toHaveBeenCalled();
+
+    expect(isModal(dialog)).toBe(true);
+    modal.close();
+    expect(dialogs.dialogStack).toEqual([]);
+  });
+
   // The server has no layout and no one to show a dialog to, and one rendered there would stay in the page as dead
   // HTML, since the browser renders the app again
   it('shows nothing on the server', () => {
@@ -631,8 +1517,7 @@ describe('DialogService', () => {
     }
   });
 
-  // Destroying the app with a dialog open left its backdrop, its DOM, its observers and the page's tab order as the
-  // dialog had set them
+  // Destroying the app with a dialog open left its backdrop, its DOM, its observers and the page inert
   it('closes its dialogs when the app is destroyed', async () => {
     const page = document.createElement('button');
     page.textContent = 'On the page';
@@ -644,13 +1529,17 @@ describe('DialogService', () => {
       const closed: string[] = [];
       below.closed$.subscribe(() => closed.push('below'));
       top.closed$.subscribe(() => closed.push('top'));
-      expect(page.tabIndex).toBe(-1);
+      // inert under the modals, its own tabindex untouched
+      page.focus();
+      expect(document.activeElement).not.toBe(page);
+      expect(page.tabIndex).toBe(0);
 
       TestBed.resetTestingModule();
 
       expect(closed).toEqual(['top', 'below']);
       expect(document.querySelector('.dialog-container, .dialog-backdrop')).toBeNull();
-      expect(page.tabIndex).toBe(0);
+      page.focus();
+      expect(document.activeElement).toBe(page);
     } finally {
       page.remove();
     }

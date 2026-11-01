@@ -149,7 +149,9 @@ export class MenuDirective implements OnDestroy {
   /**
    * Trap focus within the menu
    * @remarks
-   * When true, the focus will be trapped within the menu until it is closed
+   * When true, the menu takes the focus from its element as it opens: Tab and Shift+Tab move through the menu's
+   * elements and wrap at either end until it closes, and the focus goes back to where it was. The page's own Tab order
+   * stays as it is.
    * @default 'true'
    */
   readonly $trapFocus = input(true, {

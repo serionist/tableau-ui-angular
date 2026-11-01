@@ -2,12 +2,11 @@
 
 import * as i2 from '@angular/common';
 import * as i0 from '@angular/core';
-import { AfterContentInit, AfterViewInit, ApplicationRef, EnvironmentInjector, Injector, OnDestroy, Signal, TemplateRef, Type, ViewRef } from '@angular/core';
+import { AfterViewInit, ApplicationRef, EnvironmentInjector, Injector, OnDestroy, Signal, TemplateRef, Type, ViewRef } from '@angular/core';
 import { Observable, Subscription } from 'rxjs';
 import * as i3 from 'tableau-ui-angular/button';
 
-declare class ConfirmationDialogComponent implements AfterViewInit, AfterContentInit {
-  ngAfterContentInit(): void;
+declare class ConfirmationDialogComponent implements AfterViewInit {
   ngAfterViewInit(): void;
   static ɵfac: i0.ɵɵFactoryDeclaration<ConfirmationDialogComponent, never>;
   static ɵcmp: i0.ɵɵComponentDeclaration<ConfirmationDialogComponent, 'tab-confirmation-dialog', never, {}, {}, never, never, false, never>;
@@ -114,6 +113,7 @@ interface IDialogSizeArgs {
 
 interface IModalArgs extends IConfirmationDialogArgs {
   header?: IDialogHeaderArgs;
+  label?: string;
 }
 
 export declare class LocalStackOptions {

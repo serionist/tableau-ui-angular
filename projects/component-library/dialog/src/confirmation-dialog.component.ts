@@ -1,13 +1,13 @@
-import type { AfterContentInit, AfterViewInit, TemplateRef } from '@angular/core';
-import { ChangeDetectionStrategy, Component, inject, viewChild } from '@angular/core';
+import type { AfterViewInit, Signal, TemplateRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, inject, viewChild } from '@angular/core';
+import { generateRandomString } from 'tableau-ui-angular/utils';
 import { injectDialogRef } from './dialog.ref';
 import { injectDialogData, TAB_DATA_REF } from './data.ref';
-import type { ButtonComponent } from 'tableau-ui-angular/button';
 @Component({
   selector: 'tab-confirmation-dialog',
   standalone: false,
   template: `
-    <div class="dialog-content">
+    <div class="dialog-content" [id]="contentId">
       @if (data.contentTemplate) {
         <div>
           <ng-container *ngTemplateOutlet="data.contentTemplate; context: data.contentTemplateContext" />
@@ -39,28 +39,29 @@ import type { ButtonComponent } from 'tableau-ui-angular/button';
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ConfirmationDialogComponent implements AfterViewInit, AfterContentInit {
+export class ConfirmationDialogComponent implements AfterViewInit {
   protected data = inject<IConfirmationDialogData>(TAB_DATA_REF);
 
   protected readonly data2 = injectDialogData<IConfirmationDialogData>();
 
   protected dialogRef = injectDialogRef<boolean>();
 
-  private readonly $accept = viewChild.required<ButtonComponent>('accept');
-  private readonly $cancel = viewChild.required<ButtonComponent>('cancel');
+  // the message, which describes the modal
+  protected readonly contentId = generateRandomString();
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
-  ngAfterContentInit() {
-    if (this.data.autofocus === 'accept') {
-      this.$accept().$nativeElement.nativeElement.focus();
-    } else if (this.data.autofocus === 'cancel') {
-      this.$cancel().$nativeElement.nativeElement.focus();
-    }
-  }
+  private readonly $accept: Signal<ElementRef<HTMLElement>> = viewChild.required('accept', { read: ElementRef });
+  private readonly $cancel: Signal<ElementRef<HTMLElement>> = viewChild.required('cancel', { read: ElementRef });
+
+  // In the first render, which the dialog service runs in the modal's <dialog> before showModal(), the message comes to
+  // describe the <dialog>, so a screen reader reads it with the button focus goes to, and the button `autofocus`
+  // names takes the attribute: the browser focuses it as the modal opens, and focus moves once. Lint refuses the
+  // attribute in a template outside a <dialog> element, which this one is in only once the service has placed it
   ngAfterViewInit() {
-    if (this.data.autofocus === 'accept') {
-      this.$accept().$nativeElement.nativeElement.focus();
-    } else if (this.data.autofocus === 'cancel') {
-      this.$cancel().$nativeElement.nativeElement.focus();
+    this.host.nativeElement.closest('dialog')?.setAttribute('aria-describedby', this.contentId);
+    const { autofocus } = this.data;
+    if (autofocus) {
+      (autofocus === 'accept' ? this.$accept() : this.$cancel()).nativeElement.setAttribute('autofocus', '');
     }
   }
 }

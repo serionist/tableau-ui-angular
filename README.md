@@ -6,7 +6,8 @@
 </h1>
 
 Tableau-style components for Angular 22: buttons, form controls, selects, a virtual table, dialogs, snacks, menus and
-more, one entry point per folder.
+more, one entry point per folder. Each component follows its WAI-ARIA pattern for the keyboard and screen readers, and
+its tests check it with axe in Chromium and Firefox.
 
 Not affiliated with or endorsed by Tableau or Salesforce.
 

@@ -37,9 +37,9 @@ export class ExampleDialogComponent {
     this.dialogRef.close('Closed with the Close button');
   }
 
-  // A dialog can open another above it; Escape closes the top one
+  // A dialog can open another above it; Escape closes the top one. With no header, label names it for screen readers
   protected openAnother() {
-    this.dialogs.openModal(ExampleDialogComponent, 'Another dialog', { height: 'auto' });
+    this.dialogs.openModal(ExampleDialogComponent, 'Another dialog', { height: 'auto', label: 'Another dialog' });
   }
 }
 
