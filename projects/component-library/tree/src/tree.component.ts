@@ -16,8 +16,8 @@ import { TreeNodeRegistry } from './tree-node-registry';
  * stop, its own keys and its own clicks. The buttons that open and close the nodes take no focus, and are hidden from
  * assistive technology, since the node says whether it is open. A click anywhere else in a node's row, its text and
  * icons included, opens or closes a node with children and focuses it, as an assistive technology's activation does; a
- * click on a link, a button, a field, a label or an element with a `tabindex` in the content, or one that ends a text
- * selection, is left to the content.
+ * click in a link, a button, a field, a control's `label` or an element with a `tabindex` in the content, or one whose
+ * press selected text, is left to the content.
  */
 @Component({
   selector: 'tab-tree',
@@ -30,6 +30,8 @@ import { TreeNodeRegistry } from './tree-node-registry';
     '(keydown)': 'onKeydown($event)',
     '(focusin)': 'onFocusin($event)',
     '(click)': 'onClick($event)',
+    '(mousedown)': 'onPress()',
+    '(document:mouseup)': 'onRelease()',
   },
 })
 export class TabTreeComponent implements OnDestroy {
@@ -281,19 +283,44 @@ export class TabTreeComponent implements OnDestroy {
     }
   }
 
+  // The selection when the pointer last went down in the tree, until the click that follows; none for a click without a
+  // press, such as an assistive technology's
+  private pressSelection: SelectionMark | undefined;
+
+  protected onPress() {
+    this.pressSelection = selectionMark(this.document.getSelection());
+  }
+
+  // A press that ends outside the tree gets no click here, so its mark goes once any click has run, unless a new press
+  // has marked the selection since
+  protected onRelease() {
+    const mark = this.pressSelection;
+    if (mark) {
+      setTimeout(() => {
+        if (this.pressSelection === mark) {
+          this.pressSelection = undefined;
+        }
+      });
+    }
+  }
+
   // A click in a row, its text and icons included, opens or closes a node with children and moves the focus to it. An
   // assistive technology's activation lands there: WebKit's, on iOS and macOS, on the element at the row's centre, the
   // node's content. A click on a control in the content is the control's; the hidden button, one of them, toggles itself.
   protected onClick(event: MouseEvent) {
+    const pressSelection = this.pressSelection;
+    this.pressSelection = undefined;
     const target = event.target instanceof Element ? event.target : null;
     const row = this.rowOf(target);
     const node = row && this.nodeOf(row);
     if (!target || !node || interactiveIn(target, row)) {
       return;
     }
-    // a drag that selects the node's text and ends in the row is no activation
+    // a click whose press selected text in the node, a drag or a double click's second press, is no activation; a
+    // selection the press found there, or one left for a click without a press, doesn't stop it
     const selection = this.document.getSelection();
-    if (selection && !selection.isCollapsed && (row.contains(selection.anchorNode) || row.contains(selection.focusNode))) {
+    const selectedInRow = !!selection && !selection.isCollapsed && (row.contains(selection.anchorNode) || row.contains(selection.focusNode));
+    if (selectedInRow && pressSelection && !sameSelection(pressSelection, selectionMark(selection))) {
       return;
     }
     if (node.$children().length > 0) {
@@ -515,10 +542,31 @@ function autoParentId(node: TabTreeNodeComponent): string | undefined {
 // editable element, anything with a tabindex, such as a nested tree's rows
 const INTERACTIVE = 'a[href], button, input, select, textarea, label, [contenteditable]:not([contenteditable="false"]), [tabindex]';
 
-// Whether `target`, or an element between it and `row`, takes its own clicks; the row's own tabindex doesn't count
+// Whether `target`, or an element between it and `row`, takes its own clicks; the row's own tabindex doesn't count, nor
+// does a label of no control, which is the node's text
 function interactiveIn(target: Element, row: HTMLElement): boolean {
-  const control = target.closest(INTERACTIVE);
-  return control !== null && control !== row && row.contains(control);
+  for (let control = target.closest(INTERACTIVE); control && control !== row && row.contains(control); control = control.parentElement?.closest(INTERACTIVE) ?? null) {
+    if (!(control instanceof HTMLLabelElement) || control.control !== null) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// Where a selection starts and ends
+interface SelectionMark {
+  anchorNode: Node | null;
+  anchorOffset: number;
+  focusNode: Node | null;
+  focusOffset: number;
+}
+
+function selectionMark(selection: Selection | null): SelectionMark {
+  return { anchorNode: selection?.anchorNode ?? null, anchorOffset: selection?.anchorOffset ?? 0, focusNode: selection?.focusNode ?? null, focusOffset: selection?.focusOffset ?? 0 };
+}
+
+function sameSelection(a: SelectionMark, b: SelectionMark): boolean {
+  return a.anchorNode === b.anchorNode && a.anchorOffset === b.anchorOffset && a.focusNode === b.focusNode && a.focusOffset === b.focusOffset;
 }
 
 export interface ExpandButtonTooltipParams<T = unknown> {

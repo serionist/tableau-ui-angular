@@ -129,9 +129,10 @@
       </p>
       <p>
         The tree is one Tab stop: the first node at the start, then the node the user last moved to or clicked. The buttons that open and close the nodes take no focus and are hidden from screen
-        readers, since the node says whether it is open. A click anywhere else in a node's row, its text and icons included, opens or closes a node with children and focuses it, as the activation of
-        an assistive technology such as VoiceOver on iOS, TalkBack or Switch Control does. A control in a node's content, such as a link, a button, a field or a label, keeps its own Tab stop, its own
-        keys and its own clicks, and a click that ends a text selection in the node toggles nothing.
+        readers, since the node says whether it is open. A click on a node's text, or anywhere else in its row, opens or closes a node with children and focuses it, as the activation of an assistive
+        technology such as VoiceOver on iOS, TalkBack or Switch Control does. A click in a link, a button, a field, a <code>label</code> of a control or an element with a <code>tabindex</code> in the
+        node's content is still that element's: make a clickable icon of your own a button, give it a <code>tabindex</code>, or stop its click's propagation. A control in a node's content keeps its
+        own Tab stop and its own keys, and a click whose press selected text in the node toggles nothing.
       </p>
       <table class="docs-table">
         <thead>

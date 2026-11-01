@@ -93,8 +93,14 @@ class FilesTreeComponent {
         Tasks
         <input aria-label="Filter" />
         <button type="button" (click)="added = added + 1">Add</button>
+        <label><input type="checkbox" /> Done</label>
         <tab-tree-node>Write <input aria-label="Note" /></tab-tree-node>
         <tab-tree-node>Review</tab-tree-node>
+      </tab-tree-node>
+      <!-- a label of no control, as the node's text -->
+      <tab-tree-node>
+        <label>Later</label>
+        <tab-tree-node>Someday</tab-tree-node>
       </tab-tree-node>
     </tab-tree>
   `,
@@ -502,26 +508,41 @@ describe('TabTreeComponent', () => {
       expect(component.teamChanges).toEqual([true]);
     });
 
-    // A drag that selects a node's text and lets go on its button or beside it clicks the row
-    it('toggles nothing on a click that ends a selection in the node, and still does with a selection elsewhere', async () => {
-      const { fixture, row, button } = await renderFiles();
+    // A drag that selects a node's text and lets go on its button or beside it clicks the row, as does a double click's
+    // second press, which selects a word
+    it('toggles nothing on a click whose press selected text in the node, and still does on a click that selected nothing', async () => {
+      const { fixture, row } = await renderFiles();
+      const content = () => row('Team').querySelector<HTMLElement>('.header-content')!;
       const selection = document.getSelection()!;
-      const select = (node: Node) => {
-        const range = document.createRange();
-        range.selectNodeContents(node);
-        selection.removeAllRanges();
-        selection.addRange(range);
-      };
 
-      select(row('Team').querySelector('.header-content')!);
-      row('Team').click();
+      content().dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+      const range = document.createRange();
+      range.selectNodeContents(content());
+      selection.removeAllRanges();
+      selection.addRange(range);
+      content().click();
       await fixture.whenStable();
       expect(row('Team').getAttribute('aria-expanded')).toBe('false');
 
-      select(button('After'));
-      row('Team').click();
+      // the selection stays, and a click without a press, as an assistive technology's, toggles
+      expect(selection.isCollapsed).toBe(false);
+      content().click();
       await fixture.whenStable();
       expect(row('Team').getAttribute('aria-expanded')).toBe('true');
+      // so does a press that finds the selection and leaves it
+      content().dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+      content().click();
+      await fixture.whenStable();
+      expect(row('Team').getAttribute('aria-expanded')).toBe('false');
+      selection.removeAllRanges();
+
+      // a double click on the label toggles once, and the next click on the word it selected toggles again
+      await userEvent.dblClick(content().querySelector('span')!);
+      await fixture.whenStable();
+      expect(row('Team').getAttribute('aria-expanded')).toBe('true');
+      await userEvent.click(content().querySelector('span')!);
+      await fixture.whenStable();
+      expect(row('Team').getAttribute('aria-expanded')).toBe('false');
       selection.removeAllRanges();
     });
 
@@ -540,6 +561,17 @@ describe('TabTreeComponent', () => {
       await fixture.whenStable();
       expect(document.activeElement).toBe(host.querySelector('input[aria-label="Filter"]'));
       expect(tasks.getAttribute('aria-expanded')).toBe('true');
+      // a label's text clicks its checkbox, and leaves the node alone
+      await userEvent.click(Array.from(host.querySelectorAll('label')).find(label => label.textContent.trim() === 'Done')!);
+      await fixture.whenStable();
+      expect(host.querySelector<HTMLInputElement>('input[type="checkbox"]')!.checked).toBe(true);
+      expect(tasks.getAttribute('aria-expanded')).toBe('true');
+
+      // a label of no control is the node's text, and a click on it toggles the node
+      const later = Array.from(host.querySelectorAll('[role="treeitem"]')).find(row => row.textContent.includes('Later'))!;
+      await userEvent.click(later.querySelector('label')!);
+      await fixture.whenStable();
+      expect(later.getAttribute('aria-expanded')).toBe('true');
     });
 
     // The rows were tracked by their place, so a node added or removed above the focused one rebuilt its row and dropped
@@ -628,7 +660,7 @@ describe('TabTreeComponent', () => {
       expect(document.activeElement).toBe(input);
       expect(input.value).toBe('r');
       // the node the control sits in takes the tree's Tab stop, just before the control
-      expect(Array.from(host.querySelectorAll('[role="treeitem"]'), row => row.getAttribute('tabindex'))).toEqual(['-1', '0', '-1']);
+      expect(Array.from(host.querySelectorAll('[role="treeitem"]'), row => row.getAttribute('tabindex'))).toEqual(['-1', '0', '-1', '-1']);
       await userEvent.tab({ shift: true });
       expect(nameOf(document.activeElement)).toBe('Write');
       expect(await axeViolations(host)).toEqual([]);

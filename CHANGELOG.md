@@ -45,9 +45,10 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   while it stays between the two; before, the tooltip hid as the pointer left. A test that hovers an element, then
   hovers or clicks what its tooltip covers, moves the pointer away first and waits for the tooltip to go.
 - A tree is one Tab stop: the arrows move between nodes and open and close them, and Enter toggles. The toggles take
-  no focus and are hidden from assistive technology; a click still toggles. A click on a node's label, or anywhere else
-  in its row, now opens or closes it too, where only the arrow did; a click on a link, a button, a field or a label in
-  the node's content is still the control's. A test that found a toggle by its role and the name Expand finds the node
+  no focus and are hidden from assistive technology; a click still toggles. A click on a node's text, or anywhere else
+  in its row, now opens or closes it too, where only the arrow did; a click in a link, a button, a field, a `label` of a
+  control or an element with a `tabindex` in the node's content is still that element's: make a clickable icon of your
+  own a button, give it a `tabindex`, or stop its click's propagation. A test that found a toggle by its role and the name Expand finds the node
   by its `treeitem` role and name, and reads `aria-expanded`; a test's `click()` on a `treeitem` or its text, as
   Testing Library's user-event sends it, now toggles the node. Name the tree with `aria-label` on `tab-tree`.
 
