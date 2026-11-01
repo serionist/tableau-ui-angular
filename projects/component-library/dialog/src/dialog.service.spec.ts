@@ -1,5 +1,5 @@
 import type { TemplateRef } from '@angular/core';
-import { ApplicationRef, ChangeDetectionStrategy, Component, inject, PLATFORM_ID, viewChild } from '@angular/core';
+import { ApplicationRef, ChangeDetectionStrategy, Component, inject, PLATFORM_ID, viewChild, ViewEncapsulation } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { userEvent } from 'vitest/browser';
 import { TableauUiTooltipModule } from 'tableau-ui-angular/tooltip';
@@ -130,13 +130,21 @@ class QuestionComponent {
   readonly $question = viewChild.required<TemplateRef<{ name: string }>>('question');
 }
 
+// The library's styles, as an app imports them, while a fixture of it lives: the dialogs', the overlay layer's and the
+// snacks' rules among them
+@Component({
+  template: '',
+  styleUrl: '../../styles/lib-styles.scss',
+  encapsulation: ViewEncapsulation.None,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class LibraryStylesComponent {}
+
 describe('DialogService', () => {
-  // what the library's stylesheet (styles/_dialog.service.scss) gives every dialog, which a test doesn't load
+  // what the library's stylesheet (styles/_dialog.service.scss) gives every dialog, which most tests don't load; those
+  // that stack overlays above a modal's content load the library's styles themselves
   const stylesheet = document.createElement('style');
-  stylesheet.textContent = `
-    .dialog-container, .dialog-backdrop { position: fixed; }
-    .dialog-overlay-layer { position: fixed; top: 0; left: 0; width: 0; height: 0; z-index: 2147483647; }
-  `;
+  stylesheet.textContent = '.dialog-container, .dialog-backdrop { position: fixed; }';
 
   beforeEach(async () => {
     TestBed.configureTestingModule({ imports: [TableauUiDialogModule] });
@@ -345,6 +353,7 @@ describe('DialogService', () => {
   it("places a tooltip and an app's dialog opened over a modal above its content, whatever its z-indexes, where they take clicks", async () => {
     const dialogs = TestBed.inject(DialogService);
     const appRef = TestBed.inject(ApplicationRef);
+    TestBed.createComponent(LibraryStylesComponent);
     const modal = dialogs.openModal(HelpContentComponent, undefined, { width: '80vw', height: '80vh', maxHeight: 'none' });
     appRef.tick();
     const container = await placed();
@@ -376,7 +385,8 @@ describe('DialogService', () => {
     tooltip.addEventListener('click', tooltipClicked);
     await userEvent.click(tooltip);
     expect(tooltipClicked).toHaveBeenCalled();
-    await movePointerAway();
+    // away to the map: the modal's backdrop covers the rest of the page
+    await userEvent.hover(content.querySelector<HTMLElement>('.map')!);
     await vi.waitFor(() => {
       expect(document.querySelector('[role="tooltip"]')).toBeNull();
     });
@@ -417,6 +427,7 @@ describe('DialogService', () => {
   // opens hangs over the next root, and a press there lands on the list
   it('keeps a list opened in one root of a template modal above the root after it', async () => {
     const dialogs = TestBed.inject(DialogService);
+    TestBed.createComponent(LibraryStylesComponent);
     const form = TestBed.createComponent(FormComponent).componentInstance.$form();
     const modal = dialogs.openTemplateModal(form, undefined, { width: '600px', header: { title: 'Template', allowClose: true } });
     TestBed.inject(ApplicationRef).tick();

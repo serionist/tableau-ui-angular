@@ -1,5 +1,5 @@
 import type { OnDestroy } from '@angular/core';
-import { ApplicationRef, ChangeDetectionStrategy, Component, effect, inject, PLATFORM_ID, signal } from '@angular/core';
+import { ApplicationRef, ChangeDetectionStrategy, Component, effect, inject, PLATFORM_ID, signal, ViewEncapsulation } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { userEvent } from 'vitest/browser';
 import { TableauUiButtonModule } from 'tableau-ui-angular/button';
@@ -60,16 +60,17 @@ const wait = async (ms: number) =>
     setTimeout(resolve, ms);
   });
 
-describe('SnackService', () => {
-  // what the library's stylesheets (styles/_dialog.service.scss, _snack.service.scss) give a modal and the snacks, which
-  // a test doesn't load
-  const stylesheet = document.createElement('style');
-  stylesheet.textContent = `
-    .dialog-container { position: fixed; }
-    .dialog-overlay-layer { position: fixed; top: 0; left: 0; width: 0; height: 0; z-index: 2147483647; }
-    .tab-snacks { position: fixed; top: 0; left: 0; right: 0; z-index: 2000; display: flex; justify-content: center; }
-  `;
+// The library's styles, as an app imports them, while a fixture of it lives: the dialogs', the overlay layer's and the
+// snacks' rules among them
+@Component({
+  template: '',
+  styleUrl: '../../styles/lib-styles.scss',
+  encapsulation: ViewEncapsulation.None,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class LibraryStylesComponent {}
 
+describe('SnackService', () => {
   beforeEach(async () => {
     // no router: a snack's action needs none
     TestBed.configureTestingModule({ imports: [TableauUiSnackModule] });
@@ -78,7 +79,6 @@ describe('SnackService', () => {
   });
 
   afterEach(() => {
-    stylesheet.remove();
     document.querySelectorAll('.tab-snacks, .dialog-container, .dialog-backdrop').forEach(element => element.remove());
     vi.unstubAllGlobals();
   });
@@ -212,7 +212,7 @@ describe('SnackService', () => {
   // A modal shown in the top layer (#58) covers what sits outside it and makes it inert, so a snack shown over a modal
   // goes into it
   it('sits in a modal open before it, above its content, where it takes clicks, and goes back to the body when the modal closes', async () => {
-    document.head.appendChild(stylesheet);
+    TestBed.createComponent(LibraryStylesComponent);
     const dialogs = TestBed.inject(DialogService);
     const modal = dialogs.openModal(ModalContentComponent, undefined, { width: '100vw', maxWidth: 'none', height: '100vh', maxHeight: 'none' });
     const layer = dialogs.$overlayHost()!;
@@ -233,6 +233,10 @@ describe('SnackService', () => {
       expect(x > over.left && x < over.right && y > over.top && y < over.bottom).toBe(true);
       expect(undo.contains(document.elementFromPoint(x, y))).toBe(true);
     });
+    // faded in, so its colours are measured as they show
+    await vi.waitFor(() => {
+      expect(getComputedStyle(stack.querySelector('.snack-wrapper')!).opacity).toBe('1');
+    });
     expect(await axeViolations(container)).toEqual([]);
     await userEvent.click(undo);
     expect(action).toHaveBeenCalledWith(ref);
@@ -246,7 +250,7 @@ describe('SnackService', () => {
   // The modal's container hides its overflow, which clips no fixed child: a snack at the top of the window, outside a
   // small modal's box, still shows and takes clicks
   it('shows a snack outside the box of the modal it sits in, where it takes clicks', async () => {
-    document.head.appendChild(stylesheet);
+    TestBed.createComponent(LibraryStylesComponent);
     const dialogs = TestBed.inject(DialogService);
     const modal = dialogs.openModal(ModalContentComponent, undefined);
     const container = dialogs.$overlayHost()!.parentElement!;
@@ -272,7 +276,6 @@ describe('SnackService', () => {
   });
 
   it('moves a showing snack into a modal that opens, into the modal above it, and back as each closes', async () => {
-    document.head.appendChild(stylesheet);
     const dialogs = TestBed.inject(DialogService);
     const ref = open('Saved', 0);
     const stack = document.querySelector<HTMLElement>('.tab-snacks')!;
@@ -299,7 +302,6 @@ describe('SnackService', () => {
 
   // The modal took the snack with it as it closed, so the focus it gave back had nowhere to go
   it("gives the focus back to a snack's button when the modal its action opened closes", async () => {
-    document.head.appendChild(stylesheet);
     const dialogs = TestBed.inject(DialogService);
     const ref = TestBed.inject(SnackService).openSnackWithAction(
       'Not sent',

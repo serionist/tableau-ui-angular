@@ -43,7 +43,9 @@ export class DialogService implements OnDestroy {
    * a modal can open the next one and close itself.
    *
    * An app that appends an overlay of its own to the body, opened from a modal, appends it here instead
-   * (`$overlayHost() ?? document.body`). An element the app or the snack service put in a modal's layer moves on to
+   * (`$overlayHost() ?? document.body`), `position: fixed` at the viewport coordinates `getBoundingClientRect()` gives:
+   * an absolute one is placed against the layer, which has no size, so page coordinates land low by the page's scroll
+   * and a percentage size is of nothing. An element the app or the snack service put in a modal's layer moves on to
    * the next host when the modal closes, the topmost modal still open or the body; one that should go with the modal,
    * the app removes. The overlays are `position: fixed` inside the modal's container, so a `transform`, `filter` or
    * `contain` on `.dialog-container` would move and clip them.

@@ -197,6 +197,10 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   each loaded row has `aria-selected`, so a row selected by a click is not told by its colour alone.
 - A table's select-none header checkbox clears a selection of every row, where it showed checked and stayed disabled
   once every row was selected by hand; it is disabled only while nothing is selected.
+- A dialog that closes first closes the dialogs inside it, such as an autocomplete's suggestions or a dialog the app
+  placed in it with `LocalStackOptions`, which stayed on the dialog stack and took the next Escape. A `DialogRef`'s
+  `close()` while it is closing does nothing, where a `closed$` subscriber that closed it again told every subscriber
+  twice and took the top dialog off the stack, so Escape no longer closed it.
 
 ## 0.2.0 (2026-10-31)
 

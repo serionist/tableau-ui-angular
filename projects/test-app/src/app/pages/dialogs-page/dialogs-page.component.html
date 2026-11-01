@@ -63,9 +63,11 @@
       <p>
         <code>$overlayHost()</code> is where an overlay opened now belongs: the topmost modal's overlay layer, <code>div.dialog-overlay-layer</code> at the end of its container, or
         <code>null</code> while no modal is open, for the body. The layer takes no space and sits above everything in the modal's content, a sticky toolbar or a map with a z-index of its own included.
-        An app that appends an overlay of its own to the body appends it to <code>$overlayHost() ?? document.body</code> instead. When the modal closes, the service moves what the app put in the layer
-        on to the next host, the topmost modal still open or the body; the app removes what should go with the modal. The overlays are <code>position: fixed</code> in the modal's container, so a
-        <code>transform</code>, <code>filter</code> or <code>contain</code> on <code>.dialog-container</code> would move and clip them.
+        An app that appends an overlay of its own to the body appends it to <code>$overlayHost() ?? document.body</code> instead, <code>position: fixed</code> at the viewport coordinates
+        <code>getBoundingClientRect()</code> gives: an absolute one is placed against the layer, which has no size, so page coordinates land low by the page's scroll and a percentage size is of
+        nothing. When the modal closes, the service moves what the app put in the layer on to the next host, the topmost modal still open or the body; the app removes what should go with the modal.
+        The overlays are <code>position: fixed</code> in the modal's container, so a <code>transform</code>, <code>filter</code> or <code>contain</code> on <code>.dialog-container</code> would move
+        and clip them.
       </p>
       <app-docs-example [example]="examples.overlays" />
     </div>
