@@ -1,5 +1,5 @@
 import type { AfterViewInit, ElementRef, OnInit, TemplateRef, Type } from '@angular/core';
-import { ApplicationRef, ChangeDetectionStrategy, Component, inject, PLATFORM_ID, viewChild, ViewEncapsulation } from '@angular/core';
+import { ApplicationRef, ChangeDetectionStrategy, Component, ErrorHandler, inject, PLATFORM_ID, viewChild, ViewEncapsulation } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { userEvent } from 'vitest/browser';
@@ -199,6 +199,43 @@ class OpeningContentComponent implements OnInit {
   ngOnInit() {
     rendered.host = this.dialogs.$overlayHost();
     this.dialogs.openDialog(DialogContentComponent, undefined, { closeOnEscape: true });
+  }
+}
+
+// Can't be made
+@Component({
+  selector: 'tab-test-broken-content',
+  template: 'Broken',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class BrokenContentComponent {
+  constructor() {
+    throw new Error('Broken content');
+  }
+}
+
+// Fails in its first render
+@Component({
+  selector: 'tab-test-failing-content',
+  template: '<input aria-label="Name" />',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class FailingContentComponent implements OnInit {
+  ngOnInit() {
+    throw new Error('Failing content');
+  }
+}
+
+// A field the app marks autofocus, and one the content focuses itself as it renders
+@Component({
+  selector: 'tab-test-overruling-content',
+  template: `<input class="name" aria-label="Name" autofocus /><input #note class="note" aria-label="Note" />`,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class OverrulingContentComponent implements AfterViewInit {
+  private readonly $note = viewChild.required<ElementRef<HTMLInputElement>>('note');
+  ngAfterViewInit() {
+    this.$note().nativeElement.focus();
   }
 }
 
@@ -1059,6 +1096,77 @@ describe('DialogService', () => {
 
     expect(await escapeReachesThePage()).toBe(true);
     expect(closed).not.toHaveBeenCalled();
+    panel.close();
+
+    // one with no backdrop, as a tooltip has
+    const hint = dialogs.openDialog(DialogContentComponent, undefined, { closeOnEscape: false, skipCreatingBackdrop: true });
+    const hintClosed = vi.fn();
+    hint.closed$.subscribe(hintClosed);
+    expect(await escapeReachesThePage()).toBe(true);
+    expect(hintClosed).not.toHaveBeenCalled();
+    hint.close();
+  });
+
+  // A modal under another took the top one's walk, so requestClose() on it closed the modal above
+  it('closes the modal requestClose() is called on, under another', async () => {
+    const dialogs = TestBed.inject(DialogService);
+    const below = dialogs.openModal(DialogContentComponent, undefined);
+    const top = dialogs.openModal(DialogContentComponent, undefined);
+    const [belowDialog, topDialog] = Array.from(document.querySelectorAll<HTMLDialogElement>('dialog.dialog-container'));
+    const closed: string[] = [];
+    below.closed$.subscribe(() => closed.push('below'));
+    top.closed$.subscribe(() => closed.push('top'));
+
+    belowDialog.requestClose();
+    await settle();
+
+    expect(closed).toEqual(['below']);
+    expect(isModal(topDialog)).toBe(true);
+    top.close();
+  });
+
+  it('leaves no modal, host or stack entry behind for a content that cannot be made, and shows the next modal', () => {
+    const dialogs = TestBed.inject(DialogService);
+    expect(() => dialogs.openModal(BrokenContentComponent, undefined)).toThrowError('Broken content');
+
+    expect(document.querySelector('dialog')).toBeNull();
+    expect(dialogs.$overlayHost()).toBeNull();
+    expect(dialogs.dialogStack).toEqual([]);
+    const next = dialogs.openModal(DialogContentComponent, undefined);
+    expect(isModal(document.querySelector<HTMLDialogElement>('dialog.dialog-container')!)).toBe(true);
+    next.close();
+  });
+
+  // as an error in the application's next tick would be, when that tick rendered the content
+  it("gives an error in the content's first render to the ErrorHandler, and shows the modal", () => {
+    const handleError = vi.fn();
+    TestBed.configureTestingModule({ providers: [{ provide: ErrorHandler, useValue: { handleError } }] });
+    const modal = TestBed.inject(DialogService).openModal(FailingContentComponent, undefined);
+
+    expect(handleError).toHaveBeenCalledWith(new Error('Failing content'));
+    expect(isModal(document.querySelector<HTMLDialogElement>('dialog.dialog-container')!)).toBe(true);
+    modal.close();
+  });
+
+  it('keeps the field the content focused as it rendered, past an [autofocus] field before it', () => {
+    const modal = TestBed.inject(DialogService).openModal(OverrulingContentComponent, undefined);
+
+    expect(document.activeElement).toBe(document.querySelector('.note'));
+    modal.close();
+  });
+
+  it('keeps Tab in a dialog that keeps focus and has no Tab stop, and lets Tab with a modifier through', async () => {
+    const page = onThePage();
+    const dialogs = TestBed.inject(DialogService);
+    const panel = dialogs.openDialog(DialogContentComponent, undefined, { trapFocus: true });
+    TestBed.inject(ApplicationRef).tick();
+
+    await userEvent.keyboard('{Tab}');
+    expect(document.activeElement).not.toBe(page);
+    // as Ctrl+Tab, the browser's own
+    const switching = new KeyboardEvent('keydown', { key: 'Tab', ctrlKey: true, bubbles: true, cancelable: true });
+    window.dispatchEvent(switching);
+    expect(switching.defaultPrevented).toBe(false);
     panel.close();
   });
 
