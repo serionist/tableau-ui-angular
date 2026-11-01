@@ -1,5 +1,6 @@
 import type { ComponentFixture } from '@angular/core/testing';
 import { TestBed } from '@angular/core/testing';
+import { page } from 'vitest/browser';
 import { SnackService } from 'tableau-ui-angular/snack';
 import { ClipboardService } from 'tableau-ui-angular/clipboard';
 import { DialogService } from 'tableau-ui-angular/dialog';
@@ -809,6 +810,9 @@ describe('The samples', () => {
       await check(fixture, 'Only discounted orders');
       await check(fixture, 'Include returned orders');
       expect(chips()).toEqual(['Discounted only', 'No returns']);
+      // each remove button is named by its chip
+      expect(page.getByRole('button', { name: 'Remove Discounted only', exact: true }).element()).toBe(removers()[0]);
+      expect(page.getByRole('button', { name: 'Remove No returns', exact: true }).element()).toBe(removers()[1]);
 
       removers()[0].focus();
       removers()[0].click();
@@ -827,19 +831,21 @@ describe('The samples', () => {
     it('keeps a closed drawer out of the tab order, and covers a narrow dashboard with an open one', async () => {
       const { fixture, host, button } = await render();
       const [panel, content] = [host.querySelector('.panel')!, host.querySelector('app-enhanced-table .content')!];
-      expect([panel.hasAttribute('inert'), content.hasAttribute('inert')]).toEqual([true, false]);
+      // the library's drawer is inert while closed; the dashboard makes the content inert under a drawer that covers it
+      const inert = () => [panel, content].map(element => element.closest('[inert]') !== null);
+      expect(inert()).toEqual([true, false]);
 
       button('Filters').click();
       await fixture.whenStable();
       expect(button('Filters').getAttribute('aria-expanded')).toBe('true');
-      expect([panel.hasAttribute('inert'), content.hasAttribute('inert')]).toEqual([false, false]);
+      expect(inert()).toEqual([false, false]);
 
       host.style.width = '20rem';
-      await vi.waitFor(() => expect([panel.hasAttribute('inert'), content.hasAttribute('inert')]).toEqual([false, true]));
+      await vi.waitFor(() => expect(inert()).toEqual([false, true]));
 
       button('Filters').click();
       await fixture.whenStable();
-      expect([panel.hasAttribute('inert'), content.hasAttribute('inert')]).toEqual([true, false]);
+      expect(inert()).toEqual([true, false]);
       fixture.destroy();
     });
   });

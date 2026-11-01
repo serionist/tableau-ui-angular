@@ -1,5 +1,5 @@
 import type { ElementRef } from '@angular/core';
-import { ChangeDetectionStrategy, Component, computed, contentChild, effect, ErrorHandler, forwardRef, inject, input, model, output, signal, untracked, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, contentChild, effect, ErrorHandler, forwardRef, inject, input, model, output, signal, untracked, viewChild, viewChildren } from '@angular/core';
 import { ChipTemplateDirective } from '../directives/chip-template.directive';
 import type { ChipData } from '../models/chip-data';
 import { NG_VALUE_ACCESSOR, type ControlValueAccessor } from '@angular/forms';
@@ -148,6 +148,8 @@ export class ChipControlComponent<TKey, TValue> implements ControlValueAccessor 
   // #endregion Public Methods
 
   protected readonly $inputControl = viewChild.required<ElementRef<HTMLInputElement>>('inputControl');
+  // each chip's wrapper, in the order of the chips shown
+  private readonly $chipWrappers = viewChildren<ElementRef<HTMLElement>>('chipWrapper');
   readonly $chipTemplate = contentChild.required<ChipTemplateDirective<TKey, TValue>>(ChipTemplateDirective);
 
   // #region keys/values change events
@@ -351,13 +353,18 @@ export class ChipControlComponent<TKey, TValue> implements ControlValueAccessor 
           const highlightedChip = this.$highlightedChip();
           if (highlightedChip !== undefined) {
             const index = this.$currentKeys().findIndex(k => this.$keyComparer()(k, highlightedChip));
+            const removed = this.chipWords(highlightedChip);
             this.remove(highlightedChip);
             // select the previous chip if it exists
-            if (index > 0) {
-              this.$highlightedChip.set(this.$currentKeys()[index - 1]);
+            const previous = index > 0 ? this.$currentKeys()[index - 1] : undefined;
+            if (previous !== undefined) {
+              this.$highlightedChip.set(previous);
             }
+            this.announce(removed, previous);
           } else {
-            this.$highlightedChip.set(this.$currentKeys().length > 0 ? this.$currentKeys()[this.$currentKeys().length - 1] : undefined);
+            const last = this.$currentKeys().length > 0 ? this.$currentKeys()[this.$currentKeys().length - 1] : undefined;
+            this.$highlightedChip.set(last);
+            this.announce('', last);
           }
         }
         return;
@@ -370,12 +377,15 @@ export class ChipControlComponent<TKey, TValue> implements ControlValueAccessor 
           }
           event.preventDefault();
           const index = this.$currentKeys().findIndex(k => this.$keyComparer()(k, highlightedChip));
+          const removed = this.chipWords(highlightedChip);
           this.remove(highlightedChip);
           // select the new chip at the same index if it exists
           window.requestAnimationFrame(() => {
-            if (index < this.$currentKeys().length) {
-              this.$highlightedChip.set(this.$currentKeys()[index]);
+            const next = index < this.$currentKeys().length ? this.$currentKeys()[index] : undefined;
+            if (next !== undefined) {
+              this.$highlightedChip.set(next);
             }
+            this.announce(removed, next);
           });
         }
         return;
@@ -391,11 +401,13 @@ export class ChipControlComponent<TKey, TValue> implements ControlValueAccessor 
             const index = this.$currentKeys().findIndex(k => this.$keyComparer()(k, highlightedChip));
             if (index > 0) {
               this.$highlightedChip.set(this.$currentKeys()[index - 1]);
+              this.announce('', this.$currentKeys()[index - 1]);
             }
           } else {
             // if no chip is highlighted, highlight the last chip
             const lastKey = this.$currentKeys().length > 0 ? this.$currentKeys()[this.$currentKeys().length - 1] : undefined;
             this.$highlightedChip.set(lastKey);
+            this.announce('', lastKey);
           }
         }
         return;
@@ -409,16 +421,65 @@ export class ChipControlComponent<TKey, TValue> implements ControlValueAccessor 
           const index = this.$currentKeys().findIndex(k => this.$keyComparer()(k, highlightedChip));
           if (index < this.$currentKeys().length - 1) {
             this.$highlightedChip.set(this.$currentKeys()[index + 1]);
+            this.announce('', this.$currentKeys()[index + 1]);
           } else {
             this.$highlightedChip.set(undefined); // unset highlighted chip if it was the last one
+            this.announce('', undefined);
           }
         }
         return;
       default:
         this.$highlightedChip.set(undefined); // unset highlighted chip on any other key
+        this.announce('', undefined);
         this.$searchKeydown.emit(event);
         break;
     }
+  }
+
+  // What the hidden polite region says while focus stays in the input: the chip a key removed, then the chip it
+  // highlights and its place among the chips, "Berlin removed. Paris, 2 of 3, highlighted. Backspace or Delete removes
+  // it."; a key that does neither empties it. The place tells apart two chips with the same words
+  protected readonly $announcement = signal('');
+  private announce(removed: string, highlighted: TKey | undefined) {
+    const comparer = this.$keyComparer();
+    const chips = this.$chips();
+    const place = highlighted === undefined ? -1 : chips.findIndex(chip => comparer(chip.key, highlighted));
+    const words = place === -1 ? '' : this.chipWords(chips[place].key);
+    const parts = [removed === '' ? '' : `${removed} removed.`, words === '' ? '' : `${words}, ${place + 1} of ${chips.length}, highlighted. Backspace or Delete removes it.`];
+    this.$announcement.set(parts.filter(part => part !== '').join(' '));
+  }
+
+  // A chip's words: its wrapper's text as a screen reader reads it, without what assistive technology skips, such as a
+  // decorative icon's ligature, and without its buttons, such as its remove button. An element with an aria-label
+  // gives the label in place of its text, and an image its alt, as they name the remove button
+  private chipWords(key: TKey): string {
+    const comparer = this.$keyComparer();
+    const index = this.$chips().findIndex(chip => comparer(chip.key, key));
+    const wrapper = index === -1 ? undefined : this.$chipWrappers().at(index)?.nativeElement;
+    const words: string[] = [];
+    const read = (node: Node) => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        words.push(node.textContent ?? '');
+        return;
+      }
+      if (!(node instanceof Element) || node.getAttribute('aria-hidden') === 'true' || node.hasAttribute('hidden') || node.tagName === 'BUTTON') {
+        return;
+      }
+      const label = node.getAttribute('aria-label')?.trim() ?? '';
+      if (label !== '') {
+        words.push(` ${label} `);
+        return;
+      }
+      if (node instanceof HTMLImageElement) {
+        words.push(` ${node.alt} `);
+        return;
+      }
+      node.childNodes.forEach(read);
+    };
+    if (wrapper) {
+      read(wrapper);
+    }
+    return words.join('').replace(/\s+/g, ' ').trim();
   }
 
   // #endregion

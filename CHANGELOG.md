@@ -20,6 +20,17 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   pristine, so a Save button bound to `dirty` turns off; and a rule that disables a field when another changes, as with
   `childChange`, makes the group emit its value twice. To keep the old behaviour, pass `false` as the second argument:
   `disable(emitEvent, false)` and `enable(emitEvent, false)`.
+- Inside a subscriber of a group's, an array's or a control's `value$`, such as a `valueChange` callback, a change the
+  subscriber makes to the form reaches `value$`, `$value()` and `$rawValue()` once every subscriber has the value being
+  emitted, where it reached them during the call that made it. A subscriber that disables a field and then reads
+  `form.$value()` to save a draft reads the value it was given, the field included. Act on the value the next call
+  brings: each subscriber is called again with the new one. An array's `push`, `insert`, `removeAt` and `clear` still
+  change its `$rawValue()`, `rawValue$` and `$controls()` at once, while its `$value()` waits.
+- A chip's content sits in a `span.content` inside `tab-chip`, with `display: contents`, so the chip looks the same
+  but its content is no longer the chip's direct child. A style such as `tab-chip > tab-icon`, or a test that reads
+  `chip.children[0]`, goes through the span: `tab-chip tab-icon`, or `chip.querySelector('.content')!.children[0]`.
+- A closed drawer is inert until change detection renders it open, so an app that sets `isOpen` and focuses into the
+  drawer in the same tick finds the focus refused. Move the focus in `afterNextRender`, once the drawer renders.
 - Every `tab-table` and `tab-virtualize` is a Tab stop, so the keyboard can scroll it. While `tab-virtualize` shows
   items it is a list and its items `listitem`s; an app whose items have a role of their own writes a static `role`
   attribute on `tab-virtualize`, such as `role="listbox"`, which keeps the library's roles off. Name a table or a
@@ -27,12 +38,24 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
 
 ### Added
 
+- `tab-expansion-panel`'s `label` input names its toggle button in place of the title. A title that holds a control,
+  such as a button, or more than the panel's name needs it: the toggle took the title's whole text as its name, the
+  control's included.
 - `label` on `tab-table` and `tab-virtualize`: the name screen readers give the table and the region its host is, or
   the list. Without it a table's host has no role, and a virtual scroller is an unnamed list, or no role while it shows
   no items.
 
 ### Fixed
 
+- A chip's remove button is named Remove and the chip's content, such as "Remove Berlin", where every one was named
+  Remove. A test that found it by the exact name Remove finds it by the chip's text too.
+- The chip control says which chip a key highlights and which it removes, in a hidden polite live region: "Berlin, 2
+  of 3, highlighted. Backspace or Delete removes it." and "Berlin removed." Focus stays in its input, and the keys are
+  the same.
+- A closed drawer is inert, so Tab skips its links and screen readers don't read it. A drawer that opens after its
+  first render puts focus back on the element focused before it opened, when it closes with focus inside. The app
+  moves focus into a drawer it opens once it renders, and out of a drawer open from its first render when it closes
+  it.
 - A multi select lists its picked values as "English, Hungarian", where it showed a space before each comma. An
   option's icon in a select's shown value sits 0.25rem from its text, as in the dropdown, where a space widened the gap.
 - A tooltip takes the padding its `tooltipPadding` sets. Only `full` and `lazy` passed one, from their args, so a
@@ -75,6 +98,12 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   black on the dark one. The property names stay. Styles that copied the old red read the property instead. Text an app
   puts on `--twc-color-error` takes `--twc-color-base`, as the raised error button now does, since a light text there
   reads below 4.5:1 on the dark red; an app that sets `--twc-color-error` keeps `--twc-color-base` on it at 4.5:1.
+- A group's, an array's or a control's `value$` ends on the latest value for every subscriber when one of them changes
+  the form while the value emits, as a `valueChange` that disables a field does. The subscribers after that one got the
+  new value and then the old one, so a template or a save kept a field the form had left out. Each subscriber now gets
+  the old value and then the new one. A rule that sets a field from the others, with no check that the field already
+  holds it, settles, where it overflowed the stack. A value or meta rule that doesn't settle within 100 rounds stops
+  with an error that names `value$` or `meta$`, and its last change is dropped.
 - A table or a virtual scroller whose rows hold nothing focusable can be scrolled from the keyboard in every browser,
   and a screen reader hears its name and each item's place in the list, as "61 of 10,000".
 - The bar a table or a virtual scroller shows in a row whose block failed to load is the error colour itself, 3:1 or

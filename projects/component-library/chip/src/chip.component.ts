@@ -1,6 +1,7 @@
 import type { InputSignal } from '@angular/core';
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import type { TooltipArgs } from 'tableau-ui-angular/tooltip';
+import { generateRandomString } from 'tableau-ui-angular/utils';
 
 @Component({
   selector: 'tab-chip',
@@ -14,8 +15,12 @@ import type { TooltipArgs } from 'tableau-ui-angular/tooltip';
   },
 })
 export class ChipComponent {
+  private readonly id = generateRandomString(16);
+  // the content and the remove icon, which name the remove button together: "Remove Berlin"
+  protected readonly contentId = `tab-chip-content-${this.id}`;
+  protected readonly removeId = `tab-chip-remove-${this.id}`;
   /**
-   * Show a remove icon in the chip.
+   * Show a remove button in the chip, named Remove and the chip's content for screen readers: "Remove Berlin".
    */
   readonly $allowRemove = input<boolean>(false, {
     alias: 'allowRemove',

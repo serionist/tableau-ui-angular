@@ -39,6 +39,16 @@
     }
   }
 
+  // out of sight and out of the layout, still read: a box of one pixel at the default size, clipped
+  .announcement {
+    position: absolute;
+    width: 0.0625rem;
+    height: 0.0625rem;
+    overflow: hidden;
+    white-space: nowrap;
+    clip-path: inset(50%);
+  }
+
   &[disabled] {
     .chip {
       cursor: initial;

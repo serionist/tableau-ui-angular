@@ -1,6 +1,9 @@
-<ng-content />
+<!-- The content names the remove button, after its icon's label: "Remove Berlin". Its span keeps out of the layout -->
+<span class="content" [id]="contentId"><ng-content /></span>
 @if ($allowRemove()) {
+  <!-- The icon, an image named by its label and the content, is the button's content and so its name: on the button,
+       a name without the icon's glyph would not match the text the button shows -->
   <button class="close-button" layout="small-icon" color="plain" tooltip tooltipArgsMode="full" [tooltipFullArgs]="$removeTooltip()" (click)="removed.emit()">
-    <tab-icon value="close" label="Remove" />
+    <tab-icon value="close" label="Remove" [id]="removeId" [attr.aria-labelledby]="`${removeId} ${contentId}`" />
   </button>
 }
