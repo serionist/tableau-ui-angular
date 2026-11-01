@@ -121,26 +121,24 @@ export class TabTreeComponent implements OnDestroy {
       });
       this.resizeObserver.observe(this.selfElementRef.nativeElement);
     });
-    // Focus in a row that a closing node hides, or that goes with its node, moves to the node that takes the Tab stop;
-    // so does focus that a moved row drops to the body. This runs before the tree's template changes the rows, while the
-    // focus is still in one: a browser removing the focused element fires no focusout in every engine.
+    // Focus that a render drops from a row to the body, as when a closing node hides the row, its node goes or the
+    // template moves it, moves to the node that takes the Tab stop; focus the app has moved elsewhere by then stays. This
+    // runs before the tree's template changes the rows, while the focus is still in one: a browser removing the focused
+    // element fires no focusout in every engine.
     effect(() => {
-      const shown = this.$shownNodes();
+      this.$shownNodes();
       const tabStop = this.$tabStop();
       if (!this.isBrowser || !tabStop) {
         return;
       }
       untracked(() => {
-        const row = this.rowOf(this.document.activeElement);
-        if (!row) {
+        if (!this.rowOf(this.document.activeElement)) {
           return;
         }
-        const node = this.nodeOf(row);
-        const goes = !node || !shown.includes(node);
         afterNextRender(
           () => {
             const active = this.document.activeElement;
-            if (goes || active === null || active === this.document.body) {
+            if (active === null || active === this.document.body) {
               this.rowOfNode(tabStop)?.focus();
             }
           },
@@ -287,6 +285,11 @@ export class TabTreeComponent implements OnDestroy {
     const row = this.rowOf(event.target instanceof Node ? event.target : null);
     const node = row && this.nodeOf(row);
     if (!node || event.target !== row) {
+      return;
+    }
+    // a drag that selects the node's text and ends on the row is no activation
+    const selection = this.document.getSelection();
+    if (selection && !selection.isCollapsed && (row.contains(selection.anchorNode) || row.contains(selection.focusNode))) {
       return;
     }
     if (node.$children().length > 0) {

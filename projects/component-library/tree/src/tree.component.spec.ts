@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { By } from '@angular/platform-browser';
@@ -63,7 +63,7 @@ class ModesTreeComponent {
           <tab-tree-node>Costs</tab-tree-node>
         }
       </tab-tree-node>
-      <tab-tree-node (expandedChange)="teamChanges.push($event)">
+      <tab-tree-node [order]="$teamOrder()" (expandedChange)="teamChanges.push($event)">
         Team
         <tab-tree-node>Ada</tab-tree-node>
         <tab-tree-node>Bob</tab-tree-node>
@@ -80,6 +80,7 @@ class FilesTreeComponent {
   readonly $reportsOpen = signal(true);
   readonly $costs = signal(true);
   readonly $archive = signal(true);
+  readonly $teamOrder = signal(0);
   readonly teamChanges: boolean[] = [];
 }
 
@@ -480,6 +481,23 @@ describe('TabTreeComponent', () => {
       await fixture.whenStable();
       expect(row('Team').getAttribute('aria-expanded')).toBe('false');
 
+      // a drag that selects the node's text and ends on its row toggles nothing; a selection elsewhere doesn't stop a click
+      const selection = document.getSelection()!;
+      const range = document.createRange();
+      range.selectNodeContents(row('Team').querySelector('.header-content')!);
+      selection.removeAllRanges();
+      selection.addRange(range);
+      row('Team').click();
+      await fixture.whenStable();
+      expect(row('Team').getAttribute('aria-expanded')).toBe('false');
+      range.selectNodeContents(button('After'));
+      selection.removeAllRanges();
+      selection.addRange(range);
+      row('Team').click();
+      await fixture.whenStable();
+      expect(row('Team').getAttribute('aria-expanded')).toBe('true');
+      selection.removeAllRanges();
+
       // a node without children only takes the focus
       row('Archive').click();
       await fixture.whenStable();
@@ -489,21 +507,54 @@ describe('TabTreeComponent', () => {
 
     // The rows were tracked by their place, so a node added or removed above the focused one rebuilt its row and dropped
     // the focus to the body
-    it('keeps the focus on a node when a node above it goes or comes, and the siblings left count again', async () => {
-      const { fixture, component, row, rows, focused } = await renderFiles();
-      row('Team').focus();
+    it('keeps the focus on a node, in the same row, when a node above it goes or comes, and the siblings left count again', async () => {
+      const { fixture, component, row, rows } = await renderFiles();
+      const team = row('Team');
+      team.focus();
 
       component.$costs.set(false);
       await fixture.whenStable();
       expect(rows().map(nameOf)).not.toContain('Costs');
-      expect(focused()).toBe('Team');
+      // the row is the same element: a row rebuilt for its new place would have lost the focus
+      expect(document.activeElement).toBe(team);
       expect(row('Sales').getAttribute('aria-setsize')).toBe('1');
 
       component.$costs.set(true);
       await fixture.whenStable();
       expect(rows().map(nameOf)).toContain('Costs');
-      expect(focused()).toBe('Team');
+      expect(document.activeElement).toBe(team);
       expect(row('Costs').getAttribute('aria-posinset')).toBe('2');
+    });
+
+    // Moving the focused element in the page drops the focus to the body, in Chromium and Firefox alike. With Team first,
+    // the template moves Reports' rows after Team's, rather than Team's before them.
+    it('puts the focus back on a node whose row the template moves', async () => {
+      const { fixture, component, host, row, rows, focused } = await renderFiles();
+      const reports = row('Reports');
+      reports.focus();
+      const moved: Node[] = [];
+      const observer = new MutationObserver(records => moved.push(...records.flatMap(record => Array.from(record.removedNodes))));
+      observer.observe(host.querySelector('tab-tree')!, { childList: true });
+
+      component.$teamOrder.set(-1);
+      await fixture.whenStable();
+      observer.disconnect();
+      expect(rows().map(nameOf)).toEqual(['Team', 'Reports', 'Sales', 'Q1', 'Q2', 'Costs', 'Archive']);
+      // the template moved Reports' own row, which dropped the focus, and the tree put it back
+      expect(moved).toContain(reports);
+      expect(row('Reports')).toBe(reports);
+      expect(focused()).toBe('Reports');
+    });
+
+    it('leaves the focus where the app moves it after removing the focused node', async () => {
+      const { fixture, component, row, button } = await renderFiles();
+      row('Archive').focus();
+
+      component.$archive.set(false);
+      // an app that moves the focus once the page renders, as to an Undo button
+      afterNextRender(() => button('After').focus(), { injector: fixture.componentRef.injector });
+      await fixture.whenStable();
+      expect(document.activeElement).toBe(button('After'));
     });
 
     it('cancels the arrows where they move nothing, and leaves keys with Alt, Ctrl or Meta to the browser', async () => {
