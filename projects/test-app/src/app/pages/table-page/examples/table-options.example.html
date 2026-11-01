@@ -79,6 +79,7 @@
 <ng-template #customnodatatemplate>Custom No Data Template</ng-template>
 <tab-table
   #table
+  label="People, every option"
   sortMode="multi"
   [dataOptions]="$dataOptions()"
   [displayedColumns]="$show_first_3_columns() ? ['id', 'name', 'age'] : undefined"

@@ -2,7 +2,7 @@
 
 import * as i6 from '@angular/common';
 import * as i0 from '@angular/core';
-import { ChangeDetectorRef, Signal, TemplateRef, WritableSignal } from '@angular/core';
+import { ChangeDetectorRef, InputSignal, Signal, TemplateRef, WritableSignal } from '@angular/core';
 import { Primitive } from 'tableau-ui-angular/types';
 
 export declare class AllDataInfo<TData> {
@@ -257,12 +257,13 @@ export declare abstract class VirtualizeBaseComponent<TData> {
 
 export declare class VirtualizeComponent<TData> extends VirtualizeBaseComponent<TData> {
   constructor();
-  readonly $dataOptions: import('@angular/core').InputSignal<DataOptions<TData>>;
-  readonly $dataRowCss: import('@angular/core').InputSignal<DataRowCss>;
-  readonly $dataWindowHeightPx: import('@angular/core').InputSignal<number | undefined>;
+  readonly $label: InputSignal<string | undefined>;
+  readonly $dataOptions: InputSignal<DataOptions<TData>>;
+  readonly $dataRowCss: InputSignal<DataRowCss>;
+  readonly $dataWindowHeightPx: InputSignal<number | undefined>;
   readonly $dataSort: import('@angular/core').ModelSignal<DataSort[]>;
-  readonly $dataBlockWindow: import('@angular/core').InputSignal<number>;
-  readonly $noDataTemplate: import('@angular/core').InputSignal<string | TemplateRef<unknown>>;
+  readonly $dataBlockWindow: InputSignal<number>;
+  readonly $noDataTemplate: InputSignal<string | TemplateRef<unknown>>;
   readonly $itemTemplate: import('@angular/core').Signal<ItemTemplateDirective<TData>>;
   readonly $loadingTemplate: import('@angular/core').Signal<LoadingTemplateDirective | undefined>;
   readonly $errorTemplate: import('@angular/core').Signal<ErrorTemplateDirective | undefined>;
@@ -273,6 +274,11 @@ export declare class VirtualizeComponent<TData> extends VirtualizeBaseComponent<
     'tab-virtualize',
     never,
     {
+      $label: {
+        alias: 'label';
+        required: false;
+        isSignal: true;
+      };
       $dataOptions: {
         alias: 'dataOptions';
         required: true;
