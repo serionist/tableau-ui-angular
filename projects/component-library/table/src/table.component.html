@@ -5,6 +5,7 @@
  until then, and shows no rows for 0. With no data rows every row is in the page, and the table needs no count -->
 @let total = dataManager.totalRowCount;
 @let rowCount = total > 0 ? total + 1 : -1;
+@let untitled = $untitled();
 <!-- the word each column's resizer is named by, with its header's text: hidden, and read only through that name -->
 <span hidden [id]="`${ids}-resize`">Resize</span>
 <div class="table" role="table" [attr.aria-label]="$name() ?? null" [attr.aria-rowcount]="dmBlocks.blocks.length === 0 ? null : rowCount" [class.has-row-selection]="rowSelectionMode">
@@ -46,12 +47,16 @@
       @let headerContext = def.col | headerContext: $index : $first : $last : $even : $odd : $count;
       @let currentSort = $sort() | sortInfo: def.id : def.col.$propertyName();
       @let textId = `${ids}-header-${$index}`;
+      <!-- its place among the columns, the selection column's included -->
+      @let place = $index + (hasCheckboxColumn ? 2 : 1);
       <!-- aria-sort is for one column, the first sort's; a later sort's button says its place. Named by its text alone,
-       which its content would add the sort's place and its resizer's name to -->
+       to which its content would add the sort's place and its resizer's name; by its place where that text is empty,
+       as on the server -->
       <div
         #header
         class="column-header"
         role="columnheader"
+        [attr.aria-label]="`Column ${place}`"
         [attr.aria-labelledby]="textId"
         [attr.aria-sort]="currentSort?.index === 0 ? (currentSort.info.direction === 'asc' ? 'ascending' : 'descending') : null"
         [attr.data-column-id]="def.id"
@@ -104,6 +109,9 @@
                 @if (def.col.$header()) {
                   <ng-container [ngTemplateOutlet]="def.col.$header()!.templateRef" [ngTemplateOutletContext]="headerContext" />
                 }
+                <!-- its place, the words of a header that has none, as a blank one or an icon alone: they name the column,
+                 its button and its resizer once the browser finds so -->
+                <span class="hidden-text column-place" [hidden]="!untitled[def.id]">Column {{ place }}</span>
               </div>
               @if (def.col.$sortable()) {
                 <div class="sort-indicator">

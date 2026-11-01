@@ -1,5 +1,6 @@
 import type { InputSignal, ModelSignal, TemplateRef } from '@angular/core';
 import {
+  afterNextRender,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
@@ -13,6 +14,7 @@ import {
   input,
   model,
   Renderer2,
+  signal,
   viewChild,
   viewChildren,
 } from '@angular/core';
@@ -45,7 +47,8 @@ import { generateRandomString } from 'tableau-ui-angular/utils';
  * A resizable column's header holds a resizer after its button: a focusable `separator` named "Resize" and the
  * header's text, whose value is the column's width in pixels, "180 pixels". Right and Left change the width by 10px,
  * 50px with Shift; Home and End take it to its minimum and maximum width, or without a maximum to the table's visible
- * width; a mouse, a finger or a pen drags it. Each column header is named by its text alone.
+ * width; a mouse, a finger or a pen drags it. Each column header is named by its text alone; a header whose text has no
+ * words, as a blank one or an icon alone, is named by its place, "Column 3", and its resizer "Resize Column 3".
  */
 @Component({
   selector: 'tab-table',
@@ -105,9 +108,21 @@ export class TableComponent<TData> extends VirtualizeBaseComponent<TData> {
         { capture: true },
       ),
     ];
-    inject(DestroyRef).onDestroy(() => {
+    const destroyRef = inject(DestroyRef);
+    destroyRef.onDestroy(() => {
       unlisten.forEach(stop => {
         stop();
+      });
+    });
+    // in the browser only: the server renders each resizer named by its header's text
+    afterNextRender(() => {
+      const observer = new MutationObserver(() => {
+        this.readUntitled();
+      });
+      observer.observe(this.$headerRow().nativeElement, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ['aria-hidden', 'aria-label', 'hidden', 'alt'] });
+      this.readUntitled();
+      destroyRef.onDestroy(() => {
+        observer.disconnect();
       });
     });
   }
@@ -274,6 +289,24 @@ export class TableComponent<TData> extends VirtualizeBaseComponent<TData> {
   // A region, which a name must name, so none without one
   protected readonly $role = computed(() => this.appRole ?? (this.$name() === undefined ? null : 'region'));
   protected readonly $ariaLabel = computed(() => this.$name() ?? null);
+
+  // The ids of the columns whose header text has no words, as a blank header or an icon alone hidden from assistive
+  // technology: their text shows their place, hidden, "Column 3", which names the header, its button and its resizer.
+  // Read in the browser after the first render and whenever the header row's content changes
+  protected readonly $untitled = signal<Readonly<Record<string, boolean>>>({});
+
+  private readUntitled() {
+    const untitled: Record<string, boolean> = {};
+    for (const header of Array.from(this.$headerRow().nativeElement.querySelectorAll<HTMLElement>(':scope > .column-header[data-column-id]'))) {
+      const text = header.querySelector('.header-button .text');
+      if (text !== null && !hasWords(text)) {
+        untitled[header.getAttribute('data-column-id')!] = true;
+      }
+    }
+    if (Object.keys(untitled).join(' ') !== Object.keys(this.$untitled()).join(' ')) {
+      this.$untitled.set(untitled);
+    }
+  }
   // #endregion
   // #region Columns
   public readonly $columnDefs = contentChildren<ColumnDefDirective<TData>>(ColumnDefDirective);
@@ -568,6 +601,25 @@ export class TableComponent<TData> extends VirtualizeBaseComponent<TData> {
 // A name, unless it has no words
 function words(name: string | null | undefined): string | undefined {
   return name !== null && name !== undefined && name.trim() !== '' ? name : undefined;
+}
+
+// Whether an element says anything to a screen reader: text outside its aria-hidden and hidden parts, an aria-label, or
+// an image's alt. A header's place, which shows only while the rest says nothing, isn't counted
+function hasWords(element: Element): boolean {
+  for (const node of Array.from(element.childNodes)) {
+    if (node instanceof Element) {
+      if (node.getAttribute('aria-hidden') === 'true' || node.hasAttribute('hidden') || node.classList.contains('column-place')) {
+        continue;
+      }
+      const label = node.getAttribute('aria-label') ?? (node instanceof HTMLImageElement ? node.alt : '');
+      if (label.trim() !== '' || hasWords(node)) {
+        return true;
+      }
+    } else if (node instanceof Text && node.data.trim() !== '') {
+      return true;
+    }
+  }
+  return false;
 }
 
 // What a click in a cell can be meant for instead of the row: native controls, the library's button toggle, whose

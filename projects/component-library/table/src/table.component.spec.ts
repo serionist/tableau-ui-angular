@@ -1,8 +1,11 @@
 import { ChangeDetectionStrategy, Component, effect, PLATFORM_ID, signal, viewChild, ViewEncapsulation } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { page, userEvent } from 'vitest/browser';
+import { cdp, page, server, userEvent } from 'vitest/browser';
+// cdp()'s send(), which the Playwright provider declares
+import type {} from '@vitest/browser-playwright';
 import { TableauUiButtonToggleModule } from 'tableau-ui-angular/button-toggle';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
+import { TableauUiIconModule } from 'tableau-ui-angular/icon';
 import type { Primitive } from 'tableau-ui-angular/types';
 import type { DataOptions, DataRowCss, DataSort } from 'tableau-ui-angular/virtualize';
 import { axeViolations } from '../../testing/axe';
@@ -945,14 +948,18 @@ describe('TableComponent', () => {
       expect(host.querySelector('.column-row')!.textContent).toContain('Name');
       // a resizer's role and name, by ids, render there; its width is measured in the browser
       const separator = host.querySelector('.resizer')!;
-      expect([separator.getAttribute('role'), separator.getAttribute('aria-orientation'), separator.getAttribute('tabindex'), separator.hasAttribute('aria-valuenow')]).toEqual([
+      // a plain separator until measured: a focusable one has a value
+      expect([separator.getAttribute('role'), separator.getAttribute('aria-orientation'), separator.hasAttribute('tabindex'), separator.hasAttribute('aria-valuenow')]).toEqual([
         'separator',
         'vertical',
-        '0',
+        false,
         false,
       ]);
       const [resize, text] = separator.getAttribute('aria-labelledby')!.split(' ');
-      expect([host.querySelector(`[id="${resize}"]`)?.textContent, host.querySelector(`[id="${text}"]`)?.textContent.trim()]).toEqual(['Resize', 'Id']);
+      // the header's text, its place hidden: the browser alone finds a header that has no words
+      const label = host.querySelector(`[id="${text}"]`)!;
+      const place = label.querySelector<HTMLElement>('.column-place')!;
+      expect([host.querySelector(`[id="${resize}"]`)?.textContent, label.textContent.replace(place.textContent, '').trim(), place.hidden]).toEqual(['Resize', 'Id', true]);
     } finally {
       delete globals.ngServerMode;
       measured.mockRestore();
@@ -1013,7 +1020,7 @@ describe('TableComponent', () => {
         <ng-template [tabHeaderTooltipDef]="table">Unique per person</ng-template>
         <ng-template let-ctx [tabCellTooltipDef]="table" [showTooltip]="evenOnly">Person number {{ ctx.row.id }}</ng-template>
       </ng-container>
-      <ng-container tabColumnDef="bio" width="80px" minWidth="40px" maxWidth="160px" [sortable]="false">
+      <ng-container tabColumnDef="bio" width="80px" minWidth="40px" [maxWidth]="$bioMax()" [sortable]="false">
         <ng-template [tabHeaderDef]="table">Bio</ng-template>
         <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.name }} likes long walks</ng-template>
       </ng-container>
@@ -1029,15 +1036,21 @@ class NotesTableComponent {
   readonly server = new PeopleServer();
   readonly $sort = signal<DataSort[]>([]);
   readonly $pinnedRight = signal<string | undefined>(undefined);
+  readonly $bioMax = signal('160px');
   readonly evenOnly = (ctx: CellContext<Person>) => ctx.row.id % 2 === 0;
   readonly table = viewChild.required<TableComponent<Person>>(TableComponent);
 }
 
-// A table whose one column's minimum and maximum widths are shares of its header row's width
+// A table whose Name column's minimum and maximum widths are shares of its header row's width, beside an Id column the
+// app can widen
 @Component({
   imports: [TableauUiTableModule],
   template: `
     <tab-table #table style="height: 200px; width: 500px" [dataOptions]="server.incremental">
+      <ng-container tabColumnDef="id" [width]="$idWidth()" [sortable]="false" [resizable]="false">
+        <ng-template [tabHeaderDef]="table">Id</ng-template>
+        <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.id }}</ng-template>
+      </ng-container>
       <ng-container tabColumnDef="name" width="200px" minWidth="20%" maxWidth="50%" [sortable]="false">
         <ng-template [tabHeaderDef]="table">Name</ng-template>
         <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.name }}</ng-template>
@@ -1048,6 +1061,36 @@ class NotesTableComponent {
 })
 class SharesTableComponent {
   readonly server = new PeopleServer();
+  readonly $idWidth = signal('100px');
+}
+
+// A table beside a selection column whose Starred column's header is an icon alone, hidden from assistive technology
+// until the app labels it, and whose Actions column has no header at all
+@Component({
+  imports: [TableauUiTableModule, TableauUiIconModule],
+  template: `
+    <tab-table #table style="height: 200px; width: 500px" [dataOptions]="server.incremental" [selectionOptions]="selection">
+      <ng-container tabColumnDef="name">
+        <ng-template [tabHeaderDef]="table">Name</ng-template>
+        <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.name }}</ng-template>
+      </ng-container>
+      <ng-container tabColumnDef="starred" [sortable]="false">
+        <ng-template [tabHeaderDef]="table"><tab-icon value="star" [label]="$starLabel()" /></ng-template>
+        <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.id }}</ng-template>
+      </ng-container>
+      <ng-container tabColumnDef="actions" [sortable]="false">
+        <ng-template let-ctx [tabCellDef]="table">
+          <a [href]="'#person-' + ctx.row.id">Open</a>
+        </ng-template>
+      </ng-container>
+    </tab-table>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class UntitledTableComponent {
+  readonly server = new PeopleServer();
+  readonly selection = new MultiSelectionOptions('none', 'checkbox');
+  readonly $starLabel = signal<string | undefined>(undefined);
 }
 
 describe('TableComponent tooltips and column widths', () => {
@@ -1470,9 +1513,95 @@ describe('TableComponent tooltips and column widths', () => {
       expect(values(separator)).toEqual(['200', String(Math.round(row * 0.2)), String(Math.round(row * 0.5)), '200 pixels']);
       separator.focus();
       await userEvent.keyboard('{End}');
-      expect(Math.round(widthOf(host, 'name'))).toBe(Math.round(row * 0.5));
+      const end = widthOf(host, 'name');
+      expect(Math.round(end)).toBe(Math.round(row * 0.5));
+
       await userEvent.keyboard('{Home}');
       expect(Math.round(widthOf(host, 'name'))).toBe(Math.round(row * 0.2));
+      // a whole width between its bounds, which no bound holds
+      await userEvent.keyboard('{End}{ArrowLeft}');
+      const between = widthOf(host, 'name');
+      expect(between).toBe(Math.round(end) - 10);
+
+      // the columns grow wider than the table, so the header row widens, and its shares with it, though the Name column
+      // and the table keep their sizes
+      fixture.componentInstance.$idWidth.set('600px');
+      await fixture.whenStable();
+      const wider = host.querySelector('.column-row')!.clientWidth;
+      expect(wider).toBeGreaterThan(row);
+      await vi.waitFor(() => {
+        expect(values(separator).slice(1, 3)).toEqual([String(Math.round(wider * 0.2)), String(Math.round(wider * 0.5))]);
+      });
+      expect(widthOf(host, 'name')).toBe(between);
+    });
+
+    // An app that changed a bound while the column kept its width left the old one in the resizer's value
+    it('reads a maximum width the app changes when it takes focus', async () => {
+      const { fixture, component, host } = await render();
+      const bio = resizer(host, 'bio');
+
+      component.$bioMax.set('120px');
+      await fixture.whenStable();
+      expect(widthOf(host, 'bio')).toBe(80);
+
+      bio.focus();
+      await fixture.whenStable();
+      expect(values(bio)).toEqual(['80', '40', '120', '80 pixels']);
+      await userEvent.keyboard('{End}');
+      expect(widthOf(host, 'bio')).toBe(120);
+    });
+
+    // A header's text named it, and an empty one let its content name it, its resizer's value too: "120 pixels"
+    it('names a column whose header has no words, and its resizer, by its place', async () => {
+      const fixture = TestBed.createComponent(UntitledTableComponent);
+      fixture.autoDetectChanges();
+      await fixture.whenStable();
+      const host = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('tab-table')!;
+      const header = (column: string) => host.querySelector(`.column-header[data-column-id="${column}"]`);
+      const named = (role: 'button' | 'columnheader' | 'separator', name: string) => page.getByRole(role, { name, exact: true }).element();
+
+      // after the selection column, the first
+      expect(named('columnheader', 'Name')).toBe(header('name'));
+      expect(named('separator', 'Resize Name')).toBe(resizer(host, 'name'));
+      // an icon alone, hidden from assistive technology
+      expect(named('columnheader', 'Column 3')).toBe(header('starred'));
+      expect(named('separator', 'Resize Column 3')).toBe(resizer(host, 'starred'));
+      // no header at all; its button is named so too
+      expect(named('columnheader', 'Column 4')).toBe(header('actions'));
+      expect(named('separator', 'Resize Column 4')).toBe(resizer(host, 'actions'));
+      expect(named('button', 'Column 4')).toBe(header('actions')!.querySelector('.header-button'));
+
+      // the app labels the icon: its words name the column again
+      fixture.componentInstance.$starLabel.set('Starred');
+      await vi.waitFor(() => {
+        expect(named('separator', 'Resize Starred')).toBe(resizer(host, 'starred'));
+      });
+      expect(named('columnheader', 'Starred')).toBe(header('starred'));
+      expect(await axeViolations(fixture.nativeElement as HTMLElement)).toEqual([]);
+    });
+
+    // A touch from the browser's own input, which a test can send in Chromium alone; the synthetic touch above stands in
+    // for it in Firefox
+    it.runIf(server.browser === 'chromium')('follows a real touch past the edge and off the header row', async () => {
+      const { host } = await render();
+      const edge = resizer(host, 'bio');
+      const box = edge.getBoundingClientRect();
+      // the test's page sits in a frame of the runner's page, which the browser's input takes its points in
+      const frame = window.frameElement?.getBoundingClientRect();
+      const scale = frame === undefined ? 1 : frame.width / window.innerWidth;
+      const at = (x: number, y: number) => ({ x: (frame?.left ?? 0) + x * scale, y: (frame?.top ?? 0) + y * scale, id: 1 });
+      const x = Math.round(box.left + box.width / 2);
+      const y = Math.round(box.top + box.height / 2);
+      const session = cdp();
+
+      await session.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [at(x, y)] });
+      for (let dx = 10; dx <= 60; dx += 10) {
+        await session.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [at(x + dx, y + (dx > 30 ? 60 : 0))] });
+      }
+      await session.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+
+      expect(widthOf(host, 'bio')).toBe(140);
+      expect(edge.classList.contains('dragging')).toBe(false);
     });
 
     it('passes axe with a resizer focused and its column resized', async () => {

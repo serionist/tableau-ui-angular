@@ -72,9 +72,12 @@
         <li>
           A resizable column's edge is a separator in the Tab order, after its header's button, named "Resize" and the header's text, such as "Resize Name". A screen reader hears the column's width in
           pixels, and its minimum and maximum. Right and Left widen and narrow the column by 10 pixels, 50 with Shift; Home and End take it to its minimum and maximum width, or without a maximum to
-          the table's visible width. A mouse, a finger or a pen drags it.
+          the table's visible width. A mouse, a finger or a pen drags it. Every column resizes unless it sets <code>[resizable]="false"</code>, which also keeps it out of the Tab order.
         </li>
-        <li>Each column header is named by its text alone, so a cell's column is read without its sort's place or its resizer's name.</li>
+        <li>
+          Each column header is named by its text alone, so a cell's column is read without its sort's place or its resizer's name. A header needs words: give an icon alone a
+          <code>label</code>, or hidden text. A header without words is named by its place, "Column 3", and so are its button and its resizer.
+        </li>
       </ul>
     </div>
   </div>

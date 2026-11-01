@@ -9,22 +9,26 @@ import { afterNextRender, computed, DestroyRef, Directive, ElementRef, inject, i
  *   pass through.
  * - A mouse, a finger or a pen drags it: pointer events, with the pointer captured, so the drag follows a pointer that
  *   leaves the resizer, and `touch-action: none` in the table's styles, so a touch drags instead of scrolling.
- * - Its value, bounds and words are measured in the browser only, after the first render and whenever the column or the
- *   table changes size; the server renders its role and name.
+ * - Its value, bounds and words are measured in the browser only: after the first render, when the column, its header
+ *   row or the table changes size, and when it takes focus. Until then it is a plain separator, out of the Tab order,
+ *   as the server renders it, with its role and name.
  */
 @Directive({
   selector: '[resizerFor]',
   standalone: false,
   host: {
     role: 'separator',
-    tabindex: '0',
     'aria-orientation': 'vertical',
+    // a focusable separator has a value: none until measured
+    '[attr.tabindex]': '$now() === undefined ? null : 0',
     '[attr.aria-valuenow]': '$now()',
     '[attr.aria-valuemin]': '$min()',
     '[attr.aria-valuemax]': '$max()',
     '[attr.aria-valuetext]': '$valueText()',
     '(pointerdown)': 'onPointerDown($event)',
     '(keydown)': 'onKeyDown($event)',
+    // a bound the app changed while the column kept its size, read before a screen reader says it
+    '(focus)': 'onFocus()',
   },
 })
 export class ResizerDirective {
@@ -56,6 +60,10 @@ export class ResizerDirective {
         this.measure();
       });
       this.observer.observe(column);
+      // the header row's width is the basis of a percentage bound
+      if (column.parentElement) {
+        this.observer.observe(column.parentElement);
+      }
       // the table's visible width is the maximum of a column without one
       const table = column.closest('tab-table');
       if (table) {
@@ -99,6 +107,10 @@ export class ResizerDirective {
       this.resize(Math.min(Math.max(to(width), width.min), width.max));
       this.measure();
     }
+  }
+
+  protected onFocus() {
+    this.measure();
   }
 
   // The press focuses the resizer, as a native control's does, with no focus ring for the pointer's focus
