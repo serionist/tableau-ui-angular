@@ -53,6 +53,9 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
 - `label` on `tab-table` and `tab-virtualize`: the name screen readers give the table and the region its host is, or
   the list. A static `aria-label` on the element names it the same way, and `label` wins. Without a name a table's host
   has no role, and a virtual scroller is an unnamed list, or has no role while it shows no items.
+- `rowLabel` on `tab-table`: a function from a row to its name, which names the row's selection checkbox "Select" and
+  that name, such as "Select Ada Lovelace". Without it, or when it returns no words, the checkbox is named by the row's
+  place in the data, "Select row 12".
 
 ### Fixed
 
@@ -123,6 +126,19 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   passes over the element and leaves. A screen reader hears it: while it shows it is `role="tooltip"`, and its
   element's `aria-describedby` names it after the app's own ids, which stay. A text tooltip equal to the element's name
   adds none, so the nav bar's collapsed buttons and the chips' remove buttons aren't read twice.
+- A table's header row and its data rows are rows, the data rows in a row group, so a screen reader reads each cell
+  with its column's header. The table says how many rows it has, the header row included, and each row its place in
+  the whole data, so a screen reader says which row it is on though only the rows near the view are drawn; until a
+  load says the total, the count is unknown. "No data available", or an app's `noDataTemplate`, sits in a row with one
+  cell across the columns.
+- Sorting a table keeps focus on the header's button, where it dropped to the page, and the button's tooltip shows the
+  new sort. The first sort's column header has `aria-sort`, and a later sort's button says its place, "sort 2,
+  descending"; the number a multi-sort shows by the arrow is hidden from screen readers, so a test that found the
+  button by a name with that number, such as "Id 2", finds it by "Id". Shift+Enter and Shift+Space add a column to a
+  multi-sort, as Shift+Click does, and the header's tooltip says so.
+- A table's selection checkboxes have names: each row's is "Select row 12", or "Select" and its `rowLabel`; the
+  header's is "Select all rows" or "Clear the selection"; and the column's header is "Selection". With selection on,
+  each loaded row has `aria-selected`, so a row selected by a click is not told by its colour alone.
 
 ## 0.2.0 (2026-10-31)
 

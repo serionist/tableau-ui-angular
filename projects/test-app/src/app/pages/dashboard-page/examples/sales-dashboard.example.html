@@ -182,7 +182,7 @@
           <span tab-header>Orders</span>
           <!-- The numbers keep a width of their own; the customer and the product share the rest, so they narrow as the drawer opens
                beside the table, down to their minimum widths, past which the table scrolls sideways -->
-          <tab-table #table label="Orders" sortMode="single" [dataOptions]="$dataOptions()" [selectionOptions]="selectionOptions" [(sort)]="$sort" [(selectedRows)]="$selected">
+          <tab-table #table label="Orders" sortMode="single" [dataOptions]="$dataOptions()" [selectionOptions]="selectionOptions" [rowLabel]="orderName" [(sort)]="$sort" [(selectedRows)]="$selected">
             <ng-container tabColumnDef="id" width="7rem">
               <ng-template let-ctx [tabHeaderDef]="table">Order</ng-template>
               <ng-template let-ctx [tabCellDef]="table">

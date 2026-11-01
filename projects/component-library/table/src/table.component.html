@@ -1,20 +1,29 @@
 @let rowSelectionMode = $selectionOptions()?.selectionMode === 'row-and-checkbox';
 @let hasCheckboxColumn = $selectionOptions();
-<div class="table" role="table" [attr.aria-label]="$name() ?? null" [class.has-row-selection]="rowSelectionMode">
+@let dmBlocks = dataManager.$blocks();
+<!-- the rows a screen reader counts, the header row's included, once a load has said how many: the data manager counts 0
+ until then, and shows no rows for 0. With no data rows every row is in the page, and the table needs no count -->
+@let total = dataManager.totalRowCount;
+@let rowCount = total > 0 ? total + 1 : -1;
+<div class="table" role="table" [attr.aria-label]="$name() ?? null" [attr.aria-rowcount]="dmBlocks.blocks.length === 0 ? null : rowCount" [class.has-row-selection]="rowSelectionMode">
   <!-- Column Row -->
-  <div #headerRow class="column-row">
+  <div #headerRow class="column-row" role="row" aria-rowindex="1">
     @if (hasCheckboxColumn) {
-      <div class="column-header pinned-left" role="columnheader" [style.width]="checkboxColWidth" [style.minWidth]="checkboxColWidth">
+      <!-- named Selection, whatever its checkbox is named; the hidden text gives it text where it has no checkbox -->
+      <div class="column-header pinned-left" aria-label="Selection" role="columnheader" [style.width]="checkboxColWidth" [style.minWidth]="checkboxColWidth">
         <div class="content check-select">
+          <span class="hidden-text">Selection</span>
+          <!-- none for 'none' -->
           @switch ($selectionOptions() | headerCheckboxMode) {
-            @case ('none') {}
             @case ('selectNone') {
               <tab-checkbox
                 [disabled]="$selectionMultiHeaderCheckboxSelected() !== 'partial'"
                 [value]="$selectionMultiHeaderCheckboxSelected()"
                 [valueAfterPartial]="false"
                 (valueChange)="selectionMultiHeaderCheckboxSelectNoneChanged()"
-              />
+              >
+                <span class="hidden-text">Clear the selection</span>
+              </tab-checkbox>
             }
             @case ('selectAll') {
               <tab-checkbox
@@ -23,7 +32,9 @@
                 [value]="$selectionMultiHeaderCheckboxSelected()"
                 [valueAfterPartial]="false"
                 (valueChange)="selectionMultiHeaderCheckboxSelectAllChanged($event)"
-              />
+              >
+                <span class="hidden-text">Select all rows</span>
+              </tab-checkbox>
             }
           }
         </div>
@@ -31,10 +42,13 @@
     }
     @for (def of $displayedColumnDefs(); track def.id) {
       @let headerContext = def.col | headerContext: $index : $first : $last : $even : $odd : $count;
+      @let currentSort = $sort() | sortInfo: def.id : def.col.$propertyName();
+      <!-- aria-sort is for one column, the first sort's; a later sort's button says its place -->
       <div
         #header
         class="column-header"
         role="columnheader"
+        [attr.aria-sort]="currentSort?.index === 0 ? (currentSort.info.direction === 'asc' ? 'ascending' : 'descending') : null"
         [attr.data-column-id]="def.id"
         [attr.data-column-index]="$index"
         [attr.data-column-count]="$count"
@@ -62,6 +76,7 @@
             tooltip
             tooltipArgsMode="lazy"
             [class.not-sortable]="!def.col.$sortable()"
+            [noFocusOnClick]="false"
             [tabindex]="def.col.$sortable() ? '0' : '-1'"
             [tooltipLazyArgs]="
               def.col
@@ -73,7 +88,7 @@
                       sortMode: $sortMode(),
                       sortable: def.col.$sortable(),
                       sortOrder: def.col.$sortOrder(),
-                      currentSort: $sort() | sortInfo: def.id : def.col.$propertyName(),
+                      currentSort: currentSort,
                       allSorts: $sort(),
                     }
             "
@@ -87,7 +102,6 @@
               </div>
               @if (def.col.$sortable()) {
                 <div class="sort-indicator">
-                  @let currentSort = $sort() | sortInfo: def.id : def.col.$propertyName();
                   @switch (currentSort?.info?.direction) {
                     @case ('asc') {
                       <tab-icon value="arrow_upward" />
@@ -99,10 +113,14 @@
                       <tab-icon class="no-sort" value="swap_vert" />
                     }
                   }
+                  <!-- aria-sort and the hidden text say the place -->
                   @if ($sortMode() === 'multi' && currentSort) {
-                    <span class="sort-order">
+                    <span class="sort-order" aria-hidden="true">
                       {{ currentSort.index + 1 }}
                     </span>
+                  }
+                  @if (currentSort && currentSort.index > 0) {
+                    <span class="hidden-text">sort {{ currentSort.index + 1 }}, {{ currentSort.info.direction === 'asc' ? 'ascending' : 'descending' }}</span>
                   }
                 </div>
               }
@@ -136,6 +154,8 @@
               @if (addMultiSort) {
                 <div class="multi-sort">
                   <b>Shift + Click</b>
+                  or
+                  <b>Shift + Enter</b>
                   to add to multi-sort in
                   <b>{{ nextSort === 'asc' ? 'Ascending' : 'Descending' }}</b>
                   order.
@@ -145,9 +165,13 @@
                 <div class="next">
                   @if (!nextSort) {
                     <b>Shift + Click</b>
+                    or
+                    <b>Shift + Enter</b>
                     to remove sorting this column from multi-sort.
                   } @else {
                     <b>Shift + Click</b>
+                    or
+                    <b>Shift + Enter</b>
                     to change sorting to
                     <b>{{ nextSort === 'asc' ? 'Ascending' : 'Descending' }}</b>
                     order.
@@ -180,48 +204,60 @@
     }
   </div>
 
-  <div class="data-rows" [class.striped]="$striped()">
-    @let dmBlocks = dataManager.$blocks();
+  <div class="data-rows" role="rowgroup" [class.striped]="$striped()">
     @if (dmBlocks.blocks.length === 0) {
-      @let _noDataTemplate = $noDataTemplate();
-      @if (_noDataTemplate === 'default') {
-        <ng-container [ngTemplateOutlet]="defaultNoData" />
-      } @else if (typeof _noDataTemplate === 'string') {
-        <ng-container *ngTemplateOutlet="defaultNoData; context: { $implicit: _noDataTemplate }" />
-      } @else {
-        <ng-container [ngTemplateOutlet]="_noDataTemplate" />
-      }
+      <!-- a row of one cell across the columns, so the table's rows hold only rows -->
+      <div class="no-data-row" role="row">
+        <div role="cell" [attr.aria-colspan]="$displayedColumnDefs().length + (hasCheckboxColumn ? 1 : 0)">
+          @let _noDataTemplate = $noDataTemplate();
+          @if (_noDataTemplate === 'default') {
+            <ng-container [ngTemplateOutlet]="defaultNoData" />
+          } @else if (typeof _noDataTemplate === 'string') {
+            <ng-container *ngTemplateOutlet="defaultNoData; context: { $implicit: _noDataTemplate }" />
+          } @else {
+            <ng-container [ngTemplateOutlet]="_noDataTemplate" />
+          }
 
-      <ng-template #defaultNoData let-message>
-        <div class="no-data" [style.padding]="$dataRowCss().padding">
-          <span>{{ message ?? 'No data available' }}</span>
+          <ng-template #defaultNoData let-message>
+            <div class="no-data" [style.padding]="$dataRowCss().padding">
+              <span>{{ message ?? 'No data available' }}</span>
+            </div>
+          </ng-template>
         </div>
-      </ng-template>
+      </div>
     } @else {
-      <div class="virtualize pre" [style.height]="`${dmBlocks.prePixels}px`"></div>
+      <div class="virtualize pre" aria-hidden="true" [style.height]="`${dmBlocks.prePixels}px`"></div>
 
       @for (block of dmBlocks.blocks; track block.id) {
         @for (r of block.$data(); track r.key) {
           @let rowIndex = $index;
           @let rowFirst = $first;
+          <!-- the row's place in the data, from 0 -->
+          @let place = block.offset + rowIndex;
           <!-- a row still loading is a placeholder, which the app's code never gets -->
           @let loaded = block.$status() === 'success';
+          @let selected = loaded && (r.data | rowSelected: $selectedRows() : $dataOptions());
 
-          <!-- as tall as the space kept for a row not drawn: its cells' height and vertical padding -->
+          <!-- as tall as the space kept for a row not drawn: its cells' height and vertical padding. Its index counts the
+           header row; a loaded row says whether it is selected while selection is on -->
           <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
           <div
             class="row"
             role="row"
+            [attr.aria-rowindex]="place + 2"
+            [attr.aria-selected]="hasCheckboxColumn && loaded ? selected : null"
             [style.height.px]="$dataRowHeightPx()"
             [style.maxHeight.px]="$dataRowHeightPx()"
-            [class.even]="(block.offset + rowIndex) % 2 === 0"
-            [class.selected]="loaded && (r.data | rowSelected: $selectedRows() : $dataOptions())"
+            [class.even]="place % 2 === 0"
+            [class.selected]="selected"
             (click)="rowClicked(r.data, block, $event)"
           >
             @if (hasCheckboxColumn) {
               <div class="cell check-select pinned-left" role="cell" [style.width]="checkboxColWidth" [style.minWidth]="checkboxColWidth">
                 @if (loaded) {
-                  <tab-checkbox [value]="r.data | rowSelected: $selectedRows() : $dataOptions()" (valueChange)="checkboxSelectChange(r.data, $event)" />
+                  <tab-checkbox [value]="selected" (valueChange)="checkboxSelectChange(r.data, $event)">
+                    <span class="hidden-text">Select {{ r.data | rowName: $rowLabel() : place + 1 }}</span>
+                  </tab-checkbox>
                 }
               </div>
             }
@@ -288,7 +324,7 @@
           </div>
         }
       }
-      <div class="virtualize post" [style.height]="`${dmBlocks.postPixels}px`"></div>
+      <div class="virtualize post" aria-hidden="true" [style.height]="`${dmBlocks.postPixels}px`"></div>
     }
   </div>
 </div>

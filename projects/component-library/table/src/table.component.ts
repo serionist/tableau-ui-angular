@@ -5,12 +5,14 @@ import {
   Component,
   computed,
   contentChildren,
+  DestroyRef,
   ElementRef,
   HostAttributeToken,
   HostListener,
   inject,
   input,
   model,
+  Renderer2,
   viewChild,
   viewChildren,
 } from '@angular/core';
@@ -30,6 +32,14 @@ import { VirtualizeBaseComponent } from 'tableau-ui-angular/virtualize';
  * `tabindex="-1"` the app writes on `tab-table` takes it out of the Tab order. With `label`, or a static `aria-label`
  * the app writes on `tab-table`, the host is a `region` of that name, and its table too; `label` wins. A static `role`
  * the app writes on `tab-table` stays.
+ *
+ * Its header row and each data row are `row`s, the data rows in a `rowgroup`. A table that draws only some of its rows
+ * says how many it has, `aria-rowcount`, the header row included and `-1` until a load says the total, and each row its
+ * place, `aria-rowindex`, 1 for the header row. The first sort's column header has `aria-sort`; a later sort's button
+ * says its place, "sort 2, descending". Enter or a click on a header sorts and keeps focus on its button; with
+ * `sortMode` multi, Shift+Enter, Shift+Space and Shift+Click add the column to the sort. With selection on, each loaded
+ * row has `aria-selected`, and its checkbox is named "Select" and `rowLabel`'s name for it, or its place, "Select row
+ * 12".
  */
 @Component({
   selector: 'tab-table',
@@ -58,8 +68,39 @@ export class TableComponent<TData> extends VirtualizeBaseComponent<TData> {
   private readonly $headerRow = viewChild.required<ElementRef<HTMLElement>>('headerRow');
   // #endregion
 
+  // Whether Shift is held with the Enter or Space a header's button turns into a click: the button's own click for
+  // Space carries no Shift, nor does Firefox's for Enter. Taken in the capture phase, before the button makes its click
+  private keyShift = false;
+
   constructor() {
     super(inject(ChangeDetectorRef));
+    const renderer = inject(Renderer2);
+    const host = this.hostElement.nativeElement;
+    const unlisten = [
+      renderer.listen(
+        host,
+        'keydown',
+        (e: KeyboardEvent) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            this.keyShift = e.shiftKey;
+          }
+        },
+        { capture: true },
+      ),
+      renderer.listen(
+        host,
+        'keyup',
+        () => {
+          this.keyShift = false;
+        },
+        { capture: true },
+      ),
+    ];
+    inject(DestroyRef).onDestroy(() => {
+      unlisten.forEach(stop => {
+        stop();
+      });
+    });
   }
 
   // #region Inputs & Outputs
@@ -116,7 +157,8 @@ export class TableComponent<TData> extends VirtualizeBaseComponent<TData> {
   });
 
   /**
-   * The sorting mode. When multi sort is enabled, holding SHIFT when clicking a column header will add it to the sort list
+   * The sorting mode. When multi sort is enabled, holding SHIFT when clicking a column header, or pressing Shift+Enter or
+   * Shift+Space on it, adds it to the sort list
    * @default single
    */
   readonly $sortMode = input<'multi' | 'single'>('single', {
@@ -203,6 +245,17 @@ export class TableComponent<TData> extends VirtualizeBaseComponent<TData> {
    */
   readonly $label: InputSignal<string | undefined> = input<string>(undefined, {
     alias: 'label',
+  });
+
+  // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
+  /**
+   * Names a row for screen readers, from its data: each row's selection checkbox is named "Select" and what this returns,
+   * "Select Ada Lovelace". Without it, or when it returns no words, the checkbox is named by the row's place in the data,
+   * "Select row 12".
+   * @default undefined
+   */
+  readonly $rowLabel: InputSignal<((row: TData) => string) | undefined> = input<(row: TData) => string>(undefined, {
+    alias: 'rowLabel',
   });
 
   // #endregion
@@ -305,19 +358,25 @@ export class TableComponent<TData> extends VirtualizeBaseComponent<TData> {
   // #endregion
 
   // #region Sort
+  // A click, or Enter or Space through the click the button makes, sorts by the column; focus stays on the button,
+  // whose tooltip shows the new sort. A click the keyboard makes, with no pointer behind it, adds to a multi-sort when
+  // its key was pressed with Shift
   protected onColumnHeaderClick(e: MouseEvent, def: ColumnDefDirective<TData>) {
     if (!def.$sortable()) {
       return;
     }
     e.preventDefault();
     e.stopPropagation();
-    (e.target as HTMLElement).blur();
+    this.sortBy(def, e.shiftKey || (e.detail === 0 && this.keyShift));
+  }
 
+  // Sorts by the column alone, or with addToMultiSort, adds it to a multi-sort, turns it, or drops it
+  private sortBy(def: ColumnDefDirective<TData>, addToMultiSort: boolean) {
     const propertyName = def.$propertyName() ?? def.$id();
     const sort = this.$sort();
     const sortOrder = def.$sortOrder();
     const currentSort = sort.find(f => f.property === propertyName);
-    if (this.$sortMode() === 'single' || !e.shiftKey) {
+    if (this.$sortMode() === 'single' || !addToMultiSort) {
       if (currentSort?.direction === sortOrder[1]) {
         this.$sort.set([]);
       } else {

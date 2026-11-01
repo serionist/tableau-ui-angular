@@ -21,7 +21,17 @@ import { TableComponent } from './table.component';
 @Component({
   imports: [TableauUiTableModule],
   template: `
-    <tab-table #table style="height: 300px" sortMode="multi" [dataOptions]="$options()" [(sort)]="$sort" [dataRowCss]="$rowCss()" [selectionOptions]="$selection()" [(selectedRows)]="$selected">
+    <tab-table
+      #table
+      style="height: 300px"
+      sortMode="multi"
+      [dataOptions]="$options()"
+      [(sort)]="$sort"
+      [dataRowCss]="$rowCss()"
+      [selectionOptions]="$selection()"
+      [rowLabel]="$rowLabel()"
+      [(selectedRows)]="$selected"
+    >
       <ng-container tabColumnDef="id" [width]="$columnWidth()">
         <ng-template [tabHeaderDef]="table">Id</ng-template>
         <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.id }}</ng-template>
@@ -48,6 +58,7 @@ class PeopleTableComponent {
   readonly $rowCss = signal<DataRowCss>({ height: '20px', lineHeight: '20px', padding: '0 8px' });
   readonly $selection = signal<SelectionOptions | undefined>(undefined);
   readonly $selected = signal(new Map<Primitive, Person>());
+  readonly $rowLabel = signal<((person: Person) => string) | undefined>(undefined);
   // each column's width: flexible, filling the table, or a CSS length
   readonly $columnWidth = signal<number | string>(1);
   // the rows the name column's cellClass function was given
@@ -435,16 +446,177 @@ describe('TableComponent', () => {
     it('passes axe', async () => {
       const { fixture } = await renderSelectable();
 
-      // the header row has no row role (#64); the selection column's checkboxes and header have no name (#66)
-      expect(
-        await axeViolations(fixture.nativeElement as HTMLElement, {
-          'aria-required-children': '#64',
-          'aria-required-parent': '#64',
-          label: '#66',
-          'empty-table-header': '#66',
-        }),
-      ).toEqual([]);
+      expect(await axeViolations(fixture.nativeElement as HTMLElement)).toEqual([]);
     });
+
+    // #66: each row's checkbox and the selection column's header had no name, so a screen reader said "checkbox, not
+    // checked" on every row
+    it("names each row's checkbox by its place in the data, or by rowLabel, and the column Selection", async () => {
+      const { fixture, component, host, rows, scrollTo } = await renderSelectable();
+      const checkbox = (row: HTMLElement) => row.querySelector('.cell.check-select input');
+      const named = (name: string) => page.getByRole('checkbox', { name, exact: true }).element();
+
+      expect(page.getByRole('columnheader', { name: 'Selection', exact: true }).element()).toBe(host.querySelector('.column-header.pinned-left'));
+      expect(named('Select row 1')).toBe(checkbox(rows()[0]));
+      expect(named('Select row 2')).toBe(checkbox(rows()[1]));
+
+      component.$rowLabel.set(person => person.name);
+      await fixture.whenStable();
+      expect(named('Select Person 2')).toBe(checkbox(rows()[1]));
+
+      // a label with no words names it by its place
+      component.$rowLabel.set(() => ' ');
+      await fixture.whenStable();
+      expect(named('Select row 2')).toBe(checkbox(rows()[1]));
+
+      // a row in a later block, by its place in the whole data
+      component.$rowLabel.set(undefined);
+      await scrollTo(1200);
+      const later = rows().find(row => row.querySelector('.cell[data-column-id="name"]')!.textContent.trim() === 'Person 61')!;
+      expect(named('Select row 61')).toBe(checkbox(later));
+    });
+
+    // #66: a selection made by a click on a row was shown by its colour only
+    it('marks each loaded row aria-selected, following a click on a row and on a checkbox', async () => {
+      const { component, host, rows, cell, settle } = await renderSelectable();
+      const selected = () =>
+        rows()
+          .slice(0, 3)
+          .map(row => row.getAttribute('aria-selected'));
+      const box = (row: number) => rows()[row].querySelector<HTMLElement>('.cell.check-select .box')!;
+      expect(selected()).toEqual(['false', 'false', 'false']);
+
+      cell(rows()[1], 'name').click();
+      await settle();
+      expect(selected()).toEqual(['false', 'true', 'false']);
+      expect(page.getByRole('row', { selected: true }).element()).toBe(rows()[1]);
+
+      box(2).click();
+      await settle();
+      expect(selected()).toEqual(['false', 'true', 'true']);
+      box(1).click();
+      await settle();
+      expect(selected()).toEqual(['false', 'false', 'true']);
+
+      // a row still loading says nothing, as it has no checkbox
+      host.scrollTop = 1500;
+      host.dispatchEvent(new Event('scroll'));
+      await settle();
+      const loading = rows().filter(row => row.querySelector('.status.loader'));
+      expect(loading.length).toBeGreaterThan(0);
+      expect(loading.map(row => row.getAttribute('aria-selected'))).toEqual(loading.map(() => null));
+
+      // nor does a row while selection is off
+      component.$selection.set(undefined);
+      await settle();
+      expect(rows().filter(row => row.hasAttribute('aria-selected'))).toEqual([]);
+    });
+  });
+
+  // #66: the header's checkbox had no name
+  it.each([
+    ['selectAll', 'Select all rows'],
+    ['selectNone', 'Clear the selection'],
+  ] as const)('names the %s header checkbox "%s", its column Selection, and passes axe', async (mode, name) => {
+    const { fixture, host, load } = await render(c => {
+      c.$options.set(c.server.full);
+      c.$selection.set(new MultiSelectionOptions(mode));
+    });
+    await load();
+    const header = host.querySelector('.column-header.pinned-left')!;
+
+    expect(page.getByRole('checkbox', { name, exact: true }).element()).toBe(header.querySelector('input'));
+    expect(page.getByRole('columnheader', { name: 'Selection', exact: true }).element()).toBe(header);
+    expect(await axeViolations(fixture.nativeElement as HTMLElement)).toEqual([]);
+  });
+
+  // #64: the header row was no row and the table had no row count, so with only some rows drawn a screen reader
+  // couldn't tell how many there were, nor which one it was on
+  describe('rows', () => {
+    it('puts the header row and the data rows in rows, the data rows in a row group, and counts them, the header row included', async () => {
+      const { component, host, rows, settle, server, scrollTo } = await render();
+      const table = host.querySelector('.table')!;
+      const headerRow = host.querySelector('.column-row')!;
+      const indexes = () => rows().map(row => row.getAttribute('aria-rowindex'));
+
+      expect([headerRow.getAttribute('role'), headerRow.getAttribute('aria-rowindex')]).toEqual(['row', '1']);
+      expect(Array.from(host.querySelectorAll('[role="columnheader"]'), header => header.parentElement)).toEqual([headerRow, headerRow, headerRow]);
+      expect(host.querySelector('.data-rows')!.getAttribute('role')).toBe('rowgroup');
+
+      // while the first block loads, the total is unknown
+      const loading = component.table().load();
+      await settle();
+      expect(table.getAttribute('aria-rowcount')).toBe('-1');
+      expect(indexes().slice(0, 3)).toEqual(['2', '3', '4']);
+      expect(rows().every(row => row.parentElement === host.querySelector('.data-rows') && row.getAttribute('role') === 'row')).toBe(true);
+
+      await server.answerAll(settle);
+      await loading;
+      expect(table.getAttribute('aria-rowcount')).toBe('101');
+      expect(indexes().slice(0, 3)).toEqual(['2', '3', '4']);
+
+      // a later block: each row's index is its place in the whole data, plus the header row
+      await scrollTo(1200);
+      const shown = rows().filter(row => !row.querySelector('.status'));
+      expect(shown.length).toBeGreaterThan(0);
+      for (const row of shown) {
+        const id = Number(row.querySelector('.cell[data-column-id="id"]')!.textContent.trim());
+        expect(row.getAttribute('aria-rowindex'), `Person ${id}`).toBe(String(id + 1));
+      }
+      expect(shown.map(row => row.getAttribute('aria-rowindex'))).toContain('62');
+      // the space kept for the rows not drawn is no row
+      expect(Array.from(host.querySelectorAll('.virtualize'), spacer => spacer.getAttribute('aria-hidden'))).toEqual(['true', 'true']);
+    });
+
+    it('shows "No data available" as a row of one cell across its columns, and counts no rows', async () => {
+      const { component, host, server, settle, load } = await render(c => {
+        c.$selection.set(new SingleSelectionOptions());
+      });
+      const check = () => {
+        const row = page.getByRole('row', { name: 'No data available' }).element();
+        const cells = row.querySelectorAll('[role="cell"]');
+        expect(row.parentElement).toBe(host.querySelector('.data-rows'));
+        // the selection column and the three others
+        expect(Array.from(cells, cell => cell.getAttribute('aria-colspan'))).toEqual(['4']);
+        expect(host.querySelector('.table')!.hasAttribute('aria-rowcount')).toBe(false);
+      };
+      // before it loads
+      check();
+
+      server.rows = [];
+      await load();
+      check();
+      component.$selection.set(undefined);
+      await settle();
+      expect(page.getByRole('cell', { name: 'No data available' }).element().getAttribute('aria-colspan')).toBe('3');
+    });
+  });
+
+  // #65: a sort didn't say which column the rows were sorted by, nor how
+  it("marks the first sort's header with aria-sort, and says a later sort's place in its button", async () => {
+    const { host, header, server, settle, load } = await render();
+    await load();
+    const sorts = () => ['id', 'name', 'profile'].map(column => host.querySelector(`.column-header[data-column-id="${column}"]`)!.getAttribute('aria-sort'));
+    const button = (name: string) => page.getByRole('button', { name, exact: true }).element();
+    const click = async (column: string, shiftKey = false) => {
+      header(column).dispatchEvent(new MouseEvent('click', { bubbles: true, shiftKey }));
+      await server.answerAll(settle);
+    };
+    expect(sorts()).toEqual([null, null, null]);
+
+    await click('name');
+    expect(sorts()).toEqual([null, 'ascending', null]);
+    await click('id', true);
+    expect(sorts()).toEqual([null, 'ascending', null]);
+    // the place the header shows is hidden, so its button says it once
+    expect(button('Name')).toBe(header('name'));
+    expect(button('Id sort 2, ascending')).toBe(header('id'));
+    await click('id', true);
+    expect(button('Id sort 2, descending')).toBe(header('id'));
+
+    await click('name');
+    expect(sorts()).toEqual([null, 'descending', null]);
+    expect(button('Id')).toBe(header('id'));
   });
 
   // F103: the header checkbox's effect read the data manager's all-data info as a plain field, so it never saw the
@@ -668,12 +840,22 @@ describe('TableComponent', () => {
     }
   });
 
-  it('passes axe', async () => {
-    const { fixture, load } = await render();
-    await load();
+  it('passes axe with no data, while its first block loads, and with its rows in a multi-sort', async () => {
+    const { fixture, component, header, server, settle } = await render();
+    const host = fixture.nativeElement as HTMLElement;
+    expect(await axeViolations(host)).toEqual([]);
 
-    // the header row has no row role (#64)
-    expect(await axeViolations(fixture.nativeElement as HTMLElement, { 'aria-required-children': '#64', 'aria-required-parent': '#64' })).toEqual([]);
+    const loading = component.table().load();
+    await settle();
+    expect(await axeViolations(host)).toEqual([]);
+    await server.answerAll(settle);
+    await loading;
+
+    header('name').click();
+    header('id').dispatchEvent(new MouseEvent('click', { bubbles: true, shiftKey: true }));
+    await server.answerAll(settle);
+    expect(component.$sort()).toHaveLength(2);
+    expect(await axeViolations(host)).toEqual([]);
   });
 });
 
@@ -785,7 +967,62 @@ describe('TableComponent tooltips and column widths', () => {
     component.$sort.set([{ property: 'id', direction: 'asc' }]);
     await fixture.whenStable();
     await userEvent.hover(header('name').querySelector('.header-button')!);
-    await shows('Name Shift + Click to add to multi-sort in Ascending order. Click to sort in Ascending order.');
+    await shows('Name Shift + Click or Shift + Enter to add to multi-sort in Ascending order. Click to sort in Ascending order.');
+  });
+
+  // #65: a sort blurred the header's button, so the keyboard's focus fell to the page and the next Tab started at its top
+  it("sorts on Enter and keeps focus on the header's button, whose tooltip shows the new sort; Shift+Enter and Shift+Space add to the sort", async () => {
+    const { component, host, header, shows, settle } = await render();
+    const button = (column: string) => header(column).querySelector<HTMLElement>('.header-button')!;
+    host.focus();
+    // the Id column's button, then the Name column's: Bio's doesn't sort, so it is no Tab stop
+    await userEvent.tab();
+    await userEvent.tab();
+    expect(document.activeElement).toBe(button('name'));
+    await shows('Name Click to sort in Ascending order.');
+
+    await userEvent.keyboard('{Enter}');
+    await component.server.answerAll(settle);
+
+    expect(component.$sort()).toEqual([{ property: 'name', direction: 'asc' }]);
+    expect(document.activeElement).toBe(button('name'));
+    await shows('Name Currently sorted in Ascending order. Click to sort in Descending order.');
+
+    await userEvent.keyboard('{Shift>}{Tab}{/Shift}');
+    expect(document.activeElement).toBe(button('id'));
+    await userEvent.keyboard('{Shift>}{Enter}{/Shift}');
+    await component.server.answerAll(settle);
+    expect(component.$sort()).toEqual([
+      { property: 'name', direction: 'asc' },
+      { property: 'id', direction: 'asc' },
+    ]);
+    await userEvent.keyboard('{Shift>}{ }{/Shift}');
+    await component.server.answerAll(settle);
+    expect(component.$sort()).toEqual([
+      { property: 'name', direction: 'asc' },
+      { property: 'id', direction: 'desc' },
+    ]);
+    expect(document.activeElement).toBe(button('id'));
+
+    // a plain Space, without Shift, clears the multi-sort, as its tooltip says, and the next sorts by the column alone
+    await userEvent.keyboard('{ }');
+    await component.server.answerAll(settle);
+    expect(component.$sort()).toEqual([]);
+    await userEvent.keyboard('{ }');
+    await component.server.answerAll(settle);
+    expect(component.$sort()).toEqual([{ property: 'id', direction: 'asc' }]);
+    expect(document.activeElement).toBe(button('id'));
+  });
+
+  it("keeps focus on the header's button after a click sorts", async () => {
+    const { component, header, settle } = await render();
+    const button = header('name').querySelector<HTMLElement>('.header-button')!;
+
+    await userEvent.click(button);
+    await component.server.answerAll(settle);
+
+    expect(component.$sort()).toEqual([{ property: 'name', direction: 'asc' }]);
+    expect(document.activeElement).toBe(button);
   });
 
   it('widens a column by the distance its edge is dragged, and its cells with it', async () => {
@@ -1080,7 +1317,6 @@ describe('TableComponent as a scroll region', () => {
     });
     await load();
 
-    // the header row has no row role (#64)
-    expect(await axeViolations(fixture.nativeElement as HTMLElement, { 'aria-required-children': '#64', 'aria-required-parent': '#64' })).toEqual([]);
+    expect(await axeViolations(fixture.nativeElement as HTMLElement)).toEqual([]);
   });
 });

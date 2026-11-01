@@ -515,6 +515,8 @@ export class SalesDashboardExampleComponent {
     );
   });
   protected readonly selectionOptions = new MultiSelectionOptions('selectAll', 'checkbox', true, false);
+  // Names each order's checkbox for screen readers: "Select order 1042"
+  protected readonly orderName = (order: Order) => `order ${order.id}`;
   // The selection empties when the filters change, and keeps through a sort
   protected readonly $selected = linkedSignal<Order[], Map<number, Order>>({ source: this.$orders, computation: () => new Map() });
 

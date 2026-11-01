@@ -17,6 +17,7 @@ import { TableauUiIconModule } from 'tableau-ui-angular/icon';
 import { TableauUiButtonModule } from 'tableau-ui-angular/button';
 import { TableauUiTooltipModule } from 'tableau-ui-angular/tooltip';
 import { RowSelectedPipe } from './selection/row-selected.pipe';
+import { RowNamePipe } from './selection/row-name.pipe';
 import { TableauUiCheckboxModule } from 'tableau-ui-angular/checkbox';
 import { HeaderCheckboxModePipe } from './selection/header-checkbox-mode.pipe';
 import { HeaderToolipDefDirective } from './defs/header-def/header-toolip-def.directive';
@@ -48,6 +49,7 @@ import { CellTooltipPipe } from './defs/cell-def/cell-tooltip.pipe';
     ResizerDirective,
     HeaderCheckboxModePipe,
     RowSelectedPipe,
+    RowNamePipe,
   ],
   exports: [TableComponent, HeaderDefDirective, HeaderToolipDefDirective, ColumnDefDirective, CellDefDirective, CellToolipDefDirective, SortInfoPipe],
 })
