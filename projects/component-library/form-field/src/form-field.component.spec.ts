@@ -498,6 +498,71 @@ describe('FormFieldComponent', () => {
       expect(list.getAttribute('aria-invalid')).toBe('true');
     });
 
+    // The field's error query finds a radio group's own error too, so the field and the group both wrote the group's
+    // aria-describedby, each putting its own ids last, and their observers took turns without end: the page froze
+    it('settles when a radio group with its own error sits in a field with a hint', async () => {
+      @Component({
+        imports: [...imports, TableauUiRadioGroupModule],
+        template: `
+          <tab-form-field>
+            <tab-label>Size</tab-label>
+            <tab-radio-group>
+              <tab-option text="Small" [value]="'s'" />
+              @if ($invalid()) {
+                <tab-error>Pick a size</tab-error>
+              }
+            </tab-radio-group>
+            <tab-hint>Sizes run large</tab-hint>
+          </tab-form-field>
+        `,
+        changeDetection: ChangeDetectionStrategy.OnPush,
+      })
+      class SizeErrorFieldComponent {
+        readonly $invalid = signal(false);
+      }
+      const { fixture, host } = await render(SizeErrorFieldComponent);
+      const group = host.querySelector('tab-radio-group')!;
+      const describedBy = () => group.getAttribute('aria-describedby')!.split(' ');
+      const settled = async () => {
+        await fixture.whenStable();
+        await new Promise(resolve => setTimeout(resolve));
+      };
+      expect(describedBy()).toEqual([host.querySelector('tab-hint')!.parentElement!.id]);
+
+      // the error appears after the first render, while both observers watch the group
+      (fixture.componentInstance as SizeErrorFieldComponent).$invalid.set(true);
+      await settled();
+      const ids = describedBy();
+      expect(ids).toContain(group.querySelector('.extra-info')!.id);
+      expect(new Set(ids).size).toBe(ids.length);
+
+      // and nothing writes it again
+      const writes: MutationRecord[] = [];
+      const watcher = new MutationObserver(records => writes.push(...records));
+      watcher.observe(group, { attributes: true, attributeFilter: ['aria-describedby', 'aria-invalid'] });
+      await settled();
+      watcher.disconnect();
+      expect(writes).toEqual([]);
+      expect(describedBy()).toEqual(ids);
+    });
+
+    // A tooltip adds its own id to its element's aria-describedby while it shows
+    it('leaves an id another part of the page adds, and settles', async () => {
+      const { host } = await render(NameFieldComponent);
+      const input = host.querySelector('input')!;
+      const field = input.getAttribute('aria-describedby')!;
+
+      input.setAttribute('aria-describedby', `${field} tooltip`);
+      const writes: MutationRecord[] = [];
+      const watcher = new MutationObserver(records => writes.push(...records));
+      watcher.observe(input, { attributes: true, attributeFilter: ['aria-describedby'] });
+      await new Promise(resolve => setTimeout(resolve));
+      watcher.disconnect();
+
+      expect(writes).toEqual([]);
+      expect(input.getAttribute('aria-describedby')).toBe(`${field} tooltip`);
+    });
+
     // #53: the group's options read as loose radios, with nothing that said what they answer
     it("names a radio group by the field's label, and describes it by the field's hint", async () => {
       @Component({
@@ -659,6 +724,24 @@ describe('FormFieldComponent', () => {
       } finally {
         root.classList.remove('dark-mode');
       }
+    });
+
+    // The chip control's ring follows focus inside it, so it must stay off while the control is valid
+    it('shows no ring on a focused valid chip control', async () => {
+      const { fixture, host } = await render(ChipsComponent);
+      const chips = fixture.componentInstance as ChipsComponent;
+      chips.control.setValidators(null);
+      chips.control.updateValueAndValidity();
+      chips.control.markAsTouched();
+      fixture.componentRef.changeDetectorRef.markForCheck();
+      await fixture.whenStable();
+      const styled = host.querySelector<HTMLElement>('tab-chip-control')!;
+      expect(styled.matches('.ng-valid.ng-touched')).toBe(true);
+
+      host.querySelector<HTMLElement>('input[aria-label="Before"]')!.focus();
+      await userEvent.keyboard('{Tab}');
+      expect(document.activeElement).toBe(host.querySelector('tab-chip-control input'));
+      expect(getComputedStyle(styled).outlineStyle).toBe('none');
     });
   });
 });

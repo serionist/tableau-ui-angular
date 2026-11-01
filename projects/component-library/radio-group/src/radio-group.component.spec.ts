@@ -153,11 +153,11 @@ describe('RadioGroupComponent', () => {
 
   // An app's own bound attribute rewrote the whole attribute, which wiped the group's error id until the error next
   // changed
-  it("writes its error's id again when an app's own binding rewrites the host's aria-describedby", async () => {
+  it("writes its error's id and aria-invalid again when an app's own binding rewrites them", async () => {
     @Component({
       imports: [TableauUiRadioGroupModule, TableauUiCommonModule],
       template: `
-        <tab-radio-group aria-label="Size" [attr.aria-describedby]="$note()">
+        <tab-radio-group aria-label="Size" [attr.aria-describedby]="$note()" [attr.aria-invalid]="$invalid()">
           <tab-option text="Small" [value]="'s'" />
           <tab-error>Pick a size</tab-error>
         </tab-radio-group>
@@ -168,6 +168,7 @@ describe('RadioGroupComponent', () => {
     })
     class BoundGroupComponent {
       readonly $note = signal('note-a');
+      readonly $invalid = signal<string | null>(null);
     }
     const fixture = TestBed.createComponent(BoundGroupComponent);
     fixture.autoDetectChanges();
@@ -175,8 +176,11 @@ describe('RadioGroupComponent', () => {
     const group = (fixture.nativeElement as HTMLElement).querySelector('tab-radio-group')!;
     const errorId = group.querySelector('.extra-info')!.id;
     expect(group.getAttribute('aria-describedby')).toBe(`note-a ${errorId}`);
+    expect(group.getAttribute('aria-invalid')).toBe('true');
 
+    // the app's bindings write both attributes whole while the error shows
     fixture.componentInstance.$note.set('note-b');
+    fixture.componentInstance.$invalid.set('false');
     await fixture.whenStable();
     // the group hears the rewrite through an observer
     await new Promise(resolve => setTimeout(resolve));

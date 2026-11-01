@@ -148,16 +148,28 @@ export class RadioGroupComponent<T extends Primitive> implements ControlValueAcc
 }
 
 /**
- * Writes `ids` last in an id list attribute such as `aria-describedby`, in place of the ids in `own`: the app's ids
- * stay, and the library's own come and go
+ * Keeps a component's own ids in an id list attribute such as `aria-describedby`: `ids`, in their order, in place of
+ * the ids in `own`. The other ids, an app's or another component's, never move. It writes nothing while the own ids
+ * there are `ids` in order, so two components that share the attribute and watch it, as a form field and the radio
+ * group in it do, write once each and settle.
+ *
+ * Its copy in `form-field.component.ts` is the same: entry points share code only through public exports, so a change
+ * goes into both.
  */
 function setOwnIds(element: Element, attribute: string, own: readonly string[], ids: readonly string[]) {
-  const current = element.getAttribute(attribute);
-  const kept = (current ?? '').split(/\s+/).filter(id => id !== '' && !own.includes(id));
-  const value = [...kept, ...ids].join(' ');
+  const tokens = (element.getAttribute(attribute) ?? '').split(/\s+/).filter(id => id !== '');
+  const present = tokens.filter(id => own.includes(id));
+  if (present.length === ids.length && present.every((id, index) => id === ids[index])) {
+    return;
+  }
+  // the own ids go where the first of them was, or last
+  const first = tokens.findIndex(id => own.includes(id));
+  const others = tokens.filter(id => !own.includes(id));
+  const at = first === -1 ? others.length : first;
+  const value = [...others.slice(0, at), ...ids, ...others.slice(at)].join(' ');
   if (value === '') {
     element.removeAttribute(attribute);
-  } else if (value !== current) {
+  } else {
     element.setAttribute(attribute, value);
   }
 }
