@@ -1,6 +1,7 @@
 /* stylelint-disable no-descending-specificity */
 :host {
   display: block;
+  box-sizing: border-box;
   overflow: auto;
   // stylelint-disable-next-line declaration-property-unit-disallowed-list
   min-height: 300px;
@@ -8,10 +9,14 @@
   max-height: 100%;
   scrollbar-gutter: stable;
 
-  // a Tab stop, so the keyboard scrolls it; the outline inside its edge, which a parent's overflow can't clip
+  // A Tab stop, so the keyboard scrolls it. Its focus ring is a border, transparent until it shows: the sticky header
+  // row, the pinned cells and the rows paint over an outline inside the host, and one outside it a parent's overflow
+  // clips. Border-box, so the host keeps the size the app gives it; it clips its scrolled content inside the border
+  border: 2px solid transparent;
+
   &:focus-visible {
-    outline: 2px solid var(--twc-color-focused-input);
-    outline-offset: -2px;
+    outline: none;
+    border-color: var(--twc-color-focused-input);
   }
 
   .table {
@@ -200,6 +205,7 @@
             overflow-wrap: break-word;
           }
 
+          // above the cells it passes over as the table scrolls sideways, their loading and failed bars included
           &.pinned-left {
             box-shadow:
               inset 0 -1px 0 var(--twc-color-border-light),
@@ -207,6 +213,7 @@
             left: 0;
             background: var(--twc-color-base);
             position: sticky;
+            z-index: 1;
           }
 
           &.pinned-right {
@@ -216,6 +223,7 @@
             right: 0;
             background: var(--twc-color-base);
             position: sticky;
+            z-index: 1;
           }
 
           // the box its hidden text sits in, so that text never reaches past the table's scrolled content

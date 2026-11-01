@@ -7,6 +7,8 @@ import type { Primitive } from 'tableau-ui-angular/types';
 import type { DataOptions, DataRowCss, DataSort } from 'tableau-ui-angular/virtualize';
 import { axeViolations } from '../../testing/axe';
 import { backgroundUnder, contrast, inEachMode } from '../../testing/contrast';
+import { whileLoadsFail } from '../../testing/failing-loads';
+import { focusRingShown } from '../../testing/focus-ring';
 import type { Person } from '../../testing/people';
 import { PEOPLE, PeopleServer } from '../../testing/people';
 import { movePointerAway } from '../../testing/pointer';
@@ -808,7 +810,8 @@ describe('TableComponent tooltips and column widths', () => {
 })
 class LibraryStylesComponent {}
 
-// A table of plain text whose columns don't sort, so nothing in it takes focus but its host, with striped rows
+// A table of plain text whose columns don't sort, so nothing in it takes focus but its host, with striped rows; its
+// columns are 150px wide, so a narrower table scrolls sideways
 @Component({
   imports: [TableauUiTableModule],
   template: `
@@ -822,11 +825,11 @@ class LibraryStylesComponent {}
       [dataRowCss]="{ height: '20px', lineHeight: '20px', padding: '0 8px' }"
       [selectionOptions]="$selection()"
     >
-      <ng-container tabColumnDef="id" [sortable]="false">
+      <ng-container tabColumnDef="id" width="150px" [sortable]="false">
         <ng-template [tabHeaderDef]="table">Id</ng-template>
         <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.id }}</ng-template>
       </ng-container>
-      <ng-container tabColumnDef="name" [sortable]="false">
+      <ng-container tabColumnDef="name" width="150px" [sortable]="false">
         <ng-template [tabHeaderDef]="table">Name</ng-template>
         <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.name }}</ng-template>
       </ng-container>
@@ -841,11 +844,11 @@ class PlainTableComponent {
   readonly table = viewChild.required<TableComponent<Person>>(TableComponent);
 }
 
-// An app that made its table a named region itself
+// An app that names its table with its own static aria-label, and keeps it out of the Tab order
 @Component({
   imports: [TableauUiTableModule],
   template: `
-    <tab-table #table role="region" aria-label="Staff" style="height: 200px" [label]="$label()" [dataOptions]="server.incremental">
+    <tab-table #table aria-label="Staff" tabindex="-1" style="height: 200px" [label]="$label()" [dataOptions]="server.incremental">
       <ng-container tabColumnDef="name" [sortable]="false">
         <ng-template [tabHeaderDef]="table">Name</ng-template>
         <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.name }}</ng-template>
@@ -857,6 +860,24 @@ class PlainTableComponent {
 class StaffTableComponent {
   readonly server = new PeopleServer();
   readonly $label = signal<string | undefined>(undefined);
+}
+
+// An app that gave its table's host a role of its own
+@Component({
+  imports: [TableauUiTableModule],
+  template: `
+    <tab-table #table role="group" aria-label="Staff" style="height: 200px" [label]="$label()" [dataOptions]="server.incremental">
+      <ng-container tabColumnDef="name" [sortable]="false">
+        <ng-template [tabHeaderDef]="table">Name</ng-template>
+        <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.name }}</ng-template>
+      </ng-container>
+    </tab-table>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class StaffGroupComponent {
+  readonly $label = signal<string | undefined>(undefined);
+  readonly server = new PeopleServer();
 }
 
 // #68: a table whose columns don't sort and whose cells hold no control had nothing that takes focus, so the keyboard
@@ -911,37 +932,68 @@ describe('TableComponent as a scroll region', () => {
     expect(names()).toEqual([null, null, null]);
   });
 
-  // A role binding that returned null without a label would remove the app's own role and name
-  it("keeps an app's own static role and name on its host", async () => {
+  // A binding that returned null without a label removed the app's own aria-label at the first change detection
+  it("takes an app's static aria-label as its name, and its static tabindex in place of its own", async () => {
     const fixture = TestBed.createComponent(StaffTableComponent);
+    fixture.autoDetectChanges();
+    await fixture.whenStable();
+    const host = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('tab-table')!;
+    const names = () => [host.getAttribute('role'), host.getAttribute('aria-label'), host.querySelector('.table')!.getAttribute('aria-label')];
+
+    expect(names()).toEqual(['region', 'Staff', 'Staff']);
+    expect(host.getAttribute('tabindex')).toBe('-1');
+
+    // the label wins, and the app's name comes back without it
+    fixture.componentInstance.$label.set('People');
+    await fixture.whenStable();
+    expect(names()).toEqual(['region', 'People', 'People']);
+    fixture.componentInstance.$label.set(undefined);
+    await fixture.whenStable();
+    expect(names()).toEqual(['region', 'Staff', 'Staff']);
+  });
+
+  // A role binding that returned null without a label would remove the app's own role
+  it("keeps an app's own static role on its host", async () => {
+    const fixture = TestBed.createComponent(StaffGroupComponent);
     fixture.autoDetectChanges();
     await fixture.whenStable();
     const host = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('tab-table')!;
     const roleAndName = () => [host.getAttribute('role'), host.getAttribute('aria-label')];
 
-    expect(roleAndName()).toEqual(['region', 'Staff']);
-
+    expect(roleAndName()).toEqual(['group', 'Staff']);
     fixture.componentInstance.$label.set('People');
     await fixture.whenStable();
-    expect(roleAndName()).toEqual(['region', 'People']);
-    fixture.componentInstance.$label.set(undefined);
-    await fixture.whenStable();
-    expect(roleAndName()).toEqual(['region', 'Staff']);
+    expect(roleAndName()).toEqual(['group', 'People']);
+  });
+
+  // An outline inside the host lay under the sticky header row, the pinned cells and the rows, so its top edge never
+  // showed, nor its left one beside a pinned column
+  it('shows its focus ring on all four edges, over its header row, a pinned column and striped rows', async () => {
+    TestBed.createComponent(LibraryStylesComponent);
+    // the selection's checkbox column is pinned to the left
+    const { host, load } = await render(c => {
+      c.$label.set('People');
+      c.$selection.set(new MultiSelectionOptions('none', 'checkbox'));
+    });
+    await load();
+    (host.previousElementSibling as HTMLElement).focus();
+    // none before it has focus
+    expect(await focusRingShown(host)).toEqual({ top: 0, right: 0, bottom: 0, left: 0 });
+
+    await userEvent.tab();
+
+    expect(host.matches(':focus-visible')).toBe(true);
+    expect(host.querySelector('.cell.pinned-left')).not.toBeNull();
+    await inEachMode(async mode => {
+      expect(await focusRingShown(host), mode).toEqual({ top: 1, right: 1, bottom: 1, left: 1 });
+    });
   });
 
   // #115: a failed block's pill was the error colour at 30% opacity, about 1.75:1 on the row, and only its colour told
   // it from the loading pill
   it("draws a failed block's cells at 3:1 or more on each row in both themes, and says they failed", async () => {
     TestBed.createComponent(LibraryStylesComponent);
-    const logged = vi.spyOn(console, 'error').mockImplementation(() => {
-      // recorded only
-    });
-    // the failure is rethrown for the app's ErrorHandler; this test's listener takes it, as an app's would
-    const expected = (event: PromiseRejectionEvent) => {
-      event.preventDefault();
-    };
-    window.addEventListener('unhandledrejection', expected);
-    try {
+    await whileLoadsFail(async () => {
       // a row under the pointer takes the highlight while rows select on a click
       const { component, host, settle } = await render(c => {
         c.$selection.set(new SingleSelectionOptions());
@@ -984,12 +1036,33 @@ describe('TableComponent as a scroll region', () => {
       });
       // each theme's own red
       expect(reds.size).toBe(2);
-      // the rethrown rejection is reported after the microtasks, while the listener still takes it
-      await new Promise(resolve => setTimeout(resolve, 100));
-    } finally {
-      window.removeEventListener('unhandledrejection', expected);
-      logged.mockRestore();
-    }
+    });
+  });
+
+  // with a pinned column, the bars of the cells it passes over as the table scrolls sideways go under it
+  it("keeps a failed block's bars under a pinned column as the table scrolls sideways", async () => {
+    TestBed.createComponent(LibraryStylesComponent);
+    await whileLoadsFail(async () => {
+      const { component, host, settle } = await render(c => {
+        c.$selection.set(new MultiSelectionOptions('none', 'checkbox'));
+      });
+      host.style.width = '150px';
+      const loading = component.table().load();
+      await settle();
+      component.server.waiting[0].fail();
+      await settle();
+      await loading;
+      const row = host.querySelector('.data-rows .row')!;
+      const pinned = row.querySelector('.cell.pinned-left')!.getBoundingClientRect();
+
+      host.scrollLeft = 100;
+      await settle();
+
+      // a point on the pinned cell, beside its left edge, finds the cell, not a bar scrolled under it
+      const hit = document.elementFromPoint(pinned.left + 2, pinned.top + pinned.height / 2);
+      expect(hit?.closest('.cell')).toBe(row.querySelector('.cell.pinned-left'));
+      expect(Array.from(row.querySelectorAll('.cell:not(.pinned-left) .status.error')).some(bar => bar.getBoundingClientRect().left < pinned.right)).toBe(true);
+    });
   });
 
   it('passes axe with scrollable-region-focusable on, though no column sorts', async () => {

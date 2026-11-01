@@ -11,14 +11,15 @@ import { CustomLoaderDirective } from './templates/custom-loader.directive';
 /**
  * A list that draws only the items near its view, and scrolls them in its own host.
  *
- * The host takes focus, so the keyboard scrolls it in every browser. While it shows items it is a `list`, named by
- * `label`, and each item a `listitem` with its place in the whole list: `aria-posinset`, and `aria-setsize`, `-1` until
- * the total is known. While it shows no items, its no-data template or its custom loader, it is a `region` named by
- * `label`, and without `label` it has no role.
+ * The host takes focus, so the keyboard scrolls it in every browser; a static `tabindex="-1"` the app writes on
+ * `tab-virtualize` takes it out of the Tab order. While it shows items it is a `list`, and each item a `listitem` with
+ * its place in the whole list: `aria-posinset`, and `aria-setsize`, `-1` until the total is known. While it shows no
+ * items, its no-data template or its custom loader, it is a `region`, and without a name it has no role. `label` names
+ * it, or else a static `aria-label` the app writes on `tab-virtualize`.
  *
  * An app whose items have a role of their own writes a static `role` attribute on `tab-virtualize`, such as
- * `role="listbox"`: the host keeps that role, and its `aria-label` unless `label` is set, and its items take no role.
- * The role is read once, when the host is created, so a bound `[attr.role]` isn't read.
+ * `role="listbox"`: the host keeps that role, and its items take no role. The role is read once, when the host is
+ * created, so a bound `[attr.role]` isn't read.
  */
 @Component({
   selector: 'tab-virtualize',
@@ -34,7 +35,7 @@ import { CustomLoaderDirective } from './templates/custom-loader.directive';
 })
 export class VirtualizeComponent<TData> extends VirtualizeBaseComponent<TData> {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
-  // The app's own static role and name on the host. The bindings return them, since a binding that returned null would
+  // The app's own static role and name on the host. The bindings keep them, since a binding that returned null would
   // remove them at the first change detection
   private readonly appRole = inject(new HostAttributeToken('role'), { optional: true });
   private readonly appAriaLabel = inject(new HostAttributeToken('aria-label'), { optional: true });
@@ -49,7 +50,8 @@ export class VirtualizeComponent<TData> extends VirtualizeBaseComponent<TData> {
   // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
   /**
    * Names the list for screen readers, and the region it is while it shows no items: "Customers". A virtual scroller
-   * that scrolls needs it: its host takes focus, so a screen reader names what the keyboard reached.
+   * that scrolls needs it, or a static `aria-label` on `tab-virtualize`: its host takes focus, so a screen reader names
+   * what the keyboard reached.
    * @default undefined
    */
   readonly $label: InputSignal<string | undefined> = input<string>(undefined, {
@@ -135,11 +137,8 @@ export class VirtualizeComponent<TData> extends VirtualizeBaseComponent<TData> {
     }
     return this.$loading() && this.$customLoaderTemplate() !== undefined ? 'loader' : 'items';
   });
-  // the label, unless it has no words
-  private readonly $name = computed(() => {
-    const label = this.$label();
-    return label !== undefined && label.trim() !== '' ? label : undefined;
-  });
+  // the label, else the app's own static aria-label, whichever has words
+  private readonly $name = computed(() => words(this.$label()) ?? words(this.appAriaLabel));
   // A list while it shows items; with no items a region, which a name must name, so none without one
   protected readonly $role = computed(() => {
     if (this.appRole !== null) {
@@ -150,7 +149,7 @@ export class VirtualizeComponent<TData> extends VirtualizeBaseComponent<TData> {
     }
     return this.$name() === undefined ? null : 'region';
   });
-  protected readonly $ariaLabel = computed(() => this.$name() ?? (this.appRole === null ? null : this.appAriaLabel));
+  protected readonly $ariaLabel = computed(() => this.$name() ?? null);
   // #endregion Accessibility
 
   // A row is drawn border-box at the height the virtual scroll counts, less its margins, its padding and borders inside
@@ -174,4 +173,9 @@ export class VirtualizeComponent<TData> extends VirtualizeBaseComponent<TData> {
   protected onHostScrolled(element: HTMLElement) {
     super.onScroll(element);
   }
+}
+
+// A name, unless it has no words
+function words(name: string | null | undefined): string | undefined {
+  return name !== null && name !== undefined && name.trim() !== '' ? name : undefined;
 }

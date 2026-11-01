@@ -3,6 +3,8 @@ import { TestBed } from '@angular/core/testing';
 import { page, userEvent } from 'vitest/browser';
 import { axeViolations } from '../../testing/axe';
 import { backgroundUnder, contrast, inEachMode } from '../../testing/contrast';
+import { whileLoadsFail } from '../../testing/failing-loads';
+import { focusRingShown } from '../../testing/focus-ring';
 import type { Person } from '../../testing/people';
 import { PEOPLE, PeopleServer } from '../../testing/people';
 import type { DataRowCss } from './base/virutalize-base.component';
@@ -99,6 +101,23 @@ class LibraryStylesComponent {}
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class OptionsListComponent {
+  readonly server = new PeopleServer();
+  readonly $label = signal<string | undefined>(undefined);
+  readonly rowCss: DataRowCss = { height: '20px', lineHeight: '20px', padding: '0 8px' };
+  readonly list = viewChild.required<VirtualizeComponent<Person>>(VirtualizeComponent);
+}
+
+// An app that names its list with its own static aria-label, and keeps it out of the Tab order
+@Component({
+  imports: [TableauUiVirtualizeModule],
+  template: `
+    <tab-virtualize #list aria-label="Customers" tabindex="-1" style="height: 200px" [label]="$label()" [dataOptions]="server.incremental" [dataSort]="[]" [dataRowCss]="rowCss">
+      <ng-template let-ctx [tabItemTemplate]="list">{{ ctx.item.name }}</ng-template>
+    </tab-virtualize>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class CustomersListComponent {
   readonly server = new PeopleServer();
   readonly $label = signal<string | undefined>(undefined);
   readonly rowCss: DataRowCss = { height: '20px', lineHeight: '20px', padding: '0 8px' };
@@ -618,6 +637,55 @@ describe('VirtualizeComponent', () => {
       expect(roleAndName()).toEqual(['list', null]);
     });
 
+    // A binding that returned null without a label removed the app's own aria-label at the first change detection
+    it("takes an app's static aria-label as its name, and its static tabindex in place of its own", async () => {
+      const fixture = TestBed.createComponent(CustomersListComponent);
+      fixture.autoDetectChanges();
+      await fixture.whenStable();
+      const component = fixture.componentInstance;
+      const host = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('tab-virtualize')!;
+      const settle = async () => {
+        await new Promise(resolve => setTimeout(resolve));
+        await fixture.whenStable();
+      };
+      const roleAndName = () => [host.getAttribute('role'), host.getAttribute('aria-label')];
+
+      // no items yet
+      expect(roleAndName()).toEqual(['region', 'Customers']);
+      expect(host.getAttribute('tabindex')).toBe('-1');
+
+      const loading = component.list().load();
+      await component.server.answerAll(settle);
+      await loading;
+      expect(roleAndName()).toEqual(['list', 'Customers']);
+
+      // the label wins, and the app's name comes back without it
+      component.$label.set('People');
+      await fixture.whenStable();
+      expect(roleAndName()).toEqual(['list', 'People']);
+      component.$label.set(undefined);
+      await fixture.whenStable();
+      expect(roleAndName()).toEqual(['list', 'Customers']);
+    });
+
+    it('shows its focus ring on all four edges', async () => {
+      TestBed.createComponent(LibraryStylesComponent);
+      const { host, load } = await render(c => {
+        c.$label.set('People');
+      });
+      await load();
+      (host.previousElementSibling as HTMLElement).focus();
+      // none before it has focus
+      expect(await focusRingShown(host)).toEqual({ top: 0, right: 0, bottom: 0, left: 0 });
+
+      await userEvent.tab();
+
+      expect(host.matches(':focus-visible')).toBe(true);
+      await inEachMode(async mode => {
+        expect(await focusRingShown(host), mode).toEqual({ top: 1, right: 1, bottom: 1, left: 1 });
+      });
+    });
+
     // A role binding that returned null to turn the list roles off would remove the app's own role and name
     it("keeps an app's own static role and name on its host, and gives its items no role", async () => {
       const fixture = TestBed.createComponent(OptionsListComponent);
@@ -654,15 +722,7 @@ describe('VirtualizeComponent', () => {
   // it from the loading pill
   it("draws a failed block's rows at 3:1 or more in both themes, and says they failed", async () => {
     TestBed.createComponent(LibraryStylesComponent);
-    const logged = vi.spyOn(console, 'error').mockImplementation(() => {
-      // recorded only
-    });
-    // the failure is rethrown for the app's ErrorHandler; this test's listener takes it, as an app's would
-    const expected = (event: PromiseRejectionEvent) => {
-      event.preventDefault();
-    };
-    window.addEventListener('unhandledrejection', expected);
-    try {
+    await whileLoadsFail(async () => {
       const { component, host, server, settle } = await render(c => {
         c.$errorTemplate.set(false);
       });
@@ -688,12 +748,7 @@ describe('VirtualizeComponent', () => {
       });
       // each theme's own red
       expect(reds.size).toBe(2);
-      // the rethrown rejection is reported after the microtasks, while the listener still takes it
-      await new Promise(resolve => setTimeout(resolve, 100));
-    } finally {
-      window.removeEventListener('unhandledrejection', expected);
-      logged.mockRestore();
-    }
+    });
   });
 
   it('passes axe, with no rule off', async () => {

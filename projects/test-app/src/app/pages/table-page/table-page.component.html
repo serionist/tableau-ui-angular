@@ -45,10 +45,17 @@
       <h3>Accessibility</h3>
       <p>The table scrolls in its own host, which is in the Tab order, so the keyboard scrolls it in every browser, even when nothing in its rows takes focus.</p>
       <ul>
-        <li>A table that scrolls needs <code>label</code>, which names it for screen readers: its host is then a region of that name, and its table too. Without it the host has no role.</li>
+        <li>
+          A table that scrolls needs <code>label</code>, which names it for screen readers: its host is then a region of that name, and its table too. A static <code>aria-label</code> on
+          <code>tab-table</code> names it the same way, and <code>label</code> wins. Without a name the host has no role.
+        </li>
+        <li>
+          A static <code>tabindex="-1"</code> on <code>tab-table</code> takes it out of the Tab order, as for a short table whose cells hold controls of their own. A <code>tabindex</code> an app put
+          on a wrapper so the keyboard could scroll the table can go.
+        </li>
         <li>Once the host has focus, the arrow keys, Page Up, Page Down, Home and End scroll it, and the rows they reach load.</li>
         <li>A row whose block failed shows a red bar in each cell, which a screen reader reads as "Failed to load".</li>
-        <li>A static <code>role</code> the app writes on <code>tab-table</code> stays, and its <code>aria-label</code> too unless <code>label</code> is set.</li>
+        <li>A static <code>role</code> the app writes on <code>tab-table</code> stays.</li>
       </ul>
     </div>
   </div>

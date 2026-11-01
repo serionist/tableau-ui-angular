@@ -31,10 +31,11 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   `chip.children[0]`, goes through the span: `tab-chip tab-icon`, or `chip.querySelector('.content')!.children[0]`.
 - A closed drawer is inert until change detection renders it open, so an app that sets `isOpen` and focuses into the
   drawer in the same tick finds the focus refused. Move the focus in `afterNextRender`, once the drawer renders.
-- Every `tab-table` and `tab-virtualize` is a Tab stop, so the keyboard can scroll it. While `tab-virtualize` shows
-  items it is a list and its items `listitem`s; an app whose items have a role of their own writes a static `role`
-  attribute on `tab-virtualize`, such as `role="listbox"`, which keeps the library's roles off. Name a table or a
-  virtual scroller that scrolls with `label`.
+- Every `tab-table` and `tab-virtualize` is a Tab stop, so the keyboard can scroll it. A static `tabindex="-1"` on
+  one takes it out of the Tab order, and a `tabindex` an app put on a wrapper so the keyboard could scroll it can go.
+  While `tab-virtualize` shows items it is a list and its items `listitem`s; an app whose items have a role of their
+  own writes a static `role` attribute on `tab-virtualize`, such as `role="listbox"`, which keeps the library's roles
+  off. Name a table or a virtual scroller that scrolls with `label`, or a static `aria-label` on it.
 
 ### Added
 
@@ -42,8 +43,8 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   such as a button, or more than the panel's name needs it: the toggle took the title's whole text as its name, the
   control's included.
 - `label` on `tab-table` and `tab-virtualize`: the name screen readers give the table and the region its host is, or
-  the list. Without it a table's host has no role, and a virtual scroller is an unnamed list, or no role while it shows
-  no items.
+  the list. A static `aria-label` on the element names it the same way, and `label` wins. Without a name a table's host
+  has no role, and a virtual scroller is an unnamed list, or has no role while it shows no items.
 
 ### Fixed
 
