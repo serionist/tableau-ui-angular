@@ -21,7 +21,7 @@
     "email": "osvaysoma@gmail.com"
   },
   "homepage": "https://serionist.github.io/tableau-ui-angular/",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "peerDependencies": {
     "@angular/common": "^22.0.0",
     "@angular/core": "^22.0.0",
