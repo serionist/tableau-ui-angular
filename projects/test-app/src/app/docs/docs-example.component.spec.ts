@@ -48,6 +48,7 @@ describe('DocsExampleComponent', () => {
     const host = await render(SAMPLE);
 
     expect(tabs(host).map(tab => tab.textContent.trim())).toEqual(['TS', 'HTML', 'SCSS']);
+    expect(host.querySelector('[role="tablist"]')?.getAttribute('aria-label')).toBe('Source files');
     // the text as the file has it, without its last line break
     expect(panes(host).map(pane => pane.querySelector('pre')?.textContent)).toEqual([
       "@Component({ selector: 'app-sample', templateUrl: './sample.html' })\nexport class SampleComponent {}",

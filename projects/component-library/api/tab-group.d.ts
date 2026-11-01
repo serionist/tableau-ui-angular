@@ -2,7 +2,7 @@
 
 import * as i3 from '@angular/common';
 import * as i0 from '@angular/core';
-import { AfterContentChecked, ElementRef, Signal, TemplateRef } from '@angular/core';
+import { AfterContentChecked, ElementRef, InputSignal, Signal, TemplateRef } from '@angular/core';
 import * as i4 from 'tableau-ui-angular/arrow-scroll';
 import * as i5 from 'tableau-ui-angular/icon';
 
@@ -40,9 +40,10 @@ export declare class TabComponent {
 }
 
 export declare class TabGroupComponent implements AfterContentChecked {
-  readonly $headerPadding: import('@angular/core').InputSignal<string>;
-  readonly $scrollArrowsIconSize: import('@angular/core').InputSignal<string>;
-  readonly $autoSelectFirstTab: import('@angular/core').InputSignal<boolean>;
+  readonly $headerPadding: InputSignal<string>;
+  readonly $scrollArrowsIconSize: InputSignal<string>;
+  readonly $autoSelectFirstTab: InputSignal<boolean>;
+  readonly $label: InputSignal<string | undefined>;
   get $selectedIndex(): Signal<number>;
   readonly $selectedTab: Signal<TabComponent | null>;
   readonly tabSelected: import('@angular/core').OutputEmitterRef<{
@@ -72,6 +73,11 @@ export declare class TabGroupComponent implements AfterContentChecked {
       };
       $autoSelectFirstTab: {
         alias: 'autoSelectFirstTab';
+        required: false;
+        isSignal: true;
+      };
+      $label: {
+        alias: 'label';
         required: false;
         isSignal: true;
       };

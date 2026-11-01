@@ -2,7 +2,7 @@
 
 import * as i3 from '@angular/common';
 import * as i0 from '@angular/core';
-import { TemplateRef } from '@angular/core';
+import { ElementRef, TemplateRef } from '@angular/core';
 import * as i2 from 'tableau-ui-angular/common';
 import { IOptionLineContext, OptionComponent } from 'tableau-ui-angular/common';
 import * as i4 from 'tableau-ui-angular/tooltip';

@@ -76,9 +76,48 @@
       <p>
         <code>tab-button-toggle</code>
         picks one of its
-        <code>tab-option</code>s: bind <code>[(selectedValue)]</code>. An option takes an icon, a text or both, and can be disabled, as can the whole toggle.
+        <code>tab-option</code>s: bind <code>[(selectedValue)]</code>. An option takes an icon, a text or both, and can be disabled, as can the whole toggle. Name the toggle with
+        <code>aria-label</code>, and give an option with only an icon a text <code>hint</code>, its name.
       </p>
       <app-docs-example [example]="examples.toggle" />
+    </div>
+
+    <div class="section">
+      <h3>Accessibility</h3>
+      <p>A button toggle follows the WAI-ARIA radio group pattern: its options take the focus, not the toggle.</p>
+      <ul>
+        <li>The toggle is a <code>radiogroup</code>, named by the app's <code>aria-label</code> or <code>aria-labelledby</code> on <code>tab-button-toggle</code>.</li>
+        <li>
+          Each option is a <code>radio</code> that says whether it is checked or disabled, named by its text. An option with only an icon is named by its text <code>hint</code>, which its tooltip
+          shows when it takes focus from the keyboard; a template hint names nothing.
+        </li>
+        <li>
+          The toggle is one Tab stop: the checked option, or the first enabled one while none is checked. A disabled toggle is out of the Tab order. Code that focused the toggle focuses its checked
+          option.
+        </li>
+      </ul>
+      <table class="docs-table">
+        <thead>
+          <tr>
+            <th scope="col">Key, on an option</th>
+            <th scope="col">What it does</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Right, Down</td>
+            <td>Checks the next enabled option, past the end to the first, and moves the focus to it</td>
+          </tr>
+          <tr>
+            <td>Left, Up</td>
+            <td>Checks the previous enabled option, past the start to the last, and moves the focus to it</td>
+          </tr>
+          <tr>
+            <td>Space</td>
+            <td>Checks the option that has focus</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </div>

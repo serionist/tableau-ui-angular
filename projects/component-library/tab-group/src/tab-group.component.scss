@@ -52,8 +52,14 @@
     }
   }
 
+  // A Tab stop after the strip; the outline inside its edge, which the host's overflow can't clip
   .tab-content {
     overflow: auto;
+
+    &:focus-visible {
+      outline: 2px solid var(--twc-color-focused-input);
+      outline-offset: -2px;
+    }
   }
 
   .tab-headers-underline {
