@@ -191,7 +191,9 @@
     &.error {
       &:not([disabled], [disabled='false']) {
         background-color: var(--twc-color-error);
-        color: var(--twc-color-on-primary);
+
+        // the base: white on the light theme's red, near black on the dark theme's lighter one, each 4.5:1 or more
+        color: var(--twc-color-base);
 
         &:hover {
           background-color: var(--twc-color-error-dark);

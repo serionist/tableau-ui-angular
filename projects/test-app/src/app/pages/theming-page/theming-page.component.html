@@ -110,5 +110,40 @@
         </tbody>
       </table>
     </div>
+
+    <div class="section">
+      <h3>Accessibility</h3>
+      <p>
+        Error text reads at 4.5:1 or more, the contrast WCAG asks of body text, on every surface the library draws it on, in light and in dark. A spec in the library reads each pair below in both
+        themes, in Chromium and Firefox.
+      </p>
+      <table class="docs-table">
+        <thead>
+          <tr>
+            <th scope="col">Text</th>
+            <th scope="col">Background</th>
+            <th scope="col">Where</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (pair of contrastPairs; track pair.where) {
+            <tr>
+              <td>
+                <code>{{ pair.text }}</code>
+              </td>
+              <td>
+                <code>{{ pair.background }}</code>
+              </td>
+              <td>{{ pair.where }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+      <p>
+        An app that sets one of these colours keeps each pair at 4.5:1. For its own error text, such as a negative number, it reads
+        <code>var(--twc-color-error)</code>
+        rather than copying the value, so the text follows the theme.
+      </p>
+    </div>
   </div>
 </div>

@@ -18,4 +18,12 @@ export class ThemingPageComponent {
   protected readonly appConfigTs = appConfigTs;
   protected readonly colors = colorProperties();
   protected readonly others = otherProperties();
+  // The pairs the library's contrast spec reads, theme/src/theme-contrast.spec.ts
+  protected readonly contrastPairs = [
+    { text: '--twc-color-error', background: '--twc-color-base', where: "The page, a dialog's body, an input" },
+    { text: '--twc-color-error', background: '--twc-color-primary-light', where: "A table's selected row" },
+    { text: '--twc-color-error', background: '--twc-color-highlight', where: 'The keyboard highlight in a list, a select, an autocomplete and a menu' },
+    { text: '--twc-color-error', background: '--twc-modal-color-header', where: "A modal's header" },
+    { text: '--twc-color-base', background: '--twc-color-error', where: "A raised error button's label" },
+  ];
 }
