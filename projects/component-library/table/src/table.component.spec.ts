@@ -1039,30 +1039,29 @@ describe('TableComponent as a scroll region', () => {
     });
   });
 
-  // with a pinned column, the bars of the cells it passes over as the table scrolls sideways go under it
-  it("keeps a failed block's bars under a pinned column as the table scrolls sideways", async () => {
+  // A bar, positioned so its hidden text stays in it, painted over a pinned column as the table scrolled sideways
+  it('keeps the bars of the cells a pinned column passes over under it, as the table scrolls sideways', async () => {
     TestBed.createComponent(LibraryStylesComponent);
-    await whileLoadsFail(async () => {
-      const { component, host, settle } = await render(c => {
-        c.$selection.set(new MultiSelectionOptions('none', 'checkbox'));
-      });
-      host.style.width = '150px';
-      const loading = component.table().load();
-      await settle();
-      component.server.waiting[0].fail();
-      await settle();
-      await loading;
-      const row = host.querySelector('.data-rows .row')!;
-      const pinned = row.querySelector('.cell.pinned-left')!.getBoundingClientRect();
-
-      host.scrollLeft = 100;
-      await settle();
-
-      // a point on the pinned cell, beside its left edge, finds the cell, not a bar scrolled under it
-      const hit = document.elementFromPoint(pinned.left + 2, pinned.top + pinned.height / 2);
-      expect(hit?.closest('.cell')).toBe(row.querySelector('.cell.pinned-left'));
-      expect(Array.from(row.querySelectorAll('.cell:not(.pinned-left) .status.error')).some(bar => bar.getBoundingClientRect().left < pinned.right)).toBe(true);
+    const { component, host, settle } = await render(c => {
+      c.$selection.set(new MultiSelectionOptions('none', 'checkbox'));
     });
+    host.style.width = '150px';
+    // the first block still loads, so its rows show their loading bars, which the scroll leaves in place
+    void component.table().load();
+    await settle();
+    const row = host.querySelector('.data-rows .row')!;
+    const pinned = row.querySelector('.cell.pinned-left')!;
+
+    host.scrollLeft = 100;
+    host.dispatchEvent(new Event('scroll'));
+    await settle();
+
+    const box = pinned.getBoundingClientRect();
+    const bars = Array.from(row.querySelectorAll('.cell:not(.pinned-left) .status.loader'));
+    // a bar has scrolled under the pinned cell
+    expect(bars.some(bar => bar.getBoundingClientRect().left < box.right)).toBe(true);
+    // and a point on the pinned cell, beside its left edge, finds the cell, not that bar
+    expect(document.elementFromPoint(box.left + 2, box.top + box.height / 2)?.closest('.cell')).toBe(pinned);
   });
 
   it('passes axe with scrollable-region-focusable on, though no column sorts', async () => {
