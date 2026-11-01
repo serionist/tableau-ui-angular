@@ -138,6 +138,9 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
 - A touched invalid input, textarea, select, list or chip control shows keyboard focus: its red border stays, and a
   2px ring in `--twc-color-focused-input` shows inside it, a pixel apart, 3:1 or more against the page in both themes.
   The invalid style outranked the focus style, so focus didn't show.
+- A table or a virtual scroller whose first block fails to load keeps that block's failed rows when it scrolls, as a
+  table does sideways, until it loads again: `reload()`, `reset()`, or a new sort, `dataOptions`, `dataBlockWindow` or
+  `dataRowCss`. The first scroll dropped them and showed "No data available".
 
 ## 0.2.0 (2026-10-31)
 
