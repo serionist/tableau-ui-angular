@@ -1,6 +1,6 @@
 import type { ComponentFixture } from '@angular/core/testing';
 import { TestBed } from '@angular/core/testing';
-import { page } from 'vitest/browser';
+import { page, userEvent } from 'vitest/browser';
 import { SnackService } from 'tableau-ui-angular/snack';
 import { ClipboardService } from 'tableau-ui-angular/clipboard';
 import { DialogService } from 'tableau-ui-angular/dialog';
@@ -245,6 +245,23 @@ describe('The samples', () => {
     header('Fourth tab').click();
     await fixture.whenStable();
     expect(activated()).toBe('Activated last: Fourth tab');
+
+    // the arrow keys pass the disabled tabs, wrapping, and select the tab they move to
+    header('Fourth tab').focus();
+    for (const [key, tab] of [
+      ['{ArrowLeft}', 'Second tab'],
+      ['{ArrowLeft}', 'Fourth tab'],
+      ['{ArrowRight}', 'Second tab'],
+      ['{End}', 'Fourth tab'],
+    ]) {
+      await userEvent.keyboard(key);
+      await fixture.whenStable();
+      expect([document.activeElement?.textContent.trim(), selected()], key).toEqual([tab, tab]);
+    }
+    await vi.waitFor(() => {
+      expect(activated()).toBe('Activated last: Fourth tab');
+    });
+    expect(host.querySelector('[role="tablist"]')?.getAttribute('aria-label')).toBe('Basic tabs');
     fixture.destroy();
   });
 

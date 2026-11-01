@@ -563,7 +563,7 @@ function words(name: string | null | undefined): string | undefined {
 }
 
 // What a click in a cell can be meant for instead of the row: native controls, the library's button toggle, whose
-// options have no role yet, and the WAI-ARIA widget roles
+// border between its radios is the toggle's too, and the WAI-ARIA widget roles
 const INTERACTIVE = [
   'a[href]',
   'button',

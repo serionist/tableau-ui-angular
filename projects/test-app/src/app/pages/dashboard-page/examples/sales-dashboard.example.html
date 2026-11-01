@@ -64,14 +64,14 @@
         </tab-single-select>
       </tab-form-field>
 
-      <fieldset>
-        <legend>Channel</legend>
-        <tab-button-toggle [(selectedValue)]="$channel">
+      <div class="channel">
+        <tab-label>Channel</tab-label>
+        <tab-button-toggle aria-label="Channel" [(selectedValue)]="$channel">
           <tab-option text="All" value="All" />
           <tab-option text="Online" value="Online" />
           <tab-option text="In store" value="In store" />
         </tab-button-toggle>
-      </fieldset>
+      </div>
 
       <fieldset>
         <legend>Order date</legend>
@@ -118,7 +118,7 @@
         }
       </div>
 
-      <tab-group class="sheets">
+      <tab-group class="sheets" label="Sheets">
         <tab key="overview">
           <span tab-header>Overview</span>
           @if ($orders().length === 0) {
