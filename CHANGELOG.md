@@ -110,6 +110,9 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
 - The bar a table or a virtual scroller shows in a row whose block failed to load is the error colour itself, 3:1 or
   more on the row in both themes, where it was that colour at 30% opacity, about 1.75:1. A screen reader reads it as
   "Failed to load", so it isn't told by its colour alone.
+- A table or a virtual scroller whose first block fails to load keeps that block's failed rows when it scrolls, as a
+  table does sideways, until it loads again: `reload()`, `reset()`, or a new sort or data options. The first scroll
+  dropped them and showed "No data available".
 
 ## 0.2.0 (2026-10-31)
 
