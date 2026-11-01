@@ -17,6 +17,7 @@ import { TableauUiTooltipModule } from './tableau-ui-tooltip.module';
       <button class="empty" type="button" [tooltip]="null">Plain</button>
       <button class="full" type="button" tooltip tooltipArgsMode="full" [tooltipFullArgs]="{ template: 'Whole', context: undefined, position: 'bottom' }">Full</button>
       <button class="lazy" type="button" tooltip tooltipArgsMode="lazy" [tooltipLazyArgs]="lazy">Lazy</button>
+      <button class="padded" type="button" tooltip="Padded" tooltipPadding="2rem">Padded</button>
     </div>
     <button class="edge" type="button" style="position: fixed; top: 0; right: 0" tooltip="At the edge">Edge</button>
     <ng-template #greeting let-name>Hello {{ name }}</ng-template>
@@ -152,6 +153,23 @@ describe('TooltipDirective', () => {
     await userEvent.hover(button('lazy'));
     expect(tooltips()).toEqual([]);
     expect(component.lazyCalls).toBe(2);
+  });
+
+  // tooltipPadding never reached the tooltip in the default, individual mode, so each kept the 0.5rem padding
+  it('pads its box by tooltipPadding, 0.5rem by default', async () => {
+    const { button } = await render();
+    const padding = async (name: string) => {
+      await userEvent.hover(button(name));
+      await shows([name === 'text' ? 'Save changes' : 'Padded']);
+      const container = document.querySelector<HTMLElement>('.dialog-container')!;
+      const shown = { inline: container.style.padding, top: getComputedStyle(container).paddingTop, left: getComputedStyle(container).paddingLeft };
+      await movePointerAway();
+      return shown;
+    };
+    const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
+
+    expect(await padding('padded')).toEqual({ inline: '2rem', top: `${2 * rem}px`, left: `${2 * rem}px` });
+    expect(await padding('text')).toEqual({ inline: '0.5rem', top: `${0.5 * rem}px`, left: `${0.5 * rem}px` });
   });
 
   it('shows a new text while it is open, and closes with its element', async () => {

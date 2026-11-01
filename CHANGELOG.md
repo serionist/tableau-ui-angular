@@ -10,6 +10,17 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
 
 - A multi select lists its picked values as "English, Hungarian", where it showed a space before each comma. An
   option's icon in a select's shown value sits 0.25rem from its text, as in the dropdown, where a space widened the gap.
+- A tooltip takes the padding its `tooltipPadding` sets. Only `tooltipArgsMode="full"` passed one, so every other
+  tooltip kept the `0.5rem` default.
+- A tree's `hierarchyMode` changes where a node's parent comes from, where both modes built the same tree. In
+  `manual`, only the node its `hierarchyParentId` names is its parent, so a node that names none is at the top level
+  wherever it sits. `auto`, the default, is as before: the node it names, or else the node it sits in. A node's
+  `$hierarchyParentId()` is `undefined` unless the app sets it, where it held the id of the node it sits in.
+- The nav bar header's `expanded` input works, where nothing read it. The header follows the bar: its `expanded`
+  attribute is the bar's state, for the app's styles to show what fits, and `[expanded]` on the header sets its own.
+- An autocomplete's suggestions close while none matches the text, and open again when one does; a prefix or a suffix
+  keeps them open. The empty dialog stayed open, out of sight, and took the next Escape: in a drawer, the first Escape
+  didn't close the drawer.
 
 ## 0.2.0 (2026-10-31)
 
