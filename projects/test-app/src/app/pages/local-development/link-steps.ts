@@ -24,14 +24,6 @@ export const ANGULAR_JSON = `{
   }
 }`;
 
-export const TSCONFIG_JSON = `{
-  "compilerOptions": {
-    "paths": {
-      "tableau-ui-angular": ["./node_modules/tableau-ui-angular"]
-    }
-  }
-}`;
-
 export const LINK_INSTALL = 'npm install --save-dev link';
 
 // The packages the npx link line links from the library's checkout, after the library's build

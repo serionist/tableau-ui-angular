@@ -61,6 +61,7 @@ import * as iconsSetup from '../pages/icons-page/setup';
 import { LIST_EXAMPLES } from '../pages/list-page/list.examples';
 import { ListPageComponent } from '../pages/list-page/list-page.component';
 import * as linkSteps from '../pages/local-development/link-steps';
+import { LocalDevelopmentComponent } from '../pages/local-development/local-development.component';
 import { MENU_EXAMPLES } from '../pages/menu-page/menu.examples';
 import { MenuPageComponent } from '../pages/menu-page/menu-page.component';
 import { MONACO_EXAMPLES } from '../pages/monaco-page/monaco.examples';
@@ -325,19 +326,30 @@ describe('The docs pages', () => {
     expect(downloaded).toEqual(loaded);
   });
 
-  it('shows the steps npm run dev:link prints on the local development page', () => {
+  it('shows the steps npm run dev:link prints on the local development page', async () => {
     expect(linkSteps.DEV_LINK).toBe('npm run dev:link');
     expect(scripts['dev:link']).toContain('node scripts/link-info.js');
     // the JSON the page shows is in what the script prints, whitespace aside
     const squash = (text: string) => text.replace(/\s+/g, '');
     const { architect } = (JSON.parse(linkSteps.ANGULAR_JSON) as { projects: Record<string, { architect: unknown }> }).projects['[your-app]'];
     expect(squash(linkInfo)).toContain(JSON.stringify({ architect }).slice(1, -1));
-    expect(squash(linkInfo)).toContain(JSON.stringify(JSON.parse(linkSteps.TSCONFIG_JSON)).slice(1, -1));
+    // No tsconfig.json step: TypeScript and the build find tableau-ui-angular/<folder> through the linked package's
+    // exports. The paths step it printed mapped only the root, which no app imports, so it matched nothing
+    expect(linkInfo).not.toMatch(/tsconfig|"paths"/);
+    expect([...linkInfo.matchAll(/^(\d+)\. /gm)].map(([, step]) => Number(step))).toEqual([1, 2, 3]);
     expect(linkInfo).toContain(linkSteps.LINK_INSTALL);
     // the npx link line: the checkout's packages, then the library's build, where ng-package.json puts it
     expect(linkInfo).toContain(`npx link ${linkSteps.LINKED_PACKAGES.map(name => `\${modulePath("${name}")}`).join(' ')} \${distPath}`);
     expect(linkInfo).toContain("path.resolve(__dirname, '..', 'dist', 'component-library')");
     expect(dest).toBe('../../dist/component-library');
     expect(linkInfo).toMatch(new RegExp(`run:\\s+${linkSteps.UNLINK}\\s`));
+
+    // the page shows those steps, and no other
+    TestBed.configureTestingModule({ providers: [provideRouter([])] });
+    const fixture = TestBed.createComponent(LocalDevelopmentComponent);
+    await fixture.whenStable();
+    const shown = fixture.debugElement.queryAll(By.directive(DocsCodeComponent)).map(element => (element.componentInstance as DocsCodeComponent).$source());
+    expect(shown).toEqual([linkSteps.DEV_LINK, linkSteps.ANGULAR_JSON, linkSteps.LINK_INSTALL, linkSteps.LINK_COMMAND, linkSteps.UNLINK]);
+    fixture.destroy();
   });
 });
