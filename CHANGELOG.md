@@ -67,6 +67,9 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   the list. A static `aria-label` on the element names it the same way, and `label` wins. Without a name a table's host
   has no role, and a virtual scroller is an unnamed list, or has no role while it shows no items.
 - `label` on `tab-group`: the name screen readers give its strip of tabs.
+- `rowLabel` on `tab-table`: a function from a row to its name, which names the row's selection checkbox "Select" and
+  that name, such as "Select Ada Lovelace". Without it, or when it returns no words, the checkbox is named by the row's
+  place in the data, "Select row 12".
 - `DialogService.$overlayHost`, a signal: the overlay layer of the topmost open modal, `div.dialog-overlay-layer` at
   the end of its container, or `null` while none is open, for the body. Tooltips, the dialogs an app opens with
   `openDialog()` or `openTemplateDialog()` and the snacks go there, above everything in the modal's content, and an app
@@ -167,6 +170,26 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
 - A focused tab shows a 2px ring inside it in `--twc-color-focused-input`, 3:1 or more on the base in both themes, and
   the headers stay where they are. Its ring was a border on three sides in `--twc-color-primary`, 2.56:1 on the dark
   base, and each focus move shifted the strip 6px.
+- A table's header row and its data rows are rows, the data rows in a row group, so a screen reader reads each cell
+  with its column's header. The table says how many rows it has, the header row included, and each row its place in
+  the whole data, so a screen reader says which row it is on though only the rows near the view are drawn; until a
+  load says the total, the count is unknown. "No data available", or an app's `noDataTemplate`, sits in a row with one
+  cell across the columns.
+- A table's or a virtual scroller's last block, while it loads or once it failed, draws only the rows the total has
+  left, where it drew a block's worth of placeholders: a screen reader said "row 105 of 101", and the list grew taller
+  until the block loaded.
+- Sorting a table keeps focus on the header's button, where it dropped to the page, and the button's tooltip shows the
+  new sort; a click keeps focus there too, with no focus ring, which shows for the keyboard's focus only. The first
+  sort's column header has `aria-sort`, and a later sort's button says its place, "sort 2, descending"; the number a
+  multi-sort shows by the arrow is hidden from screen readers, so a test that found a button by a name with that
+  number, such as "Id 2", finds the first sort's button by "Id", and a later one's by its place, "Id sort 2,
+  ascending". Shift+Enter and Shift+Space add a column to a multi-sort, as Shift+Click does, and the header's tooltip
+  says so.
+- A table's selection checkboxes have names: each row's is "Select row 12", or "Select" and its `rowLabel`; the
+  header's is "Select all rows" or "Clear the selection"; and the column's header is "Selection". With selection on,
+  each loaded row has `aria-selected`, so a row selected by a click is not told by its colour alone.
+- A table's select-none header checkbox clears a selection of every row, where it showed checked and stayed disabled
+  once every row was selected by hand; it is disabled only while nothing is selected.
 
 ## 0.2.0 (2026-10-31)
 

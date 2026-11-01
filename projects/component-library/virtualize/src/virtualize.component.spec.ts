@@ -646,6 +646,36 @@ describe('VirtualizeComponent', () => {
       expect(place(person)).toEqual(['listitem', '61', '100']);
     });
 
+    // A block still loading, or failed, held a placeholder for each item a block can hold, so the last block's ran past
+    // the size: "item 100 of 95"
+    it('places no item past its size while its last block loads, nor once it failed', async () => {
+      await whileLoadsFail(async () => {
+        // 95 people in blocks of 10: the last block, from the 91st, holds five
+        const { host, server, settle, load } = await render(c => {
+          c.server.rows = PEOPLE.slice(0, 95);
+          c.$errorTemplate.set(false);
+        });
+        await load();
+        const places = () => items(host).map(item => Number(item.getAttribute('aria-posinset')));
+
+        host.scrollTop = host.scrollHeight;
+        host.dispatchEvent(new Event('scroll'));
+        await settle();
+        const last = server.waiting.find(request => request.offset === 90)!;
+        expect(last.count).toBe(10);
+        expect(items(host).at(-1)!.querySelector('.status.loader')).not.toBeNull();
+        expect(Math.max(...places())).toBe(95);
+        expect(items(host).every(item => item.getAttribute('aria-setsize') === '95')).toBe(true);
+        // no taller than once it loads: 95 items of 20 px
+        expect(host.scrollHeight).toBe(1900);
+
+        last.fail();
+        await settle();
+        expect(items(host).at(-1)!.textContent).toContain('Failed to load');
+        expect(Math.max(...places())).toBe(95);
+      });
+    });
+
     it('is a region named by its label while it shows no items, and has no role and no name without a label', async () => {
       const { component, host, fixture, server, settle } = await render(c => {
         c.$customLoader.set(true);
