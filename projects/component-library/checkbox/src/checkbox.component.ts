@@ -1,5 +1,5 @@
 import type { InputSignal, Signal, WritableSignal } from '@angular/core';
-import { ChangeDetectionStrategy, Component, contentChild, forwardRef, input, linkedSignal, model, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, contentChild, forwardRef, input, linkedSignal, model, output } from '@angular/core';
 import type { ControlValueAccessor } from '@angular/forms';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { ErrorComponent, HintComponent } from 'tableau-ui-angular/common';
@@ -85,6 +85,16 @@ export class CheckboxComponent implements ControlValueAccessor {
   protected readonly $hintElement: Signal<HintComponent | undefined> = contentChild(HintComponent);
   // nullable Signal type needs to be set explicitly -> ng-packagr strips nullability
   protected readonly $errorElement: Signal<ErrorComponent | undefined> = contentChild(ErrorComponent);
+  private readonly extraInfoId = generateRandomString(16);
+  protected readonly hintId = `${this.extraInfoId}-hint`;
+  protected readonly errorId = `${this.extraInfoId}-error`;
+  /** What describes the input: the error while it shows, in the hint's place, else the hint */
+  protected readonly $describedBy = computed(() => {
+    if (this.$errorElement()) {
+      return this.errorId;
+    }
+    return this.$hintElement() ? this.hintId : null;
+  });
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
   onChange = (value: boolean) => {};

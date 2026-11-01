@@ -72,5 +72,40 @@
       <p>The app can set a disabled option as the value: it shows selected and greyed out.</p>
       <app-docs-example [example]="examples.disabled" />
     </div>
+
+    <div class="section">
+      <h3>Accessibility</h3>
+      <p>The group is a <code>radiogroup</code> of native radios; the app names it.</p>
+      <ul>
+        <li>
+          Name it with
+          <code>aria-label</code>
+          or
+          <code>aria-labelledby</code>
+          on
+          <code>tab-radio-group</code>, as the samples here do, or put it in a
+          <code>tab-form-field</code>
+          with a
+          <code>tab-label</code>.
+        </li>
+        <li>
+          Its
+          <code>tab-error</code>
+          describes the group while it shows, through
+          <code>aria-describedby</code>, and the group has
+          <code>aria-invalid="true"</code>
+          then. Ids the app puts in the group's own
+          <code>aria-describedby</code>
+          stay.
+        </li>
+        <li>
+          In a
+          <code>tab-form-field</code>, put the
+          <code>tab-error</code>
+          on the field, not in the group: the field counts the group's own error as its own, and shows an empty one.
+        </li>
+        <li>The arrow keys move to the next or previous option and pick it, past disabled ones; Space or Enter picks the focused option.</li>
+      </ul>
+    </div>
   </div>
 </div>

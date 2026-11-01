@@ -477,3 +477,39 @@ describe('ChipControlComponent with a form and bindings', () => {
     expect(values).toEqual([]);
   });
 });
+
+// The announcement was positioned against the page: in a scrolling box with no position of its own, its place below
+// the fold made the whole page scroll
+describe('ChipControlComponent below the fold', () => {
+  it("adds nothing to the page's scroll height from below the fold of a scrolling box", async () => {
+    @Component({
+      imports: [TableauUiChipControlModule],
+      template: `
+        <div style="height: 100px; overflow: auto">
+          <div style="height: 3000px"></div>
+          @if ($shown()) {
+            <tab-chip-control #chips [getValuesByKeys]="getValues">
+              <ng-template let-ctx [tabChipTemplate]="chips">{{ ctx.data.value }}</ng-template>
+            </tab-chip-control>
+          }
+        </div>
+      `,
+      changeDetection: ChangeDetectionStrategy.OnPush,
+    })
+    class FoldComponent {
+      readonly $shown = signal(false);
+      readonly getValues = async () => Promise.resolve([]);
+    }
+    const fixture = TestBed.createComponent(FoldComponent);
+    fixture.autoDetectChanges();
+    await fixture.whenStable();
+    const scrollHeight = () => document.scrollingElement!.scrollHeight;
+    const without = scrollHeight();
+
+    fixture.componentInstance.$shown.set(true);
+    await fixture.whenStable();
+
+    expect((fixture.nativeElement as HTMLElement).querySelector('tab-chip-control [aria-live="polite"]')).not.toBeNull();
+    expect(scrollHeight()).toBe(without);
+  });
+});
