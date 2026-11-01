@@ -61,11 +61,10 @@ export class TableComponent<TData> extends VirtualizeBaseComponent<TData> {
   });
 
   /**
-   * The height of the table data row.
-   * This must be a valid CSS value.
-   * Fixed height is required for virtual scrolling to work properly.
-   * If the height is not fixed, the table will not be able to calculate the row heights and will not be able to scroll properly.
-   * @default '2.5em'
+   * The CSS of each data cell: its height, line height and padding, and any other CSS.
+   * The height must be a fixed CSS length for virtual scrolling to work properly.
+   * It is the height of the cell's content: a row is drawn that tall plus its cells' vertical padding and borders.
+   * @default { height: '2.5em', lineHeight: 'inherit', padding: '0 0.5em' }
    */
   readonly $dataRowCss = input<DataRowCss>(
     {
@@ -419,7 +418,8 @@ export class TableComponent<TData> extends VirtualizeBaseComponent<TData> {
   // #region Line clamping
 
   // The lines of text a cell holds, from the row's CSS, so a change to dataRowCss clamps to its rows; the clamp takes
-  // no height of its own, since -webkit-line-clamp clamps it, and a row's normal line height measures no pixels
+  // no height of its own, since -webkit-line-clamp clamps it, and a row's normal line height measures no pixels. The
+  // cell's content is its height tall, its padding outside it
   protected readonly $lineClampRows = computed(() => {
     try {
       const cellStyle = this.$dataRowComputedStyle();
@@ -431,13 +431,9 @@ export class TableComponent<TData> extends VirtualizeBaseComponent<TData> {
         }
       };
       const lineHeight = getPxValue('line-height', cellStyle.lineHeight);
-      const paddingTop = getPxValue('padding-top', cellStyle.paddingTop);
-      const paddingBottom = getPxValue('padding-bottom', cellStyle.paddingBottom);
       const height = getPxValue('height', cellStyle.height);
 
-      const rowHeight = height - paddingTop - paddingBottom;
-
-      return Math.max(Math.floor(rowHeight / lineHeight), 1);
+      return Math.max(Math.floor(height / lineHeight), 1);
     } catch (error: unknown) {
       // once: the clamp holds one line then, and each reload() would say it again
       if (!this.lineClampWarned) {

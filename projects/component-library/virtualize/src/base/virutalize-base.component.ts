@@ -8,6 +8,10 @@ import { DataManager } from '../data/data-manager';
 type Unit = 'px' | 'em' | 'rem' | '%' | '';
 type NumericUnit = `${number}${Unit}`;
 type PaddingValue = NumericUnit | `${NumericUnit} ${NumericUnit}` | `${NumericUnit} ${NumericUnit} ${NumericUnit}` | `${NumericUnit} ${NumericUnit} ${NumericUnit} ${NumericUnit}`;
+/**
+ * The CSS of a data row. `height` is the height of the row's content, as CSS's default `content-box` sizing has it: a
+ * row is drawn `height` tall plus its vertical padding and borders, and the virtual scroll counts each row so.
+ */
 export type DataRowCss = Partial<Record<keyof CSSStyleDeclaration, string>> & {
   height: NumericUnit;
   lineHeight: string;
@@ -52,6 +56,7 @@ export abstract class VirtualizeBaseComponent<TData> {
   /**
    * The CSS of the data row.
    * 'height' is required and should be a valid CSS height value (e.g., '50px', '3em'). Height needs to be fixed for virtualization to work correctly.
+   * It is the height of the row's content: the row is drawn that tall plus its vertical padding and borders.
    * 'lineHeight' is required and should be a valid CSS line-height value (e.g., '1.5', initial).
    * 'padding' is required and should be a valid CSS padding value (e.g., '10px', '1em 2em').
    * Other CSS properties can be added as needed, but they are not required.
@@ -106,6 +111,8 @@ export abstract class VirtualizeBaseComponent<TData> {
         el.style[key as any] = value;
       }
     }
+    // height is the content's, as on the rows, whatever box-sizing an app's reset gives every element
+    el.style.boxSizing = 'content-box';
     el.style.position = 'fixed'; // Ensure the element is not affected by the document's layout
     el.style.top = '-1000px'; // Move it out of view
     el.style.left = '-1000px'; // Move it out of view
@@ -115,6 +122,10 @@ export abstract class VirtualizeBaseComponent<TData> {
     el.remove();
     return measured;
   });
+  /**
+   * A row's height as it is drawn, in pixels: its content's height, its vertical padding, borders and margins. The
+   * space kept for the rows not drawn is counted in it, so the rows are drawn this tall.
+   */
   protected readonly $dataRowHeightPx = computed(() => {
     const computedStyle = this.$dataRowComputedStyle();
     return (

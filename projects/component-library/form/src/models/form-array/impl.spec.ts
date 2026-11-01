@@ -98,6 +98,19 @@ describe('FA', () => {
     expect(array.$meta().hasError('required')).toBe(false);
   });
 
+  // disable() and enable() passed Angular onlySelf: true by default, so the array kept a disabled row in its value
+  it("leaves a disabled row out of the array's value, and takes it in again when enabled", () => {
+    const array = fb.array([row('a'), row('b')]);
+
+    array.at(0)!.metaFn.disable();
+
+    expect(array.$value()).toEqual([{ name: 'b' }]);
+
+    array.at(0)!.metaFn.enable();
+
+    expect(array.$value()).toEqual([{ name: 'a' }, { name: 'b' }]);
+  });
+
   // F9: the raw value changed only with the rows, never when a row was edited
   it('updates the raw value when a row is edited', () => {
     const array = fb.array([row('a')]);
