@@ -122,6 +122,7 @@
               <button
                 class="pin left"
                 layout="icon"
+                tooltipPosition="left"
                 [tooltip]="left ? 'Unpin from the left' : 'Pin to the left'"
                 [attr.aria-labelledby]="`${id}-left ${name}`"
                 [attr.aria-pressed]="left"
@@ -135,6 +136,7 @@
               <button
                 class="pin right"
                 layout="icon"
+                tooltipPosition="right"
                 [tooltip]="right ? 'Unpin from the right' : 'Pin to the right'"
                 [attr.aria-labelledby]="`${id}-right ${name}`"
                 [attr.aria-pressed]="right"
