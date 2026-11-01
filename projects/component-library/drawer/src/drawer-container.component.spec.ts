@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal, ViewEncapsulation } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, Component, inject, Injector, signal, ViewEncapsulation } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { userEvent } from 'vitest/browser';
 import { axeViolations } from '../../testing/axe';
@@ -31,8 +31,20 @@ import { TableauUiDrawerModule } from './tableau-ui-drawer-module';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class ReportComponent {
+  private readonly injector = inject(Injector);
   readonly $leftOpen = signal(false);
   readonly $rightOpen = signal(false);
+
+  // closes the left drawer and moves the focus once it renders, as an app may
+  closeAndFocus(element: HTMLElement) {
+    this.$leftOpen.set(false);
+    afterNextRender(
+      () => {
+        element.focus();
+      },
+      { injector: this.injector },
+    );
+  }
 }
 
 describe('DrawerContainerComponent', () => {
@@ -137,26 +149,47 @@ describe('DrawerContainerComponent', () => {
     expect(document.activeElement).toBe(link('The full report'));
   });
 
-  it('records no opener for a drawer open from its first render, and moves no focus when it closes', async () => {
-    const { fixture, link, opener, left } = await render(component => component.$leftOpen.set(true));
-    expect(left.hasAttribute('inert')).toBe(false);
+  it('leaves the focus where the app moves it once the closed drawer renders', async () => {
+    const { fixture, component, link, opener } = await render();
     opener.focus();
+    await userEvent.keyboard('{Enter}');
+    await fixture.whenStable();
     link('Filters').focus();
+
+    component.closeAndFocus(link('The full report'));
+    await fixture.whenStable();
+    await frames();
+
+    expect(document.activeElement).toBe(link('The full report'));
+  });
+
+  it('records no opener for a drawer open from its first render, though an element had the focus then', async () => {
+    // focused before the first render, when the container first sees the drawer open
+    const before = document.createElement('button');
+    before.textContent = 'Before the report';
+    document.body.append(before);
+    before.focus();
     const focused: EventTarget[] = [];
     const record = (event: FocusEvent) => focused.push(event.target!);
-    document.addEventListener('focusin', record);
 
     try {
+      const { fixture, link, left } = await render(component => component.$leftOpen.set(true));
+      expect(document.activeElement).toBe(before);
+      expect(left.hasAttribute('inert')).toBe(false);
+      link('Filters').focus();
+      document.addEventListener('focusin', record);
+
       await userEvent.keyboard('{Escape}');
       await fixture.whenStable();
       await frames();
+
+      expect(left.hasAttribute('inert')).toBe(true);
+      expect(focused).toEqual([]);
+      expect(document.activeElement).not.toBe(before);
     } finally {
       document.removeEventListener('focusin', record);
+      before.remove();
     }
-
-    expect(left.hasAttribute('inert')).toBe(true);
-    expect(focused).toEqual([]);
-    expect(document.activeElement).not.toBe(opener);
   });
 
   it('passes axe with the drawers closed, and with one open', async () => {

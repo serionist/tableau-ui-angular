@@ -34,4 +34,4 @@
   (click)="$searchClicked.emit($event)"
 />
 <!-- Says which chip a key highlights or removes, since focus stays in the input -->
-<span class="announcement" aria-live="polite">{{ $announcement() }}</span>
+<span class="announcement" aria-live="polite" aria-atomic="true">{{ $announcement() }}</span>

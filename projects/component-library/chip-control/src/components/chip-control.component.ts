@@ -437,16 +437,21 @@ export class ChipControlComponent<TKey, TValue> implements ControlValueAccessor 
   }
 
   // What the hidden polite region says while focus stays in the input: the chip a key removed, then the chip it
-  // highlights, "Berlin removed. Paris, highlighted. Backspace or Delete removes it."; a key that does neither empties it
+  // highlights and its place among the chips, "Berlin removed. Paris, 2 of 3, highlighted. Backspace or Delete removes
+  // it."; a key that does neither empties it. The place tells apart two chips with the same words
   protected readonly $announcement = signal('');
   private announce(removed: string, highlighted: TKey | undefined) {
-    const words = highlighted === undefined ? '' : this.chipWords(highlighted);
-    const parts = [removed === '' ? '' : `${removed} removed.`, words === '' ? '' : `${words}, highlighted. Backspace or Delete removes it.`];
+    const comparer = this.$keyComparer();
+    const chips = this.$chips();
+    const place = highlighted === undefined ? -1 : chips.findIndex(chip => comparer(chip.key, highlighted));
+    const words = place === -1 ? '' : this.chipWords(chips[place].key);
+    const parts = [removed === '' ? '' : `${removed} removed.`, words === '' ? '' : `${words}, ${place + 1} of ${chips.length}, highlighted. Backspace or Delete removes it.`];
     this.$announcement.set(parts.filter(part => part !== '').join(' '));
   }
 
   // A chip's words: its wrapper's text as a screen reader reads it, without what assistive technology skips, such as a
-  // decorative icon's ligature, and without its buttons, such as its remove button; an image gives its label
+  // decorative icon's ligature, and without its buttons, such as its remove button. An element with an aria-label
+  // gives the label in place of its text, and an image its alt, as they name the remove button
   private chipWords(key: TKey): string {
     const comparer = this.$keyComparer();
     const index = this.$chips().findIndex(chip => comparer(chip.key, key));
@@ -460,8 +465,13 @@ export class ChipControlComponent<TKey, TValue> implements ControlValueAccessor 
       if (!(node instanceof Element) || node.getAttribute('aria-hidden') === 'true' || node.hasAttribute('hidden') || node.tagName === 'BUTTON') {
         return;
       }
-      if (node.getAttribute('role') === 'img') {
-        words.push(` ${node.getAttribute('aria-label') ?? ''} `);
+      const label = node.getAttribute('aria-label')?.trim() ?? '';
+      if (label !== '') {
+        words.push(` ${label} `);
+        return;
+      }
+      if (node instanceof HTMLImageElement) {
+        words.push(` ${node.alt} `);
         return;
       }
       node.childNodes.forEach(read);

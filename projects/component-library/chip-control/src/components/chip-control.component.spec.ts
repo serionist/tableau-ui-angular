@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, ErrorHandler, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { userEvent } from 'vitest/browser';
+import { page, userEvent } from 'vitest/browser';
 import { TableauUiChipModule } from 'tableau-ui-angular/chip';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
 import { TableauUiFormFieldModule } from 'tableau-ui-angular/form-field';
@@ -248,28 +248,30 @@ describe('ChipControlComponent', () => {
       await userEvent.keyboard(key);
       await fixture.whenStable();
     };
-    const highlighted = (name: string) => `${name}, highlighted. Backspace or Delete removes it.`;
+    const highlighted = (name: string, place: string) => `${name}, ${place}, highlighted. Backspace or Delete removes it.`;
     expect(region.getAttribute('aria-live')).toBe('polite');
+    // read whole when its text changes in place, not only the words that changed
+    expect(region.getAttribute('aria-atomic')).toBe('true');
     expect(region.textContent.trim()).toBe('');
 
     input.focus();
     await press('{Backspace}');
     // the chip's words leave out its icon's ligature and its remove button
-    expect(region.textContent.trim()).toBe(highlighted('C'));
+    expect(region.textContent.trim()).toBe(highlighted('C', '3 of 3'));
     await press('{ArrowLeft}');
-    expect(region.textContent.trim()).toBe(highlighted('B'));
+    expect(region.textContent.trim()).toBe(highlighted('B', '2 of 3'));
     await press('{ArrowLeft}');
-    expect(region.textContent.trim()).toBe(highlighted('A'));
+    expect(region.textContent.trim()).toBe(highlighted('A', '1 of 3'));
     await press('{ArrowRight}');
-    expect(region.textContent.trim()).toBe(highlighted('B'));
+    expect(region.textContent.trim()).toBe(highlighted('B', '2 of 3'));
 
     await press('{Delete}');
-    await vi.waitFor(() => expect(region.textContent.trim()).toBe(`B removed. ${highlighted('C')}`));
+    await vi.waitFor(() => expect(region.textContent.trim()).toBe(`B removed. ${highlighted('C', '2 of 2')}`));
     expect(chipTexts()).toEqual(['A', 'C']);
     expect(chipTexts('tab-chip.selected')).toEqual(['C']);
 
     await press('{Backspace}');
-    expect(region.textContent.trim()).toBe(`C removed. ${highlighted('A')}`);
+    expect(region.textContent.trim()).toBe(`C removed. ${highlighted('A', '1 of 1')}`);
     await press('{Backspace}');
     expect(region.textContent.trim()).toBe('A removed.');
     expect(chipTexts()).toEqual([]);
@@ -277,13 +279,29 @@ describe('ChipControlComponent', () => {
     await show(tags('d'));
     input.focus();
     await press('{ArrowLeft}');
-    expect(region.textContent.trim()).toBe(highlighted('D'));
+    expect(region.textContent.trim()).toBe(highlighted('D', '1 of 1'));
     await press('{ArrowRight}');
     expect(region.textContent.trim()).toBe('');
     await press('{ArrowLeft}');
     await press('x');
     expect(region.textContent.trim()).toBe('');
     expect(chipTexts('tab-chip.selected')).toEqual([]);
+  });
+
+  // Two chips with the same words: the place tells them apart, so moving between them still says something new
+  it('says the place of the chip it highlights among chips with the same words', async () => {
+    const { fixture, host, input, show } = await render(new FormControl<Tag[] | null>([]));
+    // the lookup shows each key's id in capitals, so x and X are two chips that both read X
+    await show(tags('x', 'X'));
+    const region = host.querySelector('tab-chip-control [aria-live]')!;
+
+    input.focus();
+    await userEvent.keyboard('{Backspace}');
+    await fixture.whenStable();
+    expect(region.textContent.trim()).toBe('X, 2 of 2, highlighted. Backspace or Delete removes it.');
+    await userEvent.keyboard('{ArrowLeft}');
+    await fixture.whenStable();
+    expect(region.textContent.trim()).toBe('X, 1 of 2, highlighted. Backspace or Delete removes it.');
   });
 
   it('passes axe', async () => {
@@ -293,6 +311,45 @@ describe('ChipControlComponent', () => {
     await userEvent.keyboard('{Backspace}');
 
     expect(await axeViolations(host)).toEqual([]);
+  });
+});
+
+// A transparent pixel, the flag a chip shows in place of words
+const FLAG = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+
+@Component({
+  imports: [TableauUiChipControlModule, TableauUiChipModule],
+  template: `
+    <tab-chip-control #chips [getValuesByKeys]="lookup.fn" [keyComparer]="sameTag" [values]="values">
+      <ng-template let-ctx [tabChipTemplate]="chips">
+        <tab-chip [allowRemove]="true" (removed)="ctx.chipControl.remove(ctx.data.key)"><img [alt]="ctx.data.value" [src]="flag" /></tab-chip>
+      </ng-template>
+    </tab-chip-control>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class FlagsComponent {
+  readonly lookup = new Lookup();
+  readonly sameTag = (a: Tag, b: Tag) => a.id === b.id;
+  readonly flag = FLAG;
+  readonly values: ChipData<Tag, string>[] = [{ key: { id: 'de' }, value: 'Germany' }];
+}
+
+describe('ChipControlComponent with image chips', () => {
+  // An image's alt is the chip's words, as it is in the remove button's name
+  it("says an image chip's alt, which names its remove button too", async () => {
+    const fixture = TestBed.createComponent(FlagsComponent);
+    fixture.autoDetectChanges();
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+    const region = host.querySelector('tab-chip-control [aria-live]')!;
+
+    host.querySelector('input')!.focus();
+    await userEvent.keyboard('{Backspace}');
+    await fixture.whenStable();
+
+    expect(region.textContent.trim()).toBe('Germany, 1 of 1, highlighted. Backspace or Delete removes it.');
+    expect(page.getByRole('button', { name: 'Remove Germany', exact: true }).elements()).toHaveLength(1);
   });
 });
 

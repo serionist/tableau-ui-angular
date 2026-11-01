@@ -126,6 +126,10 @@ Each gets the name or the announcement its issue asks for; only the expansion pa
 | `tab-drawer-container` (#59) | A closed drawer's wrapper is `inert`, so Tab skips it and a screen reader doesn't read it (D1). A drawer that opens after its first render records the element focused then, and when it closes with focus inside, focus goes back to that element while it is still in the page. A drawer open from its first render has no opener, so its JSDoc and the drawer page say the app moves focus when it closes that drawer. They also say the app moves focus into a drawer it opens, as the docs dashboard does |
 
 - API: Added `ExpansionPanelComponent.$label` (`label`). CHANGELOG: Added, Fixed.
+- Built in #112 with one departure: the remove button's name sits on its icon, not the button. The icon, an image, is
+  labelled by itself and the content, and is the button's content, so the button is still named "Remove Berlin". Both
+  ids in the button's own `aria-labelledby` fail axe's `label-content-name-mismatch`, since the button shows the
+  icon's ligature (Decided without asking).
 
 ### Tooltips (#60, A4)
 
@@ -464,7 +468,18 @@ Refuted: none.
 
 ## Decided without asking
 
-None yet.
+The calls each step made that the plan didn't settle, proposed for the maintainer to approve or change. Each step's PR
+holds the same calls with more detail.
+
+| Step      | Decision                                                                                                                                                                 | Why                                                                                                                                                             | Not taken                                          | Status   |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- | -------- |
+| A3 (#112) | The chip's remove name sits on its icon: the icon is labelled by itself and the chip's content, and names the button as its content                                      | The design's ids on the button fail axe's `label-content-name-mismatch`, since the button shows the icon's ligature; the expansion panel's toggle does the same | Both ids in the button's own `aria-labelledby`     | proposed |
+| A3 (#112) | A key that removes a chip and highlights the next says both, removed first: "Berlin removed. Paris, 2 of 3, highlighted. Backspace or Delete removes it."                | The second sentence says what the next Backspace removes, the case #55 describes                                                                                | Saying only "Berlin removed."                      | proposed |
+| A3 (#112) | A chip's words leave out its buttons and `aria-hidden` parts; an element with an `aria-label` gives the label, and an image its `alt`                                    | The remove button's labelled icon would read as part of the chip, and an image-only chip would say nothing while its remove button says its `alt`               | The wrapper's text with only hidden parts left out | proposed |
+| A3 (#112) | The right arrow past the last chip, which ends the highlight, empties the region                                                                                         | It highlights nothing, as other keys do                                                                                                                         | A sentence for the highlight ending                | proposed |
+| A3 (#112) | A `label` of only spaces counts as none, and the title names the toggle                                                                                                  | An icon with a blank label is hidden, which would leave the toggle without a name                                                                               | Passing the blank label on                         | proposed |
+| A3 (#112) | The drawer gives focus back only while focus is still in it, or lost to the body, when the close renders; its opener is `document.activeElement` then, none for the body | An app that moves focus itself as it closes the drawer keeps it there                                                                                           | Always focusing the opener                         | proposed |
+| A3 (#112) | The docs dashboard keeps its own focus return and drops only its `inert`                                                                                                 | Its drawer switches between the Filters and Layout panels while open, so the library's opener can be the other button                                           | Leaving the focus return to the library            | proposed |
 
 ## Progress log
 
@@ -475,3 +490,9 @@ None yet.
 - 2026-11-01: plan review round 2 at `51eb412`, one major and five minors, all fixed, the three improvements taken.
 - 2026-11-01: plan review round 3 at `ce2714b`: approved, its four minors fixed and its improvement taken. The plan is
   approved: the maintainer accepted D1 to D16, and the review approved it.
+- 2026-11-01: A3 in #112: the chip control's region, the chip's remove name, the expansion panel's `label` and the
+  closed drawer. The remove name sits on the icon (Design, A3). Code review round 1 was clean with four minors, all
+  fixed: the region is `aria-atomic`, a chip's words take an image's `alt`, two Breaking lines the Compatibility row
+  lacked (the chip's content span, and a drawer inert until it renders open), and specs for the drawer's first render
+  and its re-check after the app moves focus. Its three improvements were taken: the highlighted chip's place, "2 of
+  3"; the expansion spec's search by part of a name; `aria-atomic` on the dashboard's column-move region.

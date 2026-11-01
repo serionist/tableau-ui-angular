@@ -49,6 +49,11 @@ describe('ExpansionPanelComponent', () => {
     expect(named('Order 1024')).toEqual([toggle('order')]);
     expect(named('Track')).toHaveLength(1);
     expect(named('Track')[0]).not.toBe(toggle('order'));
+    // as #79 found it: Playwright's search by part of the name found the toggle as well. Vitest's search without
+    // exact matches the whole name, ignoring case, so a pattern searches by part of it here
+    const track = page.getByRole('button', { name: /track/i }).elements();
+    expect(track).toHaveLength(1);
+    expect(track[0]).toBe(named('Track')[0]);
     expect(toggle('order')!.getAttribute('aria-expanded')).toBe('false');
   });
 
@@ -66,6 +71,7 @@ describe('ExpansionPanelComponent', () => {
     component.$label.set(undefined);
     await fixture.whenStable();
     expect(named('Order 1024 Track Shipped on Monday')).toEqual([toggle('order')]);
+    expect(page.getByRole('button', { name: /track/i }).elements()).toHaveLength(2);
     expect(named('Order 1024')).toEqual([]);
   });
 

@@ -13,10 +13,10 @@ interface DrawerState {
  * Holds the content and up to two drawers, one per side. A closed drawer is inert, so Tab skips it and screen readers
  * don't read it.
  *
- * Focus: the app moves focus into a drawer it opens, such as to its heading. A drawer that opens after its first
- * render remembers the element focused then, and when it closes with focus inside, focus goes back to that element
- * while it is still in the page. A drawer open from its first render has none, so the app moves focus when it closes
- * that drawer.
+ * Focus: the app moves focus into a drawer it opens once it renders, in `afterNextRender`, such as to its heading:
+ * until then the drawer is still inert. A drawer that opens after its first render remembers the element focused
+ * then, and when it closes with focus inside, focus goes back to that element while it is still in the page. A drawer
+ * open from its first render has none, so the app moves focus when it closes that drawer.
  */
 @Component({
   selector: 'tab-drawer-container',
