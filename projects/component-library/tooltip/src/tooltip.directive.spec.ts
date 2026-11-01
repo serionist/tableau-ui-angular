@@ -172,6 +172,20 @@ describe('TooltipDirective', () => {
     expect(await padding('text')).toEqual({ inline: '0.5rem', top: `${0.5 * rem}px`, left: `${0.5 * rem}px` });
   });
 
+  // A new position, margin or padding reached the tooltip only when the pointer came in again
+  it('moves to a new position while it is open', async () => {
+    const { fixture, component, button } = await render();
+    const save = button('text').getBoundingClientRect();
+    await userEvent.hover(button('text'));
+    expect((await placed()).bottom).toBeLessThanOrEqual(save.top);
+
+    component.$position.set('bottom');
+    await fixture.whenStable();
+
+    await shows(['Save changes']);
+    expect((await placed()).top).toBeGreaterThanOrEqual(save.bottom);
+  });
+
   it('shows a new text while it is open, and closes with its element', async () => {
     const { fixture, component, button } = await render();
     await userEvent.hover(button('text'));

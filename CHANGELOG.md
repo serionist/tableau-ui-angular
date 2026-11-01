@@ -6,16 +6,25 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
 
 ## Unreleased
 
+### Breaking
+
+- In a tree with `hierarchyMode="manual"`, a node that names no `hierarchyParentId` is at the top level, wherever it
+  sits, where a node inside another was its child in either mode. Give nested nodes their `hierarchyParentId`, or drop
+  `hierarchyMode="manual"`.
+- `TabTreeNodeComponent.$hierarchyParentId()` reads `undefined` unless the app sets it, where it held the id of the
+  node it sits in. Read `$parent()?.$hierarchyId()` for the parent's id.
+
 ### Fixed
 
 - A multi select lists its picked values as "English, Hungarian", where it showed a space before each comma. An
   option's icon in a select's shown value sits 0.25rem from its text, as in the dropdown, where a space widened the gap.
-- A tooltip takes the padding its `tooltipPadding` sets. Only `tooltipArgsMode="full"` passed one, so every other
-  tooltip kept the `0.5rem` default.
+- A tooltip takes the padding its `tooltipPadding` sets. Only `full` and `lazy` passed one, from their args, so a
+  tooltip on the individual inputs kept the `0.5rem` default. A new `tooltipPosition`, `tooltipMargin` or
+  `tooltipPadding` reaches a tooltip that shows, as a new `[tooltip]` does.
 - A tree's `hierarchyMode` changes where a node's parent comes from, where both modes built the same tree. In
-  `manual`, only the node its `hierarchyParentId` names is its parent, so a node that names none is at the top level
-  wherever it sits. `auto`, the default, is as before: the node it names, or else the node it sits in. A node's
-  `$hierarchyParentId()` is `undefined` unless the app sets it, where it held the id of the node it sits in.
+  `manual`, only the node its `hierarchyParentId` names is its parent. In `auto`, the default, it is that node, or else
+  the node it sits in. In `auto`, a node inside one whose `[hierarchyId]` is bound is its child, where it sat at the
+  top level with a negative indent.
 - The nav bar header's `expanded` input works, where nothing read it. The header follows the bar: its `expanded`
   attribute is the bar's state, for the app's styles to show what fits, and `[expanded]` on the header sets its own.
 - An autocomplete's suggestions close while none matches the text, and open again when one does; a prefix or a suffix

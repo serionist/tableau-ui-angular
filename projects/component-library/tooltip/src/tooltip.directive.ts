@@ -100,6 +100,9 @@ export class TooltipDirective<T> implements OnDestroy {
   private readonly tooltipArgsChanged = effect(() => {
     this.$tooltip();
     this.$tooltipContext();
+    this.$tooltipPosition();
+    this.$tooltipMargin();
+    this.$tooltipPadding();
     this.$tooltipFullArgs();
     this.$tooltipLazyArgs();
     this.$tooltipArgsMode();
