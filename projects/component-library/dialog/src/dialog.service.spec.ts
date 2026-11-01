@@ -277,12 +277,12 @@ describe('DialogService', () => {
     const belowContainer = document.querySelector<HTMLElement>('.dialog-container')!;
     expect(dialogs.$overlayHost()).toBe(belowContainer);
     expect(belowContainer.parentElement).toBe(document.body);
+    // a modal opened from a modal sits beside it in the body, with its backdrop, and takes the overlays
     const top = dialogs.openModal(DialogContentComponent, undefined);
     const topContainer = dialogs.$overlayHost()!;
     expect(topContainer).not.toBe(belowContainer);
-    // the modal from a modal, and its backdrop, sit in the one below
-    expect(topContainer.parentElement).toBe(belowContainer);
-    expect(belowContainer.querySelector(':scope > .dialog-backdrop')).not.toBeNull();
+    expect(topContainer.parentElement).toBe(document.body);
+    expect(belowContainer.querySelector('.dialog-backdrop, .dialog-container')).toBeNull();
 
     top.close();
     expect(dialogs.$overlayHost()).toBe(belowContainer);
@@ -357,13 +357,83 @@ describe('DialogService', () => {
     track('dialog', dialogs.openDialog(DialogContentComponent, undefined, { closeOnEscape: true }));
     // placed after an element in the modal, as a select places its list
     track('list', dialogs.openDialog(DialogContentComponent, undefined, { closeOnEscape: true, skipCreatingBackdrop: true }, new LocalStackOptions(content)));
-    track('confirmation', dialogs.openModal(DialogContentComponent, undefined));
-    track("confirmation's dialog", dialogs.openDialog(DialogContentComponent, undefined, { closeOnEscape: true }));
-    expect(dialogs.dialogStack.length).toBe(5);
+    track('second dialog', dialogs.openDialog(DialogContentComponent, undefined, { closeOnEscape: true }));
+    expect(dialogs.dialogStack.length).toBe(4);
 
     modal.close();
 
-    expect(closed).toEqual(["confirmation's dialog", 'confirmation', 'list', 'dialog', 'modal']);
+    expect(closed).toEqual(['second dialog', 'list', 'dialog', 'modal']);
+    expect(dialogs.dialogStack).toEqual([]);
+    expect(document.querySelector('.dialog-container, .dialog-backdrop')).toBeNull();
+    // an app's own handler
+    const app = vi.fn((e: KeyboardEvent) => e.defaultPrevented);
+    document.addEventListener('keydown', app);
+    try {
+      await userEvent.keyboard('{Escape}');
+      expect(app).toHaveReturnedWith(false);
+    } finally {
+      document.removeEventListener('keydown', app);
+    }
+  });
+
+  // A wizard opens its next modal, then closes the one before: nested in it, the next one closed with it at once
+  it('keeps a modal opened from a modal open when the one below closes, and Escape closes it next', async () => {
+    const dialogs = TestBed.inject(DialogService);
+    const first = dialogs.openModal(DialogContentComponent, undefined);
+    const next = dialogs.openModal(DialogContentComponent, undefined);
+    const nextContainer = dialogs.$overlayHost()!;
+    const closed = vi.fn();
+    next.closed$.subscribe(closed);
+
+    first.close();
+
+    expect(closed).not.toHaveBeenCalled();
+    expect(nextContainer.isConnected).toBe(true);
+    expect(dialogs.dialogStack.map(entry => entry.dialogRef)).toEqual([next]);
+    expect(dialogs.$overlayHost()).toBe(nextContainer);
+    await userEvent.keyboard('{Escape}');
+    expect(closed).toHaveBeenCalled();
+    expect(dialogs.dialogStack).toEqual([]);
+  });
+
+  // An app that closed a modal when a dialog in it closed ran the modal's close twice, and the second run took the
+  // modal below off the stack and out of the hosts, so Escape no longer closed it
+  it('closes a modal once when a dialog it hosts closes it again, and keeps the modal below', async () => {
+    const dialogs = TestBed.inject(DialogService);
+    const below = dialogs.openModal(DialogContentComponent, undefined);
+    const belowContainer = dialogs.$overlayHost()!;
+    const modal = dialogs.openModal(DialogContentComponent, undefined);
+    const dialog = dialogs.openDialog(DialogContentComponent, undefined);
+    dialog.closed$.subscribe(() => {
+      modal.close();
+    });
+    const closed = vi.fn();
+    modal.closed$.subscribe(closed);
+
+    modal.close();
+
+    expect(closed).toHaveBeenCalledTimes(1);
+    expect(dialogs.dialogStack.map(entry => entry.dialogRef)).toEqual([below]);
+    expect(dialogs.$overlayHost()).toBe(belowContainer);
+    expect(belowContainer.isConnected).toBe(true);
+    const belowClosed = vi.fn();
+    below.closed$.subscribe(belowClosed);
+    await userEvent.keyboard('{Escape}');
+    expect(belowClosed).toHaveBeenCalled();
+  });
+
+  // Any dialog closes the dialogs inside it, as an app's dialog does a select's list in it
+  it("closes a dialog placed inside an app's dialog with it, and the next Escape reaches the page", async () => {
+    const dialogs = TestBed.inject(DialogService);
+    const outer = dialogs.openDialog(DialogContentComponent, undefined);
+    const content = document.querySelector<HTMLElement>('tab-test-dialog-content')!;
+    const inner = dialogs.openDialog(DialogContentComponent, undefined, { closeOnEscape: true, skipCreatingBackdrop: true }, new LocalStackOptions(content));
+    const innerClosed = vi.fn();
+    inner.closed$.subscribe(innerClosed);
+
+    outer.close();
+
+    expect(innerClosed).toHaveBeenCalled();
     expect(dialogs.dialogStack).toEqual([]);
     expect(document.querySelector('.dialog-container, .dialog-backdrop')).toBeNull();
     // an app's own handler

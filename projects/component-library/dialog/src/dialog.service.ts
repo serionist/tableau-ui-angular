@@ -34,17 +34,18 @@ export class DialogService implements OnDestroy {
    * Where an overlay opened now belongs: the container of the topmost open modal, or `null` while no modal is open,
    * for the body.
    *
-   * The service puts a dialog it opens with `GlobalStackOptions` there, its backdrop included: a tooltip, a dialog the
-   * app opens with `openDialog()` or `openTemplateDialog()`, a modal opened from a modal. The snack service moves its
-   * stack there too. A dialog with `LocalStackOptions`, such as a select's list or a menu, sits after its element, in
-   * the modal already. Such an overlay sits above the modal's content and takes its clicks, and the modal, when it
-   * closes, first closes the dialogs inside it, top first.
+   * The service puts a dialog it opens with `GlobalStackOptions` there, its backdrop included: a tooltip, or a dialog
+   * the app opens with `openDialog()` or `openTemplateDialog()`. The snack service moves its stack there too. A dialog
+   * with `LocalStackOptions`, such as a select's list or a menu, sits after its element, in the modal already. Such an
+   * overlay sits above the modal's content and takes its clicks, and the modal, when it closes, first closes the
+   * dialogs inside it, top first. A modal, a confirmation included, goes to the body, a sibling of the modal below, so
+   * a modal can open the next one and close itself.
    *
    * An app that appends an overlay of its own to the body, opened from a modal, appends it here instead
    * (`$overlayHost() ?? document.body`). An element the app or the snack service put in a modal's container moves on
-   * to the next host when the modal closes, the modal below or the body; one that should go with the modal, the app
-   * removes. The overlays are `position: fixed` children of the modal's container, so a `transform`, `filter` or
-   * `contain` on `.dialog-container` would move and clip them.
+   * to the next host when the modal closes, the topmost modal still open or the body; one that should go with the
+   * modal, the app removes. The overlays are `position: fixed` children of the modal's container, so a `transform`,
+   * `filter` or `contain` on `.dialog-container` would move and clip them.
    */
   readonly $overlayHost: Signal<HTMLElement | null> = this.$host.asReadonly();
 
@@ -211,8 +212,10 @@ export class DialogService implements OnDestroy {
       return new DialogRefInternal<TResult>();
     }
     // A dialog with GlobalStackOptions, and its backdrop, go into the topmost modal while one is open, so it sits above
-    // the modal's content and is part of the modal: a modal shown in the top layer covers what is outside it, inert
-    const host = this.modalContainers.at(-1) ?? this.document.body;
+    // the modal's content and is part of the modal: a modal shown in the top layer covers what is outside it, inert. A
+    // modal stays in the body, a sibling of the one below, which the top layer stacks above it; nested, it would close
+    // with the modal that opened it, as a wizard's next step does when it closes the step before
+    const host = modal ? this.document.body : (this.modalContainers.at(-1) ?? this.document.body);
     let trappedFocus:
       | {
           elements: {
@@ -285,7 +288,10 @@ export class DialogService implements OnDestroy {
       // first the dialogs inside it, so none stays on the stack without its element or takes the next Escape
       this.closeDialogsInside(dialogRef, dialogElement);
       if (modal) {
-        this.modalContainers.splice(this.modalContainers.indexOf(dialogElement), 1);
+        const modalIndex = this.modalContainers.indexOf(dialogElement);
+        if (modalIndex !== -1) {
+          this.modalContainers.splice(modalIndex, 1);
+        }
         const next = this.modalContainers.at(-1) ?? null;
         this.$host.set(next);
         // What the app or the snack service put in the modal goes on to the next host, before focus goes back, which
@@ -315,7 +321,9 @@ export class DialogService implements OnDestroy {
       dialogElement.remove();
 
       const dialogIndex = this.dialogStack.findIndex(d => d.zIndex === zIndex);
-      this.dialogStack.splice(dialogIndex, 1);
+      if (dialogIndex !== -1) {
+        this.dialogStack.splice(dialogIndex, 1);
+      }
       // clear backdrop
       backdrop?.remove();
       // set escape handler

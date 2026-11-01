@@ -241,6 +241,34 @@ describe('SnackService', () => {
     ref.close();
   });
 
+  // The modal's container hides its overflow, which clips no fixed child: a snack at the top of the window, outside a
+  // small modal's box, still shows and takes clicks
+  it('shows a snack outside the box of the modal it sits in, where it takes clicks', async () => {
+    document.head.appendChild(stylesheet);
+    const dialogs = TestBed.inject(DialogService);
+    const modal = dialogs.openModal(ModalContentComponent, undefined);
+    const container = dialogs.$overlayHost()!;
+    await vi.waitFor(() => {
+      expect(container.style.top).not.toBe('-9999px');
+    });
+    expect(container.style.overflowY).toBe('hidden');
+    const ref = TestBed.inject(SnackService).openSnack('Saved', 0);
+    const closed = vi.fn();
+    ref.closed$.subscribe(closed);
+    TestBed.inject(ApplicationRef).tick();
+
+    const close = document.querySelector<HTMLButtonElement>('.tab-snacks .close')!;
+    expect(close.closest('.dialog-container')).toBe(container);
+    await vi.waitFor(() => {
+      const box = close.getBoundingClientRect();
+      expect(box.bottom).toBeLessThan(container.getBoundingClientRect().top);
+      expect(close.contains(document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2))).toBe(true);
+    });
+    await userEvent.click(close);
+    expect(closed).toHaveBeenCalledWith(true);
+    modal.close();
+  });
+
   it('moves a showing snack into a modal that opens, into the modal above it, and back as each closes', async () => {
     document.head.appendChild(stylesheet);
     const dialogs = TestBed.inject(DialogService);
