@@ -1,4 +1,4 @@
-<tab-radio-group [(value)]="$plan" (valueChange)="changed($event)">
+<tab-radio-group aria-label="Option" [(value)]="$plan" (valueChange)="changed($event)">
   <tab-option text="An option given as values" icon="home" hint="Its text, hint and icon are inputs" [value]="1" />
   <tab-option text="A disabled option" hint="It can't be picked" [value]="2" [disabled]="true" />
   <tab-option icon="home" [value]="3" [iconParams]="{ fill: true, color: 'success' }" [text]="templateText" [hint]="templateHint" />

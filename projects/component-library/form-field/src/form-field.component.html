@@ -18,14 +18,22 @@
       <ng-content select="tab-suffix" />
     </div>
   }
+  <!-- Says an error that appears or changes while focus is in the field. It sits in this positioned wrapper, which
+       clips it, so it never adds to the page's scroll height -->
+  <div #announcer class="announcer" aria-live="polite"></div>
 </div>
 @if ($hintElement() || $errorElement()) {
   <div class="form-extra-info">
-    @if ($hintElement() && (!$errorElement() || $hintElement()!.$showOnError())) {
-      <ng-content select="tab-hint" />
+    <!-- The control's aria-describedby names these wrappers while they show, the hint first -->
+    @if ($hintShown()) {
+      <div class="hints" [id]="hintId">
+        <ng-content select="tab-hint" />
+      </div>
     }
     @if ($errorElement()) {
-      <ng-content select="tab-error" />
+      <div #errorContainer class="errors" [id]="errorId">
+        <ng-content select="tab-error" />
+      </div>
     }
   </div>
 }
