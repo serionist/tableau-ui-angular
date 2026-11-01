@@ -552,7 +552,9 @@ describe('FormFieldComponent', () => {
     it('leaves an id another part of the page adds, and settles', async () => {
       const { host } = await render(NameFieldComponent);
       const input = host.querySelector('input')!;
-      const field = input.getAttribute('aria-describedby')!;
+      const field = input.getAttribute('aria-describedby');
+      // the field's own ids are there to leave in place
+      expect(field).toMatch(/\S/);
 
       input.setAttribute('aria-describedby', `${field} tooltip`);
       const writes: MutationRecord[] = [];

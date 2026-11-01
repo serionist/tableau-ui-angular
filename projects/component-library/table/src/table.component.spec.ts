@@ -1606,10 +1606,16 @@ describe('TableComponent tooltips and column widths', () => {
 
     it('passes axe with a resizer focused and its column resized', async () => {
       const { fixture, host } = await render();
-      resizer(host, 'bio').focus();
+      const edge = resizer(host, 'bio');
+      const now = () => Number(edge.getAttribute('aria-valuenow'));
+      const before = now();
+      edge.focus();
       await userEvent.keyboard('{ArrowRight}');
       await fixture.whenStable();
 
+      // the state axe reads is the one it names: the resizer has the focus and the column moved
+      expect(document.activeElement).toBe(edge);
+      expect(now()).toBe(before + 10);
       expect(await axeViolations(fixture.nativeElement as HTMLElement)).toEqual([]);
     });
   });
@@ -1879,11 +1885,14 @@ describe('TableComponent as a scroll region', () => {
   });
 
   it('passes axe with scrollable-region-focusable on, though no column sorts', async () => {
-    const { fixture, load } = await render(c => {
+    const { fixture, host, load } = await render(c => {
       c.$label.set('People');
     });
     await load();
 
+    // axe reports this rule as incomplete, not a violation, while the header's buttons hold a tabindex, so the host's
+    // own Tab stop is what it rests on
+    expect(host.getAttribute('tabindex')).toBe('0');
     expect(await axeViolations(fixture.nativeElement as HTMLElement)).toEqual([]);
   });
 });

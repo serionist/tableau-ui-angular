@@ -617,6 +617,8 @@ describe('VirtualizeComponent', () => {
       await load();
       // blocks of 10 rows: the first five load, the sixth once the list scrolls past its first 200px
       expect(server.requests.map(request => request.offset)).toEqual([0, 10, 20, 30, 40]);
+      // Chromium and Firefox focus a scroll container of their own accord, so the host's Tab stop is checked here
+      expect(host.getAttribute('tabindex')).toBe('0');
       host.focus();
 
       for (let press = 0; press < 40 && !server.requests.some(request => request.offset === 50); press++) {
