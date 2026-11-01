@@ -161,4 +161,45 @@ describe('FG', () => {
 
     expect(submitted).toEqual([{ country: 'US', state: null }]);
   });
+
+  // markAsDirty and markAsPristine did nothing while the control itself was already marked, so a call that marks the
+  // ancestors left them as they were
+  it('marks the ancestors with markAncestors true, though the control is already dirty or pristine', () => {
+    const group = address();
+    const { state } = group.controls;
+
+    state.metaFn.markAsDirty();
+    expect(group.$meta().dirty).toBe(false);
+    state.metaFn.markAsDirty(true, true);
+    expect(group.$meta().dirty).toBe(true);
+
+    state.metaFn.markAsPristine();
+    expect(group.$meta().dirty).toBe(true);
+    state.metaFn.markAsPristine(true, true);
+    expect(group.$meta().pristine).toBe(true);
+  });
+
+  // markAsPristine did nothing on a pristine group, though a child marked dirty without its ancestors was still dirty
+  it("marks a pristine group's dirty children pristine", () => {
+    const group = address();
+    group.controls.state.metaFn.markAsDirty();
+    expect(group.$meta().pristine).toBe(true);
+
+    group.metaFn.markAsPristine();
+
+    expect(group.controls.state.$meta().pristine).toBe(true);
+  });
+
+  // The check walks every level: a control two levels down, marked dirty alone, leaves both groups pristine
+  it('marks a dirty control two levels down pristine', () => {
+    const form = fb.group<{ address: Address }>({ address: address() });
+    const { state } = form.controls.address.controls;
+    state.metaFn.markAsDirty();
+    expect(form.$meta().pristine).toBe(true);
+    expect(form.controls.address.$meta().pristine).toBe(true);
+
+    form.metaFn.markAsPristine();
+
+    expect(state.$meta().pristine).toBe(true);
+  });
 });

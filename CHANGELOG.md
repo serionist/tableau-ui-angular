@@ -55,6 +55,11 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   the control's meta, its errors with it, waits for its next event: a field disabled this way keeps its `required`
   error until then, and its form's `hasError()` can still find it. The `markAncestors` docs of the `metaFn` methods say
   what each one does, where they said the opposite.
+- A control's `metaFn.markAsPristine()` works after `markAsDirty(false)`, and `markAsDirty()` after
+  `markAsPristine(false)`: each checked the meta, which a call with `emitEvent` false leaves as it was, and did nothing.
+  They check Angular's own state now, so `markAsDirty(true, true)` marks the ancestors of a control that is already
+  dirty and `markAsPristine(true, true)` those of one already pristine, and a pristine group's `markAsPristine()` marks its dirty
+  children pristine.
 
 ## 0.2.0 (2026-10-31)
 
