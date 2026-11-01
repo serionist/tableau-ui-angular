@@ -29,6 +29,7 @@ export const CONTRAST_PAIRS: readonly ContrastPair[] = [
   { text: '--twc-color-primary-on-base', background: '--twc-color-mouse-highlight', where: "A stroked primary button's label and border under the pointer" },
   { text: '--twc-color-primary-on-base', background: '--twc-color-highlight', where: "A primary menu item on the highlight; a selected option's outline on the keyboard highlight" },
   { text: '--twc-color-primary-on-base', background: '--twc-color-primary-light', where: "An info snack's icon, border and timer; a primary icon on a table's selected row" },
+  { text: '--twc-color-primary-on-base', background: '--twc-modal-color-header', where: "Primary text or an icon on a modal's header" },
   { text: '--twc-color-on-primary', background: '--twc-color-primary', where: "A raised primary button's label; a checked button toggle option's label" },
   { text: '--twc-color-base', background: '--twc-color-primary-dark', where: "A raised primary button's label under the pointer" },
 ];

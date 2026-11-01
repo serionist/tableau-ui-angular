@@ -50,9 +50,11 @@
         Every colour, font and size is a custom property, set on
         <code>:root</code>
         and, for dark mode, on
-        <code>:root.dark-mode</code>. Set one on an element to change it inside that element, or on those two selectors in
+        <code>:root.dark-mode, body.dark-mode</code>, since the theme service puts the class on both. Set one on an element to change it inside that element, or on those selectors in
         <code>styles.scss</code>
-        to change it for the app.
+        to change it for the app: a colour set on
+        <code>:root.dark-mode</code>
+        alone stops at the body, which has its own.
       </p>
       <app-docs-example [example]="examples.override" />
 
@@ -114,9 +116,9 @@
     <div class="section">
       <h3>Accessibility</h3>
       <p>
-        Error text, the primary drawn as text, an icon, a border or a focus ring, and the error and primary buttons' labels read at 4.5:1 or more, the contrast WCAG asks of body text and more than the
-        3:1 it asks of borders and rings, on every surface the library draws them on, at rest and under the pointer, in light and in dark. A spec in the library reads each pair below in both themes,
-        in Chromium and Firefox.
+        Error text, the primary drawn as text, an icon, a border or the checkbox's and the radio button's focus rings, and the error and primary buttons' labels read at 4.5:1 or more, the contrast
+        WCAG asks of body text and more than the 3:1 it asks of borders and rings, on every surface the library draws them on, at rest and under the pointer, in light and in dark. A spec in the
+        library reads each pair below in both themes, in Chromium and Firefox.
       </p>
       <table class="docs-table">
         <thead>
@@ -152,7 +154,7 @@
         included.
       </p>
       <p>
-        The library draws the primary on the page's surfaces, as text, icons, a stroked button, a focus ring or a selected option's outline, in
+        The library draws the primary on the page's surfaces, as text, icons, a stroked button, the checkbox's and the radio button's focus rings or a selected option's outline, in
         <code>--twc-color-primary-on-base</code>. In light it is
         <code>--twc-color-primary</code>
         itself; in dark, where the primary is 2.56:1 on the base, it is a lighter blue. Fills keep
@@ -162,15 +164,20 @@
         <code>--twc-color-primary</code>
         sets
         <code>--twc-color-primary-on-base</code>
-        beside it in each mode, at 4.5:1 on
+        beside it, at 4.5:1 on
         <code>--twc-color-base</code>,
         <code>--twc-color-mouse-highlight</code>
         and
-        <code>--twc-color-highlight</code>, as the green row of the sample above does. In light, it follows a
-        <code>--twc-color-primary</code>
-        set on
+        <code>--twc-color-highlight</code>, as the green row of the sample above does: in dark always, on <code>:root.dark-mode, body.dark-mode</code>, and in light wherever it isn't
+        <code>:root</code>, since on
         <code>:root</code>
-        by itself.
+        the light one follows it by itself. An app that sets
+        <code>--twc-color-primary-dark</code>
+        keeps
+        <code>--twc-color-base</code>
+        on it at 4.5:1;
+        <code>--twc-color-on-primary</code>
+        colours the raised label at rest only.
       </p>
     </div>
   </div>

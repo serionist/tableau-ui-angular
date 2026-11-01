@@ -29,6 +29,7 @@ import { TableOptionsExampleComponent } from '../pages/table-page/examples/table
 import { TooltipTemplateExampleComponent } from '../pages/tooltips-page/examples/tooltip-template.example';
 import { TreeComponentExampleComponent } from '../pages/tree-page/examples/tree-component.example';
 import { TreeFlatExampleComponent } from '../pages/tree-page/examples/tree-flat.example';
+import { THEMING_EXAMPLES } from '../pages/theming-page/theming.examples';
 import { TREE_EXAMPLES } from '../pages/tree-page/tree.examples';
 import { VirtualizeDataExampleComponent } from '../pages/virtualize-page/examples/virtualize-data.example';
 
@@ -984,35 +985,80 @@ describe('The samples', () => {
     fixture.destroy();
   });
 
-  // #133: the green row's raised label was 2.39:1 on dark; apps copy the colours it sets
-  it("draws the theme override sample's labels at 4.5:1 or more on their buttons, at rest and under the pointer, in light and dark", async () => {
+  // #133: the green row's raised label was 2.39:1 on dark; apps copy the colours it sets. Each row's primary on the base
+  // is also read on the keyboard highlight, where a primary menu item sits
+  it("draws the theme override sample's labels at 4.5:1 or more on their buttons, at rest and under the pointer, and its primary on the highlight, in light and dark", async () => {
     TestBed.createComponent(LibraryStylesComponent);
     const fixture = TestBed.createComponent(ThemeOverrideExampleComponent);
     await fixture.whenStable();
-    const buttons = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('button'));
-    expect(buttons.map(button => `${button.closest('.green') ? 'green' : 'theme'} ${button.textContent.trim()}`)).toEqual([
-      'theme Primary',
-      'theme Raised primary',
-      'green Primary',
-      'green Raised primary',
-    ]);
+    const host = fixture.nativeElement as HTMLElement;
+    const row = (element: Element) => (element.closest('.green') ? 'green' : 'theme');
+    const buttons = Array.from(host.querySelectorAll('button'));
+    expect(buttons.map(button => `${row(button)} ${button.textContent.trim()}`)).toEqual(['theme Primary', 'theme Raised primary', 'green Primary', 'green Raised primary']);
+    // the primary on the base, as each row sets it, on the highlight
+    const probes = Array.from(host.querySelectorAll('.row'), element => {
+      const probe = document.createElement('span');
+      probe.style.color = 'var(--twc-color-primary-on-base)';
+      probe.style.backgroundColor = 'var(--twc-color-highlight)';
+      element.appendChild(probe);
+      return probe;
+    });
 
     await inEachMode(async mode => {
       const low: string[] = [];
-      for (const button of buttons) {
-        for (const state of ['at rest', 'under the pointer']) {
-          if (state === 'under the pointer') {
-            await userEvent.hover(button);
-          }
-          const ratio = contrast(getComputedStyle(button).color, backgroundUnder(button));
-          if (ratio < 4.5) {
-            low.push(`${button.closest('.green') ? 'green' : 'theme'} ${button.textContent.trim()} ${state}: ${ratio.toFixed(2)}`);
-          }
+      const check = (name: string, element: Element) => {
+        const ratio = contrast(getComputedStyle(element).color, backgroundUnder(element));
+        if (ratio < 4.5) {
+          low.push(`${name}: ${ratio.toFixed(2)}`);
         }
+      };
+      for (const button of buttons) {
+        const name = `${row(button)} ${button.textContent.trim()}`;
+        const atRest = backgroundUnder(button);
+        check(`${name} at rest`, button);
+        await userEvent.hover(button);
+        // a stroked button takes the pointer's highlight, so the hover reads apart from at rest
+        if (button.getAttribute('kind') !== 'raised') {
+          await vi.waitFor(() => {
+            expect(backgroundUnder(button)).not.toBe(atRest);
+          });
+        }
+        check(`${name} under the pointer`, button);
         await movePointerAway();
+      }
+      for (const probe of probes) {
+        check(`${row(probe)} primary on the highlight`, probe);
       }
       expect(low, mode).toEqual([]);
     });
     fixture.destroy();
+  });
+
+  // In dark the theme sets each colour on the body too, so a colour an app sets on :root.dark-mode alone stops there
+  it('reaches what is in the body in dark from the selectors the theme override sample names, and not from :root.dark-mode alone', () => {
+    expect(THEMING_EXAMPLES.override.scss).toContain('Set on :root, and on :root.dark-mode, body.dark-mode');
+    TestBed.createComponent(LibraryStylesComponent);
+    const style = document.createElement('style');
+    document.head.appendChild(style);
+    const text = document.createElement('p');
+    text.className = 'text-primary';
+    document.body.appendChild(text);
+    const colour = (selector: string) => {
+      style.textContent = `${selector} { --twc-color-primary-on-base: rgb(0, 200, 0); }`;
+      return getComputedStyle(text).color;
+    };
+    try {
+      for (const element of [document.documentElement, document.body]) {
+        element.classList.add('dark-mode');
+      }
+      expect(colour(':root.dark-mode, body.dark-mode')).toBe('rgb(0, 200, 0)');
+      expect(colour(':root.dark-mode')).not.toBe('rgb(0, 200, 0)');
+    } finally {
+      for (const element of [document.documentElement, document.body]) {
+        element.classList.remove('dark-mode');
+      }
+      style.remove();
+      text.remove();
+    }
   });
 });

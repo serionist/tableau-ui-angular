@@ -369,7 +369,6 @@ describe('SnackService', () => {
     ref.close();
   });
 
-  // An app's effect that opens a snack would have followed the modals too, and opened it again at each
   // #133: an info snack's icon, border and timer were the primary, 2.01:1 on the snack's dark background
   it("draws an info snack's icon, border and timer at 3:1 or more on what they sit on, in light and dark", async () => {
     TestBed.createComponent(LibraryStylesComponent);
@@ -402,6 +401,7 @@ describe('SnackService', () => {
     ref.close();
   });
 
+  // An app's effect that opens a snack would have followed the modals too, and opened it again at each
   it("opens a snack from an app's effect once, whatever modals open and close after", () => {
     const dialogs = TestBed.inject(DialogService);
     const snacks = TestBed.inject(SnackService);
