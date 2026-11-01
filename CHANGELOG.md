@@ -30,6 +30,19 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
 - An autocomplete's suggestions close while none matches the text, and open again when one does; a prefix or a suffix
   keeps them open. The empty dialog stayed open, out of sight, and took the next Escape: in a drawer, the first Escape
   didn't close the drawer.
+- A table's flexible columns narrow when the table does, as when a drawer opens beside it, down to their minimum
+  widths; they kept the widest width they had reached, and the table scrolled sideways. A table whose last column is
+  resizable no longer scrolls 4px sideways.
+- A table's data rows are as wide as its header row when the table is wider than its columns, so the rows' rule and a
+  selected row's highlight reach its edge.
+- A row with vertical padding in `dataRowCss` is drawn as tall as the virtual scroll counts it, its height plus its
+  padding, so rows no longer jump as the user scrolls. A table's cells spilled their padding over the next row, and a
+  `tab-virtualize` row lost it under an app's border-box reset. `height` is the row's content's height, and a table
+  cell's text clamps to the lines that height holds. To keep a padded row as tall as before, take its vertical padding
+  off `height`.
+- A full load that fails, as when `FullDataOptions.getAllData` rejects, is reported once: one "Error loading all data"
+  console error and one rejection for the app's `ErrorHandler`, where it logged three errors and rejected twice. A
+  first block that fails logs one error, where it logged two.
 
 ## 0.2.0 (2026-10-31)
 

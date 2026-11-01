@@ -5,6 +5,7 @@ import { DataBlock } from './data-block';
 import type { Primitive } from 'tableau-ui-angular/types';
 import type { DataOptions } from './data-options';
 import { FullDataOptions, IncrementalDataOptions } from './data-options';
+import { ReportedError } from './reported-error';
 
 export class DataManager<TData> {
   constructor(private readonly cdr: ChangeDetectorRef) {}
@@ -117,11 +118,11 @@ export class DataManager<TData> {
 
     try {
       await initialBlock.dataPromise;
-    } catch (error: unknown) {
+    } catch {
       if (generation !== this.generation) {
         return;
       }
-      console.error('Error loading initial data block:', error);
+      // reported already, by the block or by the full load it was cut from
       this.cdr.markForCheck();
       this.resetting = false;
       return;
@@ -148,10 +149,14 @@ export class DataManager<TData> {
     const options = this.dataOptions!;
     const allDataInfo = this.currentAllDataInfo;
     if (allDataInfo) {
-      // we are using full data
-      const blockPromise = allDataInfo.promise.then(data => {
-        return data.slice(blockId * this.blockRowCount, (blockId + 1) * this.blockRowCount);
-      });
+      // we are using full data; the full load's failure is its AllDataInfo's to report, so the block fails without
+      // reporting it again
+      const blockPromise = allDataInfo.promise.then(
+        data => data.slice(blockId * this.blockRowCount, (blockId + 1) * this.blockRowCount),
+        (error: unknown) => {
+          throw new ReportedError(error);
+        },
+      );
       // aborted with the full load, so the block is cancelled, not failed, when a newer load replaces that one; the
       // block's own abort removes the listener, so the blocks scrolling drops leave none on the full load
       const blockAbort = new AbortController();

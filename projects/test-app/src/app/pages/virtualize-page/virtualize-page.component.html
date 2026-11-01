@@ -38,7 +38,10 @@
         <li>Both take a function that gives a row's key first.</li>
         <li><code>[dataSort]</code> is required: the sort each request carries, <code>[]</code> for none. The list loads again when it, or the data options, change.</li>
         <li>A request's <code>abort</code> signal fires once the list no longer needs its rows: after a reset, when the user scrolls a block far from view, or when the list goes.</li>
-        <li><code>[dataRowCss]</code> gives every row the same height, line height and padding: <code>1.5em</code>, <code>inherit</code> and <code>0em 0.5em</code> by default.</li>
+        <li>
+          <code>[dataRowCss]</code> gives every row the same height, line height and padding: <code>1.5em</code>, <code>inherit</code> and <code>0em 0.5em</code> by default. The height is the row's
+          content's: a row is drawn that tall plus its vertical padding, and the list keeps that much space for each row not drawn.
+        </li>
       </ul>
       <p>
         The list measures its height and its rows to size a block, so it loads in the browser only: call <code>load()</code> once it is drawn, and <code>reload()</code> when its height changes.

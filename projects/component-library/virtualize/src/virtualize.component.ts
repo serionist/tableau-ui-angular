@@ -1,5 +1,5 @@
 import type { TemplateRef } from '@angular/core';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, contentChild, ElementRef, HostListener, inject, input, model } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, contentChild, ElementRef, HostListener, inject, input, model } from '@angular/core';
 import type { DataRowCss } from './base/virutalize-base.component';
 import { VirtualizeBaseComponent } from './base/virutalize-base.component';
 import type { DataOptions } from './data/data-options';
@@ -30,11 +30,10 @@ export class VirtualizeComponent<TData> extends VirtualizeBaseComponent<TData> {
   });
 
   /**
-   * The height of the data row.
-   * This must be a valid CSS value.
-   * Fixed height is required for virtual scrolling to work properly.
-   * If the height is not fixed, the container will not be able to calculate the row heights and will not be able to scroll properly.
-   * @default '2.5em'
+   * The CSS of a data row: its height, line height and padding, and any other CSS.
+   * The height must be a fixed CSS length for virtual scrolling to work properly.
+   * It is the height of the row's content: a row is drawn that tall plus its vertical padding and borders.
+   * @default { height: '1.5em', padding: '0em 0.5em', lineHeight: 'inherit' }
    */
   override readonly $dataRowCss = input<DataRowCss>(
     {
@@ -92,6 +91,18 @@ export class VirtualizeComponent<TData> extends VirtualizeBaseComponent<TData> {
   readonly $errorTemplate = contentChild(ErrorTemplateDirective);
   readonly $customLoaderTemplate = contentChild(CustomLoaderDirective);
   // #endregion Templates
+
+  // A row is drawn border-box at the height the virtual scroll counts, less its margins, its padding and borders inside
+  // it, so its content keeps the app's own box-sizing; the binding sets its height, not the row's CSS
+  protected readonly $itemCss = computed(() => {
+    const css: Partial<DataRowCss> = { ...this.$dataRowCss() };
+    delete css.height;
+    return css;
+  });
+  protected readonly $itemHeightPx = computed(() => {
+    const style = this.$dataRowComputedStyle();
+    return this.$dataRowHeightPx() - parseFloat(style.marginTop) - parseFloat(style.marginBottom);
+  });
 
   // the dataWindowHeightPx input, or the host's height
   protected measureDataWindowHeightPx(): number {
