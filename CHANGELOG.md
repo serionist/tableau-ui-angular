@@ -36,6 +36,14 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   While `tab-virtualize` shows items it is a list and its items `listitem`s; an app whose items have a role of their
   own writes a static `role` attribute on `tab-virtualize`, such as `role="listbox"`, which keeps the library's roles
   off. Name a table or a virtual scroller that scrolls with `label`, or a static `aria-label` on it.
+- Escape first hides a showing tooltip and goes no further: the dialog, menu or drawer under it closes on the next
+  Escape. A list the tooltip's element opened above it, such as a select's, still closes on the first. A test that
+  hovers or tabs to an element with a tooltip, then presses Escape to close a dialog, presses it twice or moves the
+  pointer and the focus away first.
+- A tooltip takes the pointer: the pointer can move onto it and rest there, so a click on a tooltip no longer reaches
+  what is under it. Once the pointer leaves the element it has 100 ms to reach the tooltip, and as long as it needs
+  while it stays between the two; before, the tooltip hid as the pointer left. A test that hovers an element, then
+  hovers or clicks what its tooltip covers, moves the pointer away first and waits for the tooltip to go.
 
 ### Added
 
@@ -110,9 +118,29 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
 - The bar a table or a virtual scroller shows in a row whose block failed to load is the error colour itself, 3:1 or
   more on the row in both themes, where it was that colour at 30% opacity, about 1.75:1. A screen reader reads it as
   "Failed to load", so it isn't told by its colour alone.
+- A tooltip shows when the keyboard moves the focus to its element, as on hover, where only the pointer opened one;
+  the focus a click gives doesn't open it, a text input's included. Focus from the keyboard keeps it while the pointer
+  passes over the element and leaves. A screen reader hears it: while it shows it is `role="tooltip"`, and its
+  element's `aria-describedby` names it after the app's own ids, which stay. A text tooltip equal to the element's name
+  adds none, so the nav bar's collapsed buttons and the chips' remove buttons aren't read twice.
+- A form field's hints and errors describe its control through `aria-describedby`, the hints first, each while it
+  shows, and the control has `aria-invalid="true"` while an error shows. The control is a native input, textarea or
+  select, the host of a select, a list or a radio group, or a chip control's search input. A hidden polite live region
+  says an error that appears or changes while focus is in the field. Ids an app puts in the control's own
+  `aria-describedby` or `aria-labelledby` stay: the field's label joins an app's `aria-labelledby`, where it replaced
+  it.
+- A checkbox's hint, or its error in the hint's place, describes its input, and the input has `aria-invalid="true"`
+  while the error shows.
+- `tab-radio-group` is a `radiogroup`, named by a form field's label or by `aria-label` or `aria-labelledby` on it. Its
+  error describes it, after the app's own ids, and it has `aria-invalid="true"` while the error shows. A group that an
+  app named with a `fieldset` and its `legend`, as 0.2.0's sample did, now reads as a radio group with no name inside
+  a named group: drop the `fieldset` and name `tab-radio-group` with `aria-labelledby`, or with `aria-label`.
+- A touched invalid input, textarea, select, list or chip control shows keyboard focus: its red border stays, and a
+  2px ring in `--twc-color-focused-input` shows inside it, a pixel apart, 3:1 or more against the page in both themes.
+  The invalid style outranked the focus style, so focus didn't show.
 - A table or a virtual scroller whose first block fails to load keeps that block's failed rows when it scrolls, as a
-  table does sideways, until it loads again: `reload()`, `reset()`, or a new sort or data options. The first scroll
-  dropped them and showed "No data available".
+  table does sideways, until it loads again: `reload()`, `reset()`, or a new sort, `dataOptions`, `dataBlockWindow` or
+  `dataRowCss`. The first scroll dropped them and showed "No data available".
 
 ## 0.2.0 (2026-10-31)
 

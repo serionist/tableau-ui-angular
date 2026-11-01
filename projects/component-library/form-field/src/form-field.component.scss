@@ -44,6 +44,17 @@
       grid-template-rows: 1fr;
       align-items: center;
     }
+
+    // out of sight and out of the layout, still read: a box of one pixel at the default size, clipped. This wrapper
+    // is its containing block, so it never reaches past the field into a scrolling ancestor
+    .announcer {
+      position: absolute;
+      width: 0.0625rem;
+      height: 0.0625rem;
+      overflow: hidden;
+      white-space: nowrap;
+      clip-path: inset(50%);
+    }
   }
 
   .form-extra-info {
@@ -56,6 +67,12 @@
     max-width: 100%;
     overflow: hidden;
     column-gap: 0.75rem;
+
+    // Wrappers with the ids the control's aria-describedby names; their hints and errors stay items of this grid
+    .hints,
+    .errors {
+      display: contents;
+    }
 
     ::ng-deep tab-hint {
       grid-row: 1;

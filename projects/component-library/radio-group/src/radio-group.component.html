@@ -25,7 +25,8 @@
 }
 
 @if ($errorElement()) {
-  <div class="extra-info">
+  <!-- The host's aria-describedby names it while it shows -->
+  <div class="extra-info" [id]="errorId">
     <ng-content select="tab-error" />
   </div>
 }
