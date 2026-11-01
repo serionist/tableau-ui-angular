@@ -1,3 +1,4 @@
+import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
 import type { ComponentFixture } from '@angular/core/testing';
 import { TestBed } from '@angular/core/testing';
 import { page, userEvent } from 'vitest/browser';
@@ -5,6 +6,8 @@ import { SnackService } from 'tableau-ui-angular/snack';
 import { ClipboardService } from 'tableau-ui-angular/clipboard';
 import { DialogService } from 'tableau-ui-angular/dialog';
 import type { Type } from '@angular/core';
+import { backgroundUnder, contrast, inEachMode } from '../../../../component-library/testing/contrast';
+import { movePointerAway } from '../../../../component-library/testing/pointer';
 import { CheckboxFormsExampleComponent } from '../pages/checkbox-page/examples/checkbox-forms.example';
 import { ChipControlExampleComponent } from '../pages/chip-page/examples/chip-control.example';
 import { SalesDashboardExampleComponent } from '../pages/dashboard-page/examples/sales-dashboard.example';
@@ -20,6 +23,7 @@ import { RadioFormsExampleComponent } from '../pages/radio-buttons-page/examples
 import { ScrollerVerticalExampleComponent } from '../pages/scroller-page/examples/scroller-vertical.example';
 import { SnackMessageExampleComponent } from '../pages/snacks-page/examples/snack-message.example';
 import { TabsBasicExampleComponent } from '../pages/tabcontrol-page/examples/tabs-basic.example';
+import { ThemeOverrideExampleComponent } from '../pages/theming-page/examples/theme-override.example';
 import { TableBasicExampleComponent } from '../pages/table-page/examples/table-basic.example';
 import { TableOptionsExampleComponent } from '../pages/table-page/examples/table-options.example';
 import { TooltipTemplateExampleComponent } from '../pages/tooltips-page/examples/tooltip-template.example';
@@ -49,6 +53,15 @@ async function type(fixture: ComponentFixture<unknown>, input: HTMLInputElement,
   input.dispatchEvent(new Event('blur'));
   await fixture.whenStable();
 }
+
+// The library's styles, as an app imports them, while a fixture of it lives: the theme's colours in both modes
+@Component({
+  template: '',
+  styleUrl: '../../../../component-library/styles/lib-styles.scss',
+  encapsulation: ViewEncapsulation.None,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class LibraryStylesComponent {}
 
 // What a sample does that its page's prose promises
 describe('The samples', () => {
@@ -968,6 +981,38 @@ describe('The samples', () => {
 
     await click(fixture, '2 rows');
     await vi.waitFor(() => expect(rows()).toEqual(['Row 1', 'Row 2']), { timeout: 5000 });
+    fixture.destroy();
+  });
+
+  // #133: the green row's raised label was 2.39:1 on dark; apps copy the colours it sets
+  it("draws the theme override sample's labels at 4.5:1 or more on their buttons, at rest and under the pointer, in light and dark", async () => {
+    TestBed.createComponent(LibraryStylesComponent);
+    const fixture = TestBed.createComponent(ThemeOverrideExampleComponent);
+    await fixture.whenStable();
+    const buttons = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('button'));
+    expect(buttons.map(button => `${button.closest('.green') ? 'green' : 'theme'} ${button.textContent.trim()}`)).toEqual([
+      'theme Primary',
+      'theme Raised primary',
+      'green Primary',
+      'green Raised primary',
+    ]);
+
+    await inEachMode(async mode => {
+      const low: string[] = [];
+      for (const button of buttons) {
+        for (const state of ['at rest', 'under the pointer']) {
+          if (state === 'under the pointer') {
+            await userEvent.hover(button);
+          }
+          const ratio = contrast(getComputedStyle(button).color, backgroundUnder(button));
+          if (ratio < 4.5) {
+            low.push(`${button.closest('.green') ? 'green' : 'theme'} ${button.textContent.trim()} ${state}: ${ratio.toFixed(2)}`);
+          }
+        }
+        await movePointerAway();
+      }
+      expect(low, mode).toEqual([]);
+    });
     fixture.destroy();
   });
 });

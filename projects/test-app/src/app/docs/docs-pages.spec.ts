@@ -197,6 +197,8 @@ describe('The docs pages', () => {
     expect(colors.length).toBeGreaterThan(30);
     expect(colors.every(color => color.name.startsWith('--twc-') && color.light && color.dark)).toBe(true);
     expect(colors.find(color => color.name === '--twc-color-primary')).toMatchObject({ swatch: true });
+    // the light theme's is the primary's own
+    expect(colors.find(color => color.name === '--twc-color-primary-on-base')).toMatchObject({ light: 'var(--twc-color-primary)', dark: 'rgb(80 185 230)', swatch: true });
     expect(otherProperties().map(property => property.name)).toContain('--twc-font-size-body');
   });
 

@@ -69,7 +69,7 @@
     min-height: 0;
 
     &:focus-visible + .box {
-      outline: 2px solid var(--twc-color-primary);
+      outline: 2px solid var(--twc-color-primary-on-base);
       outline-offset: 2px;
     }
   }

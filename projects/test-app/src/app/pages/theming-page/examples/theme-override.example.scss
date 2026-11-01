@@ -10,8 +10,12 @@
 }
 
 // A custom property set on an element holds for what is inside it. Set on :root, and on :root.dark-mode for the dark
-// mode, it holds for the whole app
+// mode, it holds for the whole app. Each pair reads at 4.5:1 or more in light and dark: the base on the green fill,
+// and on the base, at rest and under the pointer, the green mixed a tenth toward the text colour, so darker on light
+// and lighter on dark
 .green {
   --twc-color-primary: var(--twc-color-success);
   --twc-color-primary-dark: var(--twc-color-success);
+  --twc-color-on-primary: var(--twc-color-base);
+  --twc-color-primary-on-base: color-mix(in srgb, var(--twc-color-success) 90%, var(--twc-color-text-strong));
 }

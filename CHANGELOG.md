@@ -107,6 +107,10 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   and what the app put in its layer moves on to the next host.
 - `label` in `IModalArgs`: the name screen readers give a modal without a header, its `aria-label`; a modal with a
   header is named by its title. It names modals only: `openDialog()` and `openTemplateDialog()` ignore it.
+- `--twc-color-primary-on-base`, a theme colour: the primary as the library draws it on the page's surfaces, as text,
+  an icon, a stroked button's label and border, a focus ring, a selected option's outline, an info snack's icon,
+  border and timer, or a column's resize line. It is `var(--twc-color-primary)` in light and `rgb(80 185 230)` in dark.
+  Fills keep `--twc-color-primary`.
 
 ### Fixed
 
@@ -161,6 +165,18 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   black on the dark one. The property names stay. Styles that copied the old red read the property instead. Text an app
   puts on `--twc-color-error` takes `--twc-color-base`, as the raised error button now does, since a light text there
   reads below 4.5:1 on the dark red; an app that sets `--twc-color-error` keeps `--twc-color-base` on it at 4.5:1.
+- The dark theme's primary reads at 4.5:1 or more where the library draws it on a surface, where
+  `--twc-color-primary`, `rgb(5 98 138)`, was 2.56:1 on the base. Text in `text-primary`, an icon with `color`
+  primary, a stroked primary button's label and border, a primary menu item, a focused select's arrow, the checkbox's
+  and the radio button's focus rings, an info snack's icon, border and timer, and a column's resize line take
+  `--twc-color-primary-on-base`: 7.73:1 on the dark base, 6.60:1 under the pointer and 4.95:1 on the highlight, and
+  the light theme's primary as before. A selected option's outline in a list, a select or an autocomplete takes it at
+  full strength, where the primary at half strength was 2.32:1 light and 1.52:1 dark, so it is darker in light too. A
+  raised primary button's label under the pointer takes `--twc-color-base`, white in light and near black on the dark
+  theme's lighter blue, where the light label was 2.55:1 there. An app that sets `--twc-color-primary` sets
+  `--twc-color-primary-on-base` beside it, in each mode and on the same element, at 4.5:1 on `--twc-color-base`,
+  `--twc-color-mouse-highlight` and `--twc-color-highlight`, or its primary text and borders take the library's blue.
+  In light, it follows a `--twc-color-primary` set on `:root` by itself.
 - A group's, an array's or a control's `value$` ends on the latest value for every subscriber when one of them changes
   the form while the value emits, as a `valueChange` that disables a field does. The subscribers after that one got the
   new value and then the old one, so a template or a save kept a field the form had left out. Each subscriber now gets

@@ -114,13 +114,14 @@
     <div class="section">
       <h3>Accessibility</h3>
       <p>
-        Error text and the error buttons' labels read at 4.5:1 or more, the contrast WCAG asks of body text, on every surface the library draws them on, at rest and under the pointer, in light and in
-        dark. A spec in the library reads each pair below in both themes, in Chromium and Firefox.
+        Error text, the primary drawn as text, an icon, a border or a focus ring, and the error and primary buttons' labels read at 4.5:1 or more, the contrast WCAG asks of body text and more than the
+        3:1 it asks of borders and rings, on every surface the library draws them on, at rest and under the pointer, in light and in dark. A spec in the library reads each pair below in both themes,
+        in Chromium and Firefox.
       </p>
       <table class="docs-table">
         <thead>
           <tr>
-            <th scope="col">Text</th>
+            <th scope="col">Colour</th>
             <th scope="col">Background</th>
             <th scope="col">Where</th>
           </tr>
@@ -149,6 +150,27 @@
         on
         <code>--twc-color-error</code>
         included.
+      </p>
+      <p>
+        The library draws the primary on the page's surfaces, as text, icons, a stroked button, a focus ring or a selected option's outline, in
+        <code>--twc-color-primary-on-base</code>. In light it is
+        <code>--twc-color-primary</code>
+        itself; in dark, where the primary is 2.56:1 on the base, it is a lighter blue. Fills keep
+        <code>--twc-color-primary</code>
+        under
+        <code>--twc-color-on-primary</code>, and a raised primary button's label under the pointer takes <code>--twc-color-base</code>. An app that sets
+        <code>--twc-color-primary</code>
+        sets
+        <code>--twc-color-primary-on-base</code>
+        beside it in each mode, at 4.5:1 on
+        <code>--twc-color-base</code>,
+        <code>--twc-color-mouse-highlight</code>
+        and
+        <code>--twc-color-highlight</code>, as the green row of the sample above does. In light, it follows a
+        <code>--twc-color-primary</code>
+        set on
+        <code>:root</code>
+        by itself.
       </p>
     </div>
   </div>

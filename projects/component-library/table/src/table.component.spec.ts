@@ -1604,6 +1604,23 @@ describe('TableComponent tooltips and column widths', () => {
       expect(edge.classList.contains('dragging')).toBe(false);
     });
 
+    // #133: the line was the primary, 2.56:1 on the dark header; the pointer and a drag show it in the same colour
+    it('draws its line with focus at 3:1 or more on its header, in light and dark', async () => {
+      TestBed.createComponent(LibraryStylesComponent);
+      const { host } = await render();
+      const edge = resizer(host, 'bio');
+      const line = edge.querySelector('.line')!;
+      resizer(host, 'id').focus();
+
+      await userEvent.tab();
+
+      expect(edge.matches(':focus-visible')).toBe(true);
+      expect(getComputedStyle(line).width).toBe('3px');
+      await inEachMode(mode => {
+        expect(contrast(getComputedStyle(line).backgroundColor, backgroundUnder(edge)), mode).toBeGreaterThanOrEqual(3);
+      });
+    });
+
     it('passes axe with a resizer focused and its column resized', async () => {
       const { fixture, host } = await render();
       const edge = resizer(host, 'bio');

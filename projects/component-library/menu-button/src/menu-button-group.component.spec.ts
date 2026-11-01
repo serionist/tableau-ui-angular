@@ -1,10 +1,11 @@
 import type { TemplateRef } from '@angular/core';
-import { ChangeDetectionStrategy, Component, inject, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, viewChild, ViewEncapsulation } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { userEvent } from 'vitest/browser';
 import { DialogService, TableauUiDialogModule } from 'tableau-ui-angular/dialog';
 import { TableauUiMenuModule } from 'tableau-ui-angular/menu';
 import { axeViolations } from '../../testing/axe';
+import { backgroundUnder, contrast, inEachMode } from '../../testing/contrast';
 import { movePointerAway } from '../../testing/pointer';
 import { MenuButtonGroupComponent } from './menu-button-group.component';
 import { TableauUiMenuButtonModule } from './tableau-ui-menu-button.module';
@@ -110,6 +111,24 @@ class LayoutModalComponent {
     this.answer = this.dialogs.openConfirmationMessageDialog('Reset the layout?', 'This clears the layout you saved.', 'error', 'Reset', 'Cancel', 'cancel');
   }
 }
+
+// A menu with a primary item first, over the library's styles, as an app imports them: the theme's colours in both modes
+@Component({
+  imports: [TableauUiMenuModule, TableauUiMenuButtonModule],
+  template: `
+    <button type="button" [attachedMenu]="editMenu">Edit</button>
+    <ng-template #editMenu="buttonMenu" buttonMenu>
+      <tab-menu-button-group>
+        <tab-menu-button color="primary">Save</tab-menu-button>
+        <tab-menu-button>Revert</tab-menu-button>
+      </tab-menu-button-group>
+    </ng-template>
+  `,
+  styleUrl: '../../styles/lib-styles.scss',
+  encapsulation: ViewEncapsulation.None,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class EditMenuComponent {}
 
 describe('MenuButtonGroupComponent', () => {
   // a pointer left over an opening dropdown or menu would move its highlight
@@ -401,6 +420,26 @@ describe('MenuButtonGroupComponent', () => {
       measure.mockRestore();
       vi.unstubAllGlobals();
     }
+  });
+
+  // #133: a primary item's text was the primary, 2.56:1 on the dark menu and 1.64:1 on its highlight
+  it("draws a primary item's text at 4.5:1 or more on its highlight and on the menu, in light and dark", async () => {
+    const { fixture, item, open } = await render(EditMenuComponent);
+    await open('Save');
+    const save = item('Save');
+    const ratio = () => contrast(getComputedStyle(save).color, backgroundUnder(save));
+
+    await inEachMode(mode => {
+      expect(save.classList.contains('highlight'), mode).toBe(true);
+      expect(ratio(), mode).toBeGreaterThanOrEqual(4.5);
+    });
+
+    await userEvent.keyboard('{ArrowDown}');
+    await fixture.whenStable();
+    await inEachMode(mode => {
+      expect(save.classList.contains('highlight'), mode).toBe(false);
+      expect(ratio(), mode).toBeGreaterThanOrEqual(4.5);
+    });
   });
 
   it('passes axe with a submenu open', async () => {
