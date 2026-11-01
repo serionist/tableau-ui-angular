@@ -52,6 +52,13 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   a test that sent keys to the toggle sends them to the option that has focus. Name the toggle with `aria-label` on
   `tab-button-toggle`. An option with only an icon needs a string `hint`, its name; its tooltip shows that hint in the
   text colour, as the nav bar's tooltips do, where it was grey.
+- A tree is one Tab stop: the arrows move between nodes and open and close them, and Enter toggles. The toggles take
+  no focus and are hidden from assistive technology; a click still toggles. A click on a node's text, or anywhere else
+  in its row, now opens or closes it too, where only the arrow did; a click in a link, a button, a field, a `label` of a
+  control or an element with a `tabindex` in the node's content is still that element's: make a clickable icon of your
+  own a button, give it a `tabindex`, or stop its click's propagation. A test that found a toggle by its role and the name Expand finds the node
+  by its `treeitem` role and name, and reads `aria-expanded`; a test's `click()` on a `treeitem` or its text, as
+  Testing Library's user-event sends it, now toggles the node. Name the tree with `aria-label` on `tab-tree`.
 - A dialog an app opens with `openDialog()` or `openTemplateDialog()` while a modal is open sits in the modal and
   closes with it; before, it went to the body, and stayed open and on the dialog stack once the modal had closed. An
   app that wants such a dialog to outlive the modal opens it once the modal has closed. A tooltip, a dialog or a snack

@@ -1,18 +1,44 @@
+import { isPlatformBrowser } from '@angular/common';
 import type { InputSignal, OnDestroy, TemplateRef } from '@angular/core';
-import { afterNextRender, ChangeDetectionStrategy, Component, computed, DOCUMENT, effect, ElementRef, inject, input } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, Component, computed, DOCUMENT, effect, ElementRef, inject, Injector, input, linkedSignal, PLATFORM_ID, untracked } from '@angular/core';
 import type { TabTreeNodeComponent, TreeNodeTemplate } from './tree-node.component';
 import { enclosingNode } from './tree-node-nesting';
 import { TreeNodeRegistry } from './tree-node-registry';
+/**
+ * A tree of `tab-tree-node` elements, which follows the WAI-ARIA tree view pattern. The host is a `tree`, which the app
+ * names with `aria-label` or `aria-labelledby` on it; each shown node's row is a `treeitem` with its level, its place
+ * among its siblings and, when it has children, whether it is open.
+ *
+ * The tree is one Tab stop: the first node, then the node the user last moved to. On a node, Down and Up move to the
+ * next and previous shown node; Right opens a closed node and moves into an open one; Left closes an open node and
+ * moves from a child to its parent; Home and End move to the first and last shown node; Enter opens or closes a node;
+ * a character moves to the next shown node whose text starts with it. A control in a node's content keeps its own Tab
+ * stop, its own keys and its own clicks. The buttons that open and close the nodes take no focus, and are hidden from
+ * assistive technology, since the node says whether it is open. A click anywhere else in a node's row, its text and
+ * icons included, opens or closes a node with children and focuses it, as an assistive technology's activation does; a
+ * click in a link, a button, a field, a control's `label` or an element with a `tabindex` in the content, or one whose
+ * press selected text, is left to the content.
+ */
 @Component({
   selector: 'tab-tree',
   standalone: false,
   templateUrl: './tree.component.html',
   styleUrl: './tree.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    role: 'tree',
+    '(keydown)': 'onKeydown($event)',
+    '(focusin)': 'onFocusin($event)',
+    '(click)': 'onClick($event)',
+    '(mousedown)': 'onPress()',
+    '(document:mouseup)': 'onRelease()',
+  },
 })
 export class TabTreeComponent implements OnDestroy {
   private readonly selfElementRef = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly document = inject(DOCUMENT);
+  private readonly injector = inject(Injector);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   // The grid lines are drawn from measuring the nodes, which only the browser can, once the tree is drawn
   private rendered = false;
   readonly $showRootGridLines = input<boolean>(false, {
@@ -99,6 +125,31 @@ export class TabTreeComponent implements OnDestroy {
       });
       this.resizeObserver.observe(this.selfElementRef.nativeElement);
     });
+    // Focus that a render drops from a row to the body, as when a closing node hides the row, its node goes or the
+    // template moves it, moves to the node that takes the Tab stop; focus the app has moved elsewhere by then stays. This
+    // runs before the tree's template changes the rows, while the focus is still in one: a browser removing the focused
+    // element fires no focusout in every engine.
+    effect(() => {
+      this.$shownNodes();
+      const tabStop = this.$tabStop();
+      if (!this.isBrowser || !tabStop) {
+        return;
+      }
+      untracked(() => {
+        if (!this.rowOf(this.document.activeElement)) {
+          return;
+        }
+        afterNextRender(
+          () => {
+            const active = this.document.activeElement;
+            if (active === null || active === this.document.body) {
+              this.rowOfNode(tabStop)?.focus();
+            }
+          },
+          { injector: this.injector },
+        );
+      });
+    });
   }
 
   // A node's children are the nodes that name it as their parent, and those that sit in it and name none
@@ -141,6 +192,219 @@ export class TabTreeComponent implements OnDestroy {
     }
 
     return ret;
+  }
+
+  // The nodes the tree shows, in the order of their rows: those at the top level, and those whose parents are all open
+  private readonly $shownNodes = computed(() => this.$childrenDisplayOrder().filter(node => !node.$parent() || node.$allParentsExpanded()));
+
+  // The node the user last moved to. When a closing node hides it, the nearest shown node above it, the one that closed;
+  // when it goes, the shown node before it; without one, the tree's first node takes the Tab stop.
+  private readonly $current = linkedSignal<TabTreeNodeComponent[], TabTreeNodeComponent | undefined>({
+    source: this.$shownNodes,
+    computation: (shown, previous) =>
+      untracked(() => {
+        const current = previous?.value;
+        if (!previous || !current || shown.includes(current)) {
+          return current;
+        }
+        if (this.registry.nodes().includes(current)) {
+          let ancestor = current.$parent();
+          while (ancestor && !shown.includes(ancestor)) {
+            ancestor = ancestor.$parent();
+          }
+          return ancestor ?? undefined;
+        }
+        const at = previous.source.indexOf(current);
+        return previous.source
+          .slice(0, Math.max(at, 0))
+          .reverse()
+          .find(node => shown.includes(node));
+      }),
+  });
+
+  // The tree's one Tab stop
+  private readonly $tabStop = computed(() => this.$current() ?? this.$shownNodes().at(0));
+
+  // The Tab stop's headerButtonId, which its row compares with its own
+  private readonly $tabStopId = computed(() => this.$tabStop()?.headerButtonId);
+
+  // Each shown node's level, from 1 at the top, and its place among its siblings, by its headerButtonId
+  private readonly $treeItems = computed(() => {
+    // each parent's shown children, the top level's under null; a shown node's parent is shown, and comes before it
+    const groups = new Map<TabTreeNodeComponent | null, { level: number; size: number }>();
+    const places = this.$shownNodes().map(node => {
+      const parent = node.$parent();
+      let group = groups.get(parent);
+      if (!group) {
+        group = { level: parent ? (groups.get(parent.$parent())?.level ?? 0) + 1 : 1, size: 0 };
+        groups.set(parent, group);
+      }
+      group.size++;
+      return { node, group, posInSet: group.size };
+    });
+    return new Map(places.map(({ node, group, posInSet }) => [node.headerButtonId, { level: group.level, setSize: group.size, posInSet }]));
+  });
+
+  // What each node's row reads: the template params, its place in the tree, and whether it is the Tab stop
+  protected readonly nodeContext = {
+    ...this.templateParams,
+    $treeItem: (headerButtonId: string) => this.$treeItems().get(headerButtonId),
+    $tabStopId: this.$tabStopId,
+  };
+
+  // The tree's rows: one per shown node, each a child of the host, in the order of $shownNodes
+  private rows() {
+    return Array.from(this.selfElementRef.nativeElement.querySelectorAll<HTMLElement>(':scope > [role="treeitem"]'));
+  }
+
+  // The row that holds `target`: the row itself, or a control in its node's content
+  private rowOf(target: Node | null) {
+    return this.rows().find(row => row.contains(target));
+  }
+
+  // A row's node, whose headerButtonId its button has
+  private nodeOf(row: HTMLElement) {
+    const id = row.querySelector(':scope > .header-button')?.id;
+    return this.registry.nodes().find(node => node.headerButtonId === id);
+  }
+
+  // A node's row: its button's parent, when that is a row of this tree
+  private rowOfNode(node: TabTreeNodeComponent) {
+    const row = this.document.getElementById(node.headerButtonId)?.parentElement;
+    return row?.parentElement === this.selfElementRef.nativeElement ? row : undefined;
+  }
+
+  // Focus in a row, or in a control in it, makes its node the Tab stop
+  protected onFocusin(event: FocusEvent) {
+    const row = this.rowOf(event.target instanceof Node ? event.target : null);
+    const node = row && this.nodeOf(row);
+    if (node) {
+      this.$current.set(node);
+    }
+  }
+
+  // The selection when the pointer last went down in the tree, until the click that follows; none for a click without a
+  // press, such as an assistive technology's
+  private pressSelection: SelectionMark | undefined;
+
+  protected onPress() {
+    this.pressSelection = selectionMark(this.document.getSelection());
+  }
+
+  // A press that ends outside the tree gets no click here, so its mark goes once any click has run, unless a new press
+  // has marked the selection since
+  protected onRelease() {
+    const mark = this.pressSelection;
+    if (mark) {
+      setTimeout(() => {
+        if (this.pressSelection === mark) {
+          this.pressSelection = undefined;
+        }
+      });
+    }
+  }
+
+  // A click in a row, its text and icons included, opens or closes a node with children and moves the focus to it. An
+  // assistive technology's activation lands there: WebKit's, on iOS and macOS, on the element at the row's centre, the
+  // node's content. A click on a control in the content is the control's; the hidden button, one of them, toggles itself.
+  protected onClick(event: MouseEvent) {
+    const pressSelection = this.pressSelection;
+    this.pressSelection = undefined;
+    const target = event.target instanceof Element ? event.target : null;
+    const row = this.rowOf(target);
+    const node = row && this.nodeOf(row);
+    if (!target || !node || interactiveIn(target, row)) {
+      return;
+    }
+    // a click whose press selected text in the node, a drag or a double click's second press, is no activation; a
+    // selection the press found there, or one left for a click without a press, doesn't stop it
+    const selection = this.document.getSelection();
+    const selectedInRow = !!selection && !selection.isCollapsed && (row.contains(selection.anchorNode) || row.contains(selection.focusNode));
+    if (selectedInRow && pressSelection && !sameSelection(pressSelection, selectionMark(selection))) {
+      return;
+    }
+    if (node.$children().length > 0) {
+      node.setExpanded(!node.$expanded());
+    }
+    row.focus();
+  }
+
+  // The tree view pattern's keys, on a row; keys from a control in a node's content are the control's
+  protected onKeydown(event: KeyboardEvent) {
+    const row = this.rowOf(event.target instanceof Node ? event.target : null);
+    const node = row && this.nodeOf(row);
+    if (!node || event.target !== row || event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) {
+      return;
+    }
+    const shown = this.$shownNodes();
+    const at = shown.indexOf(node);
+    const hasChildren = node.$children().length > 0;
+    let next: TabTreeNodeComponent | null | undefined;
+    switch (event.key) {
+      case 'ArrowDown':
+        next = shown.at(at + 1);
+        break;
+      case 'ArrowUp':
+        next = at > 0 ? shown[at - 1] : undefined;
+        break;
+      case 'Home':
+        next = shown.at(0);
+        break;
+      case 'End':
+        next = shown.at(-1);
+        break;
+      case 'ArrowRight':
+        if (hasChildren && !node.$expanded()) {
+          node.setExpanded(true);
+        } else if (hasChildren) {
+          next = shown.at(at + 1);
+        }
+        break;
+      case 'ArrowLeft':
+        if (hasChildren && node.$expanded()) {
+          node.setExpanded(false);
+        } else {
+          next = node.$parent();
+        }
+        break;
+      case 'Enter':
+        if (!hasChildren) {
+          return;
+        }
+        node.setExpanded(!node.$expanded());
+        break;
+      default: {
+        const match = this.typeAhead(event.key, row);
+        if (!match) {
+          return;
+        }
+        event.preventDefault();
+        match.focus();
+        return;
+      }
+    }
+    event.preventDefault();
+    if (next) {
+      this.rowOfNode(next)?.focus();
+    }
+  }
+
+  // The next row after `row`, wrapping, whose node's text starts with the character typed
+  private typeAhead(key: string, row: HTMLElement) {
+    if (key.length !== 1 || key.trim() === '') {
+      return undefined;
+    }
+    const typed = key.toLocaleLowerCase();
+    const rows = this.rows();
+    const at = rows.indexOf(row);
+    for (let step = 1; step <= rows.length; step++) {
+      const candidate = rows[(at + step) % rows.length];
+      const text = candidate.querySelector(':scope > .header-content')?.textContent.trim().toLocaleLowerCase() ?? '';
+      if (text.startsWith(typed)) {
+        return candidate;
+      }
+    }
+    return undefined;
   }
 
   private resizeObserver: ResizeObserver | undefined;
@@ -272,6 +536,37 @@ export class TabTreeComponent implements OnDestroy {
 // nodes, so a parent whose hierarchyId is bound, and set after its children were made, is found too.
 function autoParentId(node: TabTreeNodeComponent): string | undefined {
   return node.$hierarchyParentId() ?? enclosingNode(node)?.$hierarchyId();
+}
+
+// What takes its own clicks in a node's content: a link, a button (the node's hidden one too), a field, a label, an
+// editable element, anything with a tabindex, such as a nested tree's rows
+const INTERACTIVE = 'a[href], button, input, select, textarea, label, [contenteditable]:not([contenteditable="false"]), [tabindex]';
+
+// Whether `target`, or an element between it and `row`, takes its own clicks; the row's own tabindex doesn't count, nor
+// does a label of no control, which is the node's text
+function interactiveIn(target: Element, row: HTMLElement): boolean {
+  for (let control = target.closest(INTERACTIVE); control && control !== row && row.contains(control); control = control.parentElement?.closest(INTERACTIVE) ?? null) {
+    if (!(control instanceof HTMLLabelElement) || control.control !== null) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// Where a selection starts and ends
+interface SelectionMark {
+  anchorNode: Node | null;
+  anchorOffset: number;
+  focusNode: Node | null;
+  focusOffset: number;
+}
+
+function selectionMark(selection: Selection | null): SelectionMark {
+  return { anchorNode: selection?.anchorNode ?? null, anchorOffset: selection?.anchorOffset ?? 0, focusNode: selection?.focusNode ?? null, focusOffset: selection?.focusOffset ?? 0 };
+}
+
+function sameSelection(a: SelectionMark, b: SelectionMark): boolean {
+  return a.anchorNode === b.anchorNode && a.anchorOffset === b.anchorOffset && a.focusNode === b.focusNode && a.focusOffset === b.focusOffset;
 }
 
 export interface ExpandButtonTooltipParams<T = unknown> {

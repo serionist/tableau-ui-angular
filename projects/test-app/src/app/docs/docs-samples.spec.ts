@@ -24,6 +24,7 @@ import { TableOptionsExampleComponent } from '../pages/table-page/examples/table
 import { TooltipTemplateExampleComponent } from '../pages/tooltips-page/examples/tooltip-template.example';
 import { TreeComponentExampleComponent } from '../pages/tree-page/examples/tree-component.example';
 import { TreeFlatExampleComponent } from '../pages/tree-page/examples/tree-flat.example';
+import { TREE_EXAMPLES } from '../pages/tree-page/tree.examples';
 import { VirtualizeDataExampleComponent } from '../pages/virtualize-page/examples/virtualize-data.example';
 
 // Clicks the button with this text in the sample
@@ -357,6 +358,18 @@ describe('The samples', () => {
     host.querySelector<HTMLButtonElement>('.header-button')!.click();
     await fixture.whenStable();
     expect(rows()).toEqual(['Node 1', 'Subnode 1.1', 'Subnode 1.2', 'Subnode 1.3', 'Subnode 1.4, last in Node 1 by its order', 'Node 2', 'Node 3, last by its order']);
+    fixture.destroy();
+  });
+
+  // The tree page asks the app to name each tree
+  it.each(Object.entries(TREE_EXAMPLES))('names the tree in the %s tree sample, a tree of treeitems', async (_, example) => {
+    const fixture = TestBed.createComponent(example.component);
+    await fixture.whenStable();
+    const tree = (fixture.nativeElement as HTMLElement).querySelector('tab-tree')!;
+
+    expect(tree.getAttribute('role')).toBe('tree');
+    expect(tree.getAttribute('aria-label')).toBeTruthy();
+    expect(tree.querySelectorAll(':scope > [role="treeitem"]').length).toBeGreaterThan(0);
     fixture.destroy();
   });
 
