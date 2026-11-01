@@ -60,6 +60,11 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   They check Angular's own state now, so `markAsDirty(true, true)` marks the ancestors of a control that is already
   dirty and `markAsPristine(true, true)` those of one already pristine, and a pristine group's `markAsPristine()` marks its dirty
   children pristine.
+- Error text reaches 4.5:1 on every surface in both themes: `--twc-color-error` is `rgb(190 10 30)` light and
+  `rgb(255 133 133)` dark, and a raised error button's label takes `--twc-color-base`, white on the light red and near
+  black on the dark one. The property names stay. Styles that copied the old red read the property instead. Text an app
+  puts on `--twc-color-error` takes `--twc-color-base`, as the raised error button now does, since a light text there
+  reads below 4.5:1 on the dark red; an app that sets `--twc-color-error` keeps `--twc-color-base` on it at 4.5:1.
 - A form field's hints and errors describe its control through `aria-describedby`, the hints first, each while it
   shows, and the control has `aria-invalid="true"` while an error shows. The control is a native input, textarea or
   select, the host of a select, a list or a radio group, or a chip control's search input. A hidden polite live region
