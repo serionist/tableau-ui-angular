@@ -464,7 +464,17 @@ Refuted: none.
 
 ## Decided without asking
 
-None yet.
+Each call a step made that the plan didn't settle, proposed for the maintainer to approve or change; a change goes back
+into the code in a PR of its own. Each step's PR holds the same calls.
+
+| Step       | Decision                                                                                                                                                                                                                      | Why                                                                                                                                              | Not taken                                                                            | Status   |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------ | -------- |
+| A7a (#116) | The hosts' `tabindex="0"` is a static host attribute, so an app's own static `tabindex` on the element wins                                                                                                                   | An app keeps the say over its Tab order                                                                                                          | A binding, which would override it                                                   | proposed |
+| A7a (#116) | `tab-table` keeps an app's static `role` and `aria-label` as `tab-virtualize` does; the design sets that for the virtual scroller only                                                                                        | An app that made its table a named region itself, as #68's workaround, keeps it                                                                  | A role binding that returns `null` without `label`, which removes them               | proposed |
+| A7a (#116) | A `label` with no words names nothing                                                                                                                                                                                         | A region with an empty name is no better than none; the expansion panel's `label` does the same                                                  | Taking any string                                                                    | proposed |
+| A7a (#116) | `aria-setsize` is the data manager's `totalRowCount`, or `-1` while it counts 0: 0 from each reset until a load answers, and a load that answers 0 shows no items. After a reset it is `-1` until the new first block answers | Items shown with a count of 0 mean the total is unknown                                                                                          | A public signal on `DataManager`, a second API change                                | proposed |
+| A7a (#116) | The failed bar (#115) is `--twc-color-error` with no opacity, and every failed table cell and list item holds hidden text, "Failed to load"; the loading bar gets no words                                                    | 6.46:1 light and 7.34:1 dark on the base, 4.7:1 or more on a striped row or one under the pointer; a screen reader hears the state from any cell | A lighter fill with an error border; visible words in each cell; the first cell only | proposed |
+| A7a (#116) | The bar is `position: relative`, so its hidden text's one-pixel box stays inside it                                                                                                                                           | With its containing block outside the scroll container, a failed row far down would add to the page's height                                     | The nav bar's rule alone                                                             | proposed |
 
 ## Progress log
 
@@ -475,3 +485,6 @@ None yet.
 - 2026-11-01: plan review round 2 at `51eb412`, one major and five minors, all fixed, the three improvements taken.
 - 2026-11-01: plan review round 3 at `ce2714b`: approved, its four minors fixed and its improvement taken. The plan is
   approved: the maintainer accepted D1 to D16, and the review approved it.
+- 2026-11-01: A7a in #116: `tab-table` and `tab-virtualize` are Tab stops named by `label`, the virtual scroller a list
+  with each item's place, `-1` until the total is known, an app's static role kept; #115's failed bar at 3:1 with its
+  words. Departed: the table keeps an app's static role and name too (Decided without asking).
