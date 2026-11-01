@@ -82,19 +82,22 @@
       <ul>
         <li>
           Screen readers hear a modal dialog named by its header's title. A modal without a header is named by <code>label</code> in its args; a dialog that isn't a modal, from
-          <code>openDialog()</code> or <code>openTemplateDialog()</code>, ignores it.
+          <code>openDialog()</code> or <code>openTemplateDialog()</code>, ignores it. A confirmation is described by its message, which a screen reader reads with the button focus goes to.
         </li>
         <li>
           As a modal opens, focus goes to the first of these: an element its content focused as it rendered, its content's first <code>autofocus</code> element, its first element in the Tab order, the
-          header's close button, the modal itself.
+          header's close button, the modal itself. Content opened from a modal marks the element to focus <code>autofocus</code> rather than focusing it as it renders: until the new modal shows, it is
+          outside the open one, inert, and takes no focus. A modal the content opens as it renders, such as a confirmation from its <code>ngOnInit</code>, shows above it.
         </li>
         <li>
           When it closes, focus goes back to the element focused before it opened, while that is still in the page. A modal that closes under one it opened, as a wizard's step does, leaves focus in
-          the one still open, which gives it back there in its turn.
+          the one still open, which gives it back there in its turn. A modal opened from a menu's item, as the menu closes, gives focus back to the menu's button; a menu opened with
+          <code>trapFocus</code> false, or a button gone by the time the modal closes, leaves focus on the body.
         </li>
         <li>
-          A dialog that isn't a modal and keeps focus, such as a menu or one the app opens with <code>trapFocus</code>, keeps Tab in itself and wraps at either end, and gives focus back when it
-          closes. The page's own Tab order stays as it is.
+          A dialog that isn't a modal and keeps focus, such as a menu or one the app opens with <code>trapFocus</code>, keeps Tab in itself, and in the dialogs opened above it, such as one a menu item
+          opens: Tab and Shift+Tab move as the browser moves them, a date input's own fields included, and wrap at either end. It gives focus back when it closes, and the page's own Tab order stays as
+          it is.
         </li>
         <li>Its backdrop is the <code>&lt;dialog&gt;</code>'s <code>::backdrop</code>, in <code>--twc-modal-color-backdrop</code>; style it as <code>dialog.dialog-container::backdrop</code>.</li>
       </ul>

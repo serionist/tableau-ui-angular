@@ -1,12 +1,13 @@
 import type { AfterViewInit, Signal, TemplateRef } from '@angular/core';
 import { ChangeDetectionStrategy, Component, ElementRef, inject, viewChild } from '@angular/core';
+import { generateRandomString } from 'tableau-ui-angular/utils';
 import { injectDialogRef } from './dialog.ref';
 import { injectDialogData, TAB_DATA_REF } from './data.ref';
 @Component({
   selector: 'tab-confirmation-dialog',
   standalone: false,
   template: `
-    <div class="dialog-content">
+    <div class="dialog-content" [id]="contentId">
       @if (data.contentTemplate) {
         <div>
           <ng-container *ngTemplateOutlet="data.contentTemplate; context: data.contentTemplateContext" />
@@ -45,13 +46,19 @@ export class ConfirmationDialogComponent implements AfterViewInit {
 
   protected dialogRef = injectDialogRef<boolean>();
 
+  // the message, which describes the modal
+  protected readonly contentId = generateRandomString();
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+
   private readonly $accept: Signal<ElementRef<HTMLElement>> = viewChild.required('accept', { read: ElementRef });
   private readonly $cancel: Signal<ElementRef<HTMLElement>> = viewChild.required('cancel', { read: ElementRef });
 
-  // Marks the button `autofocus` names with the attribute, in the first render, which the dialog service runs before
-  // showModal(): the browser focuses it as the modal opens, and focus moves once. Lint refuses the attribute in a
-  // template outside a <dialog> element, which this one is in only once the service has placed it
+  // In the first render, which the dialog service runs in the modal's <dialog> before showModal(), the message comes to
+  // describe the <dialog>, so a screen reader reads it with the button focus goes to, and the button `autofocus`
+  // names takes the attribute: the browser focuses it as the modal opens, and focus moves once. Lint refuses the
+  // attribute in a template outside a <dialog> element, which this one is in only once the service has placed it
   ngAfterViewInit() {
+    this.host.nativeElement.closest('dialog')?.setAttribute('aria-describedby', this.contentId);
     const { autofocus } = this.data;
     if (autofocus) {
       (autofocus === 'accept' ? this.$accept() : this.$cancel()).nativeElement.setAttribute('autofocus', '');

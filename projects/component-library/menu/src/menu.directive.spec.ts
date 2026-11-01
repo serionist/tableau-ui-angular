@@ -1,9 +1,10 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { tabbable } from 'tabbable';
 import { userEvent } from 'vitest/browser';
 import { TableauUiButtonToggleModule } from 'tableau-ui-angular/button-toggle';
 import { TableauUiCommonModule } from 'tableau-ui-angular/common';
+import { DialogService } from 'tableau-ui-angular/dialog';
 import { axeViolations } from '../../testing/axe';
 import { movePointerAway } from '../../testing/pointer';
 import { TableauUiMenuModule } from './tableau-ui-menu.module';
@@ -45,6 +46,34 @@ class HelpComponent {
   readonly $shown = signal(true);
   readonly $auto = signal(true);
 }
+
+// A filter menu with a date, and a button that opens an app's dialog while the menu stays open
+@Component({
+  imports: [TableauUiMenuModule],
+  template: `
+    <button type="button" class="filters" [attachedMenu]="filters">Filters</button>
+    <ng-template #filters="menu" menu>
+      <input type="date" class="from" aria-label="From" />
+      <button type="button" class="help" (click)="help()">Help</button>
+    </ng-template>
+    <button type="button" class="after">After</button>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class FiltersComponent {
+  private readonly dialogs = inject(DialogService);
+  protected help() {
+    this.dialogs.openDialog(NoteComponent, undefined);
+  }
+}
+
+// An app's dialog that doesn't keep focus
+@Component({
+  selector: 'tab-test-note',
+  template: `<button type="button" class="got-it">Got it</button>`,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class NoteComponent {}
 
 describe('MenuDirective', () => {
   // a pointer left over an opening dropdown or menu would move its highlight
@@ -159,6 +188,46 @@ describe('MenuDirective', () => {
     expect(document.activeElement?.textContent.trim()).toBe('Dark');
     await userEvent.keyboard('{Tab}');
     expect(document.activeElement).toBe(element('.palette'));
+  });
+
+  // The trap moved Tab itself from stop to stop, so a date input's own fields lost it, and a dialog opened from the
+  // menu, which doesn't keep focus, couldn't be reached
+  it("leaves Tab to a date input's own fields in a menu, and takes it on to a dialog opened from the menu", async () => {
+    const fixture = TestBed.createComponent(FiltersComponent);
+    fixture.autoDetectChanges();
+    await fixture.whenStable();
+    const element = (selector: string) => document.querySelector<HTMLElement>(selector)!;
+    await userEvent.click(element('.filters'));
+    await fixture.whenStable();
+
+    await userEvent.keyboard('{Tab}');
+    expect(document.activeElement).toBe(element('.from'));
+    // the date's fields take Tab, then the button after it
+    let presses = 0;
+    while (document.activeElement === element('.from') && presses < 5) {
+      await userEvent.keyboard('{Tab}');
+      presses++;
+    }
+    expect(document.activeElement).toBe(element('.help'));
+    expect(presses).toBeGreaterThan(1);
+
+    // Tab wraps at the menu's ends, with nothing opened above it
+    await userEvent.keyboard('{Tab}');
+    expect(document.activeElement).toBe(element('.from'));
+    element('.help').focus();
+    await userEvent.click(element('.help'));
+    await fixture.whenStable();
+    // the dialog the menu opened is next, then the menu's first again; Shift+Tab goes back
+    await userEvent.keyboard('{Tab}');
+    expect(document.activeElement).toBe(element('.got-it'));
+    await userEvent.keyboard('{Tab}');
+    expect(document.activeElement).toBe(element('.from'));
+    element('.help').focus();
+    await userEvent.keyboard('{Tab}');
+    expect(document.activeElement).toBe(element('.got-it'));
+    await userEvent.keyboard('{Shift>}{Tab}{/Shift}');
+    expect(document.activeElement).toBe(element('.help'));
+    expect(element('.after').tabIndex).toBe(0);
   });
 
   it('passes axe, closed and open', async () => {

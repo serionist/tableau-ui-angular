@@ -81,6 +81,12 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
   `dialog.dialog-container::backdrop` or sets `--twc-modal-color-backdrop`, and a test that clicked `.dialog-backdrop`
   presses the `<dialog>` outside its box with a pointer, a `pointerdown` then a `click`; `dialog.click()` alone no
   longer closes it. A dialog that isn't a modal, such as a menu, keeps its `div.dialog-backdrop`.
+- An app's own live region in the body, such as the CDK's `LiveAnnouncer` or a status `<div>`, is inert while a
+  modal is open and announces nothing: announce through a snack, or put the region in `DialogService.$overlayHost()`.
+- The dialog service listens for Escape on the window, in the bubble phase, and only while a dialog is open, where it
+  listened on the document. An app's `window:keydown.escape` handler registered before then runs first, and no
+  longer sees `defaultPrevented` on the Escape that closes a modal, a menu or a list: handle Escape on the document,
+  or check `DialogService.dialogStack`.
 
 ### Added
 
@@ -231,16 +237,20 @@ in the same PR, and one that breaks them goes under Breaking, with how to move o
 - A modal follows the WAI-ARIA dialog (modal) pattern. Screen readers hear a modal dialog named by its header's title,
   or by its `label`, and the rest of the page is inert to them. As it opens, focus goes to its content's first
   `autofocus` element, else its first element in the Tab order, the header's close button or the modal itself, where
-  it stayed on the page; a confirmation without `autofocus` focuses its cancel button. When it closes, focus goes back
-  to the element focused before it opened, and a wizard's step that closes under the next leaves focus in the next.
+  it stayed on the page; a confirmation without `autofocus` focuses its cancel button, and is described by its message,
+  which a screen reader reads with that button. When it closes, focus goes back to the element focused before it
+  opened, or to the button of the menu whose item opened it, and a wizard's step that closes under the next leaves
+  focus in the next. A modal opened as another's content
+  renders, such as a confirmation from its `ngOnInit`, shows above it.
 - A modal shows above an app's fixed header or any other z-index of the page, where it sat at z-index 100, and so do
   the tooltips, snacks and dialogs shown over it. Escape and the browser's other close requests, such as a back
-  gesture, close the top dialog in a modal first, and leave a modal with `closeOnEscape` false open however often they
-  come.
+  gesture or `requestClose()`, close the top dialog in a modal first, and Escape and `requestClose()` leave a modal
+  with `closeOnEscape` false open however often they come. A back gesture with no user action since the last one
+  can't be cancelled, so the browser closes such a modal, and its `closed$` emits `undefined`.
 - A tab group, a button toggle or a tree whose selection changed while a menu or a modal was open keeps one Tab stop
-  once it closes, where it kept its old one too. A menu, or a dialog opened with `trapFocus`, keeps Tab in itself,
-  wrapping at either end, and leaves the page's `tabindex` as it is, where it set every Tab stop of the page to `-1`
-  and wrote the old values back as it closed.
+  once it closes, where it kept its old one too. A menu, or a dialog opened with `trapFocus`, keeps Tab in itself and
+  in the dialogs opened above it, wrapping at either end, and leaves the page's `tabindex` as it is, where it set
+  every Tab stop of the page to `-1` and wrote the old values back as it closed.
 
 ## 0.2.0 (2026-10-31)
 

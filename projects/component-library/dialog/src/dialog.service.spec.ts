@@ -1,4 +1,4 @@
-import type { AfterViewInit, ElementRef, TemplateRef, Type } from '@angular/core';
+import type { AfterViewInit, ElementRef, OnInit, TemplateRef, Type } from '@angular/core';
 import { ApplicationRef, ChangeDetectionStrategy, Component, inject, PLATFORM_ID, viewChild, ViewEncapsulation } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -15,6 +15,7 @@ import { movePointerAway } from '../../testing/pointer';
 import { injectDialogData } from './data.ref';
 import type { IModalArgs } from './dialog.args';
 import type { DialogRef } from './dialog.ref';
+import { injectDialogRef } from './dialog.ref';
 import { DialogService } from './dialog.service';
 import { LocalStackOptions } from './stack-options';
 import { TableauUiDialogModule } from './tableau-ui-dialog.module';
@@ -181,6 +182,49 @@ class DateContentComponent {}
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class HintContentComponent {}
+
+// What a modal's content renders with, as the tests below read it
+const rendered: { host?: HTMLElement | null; answer?: Promise<boolean> } = {};
+
+// Opens an app's dialog as it renders, and notes where overlays go then
+@Component({
+  selector: 'tab-test-opening-content',
+  template: 'Opening',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class OpeningContentComponent implements OnInit {
+  private readonly dialogs = inject(DialogService);
+  ngOnInit() {
+    rendered.host = this.dialogs.$overlayHost();
+    this.dialogs.openDialog(DialogContentComponent, undefined, { closeOnEscape: true });
+  }
+}
+
+// Closes its modal as it renders
+@Component({
+  selector: 'tab-test-closing-content',
+  template: 'Closing',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class ClosingContentComponent implements OnInit {
+  private readonly dialogRef = injectDialogRef();
+  ngOnInit() {
+    this.dialogRef.close();
+  }
+}
+
+// Asks whether to restore a draft as it renders, in a confirmation of its own
+@Component({
+  selector: 'tab-test-draft-content',
+  template: `<button type="button" class="edit">Edit</button>`,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class DraftContentComponent implements OnInit {
+  private readonly dialogs = inject(DialogService);
+  ngOnInit() {
+    rendered.answer = this.dialogs.openConfirmationMessageDialog('Restore your draft?', 'A draft of this note is saved.', 'primary', 'Restore', 'Discard', 'accept');
+  }
+}
 
 // A select at the bottom of a small modal, whose list hangs below the modal's box
 @Component({
@@ -755,10 +799,13 @@ describe('DialogService', () => {
     expect(modal().hasAttribute('aria-label')).toBe(false);
     blank.close();
 
-    // a confirmation is a modal named by its title
+    // a confirmation is a modal named by its title and described by its message, which a screen reader reads with the
+    // button that takes focus
     void dialogs.openConfirmationMessageDialog('Discard', 'Discard the changes?', 'primary', undefined, undefined, undefined);
     expect(isModal(modal())).toBe(true);
     expect(document.getElementById(modal().getAttribute('aria-labelledby')!)?.textContent).toBe('Discard');
+    expect(document.getElementById(modal().getAttribute('aria-describedby')!)?.textContent.trim()).toBe('Discard the changes?');
+    expect(await axeViolations(modal())).toEqual([]);
     dialogs.dialogStack[0].dialogRef.close();
 
     // a dialog that isn't a modal is a <div>, which a label doesn't name
@@ -1075,6 +1122,11 @@ describe('DialogService', () => {
     const name = dialog.querySelector<HTMLInputElement>('.name')!;
     name.value = 'Ada Lovelace';
     await userEvent.dragAndDrop(name, page, { force: true });
+    // the same as events, for a browser whose drag sends no click: the press on the field, the click on the <dialog>
+    // outside its box, as the backdrop takes it
+    const outside = { bubbles: true, clientX: 2, clientY: 2 };
+    name.dispatchEvent(new PointerEvent('pointerdown', outside));
+    dialog.dispatchEvent(new MouseEvent('click', outside));
     // a click() with no press, as a test that moved over from the old backdrop's click might send
     dialog.click();
     expect(closed).not.toHaveBeenCalled();
@@ -1151,6 +1203,52 @@ describe('DialogService', () => {
     expect(closed).not.toHaveBeenCalled();
     expect(isModal(below)).toBe(true);
     modal.close();
+  });
+
+  // A dialog the content opened as it rendered went to the host before the modal, under it once it showed
+  it('puts a dialog its content opens as it renders in the modal, and takes a modal its content closes out of the hosts', () => {
+    const dialogs = TestBed.inject(DialogService);
+    const modal = dialogs.openModal(OpeningContentComponent, undefined);
+    const layer = document.querySelector('dialog.dialog-container > .dialog-overlay-layer')!;
+    expect(rendered.host).toBe(layer);
+    expect(document.querySelector('tab-test-dialog-content')!.closest('.dialog-container')!.parentElement).toBe(layer);
+    modal.close();
+    expect(dialogs.dialogStack).toEqual([]);
+
+    dialogs.openModal(ClosingContentComponent, undefined);
+    expect(document.querySelector('dialog')).toBeNull();
+    expect(dialogs.$overlayHost()).toBeNull();
+    expect(dialogs.dialogStack).toEqual([]);
+  });
+
+  // A modal the content opened as it rendered, such as "Restore your draft?", showed first, and the outer one's
+  // showModal() then covered it, inert, while Escape closed it unseen
+  it('shows a modal its content opens as it renders above it', async () => {
+    TestBed.createComponent(LibraryStylesComponent);
+    const dialogs = TestBed.inject(DialogService);
+    const outer = dialogs.openModal(DraftContentComponent, undefined, { header: { title: 'Note', allowClose: true } });
+    TestBed.inject(ApplicationRef).tick();
+    const [note, draft] = Array.from(document.querySelectorAll<HTMLDialogElement>('dialog.dialog-container'));
+    expect(draft.textContent).toContain('Restore your draft?');
+    expect([note, draft].map(isModal)).toEqual([true, true]);
+    expect(dialogs.$overlayHost()).toBe(draft.querySelector('.dialog-overlay-layer'));
+
+    // on top: focus is on its Restore button, the note under it takes none, and a press at the button reaches it
+    const restore = Array.from(draft.querySelectorAll('button')).find(button => button.textContent.trim() === 'Restore')!;
+    expect(document.activeElement).toBe(restore);
+    note.querySelector<HTMLElement>('.edit')!.focus();
+    expect(document.activeElement).toBe(restore);
+    await vi.waitFor(() => {
+      expect(note.style.top).not.toBe('-9999px');
+      expect(draft.style.top).not.toBe('-9999px');
+      const box = restore.getBoundingClientRect();
+      expect(restore.contains(document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2))).toBe(true);
+    });
+
+    await userEvent.keyboard('{Escape}');
+    await expect(rendered.answer).resolves.toBe(false);
+    expect(isModal(note)).toBe(true);
+    outer.close();
   });
 
   it("draws a modal's backdrop in the theme's backdrop colour, light and dark", async () => {
