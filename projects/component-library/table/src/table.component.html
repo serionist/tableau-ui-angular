@@ -1,6 +1,6 @@
 @let rowSelectionMode = $selectionOptions()?.selectionMode === 'row-and-checkbox';
 @let hasCheckboxColumn = $selectionOptions();
-<div class="table" role="table" [class.has-row-selection]="rowSelectionMode">
+<div class="table" role="table" [attr.aria-label]="$name() ?? null" [class.has-row-selection]="rowSelectionMode">
   <!-- Column Row -->
   <div #headerRow class="column-row">
     @if (hasCheckboxColumn) {
@@ -270,7 +270,7 @@
                     <div class="status loader"></div>
                   }
                   @case ('error') {
-                    <div class="status error"></div>
+                    <div class="status error"><span class="hidden-text">Failed to load</span></div>
                   }
                   @case ('success') {
                     @let cellDef = def.col.$cell();

@@ -4,6 +4,12 @@
   max-height: 300px; // stylelint-disable-line declaration-property-unit-disallowed-list
   overflow: auto;
 
+  // a Tab stop, so the keyboard scrolls it; the outline inside its edge, which a parent's overflow can't clip
+  &:focus-visible {
+    outline: 2px solid var(--twc-color-focused-input);
+    outline-offset: -2px;
+  }
+
   .no-data {
     color: var(--twc-color-text-gray);
     margin-top: 0.5em;
@@ -18,7 +24,9 @@
     align-items: center;
     overflow: hidden;
 
+    // the box its hidden text sits in, so that text never reaches past the list's scrolled content
     .status {
+      position: relative;
       border-radius: 1em;
       min-height: 1em;
       width: 100%;
@@ -44,10 +52,21 @@
         }
       }
 
+      // the error colour itself, 4.5:1 or more on the base in both themes; its words say it failed, not its colour
+      // alone
       &.error {
         background-color: var(--twc-color-error);
-        opacity: 0.3;
       }
+    }
+
+    // out of sight and out of the layout, still read: a box of one pixel at the default size, clipped
+    .hidden-text {
+      position: absolute;
+      width: 0.0625rem;
+      height: 0.0625rem;
+      overflow: hidden;
+      white-space: nowrap;
+      clip-path: inset(50%);
     }
   }
 }

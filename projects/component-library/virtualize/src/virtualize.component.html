@@ -1,6 +1,6 @@
 <div class="container">
-  @let dmBlocks = dataManager.$blocks();
-  @if (dmBlocks.blocks.length === 0) {
+  @let shows = $shows();
+  @if (shows === 'no-data') {
     @let _noDataTemplate = $noDataTemplate();
     @if (_noDataTemplate === 'default') {
       <ng-container [ngTemplateOutlet]="defaultNoData" />
@@ -15,9 +15,13 @@
         <span>{{ message ?? 'No data available' }}</span>
       </div>
     </ng-template>
-  } @else if ($loading() && $customLoaderTemplate()) {
+  } @else if (shows === 'loader') {
     <ng-container *ngTemplateOutlet="$customLoaderTemplate()?.templateRef" />
   } @else {
+    @let dmBlocks = dataManager.$blocks();
+    <!-- the number of items, once a load has said it: the data manager counts 0 until then, and shows no items for 0 -->
+    @let total = dataManager.totalRowCount;
+    @let setSize = total > 0 ? total : -1;
     <div class="virtualize pre" [style.height]="`${dmBlocks.prePixels}px`"></div>
     @for (block of dmBlocks.blocks; track block.id) {
       @for (r of block.$data(); track r.key) {
@@ -35,6 +39,9 @@
         @let itemTemplate = $itemTemplate();
         <div
           class="item"
+          [attr.role]="listRoles ? 'listitem' : null"
+          [attr.aria-posinset]="listRoles ? block.offset + $index + 1 : null"
+          [attr.aria-setsize]="listRoles ? setSize : null"
           [ngStyle]="$itemCss()"
           [style.height.px]="$itemHeightPx()"
           [style.maxHeight.px]="$itemHeightPx()"
@@ -53,7 +60,7 @@
               @if (errorTemplate) {
                 <ng-container [ngTemplateOutlet]="errorTemplate.templateRef" [ngTemplateOutletContext]="{ $implicit: itemMetaContext }" />
               } @else {
-                <span class="status error"></span>
+                <span class="status error"><span class="hidden-text">Failed to load</span></span>
               }
             }
             @case ('success') {

@@ -1,4 +1,5 @@
-<tab-table #table [dataOptions]="dataOptions">
+<!-- It scrolls, so it takes focus, and its label names it for screen readers -->
+<tab-table #table label="People" [dataOptions]="dataOptions">
   <ng-container tabColumnDef="id">
     <ng-template let-ctx [tabHeaderDef]="table">Id</ng-template>
     <ng-template let-ctx [tabCellDef]="table">{{ ctx.row.id }}</ng-template>
